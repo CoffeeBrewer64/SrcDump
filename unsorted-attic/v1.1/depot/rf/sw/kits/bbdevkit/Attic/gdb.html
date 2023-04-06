@@ -1,0 +1,290 @@
+d5 1
+a5 1
+<title>BBPlayer Debugger</title>
+d11 2
+a12 2
+<h2>BBPlayer Debugger Notes</h2>
+<div align="center">$Revision: 1.2 $<br>$Date: 2004/02/18 00:37:23 $<br></div>
+d14 19
+d34 3
+a36 1
+<p>This document describes how to use the BBPlayer debugging environment and then describes the changes made to <b>libultra</b> and other tools for GDB support.
+d38 1
+a38 1
+<p>The BBPlayer debugging environment is composed of two parts: the <a href="http://www.gnu.org/software/gdb/gdb.html">GNU Debugger (GDB)</a> running on the host machine and a GDB stub running on the BBPlayer.  GDB is a command-line based source level debugger, but there are many graphical user interfaces for it.  The GDB stub is part of the BBPlayer debug library, <b>libultra_d</b>, and must be included in the program by the developer.  The GDB stub has to be running on the BBPlayer before the program can be debugged.
+d40 1
+a40 1
+<p>The user of the debugger interacts with GDB, and GDB will communicate the requests to the GDB stub on the BBPlayer.  In order for the two components to communicate, there is a third helper tool, <i>mux</i>, that takes the input from GDB via a TCP socket and sends the information using RDB over USB to the BBPlayer.  Note that because GDB and mux communicate via TCP, it is not necessary for GDB and mux to be on the same machine.
+d42 2
+a43 3
+<p>The BBPlayer debugger supports debugging the main CPU (i.e. the R4300 processor) of the BBPlayer.  It allows the user to set breakpoints, step, display registers, variables, and thread information for the main CPU.  The debugger does not support debugging of the RCP (the graphics co-processor).  
+       
+<h3>Using the BB Player debugger</h3>
+d45 1
+a45 31
+<h4>Installing the BB Player debugger</h4>
+   The steps to compile and use the debugger are:<br>
+     
+<ul>
+  <li>Update your tree at the <i>rf/sw</i> level, since the debugger support requires files from both the <i>devroot</i> subtree and the <i>bbplayer</i> 
+subtree.  Make sure that you use <code>cvs update</code> with the <code>-d</code> option to get the two new directories <i>rf/sw/devroot/linux/tools/gdb</i> and <i>rf/sw/bbplayer/libultra/bb/gdb</i>.      
+  </li>
+
+  <li>Rebuild at least <i>bbplayer/libultra</i> and <i>bbplayer/tools</i>. 
+  &nbsp;It would be safer to do the full rebuild:</li>
+           
+    <ul>
+       <li>cd bbplayer</li>
+       <li>make clobber</li>
+       <li>make headers</li>
+       <li>make exports</li>
+       <li>make</li>
+    </ul>
+
+  <li>On the host system on which GDB will be running, install the BBPlayer GDB by following these steps:</li>
+     <ul>
+       <li>cd devroot/linux</li>
+       <li>make install</li>
+     </ul>
+
+  <li>The BB Player GDB program <i>ique_gdb</i> should now be added to <i>$ROOT/usr/sbin</i></li>
+
+  <li>The debugger has been tested on RH9.0 and Windows XP with Cygwin 1.5.6-1.<br></li>
+    </li>
+     
+</ul>
+d47 1
+d98 1
+d100 1
+a100 1
+     Connect the cable between your linux host and the BB player and follow the steps below to start a debugging session with GDB:
+d102 2
+a103 2
+<li>Start mux on the host machine so that it is ready for GDB to connect to it via TCP.  By default, mux will listen on TCP port 8088 for GDB debugger messages.  You can select a different port by using the <code>--debugport</code> option</li>
+<li>Start the program to be debugged on the BBPlayer</li>
+d110 17
+a126 1
+  For a visual debugging environment, there are several applications that can supplies a graphical front-end to GDB:
+d129 2
+d137 2
+a142 9
+</li>
+<li>Connect to the BBPlayer from GDB via <i>mux</i>
+    At the GDB prompt type <code>target remote &lt;machine name&gt;:&lt;port&gt</code>.
+    For instance, if <i>mux</i> and GDB are running on the same machine with the default port,
+    <ul>
+      <li>target remote localhost:8088
+    </ul>
+</li>
+</ul>
+d144 1
+a144 2
+Once GDB has attached to the target, all user threads will be stopped and the program can now be debugged.  See the <a href="http://sources.redhat.com/gdb/current/onlinedocs/gdb_toc.html"> GDB User Guide</a> for more information on how to use GDB.  When you are done debuggin, use the &quot;<code>detach</code>&quot; command to stop the GDB debugging session and resume execution of the program.  If you want to leave the application stopped so another debugger can connect to it, use the &quot;<code>disconnect</code>&quot; command to disconnect from the BB player.
+     
+d146 1
+a146 1
+<p>Because the BB Player debugger runs in the same memory space as the user program and its reliance on RDB/USB for communication with GDB, the BB Player debugger has several limitations in how it can be used.  These limitations imply that the user must be very careful in how the debugger is used.
+d148 1
+a148 1
+<p>When using the debugger, the following should be avoided:
+d151 51
+d217 1
+a217 1
+<p>The debugger will not be able to debug all programs or problems.
+a234 12
+ 
+<h3>Implementation</h3>
+     
+<h4>GDB Files Changed</h4>
+The GDB we are using is based on GDB 6.0 and compiled with mips-linux as the target. Although we wanted to avoid any changes to GDB itself, the following changes were made to GDB:
+<ul>
+   <li>
+      <b>gdb/mdebugread.c</b> - Modified to set the high pc of the boot/entry section of the code to be the same as the low pc.  The high pc didn't seem to be correct and was causing the stack backtrace to stop too early.
+   </li>
+</ul>
+
+The GDB code resides in <i>rf/sw/devroot/linux/tools/gdb</i>.
+d236 1
+a236 23
+<h4>Libultra Files Changed</h4>
+<p>The GDB stub was added as a new component of libultra and lives in <i>rf/sw/bbplayer/libultra/bb/gdb</i>.  The GDB stub is modeled after the RMON debug utility from Nintendo.  The GDB stub is composed of two threads: the gdbMain thread that is responsible for monitoring breaks/faults and the gdbIO thread that is responsible for communicating with GDB.  The GDB stub communicates with GDB using the <a href="http://sources.redhat.com/gdb/current/onlinedocs/gdb_33.html">GDB Remote Serial Protocol</a>.  See section on <a href=#BB_GDB_RSP>"BBPlayer support for the GDB Remote Serial Protocol"</a> for a summary of the packet types supported by the GDB stub.
+
+<p>The RMON functions are deprecated and is no longer linked into libultra.  The following RMON symbols are aliased to their GDB counterparts for backward compatibility:
+<table align=center cellspacing=3 cellpadding=3 border=1>
+<tr><th>RMON</th><th>GDB</th></tr>
+<tr><td><code>rmonMain</code></td>
+    <td><code>gdbMain</code></td></tr>
+<tr><td><code>rmonPrintf</code></td>
+    <td><code>osSyncPrintf</code></td></tr>
+<tr><td><code>RMON_DBG_BUF_SIZE</code></td>
+    <td><code>GDB_DBG_BUF_SIZE</code></td></tr>
+<tr><td><code>RMON_DBG_STACK_SIZE</code></td>
+    <td><code>GDB_STACKSIZE</code></td></tr>
+<tr><td><code>OS_PRIORITY_RMON</code></td>
+    <td><code>OS_PRIORITY_GDB</code></td></tr>
+<tr><td><code>OS_TID_RMONMAIN</code></td>
+    <td><code>OS_TID_GDBMAIN</code></td></tr>
+<tr><td><code>OS_TID_RMONIO</code></td>
+    <td><code>OS_TID_GDBIO</code></td></tr>
+</table>
+
+<p>The USB driver code lives in <i>libultra/bb/usb</i>. &nbsp;The main routine to look at there is in:
+d238 18
+a255 155
+  <li><b>rdb_slave.c</b> - the routine<i> rdb_ip6_input</i> contains the code for USB that is analogous to the interrupt code in <i>nintendo/exception/exceptasm.s</i> for processing incoming RDB packets. &nbsp;It has been updated to understand RDB messages for debugging (i.e. RDB_TYPE_HtoG_DEBUG and RDB_TYPE_HtoG_DEBUG_DONE).  Data from the GDB to the GDB stub are identified as RDB_TYPE_HtoG_DEBUG with a RDB_TYPE_HtoG_DEBUG_DONE packet at the end to indicate that the gdbIO thread can now be signaled to process the new GDB data.
+  </li>
+</ul>
+
+<p>Various other files were also changed in libultra to give each system thread a unique thread ID.  A summary of the system threads changed is given below:
+
+<table align=center cellspacing=3 cellpadding=3 border=1>
+<tr><th>File (where thread created)</th>
+    <th>Thread</th>
+    <th>Thread ID</th>
+    <th>Thread Priority</th>
+</tr>
+<tr><td rowspan=2><code>libultra/bb/usb/usbinit.c</code></td>
+    <td><code>__osBbUsbMgrProc</code></td>
+    <td><code>OS_USB_TID_BASE (3141)</code></td>
+    <td><code>OS_USB_THREAD_PRI_HOST (230)</code></td>
+</tr>
+<tr>
+    <td><code>__osBbUsbMgrProc</code></td>
+    <td><code>OS_USB_TID_BASE+1 (3142)</code></td>
+    <td><code>OS_USB_THREAD_PRI_DEV (232)</code></td>
+</tr>
+<tr><td rowspan=2><code>libultra/bb/gdb/gdbmain.c</code></td>
+    <td><code>gdbMain</code></td>
+    <td><code>OS_TID_GDBMAIN (3201)</code></td>
+    <td><code>OS_PRIORITY_GDB (250)</code></td>
+</tr>
+<tr>
+    <td><code>__gdbIOHandler</code></td>
+    <td><code>OS_TID_GDBIO (3202)</code></td>
+    <td><code>255</code></td>
+</tr>
+<tr><td rowspan=1><code>libultra/monegi/debug/profile.c
+</code></td>
+    <td><code>__osProfileIO</code></td>
+    <td><code>OS_TID_PROFILEIO (3251)</code></td>
+    <td><code>129</code></td>
+</tr>
+<tr><td rowspan=2><code>libultra/nintendo/pi/pimgr.c</code></td>
+    <td><code>__osDevMgrMain</code></td>
+    <td><code>OS_TID_PIMGR (3301)</code></td>
+    <td><code>OS_PRIORITY_PIMGR (150)</code></td>
+</tr>
+<tr>
+    <td><code>ramromMain</code></td>
+    <td><code>OS_TID_RAMROM (3302)</code></td>
+    <td><code>OS_PRIORITY_PIMGR-1 (149)</code></td>
+</tr>
+<tr><td rowspan=1><code>libultra/monegi/vi/vimgr.c</code></td>
+    <td><code>viMgrMain</code></td>
+    <td><code>OS_TID_VIMGR (3401)</code></td>
+    <td><code>OS_PRIORITY_VIMGR (254)</code></td>
+</tr>
+</table>
+       
+<h4>Utilities Changed</h4>
+<ul>
+  <li>
+    <b>tools/mux/mux.c</b> - Added support for the debug stream to communicate with the BBPlayer and with GDB via a TCP socket.  Added command line option <code>--debugport &lt;port&gt;</code> to select which TCP port to use as the debug port.
+  </li>
+</ul>
+
+<br>
+<a name="BB_GDB_RSP"></a>
+<h3>BBPlayer support for the GDB Remote Serial Protocol</h3>
+
+<p>The following packet types are support by the BBPlayer's GDB stub:
+
+<p>
+<table align=center cellspacing=3 cellpadding=3 border=1>
+<tr><th>GDB Request</th>
+    <th>Reply</th>
+    <th>Action</th>
+</tr>
+<tr><td><code>? -- last signal</code></td>
+    <td><code>T<i>signal</i>thread:<i>tid</i>;</code></td>
+    <td></td>
+<tr><td><code>c<i>addr</i> -- continue at address</code>
+    <td><code>T<i>signal</i>thread:<i>tid</i>;</code>
+         <br><code>E03</code> - Invalid Address</td>
+    <td>The GDB stub will restart the selected thread (usually all user threads),
+        and wait until a breakpoint or it gets a Ctrl-C from GDB to respond.</td>
+</tr>
+<tr><td><code>s<i>addr</i> -- step at address</code>
+    <td><code>T<i>signal</i>thread:<i>tid</i>;</code>
+         <br><code>E03</code> - Invalid Address</td>
+    <td>The GDB stub will emulate a single step by placing temporary points in the code.
+        The selected thread (usually all user threads) will be restarted
+        and wait until a breakpoint or it gets a Ctrl-C from GDB to respond.</td>
+</tr>
+<tr><td><code>g -- read general registers</code></td>
+    <td><code><i>registers</i></code>
+         <br><code>E02</code> - if no thread</td>
+    <td>The GDB stub will assemble the registers from the selected thread.</td>
+</tr>
+<tr><td><code>Hc<i>tid</i>, Hg<i>tid</i>  -- Set thread</code></td>
+    <td><code>OK - Success</code>
+         <br><code>E02</code> - if no thread with given <i>tid</i></td>
+    <td>The GDB stub will set the selected thread for subsequent operations.</td>
+</tr>
+<tr><td><code>k  -- Kill thread</code></td>
+    <td></td>
+    <td>The GDB stub will stop all user threads.</td>
+</tr>
+<tr><td><code>D  -- Detach</code></td>
+    <td></td>
+    <td>GDB is detaching from the BB Player.  The GDB stub will clear all breakpoints and resume execution of all threads.</td>
+</tr>
+<tr><td><code>m<i>addr</i>,<i>length</i>  -- Read memory</code></td>
+    <td><code><i>memory contents</i></code>
+         <br><code>E01</code> - Bad packet format
+         <br><code>E03</code> - Invalid address</td>
+    <td>The GDB stub will verify the memory address is valid and return the memory contents.</td>
+</tr>
+<tr><td><code>M<i>addr</i>,<i>length</i>:<i>data</i>  -- Write into memory</code></td>
+    <td><code>OK - Success</code>
+         <br><code>E01</code> - Bad packet format
+         <br><code>E03</code> - Invalid Address</td>
+    <td>The GDB stub will verify the memory address is valid and set the memory contents.</td>
+</tr>
+<tr><td><code>P<i>reg</i>=<i>value</i>  -- Write register</code></td>
+    <td><code>OK - Success</code>
+         <br><code>E01</code> - Bad packet format
+         <br><code>E02</code> - No thread
+         <br><code>E03</code> - Invalid register number</td>
+    <td>The GDB stub will verify the register number is valid and set the register value.</td>
+</tr>
+<tr><td><code>z0<i>addr</i>,<i>length</i> -- remove memory breakpoint at address</code>
+    <td rowspan=2><code>OK - Success</code>
+         <br><code>E01</code> - Bad packet format
+         <br><code>E03</code> - Invalid Address
+         <br><code>E05</code> - No more slots
+         <br><code>E06</code> - Operation failed
+    </td>
+    <td rowspan=2>The GDB stub will insert/remove the breakpoint at the specified address.</td>
+</tr>
+<tr>
+    <td><code>Z0<i>addr</i>,<i>length</i> -- insert memory breakpoint at address</code>
+</tr>
+<tr><td><code>qC -- current thread</code></td>
+    <td><code>QC<i>tid</i></code></td>
+    <td>The GDB stub will return the current thread ID.</td>
+</tr>
+<tr><td><code>qfThreadInfo -- all thread ids</code></td>
+    <td rowspan=2><code>m<i>tid</i>,<i>tid</i>,...l</code></td>
+    <td rowspan=2>The GDB stub will return the list of thread ids (terminated by an lower case el).  The list may be broken down into several reply packets.</td>
+</tr>
+<tr><td><code>qsThreadInfo -- subsequent thread ids</code></td>
+</tr>
+<tr><td><code>qThreadExtraInfo,<i>tid</i></code></td>
+    <td><code><i>hex encoded ASCII string</i></code><br>
+         <br><code>E03</code> - Invalid Address</td>
+    <td>The GDB stub will return a hex encoded string with information about the thread ID, priority, and state.</td>
+</tr>
+</table>
+a256 1
+       

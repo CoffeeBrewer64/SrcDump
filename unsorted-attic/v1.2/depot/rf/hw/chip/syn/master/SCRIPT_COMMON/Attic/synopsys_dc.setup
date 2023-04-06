@@ -1,0 +1,141 @@
+/*
+      revision : 1.0.0 Nov.24.2002
+
+                ".synopsys_dc.setup" Initialization File for
+
+                    Dc_Shell and Design_Analyzer
+
+             NOTE1 : Can not use for "dc_shell -tcl_mode"
+             NOTE2 : When formal verification is used,
+                     you had better change "bus_naming_style" in "%s_%d_"
+                     
+*/
+
+SYNOPSYS_DIR   = "/app/synopsys/v2001.08-SP1-2"
+CSR_DIR        = "/DATA4/design/bbsoc/bblib/RevA/CSR/current/lib/CB12/cmos_1.5V_M/synopsys/object"
+MCOM_DIR       = "/DATA4/design/bbsoc/bblib/RevA/SRAM_ROM/current/lib/CB12/cmos_1.5V"
+VR4300_DIR     = "/DATA4/design/bbsoc/bblib/RevA/VR4300/current"
+Virage_DIR     = "/DATA4/design/bbsoc/bblib/RevA/Virage/current"
+
+search_path    = {. SYNOPSYS_DIR + "/libraries/syn" \
+                 ../../RTL \
+                 ../../RTL/bcp \
+                 ../../RTL/include \
+                 ../../RTL/lib/usb_arc/verilog/ \
+                 \
+                 /opc/cb12_V3.1.0/solaris/lib/CB12/cmos_1.5V_M/synopsys/wire_model \
+                 \
+                 /opc/cb12_V3.1.0/solaris/lib/CB12/cmos_1.5V_M/synopsys/object/clockdriver \
+                 /opc/cb12_V3.1.0/solaris/lib/CB12/cmos_1.5V_M/synopsys/object/primitive \
+                 /opc/cb12_V3.1.0/solaris/lib/CB12/cmos_1.5V_M/synopsys/object/scan \
+                 /opc/cb12_V3.1.0/solaris/lib/CB12/cmos_1.5V_M/synopsys/object/special \
+                 /opc/cb12_V3.1.0/solaris/lib/CB12/cmos_1.5V_M/synopsys/object/analog \
+                 /opc/cb12_V3.1.0/solaris/lib/CB12/cmos_1.5V_M/synopsys/object/iobuffer \
+                 \
+                 CSR_DIR + "/AAD3835BM" \
+                 CSR_DIR + "/LTD2" \
+                 CSR_DIR + "/USB1" \
+                 \
+                 MCOM_DIR \
+                 \
+                 VR4300_DIR \
+                 \
+                 Virage_DIR + "/nvcp_nc15gfh" \
+                 Virage_DIR + "/nvrm_nc15gfh_16x32" \
+                 Virage_DIR + "/nvrm_nc15gfh_64x32" \
+                 \
+                 }
+
+link_library   = { "*" \
+                 CB12_CMOS_15V_M_MAX_DRIVE.db \
+                 CB12_CMOS_15V_M_MAX_PRIM.db \
+                 CB12_CMOS_15V_M_MAX_SCAN.db \
+                 CB12_CMOS_15V_M_MAX_SPECIAL.db \
+                 CB12_CMOS_15V_M_MAX_ANALOG.db \
+                 CB12_CMOS_15V_M_MAX_IO.db \
+                 \
+                 CB12_CMOS_15V_M_MAX_AAD3835BM.db \
+                 CB12_CMOS_15V_M_MAX_LTD2.db \
+                 CB12_CMOS_15V_M_MAX_USB1.db \
+                 \
+                 CB12_CMOS_15V-M_COM_MAX.db \
+                 \
+                 CB12_CMOS_15V_M_MAX_NB4300V01.db \
+                 \
+                 nvcp_nc15gfh_MAX.db \
+                 nvrm_nc15gfh_16x32_MAX.db \
+                 nvrm_nc15gfh_64x32_MAX.db \
+                 \
+                 } ;
+
+target_library = { \
+                 CB12_CMOS_15V_M_MAX_DRIVE.db \
+                 CB12_CMOS_15V_M_MAX_PRIM.db \
+                 CB12_CMOS_15V_M_MAX_SCAN.db \
+                 CB12_CMOS_15V_M_MAX_SPECIAL.db \
+                 CB12_CMOS_15V_M_MAX_ANALOG.db \
+                 CB12_CMOS_15V_M_MAX_IO.db \
+                 \
+                 CB12_CMOS_15V_M_MAX_AAD3835BM.db \
+                 CB12_CMOS_15V_M_MAX_LTD2.db \
+                 CB12_CMOS_15V_M_MAX_USB1.db \
+                 \
+                 CB12_CMOS_15V-M_COM_MAX.db \
+                 \
+                 CB12_CMOS_15V_M_MAX_NB4300V01.db \
+                 \
+                 nvcp_nc15gfh_MAX.db \
+                 nvrm_nc15gfh_16x32_MAX.db \
+                 nvrm_nc15gfh_64x32_MAX.db \
+                 }
+
+synthetic_library = {  \
+                       \
+                       \
+                       \
+                       } ;
+
+symbol_library = { \
+                 CB12_CMOS_15V_M_SYMBOL_DRIVE.sdb \
+                 CB12_CMOS_15V_M_SYMBOL_PRIM.sdb \
+                 CB12_CMOS_15V_M_SYMBOL_SCAN.sdb \
+                 CB12_CMOS_15V_M_SYMBOL_SPECIAL.sdb \
+                 }
+
+/* define_design_lib NEC_SM01 -path synlib_root + "/dw_syn2001.08/nec_sm01" */
+/* define_design_lib NEC_SM02 -path synlib_root + "/dw_syn2001.08/nec_sm02" */
+/* define_design_lib NEC_SM03 -path synlib_root + "/dw_syn2001.08/nec_sm03" */
+/* define_design_lib NEC_SM04 -path synlib_root + "/dw_syn2001.08/nec_sm04" */
+/* define_design_lib NEC_SM05 -path synlib_root + "/dw_syn2001.08/nec_sm05" */
+
+command_log_file = "compile.command_log";
+designer = "" ;
+company = "";
+
+test_stil_netlist_format = "verilog" ;
+remove_min_max_pessimism = "true" ;
+change_names_dont_change_bus_members = "true" ;
+/*
+compile_ignore_area_during_inplace_opt = "true" ;
+compile_ignore_footprint_during_inplace_opt = "true" ;
+compile_ok_to_buffer_during_inplace_opt = "true" ;
+*/
+compile_sequential_area_recovery = "true";
+reoptimize_design_changed_list_file_name = "in_place.rep";
+test_default_delay = 0.0;
+test_default_bidir_delay = 0.0;
+test_default_strobe = 199.0;
+test_default_period = 200.0;
+/* 
+  When formal verification is used, you had better change 
+  "bus_naming_style" in "%s_%d_" 
+*/
+bus_naming_style = "%s_%d_" ;
+edifout_netlist_only = "true";
+edifout_no_array = "true";
+edifout_power_and_ground_representation = "cell";
+vhdlout_bit_type = "std_logic";
+vhdlout_bit_vector_type = "std_logic_vector";
+vhdlout_use_packages = {"IEEE.std_logic_1164"};
+verilogout_no_tri = "true";
+auto_wire_load_selection = "true" ;

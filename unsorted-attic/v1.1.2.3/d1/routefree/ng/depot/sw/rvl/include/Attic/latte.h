@@ -1,0 +1,6 @@
+d7 1
+a7 1
+#define ENABLE_DMCU
+d9 1
+a9 1
+#define AHBDBGINTSTS_DMCUINT_MASK   0x00800000

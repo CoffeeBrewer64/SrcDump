@@ -1,0 +1,10 @@
+hload c:\fs.elf
+run fs.elf
+hload c:\es.elf
+run es.elf
+hload c:\di_boot.elf
+run di_boot.elf
+initBootPPC c:\rvl\normalboot\16instruction.bin
+binload c:\rvl\normalboot\BS1.img 0x3400 1024
+binload C:\rvl\normalboot\RVLBootInfo.NDEV1_1.128MB.bin 0x3100 64
+binload C:\rvl\normalboot\3.6.2006\BS2.AHB.img 0x01330000 122444

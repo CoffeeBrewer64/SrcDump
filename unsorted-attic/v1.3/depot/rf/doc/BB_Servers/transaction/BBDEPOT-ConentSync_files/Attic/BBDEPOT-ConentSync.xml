@@ -1,0 +1,1036 @@
+<VisioDocument xmlns="urn:schemas-microsoft-com:office:visio">
+	<DocumentProperties>
+		<Title>Content Transactions</Title>
+		<HyperlinkBase href=""></HyperlinkBase>
+	</DocumentProperties>
+	<Pages>
+		<Page ID="4" Name="Use case" NameU="Use case">
+			<Shapes>
+				<Shape ID="1" UniqueID="{8E2126EF-95E4-48F2-AD36-5F0EAA690295}" Name="Sheet.1" NameU="Sheet.1">
+					<Text>Use case:  BB Depot Content Synchronization
+	BroadOn Confidential
+
+      Requirements: 
+Should not require secure connections between BB Depot and BB servers
+Network connection between BB Depot and Content Distribution Server is up
+BB Depot must force flush on all content storage writes
+Precondition:   BB Depot is notified to synchronize its contents with the Content Distribution Server
+Participants: BB Depot, Content Distribution Server 
+Point of control: BB Depot 
+Data: 
+Encrypted content 
+Metadata 
+Sequence of events:
+1.	The use case starts when the Content Manager connects to Content Sync Server requesting its list of title content (list of Title ID and Content ID).  The Server uses the provided Depot ID to query the Content DB to get the full list of title content that the BB Depot should have.  The list is then returned back to the Content Manager.
+2.	The Content Manager, after receiving the list, compares this list to its stored list of title content.  The result of the comparison is a list of title content to remove and a list of title content to download.
+3.	The Content Manager first processes the list to remove.  For each record in the remove list, the Content Manager autonomously removes title content record from the stored list of title content and the encrypted content and metadata from content storage.
+4.	After list to remove is processed, the Content Manager processes the download list.  For each record in the download list, the Content Manager uses the Content ID to download both encrypted content and metadata from the Content Download Server to content storage.  After encrypted content and metadata are completely downloaded, the Content Manager add the title content to its list of title content.
+Postcondition:   BB Depot has the same list of title content as the one retrieve from the Content Distribution Server
+</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.562500000000000</PinX>
+						<PinY Unit="IN_F">4.312500000000000</PinY>
+					</XForm>
+				</Shape>
+			</Shapes>
+		</Page>
+		<Page ID="7" Name="Big Picture" NameU="Top">
+			<Shapes>
+				<Shape ID="1" UniqueID="{1E8F110A-D1D3-4570-B548-BDF0A1D13A2D}" Name="Object.91" NameU="Object.91" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">9.652118055555558</PinX>
+						<PinY Unit="IN_F">5.320312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="2" UniqueID="{91665684-7734-484C-81DC-75BA9BC432C4}" Name="Object.90" NameU="Object.90" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">6.527118055555557</PinX>
+						<PinY Unit="IN_F">7.023437499999998</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="3" UniqueID="{408CE61C-3842-4642-827C-B3DDD6A68227}" Name="Object.89" NameU="Object.89" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">2.277118055555557</PinX>
+						<PinY Unit="IN_F">7.414062500000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="4" UniqueID="{F5D73D08-8E25-4314-A0B0-6F9251D1B5C5}" Name="Object.88" NameU="Object.88" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">2.277118055555557</PinX>
+						<PinY Unit="IN_F">3.539062500000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="5" UniqueID="{14924112-8FD2-4405-BCA7-8943A8938DAD}" Name="Object.87" NameU="Object.87" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">1.995868055555557</PinX>
+						<PinY Unit="IN_F">1.164062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="6" UniqueID="{ECB5F861-9324-46FE-BA14-9EE3EDB68C6F}" Name="Object.86" NameU="Object.86" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">1.995868055555557</PinX>
+						<PinY Unit="IN_F">5.539062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="7" UniqueID="{C4791833-1043-4F57-90A8-9839DD604693}" Name="Object.7" NameU="Object.7" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">6.089618055555557</PinX>
+						<PinY Unit="IN_F">4.976562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="8" UniqueID="{900E4B8A-833E-4292-99E0-FD5C9934449A}" Name="Object.41" NameU="Object.41" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">6.277118055555557</PinX>
+						<PinY Unit="IN_F">1.914062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="9" UniqueID="{AF72F068-52E7-48D2-A2FB-2082A98D0EAB}" Name="Object.9" NameU="Object.9" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">9.089618055555558</PinX>
+						<PinY Unit="IN_F">0.789062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="10" UniqueID="{9519C952-6D87-4498-A54F-7E3FCFBEAF08}" Name="Object" NameU="Object" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">2.652118055555558</PinX>
+						<PinY Unit="IN_F">7.473090277777777</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="11" UniqueID="{66491D12-73C9-47C6-9695-6FDB14D02D7C}" Name="Data store" NameU="Data store" Master="16">
+					<Text>CONTENT</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.152118055555557</PinX>
+						<PinY Unit="IN_F">7.473090277777777</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="12" UniqueID="{1CFA39F9-0CFC-4850-9F70-5EDE48E27E5D}" Name="Object.6" NameU="Object.6" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">2.652118055555558</PinX>
+						<PinY Unit="IN_F">5.476562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="13" UniqueID="{D71ED6E8-36C6-4114-9DAC-7939FEF415D8}" Name="Data store.9" NameU="Data store.9" Master="16">
+					<Text>CONTENT</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.152118055555557</PinX>
+						<PinY Unit="IN_F">5.976562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="14" UniqueID="{36468559-A618-4B59-9B06-BF511FEE9FA8}" Name="Data store.10" NameU="Data store.10" Master="16">
+					<Text>CONTENT METADATA</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.152118055555557</PinX>
+						<PinY Unit="IN_F">5.226562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="15" UniqueID="{ADF8A9CB-4ACA-49E9-BE01-6DEDD02A5244}" Name="Data store.11" NameU="Data store.11" Master="16">
+					<Text>STUDIO</Text>
+					<XForm>
+						<PinX Unit="IN_F">0.527118055555557</PinX>
+						<PinY Unit="IN_F">5.570312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="16" UniqueID="{2C7211D6-320B-4798-AC25-078A883F31E9}" Name="Sheet.16" NameU="Sheet.16">
+					<Text>DEVKIT</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.721562500000002</PinX>
+						<PinY Unit="IN_F">8.084201388888889</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="17" UniqueID="{FD792708-50F7-48B3-B63B-EDFFF4C94913}" Name="Ellipse.13" NameU="Ellipse.13" Master="17">
+					<Text>VALIDATION SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">3.249774305555558</PinX>
+						<PinY Unit="IN_F">5.708333333333333</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="18" UniqueID="{95CB66C8-F202-403E-A31D-91924E673227}" Name="Ellipse.14" NameU="Ellipse.14" Master="17">
+					<Text>STUDIO
+CA</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.027118055555557</PinX>
+						<PinY Unit="IN_F">5.226562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="19" UniqueID="{9A606BB6-E981-48E1-A150-FE8801226996}" Name="Ellipse.15" NameU="Ellipse.15" Master="17">
+					<Text>DEVKIT MANAGER</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.031024305555558</PinX>
+						<PinY Unit="IN_F">5.713541666666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="20" UniqueID="{DD89A8DF-E909-44D9-B371-16E09E35D0A1}" Name="Ellipse.7" NameU="Ellipse.7" Master="17">
+					<Text>PUBLISHING SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">3.240008680555558</PinX>
+						<PinY Unit="IN_F">5.220052083333332</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="21" UniqueID="{DD67B733-D999-4B2E-91A4-1DAAB243B026}" Name="Ellipse.8" NameU="Ellipse.8" Master="17">
+					<Text>CONTENT PACKAGER</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.124774305555558</PinX>
+						<PinY Unit="IN_F">7.491319444444443</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="22" UniqueID="{60E5C118-86B4-4318-9AB7-9959E8E17150}" Name="Ellipse.16" NameU="Ellipse.16" Master="17">
+					<Text>CONTENT RELEASE MANAGER</Text>
+					<XForm>
+						<PinX Unit="IN_F">3.054461805555556</PinX>
+						<PinY Unit="IN_F">7.473090277777777</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="23" UniqueID="{3DF36319-F395-41C5-99E5-B6025ECC3F12}" Name="Object.2" NameU="Object.2" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">2.652118055555558</PinX>
+						<PinY Unit="IN_F">1.101562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="24" UniqueID="{A35D63E2-D1C1-4738-B8B7-DDD279B04225}" Name="Data store.3" NameU="Data store.3" Master="16">
+					<Text>DEPOT</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.152118055555557</PinX>
+						<PinY Unit="IN_F">1.601562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="25" UniqueID="{731C658B-E99A-42DC-B82F-855EBFF33CC8}" Name="Data store.4" NameU="Data store.4" Master="16">
+					<Text>STATISTICS</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.152118055555557</PinX>
+						<PinY Unit="IN_F">0.851562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="26" UniqueID="{36E964F0-F14B-401C-A49A-E7467A3C5521}" Name="Data store.17" NameU="Data store.17" Master="16">
+					<Text>SOFTWARE</Text>
+					<XForm>
+						<PinX Unit="IN_F">0.558368055555557</PinX>
+						<PinY Unit="IN_F">1.195312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="27" UniqueID="{2E00A130-5229-48EE-B2B3-31BC0A656941}" Name="Ellipse.18" NameU="Ellipse.18" Master="17">
+					<Text>SOFTWARE UPDATE</Text>
+					<XForm>
+						<PinX Unit="IN_F">3.249774305555558</PinX>
+						<PinY Unit="IN_F">1.333333333333333</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="28" UniqueID="{7C050537-95FB-4673-ACE8-BF13CAE24808}" Name="Ellipse.19" NameU="Ellipse.19" Master="17">
+					<Text>SYSTEM STATUS</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.027118055555557</PinX>
+						<PinY Unit="IN_F">0.851562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="29" UniqueID="{627345DA-3CD5-477C-9607-9ED54241822A}" Name="Ellipse.20" NameU="Ellipse.20" Master="17">
+					<Text>CONTENT NOTIFIER</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.031024305555558</PinX>
+						<PinY Unit="IN_F">1.338541666666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="30" UniqueID="{9335E8AA-5793-40A6-894E-DEF5E8FFC2EF}" Name="Ellipse.21" NameU="Ellipse.21" Master="17">
+					<Text>STATISTICS</Text>
+					<XForm>
+						<PinX Unit="IN_F">3.277118055555557</PinX>
+						<PinY Unit="IN_F">0.851562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="31" UniqueID="{FBBB8264-DC1D-4F11-9590-2C46271C58A0}" Name="Sheet.31" NameU="Sheet.31">
+					<Text>STUDIO</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.707673611111113</PinX>
+						<PinY Unit="IN_F">6.115451388888888</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="32" UniqueID="{5A30EED8-EDD7-4BBF-A6F2-46CD5601A8BA}" Name="Sheet.32" NameU="Sheet.32">
+					<Text>RMS</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.707673611111113</PinX>
+						<PinY Unit="IN_F">1.709201388888888</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="33" UniqueID="{8CB914D1-9193-4D4D-B614-1B5310D447E8}" Name="Object.24" NameU="Object.24" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">6.902118055555558</PinX>
+						<PinY Unit="IN_F">6.914062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="34" UniqueID="{447E7594-1D3F-4D6B-9C95-BAAF1CE6FF7E}" Name="Data store.25" NameU="Data store.25" Master="16">
+					<Text>BB</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.402118055555557</PinX>
+						<PinY Unit="IN_F">6.914062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="35" UniqueID="{7B77C735-1921-45DE-8AD8-D8CB6F5CE342}" Name="Ellipse.26" NameU="Ellipse.26" Master="17">
+					<Text>BB CHIP MANUFACTURE</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.464618055555557</PinX>
+						<PinY Unit="IN_F">6.914062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="36" UniqueID="{83154B6F-60B3-408D-A01D-A2B5E82495A0}" Name="Ellipse.27" NameU="Ellipse.27" Master="17">
+					<Text>BB SHIPMENT MANAGER</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.366961805555556</PinX>
+						<PinY Unit="IN_F">6.914062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="37" UniqueID="{9F321EBD-3D00-41CF-8B6B-556BB7D21505}" Name="Sheet.37" NameU="Sheet.37">
+					<Text>MANUFACTURER</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.902118055555557</PinX>
+						<PinY Unit="IN_F">7.525173611111110</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="38" UniqueID="{2E81BE05-6514-4168-A081-D5E7594044E8}" Name="Object.29" NameU="Object.29" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">6.627812500000002</PinX>
+						<PinY Unit="IN_F">2.405381944444444</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="39" UniqueID="{A2720AD7-EA25-45F4-B52A-4BA3DB90DF57}" Name="Ellipse.30" NameU="Ellipse.30" Master="17">
+					<Text>CONTENT MANAGER</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.745868055555557</PinX>
+						<PinY Unit="IN_F">2.820312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="40" UniqueID="{3FA77BB4-E0EB-4295-834B-78FD4E92822D}" Name="Ellipse.31" NameU="Ellipse.31" Master="17">
+					<Text>SYSTEM MONITOR</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.495868055555557</PinX>
+						<PinY Unit="IN_F">1.994791666666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="41" UniqueID="{24439A9D-A7D7-408A-9BD6-3F9CB7BB97A6}" Name="Ellipse.32" NameU="Ellipse.32" Master="17">
+					<Text>SOFTWARE UPDATE</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.495868055555557</PinX>
+						<PinY Unit="IN_F">2.838541666666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="42" UniqueID="{1CCBA28F-B4BD-431D-A661-EB345F9366DF}" Name="Ellipse.33" NameU="Ellipse.33" Master="17">
+					<Text>RETAIL APP</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.616961805555556</PinX>
+						<PinY Unit="IN_F">2.401041666666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="43" UniqueID="{ABBEC39A-D045-4CB9-B2EA-5460B5776182}" Name="Sheet.43" NameU="Sheet.43">
+					<Text>BB DEPOT</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.659062500000002</PinX>
+						<PinY Unit="IN_F">3.320312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="44" UniqueID="{FC6CA5D6-A1D5-477C-A8E0-B0A67E3EF903}" Name="Ellipse.35" NameU="Ellipse.35" Master="17">
+					<Text>INSTALLER APP</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.616961805555556</PinX>
+						<PinY Unit="IN_F">1.901041666666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="45" UniqueID="{9B2A3513-5D20-43EB-B6B8-C27023633873}" Name="Ellipse.36" NameU="Ellipse.36" Master="17">
+					<Text>INVENTORY APP</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.616961805555556</PinX>
+						<PinY Unit="IN_F">2.927083333333333</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="46" UniqueID="{B6143917-5A78-4F87-A06E-CC75159EB7B5}" Name="Ellipse.37" NameU="Ellipse.37" Master="17">
+					<Text>BB RECOVERY MANAGER</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.749774305555558</PinX>
+						<PinY Unit="IN_F">2.020833333333333</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="47" UniqueID="{BD68173D-76E8-427D-8E49-ECFA7613407B}" Name="Object.38" NameU="Object.38" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">9.402118055555558</PinX>
+						<PinY Unit="IN_F">0.792534722222222</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="48" UniqueID="{E5367DF5-2D49-43E3-B38B-AD58CE73A9BE}" Name="Ellipse.39" NameU="Ellipse.39" Master="17">
+					<Text>REINIT SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.437274305555558</PinX>
+						<PinY Unit="IN_F">0.792534722222221</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="49" UniqueID="{37BA78BF-9D46-4E40-8BC4-F8A98143B091}" Name="Sheet.49" NameU="Sheet.49">
+					<Text>BB PLAYER</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.464618055555558</PinX>
+						<PinY Unit="IN_F">1.181423611111110</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="50" UniqueID="{A76FDBB8-BBCE-4B52-A84E-5588B6707439}" Name="Object.44" NameU="Object.44" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">9.652118055555558</PinX>
+						<PinY Unit="IN_F">7.051649305555555</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="51" UniqueID="{E5E4D117-AEAE-486D-A453-DCA7F81054A6}" Name="Sheet.51" NameU="Sheet.51">
+					<Text>AUDIT</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.721562500000001</PinX>
+						<PinY Unit="IN_F">7.662760416666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="52" UniqueID="{74359774-7CB9-4B78-BF03-A1E8EF2EFF23}" Name="Object.46" NameU="Object.46" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">9.655590277777780</PinX>
+						<PinY Unit="IN_F">1.963975694444444</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="53" UniqueID="{5686B0B2-9AB4-4BB3-B255-6B9326E36188}" Name="Sheet.53" NameU="Sheet.53">
+					<Text>BILLING/ACCOUNT MGMT</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.725034722222222</PinX>
+						<PinY Unit="IN_F">2.620225694444443</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="54" UniqueID="{FDD10319-BD6F-4FF9-AEB3-0DD935875978}" Name="Object.50" NameU="Object.50" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">9.655590277777780</PinX>
+						<PinY Unit="IN_F">5.523871527777776</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="55" UniqueID="{C8419609-568B-409E-BDC3-E387613BD40A}" Name="Ellipse.51" NameU="Ellipse.51" Master="17">
+					<Text>LICENSE MGR CA</Text>
+					<XForm>
+						<PinX Unit="IN_F">10.253246527777780</PinX>
+						<PinY Unit="IN_F">5.755642361111110</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="56" UniqueID="{2B4EECE6-CA46-4AC1-9018-9CBDE679CFF5}" Name="Ellipse.52" NameU="Ellipse.52" Master="17">
+					<Text>BB DC SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.652118055555558</PinX>
+						<PinY Unit="IN_F">5.273871527777775</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="57" UniqueID="{76DFDE0F-3906-43DE-A710-0A6E688070CE}" Name="Ellipse.53" NameU="Ellipse.53" Master="17">
+					<Text>BB KEYGEN</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.034496527777780</PinX>
+						<PinY Unit="IN_F">5.760850694444442</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="58" UniqueID="{B2EA6233-EA98-4842-9A3A-0F5F4426A273}" Name="Sheet.58" NameU="Sheet.58">
+					<Text>CERTIFICATE AUTHORITY</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.711145833333333</PinX>
+						<PinY Unit="IN_F">6.194010416666666</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="59" UniqueID="{2A08DCFD-49AF-47D8-BF8F-2CB9F24DC1FC}" Name="Data store.56" NameU="Data store.56" Master="16">
+					<Text>BB DC</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.211145833333337</PinX>
+						<PinY Unit="IN_F">4.648871527777777</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="60" UniqueID="{C3D3C76D-D9E8-414D-B1CD-09A8142540A7}" Name="Data store.57" NameU="Data store.57" Master="16">
+					<Text>LICENSE MGR DC</Text>
+					<XForm>
+						<PinX Unit="IN_F">10.273645833333337</PinX>
+						<PinY Unit="IN_F">4.648871527777777</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="61" UniqueID="{BAD06526-C690-40C4-BBEC-45EF5ACFE329}" Name="Object.58" NameU="Object.58" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">2.666006944444447</PinX>
+						<PinY Unit="IN_F">3.417534722222221</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="62" UniqueID="{32722D64-0B3F-4141-A392-6E63DE3DBE99}" Name="Data store.59" NameU="Data store.59" Master="16">
+					<Text>CONTENT</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.152118055555557</PinX>
+						<PinY Unit="IN_F">3.414062499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="63" UniqueID="{A57BE689-5B53-4E2A-A8BF-80A8967780FC}" Name="Ellipse.62" NameU="Ellipse.62" Master="17">
+					<Text>CONTENT UPLOAD</Text>
+					<XForm>
+						<PinX Unit="IN_F">3.263663194444447</PinX>
+						<PinY Unit="IN_F">3.649305555555555</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="64" UniqueID="{43EF64A3-F0DA-42D1-8A27-F455773DDCA0}" Name="Ellipse.63" NameU="Ellipse.63" Master="17">
+					<Text>CONTENT DOWNLOAD</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.620868055555557</PinX>
+						<PinY Unit="IN_F">3.213541666666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="65" UniqueID="{9044CB7A-D13B-4E84-9900-14B20704DECA}" Name="Ellipse.64" NameU="Ellipse.64" Master="17">
+					<Text>CONTENT SYNC</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.044913194444447</PinX>
+						<PinY Unit="IN_F">3.654513888888888</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="66" UniqueID="{25F1CC46-38BD-4DE1-A922-1F02EBCE12A4}" Name="Sheet.66" NameU="Sheet.66">
+					<Text>CONTENT DISTRIBUTION</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.721562500000001</PinX>
+						<PinY Unit="IN_F">4.118923611111111</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="67" UniqueID="{C7EED49E-C3CD-47D2-A0D1-6F986BD674D5}" Name="Object.60" NameU="Object.60" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">6.839618055555557</PinX>
+						<PinY Unit="IN_F">4.820312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="68" UniqueID="{E743DCEF-EA89-4513-9DEB-78777A2B093A}" Name="Ellipse.61" NameU="Ellipse.61" Master="17">
+					<Text>eTICKET SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.402118055555557</PinX>
+						<PinY Unit="IN_F">5.463541666666665</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="69" UniqueID="{F47691BA-9FAF-472F-B0A1-A3E6C20D974A}" Name="Ellipse.65" NameU="Ellipse.65" Master="17">
+					<Text>INVENTORY SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.304461805555556</PinX>
+						<PinY Unit="IN_F">4.851562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="70" UniqueID="{FD5F4516-47AD-4C9E-8759-B176BE96B553}" Name="Ellipse.67" NameU="Ellipse.67" Master="17">
+					<Text>CONTENT AVAILABILITY SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.304461805555556</PinX>
+						<PinY Unit="IN_F">5.473958333333331</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="71" UniqueID="{47C51785-4862-4988-B817-2BFB497031F5}" Name="Ellipse.68" NameU="Ellipse.68" Master="17">
+					<Text>BB ACTIVATION SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.402118055555557</PinX>
+						<PinY Unit="IN_F">4.851562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="72" UniqueID="{37BAF50E-DF8C-4FA2-9F40-44EAE74B85D6}" Name="Sheet.72" NameU="Sheet.72">
+					<Text>TRANSACTION</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.877812500000002</PinX>
+						<PinY Unit="IN_F">6.087673611111111</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="73" UniqueID="{B378ECB8-C0A5-44BA-B1FB-032582C83C29}" Name="Ellipse.70" NameU="Ellipse.70" Master="17">
+					<Text>INSTALLER SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.308368055555557</PinX>
+						<PinY Unit="IN_F">4.208333333333333</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="74" UniqueID="{02259FB6-6F66-4C29-A422-83FBD6F9373B}" Name="Ellipse.72" NameU="Ellipse.72" Master="17">
+					<Text>BB RECOVERY SERVER</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.402118055555558</PinX>
+						<PinY Unit="IN_F">4.195312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="75" UniqueID="{475CBDA7-60F6-4068-8E44-F88132C3B684}" Name="Data store.73" NameU="Data store.73" Master="16">
+					<Text>eTICKET</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.370868055555557</PinX>
+						<PinY Unit="IN_F">5.882812499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="76" UniqueID="{40929A1D-AB6A-4F30-A323-19D31721343D}" Name="Data store.74" NameU="Data store.74" Master="16">
+					<Text>BB</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.370868055555557</PinX>
+						<PinY Unit="IN_F">5.132812499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="77" UniqueID="{1C695A63-09D7-4BED-9D35-02588F73B44D}" Name="Data store.75" NameU="Data store.75" Master="16">
+					<Text>INVENTORY</Text>
+					<XForm>
+						<PinX Unit="IN_F">4.714618055555557</PinX>
+						<PinY Unit="IN_F">5.320312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="78" UniqueID="{C5BD53DB-0F0E-4550-878C-F949BB973A39}" Name="Data store.76" NameU="Data store.76" Master="16">
+					<Text>DEPOT</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.402118055555557</PinX>
+						<PinY Unit="IN_F">4.507812499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="79" UniqueID="{0A185570-8144-4BEE-8BD3-8384D62078BE}" Name="Data store.77" NameU="Data store.77" Master="16">
+					<Text>REGION</Text>
+					<XForm>
+						<PinX Unit="IN_F">4.714618055555557</PinX>
+						<PinY Unit="IN_F">4.695312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="80" UniqueID="{AFF649B9-6E8C-4ACB-8633-7AB98C59FA77}" Name="Data store.78" NameU="Data store.78" Master="16">
+					<Text>CONTENT METADATA</Text>
+					<XForm>
+						<PinX Unit="IN_F">4.714618055555557</PinX>
+						<PinY Unit="IN_F">4.101562499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="81" UniqueID="{349D14E4-8715-4B8B-AE2A-C61B9F609DBB}" Name="Object.71" NameU="Object.71" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">9.652118055555558</PinX>
+						<PinY Unit="IN_F">3.406684027777776</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="82" UniqueID="{5D1F76B6-3776-42DE-9F8D-2B6D30F3F7B2}" Name="Sheet.82" NameU="Sheet.82">
+					<Text>BB SOFTWARE</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.721562500000001</PinX>
+						<PinY Unit="IN_F">4.062934027777775</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="83" UniqueID="{0215A92F-8D38-4A06-AE3C-CC6E0F0DAA4A}" Name="Ellipse.80" NameU="Ellipse.80" Master="17">
+					<Text>SOFTWARE RELEASE MANAGER</Text>
+					<XForm>
+						<PinX Unit="IN_F">9.679461805555555</PinX>
+						<PinY Unit="IN_F">3.427083333333333</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="84" UniqueID="{BDFF8414-701B-4953-A6FE-51B8EE31C788}" Name="Sheet.84" NameU="Sheet.84">
+					<Text>BB Depot Content Synchronization (Control flow)</Text>
+					<XForm>
+						<PinX Unit="IN_F">8.263559027777779</PinX>
+						<PinY Unit="IN_F">7.951388888888890</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="85" UniqueID="{AAAA2BA5-CD3D-43AB-AE9F-1307EF8262D2}" Name="Object.54" NameU="Object.54" Master="15">
+					<XForm>
+						<PinX Unit="IN_F">6.263229166666668</PinX>
+						<PinY Unit="IN_F">0.820312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="86" UniqueID="{88950353-B65D-4A53-BEF2-BB3B15813E33}" Name="Ellipse.82" NameU="Ellipse.82" Master="17">
+					<Text>DOWNLOAD</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.638229166666667</PinX>
+						<PinY Unit="IN_F">0.570312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="87" UniqueID="{6CEDCC72-D5E4-4A11-B37C-99CE08884BFC}" Name="Ellipse.83" NameU="Ellipse.83" Master="17">
+					<Text>BROWSER</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.259322916666667</PinX>
+						<PinY Unit="IN_F">1.052083333333333</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="88" UniqueID="{1670A228-293E-4954-9863-DFC12D5F1D53}" Name="Ellipse.84" NameU="Ellipse.84" Master="17">
+					<Text>eTICKET MANAGER</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.888229166666667</PinX>
+						<PinY Unit="IN_F">0.570312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="89" UniqueID="{803E9EAB-AB91-4BFC-ADEA-2E22DCE730F0}" Name="Sheet.89" NameU="Sheet.89">
+					<Text>DOWNLOAD STATION</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.207673611111113</PinX>
+						<PinY Unit="IN_F">1.431423611111110</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="90" UniqueID="{D1DFE0DA-E350-48A5-9769-CC339E68D3A4}" Name="Data store.42" NameU="Data store.42" Master="16">
+					<Text>CONTENT</Text>
+					<XForm>
+						<PinX Unit="IN_F">4.652118055555557</PinX>
+						<PinY Unit="IN_F">2.445312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="91" UniqueID="{71FF18AE-0E1F-4EC0-B545-8F381ADA50D3}" Name="Data store.49" NameU="Data store.49" Master="16">
+					<Text>BB CARD</Text>
+					<XForm>
+						<PinX Unit="IN_F">8.402118055555558</PinX>
+						<PinY Unit="IN_F">0.820312499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="92" UniqueID="{77938DA0-209D-4E69-8C4B-7348787D56E3}" Name="Data store.92" NameU="Data store.92" Master="16">
+					<Text>TRANS. INFO</Text>
+					<XForm>
+						<PinX Unit="IN_F">4.714618055555557</PinX>
+						<PinY Unit="IN_F">6.007812499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="93" UniqueID="{36E877EC-1959-4154-86DE-AE3EA9EF895E}" Name="Dynamic connector" NameU="Dynamic connector" Master="18">
+					<Text>1a. Depot ID</Text>
+					<XForm>
+						<PinX Unit="IN_F">4.895390625000002</PinX>
+						<PinY Unit="IN_F">3.237413194444443</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="94" UniqueID="{4A12180A-3F70-4C0B-9261-794289129E92}" Name="Dynamic connector.94" NameU="Dynamic connector.94" Master="18">
+					<Text>1b. TitleContentList</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.598515625000002</PinX>
+						<PinY Unit="IN_F">3.697063393611110</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="98" UniqueID="{344059AC-3FBA-4C12-9483-8387C9D17CFF}" Name="Dynamic connector.98" NameU="Dynamic connector.98" Master="18">
+					<Text>1c. TitleContentList</Text>
+					<XForm>
+						<PinX Unit="IN_F">4.895390625000002</PinX>
+						<PinY Unit="IN_F">3.005642361111109</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="95" UniqueID="{BED47A8A-5B9E-44FB-BC9C-7FA6ABD51639}" Name="Dynamic connector.95" NameU="Dynamic connector.95" Master="18">
+					<Text>2a. TitleContentList</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.497821180555558</PinX>
+						<PinY Unit="IN_F">2.632812499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="96" UniqueID="{684BAC4E-FEF8-4B06-B3FA-2318094F6D20}" Name="Dynamic connector.96" NameU="Dynamic connector.96" Master="18">
+					<Text>4a. Content ID</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.357196180555558</PinX>
+						<PinY Unit="IN_F">3.132812499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="97" UniqueID="{3D0B6B45-115D-4558-9F61-60F046559611}" Name="Dynamic connector.97" NameU="Dynamic connector.97" Master="18">
+					<Text>4c. Content</Text>
+					<XForm>
+						<PinX Unit="IN_F">5.183368055555557</PinX>
+						<PinY Unit="IN_F">2.785156249999998</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="99" UniqueID="{4B84E6EF-9D57-43E8-B6FC-0238D645C880}" Name="Dynamic connector.99" NameU="Dynamic connector.99" Master="18">
+					<Text>4d Content</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.247821180555558</PinX>
+						<PinY Unit="IN_F">2.632812499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="100" UniqueID="{3FE1D935-E8EB-4EBF-AF1E-92273D988479}" Name="Dynamic connector.100" NameU="Dynamic connector.100" Master="18">
+					<Text>3a. Content</Text>
+					<XForm>
+						<PinX Unit="IN_F">6.247821180555558</PinX>
+						<PinY Unit="IN_F">2.632812499999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="101" UniqueID="{7FB86DD1-76B2-42EC-BB88-077B8C55CBD5}" Name="Dynamic connector.101" NameU="Dynamic connector.101" Master="18">
+					<Text>4b. Content</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.712664930555557</PinX>
+						<PinY Unit="IN_F">3.188802083333332</PinY>
+					</XForm>
+				</Shape>
+			</Shapes>
+		</Page>
+		<Page ID="0" Name="Detail" NameU="Content Syncronization Server">
+			<Shapes>
+				<Shape ID="1" UniqueID="{4CD40A46-E4F2-4453-9D57-5C5765CCACA7}" Name="Database" NameU="Database" Master="2">
+					<Text>Content</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.312499999999998</PinX>
+						<PinY Unit="IN_F">2.156250000000000</PinY>
+					</XForm>
+					<Prop ID="1" Name="Cost" NameU="Cost">
+						<Value></Value>
+						<Label>Cost</Label>
+					</Prop>
+					<Prop ID="2" Name="Duration" NameU="Duration">
+						<Value></Value>
+						<Label>Duration</Label>
+					</Prop>
+					<Prop ID="3" Name="Resources" NameU="Resources">
+						<Value></Value>
+						<Label>Resources</Label>
+					</Prop>
+				</Shape>
+				<Shape ID="2" UniqueID="{ACF86161-95DD-4B26-8C44-97558AB01BF6}" Name="Rounded process" NameU="Rounded process" Master="4">
+					<Text>Content Manager</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.312500000000000</PinX>
+						<PinY Unit="IN_F">6.000000000000000</PinY>
+					</XForm>
+					<Prop ID="1" Name="Cost" NameU="Cost">
+						<Value></Value>
+						<Label>Cost</Label>
+					</Prop>
+					<Prop ID="2" Name="Duration" NameU="Duration">
+						<Value></Value>
+						<Label>Duration</Label>
+					</Prop>
+					<Prop ID="3" Name="Resources" NameU="Resources">
+						<Value></Value>
+						<Label>Resources</Label>
+					</Prop>
+				</Shape>
+				<Shape ID="3" UniqueID="{9F7D9798-C2F4-4A7F-AB93-55CA116D7BBA}" Name="External entity 1" NameU="External entity 1" Master="5">
+					<Text>Content Manager</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.187500000000000</PinX>
+						<PinY Unit="IN_F">6.750000000000000</PinY>
+					</XForm>
+					<Prop ID="1" Name="Cost" NameU="Cost">
+						<Value></Value>
+						<Label>Cost</Label>
+					</Prop>
+					<Prop ID="2" Name="Duration" NameU="Duration">
+						<Value></Value>
+						<Label>Duration</Label>
+					</Prop>
+					<Prop ID="3" Name="Resources" NameU="Resources">
+						<Value></Value>
+						<Label>Resources</Label>
+					</Prop>
+				</Shape>
+				<Shape ID="4" UniqueID="{7E13ADC9-1365-4ADE-85EA-9D1848746619}" Name="Bottom to top 1" NameU="Bottom to top 1" Master="6">
+					<Text>1. getMyTitleContent</Text>
+					<XForm>
+						<PinX Unit="IN">2.812500000000000</PinX>
+						<PinY Unit="IN">5.843750000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="5" UniqueID="{13153D9C-F023-4362-B033-F26C5A37D26C}" Name="External entity 1.5" NameU="External entity 1.5" Master="5">
+					<Text>Content Sync</Text>
+					<XForm>
+						<PinX Unit="IN_F">3.437499999999999</PinX>
+						<PinY Unit="IN_F">4.937499999999999</PinY>
+					</XForm>
+					<Prop ID="1" Name="Cost" NameU="Cost">
+						<Value></Value>
+						<Label>Cost</Label>
+					</Prop>
+					<Prop ID="2" Name="Duration" NameU="Duration">
+						<Value></Value>
+						<Label>Duration</Label>
+					</Prop>
+					<Prop ID="3" Name="Resources" NameU="Resources">
+						<Value></Value>
+						<Label>Resources</Label>
+					</Prop>
+				</Shape>
+				<Shape ID="6" UniqueID="{75016B60-F10F-409B-B2ED-0C3DAB0A4AC7}" Name="Rounded process.6" NameU="Rounded process.6" Master="4">
+					<Text>Content Sync</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.312499999999998</PinX>
+						<PinY Unit="IN_F">4.000000000000000</PinY>
+					</XForm>
+					<Prop ID="1" Name="Cost" NameU="Cost">
+						<Value></Value>
+						<Label>Cost</Label>
+					</Prop>
+					<Prop ID="2" Name="Duration" NameU="Duration">
+						<Value></Value>
+						<Label>Duration</Label>
+					</Prop>
+					<Prop ID="3" Name="Resources" NameU="Resources">
+						<Value></Value>
+						<Label>Resources</Label>
+					</Prop>
+				</Shape>
+				<Shape ID="7" UniqueID="{1E4466BF-3ECC-407B-A34F-F889C59E9BA5}" Name="Bottom to top 1.7" NameU="Bottom to top 1.7" Master="6">
+					<Text>1a. Depot ID</Text>
+					<XForm>
+						<PinX Unit="IN">7.312499999999999</PinX>
+						<PinY Unit="IN_F">5.000000000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="9" UniqueID="{435BB8DC-BDE6-45AB-BBD6-5D6A3D6237EF}" Name="Square loop" NameU="Square loop" Master="7">
+					<Text>3. delContent</Text>
+					<XForm>
+						<PinX Unit="IN">2.562500000000000</PinX>
+						<PinY Unit="IN">6.937500000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="10" UniqueID="{051078CB-E4D4-4845-8F5A-95B7FF22E877}" Name="Square loop.10" NameU="Square loop.10" Master="7">
+					<Text>2. compareTitleContent</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.812500000000000</PinX>
+						<PinY Unit="IN">6.937500000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="12" UniqueID="{A5331567-8D2B-4923-AFA9-4ECF21C2B148}" Name="Bottom to top 1.12" NameU="Bottom to top 1.12" Master="6">
+					<Text>1b. Depot ID</Text>
+					<XForm>
+						<PinX Unit="IN">7.312499999999998</PinX>
+						<PinY Unit="IN">3.078125000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="14" UniqueID="{783CE4D4-D2C5-42E6-B128-98B60EDA2166}" Name="Curve connect 2" NameU="Curve connect 2" Master="9">
+					<Text>1c. TitleContentList</Text>
+					<XForm>
+						<PinX Unit="IN">6.812499999999998</PinX>
+						<PinY Unit="IN">3.078125000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="15" UniqueID="{B3ED4EC8-3B48-4983-93AA-646B8E2DB8FC}" Name="Curve connect 2.15" NameU="Curve connect 2.15" Master="9">
+					<Text>1d. TitleContentList</Text>
+					<XForm>
+						<PinX Unit="IN">7.812499999999999</PinX>
+						<PinY Unit="IN">5.000000000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="17" UniqueID="{D66C1231-1246-4DF9-9137-3DF866BA8FB7}" Name="Database.17" NameU="Database.17" Master="2">
+					<Text>Content</Text>
+					<XForm>
+						<PinX Unit="IN_F">8.624999999999998</PinX>
+						<PinY Unit="IN_F">7.374999999999998</PinY>
+					</XForm>
+					<Prop ID="1" Name="Cost" NameU="Cost">
+						<Value></Value>
+						<Label>Cost</Label>
+					</Prop>
+					<Prop ID="2" Name="Duration" NameU="Duration">
+						<Value></Value>
+						<Label>Duration</Label>
+					</Prop>
+					<Prop ID="3" Name="Resources" NameU="Resources">
+						<Value></Value>
+						<Label>Resources</Label>
+					</Prop>
+				</Shape>
+				<Shape ID="18" UniqueID="{9BE64434-CFDB-4476-9309-23547C6206EC}" Name="Bottom to top 1.18" NameU="Bottom to top 1.18" Master="6">
+					<Text>2a. TitleContentList</Text>
+					<XForm>
+						<PinX Unit="IN">7.968749999999999</PinX>
+						<PinY Unit="IN">6.687499999999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="19" UniqueID="{7D129057-4C88-41C7-AAF0-F4AC6224FC76}" Name="Sheet.19" NameU="Sheet.19">
+					<Text>BB Depot</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.249999999999998</PinX>
+						<PinY Unit="IN_F">6.625000000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="21" UniqueID="{25E6805A-C8C4-4252-A477-7162A84B329E}" Name="Sheet.21" NameU="Sheet.21">
+					<Text>CDS</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.249999999999998</PinX>
+						<PinY Unit="IN_F">3.078124999999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="22" UniqueID="{2C83642C-389E-47C3-9E86-3588F22DC738}" Name="Sheet.22" NameU="Sheet.22">
+					<Text>BB Depot Content Synchronization</Text>
+					<XForm>
+						<PinX Unit="IN_F">4.625000000000000</PinX>
+						<PinY Unit="IN_F">0.625000000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="8" UniqueID="{61D5A54D-6EB5-47E0-A6B4-AFA8947E288D}" Name="Sheet.8" NameU="Sheet.8">
+					<Text>Content Manager:
+1. 	Retrieves BB Depot full list of title content from CDS
+2.	Compares list of title content with its existing list of title content
+generates REMOVE list of title content
+generates list of title content to DOWNLOAD
+3.  	Processes list of title content to remove
+remove title content record from stored list of title content
+remove content from content storage
+flush writes to disk
+repeat until removal list is done
+4.     Processes list of title content to download
+download encrypted content and metadata from Content Download Server using content id to temporary storage
+move both encrypted content and metadata to content storage
+add title content record to existing list of title content
+flush writes to disk
+repeat until download list is done	
+
+**	If errors occurred, transaction rollback to last Flush.  Transaction can restart.
+
+</Text>
+					<XForm>
+						<PinX Unit="IN_F">2.375000000000000</PinX>
+						<PinY Unit="IN_F">3.000000000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="13" UniqueID="{FEC346A5-E1A4-4BC0-B668-116734A9DC17}" Name="Bottom to top 1.13" NameU="Bottom to top 1.13" Master="6">
+					<Text>4a. downladContents</Text>
+					<XForm>
+						<PinX Unit="IN">1.906250000000000</PinX>
+						<PinY Unit="IN">5.578125000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="23" UniqueID="{39E24BFD-EF2C-4433-8F9A-5E343FCF1476}" Name="External entity 1.23" NameU="External entity 1.23" Master="5">
+					<Text>Content Download</Text>
+					<XForm>
+						<PinX Unit="IN_F">1.625000000000000</PinX>
+						<PinY Unit="IN_F">4.406250000000000</PinY>
+					</XForm>
+					<Prop ID="1" Name="Cost" NameU="Cost">
+						<Value></Value>
+						<Label>Cost</Label>
+					</Prop>
+					<Prop ID="2" Name="Duration" NameU="Duration">
+						<Value></Value>
+						<Label>Duration</Label>
+					</Prop>
+					<Prop ID="3" Name="Resources" NameU="Resources">
+						<Value></Value>
+						<Label>Resources</Label>
+					</Prop>
+				</Shape>
+				<Shape ID="28" UniqueID="{47D83ABC-C784-4262-82C0-258E2C31883F}" Name="Curve connect 2.24" NameU="Curve connect 2.24" Master="9">
+					<Text>4d. Content</Text>
+					<XForm>
+						<PinX Unit="IN_F">7.718749999999999</PinX>
+						<PinY Unit="IN">6.874999999999999</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="29" UniqueID="{47DB9305-86FF-4257-B03F-91D2392378D5}" Name="Rounded process.29" NameU="Rounded process.29" Master="4">
+					<Text>Content Download</Text>
+					<XForm>
+						<PinX Unit="IN_F">8.843750000000000</PinX>
+						<PinY Unit="IN_F">3.812500000000000</PinY>
+					</XForm>
+					<Prop ID="1" Name="Cost" NameU="Cost">
+						<Value></Value>
+						<Label>Cost</Label>
+					</Prop>
+					<Prop ID="2" Name="Duration" NameU="Duration">
+						<Value></Value>
+						<Label>Duration</Label>
+					</Prop>
+					<Prop ID="3" Name="Resources" NameU="Resources">
+						<Value></Value>
+						<Label>Resources</Label>
+					</Prop>
+				</Shape>
+				<Shape ID="16" UniqueID="{EECD94C1-D0CE-44B8-836B-BFC1C47E12AA}" Name="Curve connect 2.16" NameU="Curve connect 2.16" Master="9">
+					<Text>4c. Content</Text>
+					<XForm>
+						<PinX Unit="IN">8.578125000000000</PinX>
+						<PinY Unit="IN">4.906250000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="20" UniqueID="{16A0AC99-AA9B-4CFF-9023-2381A5C7C02D}" Name="Bottom to top 1.20" NameU="Bottom to top 1.20" Master="6">
+					<Text>4a. Content ID</Text>
+					<XForm>
+						<PinX Unit="IN">8.078125000000000</PinX>
+						<PinY Unit="IN_F">4.906250000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="30" UniqueID="{AD9F090D-678F-4891-BF2F-15A97D366A17}" Name="Curve connect 2.30" NameU="Curve connect 2.30" Master="9">
+					<Text>4b. Content</Text>
+					<XForm>
+						<PinX Unit="IN">8.328125000000000</PinX>
+						<PinY Unit="IN">2.796875000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="31" UniqueID="{7C251C09-020A-42BD-A0F7-3F2925C20368}" Name="Square loop.31" NameU="Square loop.31" Master="7">
+					<Text>4. addContent</Text>
+					<XForm>
+						<PinX Unit="IN">2.437500000000000</PinX>
+						<PinY Unit="IN">6.937500000000000</PinY>
+					</XForm>
+				</Shape>
+				<Shape ID="32" UniqueID="{A39B0F08-036F-4481-9848-72662E289CFC}" Name="Curve connect 2.32" NameU="Curve connect 2.32" Master="9">
+					<Text>3a. Content</Text>
+					<XForm>
+						<PinX Unit="IN">7.718749999999999</PinX>
+						<PinY Unit="IN">6.874999999999999</PinY>
+					</XForm>
+				</Shape>
+			</Shapes>
+		</Page>
+	</Pages>
+</VisioDocument>

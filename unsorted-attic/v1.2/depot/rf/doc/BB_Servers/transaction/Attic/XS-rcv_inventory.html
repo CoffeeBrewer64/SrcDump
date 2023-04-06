@@ -1,0 +1,126 @@
+<html>
+    <head>
+      <title>Transaction: Receive Inventory</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Transaction: Receive Inventory</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.1 $<br>
+        $Date: 2002/09/09 18:44:03 $
+      </center>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>Billing/Account Mgmt - Customer Support App</strong> (<em>point of control</em>)</li>
+	<li>Transaction - eTicket Server</li>
+	<li>Transaction - Inventory Server</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>Only authorized personnel can access the <em>Customer Support
+	  App</em>.</li>
+	<li>If the <em>Customer Support App</em> is not running within
+	  the secure boundary of the operation center (e.g., remote
+	  customer support branch), communication between this app and
+	  the operation center must be secure.
+	</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>The Retailer has registered with our system and a storeID
+	  has been assigned to the new store.</li>
+	<li>The Retailer has already opened a line of credit account
+	  with one of our authorized bank and has linked up this
+	  account with the storeID.</li>
+	<li>The customer support staff has already authenticated
+	  himself/herself to the system and is authorized to access
+	  the <em>Customer Support App</em>.
+	</li>
+	<li>Operation Center has received a signed receipt from the
+	  Retailer for the purchase order.</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>orderID</code></li>
+	<li><code>storeID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li><a href="../data_defs.html#Transaction - Depot Record">Transaction - Depot Record</a></li>
+	<li>Transaction - Inventory Record</li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li>return status from eTicket Server</li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>updateBalance</code>
+	  <ol type=a>
+	    <li><em>Customer Support App</em> pulls out the purchase
+	      order details and figures out the amount to charge the Retailer.
+	      This debit amount and storeID is sent to the <em>eTicket
+		Server</em>. 
+	    </li>
+	    <li><em>eTicket Server</em> update the current balance in
+	      the Depot Record for the specified store.  This balance
+	      is used for approving all online cash transactions.
+	    </li>
+	  </ol>
+	</li>
+	<li><code>updateInventory</code>
+	  <ol type=a>
+	    <li><em>Customer Support App</em> sends the itemized list
+	      of the purchase order to the <em>Inventory Server</em>,
+	      which updates the inventory record corresponding to this
+	      store.
+	    </li>
+	    <li>This is a deferred transaction and the <em>Customer
+		Support App</em> does not wait for this transaction to
+	      complete. 
+	    </li>
+	  </ol>
+	</li>
+      </ol>
+      <h3>Post-conditions</h3>
+      <ol>
+	<li>The transaction database contains the updated balance and
+	  inventory for this store.
+	</li>
+      </ol>
+
+      <h3>Audit Records</h3>
+      <ol>
+	<li>Receive Inventory - <code>storeID</code>, inventory info </li>
+      </ol>
+	  
+      <h3>Exceptions</h3>
+
+      <ol>
+	<li>Unrecognized <code>storeID</code> -- retailer registration
+	  process is not complete.
+	</li>
+	<li>Invalid <code>orderID</code> -- error in the order and
+	  delivery database, or operator entered the wrong ID.
+	</li>
+	<li>Partial delivery -- only part of the order is fulfilled.
+	  The customer support staff needs to <em>split</em> the order
+	  and charge the retailer for what have been delivered.
+	</li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="overlayed/rcv_inventory-ctrl.png">Control Flow</a></li>
+	<li><a target="data" href="overlayed/rcv_inventory-data.png">Data Flow</a></li>
+      </ul>	  
+    </body>
+  </html>

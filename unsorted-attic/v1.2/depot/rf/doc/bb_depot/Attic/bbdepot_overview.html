@@ -1,0 +1,357 @@
+d9 2
+a10 2
+	$Revision: 1.1 $<br>
+	$Date: 2002/04/10 23:45:18 $
+d26 1
+a26 3
+      <h2>I. Transactions</h2>
+
+      <h3>1. Purchase eTicket</h3>
+d28 45
+a72 3
+	An eTicket purchase transaction involves three parties:  the
+	issuer of the eTicket (BB server), the shop owner/sales person
+	(BB Depot), and the customer (BB).
+d74 2
+d77 20
+a96 68
+	<li>Requirement:
+	  <ol type=1>
+	    <li>Mutual Authentication:
+	      <ol type=a>
+		<li>BB Depot must authenticate itself to the BB
+		  server (<em>shop owner cannot deny a transaction</em>).
+		</li>
+		<li>BB must authenticate itself to the BB server
+		  (<em>reject BB clones -- if cloning is possible</em>)</li>
+		<li>BB server must authenticate itself
+		  independently to the BB Depot and the BB
+		  (<em>no other party can use our distribution system</em>)</li>
+	      </ol>
+	    </li>
+	    <li>Transaction:
+	      <ol type=a>
+		<li>Each BB Depot has a transaction quota, when
+		  the quota is exceeded, no new eTicket can be
+		  purchased.</li> 
+		<li>Each transaction must be undeniably linked to
+		  a unique BB Depot.  Collection from each shop
+		  owner is based on completed transactions.</li>
+		<li>A transaction is completed after the eTicket
+		  is loaded into the specific BB.</li>
+		<li>If a transaction does not complete, we need to
+		  guarantee that the eTicket is not loaded into the
+		  BB, nor saved or cached on the BB Depot</li>
+	      </ol>
+	    </li>
+
+	    <li>Communication between BB Depot and BB server is
+	      carried out via a secure channel.
+	    </li>
+	    <li>Communication between BB and BB server is carried out
+	      via a secure channel, with messages encrypted
+	      independently from the BB Depot (i.e., BB Depot simply
+	      passes through the data, but cannot peek into its content).</li>
+	    <li>Connection between the BB and the BB Depot must be 
+	      physically point-to-point so that the shop
+	      owner/sales person can easily match the BB with the
+	      purchase transaction.  That is, the BB is connected to a
+	      dedicated physical port identifiable both by software
+	      and visually by the operator.
+	    </li>
+	  </ol>
+	</li>
+	
+	<li>Policy:
+	  <ol type=1>
+	    <li>The transaction quota is set and renewed based on
+	      payment and/or deposit made by the shop owner.</li>
+	    <li>The shop owner is responsible for all completed
+	      transactions made via the BB Depot.  This implies that
+		access to the BB Depot console must be protected
+	      -- probably via a user id and password scheme.
+	    </li>
+	  </ol>
+	</li>
+
+	<li>Pre-conditions
+	  <ol type=1>
+	    <li>Internet connection must be up</li>
+	    <li>(One of the) BB server must be online</li>
+	    <li>eTicket for that title and BB has not been issued</li>
+	    <li>Title content already downloaded to BB Depot (<em>Is
+		this really needed?</em>)</li>
+	  </ol>
+	</li>
+d99 9
+a107 3
+      <h3>2. Activate a BB</h3>
+      <p>A new BB is activated implicitly when the first eTicket is
+	purchased (first eTicket might be free).
+d109 7
+d117 1
+d119 8
+a126 18
+	<li>Requirement:<br>
+	    Same as purchasing of eTickets.
+	</li>
+	<li>Policy:<br>
+	    Upon activation, a BB purchase transaction associated with
+	    this BB Depot will be generated.  This is considered a
+	    sale of the BB by the shop owner.  This implies that:
+	    <ol type=a>
+	      <li>The shop owner cannot activate BB devices when the
+		Internet connection is down.</li>
+	      <li>If a shop owner sales a BB device without activating
+		it, we will not be able to collect money, and no other
+		shop owner would be willing to activate that BB.</li>
+	      <li>A shop owner <em>could</em> pre-activate some BB devices
+		as long as s/he is willing to pay for them.</li>
+	    </ol>
+	</li>
+	
+d128 2
+a129 6
+      <h3>3. Revoke eTicket</h3>
+      <p>
+	An eTicket purchase transaction can be revoked, in which case
+	the eTicket is erased from the BB, and the title content, if
+	already loaded, should be deleted also.
+      </p>
+d131 4
+a134 24
+	<li>Requirement:
+	  <ol type=a>
+	    <li>Mutual authentication and secure communication are
+	      required, as in the case of purchasing eTickets.</li>
+	    <li>Needs to guarantee that the eTicket is actually
+	      erased from the BB.</li>
+	    <li>The eTicket to be revoked must match the BB id on
+	      the corresponding eTicket purchase record, but the BB
+	      Depot could be different.</li>
+	    <li>Transaction quota and/or deposit of the corresponding
+	      BB Depot will be credited accordingly</li>
+	    <li>The BB server could reject a eTicket revocation
+	      request (see policy below).</li>
+	  </ol>
+	</li>
+	<li>Policy:<br>
+	    An eTicket can be revoked only within a certain time limit
+	    after its purchase.  This time limit is determined by the
+	    BB server and should be dynamically configurable on a per
+	    BB Depot basis. The
+	    purpose of the time limit is to avoid shops renting the
+	    game without paying.  The only legitimate eTicket
+	    revocation are mistakes made in the purchase transactions.
+	</li>
+d137 1
+a137 7
+      <h3>4. Deactivate a BB</h3>
+      <p>
+	Subject to the same restriction as revoking an eTicket, a BB
+	recently sold could be deactivated.
+      </p>
+      
+      <h3>5. Download a Title</h3>
+d139 1
+d141 15
+a155 33
+	<li>Requirement:
+	  <ol type=a>
+	    <li>Can connect with multiple BB's at the same time</li>
+	    <li>Can operate even when Internet connection is down, as
+	      long as the title content is cached.</li>
+	    <li>Does not involve shop owner</li>
+	    <li>BB and the BB Depot need to authenticate each
+	      other</li>
+	    <li>BB Depot does not check for existence or validity of
+	      the eTicket (it has no knowledge to check anyway).</li>
+	    <li>It's the BB's responsibility to decide if it has
+	      enough memory for the title to be downloaded.</li>
+	    <li>BB Depot needs to provide size information of a title
+	      upon request</li>
+	    <li>BB Depot could request BB to report the current memory
+	      layout (titles and tag-along content loaded, free space,
+	      etc.).</li>
+	    <li>BB Depot may tag along additional content with the
+	      requested title, if space is available.</li>
+	    <li>BB Depot needs to log all title download transactions
+	      and report periodically to the BB server (though not
+	      necessarily in real time).</li>
+	  </ol>
+	</li>
+	<li>Implementation Notes:
+	  <br>As far as the BB is concerned, it is communicating
+	    directly with the BB server.  The BB Depot simply acts as a
+	    transparent caching proxy.  This allows any BB connecting
+	    directly to the Internet to download content without going
+	    through the BB Depot (if we want to support it).  The
+	    transparent caching proxy allows the BB Depot continue to
+	    function even when the Internet connection is down.
+	</li>
+d157 48
+a204 2
+      <h3>6. Tag-along Content</h3>
+      <p>Tag-along content is additional information downloaded to the
+d207 50
+a256 2
+	free (and automatically downloaded).</p>
+      <p>Download Policy:
+d258 198
+a455 18
+	  <li>Downloading of tag-along content is controlled by the BB
+	    Depot</li>
+	  <li>The BB Depot decides which content to tag-along with the
+	    title content download, based on:
+	    <ol type=a>
+	      <li>BB id</li>
+	      <li>title being downloaded</li>
+	      <li>free space available</li>
+	    </ol>
+	  </li>
+	  <li>The BB Depot decides if old tag-along content should be
+	    removed.</li>
+	  <li>Title content always have priority over tag-along
+	    content, i.e., tag-along content is automatically removed,
+	    if necessary, to make room for title content.</li>
+	  <li>When showing the amount of free space on the BB's
+	    display, it should include the space taken by tag-along
+	    content.</li> 
+a457 3
+	
+      
+      <h3>7. Purchase Hardware Option</h3>
+d459 1
+d467 30
+a497 1
+      <h2>II. Activity Monitor</h2>
+a516 1
+	  <li>more than one device connected to the <em>eTicket</em> port.</li>
+a520 127
+      <h2>III. New Title Release</h2>
+      <ol>
+	<li>Requirement
+	  <ul>
+	    <li>All new title and tag-along content are pushed from the
+	      Content Distribution Server down to the BB Depot.</li>
+	    <li>Mutual authentication is required, but encryption is not
+	      needed (each content is individually encrypted).</li>
+	    <li>Each BB Depot should reserve a certain amount of disk
+	      space for content, and report the disk utilization to the BB
+	      server.</li>
+	    <li>Selection of titles to download (and remove) is controlled
+	      by the BB server.</li> 
+	    <li>Each BB Depot should contain a complete
+	      collection of all titles.</li>
+	    <li>BB Depot should report title download statistics to the BB
+	      server</li>
+	  </ul>
+	</li>
+	<li>Issues
+	  <ul>
+	    <li>Should we support BB Depots with different disk
+	      sizes?</li>
+	    <li>Should we allow BB Depots to store only a subset of
+	      titles?  If so, what do we do when a customer requests a
+	      title that is not locally available?
+	    </li>
+	</li>
+      </ol>
+      
+
+      <h2>IV. BB Depot Console</h2>
+      <p>
+	This is the interactive input output device for initiating
+	transactions on the BB Depot.  The exact configuration is yet
+	to be determined, but should satisfy the following
+	requirements:
+	<ol>
+	  <li>Access to the console should be protected (probably with
+	    a user id/password pair).
+	  </li>
+	  <li>Communication between the console and the BB Depot
+	    should be protected (e.g. physically via a direct cable
+	    connection). </li>
+	  <li>Should we support more than one console per BB
+	    Depot?</li>
+	  <li>Should the display be text-based (dumb terminal) or
+	    graphical? Color or Monochrome?</li> 
+	  <li>Should input be numeric keyboard, full keyboard, or
+	    touch screen?  Any pointing device (mouse)?
+	</ol>
+      </p>
+
+      <h2>V. Other Software Components</h2>
+      <p>
+	The assumption is that the BB Depot is based on the
+	SME/Wireless model with necessary modifications:
+	<ul>
+	  <li>Required components:
+	    <ol type=a>
+	      <li>Secure gateway: router, firewall, NAT</li>
+	      <li>Disk support: journal file system (logical volume?)</li>
+	      <li>crypto library and utilities</li>
+	      <li>network service: DHCP, DNS</li>
+	      <li>software update</li>
+	      <li>system status monitor</li>
+	      <li>remote management</li>
+	    </ol>
+	  </li>
+	  <li>Depending on whether we want to allow the BB Depot to
+	    also act as an SME gateway, the following components could
+	    be removed:
+	    <ol type=a>
+	      <li>Wireless network</li>
+	      <li>Web server</li>
+	      <li>SMB server</li>
+	      <li>local web-based configuration?</li>
+	      <li>email</li>
+	      <li>VPN</li>
+	      <li>print server</li>
+	      <li>backup service</li>
+	    </ol>
+	  </li>
+	  <li>New components:
+	    <ol type=a>
+	      <li>device driver for BB Depot console.</li>
+	      <li>activity monitor</li>
+	      <li>BB Depot main apps.</li>
+	      <li>(modified) transparent caching proxy</li>
+	      <li>device driver for connecting the non-standard
+		network port on a BB??</li>
+	    </ol>
+	  </li>
+	  <li>Issues:
+	    <ol type=a>
+	      <li>Does the BB Depot have a dedicated broadband
+		connection?  Or could the connection be shared
+		by other PC's using the BB Depot as a gateway?</li>
+	      <li>We do require the BB Depot to sit at the
+		<em>edge</em> of the Internet (i.e., no other
+		firewall, NAT router sitting in front of it).</li>
+	      <li>Any security concern if we allow other PC to connect
+		to the BB Depot?</li>
+	    </ol>
+	  </li>
+	</ul>
+      </p>
+
+      <h2>VI. Hardware</h2>
+
+      Mostly undecided at this point, but the assumption is to base on
+      the SME/Wireless model with modifications:
+
+      <ul>
+	<li>BB Depot console: dumb terminal? VGA display? TV monitor?
+	  Touch screen?</li>
+	<li>BB Depot console connection: serial cable? USB? graphic
+	  card on mini-pci?</li> 
+	<li>PCMCIA is not needed</li>
+	<li>USB is not needed? (if not used for BB Depot console)</li>
+	<li>connection with BB -- do we need special hardware to
+	  support the non-standard Ethernet port on BB? Do we need
+	  special cable?  Do we need special hub for connecting
+	  multiple BB's for content download?  How does a BB draw
+	  power from BB Depot?</li>
+	<li>UPS - built into power brick or external?</li>
+      </ul>

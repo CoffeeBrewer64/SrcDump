@@ -1,0 +1,3 @@
+d29 1
+a29 1
+#define MAX_MAX_LONG 1025

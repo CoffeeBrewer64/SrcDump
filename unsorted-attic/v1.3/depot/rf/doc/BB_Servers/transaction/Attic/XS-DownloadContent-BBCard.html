@@ -1,0 +1,57 @@
+d25 4
+a28 1
+	<li>BB Card holds eTicket which identifies the content to be downloaded.</li>
+a33 2
+	<li><code>content-hash</code></li>
+	<li><code>content-size</code></li>
+a50 16
+	<li><code>Load eTicket</code>
+      <ol type="a">
+        <li><i>eTicket Manager</i> has previously downloaded required eTickets
+          into the BB Card</li>
+        <li><i>Card Download Manager</i> reads BB Digital Certificate, verifies
+          it and extracts <code>BBID </code>from it.</li>
+        <li>eTicket is read into memory, its content verified, ensure that the
+          eTicket <code>BBID </code>matches the digital certificate <code>BBID&nbsp;</code></li>
+      </ol>
+	</li>
+	<li><code>Select Content for Download</code>
+      <ol type="a">
+        <li>Customer selects the content that he wishes to download from his <i>Safety
+          Box</i></li>
+      </ol>
+	</li>
+d54 1
+a54 1
+          </code>and <code>content-hash</code>.</li>
+d56 1
+a56 1
+          </code>and verifies the <code>content-hash.</code></li>
+a73 21
+	<li><code>Check space</code>
+      <ol type="a">
+        <li>If the <code>ContentID is </code>available in the Content store, the
+          <i>Card Download Manager</i> checks&nbsp; <code>content-size </code>from
+          the eTicket against available free memory in the BB Card</li>
+        <li>If enough free memory is not present, customer is advised to make
+          the required amount of space available</li>
+      </ol>
+	</li>
+	<li><code>Select Content for Deletion</code>
+      <ol type="a">
+        <li>Customer browses BB Card resident content and selects one or more
+          pieces of content for deletion</li>
+        <li>Customer confirms the deletion of the selected items</li>
+        <li>Content is deleted from the BB Card (eTickets are never deleted from
+          the BB Card)</li>
+        <li>After the selected content has been deleted and there is enough
+          space available for the selected <code>ContentID, </code>the <i>Card Download Manager</i> automatically starts
+          the download..</li>
+      </ol>
+	</li>
+a93 2
+	<li>Additional space, if required has been created on the BB Card by
+      deleting existing content.</li>
+a112 2
+	<li>Selected content requires more space than is present in the BB Card.
+      Customer is requested to purchase Expansion Memory.&nbsp;</li>

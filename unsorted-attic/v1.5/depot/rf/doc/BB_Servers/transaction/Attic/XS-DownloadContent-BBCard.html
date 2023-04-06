@@ -1,0 +1,52 @@
+d46 1
+a46 1
+	<li><code>content</code></li>
+d53 8
+a60 12
+        <li><i>Depot Download Server</i> receives download request with <code>ContentID
+          </code></li>
+        <li><i>Depot Download Server</i> checks the depot Content store for the <code>ContentID
+          </code></li>
+        <li>If the <code>ContentID </code>is not available in the depot Content
+          store it responds with the <code>status</code>
+          of&nbsp; <code>content-available </code>and <code>download-information
+          </code>to the <i>Card Download Manager.</i></li>
+        <li>If the <code>ContentID </code>is not available in the depot Content
+          store, the <i>Depot Download Server</i>  logs a critical error
+          and&nbsp; reports a <code>status </code>of&nbsp; <code>content-unavailable
+          </code>to the <i>Card Download Manager</i>.</li>
+d65 2
+a66 2
+        <li>If the requested <code>ContentID </code>is available, begin <i>Download-Content</i> transaction</li>
+        <li>The <i>Card Download Manager </i>starts the <code>content </code>download,
+d72 1
+a72 1
+        <li>Once the download is complete, the <code>content-status</code> on
+d74 3
+a76 4
+        <li>End <i>Download-Content</i> transaction</li>
+        <li>The <i>Card Download Manager </i>reports back <code>download-status </code>and
+          <code>download-duration</code> to the <i>Depot Download Server</i></li>
+        <li>Return to main-menu.</li>
+d82 1
+a82 2
+	<li>The requested <code>content </code>has been downloaded into the BB Card
+      and the <code>content-status </code>updated on the BB Card.</li>
+d87 3
+a89 3
+        <li><i>Depot Download Server</i> : Download Request - hardware ID,
+          region ID, BBID, contentID</li>
+        <li><i>Depot Download Server</i> : Download Completion - hardware ID,
+a90 2
+        <li><i>Depot Download Server</i> : Content Unavailable - hardware ID,
+          region ID, BBID, contentID</li>
+d98 7
+a104 8
+	<li>The <i>Depot Download Server</i> returns error status:
+	  <ol type=a>
+	    <li><code>content-unavailable - </code>customer is requested to retry at
+          a later time</li>
+	    <li>Internal BB Depot error e.g. Depot Content Store is unavailable
+          etc&nbsp;</li>
+	  </ol>
+	</li>

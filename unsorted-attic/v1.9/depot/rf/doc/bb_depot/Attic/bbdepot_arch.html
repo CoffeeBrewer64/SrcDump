@@ -1,0 +1,64 @@
+  <html>
+    <head>
+      <title>BroadOn Confidential - BB Depot Architecture</title>
+    </head>
+    <body bgcolor="FFFFFF">
+      <h1><center>BB Depot Architecture</center></h1>
+      <center>
+	BroadOn Confidential<br>
+	  $Revision: 1.8 $<br>
+	    $Date: 2002/08/21 18:38:49 $
+      </center>
+
+      <h2>I. Hardware</h2>
+      <p>
+	Click <a href="bbdepot_hw_arch.html">here</a> for the expanded hardware architecture document.
+
+      </p>
+
+      <h2>II. Design Principles</h2>
+      <ol>
+        <li>The BB Depot is not a trusted device. It could be stolen, lost,
+          misused, or subject to malicious attacks.</li>
+        <li>A secure transaction is one that usually involves some kind of goods
+          or cash transfer. It must be possible to replace an existing BB Depot
+          without losing any secure transaction data. This usually means that
+          the connection to the Infrastructure/Server complex must be available
+          during a secure transaction and the transaction data must be persisted
+          on the server side.</li>
+        <li>A hardware token (known as depotID) is used to authenticate the BB
+          Depot to the Infrastructure/Server complex for secure transactions.</li>
+      </ol>
+
+      <h2>III. Software Components</h2>
+      <h4>Main Module</h4>
+      <ul>
+	<li>based on GatewayOS with most services removed</li>
+	<li>no email, fileshare, web server, VPN, backup server,
+	  printer server, or wireless network</li>
+	<li>need multiple users support (for identifying console operator)</li>
+	<li>need LVM and journal file system</li>
+	<li>no network edge features are needed since this will be provided by the
+      broadband modem - NAT, port forwarding, DHCP server, DNS,
+      firewall</li>
+	<li>network feature needed: DHCP client</li>
+	<li>configuration could now be done via the console display
+	  (i.e., no apache)</li>
+	<li>need remote management (including remote console), Sysmon, time service</li>
+	<li>drivers for touch screen display, USB connections with BB
+	  player, BB Card Port for reading/writing BB Card</li>
+	<li>secure communication with server</li>
+      </ul>
+      <h4>Download Station</h4>
+      <ul>
+	<li>special apps for content download</li>
+	<li>possibly run a demo program while not in used</li>
+	<li>loading of demo program controlled by Depot</li>
+      </ul>
+
+      <h2>IV. BB Depot, Player - Use cases/User interactions</h2>
+
+      <p>Click <a href="bbdepot_usecases.html">here</a> to review the use cases.</p>
+    </body>
+  </html>
+  

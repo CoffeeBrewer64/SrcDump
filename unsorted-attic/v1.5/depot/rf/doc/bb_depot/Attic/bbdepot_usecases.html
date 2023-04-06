@@ -1,0 +1,344 @@
+d20 3
+a22 2
+	<p><i>User model outlines the customer or retailer experience as they go
+	    about their roles. This document is split into two section:</i></p>
+d25 1
+a25 1
+	      document lists out the mainstream user model cases.</i></li>
+d27 1
+a27 1
+	      document discusses the infrequent and exception user model cases.</i></li>
+d30 2
+a31 1
+	<h3>Customer use cases - mainstream</h3>
+d33 1
+a33 2
+	  <li>BB Player purchase</li>
+	  <li>BB Player return</li>
+a34 1
+	  <li>eTicket Refund</li>
+d36 1
+a36 1
+	  <li>Purchase expansion memory for BB Card</li>
+d38 7
+a44 5
+	<h3>Customer use cases - infrequent</h3>
+	<ol start=7>
+	  <li>Repair BB Card</li>
+	  <li>Purchase BB Card</li>
+	  <li>BB Card used space management</li>
+d48 1
+a48 1
+	<h3>Customer use cases - exceptions</h3>
+d56 21
+d78 1
+a78 1
+	      User Model Cases</span></a></h2>
+d81 1
+a81 1
+	<p><b>Description: </b>Customer purchases BB player, and gets any free content associated with the purchase of the BB.</p>
+d93 2
+a94 2
+	  <li>Customer may not return free content for refunds or
+	    cash.</li> 
+d96 2
+a97 1
+	    right after purchase ("<em>diaper training</em>").
+d103 1
+a103 1
+	<table width=937 border=0 cols=2>
+d105 2
+a106 2
+	    <th width=433>Customer</th>
+	    <th width="490">Retailer</th>
+d109 1
+a109 1
+	    <td width="433">
+d118 1
+a118 1
+	    <td width="490">&nbsp;</td>
+d121 2
+a122 2
+	    <td width="433">&nbsp;</td>
+	    <td width="490">
+d125 1
+a125 1
+		<li>Selects <em>BB Purchase</em> option in Retail
+d128 1
+a128 1
+		<li>Connect special USB cable to new BB player,
+d131 1
+a131 1
+		<li>When the display shows completion of purchase
+d134 1
+a134 1
+		  to the download station to get his free
+d140 1
+a140 1
+	    <td width="433">
+d142 1
+a142 1
+		<li>Customer proceeds to download station, inserts
+a146 67
+	    <td width="490">&nbsp;</td>
+	  </tr>
+	</table>
+      <hr>
+
+	<h3><span style="background-color: #C0C0C0">BB Player Return</span></h3>
+	<p><b>Description: </b>Customer returns a recently purchased BB Player.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>Provides the retailer with an option to return a recently purchased but unused BB Players back into
+	    the stock in case of any erroneous purchases.</li>
+	</ol>
+	<p>&nbsp;<b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>After a BB Player has been purchased, a customer has up to 30 minutes during which
+	    it may be returned for a refund. This forces the customer to learn our
+	    process right away by following through with the content download soon after
+	    purchase and limits inventory accounting issues if returns were not subject
+	    to a time limit.</li>
+	  <li>Returns will also not be permitted if the eTicket
+	    associated with the free content is downloaded from
+	    the servers or eTickets associated with any other content is downloaded to the BB.</li>
+	  <li> <strong>What we really tell the
+	      customers</strong> should be that once they've
+	    opened the box and used the BB Card, or if they have
+	    left the store, they cannot return it.</li>  
+	  <li>Retailer has authenticated depot to the server using DepotID.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100% border=0>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol>
+		<li>Hands over BB Player to Retailer and asks to
+		  return BB</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp</td>
+	  </tr>
+	  <tr>
+	    <td>&nbsp;</td>
+	    <td>
+	      <ol start=2>
+		<li>Selects <em>BB Player Return</em> option in
+		  Retail Application and is prompted to
+		  connect the BB Player</li> 
+		<li>Connect special USB cable to new BB player,
+		  through a "hole" in the box.</li>
+		<li>Starts the return process</li>
+		<li>If return process is successful, puts BB
+		  Player back on display and refunds customer
+		  the amount of purchase. If the return process
+		  is unsuccessful, disconnects and returns BB
+		  Player back to customer.</li> 
+	      </ol>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol start=6>
+		<li>Takes money and leaves</li>
+	      </ol>
+	    </td>
+d153 2
+a154 1
+	<p><b>Description: </b>Customer wants to purchase additional content.</p>
+d162 3
+a164 2
+	  <li>Customer has purchased a BB Player and he has an customized BB Card
+        for his BB Player.</li>
+d171 2
+d200 1
+a200 1
+		<li>Selects <em>Purchase eTicket </em>option
+d203 1
+a203 1
+		  into the BB Depot and enters the content ID</li> 
+d209 2
+a210 2
+		  to go to the download station to download
+		  his content.</li>
+d217 1
+a217 1
+		<li>Walks over to the download station and
+a224 69
+	
+	<h3><span style="background-color: #C0C0C0"> eTicket Refund</span></h3>
+	<p><b>Description: </b>Permit the customer to get his money back for an unused
+	  eTicket which was purchased by Retailer error.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>The Retailer&nbsp; may have made a mistake during the eTicket Purchase
+	    process or the customer may have changed his mind about the purchase.</li>
+	</ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>A refund will not be permitted if the eTicket is downloaded from the
+	    server into the BB Card.</li>
+	  <li>The customer also has only 30 minutes after the purchase of an eTicket to
+	    get a refund. This is to limit the exposure we have where another customer#2
+	    with a BB Card that contains the BB identification of customer#1's BB Player
+	    asks for a refund of a recently purchased eTicket.</li>
+	  <li>The BB Player identified by the BB Card has recently purchased an eTicket.&nbsp;</li>
+	  <li>The server always has the complete information about the BB Player &amp;
+	    eTickets that are owned by it.</li>
+	  <li>The BB Card identifies (does not authenticate) the BB Player for which the
+	    eTicket has been.</li>
+	  <li>Retailer has authenticated depot to the server using DepotID.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol>
+		<li>Indicates that he wants an eTicket
+		  refund, hands over the BB Card and
+		  identifies to the Retailer the
+		  content.</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td>&nbsp;</td>
+	    <td>
+	      <ol start=2>
+		<li>Selects the <em> eTicket Refund</em>
+		  option from the Retail Application and
+		  inserts the BB Card when prompted.</li>
+		<li>All eTickets (and the amount of purchases)
+		  that are eligible for refund are shown on
+		  the screen.  The retailer selects the one
+		  to be refunded.</li> 
+		<li>Receives confirmation from the server
+		  that eTicket has been refunded.</li>
+		<li>Hands over the BB Card and the money to
+		  the customer</li>
+	      </ol>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol start=6>
+		<li> Receives money and leaves.</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	</table>
+      <hr>
+d227 2
+a228 2
+	<p><b>Description: </b>Customer's BB Player owns eTickets and he wants to
+	  download the associated content into the BB Card.&nbsp;</p>
+d233 3
+a235 3
+	    reloading content into the BB Card.</li>
+	  <li>Content download is a separate action from
+	    eTicket Purchase, since this may take a
+d246 5
+a250 2
+	  <li>The BB Player owns at least one eTicket which identifies the content.&nbsp;</li>
+	  <li>Retailer does not have to authenticate the depot the the server.</li>
+d261 1
+a261 1
+		<li>Inserts his BB Card into the download station</li>
+d263 1
+a263 2
+		<li>Using the BB controller on the
+		  download station, customer selects
+d277 2
+a278 2
+	<h3><span style="background-color: #C0C0C0">Purchase expansion memory for
+	    BB Card</span></h3>
+d313 1
+a313 1
+            <li>Selects the <em> eTicket Refund</em>
+d331 137
+a467 1
+    &amp; Exception User Model Cases</span></a></h2>
+d470 2
+a471 2
+	<h3><span style="background-color: #C0C0C0">Repair BB Card</span></h3>
+	<p><b>Description: </b>Customer has a BB Card that needs to be repaired.&nbsp;</p>
+d505 2
+a506 2
+		<li>Plugs customer's BB Card into console recovery port
+		  and selects <em>Card Repair</em></li>
+d508 1
+a508 1
+		  failure), removes BB Card from the console recovery port.
+d510 5
+a514 4
+		  (see <em>Purchase BB Card</em> below).</li>
+		<li>Plugs BB Card into the customer's BB, and then plugs BB into console activation port and selects
+		  <em>Card Customization</em></li>  
+		<li>Confirms completion of customization process and hands back
+d524 2
+a525 2
+	      <ol start=8>
+		<li>Go over to the download station to download
+d534 2
+a535 2
+	<h3><span style="background-color: #C0C0C0">Purchase BB Card</span></h3>
+	<p><b>Description: </b>Customer wants to purchase another BB Card.</p>
+d542 1
+a542 1
+	    returning to the download station to swap content.</li>
+d546 2
+a547 2
+	  <li>BB has been activated.</li>
+	  <li>Customer brings in the BB Player to the store.</li>
+d577 1
+a577 1
+		<li>Connect the BB Depot's special USB cable to customer's BB player.</li> 
+d598 1
+a598 2
+	<h3><span style="background-color: #C0C0C0">BB Card used space
+	management</span></h3>
+d600 2
+a601 2
+	<p><b>Description: </b>Customer's BB Card does not have enough
+	free space for the download content</p>
+d613 1
+a613 1
+	      Download</em> have been matched.</li>
+d630 1
+a630 1
+		<li>Download station detects BB Card has not enough
+d633 2
+a634 3
+		  select the title(s) to be removed (store into the
+		  <em>safe deposit box</em>).</li>
+		<li>Using the BB controller on the download station,
+d637 1
+a637 2
+		  enough memory space has been freed, download station
+		  resumes automatically to download the selected content.
+d649 1
+a649 2
+	<p><b>Description: </b>Customer wants to return a BB Player,
+	  but, due to human error, the BB Player has not gone through
+d687 1
+a687 1
+		<li>Connect special USB cable to new BB player,
+d721 5
+a725 2
+      <p>Both these cases involve use cases which have a time limit, after which
+      a return or refund is not possible. If the network is down, the Depot
+d727 19
+a745 3
+      authenticated connection between the BB Depot and the server.  It's up to the retailer to refuse refund or
+	  simply eat the cost.
+	</p>

@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>RVL IOP SDK</title>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+</head>
+<body>
+<h2 align="center">Software Development Kit for RVL IOP (version
+1.1.0)<br>
+</h2>
+<div align="center">$Revision: 1.15 $<br>
+$Date: 2006/04/19 17:39:37 $<br>
+</div>
+<br>
+<h3>Purpose</h3>
+The RVL IOP OS DevKit includes all the necessary tools, headers and
+libraries necessary to develop software to run as a part of the
+Revolution IOP OS. The devkit itself uses the cygwin unixcompatibility
+tools, and relies for loading/running and debugging on the Signum
+JTAGJet.<br>
+<h3>Quick Links</h3>
+<a href="arm-tools-cygwin-20060318.tar.bz2">ARM cross-compilers for
+cygwin</a><br>
+<a href="chameleon-29908.zip">Signum Chameleon debugger (pre-release edition,
+version 2.99.08)</a><br>
+<a href="iop_sdk.tgz">SDK tarball</a><br>
+<a href="relnotes.html">SDK release notes</a><br>
+<a href="sdk.html">API documentation</a><br>
+<a href="bugzilla">Bugzilla</a><br>
+<h3>Installation Instructions</h3>
+The SDK includes the following items:<br>
+<ul>
+  <li>Cross compiler suite for building ARM binaries for the RVL IOP.<br>
+  </li>
+  <li>Header files and libraries required to build drivers and
+applications to run on the IOP<br>
+  </li>
+  <li>Online documentation</li>
+  <li>Sample source code for which demonstrates how to use the various
+IOP OS primitives and develop a full Resource Manager.<br>
+  </li>
+</ul>
+<h4>Cygwin</h4>
+The SDK uses the CYGWIN unix compatibility environment on windows. If
+you do not have cygwin on your PC you should go to the CYGWIN site (<a
+ href="http://www.cygwin.com">www.cygwin.com</a>) and
+install it. Other than the default packages, you should also select the
+following:<br>
+<ul>
+  <li>Make (under Devel)</li>
+</ul>
+It is also a good idea to choose one of the available text editors to
+use for software development on CYGWIN (for example: VIM or
+EMACS). The SDK has been tested against the latest CYGWIN release (as
+of 2/20/06).<br>
+<h4>Installing the Cross Compilation Tools<br>
+</h4>
+The ARM cross compiler for cygwin is <a
+ href="arm-tools-cygwin-20060318.tar.bz2">here</a>.<br>
+<br>
+Download the tarball from the above link. Start a Cygwin shell and
+then:&nbsp;&nbsp;&nbsp; <span style="font-weight: bold;">
+<pre>	mkdir -p /opt/crosstool<br>	bzcat arm-tools-cygwin-20060318.tar.bz2 | (cd /opt/crosstool; tar xf -)</pre>
+Installing the SDK Software</span><br style="font-weight: bold;">
+<br>
+The SDK is <a href="iop_sdk.tgz">here</a>.<br>
+<br>
+In order to install the SDK containing the headers, libraries and
+source, please use the following procedure:<br>
+<ul>
+  <li>Start a Cygwin shell window.</li>
+  <li>Define the environment variable $ROOT to point to an empty
+directory.</li>
+  <li>Unpack the SDK installation file into another empty directory.</li>
+  <li>Cd into the directory containing the unpacked installation files
+and run the installation script:</li>
+  <span style="font-weight: bold;">
+  <pre>	cd<br>	mkdir SDK_ROOT<br>	export ROOT=~/SDK_ROOT<br>	mkdir TMP<br>	cd TMP
+	tar xzvf ../iop_sdk.tgz<br>	./install.sh<br>	</pre>
+  </span>
+</ul>
+<h4>Setting your PATH</h4>
+<p>
+Tools necessary to use the SDK are installed in two places, which
+should be added to your PATH:<br>
+</p>
+<ul>
+  <li>$ROOT/usr/bin/rvl</li>
+</ul>
+If you are using Bash, type:<br>
+<div style="margin-left: 80px;">
+<pre>export PATH=$PATH:$ROOT/usr/bin/rvl<span style="font-weight: bold;"><br></span></pre>
+<pre><span style="font-weight: bold;"></span><span
+ style="font-weight: bold;"></span></pre>
+</div>
+<span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span
+ style="font-weight: bold;"></span>To make development easy, it is best
+to add the following lines to your shell init file (.bash_profile if
+you are using bash):<br>
+<pre style="margin-left: 80px;">export ROOT=~/SDK_ROOT (or wherever you put the SDK)<br>export PATH=$PATH:$ROOT/usr/bin/rvl
+export RVL_MEM=128 (or 64 if you have a release board; if in doubt, 128)<br></pre>
+<h4>Installing the Chameleon Debugger<br>
+</h4>
+To install the Signum Chameleon debugger follow the directions
+supplied. You should install the tools in the default 
+directory C:\Signum.<br><br>
+Note: The Chameleon debugger (pre-release edition version 2.99.08) contains
+a fix to improve the semihosting performance (like printf) when the ARM926 CPU 
+is running with D-cache and MMU enabled. However, this version has the 
+following known issues:
+<ul>
+<li>Semihosting configuration is turned off when starting Chameleon. Therefore,
+you'll need to enable this semihosting feature each time you launch Chameleon.
+</li>
+</ul>
+Once the tools are installed you should install some defintion files
+and macros from the SDK. These contain definitions for the CPU
+configuration, the Register definitions and Macros to point to the
+iosshell, which are essential to loading and debugging programs.<br>
+<br>
+The install these files:<br>
+<span style="font-weight: bold;">
+<pre>	cd $ROOT/usr/src/signum<br>	make install</pre>
+</span>
+<h4>Hardware Setup
+</h4>
+Power off the NDEV system and open the top cover.<br>
+<br>
+<p>Plug the "JTAGjet 20/14-pin Connector for ARM" (part #
+ADA-JDS-ARM20/14) onto the NDEV main board into the socket PT25 at the upper
+left corner of the board nearest the video output. </p>
+<p>Plug the JTAGjet 20-pin Connector for ARM (part # ADA-JDS-ARM20)
+into the above 20/14 connector. Plug the ribbon cable into the 20-pin
+connector, and plug that into the JTAGJet debugger. </p>
+<p>Plug a USB cable into the PC you are using, and plug the other end
+of the USB cable into the JTAGjet debugger. </p>
+<p>At this point, the USB New Hardware wizard should pop up, and ask
+you for a location for driver software. Direct the wizard to install
+from the Signum CD. Click 'Finish' to exit the New Hardware wizard. </p>
+<h4>Chameleon Debugger Setup</h4>
+<h4 style="font-weight: normal;">Launch the Chameleon Debugger from the
+Start menu. Start-&gt;All Programs-&gt;Signum Systems
+Chameleon-&gt;Chameleon It asks you to Configure the system, and it
+takes several steps.</></h4>
+<ul>
+  <li>
+    <h4 style="font-weight: normal;">In the "Target Selection" panel,
+click on "Add Target...", then on "ARM", and "Enter Key...", which pops
+up another box, where you should type in your license key from the
+Signum package. Then click 'OK.'</></></h4>
+  </li>
+  <li>
+    <h4 style="font-weight: normal;">Next, you get a popup which
+gives you a radiobutton choice of 'Automatic' vs 'Specify Connection
+Port.' Choose 'Automatic' and 'Next.'</></h4>
+  </li>
+  <li>
+    <h4 style="font-weight: normal;">Then, you get a popup which gives
+you a choice of ARM cores. Click next to 'ARM 9 cores(big-endian)', and
+double-click on 'ARM926EJ-S core(big endian).'</h4>
+  </li>
+  <li>
+    <h4 style="font-weight: normal;">After that, another popup titled
+'ARM:configuration' presents with two panels. On the 'JTAG
+configuration' panel, you see a radiobutton choice of 'Only one
+processor connected' being the default. The default is OK. Click over
+to the other panel, titled 'ARM Emulation Parameters.' On that panel,
+in the region titled 'Semihosting', change the 'Top of Memory' value to
+0x0dc18000&nbsp;</h4>
+  </li>
+  <li>
+    <h4 style="font-weight: normal;">On the region titled 'JTAG',
+change the 'Clock' from 'Adaptive' to '10Mhz.' Click 'OK'.</h4>
+  </li>
+  <li>
+    <h4 style="font-weight: normal;">Now, up pops a dialog box titled
+'Startup configuration options,' where you must select the radiobutton
+choice 'Use the following macro file when starting.'</h4>
+  </li>
+  <li>
+    <h4 style="font-weight: normal;">Navigate into C:\Signum\rvl_iop,
+select the 'rvl_iop.mac' file, click 'OK.'</h4>
+  </li>
+  <li>
+    <h4 style="font-weight: normal;">Power the board on. </h4>
+  </li>
+</ul>
+The SDK also prepares a <b>iosshell.mac</b> in the C:\Signum\rvl_iop directory,
+which can be used to quickly reset the board and bring up the shell.  To do so,
+please do the following:
+<ul>
+	<li> Open <b>C:\Signum\rvl_iop\iosshell.mac</b> through any text editor.</li>
+	<li> Go to the line which states <b>LOAD ios.elf</b> </li>
+	<li> Replace line with <b>LOAD <i>path-to-$ROOT</i>\usr\bin\rvl\ios.elf</b> </li>
+	<br>
+	<li> Open Chameleon Debugger, press <b>MACROS</b> button on toolbar </li>
+	<li> Press browse, select <b>C:\Signum\rvl_iop\iosshell.mac</b> in the dialog box</li>
+	<li> Press OK </li>
+</ul>
+IOSSHELL is now a button on the toolbar (you may have to arrange your toolbar to have easy access).
+It will stop the ARM, load IOS, and present the IOS prompt in the Virtual IO window.
+<br>
+<h4>Running Some Tests</h4>
+The iosshell runs a shell, and also the IOP OS on the ARM. Using the
+iosshell, sets of .elf executables can be loaded and run.<br>
+<br>
+The SDK ships with a set of tests for basic OS functionality. The elf
+files for these tests are in $ROOT/usr/bin/rvl/*.elf. The source code
+for these tests are in $ROOT/usr/src/os/tests. From the src/os/tests
+directory the tests can be built. <br>
+<br>
+To run a test (eg mq.elf). Click on the iosshell button in Chameleon.
+Type<br>
+<br>
+&gt;hload \path-to-$ROOT\usr\bin\rvl\mq.elf<br>
+&gt;ls<br>
+&gt;run bin\rvl\mq.elf<br>
+&gt;exit <br>
+<br>
+In this example "hload" loads the elf executable to memory. "ls" will list
+the program name (including path) that has been loaded. "run" will
+start up a thread with an entry point that is the main of the elf
+executable. "exit" will exit the shell (but the IOP OS is still
+running).<br>
+<br>
+See the <a href="sdk.html">SDK documentation</a> for a description of
+the tests included with the SDK.<br>
+<h3>Documentation</h3>
+Basic documentation on how to use the SDK and tools, with pointers to
+the main API documents is <a href="sdk.html">here.</a> <br>
+<h3>Filing Bugs</h3>
+Bugs can be filed using the bug database <a
+ href="https://www.broadon.com:49049/bugzilla">https://www.broadon.com:49049/buzilla</a><br>
+<br>
+The product category is "RVL" and the relevant components are:<br>
+<ul>
+  <li>IOP OS (all bugs related to SDK and IOP OS)<br>
+  </li>
+</ul>
+Please file bugs in English and provide a detailed explanation of
+the conditions which caused the bug and how it can be reproduced.
+</body>
+</html>

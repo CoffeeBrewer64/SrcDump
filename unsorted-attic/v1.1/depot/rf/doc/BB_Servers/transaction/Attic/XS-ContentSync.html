@@ -1,0 +1,29 @@
+d19 3
+a21 2
+  <li>Client : BB Depot - Content Manager</li>
+  <li>Server : Content Distribution - Content Sync Server, Content Distribution -
+d29 1
+a29 1
+<h4>Precondition</h4>
+d35 5
+a39 1
+<h4>Data</h4>
+a41 1
+  <li>Metadata (does not include encryption key)</li>
+d50 2
+a51 1
+  <li>	The Content Manager first processes the list to remove.  For each record in the remove list, the Content Manager removes content record from the stored list of content, the encrypted content and metadata from content
+d53 3
+a55 1
+  <li>	The Content Manager then processes the download list.  For each record in the download list, the Content Manager uses the Content ID to download both encrypted content and metadata from the Content Download Server to content storage.  After encrypted content and metadata are completely downloaded, the Content Manager add the content to its list of content. The Content Manager stores the timestamp for use during the next synchronization
+d67 3
+a69 3
+  <li>Synchronization Request - depotID, Content Manager submitted timestamp</li>
+  <li>Download Request - depotID, contentID</li>
+  <li>Download Completion - depotID, contentID, duration of download</li>
+d71 1
+a71 1
+<h4>Error Handling</h4>
+d73 1
+a73 1
+  <li>The CDS may not recognize the depotID as a valid BB Depot in which case an

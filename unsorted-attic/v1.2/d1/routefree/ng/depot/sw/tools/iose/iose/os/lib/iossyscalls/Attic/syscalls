@@ -1,0 +1,28 @@
+IOSThreadId CreateThread(IOSEntryProc entry, void *arg, void *stack, u32 stackSize, u32 priority);
+IOSThreadId Fork(IOSEntryProc entry, void *arg, void *stack, u32 stackSize, u32 priority);
+IOSError DestroyThread(IOSThreadId id);
+IOSThreadId GetThreadId(void);
+IOSProcessId GetProcessId(void);
+IOSError StartThread(IOSThreadId id);
+IOSError StopThread(IOSThreadId id);
+void YieldThread(void);
+u32 GetThreadPriority(IOSThreadId id);
+IOSError SetThreadPriority(IOSThreadId id, u32 priority);
+
+IOSMessageQueueId CreateMessageQueue(IOSMessage *msgarray, u32 count, u32 pIdMaios);
+IOSError DestroyMessageQueue(IOSMessageQueueId id);
+IOSError SendMessage(IOSMessageQueueId mq, IOSMessage msg, u32 flag);
+IOSError JamMessage(IOSMessageQueueId mq, IOSMessage msg, u32 flag);
+IOSError ReceiveMessage(IOSMessageQueueId mq, IOSMessage *msg, u32 flag);
+IOSError HandleEvent(IOSEvent event, IOSMessageQueueId mq, IOSMessage mesg);
+IOSError UnhandleEvent(IOSEvent event);
+
+void *Alloc(u32 size);
+IOSError Free(void *ptr);
+
+void DebugMemDump(void);
+
+IOSError StopTimer(IOSTimerId id);
+
+void DebugTimerListDump(void);
+void EmuStartProg(const char *prog, u32 pri);

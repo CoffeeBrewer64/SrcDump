@@ -1,0 +1,22 @@
+a1 14
+ * clock trees;
+ */
+set_dont_touch sysclk_tree
+set_dont_touch memclk_tree
+set_dont_touch vclk_tree
+set_dont_touch usbclk_tree
+
+/*
+ * resets;
+ */
+set_dont_touch bcp/mi/reset_l_tree
+set_dont_touch rst_buf1
+
+/*
+a67 3
+set_dont_touch find (net, "PAD_*")
+set_dont_touch find (net, "sysclk_in")
+set_dont_touch find (net, "sysclk")
+a68 2
+set_dont_touch find (net, "memclk")
+set_dont_touch find (net, "memclk_b")

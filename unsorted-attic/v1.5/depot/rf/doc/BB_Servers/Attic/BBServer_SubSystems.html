@@ -1,0 +1,289 @@
+d13 1
+a13 1
+<h1 align="center">BB Subsystems Model</h1>
+d15 18
+a32 14
+  <li><a href="#Transactional Subsystem">Transactional subsystem</a></li>
+  <li>Account Management subsystem</li>
+  <li>Audit subsystem</li>
+  <li><a href="#CDS Subsystem">CDS subsystem</a></li>
+  <li>RMS subsystem</li>
+  <li>Studio subsystem</li>
+  <li>Manufacturing subsystem</li>
+</ol>
+<hr>
+<h2>Open Issues</h2>
+<ol>
+  <li>Resolve difference between authentication for depot for transactions/CDS
+    downloads v/s RMS related functions for which the physical token may not be
+    present.</li>
+a39 2
+<p>Object to handle BB device. Each device is 'logically' present within a
+particular region.</p>
+d43 4
+a46 3
+    <li>bbID - common name in the digital certificate used for identification,
+      unique amongst all devices</li>
+    <li>publicKey</li>
+d48 1
+a48 1
+      activation. Without this the BB does not have its own public key or DC.
+d50 1
+a50 1
+      time.&nbsp;</li>
+d53 10
+a62 3
+    <li>regionalID - identifies the region that the BB belongs to and where any
+      new transactions may be executed for limiting security risks</li>
+    <li>storeID - where first activated and other identifying information</li>
+d65 87
+a151 43
+  <p><b>Methods</b></p>
+  <ul>
+    <li>CreateBB - upon manufacturing, registers device</li>
+    <li>ReadyForActivation - establishes a two stage process for activation, marks the
+      actual shipment of the BB to a store.</li>
+    <li>ActivateBB - enables/registers hardware and makes possible subsequent
+      downloads etc for this device. Activation of a deactivated BB must also be
+      possible.</li>
+    <li>SuspendBB - by audit department, upon hardware failure by customer
+      service etc. Upon suspension, no new eTickets (playback or personalizing)
+      may be issued.</li>
+    <li>DeactivateBB - within a certain time period, a purchased/activatedBB may
+      be deactivated as long as no purchases etc have taken place.</li>
+    <li>TransferBB - from one region to another</li>
+    <li>ReplaceBB - allow for transfer of tickets and other 'owned' items to
+      another device upon hardware failure etc. Privileged action.</li>
+    <li>ReinitMemoryCard - allow for creation of memory card for BB in case the
+      original needs to be replaced.</li>
+  </ul>
+</blockquote>
+<h3>BB Subscriber</h3>
+<p>A BB subscriber may register using out-of-band mechanisms. Typically this is
+used for building online communities, tie promotions to individuals etc.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li>username - unique, used for online community etc. Email sent to <a href="mailto:username@ique">username@ique.net</a>
+      may be downloaded from the player/BB device iff the BBid is registered and
+      there is a 1:1 mapping from the username to bbID. <a href="mailto:bbid@ique.net">bbid@ique.net</a>
+      will always be useable as an alternate.</li>
+    <li>memberID - unique, internal reference</li>
+    <li>preferences, password</li>
+    <li>contactInfo - email, telephone etc</li>
+    <li>&lt;sequence of bbID&gt; - optional, since one may register without
+      owning a unit. Each subscriber/user name may be be associated with
+      multiple BBs</li>
+  </ul>
+  <p><b>Methods</b></p>
+  <ul>
+    <li>Register Subscriber</li>
+    <li>Link BB - associate bbID with subscriber</li>
+    <li>GetAttributes</li>
+    <li>SetAttributes</li>
+d165 2
+a166 2
+    <li>&lt;sequence of storeID&gt; - retailer may have many stores, each of
+      which may have many depots</li>
+d168 39
+a206 7
+  <p><b>Methods</b></p>
+  <ul>
+    <li>RetailerCreditCheck</li>
+    <li>RetailerBalance</li>
+    <li>CreateRetailer</li>
+    <li>SuspendRetailer</li>
+    <li>ModifyStoreList</li>
+d215 1
+a216 1
+    <li>retailerID</li>
+d219 1
+a219 10
+    <li>&lt;sequence of depotID&gt;</li>
+  </ul>
+  <p><b>Methods</b></p>
+  <ul>
+    <li>CreateStore</li>
+    <li>AddDepot - including tokenID &amp; passwords</li>
+    <li>ModifyDepotList</li>
+    <li>ReceiveInventory - shipment will be registered (using some batch number)
+      using the Depot. This may be just pass through information for
+      audit/inventory purposes.</li>
+d221 32
+d255 1
+a255 1
+<p>A depot may belong to one and only one store within a region.</p>
+a258 2
+    <li>hardwareID - may be used for RMS purposes which does not require a physical
+      token to be present.</li>
+d261 2
+d264 1
+d266 106
+a371 1
+  <p><b>Methods</b></p>
+d373 2
+a374 2
+    <li>RegisterDepot - for the first time, perhaps upon RMS identification</li>
+    <li>SuspendDepot - disallow any further transactions</li>
+d379 2
+a380 5
+used for 'secure'/cash transactions. This&nbsp; token may be used in any of the
+depots the store only, but is tied to the store. This permits us to issue new
+tokens if they are lost or replace the depot without changing the ID responsible
+for the transactions. A token identifies an individual. Hence one should not
+'reissue' a token to a new person.</p>
+d384 1
+d386 2
+a387 7
+    <li>&lt;depotID, password&gt; -&nbsp; Tokens are&nbsp; physical IDs that
+      uniquely identify the store owner/clerk i.e. individuals rather than the
+      depot. Only individuals may be responsible for cash
+      transactions. Any one store may have multiple tokens issued to it even if
+      it has only one depot although cost reasons may restrict them to one per
+      depot. Also any one token may permit different usernames to be used for
+      login.</li>
+d390 42
+a431 6
+  <p><b>Methods</b></p>
+  <ul>
+    <li>RegisterToken - registered either by the installer who is setting up a
+      store, or from the Ops Center before tokens are shipped to the store</li>
+    <li>ActivateToken - permit cash/'secure' transactions</li>
+    <li>SuspendToken - disallow any further cash/'secure' transactions</li>
+d439 76
+a514 22
+    <li>eTicketID - there is one &amp; only one ticket for a given &lt;bbID,
+      contentID&gt; tuple</li>
+    <li>salesTransactionID</li>
+    <li>regionID</li>
+    <li>bbID</li>
+    <li>contentID</li>
+    <li>other eTicket attributes</li>
+    <li>status - issued, redeemed etc</li>
+  </ul>
+  <p><b>Methods</b></p>
+  <ul>
+    <li>IsValid</li>
+    <li>PurchaseTicket - store credit is issued</li>
+    <li>RedeemTicket - final confirmation of download &amp; purchase</li>
+    <li>CancelTicket - change content selection, results in a Refund and a new
+      sales transaction</li>
+    <li>RevokeTicket - used by audit department</li>
+    <li>ListTickets - view tickets for a particular BB based on some criteria
+      {all, neverRedeemed etc} - do we show the
+      status of the eTickets (playback v/s personalizing) to the end customer?</li>
+    <li>RefundTicket - only if it has not been redeemed already</li>
+  </ul>
+d524 8
+a531 6
+    <li>contentID</li>
+    <li>regionID</li>
+    <li>title &amp; description</li>
+    <li>size attributes - download size, saved state size (in memory card) etc</li>
+    <li>symmetric encryption key</li>
+    <li>price</li>
+d534 47
+a580 8
+  <p><b>Methods</b></p>
+  <ul>
+    <li>CreateContent - created from the studio subsystem once it has been
+      validated</li>
+    <li>SuspendContent - no further eTickets will be issued</li>
+    <li>GetList - based on some query like new in last month, matching certain
+      regular expressions, less than a certain price, promotional, upcoming
+      releases etc.</li>
+d591 64
+a654 2
+    <li>regionID</li>
+    <li>storeID</li>
+d657 24
+a680 13
+    <li>hardwareID</li>
+    <li>salesItem - describes what is being transacted i.e. content, accessory
+      etc</li>
+    <li>eTicketID - if applicable</li>
+    <li>salesPrice</li>
+    <li>discountApplied</li>
+    <li>&lt;sale time and other particulars&gt;</li>
+  </ul>
+  <p><b>Methods</b></p>
+  <ul>
+    <li>CreateXactRecord</li>
+    <li>VoidXactRecord</li>
+  </ul>
+d689 1
+a689 6
+    <li>&lt;RMS center information - URLs etc to be accessed&gt;</li>
+  </ul>
+  <p><b>Methods</b></p>
+  <ul>
+    <li>CreateRegion</li>
+    <li>ModifyRegion</li>
+d691 19
+a710 10
+<h3>Initiated inter-subsystem calls</h3>
+<ol>
+  <li>RMS
+    <ul>
+      <li>NewContentNotification - either to a particular depot or to a
+        particular region. RMS takes this information &amp; informs each of the
+        affected Depots to contact the CDS &amp; synchronize content</li>
+    </ul>
+  </li>
+</ol>
+d719 4
+a722 2
+<h3>CDS Content</h3>
+<p>Invoked by Depot for content synchronization.</p>
+a725 2
+    <li>studioID</li>
+    <li>contentID</li>
+d727 2
+a728 8
+    <li>&lt;meta data&gt;</li>
+  </ul>
+  <p><b>Methods</b></p>
+  <ul>
+    <li>Content_List - since last update time</li>
+    <li>Content_Count - number of content pieces available for download</li>
+    <li>Content_Walk - list out sequentially all the available pieces of content
+      that are available</li>
+d732 2
+a733 1
+<p>New content is published from the Studio Subsystem</p>
+d739 3
+a741 2
+    <li>regionID</li>
+    <li>&lt;meta data&gt;</li>
+d743 7
+a749 1
+    <li>dateToBeReleased - not made available till this date</li>
+d754 1
+a754 1
+    <li>Publish_Delete - delete some existing content i.e. not made available
+d756 20
+d778 7
+a784 1
+<h3>CDS Download</h3>
+d788 10
+a797 4
+    <li>depotID</li>
+    <li>regionID</li>
+    <li>contentID</li>
+    <li>downloadDate</li>
+d801 4
+a804 1
+    <li>ContentDownload</li>
+d808 8
+d822 1
+a822 5
+<h2><a name="RMS Subsystem">RMS Subsystem</a></h2>
+<ol>
+  <li>Always has the latest IP address for each Depot</li>
+  <li>Has &lt;depotID, regionID, ipAddress&gt; mappings</li>
+</ol>
+a823 1
+<h2><a name="Manufacturing Subsystem">Manufacturing Subsystem</a></h2>
+a824 2
+
+<hr>

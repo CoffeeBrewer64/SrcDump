@@ -1,0 +1,42 @@
+a12 4
+<ul>
+  <li><a href="XS-ContentSync/XS-ContentSync1_raster.gif">Control Flow</a></li>
+  <li><a href="XS-ContentSync/XS-ContentSync2_raster.gif">Data Flow</a></li>
+</ul>
+d15 1
+a15 1
+  <li> BB Depot - Content Manager (<i>point of control)</i></li>
+d22 4
+a25 2
+  <li>Should not require secure connections between BB Depot and BB servers</li>
+  <li>Minimize amount of traffic between BB Depot and Content Distribution Server</li>
+d30 1
+a30 1
+  <li>Should not require secure connections between BB Depot and BB servers</li>
+d39 3
+a41 1
+  <li>Encrypted content</li>
+d43 4
+d49 15
+a63 4
+  <li>	The BB Depot and the Content Distribution Subsystem mutually
+    authenticate each other.&nbsp;</li>
+  <li>	The transaction starts when the Content Manager connects to Content Sync Server passing the timestamp of last synchronization and requesting the list of new content.  The Sync Server uses the provided Depot ID and timestamp to query the Content DB to get the list of new content that the BB Depot should have.  The new content list, the associated download URLs and a new timestamp is returned back to the Content Manager.</li>
+  <li>	The Content Manager, compares the new content list to its stored list of content.  The result of the comparison is a list of content to remove and a list of content to
+d65 1
+a65 1
+  <li>	The Content Manager first processes the list to remove.  For each record in the remove list, the Content Manager removes content record from the stored list of
+d68 5
+a72 1
+  <li>	The Content Manager then processes the download list.  For each record in the download list, the Content Manager uses the Content ID to download
+d74 6
+a79 1
+    Content data store.  After the encrypted content is completely downloaded, the Content Manager add the content to its list of content. The Content Manager stores the timestamp for use during the next synchronization
+d81 2
+d99 1
+a99 1
+  <li>The CDS may not recognize the hardwareID as a valid BB Depot in which case an
+d102 1
+a102 1
+    appropriately with suitable back off timers till it succeeds.&nbsp; </li>
+d104 6

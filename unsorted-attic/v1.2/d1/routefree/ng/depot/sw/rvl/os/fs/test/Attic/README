@@ -1,0 +1,45 @@
+/*
+ *               Copyright (C) 2005, BroadOn Communications Corp.
+ *
+ *  These coded instructions, statements, and computer programs contain
+ *  unpublished proprietary information of BroadOn Communications Corp.,
+ *  and are protected by federal copyright law. They may not be disclosed
+ *  to third parties or copied or duplicated in any form, in whole or in
+ *  part, without the prior written consent of BroadOn Communications Corp.
+ *
+ *  Description:
+ *      Regression tests for the SCFS and the flash driver
+ *
+ */
+
+
+Source Code
+------------
+
+1) Software tests
+- fs_regr_test.c: Software regression tests
+- fs_coproc.c: Multiple threads issuing FS commands
+
+Public header files, fs.h and flash.h, are located in sw/sc/include/. The tests
+utilize the FS and flash libraries and their header files (fs_ops.h, fs_utils.h,
+fl_ops.h, fl_utils.h)
+
+
+Environment Variables
+---------------------
+
+1) ISFS_DEBUG_LOG
+- Enable logging in the SCFS
+- Otherwise all fsPrint, entry, and exit statements become void
+
+
+Testing
+-------
+
+Run the regression tests on the SCE with the following commands:
+
+    make runtests_regr
+    make runtests_coproc
+
+The tests should stop immediately if something went wrong. Check the output
+for any error messages.

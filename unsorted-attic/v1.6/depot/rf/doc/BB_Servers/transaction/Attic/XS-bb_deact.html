@@ -1,0 +1,189 @@
+<html>
+    <head>
+      <title>Transaction: BB Deactivation</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Transaction: BB Deactivation</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.5 $<br>
+        $Date: 2002/08/30 22:01:13 $
+      </center>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>BB Depot - Retail App</strong> (<em>point of control</em>)</li>
+	<li>Transaction - BB Activation Server</li>
+	<li>Transaction - Inventory Server</li>
+	<li>BB Player - Reinit Server</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>Communication between the Depot and the Server is secure.</li>
+	<li>The Depot and the Server must authenticate either
+	  other.</li>
+	<li>The Server must authenticate the BB Player before
+	  approving deactivation.</li>
+	<li>Time taken by the BB Activation Server to respond should
+	  be minimized.</li>
+	<li>Maintain stable state, i.e., transaction either succeeds
+	  or fails but never lost.</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>The BB Depot has the Depot ID inserted.</li>
+	<li>The BB Player must:
+	  <ol type=a>
+	    <li>be in the <code>activated</code> state</li>
+	    <li>be activated for not more than 30 mins (or whatever time
+	      limit imposed by the return policy)</li>
+	    <li>not own any eTicket that is not refundable.</li>
+	    </ol>
+	</li>
+	<li>The deactivation request must be initiated from the same
+	  store that activated the BB Player (either same Depot or
+	  different Depot owned by the same store).</li>
+	<li>Network connection between Depot and Server is up and running.</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>BB_ID</code></li>
+	<li><code>DepotID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li><a href="../data_defs.html#bb_rec">Transaction - BB Record</a></li>
+	<li><a href="../data_defs.html#eticket">Transaction - eTicket Record</a></li>
+	<li>Transaction - Inventory</li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li><code>status</code></li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>authenticate</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> connects to <em>BB Activation Server</em></li>
+	    <li>mutually verifies each other's identity</li>
+	    <li>establishes secure communication link</li>
+	  </ol>
+	</li>
+	<li><code>readID</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> asks the <em>Reinit Server</em> for
+	      its <code>BB_ID</code></li>
+	  </ol>
+	</li>
+	<li><code>deactivate</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> requests for BB deactivation, passing
+	      along the <code>BB_ID</code> (The <code>DepotID</code>
+	      has already passed to the Server as a side-effect of the
+	      authentication step.)</li> 
+	    <li><em>BB Activation Server</em> verifies that the BB
+	      Player has been activated but not more than the time
+	      limit.</li>
+	    <li><em>BB Activation Server</em> reads from the
+	      <em>eTicket</em> database and verifies that this BB does
+	      not own any non-refundable eTicket.</li>
+	    <li><em>BB Activation Server</em> verifies that the BB
+	      Depot belongs to the same store<a href="#fn1"><sup>1</sup></a> that activated this BB Player.</li>
+	  </ol>
+	</li>
+	<li><code>authenticate</code>
+	  <ol type=a>
+	    <li><em>BB Activation Server</em> authenticates the BB
+	      Player by asking the <em>Reinit Server</em> to digitally
+	      sign (i.e., encrypt by BB's private key) a random message.</li>
+	    <li>Verifies the signature using the BB's public key on file.</li> 
+	  </ol>
+	</li>
+	<li><code>approveDeactivation</code>
+	  <ol type=a>
+	    <li><em>BB Activation Server</em> updates the <code>state</code> and
+	      <code>RegionalID</code> fields of the BB record, and
+	      clears the <code>date</code> and <code>DepotID</code>
+	      fields.  The <code>state</code> should be set to
+	      <code>registered</code>.<br>
+		Note: The entire transaction is considered complete once
+		the BB Record is updated.  This operation must be
+		atomic.
+	      </li>
+	    <li>Sends a return status back to the <em>Retail App</em>.</li>
+	  </ol>
+	</li>
+	<li><code>returnBB</code>
+	  <ol type=a>
+	    <li>This is a <em>deferred transaction</em> triggered by
+	      the completion of the BB deactivation transaction.</li>
+	    <li>Notifies the <em>Inventory Server</em> that the
+	      specified BB Player has been deactivated and returned to
+	      the inventory of that particular store.</li>
+	  </ol>
+	</li>
+	<li><code>cleanupMemory</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> instructs the <em>Reinit
+		Server</em> to erase the digital certificate
+	      previously written onto the BB Card.
+	    </li>
+	  </ol>
+      </ol>
+      <h3>Post-conditions</h3>
+      <ol>
+	<li>The BB Record indicates this BB Player is now
+	  deactivated.</li>
+	<li>(<em>Deferred</em>) The inventory database is updated with
+	  this return.</li>
+      </ol>
+      
+      <h3>Audit Records</h3>
+      <ol>
+	<li>Deactivation Request - <code>DepotID</code>,
+	  <code>BB_ID</code>, <code>date</code>, approval status.</li>
+      </ol>
+
+      <h3>Exceptions</h3>
+
+      <ol>
+	<li>Secure connection cannot be established - the <em>Retail
+	    App</em> needs to provide reason(s) of failure.</li>
+	<li>The deactivation request is not approved:
+	  <ol type=a>
+	    <li><code>BB_ID</code> not activated, or it has been
+	      activated beyond the refund time limit.</li>
+	    <li>The BB Player owns one or more non-refundable eTicket.</li>
+	    <li>The BB Depot does not belong to the same store that
+	      activated this BB Player.</li>
+	    <li>BB Player fails to authenticate itself.</li>
+	    <li>Internal server error, e.g., database failure, backend
+	      server crashed, etc.</li>
+	  </ol>
+	</li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="overlayed/bb_deact-ctrl.png"1>Control Flow</a></li>
+	<li><a target="data" href="overlayed/bb_deact-data.png">Data Flow</a></li>
+      </ul>	  
+
+      <p>
+	<small><a name="fn1"><sup>1</sup></a>Given two DepotIDs, they
+	  belong to the same store if either they are equal, or they
+	  both point to the same store ID.  Each retailer can own one
+	  or more stores, and each store can have one or more BB
+	  Depots.  Each Depot Record has the storeID of the store to
+	  which it belong.  And each Store Record has the RetailerID
+	  of the retailer that owns the store.</small> 
+      </p>
+    </body>
+  </html>

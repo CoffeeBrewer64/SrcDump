@@ -1,0 +1,410 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.72 [en] (X11; U; Linux 2.2.14-5.0 i686) [Netscape]">
+   <meta name="AUTHOR" content="bill saperstein">
+   <meta name="CREATED" content="20020708;18203900">
+   <meta name="CHANGEDBY" content="bill saperstein">
+   <meta name="CHANGED" content="20020712;12091600">
+</head>
+<body>
+
+<center><font face="arial, sans-serif"><font size=+0>BroadOn Confidential</font></font>
+<br><font face="arial, sans-serif"><font size=+0>$Revision: 1.1 $</font></font>
+<br><font face="arial, sans-serif"><font size=+0>$Date: 2002/07/12 20:50:13 $</font></font></center>
+<b><u><font face="arial, sans-serif"><font size=+0></font></font></u></b>
+<p><b><u><font face="arial, sans-serif"><font size=+0>BB Depot</font></font></u></b>
+<p><b><u><font face="arial, sans-serif"><font size=-1>Summary</font></font></u></b>
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>This
+document briefly describes the bb depot hardware architecture. The depot
+is intended to perform several tasks:</font></font>
+<ul>
+<div STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>enable
+activation of the bb player</font></font></div>
+
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>enable
+download of e-ticket to the memory module</font></font>
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>provide
+content download to the bb player memory module from a network server</font></font></ul>
+
+<div STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>It
+is assumed that the first two functions will be performed at the depot
+console by the proprietor while the last function will be performed at
+the depot download station. The depot console is intended to be operated
+by the proprieter and take up the same footprint as a small cash register
+. It has an integrated LCD display with touch screen interface. Connection
+to broadband is via a 10/100 ethernet port. The depot console also provides
+a slot to insert the bb memory module for downloading of electronic tickets.
+Activation of the bb player is done via a USB cable which connects to the
+OTG port of the player. A USB dongle provides removalable security key
+to the console and allows the proprieter to "lock" the station. An auxillary
+USB port provides the capability of connecting a printer. And a standard
+RS-232 serial port is provided for debugging thru a standard tty console.
+These functions/ports are contained within a single all-in-one enclosure.</font></font></div>
+
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>The
+depot download station provides customers a means of downloading content
+into their bb memory modules. The station is connected to the console via
+a USB cable (max length 5 meters - extendable using USB repeater(s)). The
+station consists of a bb player connected to a standard color television
+via the bb a/v cable. To download content, demo content, etc. the customer
+inserts his/her memory module into the station's player and uses the activity
+keys to navigate the menus on the screen.</font></font>
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<p><b><u><font face="arial, sans-serif"><font size=-1>Implementation</font></font></u></b>
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>The
+following block diagram depicts the architecture of the depot console.
+The motherboard is based on a mini-ATX (or similar) PC based platform.
+The processor is x86 based @ 200+ Mhz. Standard memory DIMMs are used for
+memory expansion with the base system supporting 64MB. The motherboard
+supports two IDE channels, with master/slave capability for each channel
+(providing four(4) IDE devices). The basic depot system will come with
+a 20GB HD. Standard PS-2 power supply will be used providing 200+ watts
+with output for 12V, 5V, and 3.3V with power fail warning and trickle.
+Provision is allowed for at least three PCI slots, two 16550 serial ports,
+and a two port full speed USB hub. The motherboard could optionally have
+built-in 10/100 ethernet, but this is not essential since the PCI expansion
+can provide the ethernet uplink. Similarly, the board could have a 4-port
+USB hub, possibly reducing the need for an external hub in the depot console.</font></font>
+<p><img SRC="sv16016080.gif" NAME="Object1" BORDER=0 height=609 width=838 align=LEFT>
+<br>&nbsp;
+<br>&nbsp;
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>The
+640x480 LCD display is driven via a pci graphics card. The touchscreen
+controller is placed on the pci graphics card for convenience, however,
+it does not communicate with the host processor thru pci. Instead, one
+of the 16550 serial ports is used to read/write the controller chip thru
+a standard serial cable. The touchscreen controller receives power thru
+the pci bus. One of the pci slots is used for connection to the uplink
+using a standard 10/100 ethernet NIC card. If the motherboard has built-in
+ethernet, then this card is not required. The third pci slot is used to
+mechanically hold the 4-port USB hub and the memory card connector. This
+slot also provides power to the hub. The card will provide access to the
+USB ports thru the fence. Similarly, the memory module can be inserted
+thru the fence. The second serial port is used for debug thru a tty console.</font></font>
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>One
+master port from the USB hub (CATA) is used to insert the "token/key" which
+"unlocks" the console for operation. This USB key is removable and contains
+xx bytes of storage in an overmolded dongle. The other master USB port
+(CATA) is connected to the four(4) port USB hub which is mounted on the
+spare pci slot and acts as a repeater/extender. One of the ports of the
+hub is connected to a SmartMedia interface chip which intern connects to
+the memory module connector and allows the player memory card to be inserted
+for downloading of electronic tickets. The remaining three ports from the
+4-port hub are brought directly out of the fence of the card to standard
+CATA connectors. These external ports are used for the optional printer,
+player activation (thru a CATA-to-miniAB cable) and the download station
+connection.</font></font>
+
+<p STYLE="margin-left: 0.79in"><span STYLE="text-decoration: none"><span STYLE="font-weight: medium"><font face="arial, sans-serif"><font size=-1>Example
+USB hub chip : Phillips ISP1122A</font></font></span></span>
+
+<p STYLE="margin-left: 0.79in; font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>Example
+SmartMedia to USB interface chip : SMSC USB97C210</font></font>
+
+<p STYLE="margin-left: 0.79in; font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>Example
+LCD graphics controller chip : ATI RageLT</font></font>
+
+<p STYLE="margin-left: 0.79in; font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>Example
+Touchscreen controller chip : PenMount DMC9512</font></font>
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>The
+motherboard and display will be packaged in a single enclosure. Preferrably
+an off-the-shelf all-in-one metal case. The I/O connections and pci fences
+will be exposed on the side or back. By having all depot specific I/O mounted
+on pci expansion card(s), there is no requirement for a special enclosure.</font></font>
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>The
+depot download station is tethered to the console via a 5 meter USB full
+speed cable. This length can be extended via the use of USB repeater cables
+which provide an additional 5 meters for each inline repeater (max. length
+25 meters). Inside the download station resides another 4-port USB hub
+which allows the connection of up to four players for customer use. Each
+player is connected to a separate TV monitor via the standard player cable.
+The USB hub is connected to the OTG mini-AB connector on the player via
+a CATA-to-miniAB cable. Customers will be able to insert their memory cards
+into these download station players to play demos and download content.
+<b>NOTE</b>: the player will be powered on when the memory module is inserted,
+so the modules need to handle live insertion. Similarly, the software will
+need to notify the depot console when the memory card is inserted.</font></font>
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>The
+download station requires mechanical support for the TV monitors and permanent
+attachment of each player via a flexible metal cable or shaft.</font></font>
+
+<p STYLE="text-decoration: none"><b><u><font face="arial, sans-serif"><font size=+0>Appendix</font></font></u></b>
+
+<p STYLE="font-weight: medium; text-decoration: none"><font face="arial, sans-serif"><font size=-1>Target
+manufacturing cost for the entire depot station is $500. Below is a rough
+parts list from which we can base budgetary pricing.</font></font>
+<dl>
+<dl>
+<dl>
+<dl>
+<dl>&nbsp;
+<table BORDER CELLSPACING=3 CELLPADDING=4 WIDTH="467" >
+<caption><COL WIDTH=221><COL WIDTH=218><THEAD>
+<br></THEAD><TBODY>
+<br></TBODY></caption>
+
+<tr VALIGN=TOP>
+<th WIDTH="221"><font face="arial, sans-serif">Module</font></th>
+
+<th WIDTH="218"><font face="arial, sans-serif">Cost</font></th>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>LCD Display</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Touchscreen</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>PS2 power supply</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Mini-ATX MLB</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>600+ Mhz uP</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>64MB DIMM</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>20 GB HD</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>10/100 ethernet NIC</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>PCI graphics card
+w/ ts controller</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>4-pt USB hub w/ SM
+bridge PCI card</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>IDE ribbon cable</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>12'' USB cable for
+4-port hub</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>12" serial cable for
+touchscreen</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Ribbon cable for touchscreen</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Ribbon cable for LCD</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Power button w/ pigtail</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Reset button w/ pigtail</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Power LED w/ pigtail</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Enclosure</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>HD carrier</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>5m USB cable</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>5m USB cable w/ repeater</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Power cord</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>4-port hub w/ps</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>BB player w/ AV cable</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>TV monitor</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Rack</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="13">
+<center><font face="arial, sans-serif"><font size=-1>Power strip</font></font></center>
+</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="221" HEIGHT="12">&nbsp;</td>
+
+<td WIDTH="218">&nbsp;</td>
+</tr>
+</table>
+</dl>
+</dl>
+</dl>
+</dl>
+</dl>
+
+<div STYLE="font-weight: medium; text-decoration: none"></div>
+
+<br>&nbsp;
+</body>
+</html>

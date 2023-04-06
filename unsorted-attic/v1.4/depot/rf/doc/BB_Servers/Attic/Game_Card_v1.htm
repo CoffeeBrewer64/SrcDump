@@ -1,0 +1,136 @@
+d20 2
+a21 2
+  <o:Revision>56</o:Revision>
+  <o:TotalTime>121</o:TotalTime>
+d23 1
+a23 1
+  <o:LastSaved>2002-10-04T00:20:00Z</o:LastSaved>
+d25 2
+a26 2
+  <o:Words>998</o:Words>
+  <o:Characters>5692</o:Characters>
+d28 3
+a30 3
+  <o:Lines>47</o:Lines>
+  <o:Paragraphs>11</o:Paragraphs>
+  <o:CharactersWithSpaces>6990</o:CharactersWithSpaces>
+d134 3
+a136 3
+plastic with a concealed random number, called the Game Card Code.&nbsp; The Game
+Cards are physical goods sold by the retailer, and distributed using the BB
+Player's distribution channel.<span style="mso-spacerun: yes">&nbsp;&nbsp;
+d150 4
+a153 4
+style="mso-spacerun: yes">&nbsp;&nbsp; </span><b>&#8220;gold&#8221;, &#8220;silver&#8221;, and &#8220;bronze&#8221;.</b><span
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp; </span>The actual number and
+values of the denominations can be changed without affecting this design.<span
+style="mso-spacerun: yes">&nbsp; </span></p>
+d165 1
+a165 1
+     mso-list:l1 level1 lfo1;tab-stops:list .5in'>the kid buys a Game card </li>
+d167 1
+a167 1
+     mso-list:l1 level1 lfo1;tab-stops:list .5in'>the kid reveals the Code on
+d170 1
+a170 1
+     mso-list:l1 level1 lfo1;tab-stops:list .5in'>the kid goes to the download
+d173 1
+a173 1
+     mso-list:l1 level1 lfo1;tab-stops:list .5in'>the kid enters the Game Card
+d176 1
+a176 1
+     mso-list:l1 level1 lfo1;tab-stops:list .5in'>XS verifies the Code and
+d184 1
+a184 1
+     mso-list:l0 level1 lfo2;tab-stops:list .5in'>IQue owns a CA in US for Game
+d188 1
+a188 1
+     mso-list:l0 level1 lfo2;tab-stops:list .5in'>Generate a random Game Card
+d191 1
+a191 1
+     mso-list:l0 level1 lfo2;tab-stops:list .5in'>Apply one-way hash function <i>F</i>,
+d194 1
+a194 1
+     mso-list:l0 level1 lfo2;tab-stops:list .5in'>Create certificate
+d198 1
+a198 1
+     mso-list:l0 level1 lfo2;tab-stops:list .5in'>Digitally sign the (<i>H,I</i>)
+d201 1
+a201 1
+     mso-list:l0 level1 lfo2;tab-stops:list .5in'>Register (<i>H,I,S</i>) to XS
+d204 1
+a204 1
+     mso-list:l0 level1 lfo2;tab-stops:list .5in'>Ship <i>R</i> to the PRINTER
+d212 1
+a212 1
+     mso-list:l4 level1 lfo3;tab-stops:list .5in'>XS reads (<i>BB-id,R</i>)
+d215 1
+a215 1
+     mso-list:l4 level1 lfo3;tab-stops:list .5in'>XS applies one-way hash
+d218 1
+a218 1
+     mso-list:l4 level1 lfo3;tab-stops:list .5in'>XS uses <i>H</i> to find the
+d221 1
+a221 1
+     mso-list:l4 level1 lfo3;tab-stops:list .5in'>XS verifies <i>I</i> is still
+d224 1
+a224 1
+     mso-list:l4 level1 lfo3;tab-stops:list .5in'>XS verifies (<i>H,I</i>) has
+d250 2
+a251 2
+<p class=MsoNormal>Attack 1.&nbsp; The operators at PRINTER can print extra Game
+Card <span style="mso-spacerun: yes">&nbsp;</span>using valid Game Card
+d265 2
+a266 2
+ <li class=MsoNormal style='mso-list:l3 level1 lfo4;tab-stops:list .5in'>48 bit
+     random number,<span style="mso-spacerun: yes">&nbsp; </span>generated
+d268 1
+a268 1
+ <li class=MsoNormal style='mso-list:l3 level1 lfo4;tab-stops:list .5in'>Converted
+d270 1
+a270 1
+ <li class=MsoNormal style='mso-list:l3 level1 lfo4;tab-stops:list .5in'>15
+d272 1
+a272 1
+ <li class=MsoNormal style='mso-list:l3 level1 lfo4;tab-stops:list .5in'>the
+d292 3
+a294 3
+ <li class=MsoNormal style='mso-list:l2 level1 lfo5;tab-stops:list .5in'>Used Game
+     Card Code are backup and deleted from the database. </li>
+ <li class=MsoNormal style='mso-list:l2 level1 lfo5;tab-stops:list .5in'>Introduce
+d320 4
+a323 5
+<p class=MsoNormal>The activation/expiration of cards are management
+issues.<span style="mso-spacerun: yes">&nbsp; </span>They don&#8217;t have any
+implication of the Depot hardware and XS server design.<span
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; </span>The decisions will be made
+later.</p>
+d383 3
+a385 3
+  style="mso-spacerun: yes">&nbsp;&nbsp; </span>They are activated after
+  confirmation of delivery.<span style="mso-spacerun: yes">&nbsp;&nbsp;
+  </span>There are 4 choice of confirmations, see below.</s></p>
+d419 3
+a421 3
+  <p class=MsoNormal style='margin-bottom:12.0pt'>The retailer calls in the service
+  center to activate the cards, using a &#8220;password&#8221;, and specifying the batch
+  numbers.</p>
+d483 3
+a485 3
+  <p class=MsoNormal style='margin-bottom:12.0pt'><s>The expiration date is controlled
+  by the digitally signed certificate.&nbsp; The expiration printed on the card
+  and the expiration date in the database can be different.<span
+d513 2
+a514 2
+  <p class=MsoNormal style='margin-bottom:12.0pt'>We refund the retailer the
+  value of expired cards.<br>
+d609 2
+a610 1
+  <p class=MsoNormal>What comprises the Download Station?</p>
+d632 12
+a643 5
+  <p class=MsoNormal>The BB Depot has 1 download station, and the station does
+  not use BB Player.<span style="mso-spacerun: yes">&nbsp;&nbsp; </span>The
+  input and output devices are part of the PC.<span style="mso-spacerun:
+  yes">&nbsp; </span>A BB Player can be loosely attached to Download station to
+  run demos.</p>

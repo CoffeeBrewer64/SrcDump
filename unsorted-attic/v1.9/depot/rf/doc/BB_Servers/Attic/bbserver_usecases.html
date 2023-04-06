@@ -1,0 +1,337 @@
+d8 2
+a9 2
+$Revision: 1.8 $<br>
+$Date: 2002/08/21 01:18:44 $</i></center>
+d36 10
+d50 2
+d53 1
+a53 1
+<h3><span style="background-color: #C0C0C0">Use case: BB Key Generation&nbsp;</span></h3>
+d61 2
+a62 2
+<p><b>Description: </b>Chip manufacturer receives
+BBID, private key &amp; public key information from the Certificate Authority.</a></p>
+d70 4
+a73 2
+          security and be a closely guarded secret.</li>
+	    <li>We receive appropriate royalties for each manufactured chip.</li>
+d77 9
+d91 2
+d101 1
+a101 1
+	    <th width=50%>Chip <a id="releasetitle9">Manufacturer</a></th>
+d107 1
+a107 1
+Certificate Authority</a></th>
+d114 4
+a117 2
+            <li>Chip manufacturer submits a request for keys for a specified
+              number of units.</li>
+d126 3
+a128 6
+          <ol start=2>
+            <li>Generates unique BBID, private/public key pairs for desired
+              number of units</li>
+            <li>Keeps BBID &amp; public key for subsequent use</li>
+            <li>Submits &lt;BBID, private key, public key&gt; to the chip
+              manufacturer</li>
+d137 1
+a137 4
+<h3><span style="background-color: #C0C0C0">Use case: BB Player information submission</span></h3>
+
+
+</a>
+d142 1
+a142 4
+<p><b>Description: </b></a>
+
+Unit <a id="releasetitle4">manufacturer submits new BB Player information (BBID,
+BB Public Key, manufacturing details) to the Operations Center.</a></p>
+d165 4
+d170 1
+a170 1
+	<p><b>Assumptions &amp; conditions</b></p>
+d173 2
+a174 2
+	<ol>
+	  <li>
+d176 4
+d181 3
+a183 1
+<a id="releasetitle4">
+d185 1
+a185 1
+BB Player manufacturer receives BBID, BB Public Key from the chip manufacturer.</a></li> 
+d222 6
+d235 10
+d246 1
+d248 2
+a249 2
+<a id="submitbbinfo5">
+<h3><span style="background-color: #C0C0C0">Use case: Release DevKit&nbsp;</span></h3>
+d251 1
+d253 1
+a253 1
+      </a>
+d256 1
+a256 1
+<a id="releasetitle11">
+d258 3
+a260 1
+<p><b>Description: </b>DevKit is released to a registered studio.</a></p>
+a261 2
+<a id="submitbbinfo6">
+	<p><b>Rationale</b></p>
+d264 2
+a265 6
+	<ol>
+	    <li>A studio has to be registered before they can release content.&nbsp;</li>
+	</ol>
+
+<a id="submitbbinfo7">
+	<p><b>Assumptions &amp; conditions</b></p>
+d269 1
+a269 1
+	    <li>All communication is encrypted, secure &amp; mutually authenticated.</li>
+d272 1
+a272 14
+<a id="submitbbinfo8">
+	<p><b>Sequence of events/actions</b></p>
+</a>
+
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Studio</th>
+	    <th width="50%">
+
+
+<a id="releasetitle13">
+
+CMS</a></th>
+	  </tr>
+d274 2
+a275 25
+<a id="submitbbinfo9">
+	  <tr>
+	    <td >
+          <ol>
+            <li>Signs up as a developer</li>
+          </ol>
+	    </td>
+	    <td ></td>
+	  </tr>
+	  <tr>
+	    <td >
+	    </td>
+	    <td >
+          <ol>
+            <li>Registers Studio</li>
+            <li>Generates public/private key pair, certificate associated with
+              public key with Studio name</li>
+            <li>Bundles the certificate into the DevKit</li>
+            <li>Ships DevKit to the Studio</li>
+          </ol>
+        </td>
+	  </tr>
+	</table>
+</a>
+<a id="publishtitle">
+a276 12
+<a id="submitbbinfo10">
+<hr>
+<h3><span style="background-color: #C0C0C0">Use case: </a>
+
+<a id="submitbbinfo10">
+Publish Content</a><a id="publishtitle"></a><a id="submitbbinfo10">&nbsp;</a>
+
+</span></h3>
+
+
+      <a id="publishtitle">
+
+d280 2
+d283 2
+a284 1
+<a id="releasetitle14">
+d286 2
+a287 1
+<p><b>Description: </b></a>
+d289 1
+d291 2
+a292 6
+<a id="releasetitle14">
+
+Publish previously released content for distribution.</a></p>
+
+      <a id="publishtitle">
+
+a294 10
+<a id="submitbbinfo11">
+	<p><b>Rationale</b></p>
+</a>
+
+	<ol>
+	    <li>Publishing control should remain within our domain and not under the
+          control of the studio.</li>
+	</ol>
+
+<a id="submitbbinfo12">
+a298 3
+	    <li>Content has been released by the studio.</li>
+	    <li>Content has been validated to ensure quality and
+          checksums/signatures.&nbsp;</li>
+d311 1
+a311 1
+	    <th width=50%>Content Management Server</th>
+d319 1
+a319 6
+<a id="submitbbinfo14">
+      Decrypt the content using the private key associated with the studio.</a></li>
+            <li>
+
+<a id="submitbbinfo14">
+      Generate a random symmetric key and encrypt the content.</a></li>
+d322 1
+a322 3
+<a id="submitbbinfo14">
+      Generate Content ID which will be the unique identifier for reference within
+      the Operations Center.</a></li>
+a335 11
+<a id="publishtitle0">
+
+
+</a>
+
+
+<a id="distributetitle">
+
+</a>
+
+<a id="submitbbinfo15">
+d337 2
+a338 4
+<h3><span style="background-color: #C0C0C0">Use case: </span></a><span style="background-color: #C0C0C0">
+
+<a id="submitbbinfo16">
+Distribute Content</a></span><a id="distributetitle"><span style="background-color: #C0C0C0"></a><a id="publishtitle1"></a><a id="submitbbinfo17">&nbsp;</a>
+d343 1
+a343 1
+<a id="releasetitle15">
+a344 1
+<p><b>Description: </b></a>
+d346 1
+a347 9
+<a id="releasetitle15">
+
+Ops Center sets price and makes content available</a> on a regional basis.</p>
+
+      <a id="publishtitle2"></a><a id="distributetitle">
+
+</a>
+
+<a id="submitbbinfo18">
+a348 1
+</a>
+d361 16
+a380 1
+	    <li><a id="publishtitle2">CMS has published the content.</a></li>
+d395 1
+a395 1
+	    <th width=50%><a id="publishtitle2">Distributor</a></th>
+d402 2
+a403 8
+            <li>Distributor sets price and decides on the date that content is
+    available for purchase and subsequent download on a per region basis.</li>
+            <li>Distributor then notifies the CDS &amp; RMS through the Content
+              Availability Server (CAS).</li>
+            <li>RMS may notify the appropriate BB Depots associated with the
+              affected regions.</li>
+            <li>CDS makes content available to the BB Depots during the next
+              synchronization event.</li>
+a410 1
+<a id="submitbbinfo21">
+a411 2
+<h3><span style="background-color: #C0C0C0">Use case: </span></a><span style="background-color: #C0C0C0">Content
+Synchronization&nbsp;</span></h3>
+d414 2
+a415 1
+<a id="releasetitle16">
+a416 1
+<p><b>Description: </b>BB Depot Content Manager</a>
+d418 5
+a422 58
+      gets latest encrypted content from the CDS.</p>
+
+      <a>
+
+</a>
+
+<a id="submitbbinfo24">
+	<p><b>Rationale</b></p>
+</a>
+
+	<ol>
+	    <li>The BB Depot <a></a><a id="publishtitle4">Content Manager has to ensure
+          that any content that has been purchased (eTicket sold)&nbsp; is cached
+          locally for good response time.</a></li>
+	</ol>
+
+      <a>
+
+</a>
+
+<a id="submitbbinfo25">
+	<p><b>Assumptions &amp; conditions</b></p>
+</a>
+
+	<ol>
+	    <li><a id="publishtitle6">CDS</a> has received encrypted content.</li>
+	    <li>CAS has made content available to the regions.</li>
+	</ol>
+
+<a id="submitbbinfo26">
+	<p><b>Sequence of events/actions</b></p>
+</a>
+
+	<table width=100%>
+	  <tr>
+	    <th width=50%>BB Depot <a></a><a id="publishtitle7">Content Manager</a></th>
+	  </tr>
+
+	  <tr>
+	    <td >
+          <ol>
+  <li>Content Manager (= content acquisition module for BB Depot) connects  to Content Distribution Server with a "last updated" timestamp
+  <li>Content Distribution Server checks Content DB to get a list of  new title content.
+  <li>Content Distribution Server constructs URL(s) that the BB Depot  has access to for each title, and sends the list of
+    URL(s) back to the Content  Manager. These URL(s) are most likely pointing to Content Download Server, but  any other location could be used to download. The list also contains "update  timestamp" which is the latest registration timestamp out of all titles to be  downloaded
+  <li>Content Manager uses the URLs to download title content into BB  Depot 
+  <li>If fail, Content Manager retries up to certain times, and exit.  This sequence will periodically be executed and therefore, the Content Manager  will try download later 
+  <li>If successfully download all titles in the list, Content  Manager persistently store the timestamp sent from the Content Distribution Server into BB Depot
+  </li>
+          </ol>
+	    </td>
+	  </tr>
+	</table>
+<hr>
+
+
+<h2><span style="background-color: #C0C0C0">Section 3 : </span><a name="Studio/Content Developer Use Cases"><span style="background-color: #C0C0C0">Studio/Content
+Developer Use Cases</span></a></h2>
+d432 1
+a432 2
+<p><b>Description: </b>Studio
+releases content to the Content Management Subsystem (CMS) for further
+d434 1
+a434 1
+	<p><b>Rationale</b></p>
+d436 1
+a436 2
+	    <li>Studio is responsible for all QA and officially makes it available
+          to the Operations Staff.</li>
+d445 1
+a445 1
+	  <li>DevKit has authenticated itself to the Operations Center for online
+d459 1
+a459 1
+		<li>Studio uses DevKit to package the content. The package includes the

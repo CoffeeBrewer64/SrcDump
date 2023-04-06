@@ -1,0 +1,44 @@
+d9 2
+a10 2
+	  $Revision: 1.18 $<br>
+	    $Date: 2002/09/12 18:28:17 $
+d220 1
+a220 4
+		    <li>state == activated && date &lt time_limit &&
+		      own no eTicket</li>
+		    <li>state == activated && (date &gt= time_limit ||
+		      own eTicket(s))</li>
+d251 2
+a252 5
+		  <li><code>not_redeemed</code> -- initial state of
+		    this record; the purchase request has been
+		    approved but the eTicket has never been downloaded.</li>
+		  <li><code>redeemed</code> -- this eTicket has been
+		    downloaded (at least once).</li>
+a254 4
+		  <li><code>returned</code> -- this eTicket is no
+		    longer valid: the customer no longer owns this
+		    eTicket and cannot download it (but can purchase
+		    a new eTicket for this content).</li>
+a269 21
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<center>
+		  <img src=data_defs/eTicket-state.png></img>
+		</center>
+		<ol type=A>
+		    <code>
+		      <li>Refundable:<br>
+			  state == not_redeemed && date &lt time_limit</li>
+		      <li>Returned:<br>
+			  state == returned</li>
+		      <li>Non-refundable:<br>
+			  state == not_redeemed && date &gt= time_limit</li>
+		      <li>Redeemed:<br>
+			  state == redeemed</li>
+		      <li>Revoked:<br>
+			  state == revoked</li>
+		    </code>
+		  </ol>
+	      </td>

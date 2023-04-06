@@ -1,0 +1,192 @@
+<html>
+    <head>
+      <title>Transaction: Purchase eTicket</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Transaction: Purchase eTicket</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.7 $<br>
+        $Date: 2002/09/24 01:10:58 $
+      </center>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>BB Depot - Retail App</strong> (<em>point of control</em>)</li>
+	<li>Transaction - eTicket Server</li>
+	<li>BB Player - BB Card</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>Communication between the Depot and the Server is secure.</li>
+	<li>The Depot and the Server must authenticate either
+	  other.</li>
+	<li>Time taken by the BB Activation Server to respond should
+	  be minimized.</li>
+	<li>Maintain stable state, i.e., transaction either succeeds
+	  or fails but never lost.</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>The selected content has been pushed to the Depot.</li>
+	<li>The selected content has been marked purchasable by the server.</li>
+	<li>The selected content has been loaded to the BB Card.</li>
+	<li>The BB Depot has the Depot ID inserted.</li>
+	<li>The BB Card has been inserted into the memory card port of
+	  the Depot.</li>
+	<li>The BB Player has been activated.</li>
+	<li>The BB Card has been individualized.</li>
+	<li>The BB Player does not own an eTicket for the specified
+	  content.</li>
+	<li>The store has enough credit to cover the (probably
+	  discounted) price of the eTicket.</li>
+	<li>Network connection between Depot and Server is up and running.</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>BB_ID</code></li>
+	<li><code>DepotID</code></li>
+	<li><code>Content_ID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li><a href="../data_defs.html#bb_rec">Transaction - BB Record</a></li>
+	<li><a href="../data_defs.html#eticket">Transaction - eTicket Record</a></li>
+	<li><a href="../data_defs.html#trans_info">Transaction - Transaction Record</a></li>
+	<li><a href="../data_defs.html#Trasnaction - Content Metadata Record">
+	    Transaction - Content Metadata</a></li>
+	<li><a href="../data_defs.html#Transaction - Depot Record">Transaction - Depot Record</a></li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li><code>status</code></li>
+	<li><code>eTicket</code></li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>readID</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> reads from the <em>BB Card</em>
+	      its <code>BB_ID</code></li>
+	  </ol>
+	</li>
+	<li><code>authenticate</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> connects to <em>eTicket Server</em></li>
+	    <li>mutually verifies each other's identity</li>
+	    <li>establishes secure communication link</li>
+	  </ol>
+	</li>
+	<li><code>buyTicket</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> requests for a new eTicket, passing
+	      along the <code>BB_ID</code> and the
+	      <code>Content_ID</code> (The <code>DepotID</code>
+	      has already passed to the Server as a side-effect of the
+	      authentication step.)</li> 
+	    <li><em>eTicket Server</em> approves the sale:
+	      <ol type=i>
+		<li>reads from the BB Record that the BB Player has
+		  been activated.</li>
+		<li>reads from the eTicket Record that the BB does not
+		  already own an eTicket for that content.</li>
+		<li>reads from the Content Metadata and verifies that
+		  this content is <code>purchasable</code>.</li>
+		<li>reads from the Content Metadata the sale price of
+		  this eTicket.</li>
+		<li>reads from the Depot Record the commission code
+		  for that store (which gives the actual price we
+		  charge the store), and that the store has enough
+		  balance to cover the sale.</li>
+	      </ol>
+	    </li>
+	    <li><em>eTicket Server</em> updates the database:
+	      <ol type=i>
+		<li>generates a eTicket Record with the specified
+		  <code>BB_ID</code>, <code>Content_ID</code>, the
+		  current time and date.
+		</li>
+		<li>generates a corresponding Transaction Record.
+		  In particular, records the <code>DepotID</code>
+		  and the amount we withdraw from the store's
+		  account.</li>
+		<li>updates the balance in the Depot Record</li>
+	      </ol>
+	      The purchase is considered complete when all three
+	      records records are saved in the database.  The above
+	      operation must be atomic. 
+	    </li>
+	    <li><em>eTicket Server</em> generates the eTicket and
+	      returns it with "success" status to the <em>Retail App</em>.
+	    </li>
+	  </ol>
+	  <strong>Note:</strong> The balance of a Depot is
+	  synchronized with the <em>Billing/Account Management</em>
+	  system periodically (probably daily) and thus might not
+	  reflect the true balance at the time of sale.
+	</li>
+	<li><code>storeTicket</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> stores the eTicket to the <em>BB Card</em></li>
+	  </ol>
+	</li>
+      </ol>
+      <h3>Post-conditions</h3>
+      <ol>
+	<li>A new eTicket Record and Transaction Record are created
+	  indicating the sale.</li>
+	<li>The balance of the Depot is updated.</li>
+	<li>The BB Card contains the new eTicket.</li>
+      </ol>
+
+      <h3>Audit Records</h3>
+      <ol>
+	<li>Purchase eTicket Request - <code>DepotID</code>,
+	  <code>BB_ID</code>, <code>Content_ID</code>,
+	  <code>date</code>, approval status.</li>
+      </ol>
+	  
+      <h3>Exceptions</h3>
+
+      <ol>
+	<li><code>BB_ID</code> cannot be read from <em>BB Card</em> --
+	  the BB Card might be uninitialized or broken.</li>
+	<li>Secure connection cannot be established - the <em>Retail
+	    App</em> needs to provide reason(s) of failure.</li>
+	<li>The purchase request is not approved:
+	  <ol type=a>
+	    <li><code>BB_ID</code> not activated, or it has been
+	      suspended or retired.</li>
+	    <li>The BB Depot is black listed.</li>
+	    <li>The BB Depot does not have enough credit to cover this
+	      sale</li>
+	    <li>Internal server error, e.g., database failure, backend
+	      server crashed, etc.</li>
+	  </ol>
+	</li>
+	<li>The BB Player already owns an eTicket for this content -
+	  This is the case where the BB needs to reload the eTicket.
+	  The server simply returns the eTicket with a status code
+	  indicating this, and the <em>Retail App</em> proceeds to
+	  store the eTicket onto the <em>BB Card</em>.  No database record will be modified.
+	</li>
+	<li>The transaction has completed but the eTicket
+	  is not written on the <em>BB Card</em> - repeat the steps
+	  for purchasing the eTicket, which brings us to the previous
+	  exception case and the eTicket will be loaded again.</li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="overlayed/buy_eTicket-ctrl.png">Control Flow</a></li>
+	<li><a target="data" href="overlayed/buy_eTicket-data.png">Data Flow</a></li>
+      </ul>	  
+    </body>
+  </html>

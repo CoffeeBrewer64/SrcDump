@@ -1,0 +1,101 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>BB Servers</title>
+</head>
+
+<body>
+
+<h2 align="center">BB Servers</h2>
+<p>The following diagram shows all of the servers and the associated data stores. The
+list of transactions initiated by
+these servers is given in the <a href="BB-Transactions.html">BB-Transactions
+document.</a></p>
+<h2>Servers</h2>
+<b>
+Content Management Servers (CMS)</b>
+<ul>
+  <li>The CMS registers studios/developers and interfaces with the Release Kits
+    given to studios.</li>
+  <li>When content is released by the studios,&nbsp; it is uploaded to the CMS
+    where it can undergo validation and transformation before it is published to
+    the XS &amp; CDS for further sale &amp; distribution.</li>
+</ul>
+<b>
+Transactional Servers (XS)</b>
+<ol>
+  <li>The Transactional Subsystem is central to the server complex. It decides
+    when to make content available for purchase and is responsible for BB Player
+    sales and content/eTicket sales.</li>
+  <li>Records activities with BB devices for auditing purpose.</li>
+  <li>Does not distribute content itself.</li>
+  <li>Gift Certificates will not be implemented in the first round.</li>
+</ol>
+<b>
+Content Distribution Servers (CDS)</b>
+<ol>
+  <li>Receives content from the Content Management Servers</li>
+  <li>Content synchronization &amp; downloads available to the Depots</li>
+  <li>Never initiates contact with the Depot, relies on RMS to do that if
+    necessary.</li>
+  <li>Authenticates Depot based on hardwareID only.</li>
+</ol>
+<b>
+Manufacturing Servers</b>
+<ol>
+  <li>Co-located at the chip manufacturer and the BB Player manufacturer.</li>
+  <li>Communicates to the CA Servers the&nbsp; list of BBIDs and public keys.</li>
+</ol>
+<b>
+Certificate Authority Servers</b>
+<ol>
+  <li>Manages eTicket licenses and maintains revocation lists.&nbsp;</li>
+</ol>
+<b>
+Remote Management Servers (RMS)</b>
+<ol>
+  <li>User interface to manage BB Depot remotely from single point</li>
+  <li>Always has the latest IP address for each Depot and is able to contact the
+    Depot via RFRMP or equivalent mechanism.</li>
+  <li>Maintains &lt;hardwareID, region-ID, IP Address&gt; mappings.</li>
+  <li>Depots get to know about RMS subsystem during depot installation
+    procedures.</li>
+</ol>
+
+<b>
+
+Billing &amp; Account Management Servers</b>
+<ol>
+  <li>Repository and a set of software to manage BB-Depot Accounts, which are
+    effectively retailers.</li>
+  <li>Items to manage are; BB and hardware option sales, inventory of BB and
+    hardware options, eTicket issuance records, and content download records.</li>
+</ol>
+
+<b>
+
+Audit Servers</b>
+<ol>
+  <li>Perform auditing in batch
+  <li>Use audit records from all operational systems to check any violations to
+    license or usage of BB Depot or BB Players.
+  <li>Implement some heuristics to detect violations
+  <li>Generates report of auditing performed</li>
+</ol>
+
+<b>
+
+Release Kit Servers</b>
+<ol>
+  <li>A tool to given to Studios to develop or localize title content
+</ol>
+<p>&nbsp;</p>
+<img border="0" src="Server-Transactions.jpg" width="989" height="760">
+<p>&nbsp;</p>
+
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+ENTRY(_start)
+MEMORY 
+{ 
+   DDR_CRYPTO :  ORIGIN = 0x17c80000, LENGTH = 512K
+   SRAM : ORIGIN = 0xffff0000, LENGTH = 64K
+}
+
+PHDRS
+{
+  hdr_ddr  PT_LOAD AT (0x17c80000);
+  hdr_sram PT_LOAD AT (0xffff0000);
+}
+
+SECTIONS
+{
+   
+   ddr :
+   {
+     crypto_tmp/*.o
+   } > DDR_CRYPTO : hdr_ddr
+   . = 0xffff0000;
+   .text :
+    {
+        PROVIDE(__text_start = .);
+        *(.text) *(.glue*) *(strings) __text_end = .;
+    } > SRAM : hdr_sram
+   PROVIDE(__text_end = .);
+   .rodata :
+    {
+        PROVIDE(__rodata_start = .);
+        *(.rodata*)
+    } > SRAM : hdr_sram
+   PROVIDE(__rodata_end = .);
+
+   .data :
+    {
+        PROVIDE(__data_start = .);
+        *(.data)
+    } >SRAM : hdr_sram
+   PROVIDE(__data_end = .);
+
+   .bss :
+    {
+        PROVIDE(__bss_start = .);
+        *(.bss)
+    } >SRAM : hdr_sram
+   PROVIDE(__bss_end = .);
+   
+}

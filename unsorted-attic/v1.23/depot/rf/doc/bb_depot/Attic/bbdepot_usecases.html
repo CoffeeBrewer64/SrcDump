@@ -1,0 +1,563 @@
+  <html>
+
+    <head>
+        <title>BB Depot - Use Case Analysis</title>
+    </head>
+    
+    <body>
+
+      <h2 align="center">BB Depot - Use Case Analysis</h2>
+
+      <center>
+	BroadOn Confidential<br>
+	  $Revision: 1.22 $<br>
+	    $Date: 2003/01/28 23:58:20 $
+      </center>
+
+
+      <hr>
+
+<ol>
+  <li>
+ <i>This document describes customer initiated use cases that involve the BB Depot.</i></li>
+  <li><i>Customer use cases from the BB Player perspective are described in <a href="../bb_player_system/bb_player_usecases.html">this
+    document</a></i></li>
+  <li><i>Use cases that involve the BB Servers/Infrastructure are described in <a href="bbserver_usecases.html">this
+    document</a>.</i></li>
+</ol>
+
+	<p><i> There are two sections to this document:</i></p>
+	<ul>
+	  <li><i><a href="#Mainline User Model cases">The first section</a> of the
+	      document lists out the mainstream use cases.</i></li>
+	  <li><i><a href="#Other User Model cases">The second section</a> of the
+	      document discusses the infrequent and exception use cases.</i></li>
+	</ul>
+      <hr>
+      <h2> Terminology &amp; Requirements</h2>
+      <h3> Roles</h3>
+      <ol>
+        <li><b>Customer</b> - End user for the BB Player. Typically a child with
+          little or no computer experience.</li>
+        <li><b>Retailer</b> - Store owner who has signed up to sell BB, eTickets
+          and BB Player accessories. Typically will have little or no computer
+          experience. The store will have limited amount of space available for
+          BB Depot Stations.</li>
+      </ol>
+      <h3><b>BB Player</b></h3>
+      <ol>
+        <li>BB Player - hardware bought by customer for playing content.</li>
+        <li>BB Card - removable memory card/module that contains the customers
+          eTickets and content and plugs into the BB Player.</li>
+        <li>BB Safety Box or BB Game Vault - A customer gets rights to play
+          content through the purchase of an eTicket<i>. </i>The
+          content that he owns may be backed up to this <i>Safety Box</i> on the
+          Server from where he may retrieve it any time at no cost.</li>
+        <li>Audio Alert - audible beep used to indicate data entry and
+          completion of tasks to the customer</li>
+        <li>Authorized Retailer - Retailers with BB Depots who sell BB Players,
+          accessories, eTickets and accept units for repair.</li>
+      </ol>
+      <h3> BB Depot&nbsp;</h3>
+      <ol>
+        <li>BB Depot - computer used by the customer for conducting BB transactions</li>
+        <li>BB Card Reader - a slot on the BB Depot into which a BB Card can be
+          inserted by the customer</li>
+        <li>Game Card - A small plastic or paper card with a magnetic stripe (similar to a credit card) which is used to "pay" for games.
+        <li>Game Card Reader - a magnetic stripe reader</li>
+        <li>Depot Console - SVGA or LCD screen with touch screen capability</li>
+        <li>BB Depot USB ports - at least 2 ports: one for the BB Card Reader and one for the Game Card Reader</li>
+        <li>Audio Alert - audible beep used to indicate data entry and
+          completion of tasks to the customer</li>
+      </ol>
+      <h3> Server</h3>
+      <ol>
+        <li>Servers - refers to the transactional systems at the Ops Center. The
+          Servers must always authenticate themselves to the BB Depot or BB
+          Player if involved in any transaction.</li>
+        <li>RMS - Remote Management Servers</li>
+        <li>CDS - Content Distribution Servers</li>
+      </ol>
+      <h3> Console Applications</h3>
+      <ol>
+        <li><a href="bbdepot_Applications.html#Retail Application - Menu">Retail Application</a></li>
+        <li><a href="bbdepot_Applications.html">Other Console Applications</a></li>
+      </ol>
+      <hr>
+      <h2>Customer Use Cases</h2>
+	<h3>Mainstream customer use cases</h3>
+	<ol>
+            <li><a href="#Purchase">Content Purchase</a></li>
+            <li><a href="#Backup">Content Backup to Safety Box</a></li>
+            <li><a href="#Restore">Content Restore from Safety Box</a></li>
+	</ol>
+	<h3>Infrequent customer use cases</h3>
+	<ol start=5>
+            <li><a href="#CardRepair">BB Card Repair</a></li>
+            <li><a href="#CardPurchase">BB Card Purchase</a></li>
+            <li><a href="#PlayerRepair">BB Player Repair</a></li>
+            <li><a href="#PlayerReturn">BB Player Return</a></li>
+            <li><a href="#ContentRefund">Content Refund</a></li>
+	</ol>
+      <hr>
+	<h2><span style="background-color: #C0C0C0">Section 1 : </span><a name="Mainline User Model cases"><span style="background-color: #C0C0C0">Mainstream
+    Use Cases</span></a></h2>
+      <hr>
+      <h3><a name="Purchase"><span style="background-color: #C0C0C0">Content Purchase</span></a></h3>
+        <p><b>Description: </b>Customer selects and "pays" for a piece of content, and upon successful
+      completion, owns the content for playing on his BB Player.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>eTicket i.e. content license is individualized for the BB Player. Possession of
+        the content alone does not indicate ownership.&nbsp;</li>
+	</ol>
+	<p><b>Requirements</b></p>
+      <ol>
+        <li>Customer must be able to identify the BB Card that belongs to him
+          via some visible mark without plugging in the card. In addition
+          customer may be permitted to enter some personalization information
+          that is stored in the BB Card and viewable by the BB Player or BB
+          Depot.</li>
+          <li>Customer has previously selected the content that he wishes to purchase and has a Game Card of the appropriate value to purchase that content.</li>
+      </ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>Customer has purchased a BB Player and he has an individualized BB Card
+        for his BB Player. Customer is responsible for ensuring that he does not
+        bring in the BB Card belonging to some other BB Player.</li>
+	  <li>The BB Card has a BBID that uniquely identifies (does not authenticate) the BB Player for which the eTicket will be issued.</li>
+	  <li>Customer does not have to bring in his BB Player.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol>
+                <li>Pays the retailer for a Game Card of sufficient value to purchase the desired content</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td>&nbsp;</td>
+	    <td>
+	      <ol start=2>
+                  <li>Issues a Game Card to the customer</li>
+	      </ol>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol start=3>
+                <li>Plugs BB Card into the BB Depot's BB Card Reader</li>
+                <li>Selects the content to be purchased</li>
+                <li>If space is available, the console prompts the user to swipe their Game Card. Otherwise, the user is taken to the "<a href="#Backup">Content Backup to Safety Box</a>" section.</li>
+                <li>After the content (data and eTicket) is successfully installed on the BB Card, the customer removes their BB Card and the transaction is complete.
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	</table>
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+        <li>Servers and BB Depot fail to mutually authenticate each other.</li>
+        <li>BBID is not recognized by the Server as identifying an official BB Player.</li>
+        <li>ContentID is no longer available for purchase.</li>
+        <li>No response is received from the Server.</li>
+        <li>Customer is not able to provide Game Cards with sufficient value for
+          purchase of the content.</li>
+      </ol>
+      <hr>
+      <h3><a name="Backup"><span style="background-color: #C0C0C0">Content Backup to Safety Box</span></a></h3>
+
+      <p><b>Description: </b>Customer backs up content to Safety Box .</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>Customer will be prompted only
+	    when he wants to download a piece of content (either a new purchase or a restoration from their Safety Box) and the BB Card does not
+        have enough free space for downloading that content.</li>
+	</ol>
+
+	<p><b>Requirements</b></p>
+      <ol>
+        <li>Memory capacity and management must be easily understandable by the
+          customer, who may have very little computer
+          knowledge. The customer base includes small children who have limited
+          comprehension of large numbers.</li>
+      </ol>
+
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>The BB Card has enough memory to hold the new content,
+	    if some of the old ones are backed up to the Safety Box.</li>
+	  <li>Retailer does not have to authenticate the depot the the Server.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	      <ol>
+                  <li>Customer requests additional content be added to their BB Card; either through a new purchase or a restoration from their Safety Box.</li>
+		<li>Depot detects BB Card does not have enough
+		  free space, and list all titles of content
+		  currently stored on the BB Card.  Asks customer to
+		  select a title to be backed up to Safety Box.</li>
+		<li>Customer selects content to be backed up.</li> 
+		<li>Customer repeats the previous step.  As soon as
+		  enough memory space has been freed, content download resumes automatically.
+		</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	</table>
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+	<li>BB Depot is not able to communicate with the BB Card.</li>
+        <li>New content is too big to fit in the current BB Card.</li>
+        <li>No response is received from the BB Depot.</li>
+      </ol>
+      <hr>
+
+      <h3><a name="Restore"><span style="background-color: #C0C0C0">Content Restore from Safety Box</span></a></h3>
+        <p><b>Description: </b>Customer downloads content (which he already has an eTicket for) onto his BB Card.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>Customer may own a large number of eTickets, but have space for a limited
+	    number of pieces of content on his BB Card. So, he may constantly be backing up and
+        restoring content onto the BB Card from his virtual <i>Safety Box.</i></li>
+	</ol>
+	<p><b>Requirements</b></p>
+      <ol>
+        <li>It must be possible to automatically download promotional content as
+          part of regular content downloads if space is available. Customer must
+          not have to manage space used by promotional content.</li>
+      </ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>The BB Card identifies (does not authenticate) the BB Player for which the
+	    eTicket has been purchased. The actual BB Player does not need to be present.</li>
+	  <li>The BB Player owns at least one eTicket which identifies the content.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th width=50%>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	      <ol>
+		<li>Inserts his BB Card into the BB Card Reader</li>
+                <li>The Depot Console displays a list of the content currently installed on the BB Card, and also the content available in the Safety Box.</li>
+                <li>Using the touch screen on the Depot Console, the customer selects the content to be restored from the Safety Box.</li> 
+                <li>If space is available, the content is restored. Otherwise, the user is taken to the "<a href="#Backup">Content Backup to Safety Box</a>" section.</li>
+		<li>Waits for the display to indicate
+		  completion of the download process</li> 
+                <li>This process may be repeated as many times as necessary.  The customer simply removes their BB Card when done.</li>
+	      </ol>
+	    </td>
+            <td>&nbsp;</td>
+	  </tr>
+	</table>
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+        <li>BB Card is not initialized or BBID is not recognized by the Server
+        as identifying an official BB Player.</li>
+      </ol>
+      <hr>
+
+	<h2><span style="background-color: #C0C0C0">Section 2 : </span><a name="Other User Model cases"><span style="background-color: #C0C0C0">Infrequent
+    &amp; Exception Use Cases</span></a></h2>
+      <hr>
+
+      <h3><a name="CardRepair"><span style="background-color: #C0C0C0"> BB Card Repair</span></a></h3>
+      <p><b>Description: </b>Customer wants to repair his BB Card..&nbsp;</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>Customer receives visual and/or audible indication that his BB Card needs to be repaired.</li>
+	</ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>Content of BB Card might be corrupted or not initialized.</li>
+	  <li>Customer brings in the BB Player along with the BB Card to the Store.&nbsp;</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol>
+		<li>Takes BB Player and the BB Card to the Store.</li>
+		<li>Plugs in the BB Card into the BB Depot</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td>&nbsp;</td>
+	    <td width=50%>
+	      <ol start=3>
+                  <li>Depot recognizes BB Card as in need of repair and proceeds
+                    to do that.</li>
+		<li>If the repair is successful (i.e., no hardware
+		  failure), asks the Customer to remove BB Card from the port and plug
+          it into the BB Player.
+		  Otherwise, tells customer to buy a new card
+		  (see <em> BB Card</em> <em>Purchase </em> below).</li>
+	      </ol>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol start=5>
+		<li>Plugs BB Card into the BB Player to individualize card which is done
+          automatically.</li>  
+                  <li>  Customer may now plug in the new BB Card into the BB
+                    Depot to retrieve content from their Safety Box.</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	</table>
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+        <li>BB Card cannot be repaired because of hardware failure.</li>
+        <li>BB Card cannot be individualized because the BB Player is not
+          recognized as an official unit.</li>
+        <li>BB Card cannot be individualized because the BB Player does not
+          respond.</li>
+      </ol>
+      <hr>
+
+      <h3><a name="CardPurchase"><span style="background-color: #C0C0C0">BB Card Purchase</span></a></h3>
+	<p><b>Description: </b>Customer purchases another BB Card.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>Customer might need to purchase a new BB Card to replace
+	    a lost/damaged card.</li> 
+	  <li>Customer might want to purchase additional BB Cards so
+	    that he can have more content available to him without
+	    returning to the BB Depot to swap content.</li>
+	</ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>Customer has in his possession a purchased BB Player which he brings
+        to the store.&nbsp;</li>
+	  <li>All new BB Cards have been initialized at the factory.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	      <ol>
+		<li>Asks for a new BB Card.</li>
+		<li>Hands over money to the Retailer.</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td>&nbsp;</td>
+	    <td width=50%>
+	      <ol start=3>
+		<li>Accepts money from customer and hands over new BB Card</li>
+	      </ol>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	      <ol start=4>
+		<li>Plugs in a new BB Card to BB
+		  Player for individualization.</li>
+                  <li>  Customer may now plug in the new BB Card into the BB
+                    Depot to retrieve content from their Safety Box.</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	</table>
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+        <li>Servers and BB Depot fail to mutually authenticate each other.</li>
+        <li>BB Card cannot be individualized because the BB Player does not
+          respond.</li>
+        <li>BB Player is not able to communicate with the new BB Card.</li>
+        <li>No response is received from the BB Depot or the Server.</li>
+      </ol>
+      <hr>
+      <h3><a name="PlayerRepair"><span style="background-color: #C0C0C0">BB Player Repair</span></a></h3>
+
+      <p><b>Description: </b>Customer wishes to get his BB Player repaired.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>A very small percentage of BB Players may malfunction. Customer must
+        have a way of getting these repaired at authorized Retailers.</li>
+	</ol>
+
+	<p><b>Requirements</b></p>
+      <ol>
+        <li>A Regional Operations Center must offer its repair services to the
+          Retailer.</li>
+      </ol>
+
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>Customer has proof of purchase.</li>
+	  <li>Customer is able to describe what is wrong with the system.</li>
+	  <li><em>Not</em> an online or secure operation and the BB Depot is not
+        involved in the transaction.</li>
+	</ol>
+      <p><b>Sequence of events/actions - BB Player drop-off</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	      <ol>
+		<li>Customer brings in BB Player along with any accessories which may be
+          malfunctioning.</li>
+		<li>Customer describes problem to the Retailer.</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	    </td>
+	    <td>
+	      <ol start=3>
+		<li>Retailer verifies the problem if possible, to ensure that is is not
+          a pilot error.</li>
+		<li>Retailer fills out a 'Repair Sheet' form and describes the problem.</li>
+		<li>Retailer asks the customer for&nbsp; receipt/proof-of-purchase that the customer provides.</li>
+		<li>If the BB Player is not in the warranty period, Retailer is asked to
+          charge the customer.&nbsp;</li>
+		<li>Retailer calls in and receives an RMA number,&nbsp; the address where to send the
+          Player and the expected number of days that it will take to repair the
+          unit.&nbsp;</li>
+		<li>Retailer gives customer a receipt with the RMA number.</li>
+		<li>Retailer packs BB Player and accessories and sends it along with the
+          RMA number to the Regional Operations Center.</li>
+	      </ol>
+        </td>
+	  </tr>
+	</table>
+      <p><b>Sequence of events/actions - BB Player pick up</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	      <ol>
+		<li>Customer gives Retailer receipt with RMA number printed on it.</li>
+	      </ol>
+	    </td>
+	    <td></td>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	    </td>
+	    <td>
+	      <ol start=3>
+		<li>Retailer verifies that he has received the appropriate box from the
+          Regional Operational Center.</li>
+		<li>Retailer is advised on the status of the repair and any outstanding
+          charges.</li>
+		<li>Status and charges vary depending upon whether the BB Player and/or
+          accessories
+          <ul>
+            <li>were within the warranty period</li>
+            <li>whether it was repairable</li>
+            <li>whether a replacement unit was shipped if it was not repairable</li>
+          </ul>
+        </li>
+		<li>Retailer completes any monetary transaction and gives
+          repaired/replacement BB Player and accessories to the customer.</li>
+	      </ol>
+        </td>
+	  </tr>
+	</table>
+      <hr>
+
+      <h3><a name="PlayerReturn"><span style="background-color: #C0C0C0">BB Player Return</span></a></h3>
+	<p><b>Description: </b>Customer returns a recently purchased BB Player.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>A small percentage of returns are part of normal customer behavior.</li>
+	</ol>
+	<p>&nbsp;<b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>The BB Player Return is purely between the customer and the retailer.
+        The retailer is permitted to follow any policy he prefers.</li>
+	</ol>
+      <p><b>Requirements</b></p>
+	<ol>
+	  <li><em>Not</em> an online or secure operation and the BB Depot is not
+        involved in the transaction.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100% border=0>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol>
+		<li>Hands over BB Player to Retailer and asks to
+		  return BB</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td>&nbsp;</td>
+	    <td width=50%>
+	      <ol start=2>
+		<li>Depending upon the condition of the BB Player, packaging, BB Card,
+          the Retailer follows his store policy wrt to accepting returns.</li> 
+		<li>It should be noted that the customer gives up ownership of any
+          additional eTickets that he may have purchased along with the BB
+          Player, if the retailer accepts the return.</li> 
+		<li>The Retailer is free to resell any returned BB Players.</li> 
+	      </ol>
+	    </td>
+	  </tr>
+	</table>
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+        <li>Retailer can verify that the BB Player is functional by hooking it
+          up to a TV and playing content.&nbsp;</li>
+      </ol>
+      <hr>
+	
+      <h3><a name="ContentRefund"><span style="background-color: #C0C0C0"> Content Refund</span></a></h3>
+        <p><b>Description: </b>Customer wishes to return a piece of content that he has purchased.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>All sales are final. We do not allow for return of individual
+        eTickets.</li>
+	</ol>
+    </body>
+    
+  </html>

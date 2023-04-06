@@ -1,0 +1,1120 @@
+<html>
+
+<head>
+        <title>BB Startup</title>
+</head>
+
+<body>
+<h1>
+<p align="center">
+BB Startup and Code Partitioning
+</p>
+</h1>
+
+
+This document defines the interaction of software modules during the
+boot process. The goals are to:
+<ul>
+  <li> define the BB startup sequence, from power-on until a user
+       is interacting with the BB to manipulate (play, download,
+       etc.) content.
+  <li> partition tasks between boot-code, secure kernel (SK)
+       code, and browser application (BA) code.  From this, sizing efforts can
+       be undertaken for the Boot and SK code.
+  <li> define SK entry APIs for servicing requests from the BA.
+</ul>
+
+<h2>Overview and Definitions</h2>
+
+A high level view of the startup sequence and software partitioning is provided
+in Figure 1. At power-up the processor executes out of secure Boot-ROM.
+Boot-ROM contains a minimal amount of code to bootstrap the SK from MFLASH into
+secure BSRAM, from where it will be run. The SK will load the BA to DRAM and
+then launch the BA. The SK relies on libraries to accomplish this, and these
+libraries also implement secure kernel API (SKAPI) functions that provide
+services to the BA.  The BA runs from external DRAM and uses an NMI request
+mechanism to access the SKAPI.
+
+<p align=center>
+<IMG src="partition.png" align=center> <br>
+<b>Figure 1.</b> Software Partitioning<br>
+
+<h3>Hardware Terms</h3>
+The hardware elements regularly referred to within this document are
+briefly described here.
+<dl>
+  <dt>Boot-ROM
+    <dd> Internal Mask Rom with first byte mapped to reads at the reset 
+         and NMI vector location (0x1fc0,0000) after a reset. Code to
+         load the SK is stored here.
+  <dt>BSRAM (Boot SRAM)
+    <dd> Internal SRAM used to shadow the Boot-ROM. Immediately after
+         reset no reads will address this memory, but under register
+         control the Boot-ROM read address can be changed to read from
+         BSRAM (click <a href=../hw/reset_int.html>here</a> for a detailed 
+         description of the Boot-ROM vs BSRAM addressing modes). For writes,
+         BSRAM addressing begins at the reset vector location. The SK will
+         be loaded here.
+  <dt>ISRAM
+    <dd> Internal SRAM for general internal use.
+  <dt>VFLASH
+    <dd> Internal, Read-Only Virage flash module. There are also writable
+         Virage flash units, but the term VFLASH will be used within this
+         document to reference only the RO unit.
+  <dt>VSRAM
+    <dd> Internal VSRAM which is part of the Virage flash. A Virage flash
+         unit consists of a flash portion and an SRAM portion (the VSRAM).
+         The VSRAM is RW, and a RECALL operation to the Virage flash unit
+         will load VSRAM with the contents of the flash portion.
+  <dt>MFLASH
+    <dd> External nand-flash located in the pluggable module.
+  <dt>DRAM
+    <dd> External DDR-SDRAM for general use.
+</dl>
+
+<!--
+<iframe src=test.html></iframe>
+-->
+
+<h3>Important Objects</h3>
+
+The content eTicket (often referred to as a license in this document) and 
+re-encryption key table are described in this sub-section.
+
+
+<p>
+The content license includes data required to carry out most of the tasks being
+discussed in this document. The license contents are listed below.
+<p>
+<b>eTicket (a.k.a., License) items</b> (included from 
+<a href=../security/Structures.htm>security/Structures.htm</a>)<b>:</b>
+<iframe width=600 height=900 src=../security/Structures.htm></iframe>
+
+<!--
+ TODO: replace this with include from Pramila. must make sure member
+    name changes are taken into account.
+
+<b>License items:</b>
+<ul>
+  <li> ContentID
+  <li> Un-encrypted Meta-data
+  <ul>
+    <li> content-type 
+    <li> content-size 
+    <li> title 
+    <li> author
+    <li> description
+    <li> thumbnail image ???
+    <li> flash storage (in bytes) to pre-allocate for game state
+  </ul>
+  <hr WIDTH=200 ALIGN=left>
+  <li> BBID (id of BB this license is valid for. Additional security over
+       license encryption with BB public key)
+  <li> Content Decrytion Key
+  <li> Content Signature (Hash over entire content)
+  <li> Boot length (number of bytes loaded at boot time)
+  <li> Boot Signature (Hash over content length loaded at boot)
+  <li> HW access rights
+  <li> License server signature (hash over license encrypted with license
+       server private key)
+  <li> Certificates (validation to trusted root and license server public key)
+  <li> Re-encryption Data (enables generation of re-encryption key)
+  <li> AES initialization vector (initial 128-bit assumption used to
+       encrypt content this license refers to)
+  <li> Load address (if n64 game, we don't want to use the boot code
+       in the first 4K - starting at 0x40 - of cartridge ROM. Our loading
+       code must load to the same address that was specified in the
+       ROM image's initial 4K segment)
+  <li> Compression indicator (indicates whether content bytes 0 till
+       "Boot length"-1 are compressed)
+</ul>
+-->
+
+<p>
+Notes:
+<ol>
+  <li> the hash for the License server signature is computed over both the
+       encryted and un-encrypted portions of the license.
+  <li> <a name="reencrypt_decide">when the "content-size" and "Boot length"
+       fields are equal, re-encryption is not needed for the associated
+       content. In this case the content decryption key used at playback time
+       is the "Content Decryption Key" field, not a key obtained from the
+       re-encryption packet (described below).
+  <li> all licenses are decrypted with the playback BB's private key,
+       except for the BA license which is decrypted with a key obtained
+       from a known location in internal flash.
+</ol>
+
+<font COLOR=red>
+The maximum license size is 2KB.
+</font>
+
+<p>
+<b>Re-encryption key table:</b><br>
+Because of the re-encryption process, a table of re-encryption keys must
+be maintained in MFLASH. This table will allow a CID to index the appropriate
+re-encryption key. The exact form of the table is managed by the SK, and
+it is encrypted for storage in MFLASH. The BA considers the table to be
+an opaque object for which it will manage reading and writing to the MFLASH
+file system. Thus, all SK access to the table is through a pointer to
+the data passed in an SK API function call.
+
+
+<h2>Task Definitions</h2>
+
+This section provides high-level task descriptions for the Boot-ROM,
+SK, and combination BA with SK. The combination BA/SK case runs under
+BA control, and the BA will make SK calls using the SK Trap mechanism. The 
+level of detail required to define the SK API calls issued by the BA is
+not provide here, but will be provided in the next section.
+
+<p>
+For all the tasks the error and debug model is as follows. The
+error LED will be lit on powerup by hardware. Software will only turn the
+error LED off once BA has come up enough to control the video interface.
+
+<p>
+<b>Boot-ROM Tasks:</b>
+<p>
+<ul>
+
+  <li> Power-on detects the external flash module. If not present
+       we continually retry.
+
+  <li> Test DRAM and initialize CPU cachees.
+
+  <li> Load and run the secure kernel from MFLASH. 
+    This requires:
+    <ul>
+      <li> locate secure kernel code in MFLASH
+      <li> decrypt and load SK code into BSRAM
+      <li> verify SK hash
+      <li> alter memory mapping so BSRAM is at 0x1fc00000
+      <li> transition control to the SK
+    </ul>
+
+</ul>
+
+
+<p>
+<b>Secure Kernel Tasks:</b>
+<p>
+<p>
+<font COLOR=red>
+ToDo: not taking into account license server revocation list yet.
+</font>
+
+<p>
+Only the boot-centric SK tasks are described here. There are also
+SK tasks that occur at regularly timed SK entries.
+
+<ul>  
+  <li> First-app (browser) load<a href=#footnote1><SUP>1</SUP></a>:
+       At system power-on or reset, the first application (BA) will
+       automatically be loaded and run, if present. Recovery is required
+       if the BA cannot be launched successfully. The BA is
+       assumed NOT to require re-encryption.
+    <ul>
+      <li> Locate, in MFLASH, the first app license. 
+      <li> Load, decrypt and verify license.
+      <li> Setup cipher to use the decryption key supplied in the license.
+      <li> Locate content start block in MFLASH.
+      <li> Load first N bytes of content from MFLASH to DRAM. N is specified
+           by the license "Boot length" member. For the browser app N must
+           equal the content size specified in the license meta-data (since BA
+           is not re-encrypted, and this is true for any app not requiring
+           re-encryption).
+      <li> Compute hash over N loaded bytes (while loading) and determine
+           if the application is legitimate. If not, abort load.
+      <li> Setup hardware access rights based on license info.
+      <li> Exit secure mode with PC at license "load address" member.
+    </ul>
+
+</ul>
+
+
+<p>
+<b>Shared Secure Kernel and Browser Application Tasks:</b>
+<p>
+The tasks listed below are those that will require support from the secure
+kernel (through SK APIs). This list is intended to itemize the work to be done,
+and not to suggest an optimal ordering for implementation. The sections to
+follow will address those issues, address the work distribution between the
+broswer application and secure kernel (i.e., SK API definition), and provide 
+another level of detail for (especially BA) task steps. Details for the SK
+steps required to implement the SK APIs are provided
+<a href=../security/Functionality.htm>here</a>.
+
+<ul>
+  <li> Activation: <br>
+    Prior to activation (takes place during manufacturing): 
+    <ul>
+      <li> the secure kernel must be present in MFLASH, occupying
+           the first good blocks (fixed size, so number blocks can be fixed).
+      <li> the BA license (BAL) must follow the SK in the next good block.
+      <li> the BA content must follow the BAL and one more good block used
+           to ping-pong BAL updates, on the next sequence of good blocks.
+      <li> the flash file system <i>should</i> be initialized.
+    </ul>
+    The activation step will then occur at the depot. This will result in
+    writing the BB certificate, signed appropriately, to MFLASH.
+    The steps are:
+    <ul>
+      <li> provide BBID from ROM to depot.
+      <li> authenticate BB (sign challenge packet).
+      <li> obtain BB certificate from depot and write to flash.
+    </ul>
+
+  <li> eTicket Download: <br>
+    There will be some protocol interaction with the depot to determine
+    an eTicket can/should be downloaded, since the purchase and download of an
+    eTicket are decoupled. The steps below include the likely authentication
+    of BB to depot.
+    <ul>
+      <li> provide BBID from ROM to depot.
+      <li> authenticate BB (sign challenge packet).
+      <li> send cert from MFLASH (with BBID of BB that "owns" the MFLASH)
+           to depot.
+      <li> request eTicket.
+      <li> receive and store new eTicket.
+    </ul>
+
+  <li> Content Download: <br>
+    <ul>
+      <li> provide BBID from ROM to depot.
+      <li> authenticate BB (sign challenge packet).
+      <li> send cert from MFLASH (with BBID of BB that "owns" the MFLASH)
+           to depot.
+      <li> request content.
+      <li> download and store content to MFLASH.
+    </ul>
+    The authentication of BB to depot may have been completed in a separate
+    step, but is included here as well for completeness.
+    
+
+  <li> Content Load/Run: <br>
+       This is similar to loading the BA, except for the re-encryption 
+       and a contiguous memory view of MFLASH being required here.
+    <ul>
+      <li> BA load license information from MFLASH.
+           We now have the CID.
+      <li> BA load encrypted CID/key table from MFLASH. The table storage
+           is managed by the BA, but it's contents are managed by the SK.
+      <li> SK parse CID/key table to find re-encryption key. Note that the
+           SK can <a href=#reencrypt_decide>determine</a> from the license
+           if the re-encryption key is truly required. If this key is
+           required and is not in the table, re-encryption is needed (see
+           next task).
+      <li> SK Setup cipher to use re-encryption key.
+      <li> BA setup PI to provide the loaded application a contiguous memory 
+           view of it's content in MFLASH.
+      <li> BA locate content start block in MFLASH.
+      <li> SK Load first N decompressed bytes of content from MFLASH to DRAM. 
+           N is specified by the license "Boot length" member. 
+      <li> SK Compute hash over N loaded bytes (while loading) and determine
+           if the application is legitimate. If not, abort load.
+      <li> Setup hardware access rights based on license info.
+      <li> Start application.
+    </ul>
+
+  <li> Content Re-encryption: <br>
+    The content playback license is used to determine if re-encryption is 
+    required, as described <a href=#reencrypt_decide>earlier</a>.
+    As covered in detail later, this must occur such that the process could
+    resume after abruptly being stopped by a power outage.
+    <ul>
+      <li> BA locate and load license information from MFLASH.
+      <li> BA locate and load CID/key table from MFLASH.
+      <li> SK examine CID/key table and insure no key exists for the CID
+           specified in the license.
+      <li> SK create new key using internal random number generation mechanism.
+      <li> In place, a flash block should be re-encrypted using the new
+           key. As re-encryption proceeds the hash should be cumulatively
+	   computed.
+      <li> SK verify computed hash versus the one in the license over entire
+           content.
+      <li> BA write the updated CID/key table to external flash.
+    </ul>
+
+    
+  <li> ECC: <br>
+       This is tbd. The SK may need to handle an NMI indicating some
+       ECC related tasks must be performed. Also, the BA may be able
+       to perform corrective re-writes for flash blocks where ECC
+       correctable errors have occurred.
+</ul>
+
+<h2>Processing flow</h2>
+
+This section describes the startup flow, which covers from power-up until
+the BA is launched and some degree of user interaction has occurred.
+In this section, more detail is provided and the division of task
+implementation work between boot-ROM, SK and BA will be shown. The level of
+detail is intended to allow the SK API functionality to be identified and
+defined. Also, the information here should aid in detailed code sizing 
+efforts.
+
+As a general note, to aid in debug and and provide bootup status, status and
+error codes are written to a reserved debug address on the IOBUS. These debug
+and status writes will be indicated in the flow diagrams that follow by 
+red and green text, respectively, residing along an execution path.
+
+<h3>Boot-ROM startup flow</h3>
+
+Figure 2, below, depicts the boot-ROM startup flow. In the real boot code
+the first lines will jump to VSRAM to allow small boot-ROM code patches, 
+however, this is not included in the Figure.
+
+<!--
+  TODO: add status pass/fail markers in figure. These are colored red/green
+    text with the numeric output code.
+-->
+
+<p align=center>
+<IMG src="rom.png"> <br>
+<b>Figure 2. Boot-ROM Startup Flow</b>
+
+<p>
+The figure elements are described below.
+
+<p>
+<i>Reset</i> <br>
+Both hard and soft reset always cause this code path to be entered.
+
+<p>
+<i>MFLASH present</i> <br>
+Detects if the flash module is plugged in. Since the device cannot do
+anything useful without this module we continually make this check until
+flash is inserted.
+
+<p>
+<i>Self copy and jump to ISRAM</i><br>
+The boot-ROM code copies itself to ISRAM, from where it will run.
+
+<p>
+<i>Memory Test</i><br>
+Perform required initialization for DRAM. A register with a "boxid"
+(not the BBID mentioned throughout this document) will indicate which
+parameters need to be set. A pattern will be written and read back to
+verify operation.
+
+<p>
+<i>Cache invalidate and run cached</i><br>
+Set up the cache for initial usage and jump to KSEG0 address of next
+instruction. From here on the boot code is running cached from ISRAM.
+
+<p>
+<i>Setup cipher</i><br>
+The cipher is setup with the key from VSRAM, by writes to PI register space.
+
+<p>
+<i>Find next SK MFLASH block</i><br>
+The SK binary occupies the first set of good blocks on MFLASH. To determine if
+a block is good the "Block Status" byte is read from the spare data area in
+pages within that block. The number of bytes to load occupies the first 4 bytes
+of the first good block. If the appropriate number of good blocks cannot be
+found the cpu is halted.
+
+<p>
+<i>Read block to BSRAM</i><br>
+The block must be loaded and stored to SRAM. In this process ECC is performed,
+the block is decrypted by the cipher and a hash is computed (over the entire
+SK binary). If a fatal ECC error occurs we will halt. 
+
+<p>
+<i>SK Hash OK</i>
+The computed hash over the SK binary is checked against two possible values
+stored in VSRAM. If either matches the hash is OK. An error at this point
+causes a halt.
+
+<p>
+<i>ROMRdAddr to BSRAM</i>
+The read mapping to ROM address space is directed to BSRAM. From this
+point forward any NMI will cause a jump to BSRAM. Note that a reset will
+automatically reset the read mapping to Boot-ROM, so resets are always
+handled by Boot-ROM code.
+
+<p>
+<i>Jump into SK</i>
+Jump to the entry in BSRAM to continue the boot process.
+
+
+<h3>Secure kernel flow</h3>
+
+Figure 3, below, depicts the SK code flow. The two possible entry mechanisms
+are a jump from boot-ROM during bootup, or an NMI. The NMI is either 
+generated by a SK API call from an application (BA), or by a timer indicating
+the SK must perform maintenance tasks.
+
+<p align=center>
+<IMG src="skstartup.png" align=center> <br>
+<b>Figure 3. Secure kernel flow</b>
+
+<p>
+The figure elements are described below.
+
+<p>
+<i>Boot-ROM entry</i> <br>
+This is the entrypoint from the Boot-ROM, after the Boot-ROM read
+addressing has been switched to address BSRAM.
+
+<p>
+<i>NMI</i> <br>
+An NMI will cause entry to address 0x1fc00000 in BSRAM (SK code). This
+entry is to handle a SK api request (NMI mechanism referred to as "SK trap")
+or a SK controlled timer (set by MI register writes).
+
+<p>
+<i>Handle SK Request</i><br>
+This is where the SK API is implemented. The specifics have been defined
+<a href=BOGUS_FOR_NOW>here (bogus link, must write referenced page)</a>.
+
+<p>
+<i>Return</i><br>
+To return from NMI the cache is setup/cleaned, the secure mode register is
+written to indicate we're exiting secure mode, and the eret instruction is
+issued.
+
+<p>
+<i>Locate BA License</i> <br>
+The BA license will be in a fixed position in flash. It will be located in 
+the first good blocks following the SK. The good/bad block determination
+is by the "Block Status" byte in the MFLASH spare data area for pages within
+the block. The license itself will fit into a
+single block, but to allow updating safely two blocks will be used to
+ping-pong two versions. The spare data area (must define exactly where)
+will contain a sequence number that will be used to determine which
+license is current (highest sequence number).
+<!-- OLD VERSION (still keeping around in case it's needed again)
+The SK must know enough about the <a href=../ffs/ffs.htm>flash file system</a>
+to locate the first application's license. The first app license is held as the
+first entry in the license file. The license file starting block resides as the
+first entry in the root file system. The root file system data is stored in a
+known location on one of the last 2 good blocks at the end of permanent
+storage. To determine which of the last blocks to use the sequence number for
+the 2 blocks in question is examined. Thus, finding the BA license data and
+loading requires:
+<ul>
+  <li> locate the last two good blocks. The block status byte is located at 
+       byte 517 in a given page. A value of 0xFF indicates a block is good.
+       Every page has this value written (it is redundant), so the SK must read
+       byte 517 in a page of each block, starting from the last and working
+       backward, until two blocks have been found with the 0xFF code at byte
+       517.
+  <li> Read the sequence numbers of the blocks from the previous step at a 
+       fixed offset into each of these blocks.  The block to use for reading
+       the root directory has the higher valid sequence number.
+  <li> Read a fixed offset into the block from the previous step to determine 
+       the license file starting block.
+  <li> Read the first app license data from the beginning of the block from the 
+       previous step.
+</ul>
+-->
+
+<p>
+<i>Load license, Verify</i> <br>
+To verify the license:
+<ul>
+  <li> load license to ISRAM given block ptr from previous step.
+  <li> decrypt license. <i>The BA license will not be encrypted using the
+       BB's public key. There will either be a TBD key, or no encryption
+       on this license. In the former case, the key will be stored in
+       VSRAM. In the latter case this step is not 
+       necessary.</i>
+  <li> authenticate license server.
+  <li> verify license hash.
+</ul>
+
+<p>
+<i>Locate BA Content</i> <br>
+The first BA block address is obtained from the license block (will fill in
+details, but most likely in the spare area). This allows the BA to be
+ping-ponged too, if necessary.  The address for the next BA block is located in
+the spare data area of the current block. Thus, the BA block locations are not
+required to be contiguous.
+
+<p>
+<i>Decompress, Load, Verify Hash</i> <br>
+This step requires:
+<ul>
+  <li> set cipher given pointer to decrypted license. Will use the "Content
+       Decryption Key" from the license since re-encryption was not required
+       for the BA.
+  <li> load (and decompress, if indicated by Compression indicator field 
+       of license) the number of bytes of content specified by the license "Boot
+       length" entry. Given the address of the content first flash block from
+       the license, this will require chaining blocks, as previously explained
+       using the spare data, to find all required blocks of
+       content to fulfill the "Boot length", and DMA these to memory.
+       For the BA the "Boot length" will be the entire length.
+  <li> verify hash by computing based on the in memory decrypted content,
+       and comparing to the license file "Boot Signature".
+</ul>
+
+<p>
+<i>Run</i> <br>
+To run:
+<ul>
+  <li> set access rights according to license entry "HW access rights".
+  <li> prepare for departing SK (any memory cleanup or CPU register settings).
+  <li> jump to location specified in license entry "Load address".
+</ul>
+
+
+<h3>Browser startup</h3>
+
+Figure 4, below, depicts the browser (i.e., first) app startup flow. Note
+that if the browser requires a contiguous view of the flash memory that 
+composes it's content, it will need to set this up at the appropriate time.
+This step is required because the SK will not perform this task, and is not 
+shown in the figure. Since all other applications are launched by the browser,
+and the browser performs this task in those cases, other applications will
+have a contigous view of their flash content upon startup.
+
+<p align=center>
+<IMG src="bastartup.png" align=center> <br>
+<b>Figure 4. Browser Application Startup Flow</b>
+
+
+<p>
+Each of the elements in Figure 4 are described below.
+
+<p>
+<i>VI Init, LED OFF</i><br>
+The VI and frame buffer are initialized at this point and the screen
+may be used to convey status and messages. Upon successful initialization
+the error LED is turned OFF.
+
+<p>
+<i>FFS Check</i> and <i>Repair</i> <br>
+This check is mostly for taking care of changes such as a pluggable
+memory module being removed. Details are given in the
+<a href=../ffs/ffs.htm>flash file system document</a>. If we decide
+to use a Smart Media logical block layer this step would be required
+to initialize the physical to logical block mapping structures.
+
+<p>
+<i>Altered</i><br>
+This decision is whether or not the repair needed to remove files.
+
+<p>
+<i>Changed Msg</i>
+A message is displayed to inform the user which files has been removed.
+
+<p>
+<i>Depot Usb</i><br>
+Determine if we have a USB connection to the depot. Details for the USB
+connection protocol are pending. When they are available the detection
+mechanism will be delineated here.
+
+<p>
+<i>Depot Flow</i><br>
+All processing while connected to the depot is being encapsulated 
+in the <a href=#depot_flow>depot flow</a> section.
+
+<p>
+<i>Browse</i><br>
+The browser app presents a UI for selection of content to launch.
+Once a particular content is selected the launching process begins.
+
+<p>
+<i>Re-encryption Flow</i><br>
+Because content requires a re-encryption step before playback, the flow
+depicted in Figure 5 is entered to determine if re-encryption has been
+performed and re-encrypt if necessary.
+
+<!--
+<p>
+<i>Loop block calls to SK</i> <br>
+These calls must be carried out such that an unexpected power-down will
+not cause a loss of content. This responsibility is assumed by the browser
+application code within this block. The SK provides an entry point for the 
+BA to call that will handle a single encryption-sized block at a time.
+It is assumed that SK_StartReencrypt() has already been called before
+entering the pseudo-code below. This code represents the case where
+re-encryption starts from the beginning (i.e., not in the recovery mode).
+<pre>
+<font FACE="monospace">
+pLicense={locate license and load to memory};
+for(i=0;i &lt num_encryption_blocks_in_content;i++){
+    pContentBlock={load content block i to memory};
+    SK_Reencrypt(pLicense,i,pContentBlock,pSkState);
+        // pSkState allows SK to maintain state such as
+        // the computed hash. this will be encrypted.
+        // pSkState is either obtained directly from
+        // the SK_StartReencrypt() call, or from
+        // the recovery process.
+        // NOTE: we assume the size of SkState data
+        //  will not change!
+    {manage writing flash blocks when appropriate};
+}
+</font>
+</pre>
+-->
+
+<!--
+<p>
+<i>Re-encrypt State Exists</i><br>
+If a content re-encryption was interrupted by a powerdown, a portion of the
+content file will be re-encrypted, and a portion will still be in the
+encryption according to the license "Content Decryption Key". The decision
+will be made based on state-full files that the BA uses during the
+re-encyrption process. 
+-->
+
+<!--
+<p>
+<i>Re-encrypt Recover</i><br>
+This block will restore the state before powerdown, so the next block, "Loop
+block calls to SK", can complete the re-encryption. To enter the loop
+appropriately, the starting content block and associated pSkState must
+be retrieved from the state-full files managed during re-encryption.
+-->
+
+<p>
+<i>Set PI contig. MFLASH addr space</i><br>
+The MFLASH content blocks are traversed using the FAT. At each point where
+the next content block does not immediately follow the current block,
+an entry must be made in the PI register space to setup an ATB (address
+translation buffer) making the memory
+map appear contiguous. The SK will count on this in the next step.
+
+<p>
+<i>SK_AppLaunch</i> <br>
+This is the call to the SK to launch an application. Since the PI registers
+have already been configured to provide the application a contiguous view
+of flash, the secure kernel can utilize this to simplify the launching
+procedure. The SK call is made in the context: <br>
+<pre>
+<font FACE="monospace">
+{setup PI to provide contiguous flash view - actually indicated
+ previously in figure};
+pLicense=malloc(sizeof(License)+sizeof(KeyPacket));
+*pLicense={locate license and load to memory};
+*(pLicense+sizeof(License))={locate re-encryption key packet for 
+                             is CID, if exists, and load to memory};
+SK_AppLaunch(pLicense);
+</font>
+</pre>
+
+
+<a name="recrypt_flow">
+<h3>Re-encryption Flow</h3>
+Figure 5, below, depicts the re-encryption flow referenced in 
+Figure 4. As illustrated in Figure 4, this flow is entered when the user
+decides to load a piece of content. Content re-encryption occurs
+during this step as shown in the figure.
+
+<p align=center>
+<!-- <IMG src="depotflow.png" height=800 align=center> <br> -->
+<IMG src="recrypt.png" align=center> <br>
+<b>Figure 5. Re-encryption Flow</b>
+
+<p>
+The elements of Figure 5 are:
+
+<p>
+<i>SK_RecryptReq && !complete</i> <br>
+The SK API SK_RecryptReq is used to determine if re-encryption is
+required for the content of interest. The SK makes this determination
+based on the license fields as described <a href=#reencrypt_decide>here</a>.
+If re-encryption is required and has not been previously completed then
+we proceed with re-encryption. Otherwise no re-encryption work needs to
+be done. 
+<p>
+TBD: file-system mechanism for learning from MFLASH that
+re-encryption has been completed.
+
+<p>
+<i>SK_RecryptStart</i><br>
+The re-encryption process is started by using the SK API
+SK_RecryptStart(), which requires pointers to the content license
+and CID/key list. 
+
+<p>
+<i>MFLASH save list</i><br>
+The CID/key list MUST be saved before any other SK_Recrypt* calls
+to allow recovery in the event of an unexpected shutdown.
+
+<p>
+<i>Re-crypt started</i><br>
+If re-encryption has previously been started, then the content file
+contains some blocks which have been re-encrypted and some that have
+not. The decision is based on file system state.
+<p>
+TBD: file-system mechanism for determining re-encryption has
+previously been started for this content.
+
+<p>
+<i>MFLASH load recrypted block</i><br>
+Starting at the beginning of the content file, each MFLASH block
+that has been re-encrypted is loaded into memory. The spare data
+area of the block is used to determine if the block has been
+re-encrypted or not.
+
+<p>
+<i>SK_RecryptHash</i><br>
+The SK API function SK_RecryptHash() is used to allow the SK to accumulate
+the appropriate hash value for the content that was previously re-encrypted.
+
+<p>
+<i>last recrypted</i> <br>
+The SK_RecryptHash() function must be called for all previously re-encrypted
+MFLASH blocks. The last block is determined by the spare data for the given
+block.
+
+<p>
+<i>MFLASH load content block</i><br>
+The next MFLASH content block is loaded into DRAM. If re-encryption was
+not previously started, then the first pass through this block will load
+the first content block. If it was, then the first pass will load the
+first content block that was not re-encrypted previously. 
+
+<p>
+<i>SK_RecryptData</i><br>
+Re-encrypt a the content block via the SK API call SK_RecryptData().
+The hash is computed for accumulation as well in this step.
+
+<p>
+<i>MFLASH Save</i><br>
+Save the re-encrypted block to MFLASH. Note that the loading and saving
+must be done in a manner that prevents data loss in case of unexpected
+powerdown or reset. The exact mechanism is TBD, but the saved re-encrypted
+block will have a mark in the block spare data area to indicate the
+block has been re-encrypted.
+
+<p>
+<i>Content Done</i><br>
+Check if all content has been downloaded.
+
+<p>
+<i>SK_RecryptStop</i><br>
+The SK API call to stop re-encryption for this content, and to verify
+the content had a valid hash. If the hash was valid, we're done. If an
+error occurs we proceed to MFLASH Delete.
+
+<p>
+<i>MFLASH save list</i><br>
+The CID/key list MUST be saved again at this point to allow state changes
+by SK in the list to be saved. 
+
+<p>
+<i>MFLASH Delete</i><br>
+If an error has occurred the content is deleted from MFLASH (the license
+is not deleted).
+
+
+<a name="depot_flow">
+<h3>Depot Flow</h3>
+
+Figure 6, below, depicts the browser depot flow referenced in Figure 4.
+As illustrated in Figure 4, this flow is entered when the depot connection
+is detected.
+
+<p align=center>
+<!-- <IMG src="depotflow.png" height=800 align=center> <br> -->
+<IMG src="depotflow.png" align=center> <br>
+<b>Figure 6. Depot Flow</b>
+
+<p>
+The elements of Figure 6 are described next. We assume that any errors
+occuring once an action is chosen return directly to the "User Input"
+block for handling. All those possible error paths are not indicated
+on the diagram.
+
+<p>
+<i>BB to Depot Authenticate</i> <br>
+This step is to authenticate the actual BB, and not it's MFLASH memory
+module. The BBID will be obtained from the SK (using the API
+SK_GetId()). A challenge stage will follow requiring the SK to
+sign a quantity using the API SK_Sign(). 
+<p>
+This step may actually occur during the "Depot Usb" decision process
+in Figure 4.
+
+
+<p>
+<i>Activate</i> <br>
+The USB depot protocol should determine if activation will occur.
+If so, a certificate is issued for this BB and written to MFLASH.
+The BBID from the authentication step is used to generate
+the certificate.
+
+<p>
+<i>Action Init</i> <br>
+Any protocol steps common to all actions are implemented here. This
+will at least include sending the BB certificate from flash to the
+depot. 
+
+<p>
+<i>User Input</i> <br>
+At this stage the user is interacting with a content download station
+BB. Based on a set of menus, the user will choose an action.
+
+<p>
+<i>Download License</i> <br>
+A single license is downloaded from the depot and written to the MFLASH
+license file.
+Before writing, the license is verified using the SK API SK_VerifyLic().
+
+<p>
+<i>MFLASH Lic Save</i> <br>
+The license is saved to the MFLASH license file. Details concerning the
+management of the license file are in the FFS document.
+
+<p>
+<i>Download Content Chunk</i> <br>
+The USB connection is used to download chunks of content.
+
+<p>
+<i>MFLASH Save</i> <br>
+MFLASH blocks of content are written with downloaded content data.
+
+<p>MFLASH Commit File</i><br>
+Once all blocks are successfully written, the file is commited to the
+MFLASH directory file and FAT.
+
+
+
+<h2>SK APIs required by BA</h2>
+
+All functions return 0 on success, or a nonzero error code (error
+codes TBD). All memory passed in/out is allocated by the callee and
+not the SK.
+
+<pre>
+<font FACE="monospace">
+/*
+ * Obtain the BBID from ROM 
+ */
+int SK_GetId(
+   BBId* id    /* OUT: BBId struct holding the id, allocated 
+                *      by callee 
+                */
+   );
+</font>
+</pre>
+
+<pre>
+<font FACE="monospace">
+/* Sign a packet using XXX.
+ *
+ * return:
+ *   can fail with code indicating sLen argument is too small in input 
+ */
+int SK_Sign(
+   BYTE*  packet,   /* IN: Pointer to packet to sign */
+   int    pLen,     /* IN: Packet length  */
+   BYTE*  signed,   /* OUT: ptr, allocated by BA, to hold result */
+   int*   sLen      /* IN/OUT: informs SK how much memory allocated
+                     *    on input. Output is the length of the signed
+                     *    packet
+                     */
+   );
+</font>
+</pre>
+
+<pre>
+<font FACE="monospace">
+/* Launch an application after the PI memory map of the application
+ * flash space has been made contiguous. The SK will:
+ *   o sets cipher, 
+ *   o checks in license field "Compression Indicator" to determine
+ *     if decompression is required.
+ *   o move N bytes of decompressed content from flash to destination 
+ *     start address. N is the license "Boot length" entry.
+ *      (since PI mapping setup, this requires no FS knowledge)
+ *   o Compute hash from loaded bytes (in main memory) -
+ *     Same as in "Load/Verify Hash" step in SK startup flow. 
+ *   o Run, using same steps as "Run" block in SK startup flow.
+ *
+ * return:
+ *   should have codes for errors due to invalid license, bad
+ *   hash, ...
+ */
+int SK_AppLaunch(
+   License *pLicense  /* IN: ptr to license associated with app */
+   );
+</font>
+</pre>
+
+
+<pre>
+<font FACE="monospace">
+/*
+ * Verify a license.
+ *
+ * return:
+ *   validity of license is determined by the return code. A code
+ *   of success (0) indicates the license is good. There is a general
+ *   need for a bad license error code, so this will indicate a bad
+ *   license. Error codes can also indicate failures occuring during
+ *   the verification process.
+ */
+int SK_VerifyLic(
+   License *pLicense  /* IN: license to be verified (not including
+                       *     re-encryption packet).
+                       */
+   );
+</font>
+</pre>
+
+
+<pre>
+<font FACE="monospace">
+/*
+ * Determine if re-encryption is necessary for a given content based
+ * on the license.
+ *
+ */
+int SK_RecryptReq(
+   License *pLicense,  /* IN: ptr to memory holding license (not including
+                        *     the re-encryption packet).
+                        */
+   BOOL    *needed     /* OUT: indicate if re-encryption is required.
+   );
+</font>
+</pre>
+
+
+<pre>
+<font FACE="monospace">
+/*
+ * Start re-encryption process given the content license
+ * and CID/key list data. If the re-encryption key is not
+ * in the CID/key list it will be added.
+ * 
+ * return:
+ *   The return code of non-zero indicates error. There is a code
+ *   for invalid license, larger allocation required, and others are TBD.
+ */
+int SK_RencryptStart(
+   License  *pLicense,  /* IN: ptr to content license */ 
+   u32      *pKeyList,  /* IN/OUT: ptr to key list */
+   u32      *pKeyListLen, /* IN/OUT: on IN, ptr to number of bytes 
+                           *    allocated to pKeyList. On OUT, actual
+                           *    number of bytes in the list. If not
+                           *    enough bytes were allocated on IN, the
+                           *    call fails and this value holds the
+                           *    number of bytes required.
+                           */
+   );
+</font>
+</pre>
+
+
+<pre>
+<font FACE="monospace">
+/*
+ * Re-encrypt the next chunk of content, pointed to by pContentBlock. 
+ * The chunk size is determined by the blockSize argument. This call 
+ * must be proceeded by the SK_RecryptStart() call. 
+ * Since there is no state argument only a single thread can re-encrypt 
+ * at a time
+ *
+ * return:
+ *   TBD error codes.
+ */
+int SK_RecryptData(
+   u8    *pContentBlock, /* IN/OUT: pointer to content block on input.
+                          *         On output the memory pointed to
+                          *         holds the re-encrypted chunk.
+                          */
+   u32   blockSize       /* IN: size of the block in bytes. */
+   );
+</font>
+</pre>
+
+
+<pre>
+<font FACE="monospace">
+/*
+ * Compute the hash for the next chunk of content, pointed to by 
+ * pContentBlock. The hash of this content block will be added to
+ * the cumulative hash computation during re-encryption in the SK.
+ * The chunk size is determined by the blockSize argument. This call 
+ * must be proceeded by the SK_RecryptStart() call. 
+ * Since there is no state argument only a single thread can re-encrypt 
+ * at a time.
+ *
+ * The intended use is allow the re-encryption process to be re-started
+ * after it has begun (power outage, ...).
+ *
+ * return:
+ *   TBD error codes.
+ */
+int SK_RecryptHash(
+   u8    *pContentBlock, /* IN: pointer to content block */
+   u32   blockSize       /* IN: size of the block in bytes. */
+   );
+</font>
+</pre>
+
+
+<pre>
+<font FACE="monospace">
+/*
+ * Stop (or end) re-encryption process started by SK_StartRecrypt().
+ * This call requires the CID/key list arguments as in the SK_StartRecrypt()
+ * call so the SK can update state information in the list.
+ *
+ * return:
+ *   Return code of zero indicates the re-encryption has completed
+ *   successfully. Otherwise, the TBD error codes indicate failure
+ *   (must at least have code for invalid hash).
+int SK_RecryptStop(
+   u32      *pKeyList,    /* IN/OUT: ptr to key list */
+   u32      *pKeyListLen, /* IN/OUT: on IN, ptr to number of bytes 
+                           *    allocated to pKeyList. On OUT, actual
+                           *    number of bytes in the list. If not
+                           *    enough bytes were allocated on IN, the
+                           *    call fails and this value holds the
+                           *    number of bytes required.
+                           */
+   );
+</font>
+</pre>
+
+
+
+<h2>SK code</h2>
+Just filling out this section quickly for now - another pass is required.
+<ul>
+  <li> BA locate/load
+  <li> decompression
+  <li> API handling layer (AJP: must add this to doc)
+  <li> security implemenation (details
+       <a href=../security/Functionality.htm>here</a>)
+</ul>
+
+
+
+
+
+
+
+<h2>Special Notes</h2>
+
+The first application (i.e., browser app) is different from other apps.
+This is because we do not want to require re-encryption of this application.
+The reasoning is that re-encryption is complicated because of handling
+flash and dealing with unexpected power-outages. That implies the code
+to handle much of re-encryption belongs in the browser app. Now, if the
+browser did require re-encryption before being launched, this would need 
+to be handled by the SK - a situation we need to avoid. Also, since the
+browser can be fully loaded and does not need to have a contiguous view
+of flash, the license hash is sufficient to insure security at load time.
+
+
+<h2>Footnotes</h2>
+
+<a name="footnote1">
+<SUP>1</SUP> &nbsp
+    The browser app can be completely loaded into memory and does not
+    require a contiguous address view from the PI. We can take advantage of
+    this (if need be) to not require a re-encrypt of the browser and not set PI
+    address remapping regs. This is because the hash over the entire content
+    is sufficient for security purposes so long as the entire application is
+    loaded. Then, the browser could initiate load of all other apps - taking
+    care of setting setting PI registers to produce a contiguous address-view
+    of flash, while leaving the actual decryption setup to the SK.

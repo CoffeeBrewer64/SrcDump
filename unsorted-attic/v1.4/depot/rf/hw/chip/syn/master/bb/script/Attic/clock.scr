@@ -1,0 +1,52 @@
+/* clock.scr v1 Frank Berndt
+ * clock constraints for bb;
+ */
+
+/*
+ * define all clocks;
+ * define USBCLK, VCLOCK and DBGCLK to be a multiple of SYSCLK;
+ * DDRCLK is virtual clock at DDR chip that includes the board delay;
+ */
+current_design = bb
+create_clock -name SYSCLK -period 9.4  -waveform { 0.0 4.7 } sysclk_tree/N01
+create_clock -name MEMCLK -period 4.7  -waveform { 0.0 2.35 } memclk_tree/N01
+create_clock -name DDRCLK -period 4.7  -waveform { 1.25 3.60 }
+create_clock -name USBCLK -period 18.8 -waveform { 0.0 9.4 } usbclk_tree/N01
+create_clock -name VCLOCK -period 18.8 -waveform { 0.0 9.4 } vclk_tree/N01
+create_clock -name DBGCLK -period 18.8 -waveform { 0.0 9.4 } dbgclk_tree/N01
+create_clock -name JTAGCLK -period 37.6 -waveform { 0.0 18.8 } tck_tree/N01
+
+/*
+ * set clock uncertainties;
+ */
+set_clock_skew -uncertainty 0.250 SYSCLK	/* TBCTS 250ps */
+set_clock_skew -uncertainty 0.450 MEMCLK	/* TBCTS 250ps + 200ps pll jitter + phase offset */
+set_clock_skew -uncertainty 0.450 DDRCLK	/* delayed MEMCLK */
+set_clock_skew -uncertainty 0.250 USBCLK	/* TBCTS 250ps */
+set_clock_skew -uncertainty 0.250 VCLOCK	/* TBCTS 250ps */
+set_clock_skew -uncertainty 0.250 DBGCLK	/* TBBUFCKX32 250ps */
+set_clock_skew -uncertainty 0.250 JTAGCLK	/* TBBUFCKX32 250ps */
+
+/*
+ * dont_touch the clock trees and tree drivers;
+ */
+dont_touch_network { SYSCLK USBCLK VCLOCK MEMCLK DBGCLK JTAGCLK }
+set_dont_touch sysclk_tree
+set_dont_touch memclk_tree
+set_dont_touch vclk_tree
+set_dont_touch usbclk_tree
+set_dont_touch dbgclk_tree
+set_dont_touch tck_tree
+
+/*
+ * set input delays of sysclk path into clock tree;
+ */
+set_min_delay 1 -from PAD_SYSCLK -to sysclk_tree 
+set_max_delay 5 -from PAD_SYSCLK -to sysclk_tree 
+
+/*
+ * dont_touch rdp clock enable tree;
+ * this was the gclk_enable that has been replaced by sync enable;
+ */
+set_dont_touch bcp/rdp/start_gclk_tree
+

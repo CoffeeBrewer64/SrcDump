@@ -1,0 +1,496 @@
+<html>
+<head>
+  <title>BB Servers - Use Case Analysis</title>
+</head>
+<body lang="EN-US" style="tab-interval: .5in">
+<h2 align="center"> BB Servers - Use Case Analysis</h2>
+<center><i>BroadOn Confidential<br>
+$Revision: 1.10 $<br>
+$Date: 2002/08/30 22:19:31 $</i></center>
+<hr>
+<ol>
+  <li>
+ <i>
+ This document  describes use cases that involve the BB Servers/Infrastructure.</i></li>
+  <li><i>Customer, Retailer use cases from the BB Depot perspective are described in
+    <a href="bbdepot_usecases.html">this document</a>.</i></li>
+  <li><i>Customer use cases from the BB Player perspective are described in <a href="../bb_player_system/bb_player_usecases.html">this
+    document</a></i></li>
+</ol>
+
+<p><i>There are 3 sections in this document:</i></p>
+<ul>
+  <li><i>The <a href="#Manufacturer Use Cases">first section</a> describes use cases from the manufacturer's
+    perspective.</i></li>
+  <li><i>The <a href="#Operations Center Use Cases">second section</a> describes use cases from the
+    Operation Center's perspective</i></li>
+  <li><i>The <a href="#Studio/Content Developer Use Cases">third section</a> describes use cases from the studio/content developer's
+    perspective.</i></li>
+</ul>
+<hr>
+<h2><a id="submitbbinfo" name="Manufacturer Use Cases"><span style="background-color: #C0C0C0">Section
+1 :
+Manufacturer
+Use Cases </span></a></h2>
+
+<h3>Roles</h3>
+<ol>
+  <li><b>Chip Manufacturing Manager</b> - Person at the chip manufacturer
+    responsible for sending the list of digital certificates that were
+    manufactured by the foundry.
+  <li><b>BB Player Manufacturing Manager - </b>Person at the board manufacturer
+    responsible for sending the list of BBIDs of chips that are incorporated
+    into manufactured BB Players.
+</ol>
+
+<a id="submitbbinfo">
+
+<hr>
+
+</a>
+
+<a id="submitbbinfo0">
+<h3><span style="background-color: #C0C0C0">Use case: BB Chip Registration&nbsp;</span></h3>
+
+
+      </a>
+
+
+<a id="releasetitle5">
+
+<p><b>Description: </b>Chip Manufacturing Manager sends list of BB Digital
+Certificates (which contains BBID &amp; BB Public Key) to us.</a></p>
+
+<a id="submitbbinfo1">
+	<p><b>Rationale</b></p>
+</a>
+
+	<ol>
+	    <li>The private key that is burnt into the BB chip is key to all
+          security and is a closely guarded secret which never leaves the
+          factory other than inside the chip.</li>
+	    <li>We receive the list of all chips that have been successfully
+          manufactured.&nbsp;</li>
+	</ol>
+
+<a id="submitbbinfo2">
+	<p><b>Requirements</b></p>
+    <ol>
+      <li>BB Chip Manufacture Server has received from us the <i>Key for Browser
+        License</i>, the <i>Secure Kernel Hash</i> and the<i> Root CA Digital
+        Certificate.</i></li>
+      <li>BB Chip Manufacture Server has the ability to generate good
+        public/private key pairs, BBID and the associated Digital Certificates
+        signed by a Manufacturing License issued by us.</li>
+    </ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+</a>
+
+	<ol>
+	    <li>All communication is encrypted, secure &amp; mutually authenticated.</li>
+	    <li>Chip manufacturer has ensured that the BBID and public key
+          incorporated into the DC match.&nbsp;</li>
+	</ol>
+
+<a id="submitbbinfo3">
+	<p><b>Sequence of events/actions</b></p>
+</a>
+
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Chip <a id="releasetitle9">Manufacturer</a> Manager</th>
+	    <th width="50%">
+
+
+<a id="releasetitle10">
+
+Operations Center</a></th>
+	  </tr>
+
+<a id="submitbbinfo4">
+	  <tr>
+	    <td >
+          <ol>
+            <li>Generates BBID, public/private key pairs and BB DCs.</li>
+            <li>Determines which BBIDs are successfully manufactured.</li>
+            <li>Securely sends to the BB Key Manager the BB DCs corresponding to
+              these BBIDs.</li>
+          </ol>
+	    </td>
+	    <td >&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td >
+	    </td>
+	    <td >
+          <ol>
+            <li>Loads BB Digital Certificates of manufactured chips into BB Key
+              Manager.</li>
+          </ol>
+        </td>
+	  </tr>
+	</table>
+</a>
+
+<hr>
+
+<h3><span style="background-color: #C0C0C0">Use case: BB Player Registration</span></h3>
+
+
+<a id="releasetitle4">
+
+<p><b>Description: </b></a>BB Player Manufacturing Manger <a id="releasetitle4"> submits new BB Player to the Operations Center.</a></p>
+
+
+<a id="releasetitle4">
+
+</a>
+
+<a id="submitbbinfo">
+	<p><b>Rationale</b></p>
+</a>
+
+	<ol>
+	    <li><a id="releasetitle4">Only officially manufactured BB Players may be
+          purchased through our system. eTickets will only be issued to
+          purchased BB Players. </a>This limits the risk of a gray market for BB
+          Players.</li>
+	</ol>
+
+
+<a id="releasetitle4">
+
+</a>
+
+<a id="submitbbinfo27">
+
+</a>
+
+<a id="submitbbinfo">
+	<p><b>Requirements</b></p>
+</a>
+
+    <ol>
+      <li>
+
+<a id="submitbbinfo27">
+    Manufacturer is able to carry out system level tests including reading the
+    BBID from the manufactured BB Player.</a></li>
+    </ol>
+
+<a id="submitbbinfo">
+	<p><b>Assumptions &amp; conditions</b></p>
+</a>
+
+	<ol>
+	    <li>All communication is encrypted, secure &amp; mutually authenticated.</li>
+	</ol>
+
+
+<a id="releasetitle4">
+
+</a>
+
+<a id="submitbbinfo">
+	<p><b>Sequence of events/actions</b></p>
+</a>
+
+	<table width=100%>
+	  <tr>
+	    <th width=50%>BB Player <a id="releasetitle4">Manufacturer</a></th>
+
+<a id="submitbbinfo">
+
+
+        </a>
+
+
+<a id="releasetitle4">
+
+	    <th width="50%">Operations Center</th>
+	  </tr>
+	  <tr>
+	    <td >
+        </a>
+        <ol>
+          <li>As each batch is manufactured and shipped from the factory, the
+            information is uploaded into the Operations Center.</li>
+        </ol>
+	    </td>
+	    <td >&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td >
+	    </td>
+	    <td >1. Loads list of BBID of manufactured BB Players into BB Key
+          Manager.</td>
+	  </tr>
+	</table>
+
+<hr>
+<h2><span style="background-color: #C0C0C0"><a name="Operations Center Use Cases">Section
+2 : Operations Center</a></span><a name="Operations Center Use Cases"><span style="background-color: #C0C0C0">
+Use Cases</span></a></h2>
+
+<h3>Roles</h3>
+<ol>
+  <li><b>Content Manager</b> -&nbsp; Person responsible for the Content
+    Management System.
+  <li><b>Marketing Manager</b> - Person responsible for determining timing and
+    regional distribution of content and operates the Content Availability
+    Server.
+</ol>
+
+<a id="submitbbinfo10">
+<hr>
+<h3><span style="background-color: #C0C0C0">Use case: </a>
+
+<a id="submitbbinfo10">
+Publish Content</a>
+
+</span></h3>
+
+      <p><b>Description: </b>
+
+
+<a id="releasetitle14">
+
+Content Manager publishes content for general distribution.</a></p>
+
+      <a id="publishtitle">
+
+</a>
+
+<a id="submitbbinfo11">
+	<p><b>Rationale</b></p>
+</a>
+
+	<ol>
+	    <li>Publishing control should be controlled by the Content Manager and not the studio.</li>
+	</ol>
+
+<a id="submitbbinfo12">
+
+<a id="submitbbinfo28">
+	<p><b>Requirements</b></p>
+</a>
+
+</a>
+
+    <ol>
+      <li>
+
+<a id="submitbbinfo28">
+    Content has been released by the Studio and has been validated by the </a><i>
+
+<a id="submitbbinfo28">
+    Content Management Servers.</a></i></li>
+
+<a id="submitbbinfo12">
+
+<a id="submitbbinfo28">
+    </ol>
+</a>
+
+	<p><b>Assumptions &amp; conditions</b></p>
+</a>
+
+	<ol>
+	    <li>It also has to be&nbsp; suitably encrypted for distribution to the
+          BB Depots. Associated metadata has to be available for content
+          browsing and eTicket purchase.</li>
+	    <li>All communication is encrypted, secure &amp; mutually authenticated.</li>
+	</ol>
+
+<a id="submitbbinfo13">
+	<p><b>Sequence of events/actions</b></p>
+</a>
+
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Content Manager</th>
+	  </tr>
+
+	  <tr>
+	    <td >
+          <ol>
+            <li>
+
+Selects Content for publishing.</li>
+            <li>
+
+Unique customer/retailer visible 5 digit <i>ContentID</i> is generated.</li>
+            <li>
+
+<a id="submitbbinfo14">
+      Make encrypted content available</a> to the Content Distribution Server
+              (CDS).</li>
+            <li>Make metadata (including encryption key) available to the
+              Content Availability Server (CAS) and eTicket Server.</li>
+          </ol>
+	    </td>
+	  </tr>
+	</table>
+
+
+<hr>
+<h3><span style="background-color: #C0C0C0">Use case:
+Distribute Content
+
+</span></h3>
+
+
+<p><b>Description: </b>
+
+
+Marketing Manager sets price and makes content available on a regional basis.</p>
+
+	<p><b>Rationale</b></p>
+
+	<ol>
+	    <li><a id="publishtitle2">Once content is published, it's availability
+          has to be timed with suitable marketing which may happen on a regional
+          basis.&nbsp;</a></li>
+	</ol>
+
+      <a id="publishtitle2"></a><a id="distributetitle">
+
+</a>
+
+<a id="submitbbinfo19">
+
+<a id="submitbbinfo29">
+	<p><b>Requirements</b></p>
+</a>
+
+</a>
+
+    <ol>
+      <li>
+
+<a id="submitbbinfo30">
+    Content has been published by the Content Manager and released to the CDS
+    &amp; CAS.</a></li>
+    </ol>
+
+<a id="submitbbinfo19">
+	<p><b>Assumptions &amp; conditions</b></p>
+</a>
+
+	<ol>
+	    <li><a id="publishtitle2">CDS</a> has received encrypted content.</li>
+	    <li>CAS has received content&nbsp; metadata.</li>
+	</ol>
+
+      <a id="publishtitle2"></a><a id="distributetitle">
+
+</a>
+
+<a id="submitbbinfo20">
+	<p><b>Sequence of events/actions</b></p>
+</a>
+
+	<table width=100%>
+	  <tr>
+	    <th width=50%><a id="publishtitle2">Marketing Manager</a></th>
+	  </tr>
+
+      <a>
+	  <tr>
+	    <td >
+          <ol>
+            <li>Sets price and decides on the date that content is
+    available for purchase and download on a per region basis.</li>
+          </ol>
+	    </td>
+	  </tr>
+	</table>
+
+</a>
+
+<hr>
+
+
+<h2><span style="background-color: #C0C0C0">Section 3 : </span><a name="Studio/Content Developer Use Cases"><span style="background-color: #C0C0C0">Studio/Content
+Developer Use Cases</span></a></h2>
+
+
+<h3>Roles</h3>
+<ol>
+  <li><b>Studio Manager</b> -&nbsp; Person responsible for the Release Kit
+    Content Release Manager.
+</ol>
+
+
+<hr>
+
+
+<a id="releasetitle">
+
+<h3><span style="background-color: #C0C0C0">Use case: Studio Releases a Title/Content</span></h3>
+
+<p><b>Description: </b>Studio Manager releases content to the Content Management Subsystem (CMS) for further
+publishing.</p>
+	<p><b>Requirements</b></p>
+	<ol>
+	    <li>Studio is responsible for QA of content.</li>
+	</ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>The Studio has officially signed up and has a DevKit installed in
+        their premises.</li> 
+	  <li>Studio is able to securely communicate with the Content Management
+        Subsystem -
+        encryption and data integrity are enforced.&nbsp;</li> 
+	  <li>Content Release Manager has authenticated itself to the Operations Center for online
+        operations.</li> 
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Studio</th>
+	    <th width="50%">Ops Center</th>
+	  </tr>
+	  <tr>
+	    <td >
+	      <ol>
+		<li>Studio develops content.
+		</li>
+		<li>Studio Manager uses Release Kit to package the content. The package includes the
+          content, a hash of
+          the content for validity check, and possibly archive all files into
+          one file. All related metadata information (</a><a id="releasetitle3">title name, description, required memory size,  size of saved game, image files for ads, etc)</a>
+
+
+<a id="releasetitle">
+
+will be included.
+		</li>
+		<li>The package will be encrypted by the public key in the
+          certificate that had been bundled in the DevKit.&nbsp;
+		</li>
+		<li>Studio delivers the release package to Operation Center. It can be
+          done on-line (via email, http post, etc), or off-line (CD-R, tapes,
+          etc)
+		</li>
+	      </ol>
+        </a>
+	    </td>
+	    <td >&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td >&nbsp;</td>
+	    <td >
+	      <ol start=4>
+		<li>Loads the content and the metadata into the Content Management Subsystem.</li>
+		<li>Starts the validation process.</li>
+	      </ol>
+	    </td>
+	  </tr>
+	</table>
+
+<hr>
+
+
+</body>
+</html>

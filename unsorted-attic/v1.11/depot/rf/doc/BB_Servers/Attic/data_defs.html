@@ -1,0 +1,92 @@
+d9 2
+a10 2
+	  $Revision: 1.10 $<br>
+	    $Date: 2002/08/26 18:14:29 $
+a260 4
+		  <li><code>purchasable</code> -- content may be purchased by customer,
+            results in eTicket being issued</li>
+		  <li><code>suspended</code> -- content is no longer available for
+            purchase</li>
+d274 1
+a274 1
+          <img border="0" src="data_defs/xs-content-purchase-state.jpg" >
+d278 4
+a281 2
+		  <li>state == purchasable</li>
+		  <li>state == suspended</li>
+a282 3
+            <dl>
+              <dt>&nbsp;</dt>
+            </dl>
+d284 2
+a286 1
+		</ol>
+d304 1
+a304 4
+		  <li><code>downloadable</code> -- content may be downloaded by BB Depot</li>
+		  <li><code>suspended</code> -- content is no longer available for
+            download</li>
+		  <li>revoked -- content is revoked due to security considerations and
+d317 4
+a320 2
+		  <li>state == downloadable</li>
+		  <li>state == suspended</li>
+a321 3
+            <dl>
+              <dt>&nbsp;</dt>
+            </dl>
+d323 2
+a325 1
+		</ol>
+a533 18
+	      <td colspan=2>
+        <p align="center"><img border="0" src="data_defs/cds-content-download-state.jpg" width="454" height="190">
+		  <code>
+          <p>download_state transitions
+		<ol type=A>
+		  <li>state == new</li>
+		  <li>state == downloadable</li>
+		  <li>state == suspended</li>
+		  <li>state == revoked
+            <dl>
+              <dt>&nbsp;</dt>
+            </dl>
+          </li>
+		  </code>
+		</ol>
+	      </td>
+        </tr>
+	    <tr valign=baseline>
+d551 1
+a551 5
+		  <li><code>new</code> -- content has recently been downloaded by the BB
+            Depot&nbsp;</li>
+		  <li><code>downloadable</code> -- content may be downloaded by BB Depot</li>
+		  <li><code>suspended</code> -- content is no longer available for
+            download</li>
+d557 19
+a575 1
+	    </tr>
+d664 13
+d681 5
+a685 3
+		  <li>state == new</li>
+		  <li>state == downloadable</li>
+		  <li>state == suspended</li>
+a690 16
+	    <tr valign=baseline>
+	      <td><code>state</code></td>
+	      <td>
+            <dl>
+              <ol type="A">
+		  <li><code>new</code> -- content has been downloaded from CDS, but not
+            yet available for download</li>
+		  <li><code>downloadable</code> -- content may be downloaded by BB Depot</li>
+		  <li><code>suspended</code> -- content is no longer available for
+            download</li>
+		  <li><code>revoked</code> -- content is revoked due to security considerations and
+            is no longer available for download</li>
+		</ol>
+            </dl>
+          </td>
+	    </tr>

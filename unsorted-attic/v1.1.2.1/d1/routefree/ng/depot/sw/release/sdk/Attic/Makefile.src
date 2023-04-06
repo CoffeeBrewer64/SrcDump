@@ -1,0 +1,19 @@
+a0 18
+include $(ROOT)/usr/include/make/NGdefs
+
+SUBDIRS = \
+    include \
+    lib \
+    apps/common apps/minimon0_sram apps/eemon apps/iossh \
+    os/mini_ios \
+    os/ios \
+    os/fs \
+    os/di \
+    os/sdi \
+    boot/boot1.diag \
+    boot/loader \
+    boot/compat \
+    boot/boot2
+
+include $(COMMONRULES)
+

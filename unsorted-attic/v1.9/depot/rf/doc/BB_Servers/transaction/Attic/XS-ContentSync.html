@@ -1,0 +1,26 @@
+d80 2
+a81 2
+      <li>The <i>content-state</i>  of all <i>ContentID</i> in the <i>Content List</i> that is in the <i>revoked</i>
+        state is updated in the BB Content record.</li>
+d85 2
+d88 20
+a107 8
+      <li>	For each <i>ContentID</i> in the <i>Content List</i> that is in the <i>downloadable</i>
+        state
+        <ol type="i">
+          <li>If entry already exists in the BB Depot Content record and the <i>encrypted-content-checksum</i>
+            matches, skip the download of this <i>ContentID.</i></li>
+          <li>If the <i>encrypted-content-checksum</i> does not match, delete
+            the record for this <i>ContentID</i> from the BB Depot Content
+            store.</li>
+a111 2
+          <li><i>Download Request</i> audit record is created by the Content
+            Download Server.</li>
+d113 3
+a115 3
+          <li>Upon success, a new record is created for <i>ContentID</i> with
+            the <i>content-state</i> set to <i>downloadable</i></li>
+          <li><i>Download Completion</i> audit record is created by the Content
+a116 2
+        </ol>
+      </li>

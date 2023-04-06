@@ -1,0 +1,413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>BB Server - Architectural Scoping Document</title>
+</head>
+<body>
+<center>
+<h2>BB Servers - Architectural Scoping Document</h2>
+<b>BroadOn Confidential</b><p>
+<i>
+$Revision: 1.10 $<br>
+$Date: 2002/09/11 18:26:41 $<br></i>
+</center>
+
+<h3>1. Overview</h3>
+
+This document defines a big picture of BB servers by describing overall BB server
+architecture and scope of each servers and components. Please refer to
+"<a href="bbserver_usecases.html">BB Server - Use Case Analysis</a>" for
+detailed behavior models and event sequences amongst servers and components.
+<a href="#deployment">Deployment diagram at the end of this document</a> displays
+overall architecture visually.
+
+<a name="terminology">
+<h3>2. Terminology</h3>
+
+<table border=1 width="80%" align=center>
+
+<tr>
+ <th width="20%" align="center">Term</th>
+ <th width="80%" align="center">Description</th>
+</tr>
+
+
+</a>
+ <a name="bbsystem">
+ <td width="20%" align="center">BB system</td>
+ <td width="80%">Entire infrastructure and services of the project</td>
+</a>
+<tr>
+ <a name="bbservers">
+ <td width="20%" align="center">BB servers</td> </a>
+ <td width="80%">Servers and components that manipulate and manage <a href="#content">content</a>,
+ <a href="#eticket">eTickets</a>, <a href="#bbdepot">BB Depots</a>,
+ <a href="#retailer">retailers</a>, <a href="#manufacture">manufactures</a>,
+ and <a href="#studio">studios</a> to provide secure <a href="#content">content</a> purchase and
+ delivery service to <a href="#bb">BB devices</a></td>
+</tr>
+
+<tr>
+ <a name="bb">
+ <td width="20%" align="center">BB, BB Player or BB device</td></a>
+ <td width="80%">A game device with rewritable memory storage for <a href="#content">content</a> downloading</td>
+</tr>
+
+<tr>
+ <a name="option">
+ <td width="20%" align="center">BB hardware options</td></a>
+ <td width="80%">BB Card, BB Expansion Memory, modem, keypad, or any other optional devices
+ that can be attached to <a href="#bb">BB device</a>
+</tr>
+
+<tr>
+ <td width="20%" align="center">BB Flash</td>
+ <td width="80%">Flash memory internal to the BB Chip
+</tr>
+
+<tr>
+ <td width="20%" align="center">BB Card</td>
+ <td width="80%">Memory module or card that is inserted into the BB Player and
+  contains eTickets, content etc.
+</tr>
+
+<tr>
+ <a name="bbdepot">
+ <td width="20%" align="center">BB Depot</td></a>
+ <td width="80%">BroadOn SME based station device for </a> <a href="#content">content</a> downloading and eTicket
+ sale. It has a monitor, keypad, ports for BB, a hard disk and broadband connectivity.
+ Refer to <a href="bbdepot_arch.html">BB Depot Architecture</a> for detail.</td>
+</tr>
+
+ <tr>
+ <a name="content">
+ <td width="20%" align="center">Content</td> </a>
+ <td width="80%">In the context of <a href="#bbsystem">BB system</a>, it
+ refers to content which BB device will download. Content is consisted from
+ content file(s) which BB device can run on it and metadata describing itself.
+ Initially, these are games and educational titles.<br>
+ There are two types of content; "<b>Regular Content</b>" and "<b>Tag-along Content</b>."
+ Regular Content is content for sale, and Tag-along Content is content that
+ comes with regular content for free, e.g. demo games, ad, etc.</td>
+ </tr>
+ <tr>
+ <a name="devkit">
+ <td width="20%" align="center">DevKit</td></a>
+ <td width="80%">Software tool to help <a href="#developer">developers</a> to
+ develop or localize <a href="#content">content</a>.&nbsp;</td>
+ </tr>
+ <tr>
+ <td width="20%" align="center"><a name="Release Kit">Release Kit</a></td>
+ <td width="80%">Software server given to studios to package &amp; manage
+  content releases. There will be only one Release Kit per studio. It has embedded secure protocol to encrypt and
+ transfer master <a href="#content">content</a> to <a href="#op">the operation center</a>.
+  This is typically operated by the Studio Producer.</td>
+ </tr>
+
+ <tr>
+ <td width="20%" align="center"><a name="Developers">Developers</a></td>
+ <td width="80%">They are the people who develop or localize content
+ by using <a href="#devkit">DevKit</a>.</td>
+ </tr>
+
+<tr>
+ <a name="eticket">
+ <td width="20%" align="center">eTicket</td></a>
+ <td width="80%">A token that contains necessary keys and information to 
+enable a <a href="#content">content</a> for a particular BB device.</td>
+</tr>
+
+ <tr>
+ <td width="20%" align="center"><a name="Chip Manufacturer">Chip Manufacturer</a></td>
+ <td width="80%">This refers to the manufacturer of the BB SOC.</td>
+ </tr>
+
+ <tr>
+ <td width="20%" align="center"><a name="Manufacturer">Manufacturer</a></td>
+ <td width="80%">In the context of BB system, it
+ refers to manufacturer of <a href="#bb">BB devices</a> and <a href="#optoin">options</a></td>
+ </tr>
+ <tr>
+ <td width="20%" align="center"><a name="Operation Center">Operation Center</a></td>
+ <td width="80%">The operation center of the company, which runs BB system
+ to provide the services to <a href="#bb">BB</a> customers.</td>
+ </tr>
+ <tr>
+ <td width="20%" align="center"><a name="Retailers">Retailers</a></td>
+ <td width="80%">In the context of BB system, it
+ refers to retailers who signed up and deploy <a href="#bbdepot">BB Depot</a>
+ to sell <a href="#bb">BB</a>, <a href="#option">BB hardware options</a>, and
+ <a href="#content">content</a> to customers.</td>
+ </tr>
+ <tr>
+ <a name="region">
+ <td width="20%" align="center">Region</td> </a>
+ <td width="80%">A region is a collection of stores &amp; the depots associated
+  with the stores. Typically this will be geographical in nature, although that
+  is not a requirement. Region definitions/groupings do not dictate any any
+  architectural decision.</td>
+ </tr>
+ <tr>
+ <a name="regional_servers">
+ <td width="20%" align="center">Regional Servers</td> </a>
+ <td width="80%">Logical set of servers and components that will be replicated
+ for each region.</td>
+ </tr>
+
+<tr>
+ <a name="safety_box">
+ <td width="20%" align="center">Safety Box</td> </a>
+ <td width="80%">A concept that explains a particular state of content purchased,
+ which is that BB has only eTicket downloaded without <a href="#content">content</a>.
+ This is the situation where we explain like "your purchased content is securely
+ preserved in <b>Safety Box</b> where you can always download from for free."
+ Once a customer has purchased an eTicket, the associated content will always be
+ available to him from his <b>Safety Box</b>.</td>
+</tr>
+
+<tr>
+ <a name="studio">
+ <td width="20%" align="center">Studios</td> </a>
+ <td width="80%">Content development studios who signed up and legitimately
+ acquire <a href="#devkit">DevKit</a>&nbsp; and <a href="#Release Kit">Release
+ Kit</a> to publish content to
+ <a href="#bb">BB devices</a></td>
+</tr>
+
+</table>
+
+
+<h3>3. <a name="Design Goals"> Design Goals</a></h3>
+
+The following design goals are set for the BB Server architecture:
+ <ol>
+<li><b>Build secure infrastructure</b><br>
+  Though the eventual goal is to build generic secure infrastructure, the
+  initial BB System
+   is primary focused on a first milestone - securely deliver content from
+   developers to BB devices, and securely issue eTickets to BB devices. BB system will be developed with generalization in mind, but
+   it is second priority at this point.<li><b>Covers the four functionality categories:</b>
+   <ol>
+   <li><i>Remote Management of BB Depot</i><br>
+       Based on BroadOn RMS server
+   <li><i>Secure Content Delivery</i><br>
+       From developers who develops <a href="#content">content</a> to BB devices
+   <li><i>Secure eTicket issuing</i><br>
+       eTicket delivery to BB devices, which spans up to management of
+	   BB manufacturing for secure keys. 
+   <li><i>BB-Depot account management</i><br>
+       Sales support, billing, inventory control, and activity monitoring for
+	   retailers who own and operate BB-Depot
+   </ol>
+   
+  <li><b>Componentization</b><br>
+    The system is composed of components which are a set of functionality groupings,
+    each with a clear role. This will make the entire system more
+	flexible and makes it easier to modify or replace a component without
+	changing others.&nbsp;<li><b>Minimize state to manage across servers and components</b><br>
+    Any state that needs management makes it difficult to componentize the system,
+	and it is preferable to have no state dependency amongst servers and
+	components so that they can operate independently.<li><b>Use deferred
+    transactions/operations wherever possible</b><br>
+    The reason is, 1) able to achieve better real time operation performance by
+    delaying (or excluding) operations that need no real time response, and 2) makes
+	it easier to distribute system.<br>
+	Refer to the <a href="#differed_op">"Platforms" section below</a> for
+	technologies to implement the differed operations.<li><b>Internationalization
+    (I18N) &amp; Localization (L10N)</b><br>
+    All user interfaces should be internationalized so that they may be
+    subsequently localized for locales with multi-byte characters.
+ </ol>
+
+<h3>4. Platforms</h3>
+
+<h4>4.1 Hosting Platform</h4>
+
+The following platform will be supported as the host operating system:
+  <ul>
+   <li>Sun Solaris 8 and above
+   <li>Linux 2.4 and above
+  </ul>
+
+<h4>4.2 Database Platform</h4>
+
+There are two types of candidates:
+  <ul>
+   <li>Production DBMS: Oracle 9i, IBM DB2
+   <li>Open source DBMS: MySQL, PostgreSQL
+  </ul>
+
+<h4>4.3 Programming Environment</h4>
+
+For the interoperability and platform compatibility (host machines and
+databases), Java language environment is preferable. Java is also preferable
+because of the availability of wide variety of APIs including database
+connections, data manipulations, message queuing, web integration, networking,
+etc. Besides, the server infrastructure that BroadOn has developed are
+all in Java and several components are re-usable.
+ <p>
+However, Java lags in the support of secure protocols and algorithms,
+and has higher CPU resource consumption compared to C/C++. Therefore,
+some security packages/components/servers are needed to be written in C/C++.
+There is JNI (Java Native Interface) that can be used to integrate
+C/C++ library into Java classes. However JNI has a well known security
+hole. Any APIs in JNI libraries can be accessed by anybody without
+any authentication. Therefore, Design of JNI library API needs extra
+security mechanism to access to security related functionality in the
+library. For highest security level, any servers using security
+functionality in C/C++ should be developed in C/C++.</p>
+
+<h4>4.4 Technology for Deferred Operations</h4>
+
+<a name="differed_op">
+ There are several technologies to implement differed operations:
+ <ul>
+  <li>Oracle oriented mechanisms
+    <ul>
+      <li>
+	  Snapshot</li>
+      <li>DBMS queue</li>
+    </ul>
+  </li>
+	  <li>MOM (Message Oriented Middleware)
+        <ul>
+          <li>IBM WebSphere MQ</li>
+          <li>OpenJMS</li>
+          <li>Microsoft Message Queue Server</li>
+          <li>Talarian SmartSockets<br>
+          </li>
+        </ul>
+ </ul>
+ </a>
+	
+<a name="assumptions">
+<h3>5. Guidelines &amp; Assumptions</h3>
+
+<ol>
+  <li><b>Type of </a> <a href="#retailer">retailers</a></b><br>
+     Expectation of little knowledge of computer operations, most likely
+	 be able to type only numeric keys. They probably run a small shop
+	 (a size of 7-eleven store) to sell goods and toys.
+  <li><b>Type of <a href="#bb">BB</a> owners</b><br>
+    Typically this will include small children with little knowledge of computer
+    operations.
+  <a name="region_def">
+  <li><b>Size of </a> <a href="#region">region</a></b><br>
+     A region is a size of one city with 5 to 15 millions of population.
+  <li><b>A number of sets of <a href="#regional_servers">regional servers</a> per
+         <a href="#region">region</a></b><br>
+     There will be one set of regional servers per region.
+  <li><b>Target number of <a href="#bbdepot">BB Depots</a> to be deployed</b><br>
+     Target is to deploy one BB Depot per 2000 BB devices, and 200 BB Depots
+	 per region.
+  <li><b>Size of <a href="#content">content</a></b><br>
+     32 megabytes + a size of metadata (several hundreds kilobytes) at maximum.
+	 A number of titles will be around 500 for next few years.
+  <li>The server complex will have a commercial database which can support the
+    full range of transactions, crash recovery etc.
+  <li>The BB Depot will not persist any information of importance. All
+    transaction related information must be persisted on the server side. One
+    must assume we must be able to completely recover all secure transactions
+    even if the entire Depot is lost.
+  <li>A depotID is a hardware token and identifies the BB Depot for all secure
+    transactions.&nbsp;&nbsp;
+</ol>
+
+<a name="security">
+<h3>6. Security Infrastructure</h3> </a>
+
+<h4>6.1 Scope and Goals</h4>
+
+There are two major items which need to be protected in BB system.
+<ol>
+  <li><b>Identity of BB</b><br>
+      The identity is not BB ID. It is ultimately a private key of
+	  the BB device because the BB private key is the key used to decrypt
+	  eTickets issued to the BB. Unless the encryption
+	  algorithm is broken, one can be certain that only the BB device can use eTickets issued
+    to itself as long as the&nbsp; private key
+	  is protected.
+  <li><b>Secret Key for Content Encryption (Content Key)</b><br>
+      Encryption takes place to protect content, but it makes no sense if
+	  the key used to encrypt is not protected. Unless otherwise the encryption
+	  algorithm to be used is broken, Content is secured as far as the secret
+	  key for the encryption is protected.
+</ol>
+In addition to protect the above two items, BB server security infrastructure
+needs to achieve the following goals:
+<ol>
+  <li><b>Basic security goals</b><br>  
+      Those are <b>authentication (identity check)</b>, <b>confidentiality</b>,
+	  and <b>data integrity</b>.
+  <li><b>Build logical security barrier between components</b><br>
+      One compromised server/component should not break entire security
+	  mechanism. When compromised, it should be able to replace the compromised
+	  server/component with minimum effect on other severs/components.
+  <li><b>Activity monitoring and auditing</b><br>
+      All activities of BB, BB depot, and BB servers/components needs to be
+	  monitored and audited. Possible fraud should automatically be detected and
+	  reported to BB server operators, and any BB depots or BB devices which are
+	  involved in the fraud should be disabled - no further purchase or download
+	  will not be proceeded.
+</ol>
+
+<h4>6.2 Security Guidelines</h4>
+
+<ul>
+  <li>Use encryption for confidentiality
+  <li>Use digital signatures for data integrity
+  <li>Use digital signatures and certificates for authentication
+  <li>Who to trust:
+    <ul>
+    <li>Manufactures are not trusted entity
+    <li>Studios are not trusted entity
+    <li>Operation Center is trusted entity in a way that all security related
+        processing will be logged and audited
+    <li>Retailers are not trusted entity
+    <li>BB Depot is not trusted device
+    <li>BB is trusted device
+	</ul>
+  <li>Master Content in Studio (non encrypted content made by Release Kit) should
+      not be in a form that can be played on BB
+  <li>No repositories or data stores content without encryption if the content is in a
+      form that can be played on BB
+  <li>Private keys and security keys are encrypted by public key of BB server
+      who owns these keys, and stored into repository. No repository stores
+	  private keys and security keys in its original form.
+  <li>Public keys can be stored into repository as is.
+</ul>
+
+<h4>6.3 Certificate Management</h4>
+
+There are three certificate authorities for the security system for BB system
+as below. All certificate authorities are derived from BroadOn's CA and
+will be managed by BroadOn (private certificate authorities).
+<ul>
+  <li><b>BB Manufacture CA</b><br>
+     This is the root CA for all certificates issued for BB devices. Derived
+	 CA will be generated for each manufacture so that BB certificates can be
+	 managed per manufacture.
+  <li><b>BB-Depot Manufacture CA</b><br>
+     This is the root CA for all certificates issued for BB Depots. Derived
+	 CA will be generated for each manufacture so that BB-Depot certificates
+	 can be managed per manufacture.
+  <li><b>Studio CA</b><br>
+     This is the root CA for all certificates issued for use in studio. Derived
+	 CA will be generated for each operation center so that studio related
+	 certificates can be managed per operation center.
+  <li><b>Service CA</b><br>
+     This is the root CA for all certificates issued for BB servers. Derived
+	 CA will be generated for each operation center so that studio related
+	 certificates can be managed per operation center. 
+</ul>
+
+<a name="deployment"><h3>Appendix: Deployment Diagram (conceptual).</h3>  </a>
+<p>Click <a href="BB-Servers.html"> here</a> to see the latest server diagrams.</p>
+
+<a href="bbserver_arch.png"><center>click to enlarge<br>
+<img src="bbserver_arch.png" width="600" height="700" hspace="15" vspace="15" border="0" align="middle">
+</center></a>
+
+</body>
+</html>

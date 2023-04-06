@@ -1,0 +1,197 @@
+d1 756
+a756 195
+  <html>
+    <head>
+      <title>Data Definitions</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h1>Data Definitions</h1>
+      <center>
+	BroadOn Confidential<br>
+	  $Revision: 1.6 $<br>
+	    $Date: 2002/08/22 00:34:26 $
+      </center>
+      
+      <h2>Transaction</h2>
+      <dl>
+	<dt><a name="bb_rec">BB Record:</a></dt>
+	<dd>
+	  <table>
+	    <tr valign=baseline>
+	      <td width=140><code>BB_ID</code></td>
+	      <td>unique ID for this BB</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>pub_key</code></td>
+	      <td>Public key generated for this BB</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>state</code></td>
+	      <td>State of this BB:
+		<ol>
+		  <li><code>registered</code> -- The public key and
+		    BB_ID have been reported by the manufacturer.</li>
+		  <li><code>activated</code> -- Server received and
+		    approved activation request.</li>
+		  <li><code>suspended</code> -- Server should reject
+		    all transaction regarding this BB.</li>
+		  <li><code>retired</code> -- permanently removed from
+		    our system.</li>
+		</ol>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>regionalID</code></td>
+	      <td>Regional server of last transaction.</td>
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<hr>
+		<em>Following are primarily used by the
+		    activation/deactivation processes.</em>
+		  <hr>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>date</code></td>
+	      <td>Time and date this BB was activated.</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>DepotID</code></td>
+	      <td>Depot that activated this BB.</td>
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<hr>
+		  <em>Following are birth info. of this BB that is
+		    never changed (and rarely used.).</em>
+		  <hr>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>cert</code></td>
+	      <td>Digital certificate for this BB.</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>birth_ID</code></td>
+	      <td>identified the birth record, which provides info
+		such as manufacturer ID, manufacturing date, etc.</td>
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<hr></hr>
+		<center>
+		  <img src=data_defs/bb-state.png>
+		</center>
+		<ol type=A>
+		  <code>
+		    <li>state == registered</li>
+		    <li>state == activated && date &lt time_limit &&
+		      own no eTicket</li>
+		    <li>state == activated && (date &gt= time_limit ||
+		      own eTicket(s))</li>
+		    <li>state == suspended</li>
+		    <li>state == retired</li>
+		  </code>
+		</ol>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+        <hr></hr>
+	<dt><a name="eticket">eTicket Record:</a></dt>
+	<dd>
+	  <table>
+	    <tr valign=baseline>
+	      <td width=140><code>eTicketID</code></td>
+	      <td>ID of this eTicket</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>BB_ID</code></td>
+	      <td>The BB that owns this ticket</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>Content_ID</code></td>
+	      <td>Identify the content this ticket is for</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>date</code></td>
+	      <td>Time and date that this eTicket record was created</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>state</code></td>
+	      <td><ol>
+		  <li><code>not_redeemed</code> -- initial state of
+		    this record; the purchase request has been
+		    approved but the eTicket has never been downloaded.</li>
+		  <li><code>redeemed</code> -- this eTicket has been
+		    downloaded (at least once).</li>
+		  <li><code>revoked</code> -- the license server that
+		    issued this eTicket has been revoked.</li>
+		  <li><code>returned</code> -- this eTicket is no
+		    longer valid: the customer no longer owns this
+		    eTicket and cannot download it (but can purchase
+		    a new eTicket for this content).</li>
+		</ol>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<hr></hr>
+		<center>
+		  <img src=data_defs/eTicket-state.png></img>
+		</center>
+		<ol type=A>
+		  <code>
+		  <li>state == not_redeemed && date &lt time_limit</li>
+		  <li>state == returned</li>
+		  <li>state == not_redeemed && date &gt= time_limit</li>
+		  <li>state == redeemed</li>
+		  <li>state == revoked</li>
+		  </code>
+		</ol>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+        <hr></hr>
+	<dt><a name="trans_info">Transaction Record:</a></dt>
+	<dd>
+	  <table>
+	    <tr valign=baseline>
+	      <td width=140><code>transID</code></td>
+	      <td>unique Transaction ID</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>transType</code></td>
+	      <td>Transaction type:
+		<ol>
+		  <li><code>eTicket_purchase</code></li>
+		  <li><code>eTicket_refund</code></li>
+		</ol>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>BB_ID</code></td>
+	      <td>The BB purchasing this eTicket</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>eTicketID</code></td>
+	      <td>index to the corresponding eTicket record</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>DepotID</code></td>
+	      <td>The Depot that carries out the transaction</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>price</code></td>
+	      <td>actual price we charged/refunded the shop.</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>date</code></td>
+	      <td>Time/date of this transaction</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+    </body>
+  </html>
+

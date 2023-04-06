@@ -1,0 +1,208 @@
+d9 2
+a10 2
+	  $Revision: 1.16 $<br>
+	    $Date: 2002/09/11 18:26:41 $
+d14 1
+a14 1
+    <hr>
+d18 1
+a18 1
+      <hr>
+d28 8
+a35 8
+            <ul>
+              <li><i>Customer ContentID</i> - customer &amp; retailer visible 4
+                digit ([0-9]*) content ID that is published in catalogs and brochures.</li>
+              <li><i>Content Version # </i>- 1 digit&nbsp; ([0-9]) version number.
+                Versions may be issued for updates to the content or for bug
+                fixes.</li>
+            </ul>
+          </td>
+d37 1
+a37 1
+        <tr>
+d41 2
+a42 2
+        </tr>
+        <tr>
+d48 1
+a48 1
+            checks and is approved for publishing</li>
+d50 2
+a51 2
+            the CDS &amp; Transaction subsystem and may be made available for
+            purchase.</li>
+d54 2
+a55 2
+        </tr>
+        <tr>
+d57 8
+a64 8
+        <p align="center"><img border="0" src="data_defs/cms-content-state.jpg" width="349" height="39">
+		<ol type=A>
+		  <code>
+		  <li>state == released</li>
+		  <li>state == validated</li>
+		  <li>state == published</li>
+		  </code>
+		</ol>
+d66 1
+a66 1
+        </tr>
+d83 2
+a84 2
+            before it is published. This is sent to the BB which will use it to
+            decrypt the content before <i>individualization.</i>&nbsp;
+d87 1
+a87 1
+        <tr>
+d90 15
+a104 15
+          <ul>
+            <li><code>content-hash - </code>
+          SHA digest of the unencrypted content</li>
+            <li><code>execution-information - </code>
+ save-state-size, load-address, boot-length,
+          boot-code-state, boot-signature, hardware-access-rights</li>
+            <li><code>content-description - </code>
+ content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image,
+              encrypted-content-checksum
+              <dl>
+                <dt>&nbsp;</dt>
+              </dl>
+            </li>
+          </ul>
+d106 1
+a106 1
+        </tr>
+d119 1
+a119 1
+          </td>
+d121 1
+a121 1
+        <tr>
+d125 2
+a126 2
+        </tr>
+        <tr>
+d130 1
+a130 1
+        </tr>
+d138 10
+a147 10
+            <ul>
+              <li>New</li>
+              <li>Active</li>
+              <li>Suspended
+                <dl>
+                  <dd>&nbsp;</dd>
+                </dl>
+              </li>
+            </ul>
+          </td>
+d152 1
+a152 1
+      <hr>
+d181 1
+a181 1
+		<hr>
+d184 1
+a184 1
+		  <hr>
+d231 1
+a231 1
+        <hr>
+d270 1
+a270 1
+        <code>license_mgr_ID</code>
+d273 1
+a273 1
+        <code>License manager identifer</code>
+d277 3
+a279 6
+	      <td>
+        <code>eTicket_object</code>
+	      </td>
+	      <td>
+        <code>Actual eTicket object created</code>
+	      </td>
+d304 1
+a304 1
+        <hr>
+d345 1
+a345 1
+    <hr>
+d365 1
+a365 1
+    <hr>
+d450 1
+a450 1
+      <hr>
+d482 1
+a482 1
+      <hr>
+d502 1
+a502 1
+      <hr>
+d524 1
+a524 1
+      <hr>
+d526 1
+a526 1
+      <hr>
+d586 1
+a586 1
+    <hr>
+d605 1
+a605 1
+    <hr>
+d609 1
+a609 1
+    <hr>
+d630 1
+a630 1
+    <hr>
+d633 1
+a633 1
+      <hr>
+d646 1
+a646 1
+        <tr>
+d649 3
+a651 3
+ content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image,
+          encrypted-content-checksum
+d653 2
+a654 2
+        </tr>
+        <tr>
+d657 9
+a665 20
+            <dl>
+              <ol type="A">
+		  <li><code>downloadable</code> -- content has been downloaded from CDS
+            and is available for download to BB Player upon presentation of a
+            valid eTicket</li>
+		  <li><code>revoked </code>-- content is revoked due to security considerations and
+            is no longer available for download</li>
+		</ol>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+	      <td colspan=2>
+        <p align="center"><img border="0" src="data_defs/bbdepot-content-download-state.jpg" width="274" height="41">
+		<ol type=A>
+		  <code>
+		  <li>state == downloadable</li>
+		  <li>state == revoked</li>
+		  </code>
+		</ol>
+d667 16
+a682 1
+        </tr>
+d687 1
+a687 1
+    <hr>

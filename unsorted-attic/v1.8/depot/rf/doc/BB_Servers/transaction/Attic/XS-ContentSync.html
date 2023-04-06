@@ -1,0 +1,57 @@
+d36 1
+a36 1
+  <li><code>CDS Timestamp</code></li>
+d48 1
+a48 1
+  <li><code>CDS Timestamp</code></li>
+d54 2
+a55 1
+      <li>	The BB Depot and the Content Distribution Subsystem mutually
+d62 6
+a67 3
+      <li>	The Content Manager passes the <i> Hardware ID</i> and <i>CDS
+        Timestamp </i>and
+        requests the list of new content.</li>
+d69 3
+a71 4
+        (includes ContentID, state) that
+        needs to be updated in the BB Depot. Only content is <i>downloadable</i>
+        state and <i>revoked</i> state in the CDS are considered.</li>
+      <li>	The <i> Content List</i> is returned back to the Content Manager.</li>
+d74 2
+a75 1
+        new content and a list of content that has state changes.</li>
+d80 2
+a81 2
+      <li>Content whose state has changed to <i>revoked</i> is updated in the BB
+        Depot Content store.</li>
+d86 21
+a106 6
+      <li>	The Content Manager submits the <i>HardwareID </i> and<i> Content ID</i>&nbsp;
+        and starts download of the encrypted content from the Content Download Server to the BB Depot's
+    Content data store. The download does not have to occur over a secure link.</li>
+      <li>	Upon successful download, a new record is created in the <i>downloadable</i> state.</li>
+      <li>The Content Manager returns to the CDS the <code>download-duration </code> for each content
+        added</li>
+d109 2
+a110 2
+  <li>The Content Manager stores the <i> CDS Timestamp</i> once all the new
+        content is downloaded for use during the next synchronization
+a111 3
+  <li>	The transaction is considered to be complete once the <i>CDS Timestamp</i>
+    written to local persistent
+    storage.</li>
+d115 2
+a116 2
+  <li>   BB Depot - Content records are updated &amp; synchronized with the CDS.</li>
+  <li>   <i>CDS Timestamp</i> is updated to note time of last synchronization.</li>
+d121 1
+a121 1
+  <li>Content Sync Server : Synchronization Request - hardwareID, CDS timestamp</li>
+d123 1
+a123 1
+  <li>Content Download Server : Download Completion - hardwareID, contentID, duration of
+d130 10
+a139 2
+  <li>If the transaction did not complete, the Content Manager will retry
+    appropriately with suitable back off timers till it succeeds. </li>

@@ -1,0 +1,46 @@
+0. In your default ndevrun.ddf file, make sure that you have
+   the following line in the BB2 section:
+
+   FSTuserEnd=0x10F3F0000
+
+   All other FSTuserEnd lines should be commented out.
+
+1. Run the application ('app') using ndrun.
+
+2. Run 'ndstop'.
+
+3. Edit the application's .dlf file ('app.dlf').
+   Remove the line that starts 'RVL_CONFIG_FILE'.
+   Write the file back.
+
+4. Create the partition data using makervm:
+   'makervm -gc app.dlf app.part -x'
+
+5. Create the developer partition:
+   'rvl_devel_partition -o app.dev_part app.part'.
+
+6. Copy 'app.dev_part' to the CLS machine.  The file goes into
+   a directory like cls3:/mnt/test3/v0.
+
+7. Run 'genLic' with your current working directory set to
+   the one just above test3:
+
+   genLic test3
+
+   If it asks for an operator password, try 'test'.
+
+8. Copy the output file 'v0/*.prod_part' back to the machine and directory
+   where the partition was first generated.
+
+9. Run 'clsCompose -p app.prod_part -c app.rcf -r rvl.bin.noupdate'.
+   The 'app.rcf' file is in the directory where ndrun was invoked
+   in step #1.
+   This generates app.rvm.
+
+   clsCompose can be found in NG/sw/tools/dvd
+
+10. Rename the app.rvm file to app.gcm.
+
+11. Run the disk image using ODEM:
+    'ODEM -r -l app.gcm'
+  

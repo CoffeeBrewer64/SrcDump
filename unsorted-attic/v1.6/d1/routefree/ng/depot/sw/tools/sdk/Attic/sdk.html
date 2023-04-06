@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Developing Software with the RVL IOP SDK</title>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+</head>
+<body>
+<h2 align="center">Developing Software with the RVL IOP SDK<br>
+</h2>
+<div align="center">$Revision: 1.5 $<br>
+$Date: 2006/03/27 02:40:00 $<br>
+</div>
+<h3>Introduction</h3>
+<h4>iosshell</h4>
+The iosshell is the main tool used to load and run executables. It can
+be used to load and run one or more interacting executables. By using
+combinations of the hload and run commands. <br>
+<br>
+The main commands are:
+<ul>
+	<li><b>help</b>   - prints out the list of commands</li>
+	<li><b>hload</b>  - loads a *.elf file from the host computer</li>
+	<li><b>ls</b>     - lists currently loaded files</li>
+	<li><b>run</b>    - runs a currently loaded file</li>
+        <li><b>source</b> - executes commands from a source (text) file</li> 
+	<li><b>exit</b>   - exits from shell, allowing threads with lower priority than shell to run.  
+	           (SDK shell priority currently defaults to 10)
+</ul>
+<br>
+
+<h4>Building and running tests<br>
+</h4>
+The SDK includes source code for a set of tests and examples. These are
+in $ROOT/usr/src/os/tests:<br>
+<ol>
+	<li>alloc.c      (example of using heaps and IOS_Alloc)</li>
+	<li>dd.c         (example of the resource manager API)</li>
+	<li>iob_tests.c  (example of the use of iobufs)</li>
+	<li>mq.c         (example of message queues, one thread creates, two threads use)</li>
+	<li>msg.c        (example of message queues, one thread sends, one receives)</li>
+	<li>rm_iob.c     (example of resource manager with iobufs)</li>
+	<li>thrd.c       (example of threads )</li>
+	<li>tmr1.c       (example of interval and one-time timers)</li>
+</ol>
+Notes:
+<ul>
+<li>The rm_iob.c example shows how iobuf can be used in resource 
+managers / processes for their communication, such as between network
+stack and network drivers. During the initialization, the program
+creates one network interface RM (Resource Manager) and one fake
+USB-Ethernet RM. Then, the main thread calls netSendPkt() which simulates
+a network stack function to transmit a packet where it will exercise a few
+iobuf functions. Finally, the main thread calls usbEthRecvPkt() which
+simulates a network driver function receiving an incoming packet.
+</li>
+</ul>
+To build the tests, go to $ROOT/usr/src/os/tests and type Make. If you
+the tools are setup correctly this should build the set of elf files
+that can be loaded and run.<br>
+<h3>API Reference</h3>
+The main API's used for initial development of Resource Managers on the
+IOP OS are the Kernel Services API. These are
+documented in:<br>
+&nbsp;&nbsp;&nbsp; <a href="IOPOS_API.doc">Kernel API</a><br>
+<h3>Known Issues</h3>
+<ul>
+<li>To run any of the test programs properly, make sure that you type 
+"exit" in the the VIO window (although a prompt doesn't appear) after you type 
+"run". 
+</li>
+<li><a href="SDIO_Issues.html">List of SDIO controller issues/work-arounds</a>
+</li>
+</ul>
+</body>
+</html>

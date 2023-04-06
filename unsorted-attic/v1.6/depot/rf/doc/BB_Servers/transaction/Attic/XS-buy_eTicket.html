@@ -1,0 +1,40 @@
+d9 2
+a10 2
+	$Revision: 1.5 $<br>
+        $Date: 2002/08/27 19:26:12 $
+d35 1
+a40 3
+	<li>The BB Card may or may not have enough total memory to store the
+	  new content.  The Depot console app would check that and
+	  give a warning if needed, but has the option to proceed anyway.</li>
+d68 1
+d113 1
+a113 2
+		  current time and date, and sets the
+		  <code>state</code> to <code>not_redeemed</code>.
+d125 2
+a126 2
+	    <li><em>eTicket Server</em> returns "success" status
+	      to the <em>Retail App</em>.
+d134 1
+a134 1
+	<li><code>newTicket</code>
+d136 1
+a136 2
+	    <li><em>Retail App</em> updates the <em>BB Card</em> with
+	      a flag indicating new eTicket is available for download.</li>
+d145 1
+a145 2
+	<li>The BB Card has a flag indicating new eTicket is available
+	  for download.</li>
+d175 3
+a177 3
+	  The server simply returns a status code indicating this, and
+	  the <em>Retail App</em> proceeds to write the flag on the
+	  <em>BB Card</em>.  No database record will be modified.
+d179 1
+a179 1
+	<li>The transaction has completed but the "new eTicket flag"
+d182 1
+a182 1
+	  exception case and the flag will be set again.</li>

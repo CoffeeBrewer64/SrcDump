@@ -1,0 +1,28 @@
+d13 1
+d18 1
+d25 2
+d31 1
+d38 1
+d41 31
+d83 1
+a83 1
+        -d) test_data_subdir=$2; shift 2 ;;
+d91 3
+a93 3
+if [ ! -d $test_data_subdir ]; then
+    echo "creating directory $test_data_subdir"
+    mkdir $test_data_subdir
+d104 2
+a105 2
+    ./psk_tool -f $test_dir/$test_data_subdir/$nand_fname -v \
+	$test_dir/$test_data_subdir/$vram_fname ${psk_params[$count]} psk.sim
+d108 3
+a110 2
+    cp -f $test_data_subdir/$nand_fname $sim_nand_fname
+    cp -f $test_data_subdir/$vram_fname $sim_vram_fname
+d113 1
+a113 1
+	$test_dir/$test_data_subdir/$log_fname
+d116 1
+a116 1
+    result=`./log_parse.pl 0x04600000 < $test_data_subdir/$log_fname`

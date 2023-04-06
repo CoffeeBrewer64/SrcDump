@@ -1,0 +1,152 @@
+d13 2
+a14 2
+	  $Revision: 1.20 $<br>
+	    $Date: 2002/09/23 21:34:53 $
+d51 3
+a53 6
+          eTickets and content and plugs into the BB Player. Must have an LED
+          which is used to indicate activity or malfunction.</li>
+        <li>Free Content - When a customer purchases a BB Player, he also gets
+          the rights to play content which is referred to as <i>Free Content</i>.&nbsp;</li>
+        <li>BB Safety Box - A customer gets rights to play content, either
+          through the purchase of an eTicket or by getting <i>Free Content. </i>The
+d68 1
+a68 1
+        <li>Depot Console - VGA or LCD screen with touch screen capability</li>
+d91 1
+a92 1
+            <li><a href="#Backup">Content Backup to Safety Box</a></li>
+a139 2
+		<li>Customer has previously selected the content that he
+          wishes to purchase for his BB Card.</li> 
+d148 1
+a148 1
+	      <ol start=3>
+d155 1
+a155 1
+	      <ol start=4>
+d171 2
+a172 48
+      </ol>
+      <hr>
+
+      <h3><a name="Restore"><span style="background-color: #C0C0C0">Content Restore from Safety Box</span></a></h3>
+        <p><b>Description: </b>Customer downloads content (which he already has an eTicket for) onto his BB Card.</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>Customer may own a large number of eTickets, but have space for a limited
+	    number of pieces of content on his BB Card. So, he may constantly be backing up and
+        restoring content onto the BB Card from his virtual <i>Safety Box.</i></li>
+	</ol>
+	<p><b>Requirements</b></p>
+      <ol>
+        <li>It must be possible to automatically download promotional content as
+          part of regular content downloads if space is available. Customer must
+          not have to manage space used by promotional content.</li>
+      </ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>The BB Card identifies (does not authenticate) the BB Player for which the
+	    eTicket has been purchased. The actual BB Player does not need to be present.</li>
+	  <li>The BB Player owns at least one eTicket which identifies the content.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th width=50%>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td width=50%>
+	      <ol>
+		<li>Inserts his BB Card into the BB Card Reader</li>
+                <li>The Depot Console displays a list of the content currently installed on the BB Card, and also the content available in the Safety Box.</li>
+                <li>Using the touch screen on the Depot Console, the customer selects the content to be restored from the Safety Box.</li> 
+                <li>If space is available, the content is restored. Otherwise, the user is taken to the "<a href="#Backup">Content Backup to Safety Box</a>" section.</li>
+		<li>Waits for the display to indicate
+		  completion of the download process</li> 
+                <li>This process may be repeated as many times as necessary.  The customer simply removes their BB Card when done.</li>
+	      </ol>
+	    </td>
+            <td>&nbsp;</td>
+	  </tr>
+	</table>
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+        <li>BB Card is not initialized or BBID is not recognized by the Server
+        as identifying an official BB Player. (RWW: is server necessary?)</li>
+d230 48
+d291 1
+a291 2
+	  <li>Customer brings in the BB Player along with the BB Card to the
+	    Retailer.&nbsp;</li>
+d302 2
+a303 3
+		<li>Takes BB Player and the BB Card to the Retailer.</li>
+		<li>Hands over BB Player and BB Card to the
+		  Retailer.</li>
+d312 2
+a313 1
+                  <li>Plugs customer's BB Card into the Depot's BB Card Reader, the card is automatically scanned to see if repairs are necessary.</li>
+d315 2
+a316 1
+		  failure), removes BB Card from the port.
+a318 6
+		<li>Plugs BB Card into the customer's BB Player to indvidualize card.</li>  
+		<li>Confirms completion of individualization process and hands back
+		  BB Player and BB Card to the customer.</li>
+		<li>Tells customer that the BB Card is now cleaned and
+		  empty and he needs to download any content that he
+		  owns again.</li>
+d324 5
+a328 2
+	      <ol start=8>
+                  <li>Inserts BB Card into the reader and downloads the content (which is now in their safety box).</li>
+a335 1
+        <li>Servers and BB Depot fail to mutually authenticate each other.</li>
+a340 1
+        <li>No response is received from the BB Depot or the Server.</li>
+d370 1
+a370 1
+		<li>Hands over BB Player and money to the Retailer.</li>
+d379 1
+a379 8
+		<li>Accepts money from customer.</li>
+		<li>Plugs in a new BB Card to customer's BB
+		  Player for individualization.</li>
+                  <li> <i>How does individualization work?</i></li>
+		<li>When completed, returns the BB
+		  player and the new BB Cards to customer. Instruct
+		  customer that the new BB Card is ready for content
+		  download.</li> 
+d385 5
+a389 2
+	      <ol start=7>
+                  <li>Takes the BB Player and new BB Card.  Customer may now retrieve content from their Safety Box.</li>
+a397 2
+        <li>BB Card cannot be individualized because the BB Player is not
+          recognized as an official unit.</li>
+d423 2
+d450 1
+a450 3
+		<li>Retailer selects <i>BB Player Repair</i> on the console and is asked
+          to enter the date of purchase - which he looks up on the
+          receipt/proof-of-purchase that the customer provides.</li>
+d453 1
+a453 1
+		<li>Retailer receives an RMA number,&nbsp; the address where to send the
+a483 1
+		<li>Retailer selects <i>BB Player Repair</i> and enters the RMA number.</li>
+a499 4
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+	  <li>BB Depot is not able to communicate with the Servers.</li>
+      </ol>
+a548 2
+        <li>If the retailer suspects the authenticity of the BB Player, he can
+          try to execute the BB Card Repair use case.</li>
+d559 1
+a559 3
+        eTickets. Since the customer selects the actual content himself before
+        the purchase is made, there is no chance of the retailer making a
+        mistaken sale.&nbsp;</li>

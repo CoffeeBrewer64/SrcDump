@@ -1,0 +1,43 @@
+d3 1
+a3 1
+# $Id: cls-partition,v 1.2 2006/07/28 00:56:37 craig Exp $
+d15 2
+a16 3
+# It puts the files generated on the CLS machine into the structure
+# used by the rvl_prod_partition, calls the program, then cleans
+# up.
+d26 3
+d33 4
+a36 1
+    print "Usage: $0\n";
+d43 1
+a43 1
+generate_enc_partition($$)
+d235 128
+d366 11
+a376 9
+    my ($help, $verbose, $keep);
+    my ($opt_return);
+    my ($cur_dir);
+    my ($name, $path, $suffix, $include_name);
+
+    $opt_return = GetOptions (
+                                 "help"    => \$help,
+                                 "keep"    => \$keep,
+                                 "verbose" => \$verbose,
+d378 5
+d384 13
+d400 24
+a423 4
+    $cur_dir = cwd();
+    if  (generate_enc_partition($cur_dir, $keep)) {
+        if ($verbose) {
+            print "$0: Generating partition succeeded\n";
+a424 1
+        exit(0);
+d426 27
+a452 3
+    else {
+        print "$0: Generating partition failed\n";
+        exit(1);
+d454 2

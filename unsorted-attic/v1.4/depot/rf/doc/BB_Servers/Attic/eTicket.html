@@ -1,0 +1,125 @@
+<html>
+    <head>
+      <title>BroadOn Confidential - eTickets Purchase Model</title>
+    </head>
+    <body bgcolor="FFFFFF">
+      <h2><center>Revised Model for Purchasing eTickets</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.3 $<br>
+	$Date: 2002/08/20 21:16:07 $
+      </center>
+	  
+      <h3>I. Motivation</h3>
+      <p>
+	The old model has several problems that we need to solve:
+	<ol>
+	  <li>There is no practical way to revoke a eTicket.  It is
+	    unacceptable not to refund the customer if a
+	    wrong eTicket is issued because of operator error.
+	  </li>
+	  <li>One way avoid this problem is to shift the
+	    responsibility to the customer.  That is, we require the
+	    customer to verify the eTicket title and give explicit 
+	    confirmation before the transaction is processed. However,
+	    this requires extra hardware (e.g., an extra display and
+	    keypad) on the BB Depot.</li>
+	  <li>Instead of providing extra hardware, we could overload
+	    the download station to be used for confirmation of
+	    purchases.  But this requires exclusive access to the
+	    download station during the entire purchasing process.</li>
+	</ol>
+      <h3>II. The New Model</h3>
+      <p>
+	The key idea is to decouple customer payment from the
+	actual processing of the eTickets.  From the customer's point
+	of view, it takes the following steps to purchase a eTicket:
+	<ol>
+	  <li>customer selects a game title</li>
+	  <li>customer pays for the selected game, and hands over his BB Card to the shop owner</li>
+	  <li>shop owner registers a <em>store credit</em> for the
+	    selected game with the BB as identified by the BB Card, and
+	    returns the BB Card to the customer</li>
+	  <li>customer walks over to the download station, inserts the BB Card, and selects from a menu on the display for eTicket
+	    purchases.</li>
+	  <li>the display shows all the titles associated with this BB
+	    for which it has store credit.</li>
+	  <li>customer selects the eTicket that he wants to download,
+	    confirm the selection, and
+	    removes the BB Card when the transaction is
+	    complete.  </li>
+	</ol>
+      <p>
+	Note that once a eTicket is downloaded, it cannot be revoked.
+	However, in the new model the customer is given a chance to
+	confirm the purchase.  As long as the eTicket has not been
+	downloaded, he could go back to the shop owner and switch his
+	store credits for another game within a certain prescribed time limit. 
+      </p>
+      <h3>III. Store Credits</h3>
+      <p>
+	Store Credits (SC) is a new concept that requires some
+	explanation.  It is a record in our server database that contains:
+	<ol>
+	  <li>BB ID</li>
+	  <li>Depot ID</li>
+	  <li>cash value</li>
+	  <li>content ID</li>
+	</ol>
+	When a customer purchases a game via a particular BB Depot, an
+	SC record is created in the server's database.  It is a token
+	that binds the BB and the Depot with the specified content.  When
+	the customer redeems the SC for an eTicket, it will be issued
+	for that particular BB and that particular content only.&nbsp;
+      <p>The BB Card by itself is <strong>not</strong> a
+	secure device (i.e., it could be cloned) and there is no guarantee that
+	its content cannot be duplicated. The BB Card is used to identify the BB
+      Player (which is a secure device). This creates two risks</p>
+      <ul>
+        <li>A malicious user may clone the BB Card and get a refund for the SC</li>
+        <li>A malicious user may redeem the eTicket forcing the issuance of an
+          eTicket and denying the customer from seeking a refund if he so
+          desires. This eTicket, while useless to the malicious user may cause
+          the victim to own content which he otherwise may not have wanted.</li>
+      </ul>
+      <p>To guard against the above two risks, a SC is automatically marked as
+      redeemed once a certain time limit has passed. Therefore any refund
+      request will have to be made quickly by the customer while he is still in
+      the store. A refund is allowed provided the refund request is issued from the
+	same BB Depot shown in the SC record, and the corresponding
+	eTicket has not been redeemed.  The original shop that creates
+	the SC record <em>owns</em> the sale, and it is the only shop
+	that is authorized to issue refund. In addition, this <em>"while the customer is in store"</em> refund policy
+      will ensure that the refund is not claimed by a malicious user, since it
+      will be hard to
+	pretend to be the victim while he is still in the store.&nbsp;</p>
+
+
+      <h3>IV. Security Analysis</h3>
+      <p>
+	Given that the BB Card carried by a customer is
+	<strong>not</strong> a secure device, there is no guarantee that
+	its content cannot be duplicated.  As a result, it is possible
+	to steal the identity of a BB owner by cloning his BB Card.  We decided to trade off this security risk for user
+	convenience.
+      </p>
+      <p>
+	It is still possible to minimize the security risk.  
+	Limiting the time where refund and exchange can be made
+	substantially reduces the window of opportunity for an
+	identity thief.  In fact, most customers are expected to
+	finish a purchase transaction within a few minutes.
+      </p>
+      <p>
+	Another way to reduce the vulnerability is to include a sequence
+	number with the BB ID (with proper encryption, digital
+	signature, etc.).  This sequence number is incremented every
+	time the BB Card is plugged in back to the BB
+	controller.  To authenticate a user, the server checks that
+	the sequence number is greater than or equal to the one use in
+	the last transaction.  This scheme does not fully authenticate
+	a customer, but at least invalidates the stolen identity upon
+	the real owner's next visit.
+      </p>
+    </body>
+</html>

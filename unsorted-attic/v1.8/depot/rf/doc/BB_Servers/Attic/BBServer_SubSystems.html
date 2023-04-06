@@ -1,0 +1,209 @@
+d14 1
+d16 23
+a38 7
+  <li>Central subsystems
+    <ul>
+      <li>Billing, Account Management &amp; Inventory subsystem</li>
+      <li>Audit subsystem</li>
+      <li><a href="#Studio Subsystem">Studio subsystem</a> (SS)</li>
+      <li><a href="#Manufacturing Subsystem">Manufacturing subsystem</a> (MS)</li>
+      <li><a href="#Subscriber Subsystem">Subscriber subsystem</a> - may be used
+a39 10
+    </ul>
+  </li>
+  <li>Optionally distributed per region or collection of regions. A region is
+    loosely defined as a geographical area.
+    <ul>
+      <li><a href="#CDS Subsystem">CDS subsystem</a> (CDS)</li>
+      <li><a href="#Transactional Subsystem">Transactional subsystem</a> (XS)</li>
+      <li><a href="#RMS Subsystem">RMS subsystem</a> (RMS)</li>
+    </ul>
+  </li>
+d42 1
+a42 1
+<h2><a name="Transactional Subsystem">Transactional Subsystem</a></h2>
+a53 2
+    <li>digitalCertificate - generated and sent to the BB upon activation,
+      contains bbID</li>
+d56 1
+d58 2
+a59 1
+    <li>&lt;other manufacturing particulars like batchID&gt;</li>
+d108 1
+a108 2
+          issued. Content may still be downloaded if authorized by existing
+          eTickets.</td>
+d127 5
+a131 2
+      they get three specific games or a credit for any 3 games of their choice.</li>
+    <li>How do we bind subscriber/player owner name to BB.</li>
+d136 1
+a136 1
+download stations. XS does software release management for BB players.</p>
+a144 4
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>How does this software get loaded in to the XS?</li>
+  </ul>
+d146 1
+a146 1
+<h3>BB Server Configuration</h3>
+a149 1
+    <li>&lt;DC, private key&gt; for generating BB DC</li>
+d151 1
+a151 2
+    <li>Associated Certificate Chains</li>
+    <li>domainInfo</li>
+d333 2
+a334 1
+        <li> &lt;hardwareID, storeID&gt; with the XS</li>
+d338 2
+a339 1
+        <li>Establish connection to RMS for region &amp; register</li>
+d343 2
+a344 3
+    <li>Any authentication required for the RMS?</li>
+    <li>Should the depot hardwareID be registered with the store before
+      installer gets to the store?</li>
+d350 1
+a350 1
+case the old one is lost.</p>
+d385 2
+a386 1
+        <td width="22%">Disallow any further &quot;secure&quot; transactions</td>
+d455 3
+d471 2
+a472 1
+    <li>&lt;eTicket blob&gt;</li>
+d511 2
+a512 1
+        <td width="34%" height="57">Will not be available for any further downloads</td>
+d526 1
+a526 1
+    <li>RevokeTicket - should this be permitted at all?</li>
+d540 3
+a542 2
+    <li>title, author &amp; description</li>
+    <li>&lt;studio info, content-type, content-size, saved state size, content signature,
+d544 1
+a544 1
+    <li>content decryption key</li>
+d592 2
+a593 1
+    <li>CRL information</li>
+d599 1
+a599 1
+      result in a new contentID?</li>
+d732 1
+a732 1
+<h2><a name="CDS Subsystem">CDS Subsystem</a></h2>
+d759 3
+a761 2
+    <li>title, author &amp; description</li>
+    <li>&lt;meta data including content-type, content-size, saved state size, content signature,
+d773 43
+a815 12
+  <p><b>Methods</b></p>
+  <ul>
+    <li>Publish_Content</li>
+    <li>Release_Contenet - for a particular regionID</li>
+    <li>SuspendContent - content is not available
+      for any future downloads or eTickets</li>
+    <li>Content_List - since last update time</li>
+    <li>Content_Count - number of content pieces available for download for a
+      region</li>
+    <li>Content_Walk - list out sequentially all the available pieces of content
+      that are available</li>
+  </ul>
+d820 2
+d828 1
+a828 1
+    <li>date</li>
+d843 1
+a843 39
+<h2><a name="Subscriber Subsystem">Subscriber/Owner Subsystem</a></h2>
+<h3>BB Owner/Subscriber</h3>
+<p>A BB subscriber may register using out-of-band mechanisms. Typically this is
+used for building online communities, tie promotions to individuals, provide for
+applications like email etc.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li>username - unique, used for online community etc. e.g.&nbsp; <a href="mailto:username@ique">username@ique.net</a>
+      &nbsp;</li>
+    <li>memberID - unique, internal reference</li>
+    <li>preferences, password</li>
+    <li>contactInfo - email, telephone etc</li>
+    <li>&lt;sequence of bbID&gt; - optional, since one may register without
+      owning a unit. Each subscriber/user name may be associated with
+      multiple BBs</li>
+  </ul>
+  <p><b>Methods</b></p>
+  <ul>
+    <li>Register Subscriber</li>
+    <li>Link BB - associate bbID with subscriber</li>
+    <li>GetAttributes</li>
+    <li>SetAttributes</li>
+  </ul>
+</blockquote>
+<hr style="background-color: #C0C0C0">
+<h2><a name="RMS Subsystem">RMS Subsystem</a></h2>
+<blockquote>
+<ol>
+  <li>Always has the latest IP address for each Depot</li>
+  <li>Has &lt;hardwareID, regionID, ipAddress&gt; mappings</li>
+</ol>
+</blockquote>
+<hr style="background-color: #C0C0C0">
+<h2><a name="Account Management Subsystem">Account Management Subsystem</a></h2>
+<hr style="background-color: #C0C0C0">
+<h2><a name="Audit Subsystem">Audit Subsystem</a></h2>
+<hr style="background-color: #C0C0C0">
+<h2><a name="Studio Subsystem">Studio Subsystem</a></h2>
+d858 25
+a882 5
+  <p><b>Methods</b></p>
+  <ul>
+    <li>RegisterDeveloper</li>
+    <li>IssueNewCertificate</li>
+  </ul>
+d890 2
+a891 3
+    <li>contentType - released (from Studio), published (to external world)</li>
+    <li>title, author &amp; description</li>
+    <li>&lt;content-type, content-size, saved state size, content signature,
+d893 1
+a893 17
+    <li>content decryption key</li>
+  </ul>
+  <p><b>Methods</b></p>
+  <ul>
+    <li>ReleaseContent</li>
+    <li>PublishContent</li>
+  </ul>
+</blockquote>
+<h3>SS Region</h3>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li>name</li>
+    <li>regionID</li>
+    <li>contentID</li>
+    <li>releaseDate</li>
+    <li>price</li>
+d896 25
+a920 10
+  <ul>
+    <li>PublishToRegion - mark available for release at some future date</li>
+    <li>SuspendPublishing - stop any further publishing</li>
+    <li>ReleaseForTransactions - send download content to CDS, meta data to
+      Transactions Subsystem&nbsp;</li>
+  </ul>
+  <p><b>Open issues</b></p>
+  <ul>
+    <li>Need to import region definition.</li>
+  </ul>
+d923 1
+a923 1
+<h2><a name="Manufacturing Subsystem">Manufacturing Subsystem</a></h2>
+d941 70

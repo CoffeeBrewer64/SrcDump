@@ -1,0 +1,701 @@
+<html>
+    <head>
+      <title>Interactions of BB Server Components</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h1><center>Interactions of BB Server Components</center></h1>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.5 $<br>
+        $Date: 2002/08/14 20:46:19 $
+      </center>
+
+      <h3>BB Activation</h3>
+      <dl>
+	<dt>Description</dt>
+	<dd>The Depot sends in a request for BB activation.  Upon
+	  approval, the server returns a digital certificate which is
+	  written onto the BB's memory module.
+	</dd>
+	<dt>Client</dt>
+	<dd>BB Depot - Retail App</dd>
+	<dt>Server</dt>
+	<dd>Transaction - BB Activation Server</dd>
+	<dt>Control Flow</dt>
+	<dd>
+	  <table width=100%>
+	    <tr>
+	      <td>
+		<img src=bb_act.ctrl.png align=right hspace=20></img>
+		<ul>
+		  <li>Both the Depot and BB authenticates with the
+		    Server independently.
+		  </li>
+		  <li><em>BB Activation Server</em> verifies the validity
+		    of the BB_ID, and then returns the corresponding digital
+		    certificate to the <em>Retail Apps</em>, which writes
+		    it to the BB through the <em>BB Reinit Server</em>.</li>
+		  <li> As a deferred transaction, the <em>Inventory
+		      Server</em> is notified of the sale of this
+		    BB.
+		  </li>
+		  <li>This transaction is complete when the
+		    transaction record and the BB record are updated.</li>
+		</ul>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+	<p></p>
+	<dt>Data Definitions</dt>
+	<dd>
+	  <table width=100%><tr><td>
+		<img src=bb_act.data.png align=right hspace=20></img>
+		Only the relevant fields are shown:
+		<dl>
+		  <dt>BB record:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>cert</code></td>
+			<td>Digital certificate for this BB</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>state</code></td>
+			<td>State of this BB (now set to
+			  <em>activated</em>)</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>RegionalID</code></td>
+			<td>Regional server of last transaction</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>DepotID</code></td>
+			<td>ID of the Depot that activated this BB</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>time</code></td>
+			<td>time of activation</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>Transaction Info:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>transID</code></td>
+			<td>Transaction ID</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>transType</code></td>
+			<td>Transaction type (set to <em>BB Activation</em>)</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code> BB_ID</code></td>
+			<td>The BB being activated</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>DepotID</code></td>
+			<td>The Depot that carries out the transaction</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>date</code></td>
+			<td>Time/date of this transaction</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>Inventory:</dt>
+		  <dd>Exact format TBD.  Need to record that this
+		    particular BB is sold through this BB Depot.</dd>
+		</dl>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+	<dt>Error Handling</dt>
+	<dd>
+	  If the BB Activation Server does not approve the
+	  activation, an error code is returned to the Retail App.  No
+	  transaction record is created in these cases.  The types of
+	  errors include:
+	  <ul>
+	    <li>Authentication error:  The BB Depot or BB player is not
+	      recognized, or the BB player was not bound to this shop.</li>
+	    <li>Data error:  The BB ID is invalid.</li>
+	    <li>Server internal error:  database is down, software
+	      error, etc.</li>
+	  </ul>
+	  <p>
+	    If the BB is already activated, the corresponding
+	    certificate is returned and <em>no</em> transaction record
+	    is generated.  This is the case where a BB reloads its
+	    certificate during the recovery process.</p>
+	</dd>
+      </dl>
+      <hr></hr>
+      <h3>BB Deactivation</h3>
+      <dl>
+	<dt>Description</dt>
+	<dd>The Depot sends in a request for deactivating a BB.  The
+	  server verifies all the conditions for approval, and then
+	  returns the status code.
+	</dd>
+	<dt>Client</dt>
+	<dd>BB Depot - Retail App</dd>
+	<dt>Server</dt>
+	<dd>Transaction -- BB Activation Server</dd>
+	<dt>Control Flow</dt>
+	<dd>
+	  <table width=100%>
+	    <tr>
+	      <td>
+		<img src=bb_deact.ctrl.png align=right hspace=20></img> 
+		<ul>
+		  <li>Condition for approving deactivation:
+		    <ol>
+		      <li>this BB has been "activated"</li>
+		      <li>the ID of this Depot and the DepotID
+			recorded belong to the same store.</li>
+		      <li>the difference between the current time and
+			the activation time is not more than the
+			preset time limit.</li>
+		      <li>this BB does not own any eTicket</li>
+		    </ol>
+		  </li>
+		  <li>Call to the <em>Inventory Server</em> is a
+		    deferred transaction.</li>
+		  <li>A separate transaction record is generated for
+		    the deactivation.</li>
+		  <li>The state of the BB record is reset to <em>shipped</em>.</li>
+		  <li>The entire transaction is complete when both the
+		    transaction record and the BB record is
+		    updated.</li>
+		</ul>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+	<p></p>
+	<dt>Data Definitions</dt>
+	<dd>
+	  <table width=100%><tr><td>
+		<img src=bb_deact.data.png align=right hspace=20></img>
+		<dl>
+		  <dt>BB record:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>state</code></td>
+			<td>reset to <em>shipped</em></td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>DepotID</code></td>
+			<td>the Depot that activated this BB - reset to NULL</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>time</code></td>
+			<td>time of activation - reset to NULL</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>Transaction Info:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>transID</code></td>
+			<td>Transaction ID</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>transType</code></td>
+			<td>Transaction type (set to <em>BB Deactivation</em>)</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code> BB_ID</code></td>
+			<td>The BB being deactivated</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>DepotID</code></td>
+			<td>The Depot that carries out the transaction</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>date</code></td>
+			<td>Time/date of this transaction</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>eTicket:</dt>
+		  <dd>For verifying that the BB does not own any eTicket.</dd>
+		  <dt>Inventory:</dt>
+		  <dd>Exact format TBD.  Need to record that this
+		    particular BB is being returned to the store's
+		    inventory.
+		  </dd>
+		</dl>
+	      </td></tr>
+	  </table>
+	</dd>
+	<dt>Error Handling</dt>
+	<dd>
+	  If the BB Activation Server does not approve the
+	  deactivation, an error code is returned to the Retail App.  No
+	  transaction record is created in these cases.  The types of
+	  errors include:
+	  <ul>
+	    <li>Authentication error:  The BB Depot is not recognized.</li>
+	    <li>Data error:  The BB ID is invalid.</li>
+	    <li>Reject request:  One of the condition for approving
+	      deactivation is not satisfied.</li>
+	    <li>Server internal error:  database is down, software
+	      error, etc.</li>
+	  </ul>
+	</dd>
+      </dl>
+      <hr></hr>
+
+      <h3>Purchase eTicket</h3>
+      <dl>
+	<dt>Description</dt>
+	<dd>Depot sends in a BB ID and a content ID.  The server
+	  approves or rejects the sale, and updates the database
+	  records accordingly.
+	</dd>
+	<dt>Client</dt>
+	<dd>BB Depot - Retail App</dd>
+	<dt>Server</dt>
+	<dd>Transaction -- eTicket Server</dd>
+	<dt>Control Flow</dt>
+	<dd>
+	  <table width=100%>
+	    <tr>
+	      <td>
+		<img src=buy-eTicket.ctrl.png align=right hspace=20></img> 
+		<ul>
+		  <li>The <em>eTicket Server</em> approves the
+		    purchase if:
+		    <ol>
+		      <li>The BB has been activated</li>
+		      <li>The BB does not already own this content</li>
+		      <li>The store account has enough money to cover this sale</li>
+		    </ol>
+		  </li>
+		  <li>Verification of the store account balance is
+		    <em>not</em> a real-time operation.  The balance
+		    of each store is updated periodically and the
+		    value is cached.  This cached balance is updated
+		    after the sale and synchronized with the master
+		    record at the next cycle.
+		  </li>
+		  <li>A transaction record and an eTicket record are
+		    generated.  The entire transaction completes when
+		    these records are committed to the database.
+		  </li>
+		  <li>A flag is set in the memory module to indicate
+		    availability of new Ticket(s).  If this flag is
+		    set, a download station would connect to the
+		    <em>eTicket Server</em> for a list of updated
+		    eTickets owned by this user.
+		  </li>
+		</ul>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+	<dt>Data Definitions</dt>
+	<dd>
+	  <table width=100%><tr><td>
+		<dl>
+		<img src=buy-eTicket.data.png align=right hspace=20></img>
+		  <dt>BB record:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>pub_key</code></td>
+			<td>Public key of BB; for encrypting eTicket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>RegionalID</code></td>
+			<td>Regional server of last transaction</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>Depot:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>balance</code></td>
+			<td>Current balance of this store (updated after
+			  this sale)</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>commission_code</code></td>
+			<td>describes the discount off the retail price
+			  that we actually charge the store.</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>eTicket:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>eTicketID</code></td>
+			<td>ID of this eTicket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>BB_ID</code></td>
+			<td>The BB that owns this ticket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>content_ID</code></td>
+			<td>Identify the content this ticket is for</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>DepotID</code></td>
+			<td>The Depot where this eTicket was purchased.</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>date</code></td>
+			<td>Time and date that this eTicket is created</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>status</code></td>
+			<td>Set to <em>not redeemed</em> for now.</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>Transaction Info.</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>transID</code></td>
+			<td>Transaction ID</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>transType</code></td>
+			<td>Transaction type (set to <em>eTicket purchase</em>)</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>BB_ID</code></td>
+			<td>The BB purchasing this eTicket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>eTicketID</code></td>
+			<td>ID of this eTicket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>DepotID</code></td>
+			<td>The Depot that carries out the transaction</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>price</code></td>
+			<td>sale price of this ticket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>date</code></td>
+			<td>Time/date of this transaction</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>Memory Module:</dt>
+		  <dd>Details of the <em>outstanding eTicket</em> flag
+		    is described in <a href="../../ffs/ffs.htm">
+		      <em>File System for Modular Nand-Flash</em>.</a>
+		  </dd>
+		</dl>
+	      </td></tr>
+	  </table>
+	</dd>
+      </dl>
+      <hr></hr>
+      <h3>eTicket Refund</h3>
+      <dl>
+	<dt>Description</dt>
+	<dd>A Depot sends in a request for returning an eTicket.
+	  the BB ID and content ID.  The server verifies all the
+	  conditions for approval, and then returns the status code.
+	</dd>
+	<dt>Client</dt>
+	<dd>BB Depot - Retail App</dd>
+	<dt>Server</dt>
+	<dd>Transaction -- eTicket Server</dd>
+	<dt>Control Flow</dt>
+	<dd>
+	  <table width=100%>
+	    <tr>
+	      <td>
+		<img src=return-eTicket.ctrl.png align=right hspace=20></img> 
+		<ul>
+		  <li>Condition for approving refund:
+		    <ol>
+		      <li>The Depot/Store is the same one that sold the
+			eTicket</li>
+		      <li>The corresponding eTicket (for this content and
+			BB) has not been redeemed</li>
+		      <li>The refund time limit has not expired.</li>
+		    </ol>
+		  </li>
+		  <li>The cached value of the store account balance is
+		    updated, but the synchronization with the master
+		    copy is deferred.</li>
+		  <li>A separate transaction record is generated for
+		    the refund.</li>
+		  <li>The status of the eTicket record is set to <em>returned</em>.</li>
+		  <li>The entire transaction is complete when both the
+		    transaction record and the eTicket record is
+		    updated.</li>
+		</ul>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+	<dt>Data Definitions</dt>
+	<dd>
+	  <table width=100%><tr><td>
+		<dl>
+		  <img src=return-eTicket.data.png align=right hspace=20></img>
+		  <dt>Depot:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>balance</code></td>
+			<td>Current balance of this store (updated after
+			  this sale)</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>commission_code</code></td>
+			<td>describes the discount off the retail price
+			  that we actually charge the store -- used in
+			  this case to calculate the refund amount.</td>
+		      </tr>
+		    </table>
+		  </dd>
+		  <dt>eTicket:</dt>
+		  <dd>Change the status to <em>returned</em>.</dd>
+		  <dt>Transaction Info:</dt>
+		  <dd>
+		    <table>
+		      <tr valign=baseline>
+			<td width=20%><code>transID</code></td>
+			<td>Transaction ID</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>transType</code></td>
+			<td>Transaction type (set to <em>eTicket refund</em>)</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>BB_ID</code></td>
+			<td>The BB purchasing this eTicket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>eTicketID</code></td>
+			<td>ID of this eTicket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>DepotID</code></td>
+			<td>The Depot that carries out the transaction</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>price</code></td>
+			<td>refund amount of this ticket</td>
+		      </tr>
+		      <tr valign=baseline>
+			<td><code>date</code></td>
+			<td>Time/date of this transaction</td>
+		      </tr>
+		    </table>
+		  </dd>
+		</dl>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <hr></hr>
+
+      <h3>Browse eTicket</h3>
+      <dl>
+	<dt>Description</dt>
+	<dd>Download station sends (via the Depot) the BB ID to
+	  the server, which returns a list of all eTickets owned
+	  by this BB.
+	</dd>
+	<dt>Client</dt>
+	<dd>BB Player - eTicket Manager</dd>
+	<dt>Server</dt>
+	<dd>Transaction - eTicket Server</dd>
+	<dt>Control Flow</dt>
+	<dd>
+	  <table width=100%>
+	    <tr>
+	      <td>
+		<img src=browse_eTicket.ctrl.png align=right hspace=20></img> 
+		<ul>
+		  <li> The role of the Retail App (Depot) is passive.
+		    It simply acts as a network relay.  But it needs
+		    to return proper error status if it cannot connect
+		    to the server.
+		  </li>
+		  <li>This operation is triggered either manually by
+		    the user through the <em>eTicket Manager</em>, or
+		    implicitly when the memory module has the
+		    <em>outstanding eTicket</em> flag set.
+		  </li>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+	<dt>Data Definitions</dt>
+	<dd>
+	  <table width=100%><tr><td>
+		<img src=browse_eTicket.data.png align=right hspace=20></img>
+		<dl>
+		  <dt>eTicket:</dt>
+		  <dd>The eTicket database is searched for all
+		    eTickets owned by this BB (including those that
+		    have not been redeemed).  This list is then used
+		    to look up the metadata for each corresponding
+		    content.
+		  </dd>
+		  <dt>Metadata:</dt>
+		  <dd>Among other info, we need to return not just the
+		    content ID but also, say, the title of each
+		    content.</dd>
+		</dl>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <hr></hr>
+
+      <h4>Download eTicket</h4>
+      <dl>
+	<dt>Description</dt>
+	<dd>Download station sends (via the Depot) in the BB ID
+	  and content ID, and the server returns the
+	  corresponding eTicket.  If this eTicket has not been
+	  downloaded before, mark it as <em>redeemed</em>.
+	</dd>
+	<dt>Client</dt>
+	<dd>BB Player - eTicket Manager</dd>
+	<dt>Server</dt>
+	<dd>Transaction - eTicket Server</dd>
+	<dt>Control Flow</dt>
+	<dd>
+	  <table width=100%>
+	    <tr>
+	      <td>
+		<img src=redeem.ctrl.png align=right hspace=20></img> 
+		<ul>
+		  <li>We do not authenticate the BB_ID presented in
+		    the memory module (see <a href="../eTicket.html">
+		      <em>Revised Model for Purchasing eTickets</em></a> 
+		    for details).  We only authenticate the Depot with
+		    the Server.
+		  </li>
+		  <li>The <em>eTicket Server</em> validates the
+		    request and generates the body of the eTicket, but
+		    it is the <em>License Manager</em> that signs it.</li>
+		  <li>An eTicket is issues if this BB actually owns
+		    this eTicket (i.e., eTicket record exist and its
+		    status is not <em>refunded</em>).</li>
+		  <li>If the eTicket has not been redeemed, check
+		    that the Depot/Store matches that one on record,
+		    and then update the status of the eTicket to
+		    <em>redeemed</em>.</li>
+		  <li>otherwise, the client is recovering lost
+		    eTickets.  Proceed as in the previous
+		    case.</li>
+		  <li>Once the eTicket has been redeemed, it can no
+		    longer be returned/refunded.</li>
+		  <li>If there is an updated CRL (<em>Certificate
+		      Revocation list</em>), it will be loaded to the
+		    memory module, too.
+		  </li>
+		</ul>
+	      </td></tr>
+	  </table>
+	</dd>
+	<dt>Data Definitions</dt>
+	<dd>
+	  <table width=100%><tr><td>
+		<img src=redeem.data.png align=right hspace=20></img>
+		<dl>
+		  <dt>eTicket:</dt>
+		  <dd>The status field is changed to <em>redeemed</em>
+		    (if not already).  Other info in the record is
+		    used to compose the raw eTicket.  This includes
+		    the contentID which is used to locate the
+		    corresponding metadata.</dd>
+		  <dt>Metadata:</dt>
+		  <dd>Exact format TBD -- this includes information
+		    needed to compose the eTicket, such as the
+		    decryption key, content length, etc.
+		  </dd>
+		  <dt>CRL:</dt>
+		  <dd>Exact format TBD -- <em>See the corresponding
+		      security document for details.</em>
+		  </dd>
+		</dl>
+	      </td></tr>
+	  </table>
+	</dd>
+      </dl>
+      <hr></hr>
+
+      <h3>Recover Memory Module</h3>
+      <dl>
+	<dt>Description</dt>
+	<dd>Depot re-initializes the memory module, and then reloads
+	  the corresponding digital certificate.</dd>
+	<dt>Client</dt>
+	<dd>BB Depot - BB Recovery Manager</dd>
+	<dt>Server</dt>
+	<dd>Transaction - BB Activation Server, BB Player - Reinit
+	  Server</dd>
+	<dt>Control Flow</dt>
+	<dd>
+	  <table width=100%>
+	    <tr>
+	      <td>
+		<img src=recover.ctrl.png align=right hspace=20></img>
+		<ol>
+		  <li>The memory module is first inserted directly to
+		    the BB Depot, where the secure kernel, the browser
+		    apps and the browser apps license are
+		    written.</li>
+		  <li>The rest of the memory module is initialized
+		    with an empty file system.</li>
+		  <li>The memory module is then removed, and inserted
+		    into the customer's BB player.  The BB player is
+		    then connected to the Depot via the USB port.</li>
+		  <li>Once connected, the Depot's <em>Recovery Manager</em>
+		    talks to the <em>Reinit Server</em> on the BB
+		    Player, and obtains its BB ID.</li>
+		  <li>The Depot then connects to the <em>BB Activation
+		      Server</em> and downloads the BB's digital
+		    certificate and writes it to the BB's memory
+		    module, as in the case of BB Activation.</li>
+		</ol>
+	      </td></tr>
+	  </table>
+	</dd>
+	<dt>Data Definitions</dt>
+	<dd>
+	  <table width=100%><tr><td>
+		<img src=recover.data.png align=right hspace=20></img>
+		<dl>
+		  <dt>Kernel, Browser, File System:</dt>
+		  <dd>The format of these are defined in
+		    <a href="../../ffs/ffs.htm">
+		      <em>File System for Modular Nand-Flash</em>.</a>
+		  </dd>
+		  <dt>BB</dt>
+		  <dd>The digital certificate for a BB is stored in
+		    the BB record before it is activated.</dd>
+		</dl>
+	      </td></tr>
+	  </table>
+	</dd>
+      </dl>
+    </body>
+  </html>

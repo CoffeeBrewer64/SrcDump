@@ -1,0 +1,144 @@
+<html>
+    <head>
+      <title>Transaction: New DepotID Registration</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Transaction: New DepotID Registration</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.4 $<br>
+        $Date: 2002/09/13 00:19:56 $
+      </center>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>Billing/Account Mgmt - Customer Support App</strong> (<em>point of control</em>)</li>
+	<li>Transaction - Installer Server</li>
+	<li>DepotID (secure USB token)</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>Only authorized personnel can access the <em>Customer Support
+	  App</em>.</li>
+	<li>Customer Support staff cannot duplicated DepotIDs.</li>
+	<li>If the <em>Customer Support App</em> is not running within
+	  the secure boundary of the operation center (e.g., remote
+	  customer support branch), communication between this app and
+	  the operation center must be secure.
+	</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>The Retailer has registered with our system and a storeID
+	  has been assigned to the new store.</li>
+	<li>The Retailer has already opened a line of credit account
+	  with one of our authorized bank and has linked up this
+	  account with the storeID.</li>
+	<li>The customer support staff has already authenticated
+	  himself/herself to the system and is authorized to access
+	  the <em>Customer Support App</em>.
+	</li>
+	<li>The Retailer has provided proper documentation to identify
+	  himself/herself as the owner of the account.</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>storeID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li>Billing/Account Mgmt - Account Info</li>
+	<li><a href="../data_defs.html#Transaction - Depot Record">Transaction - Depot Record</a></li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li>A digital certificate containing the newly assigned,
+	  unique DepotID.</li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>genDepotID</code>
+	  <ol type=a>
+	    <li><em>Customer Support App</em> pulls out account
+	      information corresponding to this retailer, in
+	      particular, the storeID with which this DepotID will
+	      associate.</li> 
+	    <li>A new, unique Depot identity number is generated, and
+	      is bound to the given retailer's account.</li>
+	  </ol>
+	</li>
+	<li><code>initDepotID</code>
+	  <ol type=a>
+	    <li><em>Customer Support App</em> gets a new secure USB
+	      token to initialize itself.</li>
+	    <li>The token generates a public, private key pair,
+	      and send the public key to the <em>Customer Support
+		App</em>.
+	    </li>
+	    <li><em>Customer Support App</em> generates a digital
+	      certificate based on the public key and DepotID value,
+	      and stores this cert into token (which from now on, is
+	      referred to as <em>DepotID</em>).
+	    </li>
+	    <li>The root cert and CA chain are also stored into the token.</li>
+	  </ol>
+	  Note: to minimize customer support efforts, no password is
+	  set for the token.
+	</li>
+	<li><code>storeChksum</code>
+	  <ol type=a>
+	    <li><em>Customer Support App</em> stores the binding of
+	      the DepotID with the storeID, as well as a MD5 checksum
+	      of its digital certificate to the database.</li>
+	  </ol>
+	</li>
+	<li><code>addDepotID</code>
+	  <ol type=a>
+	    <li><em>Customer Support App</em> sends the newly created
+	      DepotID, the storeID, and the MD5 checksum to the
+	      <em>Installer Server</em>.  This is a deferred transaction.
+	    </li>
+	    <li><em>Installer Server</em> records this binding
+	      relationship between the DepotID and storeID into the
+	      transaction database.  This information will eventually
+	      be propagated to the regional server.
+	    </li>
+	  </ol>
+	</li>
+      </ol>
+      <h3>Post-conditions</h3>
+      <ol>
+	<li>The transaction database and the billing/account mgmt
+	  database contains information binding the DepotID with a
+	  store owned by the retailer.</li>
+	<li>The DepotID (USB token) contains authenticated information
+	  of its identity.</li>
+      </ol>
+
+      <h3>Audit Records</h3>
+      <ol>
+	<li>New DepotID - <code>storeID</code>, <code>DepotID</code> </li>
+      </ol>
+	  
+      <h3>Exceptions</h3>
+
+      <ol>
+	<li>Unrecognized <code>storeID</code> -- retailer registration
+	  process is not complete.
+	</li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="overlayed/newDepotID-ctrl.png">Control Flow</a></li>
+	<li><a target="data" href="overlayed/newDepotID-data.png">Data Flow</a></li>
+      </ul>	  
+    </body>
+  </html>

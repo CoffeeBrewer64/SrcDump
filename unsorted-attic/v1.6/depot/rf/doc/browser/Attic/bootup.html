@@ -1,0 +1,526 @@
+d4 1
+a4 1
+	<title>BB Startup</title>
+d15 2
+a16 1
+The goals of this document are to:
+d21 3
+a23 4
+  <li> partition tasks between boot-code (in secure ROM), secure kernel (SK)
+       code (in secure SRAM), and browser application (BA) code (in DRAM).
+       From this, detailed sizing efforts can be undertaken for code that
+       needs to reside in ROM and secure SRAM.
+d27 10
+a36 7
+A high level view of the startup sequence and software partioning is provided
+in Figure 1. At power-up the processor executes out of secure boot-ROM.
+Boot-ROM contains a minimal amount of code to bootstrap the SK into secure
+SRAM, from where it will be run. The SK must launch the BA, and relies on
+libraries to accomplish this. Also in the libraries are functions implementing
+services required by the BA. The BA runs from external DRAM and uses and NMI
+request mechanism to request services from the SK.
+d40 38
+a77 1
+<b>Figure 1.</b> Software Partioning<br>
+d79 1
+d81 2
+a82 1
+<h2>Important Objects</h2>
+a83 1
+This section describes the content license and re-encryption packet.
+d87 1
+a87 2
+discussed in this document. License File Contents are listed below. Items above
+the line are un-encrypted, while items below are encrypted.
+d89 8
+d131 1
+d133 1
+d149 1
+a149 1
+We should decide a maximum license size.
+d153 22
+a174 11
+<b>Re-encryption key packet:</b><br>
+Because of the re-encryption process, there is additional data required to
+run an application. This additional data is referred to as the "re-encryption
+packet" and is stored in external flash. The packet contains the CID and
+re-encryption key, and is encrypted with the destination BB's public key.
+
+
+<h2>Tasks to be carried out</h2>
+
+Before going into lower-level details and fully partioning tasks, high
+level task descriptions are provided in this section. 
+d181 2
+a182 2
+  <li> Power-on detects the external flash module: <br>
+       Must light error LED if not present and keep trying.
+d184 3
+a186 1
+  <li> The boot-ROM must load and run the secure kernel from external flash. 
+d189 2
+a190 3
+      <li> perform enough initialization to bootstrap SK
+      <li> locate secure kernel code in external flash
+      <li> decrypt and load SK code into secure SRAM
+d192 1
+a192 1
+      <li> alter memory mapping so secure SRAM is at 0xbfc00000
+a194 4
+    If an error occurs during this process recovery is required and the 
+    error LED must be lit. There has been discussion regarding the need
+    to write some sort of encrypted recovery packet containing the BBID
+    to external flash, but this has been deemed unnecessary.
+d207 4
+d212 1
+a212 5
+  <li> Initialize system: (0xbfc00000 mapped to secure SRAM) <br>
+    finish initializing cpu (cache), memory, bcp, usb ... (anything the 
+    BootRom did not initialize)<br>
+
+  <li> First-app (browser) load<a href=#footnote1><SUP>1</SUP></a>: <br>
+d214 2
+a215 1
+       automatically be loaded and run, if present. The first application is
+d218 1
+a218 1
+      <li> Locate, in flash, the first app license. 
+d221 6
+a226 5
+      <li> Locate content start block in flash.
+      <li> Load first N bytes of content from flash to DRAM. N is specified
+           in the license. For the browser app N must equal the content size
+	   specified in the license meta-data (since BA is not re-encrypted,
+	   and this is true for any app not requiring re-encryption).
+d230 1
+a230 1
+      <li> Exit secure mode with PC at load address.
+a231 2
+    If an error occurs during this process an LED will be lit to indicate
+    recovery is necessary.
+d246 1
+a246 1
+<a href=../security/Functionality.htm>in another document</a>.
+d252 1
+a252 1
+      <li> the secure kernel must be present in external flash, occupying
+d260 1
+a260 1
+    writing the BB certificate, signed appropriately, to external flash.
+d268 5
+a272 13
+  <li> Content Download and Re-encryption: <br>
+    If a re-encryption step is needed, it will always occur as part of the
+    download process. The content playback license is used to determine if
+    re-encryption is required, as described 
+    <a href=#reencrypt_decide>earlier</a>.
+    <p>
+    When re-encryption is not required, the content download process 
+    does not involve the SK. Even authentication of the memory module
+    proceeds by having the BA directly forward the on-module BB cert
+    to the depot. The content is downloaded from the depot and written
+    to flash without requiring SK calls.
+    <p>
+    The overall download process is:
+d274 6
+a279 14
+      <li> Locate and load license information from flash.
+      <li> Use SK call to determine if re-encryption is necessary - 
+           SK_RecryptReq(). If not, browser may proceed without more
+	   SK API calls by downloading chunks and storing to flash.
+	   Else, proceed to next bullet.
+      <li> Download Re-encrypt license from depot.
+      <li> Use the re-encryption data from the license to create a
+           re-encryption key.
+      <li> Download content blocks, continue hash verification, re-encrypt 
+           using the new key, and store to flash. 
+      <li> Verify computed hash over entire content versus the one in the 
+           license over entire content.
+      <li> Commit the content file to the FFS and write re-encryption packet
+           (to be used for future playback).
+d281 12
+d294 4
+a297 3
+  <li> Load/Run an Application that may have been re-encrypted: <br> 
+       This is similar to the loading the first application, except for the
+       re-encryption and a contiguous memory view of flash being required here.
+d299 1
+a299 1
+      <li> BA locate and load license information from flash.
+d301 8
+a308 2
+      <li> Using CID, BA loads re-encrypt packet from flash, if applicable.
+      <li> BA setup memory with license directly followed by re-encrypt packet.
+d310 5
+a314 7
+           view of it's content in flash.
+      <li> SK uses memory block (via SK API) to setup cipher to use 
+           re-encryption key.
+      <li> Locate content start block in flash.
+      <li> Load first N decompressed bytes of content from flash to DRAM. 
+           N is specified in the license.
+      <li> Compute hash over N loaded bytes (while loading) and determine
+d320 18
+d339 1
+d350 1
+a350 1
+the BA is launched, and some degree of user interaction with the BA.
+d354 2
+a355 2
+defined. Also, detailed sizing efforts should be able to begin from the
+information included here.
+d357 10
+a366 1
+<h3>Boot-ROM startup</h3>
+d368 4
+a371 8
+<font COLOR=red>
+Upgrade on this section is in the works to get into more detail. Details
+such as how rom code is copied over, how does SK patch the exception
+vector (and NMI) handler locations, ... . Must determine if the current
+model is not too wasteful.<p>
+</font>
+
+Figure 2, below, depicts the boot-ROM startup flow. 
+a376 1
+
+d381 2
+a382 4
+<i>Initial Boot</i> <br>
+This block performs basic system initialization. Only enough initialization
+required to boot the SK and handle errors is performed. A full initialization
+will be performed by the SK, once booted.
+d385 1
+a385 1
+<i>Flash Present</i> <br>
+d387 6
+a392 2
+anything useful without this module, an appropriate error message must be
+conveyed to the user so they can insert the memory module.
+d395 10
+a404 3
+<i>Light error LED</i><br>
+The error LED is lit, indicating either the flash module is not plugged
+in, or that recovery is required.
+d408 1
+a408 3
+The cipher hardware must be setup with the SK decryption key, and an
+initialization block. The key must be obtained from internal, secure
+flash (SFLASH), and the cipher init block can be hard coded.
+d411 6
+a416 4
+<i>Load SK to SSRAM</i><br>
+The SK will be located on the first few good blocks of external flash.
+The SK has no license, but a hash is stored in SFLASH. During loading the
+hash should be computed for comparison with the value in SFLASH.
+d419 4
+a422 3
+<i>Hash OK</i><br>
+Compare the hash computed during loading to the value in SFLASH. It is
+"OK" if they match.
+d425 4
+a428 4
+<i>Run SK</i><br>
+Remap 0xbfc0000 to the SK start address in SRAM. This happens from bootrom
+code, but the exact mechanism given the current rom copy-over model must be
+detailed.
+d430 6
+d437 3
+a440 1
+<h3>SK startup</h3>
+d442 1
+a442 3
+Figure 3, below, depicts the SK startup flow. The entry may come directly
+from launch by the boot-ROM, a soft reset, or an NMI. The NMI is used to
+implement the SK API. 
+d444 4
+a447 6
+<font color=red>
+<p>
+The exact entrypoint from boot rom code still must be determined, since 
+there may at least be a patching stage required at the exception vector 
+locations.
+</font>
+d451 1
+a451 1
+<b>Figure 3. Secure Kernel Startup Flow</b>
+d457 5
+d463 3
+a465 5
+This is the decision as to whether or not the entry was due to NMI.
+To determine NMI, the CP_0 status register is first checked for the SR bit.
+If this is set, then the secure mode register is read to determine if
+NMI status is set. Due to the NMI precedence, all registers must be
+saved to SRAM before they are used.
+a478 9
+<i>Sys Init</i> <br>
+This block performs basic system initialization. Memory is checked and
+all hardware registers requiring intialization are written. The CPU primary
+data and instruction caches are invalidated. Coming from a hard reset, the
+initialization could assume the boot-ROM has already performed some of the
+initialization tasks, but these would need to be repeated in the case of soft
+reset anyhow.
+
+<p>
+d481 3
+a483 1
+the first good blocks following the SK. The license itself will fit into a
+d515 1
+a515 1
+<i>Load, decrypt verify license</i> <br>
+d518 1
+a518 1
+  <li> load license to SRAM given block ptr from previous step.
+d522 1
+a522 1
+       internal, secure flash. In the latter case this step is not 
+d543 1
+a543 1
+  <li> load (and decompress, if indicated by "Compression indicator" field 
+a562 4
+<p>
+<i>Light Error LED</i> <br>
+Light the LED to indicate recovery is required.
+
+d582 5
+d592 3
+a594 1
+<a href=../ffs/ffs.htm>flash file system document</a>.
+a619 18
+<!--
+<p>
+<i>Re-encrypt Key Exists</i><br>
+Re-encryption is required if either it has never been started, or
+it has been started and interrupted prior to completion. This decision
+is to determine if re-encryption has never been started. Re-encryption
+has never been started if the re-encryption key does not exist in the
+re-encryption key list.
+<p>
+The list of re-encryption keys is co-managed by both the BA and SK: the
+SK maintains the data while the BA manages storage. A call to the SK
+function SK_ReencryptKeyExists(pLicense, pKeyList) can be used to
+determine if the key has been created. The pLicense argument is a pointer
+to the License, and the pKeyList argument is a pointer to the list of
+re-encryption keys.
+-->
+
+<!--
+d621 4
+a624 21
+<i>Create Re-encrypt Key</i><br>
+The re-encryption key is created using the SK function:
+<pre>
+<font FACE="monospace">
+   int SK_StartReencrypt(
+               pLicense,      // IN: ptr to license data
+               ppKeyList,     // IN/OUT: ptr to key list
+               pKeyListLen,   // IN/OUT: ptr length of key list
+               ppSkState,     // OUT: ptr to state used by SK_Reencrypt()
+               SkStateOutLen  // OUT: length of data in ppSkState
+	       );
+</font>
+</pre> 
+Before the call, the ppKeyList argument is a pointer
+to the re-encryption key list that has been loaded to memory. Upon
+successful function completion the new key will be included in the
+ppKeyList, pKeyListLen will reflect the new length,  and the BA will 
+need to save the list the flash. The ppSkState argument is a pointer,
+with memory allocated by the SK (BA must deallocate) to state information 
+private to the SK. It will be used by the SK_Reencrypt() calls to follow.
+-->
+d643 6
+a648 6
+	// the computed hash. this will be encrypted.
+	// pSkState is either obtained directly from
+	// the SK_StartReencrypt() call, or from
+	// the recovery process.
+	// NOTE: we assume the size of SkState data
+	//  will not change!
+d675 2
+a676 2
+<i>Set PI contig. addr space flash view</i><br>
+The content blocks are traversed using the FAT. At each point where
+d678 2
+a679 1
+an entry must be made in the PI register space to make the memory
+d683 1
+a683 1
+<i>SK Launch call</i> <br>
+d701 96
+d800 1
+a800 1
+Figure 5, below, depicts the browser depot flow referenced in Figure 4.
+d807 1
+a807 1
+<b>Figure 5. Depot Flow</b>
+d810 1
+a810 1
+The elements of Figure 5 are described next. We assume that any errors
+d817 1
+a817 1
+This step is to authenticate the actual BB, and not it's memory
+d829 2
+a830 2
+If so, a certificate is issued for this BB and written to the memory
+module. The BBID from the authentication step is used to generate
+a844 6
+<i>Content Download Flow</i> <br>
+The content download action is complicated because of the re-encryption
+process. Details are provided in the next section, "<a href=#download_flow>
+Content Download Flow</a>".
+
+<p>
+d846 2
+a847 1
+A single license is downloaded from the depot and written to flash.
+d851 3
+a853 64
+<i>Flash Save</i> <br>
+The license is saved to the appropriate position in the FFS.
+
+
+
+<a name="download_flow">
+<h3>Content Download Flow</h3>
+Figure 6, below, depicts the content download depot flow referenced in 
+Figure 5. As illustrated in Figure 5, this flow is entered when the user
+decides to download content at the depot. Content re-encryption occurs
+during this step as shown in the figure.
+
+<p align=center>
+<!-- <IMG src="depotflow.png" height=800 align=center> <br> -->
+<IMG src="download.png" align=center> <br>
+<b>Figure 6. Content Download Flow</b>
+
+<p>
+The elements of Figure 6 are described next.
+
+<p>
+<i>SK_RecryptReq</i> <br>
+The SK API SK_RecryptReq is used to determine if re-encryption is
+required for the content to be downloaded. The SK makes this determination
+based on the license fields as described <a href=#reencrypt_decide>here</a>.
+
+<p>
+<i>Re-crypt</i><br>
+This decision block is simply interpretting the result of the previous
+call to SK_RecryptReq.
+
+<p>
+<i>Download Re-encrypt License</i><br>
+When re-encryption is required, a license is needed to give this BB the 
+right to personalize content for the BB indicated by the cert on flash.
+This license is downloaded from the depot and placed in memory.
+
+<p>
+<i>SK_StartRecrypt</i><br>
+The re-encryption process is started by using the SK API
+SK_StartRecrypt() and passing in the personalization license downloaded
+in the previous step.
+
+<p>
+<i>Download Content Chunk</i><br>
+A chunk is downloaded for re-encryption. This chunk is at least as 
+large as required for the SK_Recrypt() call that will follow. The
+size is convenient from a network point of view.
+
+<p>
+<i>SK_Recrypt</i><br>
+Re-encrypt a chunk of size appropriate for the SK API call SK_Recrypt().
+This size is likely to be smaller than the download chunk size from 
+the previous step.
+
+<p>
+<i>Chunk Done</i><br>
+Check to see if the next content chunk needs to be downloaded.
+
+<p>
+<i>Flash Save</i><br>
+If this the amount re-encrypted is the size of a Flash block, save
+the chunk to flash. Do not adjust the FAT yet, since the end result
+could be failure, so must save FAT chain for storage later.
+d856 2
+a857 2
+<i>Content Done</i><br>
+Check if all content has been downloaded.
+d860 2
+a861 4
+<i>SK_FinishRecrypt</i><br>
+The SK API call to finish re-encryption for this content, and to verify
+the content had a valid hash. If successful, move to next block, otherwise
+the process stops with an error.
+d863 3
+a865 5
+<p>
+<i>Write Re-encyprtion packet, Commit file</i><br>
+Write the re-encryption packet returned from SK_FinishRecrypt() call
+so it is associated with the content (playback) license. Commit the file
+by updating the FAT.
+d869 1
+a869 1
+<h2>SK APIs</h2>
+d872 2
+a873 1
+codes TBD).
+d881 3
+a883 1
+   BBId* id    /* OUT: BBId struct holding the id  */
+d901 2
+a902 2
+		     *    packet
+		     */
+d947 1
+a947 1
+		       */
+d963 1
+a963 1
+			*/
+d973 3
+a975 2
+ * Start re-encryption process given the personalization license,
+ * and content license.
+d977 27
+a1003 3
+ * XXX: CAN SK Maintain state through trapped calls, or does state
+ *      (hash, ...) need to be passed in and out from all the
+ *      Recrypt calls???
+d1006 1
+a1006 2
+ *   The return code of non-zero indicates error. There is a code
+ *   for invalid license, and others TBD.
+d1008 6
+a1013 3
+int SK_StartRecrypt(
+   License *pPersLicense, /* IN: ptr to personalization license */
+   License *pLicense      /* IN: ptr to content license */
+d1022 10
+a1031 6
+ * Re-encrypt the next chunk of content. The chunk size is predetermined
+ * as the most convenient for the SK to process. This call must be proceeded
+ * by the SK_startRecrypt() call. State between calls may need to be
+ * added depending on what is simpler for SK implemenatation. Without
+ * the state argument only a single thread can re-encrypt at a time, 
+ * but this seems OK.
+d1036 3
+a1038 5
+int SK_Recrypt(
+   BYTE *pContentBlock  /* IN/OUT: pointer to encryption sized content block
+                         *         on input. On output the memory pointed to
+			 *         holds the re-encrypted chunk.
+			 */
+d1047 3
+a1049 3
+ * Finish (or end) re-encryption process started by SK_StartRecrypt().
+ * This call requires no arguments so long at the previously discussed
+ * state argument is not required during re-encryption.
+d1055 1
+a1055 9
+int SK_FinishRecrypt(
+   BYTE* pRecryptPacket,  /* OUT: Allocated by BA, will hold re-encryption
+                           *      packet on success.
+			   */
+   int*  pLen             /* IN/OUT: on input, holds the allocated length
+                           *         pointed to by pRecryptPacket. On output,
+			   *         holds the re-encrypt packet length.
+			   */
+   );

@@ -1,0 +1,42 @@
+a0 41
+
+include $(ROOT)/usr/include/make/NGdefs
+
+OPTIMIZER = -O2
+
+LCDEFS += -DMEM2_SIZE='"$(MEM_SIZE_ID)"'
+LCDEFS += -DDEBUG
+
+TARGETS += wfs_test.elf wfs_test2.elf usb_wfs_test.elf
+
+CFILES  = wfs_test.c es_stream.c usb_wfs_test.c
+
+LLDLIBS += -les -lisfs -lioslibc -liosc -lios
+LLDOPTS += -Tddr.link
+
+# This address needs to be updated if MK_WFS_PHYS_START changes
+#MK_USB_WFS_START = "$(MK_WFS_PHYS_START) - 0x10000"
+#MK_USB_WFS_START = "0x17710000 - 0x10000"
+MK_USB_WFS_START = 0x17700000
+
+default: $(TARGETS)
+
+wfs_test.elf: $(CRT0) wfs_test.o es_stream.o phys.link
+	$(CC) $(CFLAGS) -o $@ $^ -Ttext $(MK_WFS_VIRT_START) -T phys.link $(LDFLAGS) $(LDLIBS) 
+
+wfs_test2.elf: $(CRT0) wfs_test.o es_stream.o
+	$(CC) $(CFLAGS) -o $@ $^ -Ttext $(MK_WFS_PHYS_START) $(LDFLAGS) $(LDLIBS) 
+
+usb_wfs_test.elf: $(CRT0) usb_wfs_test.o
+	$(CC) $(CFLAGS) -o $@ $^ -Ttext $(MK_USB_WFS_START) $(LDFLAGS) $(LDLIBS) 
+
+phys.link: phys.sed $(NG_ADDR_MAP)
+	sed -e 's/@@WFS_PHYS_START@@/$(MK_WFS_PHYS_START)/g' phys.sed > $@
+
+install: exports 
+
+exports: $(TARGETS)
+	$(INSTALL) $(TARGETS) $(ROOT)/usr/bin/rvl
+
+include $(COMMONRULES)
+

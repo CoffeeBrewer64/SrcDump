@@ -1,0 +1,1186 @@
+<html>
+    <head>
+      <title>BB Servers Interfaces</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h1><center>BB Servers Interface Specifications</center></h1>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.5 $<br>
+        $Date: 2002/08/08 00:37:48 $
+      </center>
+
+      <p>
+	This document presents a high-level description of the
+	operations supported by the BB Server, as well as the
+	definitions of data maintained in its databases.  This will
+	become the basis from which the functional specification of
+	the BB server and the logical database schema are derived.
+      </p>
+
+      <h3>I. Manufacturing and Shipping</h3>
+      
+      <table border cellpadding=5 cols=2 width=100%>
+	<tr>
+	  <th>Operations</th>
+	  <th>Data Definitions</th>
+	</tr>
+	<tr valign=baseline>
+	  <td width=50%><h4>1. Generation of Unique BB ID</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>The manufacturer tool reads the serial number from
+		the BB chipset and sends it to the server.  The server
+		validates the request, derives a valid BB ID from the
+		serial number, generates a private/public key pair and
+		sends private key back along with the root cert. and CA chain
+		as reply.  The manufacturer tool then seals this info
+		into the BB.  The public key and BB ID are to be recorded in
+		the server's database.
+	      </dd> 
+	      <dt>Client</dt>
+	      <dd>manufacturer tool</dd>
+	      <dt>Server</dt>
+	      <dd>Key generator, local to manufacture site</dd>
+	      <dt>Input</dt>
+	      <dd>serial number of BB chipset</dd>
+	      <dt>Output</dt>
+	      <dd>Private and public key for this BB; trusted
+		root cert and any necessary CA chain for the BB system</dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    The server local to the manufacturer site records, for
+	    each BB, the following:
+	    <p>
+	      <table width=100%>
+		<tr valign=baseline>
+		  <td width=20%><code>BB_ID</code></td>
+		  <td>unique ID for this BB</td>
+		</tr>
+		<tr valign=baseline>
+		  <td><code>pub_key</code></td>
+		  <td>Public key generated for this BB</td>
+		</tr>
+	      </table>
+	    </p>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>
+	    <h4>2. Ready for Activation</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>Mark a BB ready for activation when or before it is
+		shipped from the manufacturer.  Might need to be
+		called in a batch mode for multiple BB's.</dd>
+	      <dt>Client</dt>
+	      <dd>manufacturer or the inventory tracking system.</dd>
+	      <dt>Server</dt>
+	      <dd>Online Transaction server</dd>
+	      <dt>Protocol</dt>
+	      <dd>TBD:  needs to be secure; probably HTTPS would do.</dd>
+	      <dt>Input</dt>
+	      <dd>BB ID, public key, manufacture ID.</dd>
+	      <dt>Output</dt>
+	      <dd>None, but database updated.</dd>
+	    </dl>
+	  </td>
+	  <td><h4>&nbsp;</h4>
+	    The server local to the manufacturer site periodically
+	    upload the valid (BB ID, public key) pairs to our transaction
+	    server, which records in the database, for each BB, a record
+	    containing:
+	    <p>
+	      <table width=100%>
+		<tr valign=baseline>
+		  <td width=20%><code>BB_ID</code></td>
+		  <td>unique ID for this BB</td>
+		</tr>
+		<tr valign=baseline>
+		  <td><code>pub_key</code></td>
+		  <td>Public key generated for this BB</td>
+		</tr>
+		<tr valign=baseline>
+		  <td><code>state</code></td>
+		  <td>State of this BB (set to
+		    <em>deactivated</em>).</td>
+		</tr>
+		<tr valign=baseline>
+		  <td><code>mfr_ID</code></td>
+		  <td>ID of manufacturer (from the mfr. cert)</td>
+		</tr>
+		<tr valign=baseline>
+		  <td><code>date</code></td>
+		  <td>Time and date this BB is built.</td>
+		</tr>
+	      </table>
+	    </p>
+	    <p>
+	      Note that the private key of the BB is never recorded in
+	      the database and is discarded by the mfr server once it
+	      is loaded to a BB player.
+	    </p>
+	    <p>TBD: we could replace the <code>date</code> by a table
+	      identified by a batch ID that includes all the BB IDs
+	      uploaded, and associate a single time/date with the
+	      entire batch.
+	    </p>
+	  </td>
+	</tr>
+	
+	<tr valign=baseline>
+	  <td>
+	    <h4>3. Shipping (from manufacturer)</h4>
+	    <p>
+	      Details to be determined.  Depending on whether the BB's
+	      are shipped directly from the manufacturer to the shop
+	      owners, or sent to our warehouse first, and also on the
+	      level of detail we want to keep track of the inventory, we
+	      might need to have a record for each BB tracking its
+	      exact shipping status.
+	    </p>
+	    <p>
+	      The BB players shipped from a manufacturer must match
+	      the BB ID's uploaded.  That is, we need to make sure
+	      that no BB player can be shipped without its ID
+	      registered.  Likewise, our server must not accept any BB
+	      ID registration unless the corresponding BB player is
+	      actually built/shipped.
+	    </p>
+	  </td>
+	  <td>&nbsp;</td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>
+	    <h4>4. Placing orders</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>This is a mini online purchasing system, which
+		composes of three operations:
+		<ol>
+		  <li>List available items and prices</li>
+		  <li>Submit purchase order</li>
+		  <li>Lookup open orders</li>
+		</ol>
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot</dd>
+	      <dt>Server</dt>
+	      <dd>Inventory Control Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>HTTPS (the reply message is <strong>not</strong>
+		HTML, but in BroadOn proprietary format.</dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <em>Note:  This entire section of online order placement
+	      might not be supported in the initial release.</em>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h5>4.1 Listing available items</h5>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>The Depot submits a request for all available
+		merchandise and the server replies with a list and
+		price for each.</dd>
+	      <dt>Input</dt>
+	      <dd>Depot ID</dd>
+	      <dt>Output</dt>
+	      <dd>list of item code, item descriptions, and price.
+		(The price is the amount we charge the store, not the
+		list price.  And it could be different from store to store).</dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h5>&nbsp;</h5>
+	    <p>Information from the database:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>storeID</code></td>
+		<td>Store to which this Depot belong</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>item_code</code></td>
+		<td>Identify each merchandise</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>item_desc</code></td>
+		<td>Human readable description of each item</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>price</code></td>
+		<td>Unit price that we charge the store for this item;
+		  could be different from store to store.</td>
+	      </tr>
+	    </table>	      
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h5>4.2 Submit purchase order</h5>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>Depot interacts with the console operator and produces
+		a purchase order, confirms with the operator, and then
+		submits the order to the server.</dd>
+	      <dt>Input</dt>
+	      <dd>Depot ID, list of item code and quantity</dd>
+	      <dt>Output</dt>
+	      <dd>Server approves the order based on the store's
+		current account balance and inventory. The return with
+		an order number or error code (details TBD).</dd>
+	    </dl>
+	    TBD:  Do we need to <em>block off</em> the purchase amount
+	    from the store's credit limit?
+	  </td>
+	  <td>
+	    <h5>&nbsp;</h5>
+	    <p>Information from the database:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>storeID</code></td>
+		<td>Store to which this Depot belong</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>balance</code></td>
+		<td>Current account balance of this store</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>item_code</code></td>
+		<td>Identify each merchandise</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>item_desc</code></td>
+		<td>Human readable description of each item</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>price</code></td>
+		<td>Unit price that we charge the store for this item;
+		  could be different from store to store.</td>
+	      </tr>
+	    </table>
+	    <p> Upon approving the order, create a new order record:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>orderID</code></td>
+		<td>Identify this order</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>storeID</code></td>
+		<td>The store/account that placed this order</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>item_code, quantity, unit_price</code></td>
+		<td>order details</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>status</code></td>
+		<td>Order status, set to <em>open</em>.</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h5>4.3 Look up open orders</h5>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>Show the status of the open orders.  This is
+		for information only.</dd>
+	      <dt>Input</dt>
+	      <dd>Depot ID, order ID</dd>
+	      <dt>Output</dt>
+	      <dd>order details and delivery status.</dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h5>&nbsp;</h5>
+	    <p>
+	      Return the order record to the client, after verifying
+	      that the <code>DepotID</code> and the
+	      <code>orderID</code> are consistent.
+	    </p>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4>5. Shipping (to stores)</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>
+		When a shipment of BB's arrives at a store, the
+		carrier and the store owner should both insert they
+		USB token into the Depot, and enter the transaction
+		via the console.  Money will be deducted from the
+		store's account.
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot</dd>
+	      <dt>Server</dt>
+	      <dd>Transaction server</dd>
+	      <dt>Protocol</dt>
+	      <dd>BroadOn proprietary protocol over SSL</dd>
+	      <dt>Input</dt>
+	      <dd>Depot ID, Carrier ID, order ID</dd>
+	      <dt>Output</dt>
+	      <dd>Transaction status (ok or fail), database updated.</dd>
+	    </dl>
+	    <p>
+	      The same operation applied for other hardware items,
+	      such as memory module, or other accessories.
+	    </p>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p>
+	      Information we need to read from the database:
+	    </p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>storeID</code></td>
+		<td>looked up from <code>DepotID</code></td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>balance</code></td>
+		<td>store account's balance; needed for approval of
+		  sales.</td>
+	      </tr>
+	      <tr>
+		<td><code>item_code</code> and <code>quantity</code></td>
+		<td>looked up from <code>orderID</code></td>
+	      </tr>
+	    </table>		
+	    <p>
+	      Upon completion of the transaction, the following
+	      transaction record will be inserted into the database:
+	    </p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>transID</code></td>
+		<td>unique transaction ID</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>transType</code></td>
+		<td>Transaction type (set to <em>BB shipment</em>)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>storeID</code></td>
+		<td>Store ID receiving the shipment</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>carrierID</code></td>
+		<td>ID of the person (or carrier company) delivering
+		  the shipment</td> 
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>item_code</code></td>
+		<td>Code number representing the items shipped (e.g.,
+		  BB, memory module, etc.).</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>quantity</code></td>
+		<td>Number of items shipped</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>date</code></td>
+		<td>Transaction time and date</td>
+	      </tr>
+	    </table>
+	    <p>
+	      The completed orders are forwarded to the Billing System
+	      (details TBD), which figures out the total amount of the
+	      transaction and deducts that from the store's account.
+	    </p>
+	    <p>
+	      This operation, together with
+	      the looking up of current account balance, are
+	      <font color=green>deferred</font> operations (i.e., not
+	      real time).
+	    </p>
+	    <p>Set the <code>status</code> field of the corresponding
+	      order record to <em>closed</em>.</p>
+	  </td>
+	</tr>
+      </table>
+
+      <h3>II. Retailer Registration</h3>
+      TBD:
+      <ul>
+	<li>setup "account" for shop owner</li>
+	<li>retailer can own multiple stores, each store can have
+	  multiple depot</li>
+	<li>mapping stores to regional server</li>
+	<li>mapping of "stores" to "accounts"</li>
+	<li>mapping of retailer's account to the actual bank
+	  account</li>
+	<li>selling and setting up of BB Depot</li>
+	<li>issuing/registering USB Token (Depot ID)</li>
+	<li> ... </li>
+      </ul>
+
+
+      <h3>III. Online Transactions</h3>
+      <p>
+	All these transactions are initiated from a BB Depot.
+	We assume that the regional server already has the
+	corresponding BB ID record in its local database.  If the BB
+	ID cannot be found, the regional server should fetch that
+	record from the central server.
+      </p>
+      <table border cellpadding=5 cols=2 width=100%>
+	<tr>
+	  <th>Operations</th>
+	  <th>Data Definitions</th>
+	</tr>
+	<tr valign=baseline>
+	  <td width=50%><h4>1. BB Activation</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>A Depot sends in a request for BB activation.  The
+		Server needs to authenticate the Depot and the BB, and
+		then generates a certificate for this BB.
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot</dd>
+	      <dt>Server</dt>
+	      <dd>Online Transaction Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>BroadOn proprietary protocol over SSL</dd>
+	      <dt>Algorithm</dt>
+	      <dd>
+		<ol>
+		  <li>As part of the SSL handshake, authenticate the
+		    Depot and obtain its DepotID.</li>
+		  <li>Depot sends in the BB ID.  Verify that this BB
+		    is registered in our database. </li>
+		  <li>Send out a random string for BB's signature</li>
+		  <li>Verify BB's signature with BB's public key</li>
+		  <li>Generate a certificate for this BB based on its
+		    public key and BB ID.  Optionally, include the
+		    customer names in the certificate.</li>
+		  <li>Mark this BB as activated.</li>
+		</ol>
+	      </dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p> The information we need to read from the database:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>pub_key</code></td>
+		<td>public key of BB</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>RegionalID</code></td>
+		<td>This is the server's ID</td>
+	      </tr>
+	    </table>
+	    <p>
+	      Upon successful activation, the BB record should
+	      contain:
+	    </p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>BB_ID</code></td>
+		<td>unique ID for this BB</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>pub_key</code></td>
+		<td>Public key generated for this BB</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>state</code></td>
+		<td>State of this BB (now set to
+		  <em>activated</em>)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>RegionalID</code></td>
+		<td>Regional server of last transaction</td>
+	      </tr>
+	    </table>
+	    <p> A transaction record is generated:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>transID</code></td>
+		<td>Transaction ID</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>transType</code></td>
+		<td>Transaction type (set to <em>BB Activation</em>)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code> BB_ID</code></td>
+		<td>The BB being activated</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>DepotID</code></td>
+		<td>The Depot that carries out the transaction</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>date</code></td>
+		<td>Time/date of this transaction</td>
+	      </tr>
+	    </table>
+
+	    <p>
+	      Note:  this transaction record is <em>temporary</em>
+	      until the BB can no longer be deactivated, at which
+	      point it will be marked <em>permanent</em>.
+	    </p>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4>2. BB Deactivation</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>
+		A Depot sends in a request for BB deactivation.  The
+		Server needs to authenticate the Depot and the BB.  It
+		also needs to verify that the deactivation request
+		comes from the same store requested for activation,
+		and that the time since then is less than the
+		specified limit.
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot</dd>
+	      <dt>Server</dt>
+	      <dd>Online Transaction Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>BroadOn proprietary protocol over SSL</dd>
+	      <dt>Algorithm</dt>
+	      <dd>
+		<ol>
+		  <li>As part of the SSL handshake, authenticate the
+		    Depot and obtain its DepotID.</li>
+		  <li>Depot sends in the BB ID.  Verify that:
+		    <ol type=a>
+		      <li>this BB is "activated"</li>
+		      <li>the ID of this Depot and the DepotID
+			recorded in the activation record of 
+			this BB are either the same or belong to the
+			same store.</li>
+		      <li>the difference between the current time and
+			the activation time is not more than the
+			preset time limit.</li>
+		      <li>this BB does not own any eTicket</li>
+		    </ol>
+		  </li>
+		  <li>Send out a random string for BB's signature</li>
+		  <li>Verify BB's signature with BB's public key</li>
+		  <li>Mark this BB as deactivated.</li>
+		</ol>
+	      </dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p> The information we need to read from the database:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>pub_key</code></td>
+		<td>Public key of BB (for authentication)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>act_depotID</code></td>
+		<td>ID of the Depot that activated this BB (from BB
+		  activation transaction</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>act_date</code></td>
+		<td>Time/date of activation</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>act_storeID</code></td>
+		<td>ID of store that owns the Depot that activated
+		  this BB</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>deact_storeID</code></td>
+		<td>ID of store that owns the Depot that submits the
+		  deactivation request</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>deact_time</code></td>
+		<td>Time limit within which a BB can be
+		  deactivated</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>eTickets</code></td>
+		<td>Looked up eTicket tables to verify that this BB
+		  does not own any eTicket</td>
+	      </tr>
+	    </table>
+	    <p>
+	      Upon successful activation, mark the <code>state</code>
+	      of the BB record as <em>deactivated</em>.
+	    </p>
+	    <p> A transaction record is generated:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>transID</code></td>
+		<td>Transaction ID</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>transType</code></td>
+		<td>Transaction type (set to <em>BB Deactivation</em>)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code> BB_ID</code></td>
+		<td>The BB being activated</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>DepotID</code></td>
+		<td>The Depot that carries out the transaction</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>date</code></td>
+		<td>Time/date of this transaction</td>
+	      </tr>
+	    </table>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4>3. Purchase eTicket</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>Depot sends in a BB ID and a content ID.  The server
+		approves or rejects the sale, and updates the database
+		records accordingly.
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot</dd>
+	      <dt>Server</dt>
+	      <dd>Online Transaction Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>HTTPS</dd>
+	      <dt>Input</dt>
+	      <dd>Depot ID, BB ID, content ID</dd>
+	      <dt>Output</dt>
+	      <dd>request status: approve or reject</dd>
+	      <dt>Policy</dt>
+	      <dd>The server approves the purchase if:
+		<ol>
+		  <li>The BB has been activated</li>
+		  <li>The BB does not already own this content</li>
+		  <li>The store has enough credit to cover this sale</li>
+		</ol>
+	      </dd>
+	    </dl>
+	    <p>Note that we use a cached instead of real-time value
+	      of the store's account balance.  Also, the eTicket is
+	      issued as a background operation after the approval
+	      status is returned.
+	    </p>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p>Information read from the database:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>eTickets</code></td>
+		<td>eTickets owned by this BB (for verifying
+		  duplicated eTickets)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>storeID</code></td>
+		<td>Looked up from <code>depotID</code></td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>balance</code></td>
+		<td>Current balance of this store (not real-time)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>price</code></td>
+		<td>Price of content; looked up from contentID</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>pub_key</code></td>
+		<td>Public key of BB; for encrypting eTicket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>regionalID</code></td>
+		<td>from the transaction server</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>contentInfo</code></td>
+		<td>TBD:  All information (e.g., meta data,
+		  decryption key, etc.) needs to generate an eTicket
+		  for this content.</td>
+	      </tr>
+	    </table>
+	    <p>
+	      Upon approval of sale, the BB record will be updated
+	      with the current <code>regionalID</code>.  And a
+	      transaction record is generated:
+	    </p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>transID</code></td>
+		<td>Transaction ID</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>transType</code></td>
+		<td>Transaction type (set to <em>eTicket purchase</em>)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>BB_ID</code></td>
+		<td>The BB purchasing this eTicket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>eTicketID</code></td>
+		<td>ID of this eTicket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>DepotID</code></td>
+		<td>The Depot that carries out the transaction</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>price</code></td>
+		<td>sale price of this ticket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>date</code></td>
+		<td>Time/date of this transaction</td>
+	      </tr>
+	    </table>
+	    <p> An eTicket record is also generated:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>eTicketID</code></td>
+		<td>ID of this eTicket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>BB_ID</code></td>
+		<td>The BB that owns this ticket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>content_ID</code></td>
+		<td>Identify the content this ticket is for</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>eTicket</code></td>
+		<td>The eTicket (encrypted, signed).  TBD:  decide if
+		  we should store the eTicket in this record, or
+		  generate it on-the-fly when it is downloaded.
+		</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>date</code></td>
+		<td>Time and date that this eTicket is created</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>status</code></td>
+		<td>Set to <em>not redeemed</em> for now.</td>
+	      </tr>
+	    </table>
+	    <p>
+	      As an off-line operation, change the state of this
+	      eTicket to <em>redeemed</em> after the refund period expires.</p>
+	    <p>
+	      As a non-realtime operation, update the current balance
+	      of the store.
+	    </p>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4>4. eTicket Refund</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>A Depot sends in a request for eTicket refund, with
+		the BB ID and content ID.  The server approves or
+		rejects the request, and updates the database
+		accordingly.
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot</dd>
+	      <dt>Server</dt>
+	      <dd>Online Transaction Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>HTTPS</dd>
+	      <dt>Input</dt>
+	      <dd>Depot ID, BB ID, content ID</dd>
+	      <dt>Output</dt>
+	      <dd>request status: approve or reject</dd>
+	      <dt>Policy</dt>
+	      <dd>The server approves refund if:
+		<ol>
+		  <li>The Depot/Store is the same one that sold the
+		    eTicket</li>
+		  <li>The corresponding eTicket (for this content and
+		    BB) has not been redeemed</li>
+		  <li>The refund time limit has not expired.</li>
+		</ol>
+	      </dd>
+	  </td>
+	  <td>
+	    <h4> &nbsp;</h4>
+	    <p>Information read from database:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>eTicket</code></td>
+		<td>eTicket for the given title and BB</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>Transaction</code></td>
+		<td>Transaction record of the sale of this
+		  eTicket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>sale_depotID</code></td>
+		<td>Depot that sold this ticket (looked up from
+		  transaction record)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>sale_storeID</code></td>
+		<td>The store to which the <code>sale_depotID</code>
+		  belongs</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>refund_storeID</code></td>
+		<td>The store that owns the Depot that requested this
+		  refund</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>refund_time</code></td>
+		<td>Time limit where refund is allowed</td>
+	      </tr>
+	    </table>
+	    <p>Upon approval of refund, mark the corresponding eTicket
+	      <em>refunded</em>.  And issue a new transaction record
+	      for this refund:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>transID</code></td>
+		<td>Transaction ID</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>transType</code></td>
+		<td>Transaction type (set to <em>eTicket refund</em>)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>BB_ID</code></td>
+		<td>The BB returning this eTicket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>eTicketID</code></td>
+		<td>ID of this eTicket</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>DepotID</code></td>
+		<td>The Depot that carries out the transaction</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>price</code></td>
+		<td>amount refunded to store</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>date</code></td>
+		<td>Time/date of this transaction</td>
+	      </tr>
+	    </table>
+	    <p>
+	      As a non-realtime operation, update the current balance
+	      of this store.</p>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4>5. Browse eTicket</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>Download station sends (via the Depot) the BB ID to
+		the server, which returns a list of all eTickets owned
+		by this BB.
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot</dd>
+	      <dt>Server</dt>
+	      <dd>Online Transaction Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>HTTPS</dd>
+	      <dt>Input</dt>
+	      <dd>BB ID</dd>
+	      <dt>Output</dt>
+	      <dd>List of (meta data of) contents corresponding to the
+		eTickets owned by this BB</dd>
+	    </dl>
+	    <p>
+	      Note:  The assumption is that the total number of
+	      eTickets owned by a BB is never very large.  Even if the
+	      download station only needs, say, only the list of
+	      unredeemed eTickets, we just always return the entire
+	      list, and let the download station filter the result.
+	    </p>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p>Read all eTickets owned by this BB, from which the meta
+	      data of the corresponding content is fetched.
+	    </p>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4>6. Download eTicket</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>Download station sends (via the Depot) in the BB ID
+		and content ID, and the server returns the
+		corresponding eTikcet.  If this eTicket has not been
+		downloaded before, mark it as <em>redeemed</em>.
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot/Download Station</dd>
+	      <dt>Server</dt>
+	      <dd>Online Transaction Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>HTTPS</dd>
+	      <dt>Input</dt>
+	      <dd>Depot ID, BB ID, content ID</dd>
+	      <dt>Output</dt>
+	      <dd>eTicket</dd>
+	      <dt>Policy</dt>
+	      <dd>The server issues an eTicket only if:
+		<ol>
+		  <li>This BB actually owns this eTicket (i.e.,
+		    eTicket record exist and its status is not <em>refunded</em>).</li>
+		  <li>If the eTicket has not been redeemed, check
+		    that the Depot/Store ID matches that one on the
+		    transaction record.</li>
+		</ol>
+	      </dd>
+	    </dl>
+	    <p>
+	      TBD:  need to decide if the eTicket is generated
+	      on-the-fly (based on the BB ID, BB's public key, and
+	      content ID) or is generated offline and stored in the database.
+	      The current assumption is that it is generated on-the-fly.
+	    </p>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p>Information read from the database:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>eTicket</code></td>
+		<td>eTicket record for the given title and BB</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>Transaction</code></td>
+		<td>If the eTicket has not been redeemed, need to read
+		  the corresponding transaction record (for the
+		  <code>DepotID</code>).
+		</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>pub_key</code></td>
+		<td>The BB's public key (for encrypting eTicket)</td>
+	      </tr>
+	    </table>
+
+	    <p>
+	      The eTicket is marked <em>redeemed</em> upon receiving
+	      this request.  And the eTicket purchase transaction is
+	      considered closed.
+	    </p>
+	  </td>
+	</tr>
+      </table>
+
+      
+      <h3>IV. Content Distribution</h3>
+      <table border cellpadding=5 cols=2 width=100%>
+	<tr>
+	  <th>Operations</th>
+	  <th>Data Definitions</th>
+	</tr>
+	<tr valign=baseline>
+	  <td width=50%>
+	    <h4>1. Publish New Content</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>Given that the Content Publishing Server has
+		packaged a new content for distribution, the file(s)
+		are transfered to the Content Distribution Server,
+		which assigns URLs, file names, and generates other
+		database records.  
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>Content Publishing Server</dd>
+	      <dt>Server</dt>
+	      <dd>Content Distribution Server</dd>
+	      <dt>Input</dt>
+	      <dd>All files that make up this content package,
+		decryption key</dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p>A content record is generated:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>contentID</code></td>
+		<td>Unique ID for this content</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>URLs</code></td>
+		<td>URL for each file (derived from the path
+		  names)</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>key</code></td>
+		<td>Decryption key for the content file</td>
+	      </tr>
+	    </table>
+	    <p>
+	      For security reason, we should put the decryption key
+	      separately in a different database -- maybe that of the
+	      Online Transaction Server.
+	    </p>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4>2. Notify Depot of New Content</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>The Server notifies each registered Depot the
+		availability of new content.  Each Depot will then ask
+		the Server for a list of URLs of the files to be downloaded.   The Server
+		performs network congestion control by limiting the
+		number of Depots the can download at one.  Also, eTicket
+		records are generated for the Download Stations.
+	      </dd>
+	      <dt>Client</dt>
+	      <dd>Content Delivery Server</dd>
+	      <dt>Server</dt>
+	      <dd>via RMS to sysmon on Depot</dd>
+	      <dt>Protocol</dt>
+	      <dd>RFRMP</dd>
+	      <dt>Input</dt>
+	      <dd>content ID, regional ID</dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p> Information read from database:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>URLs</code></td>
+		<td>URLs of the content file and meta-data file</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>DepotID</code></td>
+		<td>All Depots within the specified region</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>IPaddr</code></td>
+		<td>IP address of each Depot in the specified region</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>port</code></td>
+		<td>port number of each Depot to connect to</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>BB_ID</code></td>
+		<td>ID of all Download Stations of all selected
+		  Depots</td>
+	      </tr>
+	    </table>
+	    <p>
+	      The database keeps track of the content delivered to
+	      each Depot.  For each Depot notified, we create the
+	      following record:</p>
+	    <table width=100%>
+	      <tr valign=baseline>
+		<td width=20%><code>DepotID</code></td>
+		<td>The ID of the Depot</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>contentID</code></td>
+		<td>Content to be delivered</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>status</code></td>
+		<td>Delivery status; set to <em>notified</em>.</td>
+	      </tr>
+	      <tr valign=baseline>
+		<td><code>date</code></td>
+		<td>Time/date last notification is sent.</td>
+	      </tr>
+	    </table>
+	    <strike>
+	    <p>
+	      For each Download Station attached to each Depot, we
+	      generate a eTicket record (see purchase eTicket) and set
+	      the status to <em>redeemed</em>.  (TBD: do we need
+	      to generate the corresponding transaction records?
+	      Also, should these eTickets be placed in the Online
+	      Transaction Server?)
+	    </p></strike>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4>3. Depot Downloads Content Files</h4>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>Depot downloads the content file(s) and meta-data
+		file(s).</dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot</dd>
+	      <dt>Server</dt>
+	      <dd>Content Delivery Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>TBD: HTTPS with <em>null</em> encryption (i.e.,
+		authentication only, no encryption), or simply HTTP</dd>
+	    </dl>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <p>
+	      For each successful download, change the
+	      <code>status</code> field of each corresponding Depot to
+	      <em>content_delivered</em>.
+	    </p>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    <h4><strike>4. Depot Downloads Re-encryption eTicket</strike></h4>
+	    <strike>
+	    <dl>
+	      <dt>Description</dt>
+	      <dd>For each Download Station attached to each BB Depot,
+		after the content files are downloaded and installed,
+		it will download the re-encryption eTicket.</dd>
+	      <dt>Client</dt>
+	      <dd>BB Depot (on behalf of the Download Station)</dd>
+	      <dt>Server</dt>
+	      <dd>Online Transaction Server</dd>
+	      <dt>Protocol</dt>
+	      <dd>Same as in "Download eTicket"</dd>
+	    </dl>
+	    </strike>
+	  </td>
+	  <td>
+	    <h4>&nbsp;</h4>
+	    <strike>
+	    <p> Same as in "Download eTicket".</p>
+	    </strike>
+	  </td>
+	</tr>
+	  
+      </table>
+
+    </body>
+</html>

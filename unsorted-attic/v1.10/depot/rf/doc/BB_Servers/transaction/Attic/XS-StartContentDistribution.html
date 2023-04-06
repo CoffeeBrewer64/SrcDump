@@ -1,0 +1,128 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Transaction: Content Synchronization</title>
+</head>
+
+<body>
+
+<h2 align="center">Transaction: Start Content Distribution</h2>
+<h4><b>Participants</b></h4>
+<ul>
+  <li> <b> Transaction - Content Availability Server (CAS)</b> (<i>point of
+    control)</i></li>
+  <li>CDS - Content Upload Server (CUS)</li>
+  <li>RMS -
+    Content Notifier</li>
+</ul>
+<h4>Requirements</h4>
+<ul>
+  <li>Should be able to control price and purchase date of content on a regional basis.</li>
+  <li>Must be able to change price and available for purchase dates more than
+    once.</li>
+  <li>Should be able to stage downloadable content to the BB Depots ahead of purchase date.</li>
+  <li>CAS must be able to mutually authenticate with CDS &amp; RMS</li>
+</ul>
+<h4>Pre-conditions</h4>
+<ul>
+  <li>Content has already been published to the CDS Content store and XS Content
+    Metadata store.</li>
+  <li>Marketing Manager has rollout plan for content.</li>
+</ul>
+<h4>Input Parameters</h4>
+<ul>
+  <li><code>Region-ID</code></li>
+  <li><code>ContentID</code></li>
+  <li><code>Price</code></li>
+  <li><code>&quot;available for purchase&quot; effective date</code></li>
+</ul>
+<h4>Data Records</h4>
+<ul>
+  <li><a href="../data_defs.html">Transaction - Content Metadata</a></li>
+  <li><a href="../data_defs.html">Transaction - Region</a></li>
+  <li><a href="../data_defs.html">CDS - Content</a></li>
+  <li><a href="../data_defs.html">RMS - Depot</a></li>
+</ul>
+<h4>Output Parameters</h4>
+<blockquote>
+  <p><i>None</i></p>
+</blockquote>
+<h4>Sequence of Events</h4>
+<ol>
+  <li>	<code>New Content Available for Purchase</code>
+    <ol type="a">
+  <li>	The Marketing Manager selects the content and enters the <i>price</i>, the <i> &quot;available for purchase&quot;
+    effective date</i> for each region to release in the CAS.</li>
+      <li>	CAS updates the <i>region-ID, price</i>  and <i>&quot;available for purchase&quot; effective date</i> into the
+        Content Metadata record for <i>ContentID.</i></li>
+    </ol>
+  </li>
+  <li><code>Notify CDS</code>
+    <ol type="a">
+      <li>CAS and Content Upload Server mutually authenticate themselves.
+      <li>CAS submits the <i>Content ID</i>,&nbsp; <i>Region-ID,
+        purchasable-date, price</i> to the CUS which updates the content-record
+        and the <i>content-update-date</i> with the CUS timestamp in the CDS
+        Content record.
+      <li><i>Update Content Purchase Info</i> audit record is created by the CUS
+      <li>	<i>Start Content Distribution</i> audit record is created by CAS.</li>
+    </ol>
+  </li>
+  <li>Cascaded Transaction - Update BB Stores
+    <ol type="a">
+  <li>	<code>Notify Region</code>
+    <ol type="i">
+      <li>	CAS &amp; RMS-Depot Notifier mutually authenticate themselves.</li>
+      <li>CAS submits the <i> Region-ID</i> and the <i>
+    &quot;Depot Content Synchronization&quot; </i>request to the RMS</li>
+      <li><code>Notify Content Synchronization Need</code>
+        <ol>
+          <li>RMS-Depot Notifier notifies BB Depot-Content Manager about availability of new content.</li>
+          <li><i>Notify BB Depots</i> audit record is created by the Depot
+            Notifier.</li>
+          <li><code> Content Synchronization</code>
+            <ul type="disc">
+              <li>BB Depots-Content Manager may decide to initiate &quot;Content
+        Synchronization&quot; based on the notification rather than wait for the
+        periodic synchronization event.</li>
+            </ul>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+    </ol>
+  </li>
+</ol>
+<h4>Post Condition</h4>
+<ol>
+  <li>   eTicket Server is ready to sell eTickets when the current date is in
+    the <i>&quot;available for purchase&quot;
+    effective date</i>   range in <i>region-ID.</i> &nbsp; </li>
+</ol>
+
+<h4>Audit Records</h4>
+<ol>
+  <li>Content Availability Server - Start Content Distribution - contentID, region ID,
+    price, &quot;available for purchase&quot; effective date</li>
+  <li>Content Upload Server - Update Content Purchase Info - contentID, region
+    ID, price, &quot;available for purchase&quot; effective date</li>
+  <li>RMS - Depot Notifier - Content Synchronization</li>
+</ol>
+<h4>Exceptions</h4>
+<ol>
+  <li>If RMS notifications fail, the CAS retries till it succeeds.</li>
+</ol>
+
+<p><b>Figures</b></p>
+<ul>
+  <li><a href="XS-StartContentDistribution/XS-StartContentDistribution1_raster.gif">Control Flow</a></li>
+  <li><a href="XS-StartContentDistribution/XS-StartContentDistribution2_raster.gif">Data Flow</a></li>
+</ul>
+
+</body>
+
+</html>

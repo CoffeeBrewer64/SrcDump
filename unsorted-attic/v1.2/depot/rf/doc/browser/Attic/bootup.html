@@ -1,0 +1,37 @@
+a22 1
+  <li> Meta-data (content-type, content-size, title, author, ...)
+d24 9
+d49 7
+d59 3
+a61 4
+address those issues and address the work distribution between the broswer
+application and secure kernel (internal ROM).
+<p>
+<b>Potential Secure Kernel Tasks:</b>
+d70 1
+a70 1
+    We don't know yet exactly what activation scenario will be chosen.  It is
+d79 13
+a91 5
+    We don't know yet exactly what the recovery steps will be. It could
+    be simply getting a new memory module and swapping the removable portions
+    from the old to new. In this case the SK doesn't have to do anything to
+    support recovery. It is also possible to require a USB connection running a
+    secure protocol. This would most likely need to be implemented in the SK.
+d203 24
+a226 3
+The SK must know enough about the <a href=ffs/ffs.htm>flash file system</a>
+to locate the first application's license. <i>More info on this after the
+FFS is revisited.</i>
+d242 7
+a248 3
+The SK must know enough about the <a href=ffs/ffs.htm>flash file system</a>
+to locate the first application's content. <i>More info on this after the
+FFS is revisited.</i>
+d307 2
+a308 1
+All processing when connected to the depot is being encapsulated here.
+d310 1
+a310 2
+available they will be taken into account here. Most likely Activation 
+tasks will be performed here.

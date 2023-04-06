@@ -1,0 +1,92 @@
+<html>
+    <head>
+      <title>BroadOn Confidential - BB Depot Architecture</title>
+    </head>
+    <body bgcolor="FFFFFF">
+      <h1><center>BB Depot Architecture</center></h1>
+      <center>
+	BroadOn Confidential<br>
+ 	Date: 2002/07/15 17:36:51
+      </center>
+
+      <h2>I. Hardware</h2>
+
+      <h4>Main Module</h4>
+      
+      1. Requirements:
+      <ul>
+	<li>mother board: mini ATX</li>
+	<li>memory: 64MB</li>
+	<li>Ethernet: one 10/100</li>
+	<li>hard disk: IDE ATA66, 20GB or more</li>
+	<li>USB version 1.1, needs at least 5 connectors (i.e., need
+	  internal USB hub)
+	  <ol type=i>
+	    <li>connect to new BB for activation</li>
+	    <li>connect to download station</li>
+	    <li>interface with memory module (USB block device)</li>
+	    <li>secure USB token</li>
+	    <li>printer</li>
+	  </ol>
+	</li>
+	<li>secure memory (e.g. USB security token) for certificate and private key.</li>
+	<li>BB memory module connector, for eTicket purchasing.</li>
+	<li>5.5" LCD with touchscreen (minimal
+	  graphics capability for displaying Chinese characters or
+	  simple logo).</li>
+	<li>audio feedback when operating the touch screen</li>
+	<li>should allow adding extra peripherals in future, e.g.
+	  <ul>
+	    <li>compact flash or smart media card reader</li>
+	    <li>USB printers</li>
+	    <li>bar code reader</li>
+	  </ul>
+	</li>
+      </ul>
+      2. Implementation:
+      <p>
+	The BB Depot is implemented using a standard low-cost
+	Intel-based PC running GatewayOS.  The reasons for switching
+	from the existing SME hardware are:
+	<ul>
+	  <li>to support the touch screen display on an SME box we
+	    need to 
+	    implement a graphic card and serial input, which requires
+	    board changes.</li>
+	  <li>adding new peripherals to a PC usually requires
+	    inserting a PCI card, but for the SME we might need a
+	    board change or custom-designed mini-pci card.</li>
+	  <li>device drivers are more readily available for Intel than
+	    PowerPC.</li>
+	  <li>we need the ability to add peripherals to the Depot
+	    without hardware modification.</li>
+	  <li>porting GatewayOS to a PC should be relatively easy:
+	    the only non-trivial changes are the way we handle
+	    configuration variables and software upgrade, which should
+	    now go to the hard disk instead of the flash.</li>
+ 	</ul>
+      </p>
+      <p>We will need a custom enclosure with the touch-screen display
+	and the BB flash card connector mounted on it.  We probably
+	need some removable front panels for future add-ons.</p>
+      <h4>Download Station</h4>
+      1. Requirements:
+      <ul>
+	<li>a small color display</li>
+	<li>a simple input device</li>
+	<li>a connector for the BB memory module</li>
+	<li>very robust, industrial-strength enclosure</li>
+	<li>connect to the main module via USB</li>
+      </ul>	
+      2. Implementation:
+      <p>A download station is simply a standard TV and a BB
+	controller permanently mounted onto the same enclosure (sort of like
+	an arcade game console).  This controller is connected to the
+	Depot's main module via USB.  We probably also want and
+	extension cable to pull out the memory module connectors to
+	the front of the download station.</p>
+      <p>A download station is acted as a "generic" BB player, which
+	does not contain a digital ID (and so, cannot play game).
+	They run only one application, which is the content download program.</p>
+    </body>
+  </html>

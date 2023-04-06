@@ -1,0 +1,481 @@
+  <html>
+
+    <head>
+      <title>Retailer, Operation Center - User model</title>
+    </head>
+    
+    <body>
+
+      <h2 align="center">Retailer, Operation Center - User model</h2>
+
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.7 $<br>
+	$Date: 2002/09/13 00:19:43 $
+      </center>
+
+
+      <hr></hr>
+
+      <em>
+	<blockquote>
+	  This document outlines the user model for the retailer
+	  and operation center.   It describes use cases 
+	  involving interactions between a retailer and the operation
+	  center that are necessary to keep a BB Depot operational.
+	</blockquote>
+	<p>
+	  There are two sections to this document:
+	  <ul>
+	    <li><a href="#depot">The first section</a> of the document
+	      lists out the use cases involving the installation and
+	      maintenance of the BB Depot.</li> 
+	    <li><a href="#business">The second section</a> of the
+	      document discusses the use cases related to normal
+	      business operations of the retailers. 
+	    </li>
+	  </ul>
+	</p>
+      </em>
+      
+      <hr></hr>
+      <h2> Terminology and Requirements</h2>
+      <h3> Roles</h3>
+      <ol>
+        <li><strong>Retailer</strong> - Store owner who has signed up
+	  to sell BB, eTickets and BB Player accessories. Typically
+	  will have little or no computer experience.
+	</li>
+	<li><strong>Service Technician</strong> - Trained personnel
+	  sent to the stores to set up or service a BB Depot.
+	</li>
+	<li><strong>Operation Center</strong> - Responsible for
+	  maintaining all BB Depots in good operating condition.
+	</li>
+      </ol>
+      <h3> BB Depot&nbsp;</h3>
+      <ol>
+        <li>BB Depot - computer used by the retailer (&amp; indirectly by customer) for
+          conducting BB transactions</li>
+        <li>DepotID - hardware token used to identify and authenticate
+	  the shop owner to the Servers.</li>
+	<li>serviceID - hardware token used to identify a service
+	  technician to the operation center.</li>
+        <li>HardwareID - identity used to authenticate the BB Depot to the RMS
+          &amp; the CDS which do not require the DepotID to be present.</li>
+	<li>storeID - identifies the shop where the BB Depot resides.
+	  Each BB Depot can belong to exactly one store.  StoreIDs are
+	strings of digits with checksum to minimize mistyping.</li>
+        <li>Depot Console - LCD screen with touch screen capability</li>
+        <li>BB Depot USB ports - at least 4 ports with sufficient power for
+          DepotID plug-in, Download Station connection, BB
+          Initialization Port, Memory Card Port.
+	</li>
+      </ol>
+      <h3>Operation Center</h3>
+      <ol>
+        <li>Servers - refers to the transactional systems at the Ops Center. The
+          Servers must always authenticate themselves to the BB Depot or BB
+          Player if involved in any transaction.</li>
+        <li>RMS - Remote Management Servers - should use something other than
+          the DepotID for BB Depot authentication</li>
+        <li>CDS - Content Distribution Servers - should use something other than
+          the DepotID for BB Depot authentication</li>
+      </ol>
+      <h3> Console Applications</h3>
+      <ol>
+        <li><a href="bbdepot_Applications.html#Installer Application - Menu">Installer Application</a></li>
+      </ol>
+      <hr></hr>
+      <h2>Use Cases</h2>
+      <h3>BB depot installation/maintenance</h3>
+      <ol>
+	<li>New DepotID Registration</li>
+	<li>Install New BB Depot</li>
+	<li>Shop owner reports lost or stolen DepotID</li>
+	<li>Replace hard disk on BB Depot</li>
+      </ol>
+      <h3>Business operation use cases</h3>
+      <ol>
+	<li>Order Inventory</li>
+	<li>Receive Inventory</li>
+      </ol>
+
+      <hr></hr>
+      <h2><a name="depot">
+	  <span style="background-color: #C0C0C0">
+	    Section 1: BB Depot Installation and Maintenance
+	  </span>
+	</a>
+      </h2>
+
+      <hr></hr>
+      <h3><a name="depot"></a>
+	<span style="background-color: #C0C0C0">New DepotID Registration</span>
+      </h3> 
+      
+      <h4>Description</h4>
+      A retailer requests for a new DepotID.
+
+      <h4>Rationale</h4>
+      <ol>
+	<li>The DepotID is used to identify a Retailer's (bank)
+	  account with which all cash transactions are carried out.
+	  Thus we need to bind each DepotID to a Retailer's account
+	  (via the store, i.e, DepotID -&gt; storeID -&gt; retailer).
+	</li>
+      </ol>
+
+      <h4>Requirements</h4>
+      <ol>
+	<li>This procedure must be carried out within the secure
+	  environment of the operation center (or trusted customer
+	  support site).
+	</li>
+      </ol>
+
+      <h4>Assumptions and conditions</h4>
+      <ol>
+	<li>The Retailer has already entered a business relationship
+	  with us and has registered with our system.
+	</li>
+	<li>The Retailer has already opened a line of credit account
+	  with one of our authorized bank through which our
+	  transaction subsystem can debit/credit money. 
+	</li>
+      </ol>
+
+      <h4>Sequence of events/actions</h4>
+      <table width=100%>
+	<tr>
+	  <th width=50%>Retailer</th>
+	  <th>Operation Center</th>
+	</tr>
+	<tr>
+	  <td>
+	    <ol>
+	      <li>Retailer presents documents showing the account info
+		and that he is the account holder.</li>
+	      <li>Retailer requests for a new DepotID.</li>
+	    </ol>
+	  </td>
+	  <td>&nbsp;</td>
+	</tr>
+	<tr>
+	  <td>&nbsp;</td>
+	  <td>
+	    <ol start=3>
+	      <li>Op. Center Staff verifies the documents, and pulls
+		out the account info for this retailer.</li>
+	      <li>Takes a new secure USB token and
+		initializes it with a new unique DepotID (The op
+		center will have proper device to initialize a token with
+		a new private key, and a digital certificate filled
+		with the proper account info signed by our CA).
+	      </li>
+	      <li>No password will be set on the DepotID.  This is to
+		avoid the complex customer support issue of password
+		management.</li> 
+	      <li>Give the DepotID and other written instructions or
+		documents to the retailer.</li>
+	    </ol>
+	  </td>
+	</tr>
+	<tr>
+	  <td>
+	    <ol start=6>
+	      <li>Retailer leaving with a new DepotID knowing that he
+		can now use it with a BB Depot to conduct
+		business.</li>
+	    </ol>
+	  </td>
+	  <td>&nbsp;</td>
+	</tr>
+      </table>
+
+      <hr></hr>
+      <h3><span style="background-color: #C0C0C0">Install New BB Depot</span></h3>
+      <h4>Description</h4>
+      <p>Service Technician installs a new BB Depot at retailer's site.</p>
+      
+      <h4>Rationale</h4>
+      <ol>
+	<li>Average retailers do not have enough knowledge to install
+	  a new machine.</li>
+	<li>Only authorized service technicians are allowed to perform
+	  certain configuration operations.</li>
+      </ol>
+
+      <h4>Assumptions and conditions</h4>
+      <ol>
+	<li>A dedicated broadband Internet access has already been
+	  setup at retailer's site.</li>
+	<li>Basic network parameters (static or dynamic IP address,
+	  default gateway, DNS server, etc.) have already been
+	  obtained from ISP.
+	</li>
+	<li>Retailer has already opened an account with our system.</li>
+	<li>The Retailer may or may not have obtained a DepotID.</li>
+	<li>This store has already been assigned to a region.</li>
+	<li>The service technician knows the storeID for this store.</li>
+	<li>The "master" operation center will always have all the
+	  database information.  This includes the relationship
+	  between DepotID and storeID.</li>
+      </ol>
+
+      <h4>Sequence of events/actions</h4>
+
+      All operations are performed by the service technician at the
+      retailer's site:
+      <ol>
+	<li>Set up the Depot hardware:  connect the power supply,
+	  network, and download station.</li>
+	<li>Insert the serviceID into a USB port of the Depot
+	  Console.  This brings up the Installer Apps.</li>
+	<li>Select network configuration, and enter all necessary
+	  network parameters (the installer apps should verify network
+	  connectivity automatically).</li>
+	<li>Select depot configuration, enter the storeID when
+	  prompted.</li>
+	<li>The hardwareID, as well as depot configuration parameters
+	  such as the URLs of the RMS, CDS, and transaction servers
+	  would be installed automatically.</li>
+	<li>Run standard configuration tests, which use the serviceID
+	  as the Depot's identification token and carry out test
+	  transactions against a dummy account.</li>
+	<li>Following the instruction of installer app, verify all
+	  major hardware components are working.  This includes the
+	  Download Station(s), all USB ports, and the Memory Card Port.</li>
+	<li>Remove the serviceID.  The system should automatically
+	  start the content synchronization process and software
+	  upgrade if needed.</li>
+      </ol>
+      
+      <h4>Error/Failure Conditions</h4>
+      The service technicians should be trained to handle any potential
+      on-site.  The most common errors are:
+      <ol>
+	<li>Network failure - should contact the ISP.</li>
+	<li>Cannot contact any of the servers.</li>
+	<li>Incorrect retailer account ID.</li>
+	<li>Failed to download the hardwareID and other depot
+	  configuration parameters.</li>
+      </ol>
+
+      <hr></hr>
+      <h3><span style="background-color: #C0C0C0">
+	  Shop owner reports lost or stolen DepotID</span></h3>
+      <h4>Description</h4>
+      <p>Disable an existing DepotID and issue a replacement</p>
+      
+      <h4>Requirements</h4>
+      <ol>
+	<li>This procedure must be carried out within the secure
+	  environment of the operation center (or trusted customer
+	  support site).
+	</li>
+	<li>To minimize loss of the shop owner, all online transaction
+	  from this DepotID must be stopped immediately.</li>
+      </ol>
+
+      <h4>Assumptions and conditions</h4>
+      <ol>
+	<li>The retailer has been issued a valid DepotID</li>
+	<li>The retailer reports (via phone, fax, etc.) that the
+	  specified DepotID has been lost.</li>
+	<li>The validity of this report has been verified.</li>
+      </ol>
+
+      <h4>Sequence of events/actions</h4>
+
+      <table width=100%>
+	<tr>
+	  <th width=50%>Retailer</th>
+	  <th>Operation Center</th>
+	</tr>
+	<tr>
+	  <td>
+	    <ol>
+	      <li>Retailer reports that a DepotID has been lost.</li>
+	    </ol>
+	  </td>
+	  <td>&nbsp;</td>
+	</tr>
+	<tr>
+	  <td>&nbsp;</td>
+	  <td>
+	    <ol start=2>
+	      <li>Operator verifies the identity of the retailer via
+		other means (e.g., photo ID, matching private
+		information on file, etc.)
+	      </li>
+	      <li>Operator locates the record of this DepotID and marks
+		it as revoked.  Once this information is entered, all
+		transaction servers would immediately reject
+		connection from this DepotID.</li>
+	      <li>Operator issues a new DepotID following the
+		procedure specified in "New DepotID Registration".
+	      </li>
+	      <li>Gives the new DepotID to the retailer if s/he shows
+		up in person.  Otherwise, arrange for delivery or pick
+		up separately.
+	      </li>
+	    </ol>
+	  </td>
+	</tr>
+      </table>
+
+      <h4>Error/Failure Conditions</h4>
+
+      The operation center staff might need to locate the DepotID
+      record via varies way, based on the retailer's name, account
+      number, storeID, store's street address, etc.  In case a store
+      has multiple BB Depots and it cannot be determined which of the
+      DepotIDs is lost, we might need to revoked and reissued all of them.
+
+      <hr></hr>
+      <h3><span style="background-color: #C0C0C0">Replace hard disk on
+	BB Depot</span></h3>
+
+      <h4>Description</h4>
+      The only serviceable parts of a BB Depot console is the hard
+      disk.  If the hard disk fails, it needs to be replaced by a
+      service technician.
+
+      <h4>Assumptions and conditions</h4>
+      <ol>
+	<li>Service technician has verified that the network is
+	  functioning correctly and that the problem lies in the BB Depot.</li>
+	<li>Service technician has already determined that the BB
+	  Depot is not functioning properly and replacing the hard
+	  disk might be a solution.</li>
+	<li>Service technician has carried with him a spare hard disk
+	  that has already been initialized with the same information
+	  put in at the Depot manufacturing site.
+      </ol>
+
+      <h4>Sequence of events/actions</h4>
+      All of the following steps are carried out by the service technician:
+      <ol>
+	<li>replace the hard disk</li>
+	<li>insert the seviceID</li>
+	<li>verify that the hard disk is "clean", if not, reset it to
+	  factory default (i.e., erase all configuration data).
+	</li>
+	<li>following the normal installation procedure to set up the
+	  network parameters, depot configuration parameters, and
+	  download a new hardwareID.</li>
+	<li>verify that the Depot is now operational.</li>
+      </ol>
+
+      <h4>Error/Failure Conditions</h4>
+
+      If any of the above steps does not work, there are other
+      hardware failures beyond the hard disk.  Send the Depot back for
+      service.
+
+            <hr></hr>
+      <h2><a name="business">
+	  <span style="background-color: #C0C0C0">
+	    Section 2: Business Operations
+	  </span>
+	</a>
+      </h2>
+
+      <em><blockquote>
+	  In the first release, we will NOT support eCommerce-style
+	  online ordering system for any hardware item.  Retailers are
+	  expected to place order for new BB Players, BB Card, or any
+	  other hardware accessories through traditional means (i.e., not
+	  through the BB Depot).  However, we do keep track of the
+	  inventory for each store and debit directly from each
+	  store's account upon delivery of an order.
+	</blockquote>
+      </em>
+
+
+
+
+      <hr></hr>
+      <h3><span style="background-color: #C0C0C0">Order Inventory</span></h3>
+
+      <h4>Description</h4>
+      Retailer places a new purchase order for BB Players, BB Card, or
+      any other hardware.
+
+      <h4>Assumptions and conditions</h4>
+      <ol>
+	<li>Retailer has already opened an account with our
+	  system.</li>
+	<li>Retailer's account has enough credit to cover the cost of
+	  the order.</li>
+      </ol>
+
+      <h4>Sequence of events/actions</h4>
+      <ol>
+	<li>Retailer submit a new purchase order to the operation
+	  center (via phone, fax, etc.).</li>
+	<li>Op center verifies the available credit of the retailer,
+	  and enter the order to the database.</li>
+	<li>Warehouse staff picks up the order, and arrange for
+	  delivery.</li>
+      </ol>
+
+      <h4>Error/Failure Conditions</h4>
+      <ol>
+	<li>Retailer has exceeded his line of credit. </li>
+	<li>Warehouse does not have enough inventory to cover the order.</li>
+      </ol>
+
+      <hr></hr>
+      <h3><span style="background-color: #C0C0C0">Receive Inventory</span></h3>
+
+      <h4>Description</h4>
+      Upon completion of a purchase order, debit the retailer's
+      account and update the inventory record. 
+
+      <h4>Rationale</h4>
+      <ol>
+	<li>Payment for the purchase order is made online through the
+	  retailer's account, and is processed upon delivery of the order.
+	</li>
+	<li>Need to keep track of each store's inventory for auditing
+	  purpose.</li>
+      </ol>
+
+      <h4>Assumptions and conditions</h4>
+      <ol>
+	<li>Retailer has confirmed delivery of order (e.g. a signed receipt).
+	</li>
+	<li>Delivery personnel and other staffs who handle these
+	  receipts are trusted.</li>
+	<li>Retailer has enough line of credit to cover the purchase order.</li>
+      </ol>
+
+      <h4>Sequence of events/actions</h4>
+
+      <ol>
+	<li>Operation center receives signed receipt of purchase
+	  order.</li>
+	<li>Pulls out the corresponding order record.</li>
+	<li>Mark purchase order as "completed", this should trigger
+	  the transaction system to debit the retailer's account and
+	  update the inventory records.</li>
+      </ol>
+      
+      <h4>Error/Failure Conditions</h4>
+      <ol>
+	<li>Purchase order does not exist -- this is handled outside
+	  the online system.
+	</li>
+	<li>Retailer's account does not have enough credit to cover
+	  the order - freeze the retailer's account and stop all
+	  online operations.  Notify retailer to pay.</li>
+	<li>Items delivered do not match that purchase order - 
+	  a partial order was delivered.  Only the items delivered
+	  will be charged.
+	</li>
+      </ol>
+    </body>
+    
+  </html>

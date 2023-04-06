@@ -1,0 +1,135 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Transaction: Revoke Content</title>
+</head>
+
+<body>
+
+<h2 align="center">Transaction: Revoke Content</h2>
+<h4><b>Participants</b></h4>
+<ul>
+  <li><b>Transaction - Content Availability Server (CAS)</b> (<i>point of
+    control)</i></li>
+  <li>Content Distribution Subsystem - Content Upload Server (CUS)</li>
+  <li>RMS - Content Notifier</li>
+</ul>
+<h4>Requirements</h4>
+<ul>
+  <li>Should be able to revoke content that is deemed to be a security risk.</li>
+</ul>
+<h4>Pre-conditions</h4>
+<ul>
+  <li>Content has previously been published and may have been made available for
+    purchase and download.</li>
+  <li>New CRL blob has been created with <i>ContentID</i> in it.</li>
+</ul>
+<h4>Input Parameters</h4>
+<ul>
+  <li><code>ContentID</code></li>
+  <li><code>Replacement ContentID</code></li>
+</ul>
+<h4>Data Records</h4>
+<ul>
+  <li><a href="../data_defs.html">Transaction - Content Metadata</a></li>
+  <li><a href="../data_defs.html">CDS - Content</a></li>
+  <li><a href="../data_defs.html">RMS - Depot</a></li>
+</ul>
+<h4>Output Parameters</h4>
+<blockquote>
+  <i>None</i>
+</blockquote>
+<h4>Sequence of Events</h4>
+<ol>
+  <li>	<code>Revoke Content</code>
+    <ol type="a">
+  <li>	The Marketing Manager selects the <i>ContentID</i> that is to be
+    revoked.</li>
+  <li>	Optionally a <i>Replacement ContentID</i> is provided.</li>
+  <li>	This action always applies to all regions.</li>
+    </ol>
+  </li>
+  <li>	<code>Notify CDS</code>
+    <ol type="a">
+      <li>	CAS and Content Upload Server mutually authenticate themselves.</li>
+      <li>	CAS submits the <i> Content ID</i>,&nbsp; and <i>revoked</i> status to the
+        CUS which updates the <i>download-state</i> to <i>revoked</i> and the <i>content-update-date</i>
+        with the CUS timestamp in the
+        CDS Content record.</li>
+      <li>	<i>Revoke Content Request</i> audit record is created by the CUS</li>
+      <li>	CAS updates the <i>download-state</i> for <i>ContentID</i> to <i>revoked
+        </i> in the Transaction Content Metadata record.</li>
+      <li>	<i>Revoke Content</i> audit trail is created by the CAS.</li>
+    </ol>
+  </li>
+  <li>	Deferred Transactions - Revoke eTickets
+    <ol type="i">
+      <li>This is repeated for each
+    eTicket record that has been issued for <i>ContentID</i>
+        <ol type="a">
+          <li>Revoke eTickets - eTicket record <i>state</i> is updated to <i>Revoked</i></li>
+          <li>Issue replacement eTickets - If a <i>Replacement</i> <i>ContentID</i> is
+        specified, then new eTickets record is issued.</li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li>Cascaded Transaction - Update BB Depots
+    <ol type="i">
+      <li>	<code>Notify Region</code>
+    <ol type="a">
+      <li>	CAS &amp; RMS-Content Notifier mutually authenticate themselves</li>
+      <li>	CAS submits the &quot;Revoke Content&quot; request.</li>
+      <li>	<i>Immediate Content Synchronization</i> audit trail is created by
+        the Depot Notifier.</li>
+      <li><code>Notify Immediate Content Synchronization Need</code>
+        <ol type="a">
+          <li>RMS-Content Notifier may decide to notify all BB Depots about the need for
+            immediate content synchronization.</li>
+          <li><code>Content Synchronization</code>
+            <ol type="a">
+              <li>BB Depots-Content Manager may decide to initiate &quot;Content
+        Synchronization&quot; based on the notification rather than wait for the
+        periodic synchronization event.</li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+    </ol>
+      </li>
+    </ol>
+  </li>
+</ol>
+<h4>Post Condition</h4>
+<ol>
+  <li>   CDS Content record for <i>ContentID</i> has updated <i>download-state </i>of
+    <i>revoked.</i></li>
+  <li>   XS Content Metadata record for <i>ContentID</i> has updated state of <i>revoked.</i></li>
+</ol>
+
+<h4>Audit Records</h4>
+<ol>
+  <li>Content Availability Server - Revoke Content - contentID</li>
+  <li>Content Upload Server - Revoke Content Request - content ID</li>
+  <li>RMS - Depot Notifier - Immediate Content Synchronization</li>
+</ol>
+<h4>Exceptions</h4>
+<ol>
+  <li>Content Upload Server &amp; CAS fail to mutually authenticate each other - a critical error
+    is logged.</li>
+  <li>ContentID is not present in the CDS Content store -&nbsp; a critical error is logged</li>
+  <li>If RMS notifications fail, the CAS retries till it succeeds.</li>
+</ol>
+
+<p><b>Figures</b></p>
+<ul>
+  <li><a href="XS-RevokeContent/XS-RevokeContent1_raster.gif">Control Flow</a></li>
+  <li><a href="XS-RevokeContent/XS-RevokeContent2_raster.gif">Data Flow</a></li>
+</ul>
+
+</body>
+
+</html>

@@ -1,0 +1,446 @@
+  <head>
+    <title>BB Depot: Communication Protocols Specification</title>
+  </head>
+  <body bgcolor="#ffffff">
+    <h1><center>BB Depot: Communication Protocols Specification</center></h1>
+    <center>
+      BroadOn Confidential<br>
+	$Revision: 1.10 $<br>
+	  $Date: 2002/08/08 00:37:48 $
+    </center>
+    <p>
+      This document describes the all protocols a BB Depot uses to
+      communicate with the BB servers or BB player.  For a high-level
+      description of the interactions between these parties, please
+      refer to <a href="bbdepot_arch.html"><em>BB Depot Architecture</em></a>.
+    </p>
+
+    <h3>I. BB Activation</h3>
+    <ol>
+      <li>Establish connection between BB and Depot
+	<ul>
+	  <li>boot sequence <font color=red>TBD</font>:  assume that once the BB is powered
+	    on, it will try to establish network connection via the USB.</li>
+	  <li>low-level protocol <font color=red>TBD</font>: The
+	    physical link is USB.  <strike>Need to decide if we use DHCP or
+	    PPP.  We just assume it talks TCP/IP for now.</strike>
+	    The BB will not support IP.  We are using custom protocol
+	    over raw USB instead. </li> 
+	  <li>connection with Depot needs not be secure.  Security is
+	    provided via end-to-end encryption directly between BB
+	    and the server.</li>
+	  <li>once connected to the Depot, the BB sends out its ID (BB
+	    ID) and waits for instructions from Depot</li>
+	</ul>
+      </li>
+      <li>Establish connection between Depot and Server
+	<ul>
+	  <li>Open SSL connection to the server, with both client and
+	    server authentication.  As part of the SSL handshake, the
+	    ID of the Depot is sent to the server.</li>
+	  <li>As this is not a frequent activity, we are not using SSL
+	    session.</li>
+	  <li>Connection is made to a private port (port number
+	    TBD).</li>
+	</ul>
+      </li>
+      <li>Protocol: Depot and Server
+	<ol type=a>
+	  <li>Depot sends activation request to server:
+	    <ol type=i>
+	      <li>content length (in bytes)</li>
+	      <li>request code (specify BB activation)</li>
+	      <li>BB ID</li>
+	    </ol>
+	  </li>
+	  <li>Server verifies BB ID and Depot ID against its database,
+	    gets ready to authenticate BB, and sends the following reply:
+	    <ol type=i>
+	      <li>content length (in bytes)</li>
+	      <li>return code (fixed length, specify if request is
+		granted, rest of message omitted if request is rejected )</li>
+	      <li>random string to be signed by BB.  (Note that this
+		string needs only to be different every time, not
+		necessarily random.)</li>
+	    </ol>
+	    Meanwhile, the server generates the certificate for this BB.
+	  </li>
+	  <li>Depot verifies request status, forwards random string to BB
+	    to sign, and sends signature back to server:
+	    <ol type=i>
+	      <li>content length (length of signature in bytes)</li>
+	      <li>signature</li>
+	    </ol>
+	  </li>
+	  <li>Server verifies signature, records in database that this
+	    BB has been activated, and returns the certificate and
+	    status code to Depot: 
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>status code</li>
+	      <li>BB's certificate</li>
+	    </ol>
+	  </li>
+	  <li>Close connection</li>
+	</ol>
+      </li>
+      <li>Protocol: Depot and BB
+	<ol type=a>
+	  <li>Upon establishing connection, BB sends its ID to
+	    Depot</li>
+	  <li>Depot forwards the random string from server for BB
+	    authentication
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>command code (specify signature request)</li>
+	      <li>string to be signed.</li>
+	    </ol>
+	  </li>
+	  <li>BB replies with signature
+	    <ol type=i>
+	      <li>content length (length of signature in bytes)</li>
+	      <li>signature</li>
+	    </ol>
+	  </li>
+	  <li>Depot receives approval from server, download BB's
+	    certificate and tells BB the transaction is completed
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>command code (specify activation completed)</li>
+	      <li>BB's certificate</li>
+	    </ol>
+	  </li>
+	  <li>BB acknowledge installation of certificate and close connection</li>
+	</ol>
+      </li>
+    </ol>
+
+    <h3>II. BB Deactivation</h3>
+    <p>Same as BB activation, except that the request code sent from
+      Depot to Server is changed to deactivation request.  Only
+      activated BB can be deactivated.  The Server enforces the
+      deactivation policy, probably it must be within a certain time
+      limit from last activation.</p>
+
+    <h3>III. Purchase eTicket</h3>
+    <ol>
+      <li>Establish connection between Depot and Server
+	<ul>
+	  <li>BB's memory module must be inserted to Depot</li>
+	  <li>Open SSL connection to the server, with both client and
+	    server authentication.  As part of the SSL handshake, the
+	    ID of the Depot is sent to the server.</li>
+	  <li>We might consider setting up an SSL session if this
+	    happens frequent enough</li>
+	</ul>
+      </li>
+      <li>Protocol: purchase request (between Depot and Server)
+	<ol type=a>
+	  <li>To minimize work on the server side, we use HTTPS</li>
+	  <li>Depot "POST" a request to the server, with content:
+	    <ol type=i>
+	      <li>CMD=buy_ticket</li>
+	      <li>BB_ID=<i>BB ID</i></li>
+	      <li>TITLE=<i>ID of title</i></li>
+	    </ol>
+	  </li>
+	  <li>Server records "store credit" for this BB for this title,
+	    and replies HTTP status code "200 OK".  Error code TBD.
+	  </li>
+	  <li>If request is successful, the Depot writes a
+	    <em>mark</em> on the memory module to indicate a new
+	    eTicket is available for download.</li>
+	</ol>
+      </li>
+      <li>Establish connection between Download Station and Server
+	<ul>
+	  <li>The BB at the Download Station is connected to the Depot
+	    via the USB, and the Depot forwards the message to the
+	    Server via a SSL connections.  The Server could verify the
+	    Depot ID against the "store credit" record.</li>
+	  <li>BB at the Download Station should authenticate itself to
+	    the Depot (exact protocol TBD).</li>
+	  <li>There are actually three different requests that the
+	    Download Station could issue to the Server:
+	    <ol type=i>
+	      <li>list all new eTicket titles that has never been
+		downloaded before</li>
+	      <li>list all eTicket titles (for reloading previously
+		owned eTickets)</li>
+	      <li>download a particular eTicket</li>
+	    </ol>
+	</ul>
+      </li>
+      <li>Protocol: list new eTickets
+	<ol type=a>
+	  <li>BB sends to the server a request for all eTickets that
+	    it has never downloaded
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>cmd code (specify "list new eTickets")</li>
+	    </ol>
+	  </li>
+	  <li>Server replies with list
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>number of titles</li>
+	      <li>list of title names and IDs delimited by null characters?
+		(TBD)</li>
+	    </ol>
+	  </li>
+	</ol>
+      </li>
+      <li>Protocol: list all eTickets
+	<ol type=a>
+	  <li>BB sends to the server a request for all eTickets that
+	    it has never downloaded
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>cmd code (specify "list all eTickets")</li>
+	      <li>BB ID (This is the ID read from the user's memory
+		module, <strong>not</strong> the ID of the BB at the
+		Download Station</li>
+	    </ol>
+	  </li>
+	  <li>Server replies with list
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>number of titles</li>
+	      <li>list of title names and IDs delimited by null characters?
+		(TBD)</li>
+	    </ol>
+	  </li>
+	</ol>
+      </li>
+      <li>Protocol: download eTicket
+	<ol type=a>
+	  <li>BB sends to the server a request for a particular Title
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>cmd code (specify "download eTicket")</li>
+	      <li>title ID</li>
+	      <li>BB ID (This is the ID read from the user's memory
+		module, <strong>not</strong> the ID of the BB at the
+		Download Station</li>
+	    </ol>
+	  </li>
+	  <li>Server approves download request, and returns with
+	    eTicket.  Note that if the eTicket is new, the server must
+	    mark it as downloaded and thus the sale of this eTicket is
+	    completed and final.
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>return code (ok or reject)</li>
+	      <li>eTicket</li>
+	    </ol>
+	  </li>
+	  <li>BB acknowledges receiving of eTicket and then close connection</li>
+	</ol>
+      </li>
+    </ol>
+
+    <h3>IV. eTicket Refund</h3>
+
+    <ol>
+      <li>Establish connection between Depot and Server
+	<ul>
+	  <li>Same as in eTicket purchasing</li>
+	</ul>
+      </li>
+      <li>Protocol: use HTTPS
+	<ol type=a>
+	  <li>Depot "POST" a request to the server (note: the Depot's
+	    ID is sent to the Server as part of the SSL handshake):
+	    <ol type=i>
+	      <li>CMD=return_ticket</li>
+	      <li>BB_ID=<i>BB_ID</i></li>
+	      <li>TITLE=<i>ID of title</i></li>
+	    </ol>
+	  </li>
+	  <li>Server checks against the refund policy (for details,
+	    click <a href="eTicket.html">here</a>), and replies with
+	    proper status/error code.  Error code TBD.  If refund is
+	    approved, also returns the refund amount.
+	  </li>
+	</ol>
+      </li>
+    </ol>
+		
+    <h3>V. Content Download</h3>
+    <ol>
+      <li>Establish connection between BB and Server
+	<ul>
+	  <li>Same procedures as in <em>Purchase eTicket</em>.</li>
+	  <li>BB could use the <em>list all eTickets</em> command to
+	    get a list of available titles</li>
+	</ul>
+      </li>
+      <li>Protocol:
+	<ol type=a>
+	  <li>BB sends title ID and BB ID to Server (via HTTP "POST"
+	    or similar, <font color=red>TBD</font>)
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>cmd code (specify content download)</li>
+	      <li>BB ID</li>
+	      <li>Title ID</li>
+	    </ol>
+	  </li>
+	  <li>Server replies URL for content (could be HTTP
+	    "redirect", <font color=red>TBD</font>)
+	    <ol type=i>
+	      <li>content length</li>
+	      <li>return code</li>
+	      <li>URL of content</li>
+	    </ol>
+	  </li>
+	  <li>BB download content from specified URL</li>
+	</ol>
+	Note:  Depot <em>could</em> intercept the request and redirect
+	traffic to its local cached copy of content.
+      </li>
+    </ol>
+
+    <h3>VI. Reinitialize Memory Module</h3>
+    <ol>
+      <li>Memory Module connected to Depot console:
+	<ol type=a>
+	  <li>Write the Secure Kernel, Browser Apps License, and
+	    Browser Apps to the first consecutive blocks on the memory
+	    module that are not bad.</li>
+	  <li>Re-initialize the file system</li>
+	  <li>Mark FAT table for bad blocks</li>
+	  <li>set up default file directories</li>
+	</ol>
+      </li>
+      <li>Memory Module connected to User's BB, which is then
+	connected to the Depot's BB Activation port:
+	<ol type=a>
+	  <li>copy BB's cert to memory module</li>
+	  <li><font color=red>TBD:</font> (The following steps could be
+	    performed by the user at the Download station)  Use the
+	    "list all eTickets" and "download eTicket" protocols
+	    specified in eTicket purchase to restore all eTickets.
+	  </li>
+	</ol>
+      </li>
+    </ol>
+    
+    <h3>VII. Content Distribution</h3>
+    <ol>
+      <li>Content Distribution Server notifies each Depot the
+	availability of new content:
+	<ol type=a>
+	  <li>Content Distribution Server (CDS) sends a Region ID to
+	    the RMS, telling it to notify all Depots within that region.</li>
+	  <li>RMS notify to Depot via RFRMP.</li>
+	</ol>
+	Note that the RMS is the server that maintain the latest IP
+	address of each Depot.  It also needs to maintain the list of
+	Depot that belongs to each region, and keeps this information
+	consistent with the CDS (and also with the Online Transaction
+	Server).
+      </li>
+      <li>Depot downloads the content:
+	<ul>
+	  <li>Depot connects to CDS and ask for a list of URLs
+	    corresponding to the new content.</li>
+	  <li>Go through the list of URLs and download all files.</li>
+	  <li>We could use HTTP or HTTPS with <em>null</em> encryption
+	    (i.e., authentication only).</li>
+	  <li>The meta-data file, among other info, must contain:
+	    <ol type=a>
+	      <li>directory name to save these files</li>
+	      <li>title of content</li>
+	      <li>any logo or graphics (use by the download
+		station)</li>
+	      <li>checksum of content file</li>
+	    </ol>
+	  </li>
+	  <li>Verify the checksum</li>
+	</ul>
+      </li>
+      <strike>
+      <li>Depot downloads re-encryption eTicket:
+	<ul>
+	  <li>Depot downloads the re-encryption eTickets for each of
+	    the connected Download Station from the Online Transaction
+	    Server.</li>
+	  <li>Same protocol as downloading user eTickets (assuming
+	    that the Depot knows the BB ID of all Download
+	    Stations).</li>
+	  <li>Server cancels the retry timer.</li>
+	</ul>
+      </li></strike>
+    </ol>
+    
+    <h3>VIII. Ordering Hardware from Warehouse</h3>
+    <p>
+      <font color=red><em>This will not be supported in the first release.</em></font>
+    </p>
+    <p>
+      This is basically a standard web-based online purchasing
+      operation, using HTTPS.  Except that we do not use HTML because
+      the console does not have a HTML-renderer.
+    </p>
+    
+    <ol>
+      <li>Depot downloads available item and price from server:
+	<ul>
+	  <li>use HTTPS with mutual authentication</li>
+	  <li>information includes a list of available items (e.g, BB
+	    player, memory module, etc.) and their corresponding
+	    price, followed by the current balance for this
+	    store.</li>
+	</ul>
+      </li>
+      <li>Depot submit order:
+	<ul>
+	  <li>use HTTPS with mutual authentication</li>
+	  <li>operator enter the selected items, quantity, etc. on the
+	    console.  The console should display a confirmation page
+	    with total amount, etc.</li>
+	  <li>Depot submit order to the Server</li>
+	</ul>
+      </li>
+      <li>Order tracking:
+	<ul>
+	  <li>use HTTPS with mutual authentication</li>
+	  <li>server should display order status</li>
+	</ul>
+      </li>
+    </ol>
+
+    <h3>IX. Delivering Hardware to Stores</h3>
+    <ol>
+      <li>Carrier requests delivery confirmation:
+	<ol type=a>
+	  <li>Carrier replaces the Depot's USB token by his.</li>
+	  <li>Depot console display dialogue asking for order
+	    number.</li>
+	  <li>Carrier enters order number</li>
+	  <li>Depot connects to server, using carrier USB token for
+	    identification, and submits the order number.</li>
+	  <li>Server verifies that the carrier's ID matches that
+	    assigned to deliver this order, and replies with order
+	    details (items code, quantity, total price, etc.).</li>
+	  <li>carrier removes his USB token</li>
+	</ol>
+      </li>
+      <li>Store owners acknowledges delivery:
+	<ol type=a>
+	  <li>Store owner confirms the order detail, and acknowledge
+	    delivery by putting back the Depot's USB token.</li>
+	  <li>Using the Depot's USB token, the Depot signs the receipt
+	    and sends it back to the server.</li>
+	  <li>Server closes the transaction, deducts money from the
+	    store's account, and closes the connection.</li>
+	</ol>
+      </li>
+      <li>TBD: does the carrier have authority to modify the order, if
+	something is wrong?
+      </li>
+    </ol>
+
+  </body>
+</html>

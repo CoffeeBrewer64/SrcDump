@@ -1,0 +1,136 @@
+#!/bin/sh
+#
+# set tabsbtop=4
+
+# run script from directory bbboot/test
+
+test_dir=`pwd`
+sim_dir=../../../../../hw/chip/vsim
+sim_dir_data=$sim_dir/tests
+sim_brom_fname=$sim_dir_data/brom.dat
+sim_nand_fname=$sim_dir/External_File.txt
+sim_vram_fname=$sim_dir_data/v2.dat
+sim_mdio_fname=$sim_dir_data/mdio.dat
+
+local_rom_fname=../rom.sim
+
+# directory where test data is stored
+test_out_subdir=testout
+test_data_subdir=testdata
+
+#
+# the actual test parameters
+#
+
+#if false; then
+
+# test 1, perfect conditions
+test_name[0]="Perfect Conditions"
+psk_params[0]=""
+sim_start_params[0]=""
+mod_state_file[0]="mdio_in.dat"
+expected[0]="success"
+
+# test 2, block zero bad
+test_name[1]="Bad Block 0"
+psk_params[1]="-b 0"
+sim_start_params[1]=""
+mod_state_file[1]="mdio_in.dat"
+expected[1]="success"
+
+# test3, page 0 double-bit ecc error
+test_name[2]="Double bit error, page 0"
+psk_params[2]="-d 0"
+sim_start_params[2]=""
+mod_state_file[2]="mdio_in.dat"
+expected[2]="halted"
+
+# test4, page 1 single-bit ecc error
+test_name[3]="Single bit error, page 1"
+psk_params[3]="-s 3"
+sim_start_params[3]=""
+mod_state_file[3]="mdio_in.dat"
+expected[3]="success"
+
+# test5, code hash  error
+test_name[4]="Code hash error"
+psk_params[4]="-c"
+sim_start_params[4]=""
+mod_state_file[4]="mdio_in.dat"
+expected[4]="halted"
+
+# test6, module not present at first check, inserted
+#    later
+test_name[5]="Module out/in 1"
+psk_params[5]=""
+sim_start_params[5]=""
+mod_state_file[5]="mdio_1.dat"
+expected[5]="success"
+
+#fi
+
+
+nand_base_fname=psk.nand
+vram_base_fname=vram2.sim
+log_base_fname=test.log
+
+run_cpu="sim.cpu +vcs+lic+wait +cbus_mon +cpu_mon"
+
+TEMP=`getopt -o d:h -- "$@"`
+eval set -- "$TEMP"
+while true; do
+    case "$1" in
+        -d) test_out_subdir=$2; shift 2 ;;
+	-h) echo "Usage: run_tests [-d <data_directory>]"; exit 0;;
+        --) shift; break;;
+        *) echo "Internal error!"; exit 1;;
+    esac
+done
+
+# if testdata directory does not exist, create
+if [ ! -d $test_out_subdir ]; then
+    echo "creating directory $test_out_subdir"
+    mkdir $test_out_subdir
+fi
+
+let count=0
+
+while (( $count < ${#psk_params[*]} )); do
+    nand_fname="$nand_base_fname$count"
+    vram_fname="$vram_base_fname$count"
+    log_fname="$log_base_fname$count"
+    cd ../psk
+    make
+    ./psk_tool -f $test_dir/$test_out_subdir/$nand_fname -v \
+	$test_dir/$test_out_subdir/$vram_fname ${psk_params[$count]} psk.sim
+    cd $test_dir
+    cp -f $local_rom_fname $sim_brom_fname
+    cp -f $test_out_subdir/$nand_fname $sim_nand_fname
+    cp -f $test_out_subdir/$vram_fname $sim_vram_fname
+    cp -f $test_data_subdir/${mod_state_file[$count]} $sim_mdio_fname
+    cd $sim_dir
+    $run_cpu ${sim_start_params[$count]} > \
+	$test_dir/$test_out_subdir/$log_fname
+    cd $test_dir
+
+    result=`./log_parse.pl 0x04600000 < $test_out_subdir/$log_fname`
+    if [[ ${expected[$count]} = $result ]]; then
+        echo "${test_name[$count]} ($result): PASS"
+    else
+        echo "${test_name[$count]} ($result): FAIL"
+    fi
+
+    let count=count+1
+done
+
+
+
+
+
+
+
+
+
+
+
+

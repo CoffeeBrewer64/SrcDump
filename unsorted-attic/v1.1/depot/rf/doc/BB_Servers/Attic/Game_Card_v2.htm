@@ -1,0 +1,197 @@
+d17 3
+a19 3
+  <o:Revision>15</o:Revision>
+  <o:TotalTime>1104</o:TotalTime>
+  <o:LastPrinted>2003-02-04T19:21:00Z</o:LastPrinted>
+d21 4
+a24 4
+  <o:LastSaved>2003-02-04T21:32:00Z</o:LastSaved>
+  <o:Pages>2</o:Pages>
+  <o:Words>527</o:Words>
+  <o:Characters>3004</o:Characters>
+d26 3
+a28 3
+  <o:Lines>25</o:Lines>
+  <o:Paragraphs>6</o:Paragraphs>
+  <o:CharactersWithSpaces>3689</o:CharactersWithSpaces>
+d83 16
+d107 1
+a107 1
+<h1>Game Card Specification Ver. 2</h1>
+d112 9
+a120 9
+href="http://intwww/bb/rf/doc/BB_Servers/Game_Card_v2.htm">http://intwww/bb/rf/doc/BB_Servers/Game_Card_v2.htm</a>)
+expands the document Game_Card_v1 (<a
+href="http://intwww/bb/rf/doc/BB_Servers/Game_Card_v1.htm">http://intwww/bb/rf/doc/BB_Servers/Game_Card_v1.htm</a>).
+<span style="mso-spacerun: yes"> </span>The version 1 document assumes the game
+card number are to entered by the customer, therefore the number must be as
+short as reasonable.<span style="mso-spacerun: yes">   </span>This version
+assumes the game card number to be entered via a barcode reader. <span
+style="mso-spacerun: yes">  </span>The length of barcode is limited by the
+number of digits that can be practically printed on a credit-card-sized card.</p>
+a123 2
+<h2>Game Card Number</h2>
+
+d126 1
+a126 8
+<p class=MsoNormal>The game card number starts with a card type number.<span
+style="mso-spacerun: yes">   </span>The card type number, T,<span
+style="mso-spacerun: yes">  </span>is between 2 to 6 digits.<span
+style="mso-spacerun: yes">  </span>There are 79 card-type in the two-digit
+format, 900 card-type in the 4-digit format, and 10000 card-type in the 6-digit
+format.<span style="mso-spacerun: yes">   </span>The codes “00” and “9x” are
+reserved for future extension.<span style="mso-spacerun: yes">  </span>The
+card-type specifies the format and interpretation of the rest of the number.</p>
+d130 14
+a143 1
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span></p>
+d145 1
+a145 49
+<table border=1 cellspacing=0 cellpadding=0 style='border-collapse:collapse;
+ border:none;mso-border-alt:solid windowtext .5pt;mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+ <tr>
+  <td width=295 valign=top style='width:221.4pt;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>Number of Digits</p>
+  </td>
+  <td width=295 valign=top style='width:221.4pt;border:solid windowtext .5pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>Card Type Ranges</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=295 valign=top style='width:221.4pt;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>2</p>
+  </td>
+  <td width=295 valign=top style='width:221.4pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>01 – 79</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=295 valign=top style='width:221.4pt;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>4</p>
+  </td>
+  <td width=295 valign=top style='width:221.4pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>8000 – 8899</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=295 valign=top style='width:221.4pt;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>6</p>
+  </td>
+  <td width=295 valign=top style='width:221.4pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>890000 – 899999</p>
+  </td>
+ </tr>
+</table>
+d147 1
+a147 1
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+d151 15
+a165 7
+<p class=MsoNormal>The card type used for BB player is “01”.<span
+style="mso-spacerun: yes">   </span>The card-type “01” is followed by 2
+additional numbers:<span style="mso-spacerun: yes">  </span>S and R.<span
+style="mso-spacerun: yes">   </span>S is a 10-digit unique serial number.<span
+style="mso-spacerun: yes">   </span>R is a 20-digit random number.<span
+style="mso-spacerun: yes">   </span>T | S will be used to index into the
+database.<span style="mso-spacerun: yes">  </span>T is also used to determine
+d192 18
+a248 2
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+d256 6
+a261 6
+elements.<span style="mso-spacerun: yes">  </span>Each character, holding
+values between 0 and 102, represents two decimal digits.<span
+style="mso-spacerun: yes">  </span>The recommended barcode X-dimensional (the
+element width) is 8 mil or 10 mil (1 mil is 1/1000 of an inch). At 8 mil, the
+size of the game card number barcode is 1.67 x 0.25 inches.<span
+style="mso-spacerun: yes">   </span>At 10 mil, the size is 2.11 x 0.33 inches.</p>
+d275 9
+a283 1
+<p class=MsoNormal><span style="mso-spacerun: yes">  </span>H = md5(R)</p>
+d287 1
+a287 1
+<p class=MsoNormal>Define the signature of the game card E.</p>
+d291 2
+a292 2
+<p class=MsoNormal><span style="mso-spacerun: yes">  </span>E = RSA ( md5(T | S
+| H),<span style="mso-spacerun: yes">  </span>PrivKey)</p>
+d296 3
+a298 2
+<p class=MsoNormal>where PrivKey is a private key held by the BroadOn HSM used
+to certify game card numbers.</p>
+d302 4
+a305 2
+<p class=MsoNormal><span style="mso-spacerun: yes">  </span>C is the
+certificate ID of the Key used to sign the game card.</p>
+d309 1
+a309 1
+<h2>Game Card Number Generation</h2>
+d313 5
+a317 5
+<p class=MsoNormal>The game card number is generated in the BroadOn
+Center.<span style="mso-spacerun: yes">   </span>BroadOn Center maintains a
+game card database.<span style="mso-spacerun: yes">   </span>For example, when
+are the cards generation, who prints the card, the cert id used to sign the
+card, which XS the card uploads, etc.</p>
+d322 1
+a322 1
+represented by T of the game card.<span style="mso-spacerun: yes">   </span>The
+d327 2
+a328 2
+<p class=MsoNormal>The serial number (starting from 1) is stored in the
+database.<span style="mso-spacerun: yes">   </span>The serial number is
+d338 2
+a339 2
+<p class=MsoNormal>A game card record is comprised of<span style="mso-spacerun:
+yes">  </span>T, S, R, H, E, C.</p>
+d347 1
+a347 1
+<p class=MsoNormal>T, S, C, E is uploaded to the iQue Center.</p>
+d357 1
+a357 1
+<p class=MsoNormal>After reading a game card, the depot obtains T, S, R.<span
+d360 5
+a364 1
+<p class=MsoNormal>Compute H from R.<span style="mso-spacerun: yes">   </span></p>
+d370 13
+a382 1
+<h2>XS Verification</h2>
+d386 2
+a387 2
+<p class=MsoNormal>XS compute<span style="mso-spacerun: yes">  </span>X = md5(T,
+S, H).</p>
+d389 2
+a390 4
+<p class=MsoNormal>XS compute<span style="mso-spacerun: yes">  </span>Y<span
+style="mso-spacerun: yes">  </span>=<span style="mso-spacerun: yes"> 
+</span>RSA( E,<span style="mso-spacerun: yes">  </span>PubKey)<span
+style="mso-spacerun: yes">  </span>where PubKey is obtained using C.</p>
+d394 1
+a394 1
+<p class=MsoNormal>The card is validated if X == Y.</p>
+d398 37
+d441 1
+a441 1
+<p class=MsoNormal>Keep at least 20 million game card in the database.</p>
+d450 2
+a451 2
+<p class=MsoNormal>Determine database transaction time and throughput on game
+card accesses.</p>
+d455 1
+a455 1
+<p class=MsoNormal>Determine size requirement for 20 million game cards.</p>

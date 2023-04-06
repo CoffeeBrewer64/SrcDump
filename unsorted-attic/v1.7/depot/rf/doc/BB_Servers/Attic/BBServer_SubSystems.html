@@ -1,0 +1,335 @@
+d19 2
+a20 2
+      <li>Studio subsystem</li>
+      <li>Manufacturing subsystem</li>
+d28 3
+a30 3
+      <li><a href="#CDS Subsystem">CDS subsystem</a></li>
+      <li><a href="#Transactional Subsystem">Transactional subsystem</a></li>
+      <li><a href="#RMS Subsystem">RMS subsystem</a></li>
+d34 1
+a34 1
+<hr>
+d47 2
+a48 4
+    <li>digitalCertificate - generated and sent to the BB upon
+      activation.
+      May be generated on the fly from the public key or provisioned ahead of
+      time.&nbsp;bbID is embedded in the DC.</li>
+d53 1
+a53 2
+    <li>regionID - identifies the region that the BB belongs to and where any
+      new transactions may be executed for limiting security risks, populated
+a54 3
+    <li>storeID - where first activated and other identifying information
+      (stores cannot move between regions, depots may move across regions, but
+      have to be re-registered)</li>
+d56 2
+a57 3
+    <li>type - retailPlayer, downloadStation. A playback eTicket is never issued to a
+      download station.</li>
+    <li>status - activation status</li>
+d73 1
+a73 1
+        <td width="34%">Register BB in central DB along with ID &amp; publicKey</td>
+d85 1
+a85 1
+        <td width="34%">Registers BB &amp; makes subsequent downloads possible
+d91 2
+a92 1
+        <td width="22%">Owner returns BB within a certain time period.&nbsp;</td>
+d109 1
+a109 1
+          authenticating the BB &amp; downloading to the memory card, the DC,
+d111 1
+a111 1
+          eTickets.</td>
+d120 3
+a122 5
+    <li>If we have regional systems, one must be able to download eTickets
+      issued to a BB from a different region to reinitialize memory cards etc.
+      DB Synchronization of BB &amp; eTicket must be possible.</li>
+    <li>Activation may result in a few free tickets. How do we manage this?</li>
+    <li>Binding subscriber/player owner name to BB.</li>
+d127 1
+a127 1
+download stations.</p>
+d136 4
+d165 1
+a165 1
+    <li>status - current standing</li>
+d184 7
+d216 1
+a216 1
+<p>A store is owned by a retailer, manager may be different. Each store belongs
+d225 1
+a225 1
+    <li>storeStatus</li>
+d266 1
+a266 2
+    <li>regionID</li>
+    <li>hardwareID - This must be presented for downloading of content and RMS
+d268 1
+a268 1
+    <li>depotStatus</li>
+d282 6
+d290 2
+a291 2
+        <td width="22%">Installation</td>
+        <td width="34%">Input related information</td>
+d310 1
+a310 2
+        <td width="34%">Make available download station DCs for personalization
+          licenses.</td>
+d316 1
+a316 2
+        <td width="34%">No more personalization licenses will be issued. Depot
+          may delete existing licenses.</td>
+d327 7
+a333 2
+        <li>Establish connection to Transaction Subsystem for region</li>
+        <li>Insert &quot;Installer Token&quot; &amp; login</li>
+a334 5
+        <li>Register depot hardwareID and connect it to the storeID (may have to
+          call in the storeID connection)&nbsp;</li>
+        <li>Connect &amp; register Download Depots bbIDs</li>
+        <li>Connect &amp; register &quot;store&quot; tokens that are issued and
+          may be used for subsequent secure/cash transactions</li>
+d338 3
+d343 4
+a346 3
+<h3>BB Order</h3>
+<p>An order is created from the BB, against which one may receive goods. May be
+placed by Customer Service also.</p>
+d350 2
+d353 1
+a353 4
+    <li>regionID</li>
+    <li>orderID</li>
+    <li>&lt;multiple line items&gt;</li>
+    <li>orderStatus</li>
+d356 2
+d366 4
+a369 4
+        <td width="23%">PlaceNewOrder</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">New order from store</td>
+        <td width="34%">Relay order to the Accounting/Inventory subsystem</td>
+d372 5
+a376 4
+        <td width="23%">ShippedOrder</td>
+        <td width="21%">Accounting/Inventory subsystem</td>
+        <td width="22%">Order shipped from factory etc</td>
+        <td width="34%">Enter expected receipt data</td>
+d379 4
+a382 5
+        <td width="23%">ReceiveInventory</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Receiving inventory</td>
+        <td width="34%">Update received information to be forwarded to the
+          Accounting/Inventory subsystem</td>
+d385 3
+d390 8
+a397 2
+    <li>How will orders be placed, fulfilled etc. Interface with Accounting/Order
+      Management subsystem.</li>
+d400 3
+a402 4
+<h3>BB Token</h3>
+<p>For each depot there is a&nbsp; physical token that is issued which may be
+used for 'secure'/cash transactions. It must be possible to issue a new token in
+case the old one is lost.</p>
+a405 1
+    <li>hardwareID - of the BB Depot</li>
+d408 3
+a410 2
+    <li>depotID - aka tokenID. Public key of the token</li>
+    <li>status - registered, activated, suspended</li>
+a412 2
+  <div align="center">
+    <center>
+d421 10
+a430 4
+        <td width="23%">RegisterToken</td>
+        <td width="21%">Installer or Customer Service</td>
+        <td width="22%">New token issued to the store or Depot</td>
+        <td width="34%">Enter information</td>
+d433 5
+a437 5
+        <td width="23%">ActivateToken</td>
+        <td width="21%">Installer or Customer Service</td>
+        <td width="22%">Ready for Operations</td>
+        <td width="34%">Permit cash/&quot;secure&quot; transactions based on
+          token authentication.</td>
+d440 1
+a440 1
+        <td width="23%">SuspendToken</td>
+d442 1
+a442 1
+        <td width="22%">Disallow any further &quot;secure&quot; transactions</td>
+a445 3
+    </center>
+  </div>
+  &nbsp;
+d448 2
+a449 7
+    <li>What does the Depot application look like? Does it have the concept of
+      one token, but many store operators who may have to login? Ideally the
+      logins must be processed locally at the depot rather than at the server.</li>
+    <li>Is the token tied to a store or is it tied to a depot?</li>
+    <li>Resolve difference between authentication for depot for secure/cash
+      transactions (tokenID/depotID) v/s RMS &amp; CDS related functions (use
+      hardwareID).</li>
+d458 2
+a459 1
+    <li>&lt;bbID, contentID&gt; Uniquely identifies the eTicket.</li>
+d464 2
+a465 10
+    <li>ticketStatus - issued, redeemed etc</li>
+    <li>eTicketType - personalization eTicket or playback eTicket</li>
+    <li>eTicketTypeInformation
+      <ul>
+        <li>personalization eTicket - generated for the download station after
+          contentID is downloaded to the BB Depot</li>
+        <li>playback eTicket - generated for the BB player upon content
+          purchase, downloaded at redemption time</li>
+      </ul>
+    </li>
+d470 1
+a470 7
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+d472 4
+a475 4
+        <td width="23%">IsValid</td>
+        <td width="21%">BB Depot or Server objects</td>
+        <td width="22%">&nbsp;</td>
+        <td width="34%">Validate signatures and authenticity of eTicket.</td>
+d478 4
+a481 4
+        <td width="23%">PurchaseTicket</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Store owner using depotID/token</td>
+        <td width="34%">Issue store credit</td>
+d484 5
+a488 4
+        <td width="23%">RedeemTicket</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">BB Owner using download stations</td>
+        <td width="34%">Issue playback eTicket, remove store credit</td>
+d491 4
+a494 4
+        <td width="23%">RefundTicket</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Store owner using depotID/token</td>
+        <td width="34%">issue refund, cancel content selection, return store
+d498 3
+a500 3
+        <td width="23%">RevokeTicket</td>
+        <td width="21%">Audit or Customer Service</td>
+        <td width="22%">BB assets are transferred to new BB because of hardware
+d502 1
+a502 1
+        <td width="34%">Will not be available for any further downloads</td>
+d505 4
+a508 11
+        <td width="23%">ListTickets</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Browsing etc</td>
+        <td width="34%">Make list available (and download) to the customer for downloads</td>
+      </tr>
+      <tr>
+        <td width="23%">DownloadPersonalizedTicket</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Successful download of content</td>
+        <td width="34%">One generated for each download station attached to BB
+          Depot.&nbsp;</td>
+d514 4
+d523 1
+a523 1
+allowing for replication, partitioning of data &amp; local pricing.</p>
+d531 1
+a531 1
+    <li>&lt;content-type, content-size, saved state size, content signature,
+d536 1
+d552 1
+a552 1
+        <td width="34%">Enter information.</td>
+d566 1
+a566 2
+        <td width="34%">Content is now longer available for any new playback
+          eTickets.</td>
+d584 4
+d598 1
+d600 2
+a601 1
+    <li>depotID - note that cash/&quot;secure&quot; transactions must have a depotID associated
+d603 1
+a603 1
+    <li>transactionType - can be eTicket sale, eTicket redemption, BB
+a605 1
+    <li>date</li>
+d622 1
+a622 1
+        <li>Download Personalizing Ticket - depotID (tokenID), contentID,
+d719 1
+a719 1
+<hr>
+d722 1
+a722 1
+  <li>Imports content from the Studio Subsystem</li>
+d724 2
+a725 2
+  <li>Never initiates contact with the Depot</li>
+  <li>Authenticates Depot based on hardwareID only</li>
+d735 1
+a736 1
+    <li>&lt;digital certificate&gt;</li>
+d758 1
+d763 1
+d774 2
+a775 1
+    <li>Content Synchronization algorithm</li>
+d783 2
+a784 1
+    <li>transaction type - download, synchronization, content publishing</li>
+d789 1
+a789 1
+        <li>Content Publishing - studioID, contentID</li>
+d795 1
+a795 1
+<hr>
+d800 2
+a801 1
+used for building online communities, tie promotions to individuals etc.</p>
+d805 2
+a806 4
+    <li>username - unique, used for online community etc. Email sent to <a href="mailto:username@ique">username@ique.net</a>
+      may be downloaded from the player/BB device iff the BBid is registered and
+      there is a 1:1 mapping from the username to bbID. <a href="mailto:bbid@ique.net">bbid@ique.net</a>
+      will always be useable as an alternate.</li>
+d822 1
+a822 1
+<hr>
+d830 1
+a830 1
+<hr>
+d832 1
+a832 1
+<hr>
+d834 1
+a834 1
+<hr>
+d848 1
+d891 4
+d896 1
+a896 1
+<hr>
+d917 1
+a917 1
+<hr>

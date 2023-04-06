@@ -1,0 +1,175 @@
+<html>
+    <head>
+      <title>Transaction: BB Activation</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Transaction: BB Activation</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.6 $<br>
+        $Date: 2002/08/29 00:05:10 $
+      </center>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>BB Depot - Retail App</strong> (<em>point of control</em>)</li>
+	<li>Transaction - BB Activation Server</li>
+	<li>Transaction - Inventory Server</li>
+	<li>BB Player - Reinit Server</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>Communication between the Depot and the Server is secure.</li>
+	<li>The Depot and the Server must authenticate either
+	  other.</li>
+	<li>The Server must authenticate the BB Player before
+	  approving activation.</li>
+	<li>Time taken by the BB Activation Server to respond should
+	  be minimized.</li>
+	<li>Maintain stable state, i.e., transaction either succeeds
+	  or fails but never lost.</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>The BB Depot has the Depot ID inserted.</li>
+	<li>The BB Player has been registered by the manufacturer as a
+	  genuine product, and the corresponding digital certificate
+	  has been created and recorded in the BB Record.</li>
+	<li>The BB Player has the BB Card already inserted and
+	  initialized with the base applications</li>
+	<li>The BB Player has not been activated.</li>
+	<li>Network connection between Depot and Server is up and running.</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>BB_ID</code></li>
+	<li><code>DepotID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li><a href="../data_defs.html#bb_rec">Transaction - BB Record</a></li>
+	<li>Transaction - Inventory</li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li><code>status</code></li>
+	<li><code>cert</code></li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>authenticate</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> connects to <em>BB Activation Server</em></li>
+	    <li>mutually verifies each other's identity</li>
+	    <li>establishes secure communication link</li>
+	  </ol>
+	</li>
+	<li><code>readID</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> asks the <em>Reinit Server</em> for
+	      its <code>BB_ID</code></li>
+	  </ol>
+	</li>
+	<li><code>activate</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> requests for BB Activation, passing
+	      along the <code>BB_ID</code> (The <code>DepotID</code>
+	      has already passed to the Server as a side-effect of the
+	      authentication step.)</li> 
+	    <li><em>BB Activation Server</em> verifies that the BB
+	      Player has been registered but not activated.</li>
+	  </ol>
+	</li>
+	<li><code>authenticate</code>
+	  <ol type=a>
+	    <li><em>BB Activation Server</em> authenticates the BB
+	      Player by asking the <em>Reinit Server</em> to digitally
+	      sign (i.e., encrypt by BB's private key) a random message.</li>
+	    <li>Verifies the signature using the BB's public key as
+	      shown in the BB Record.</li> 
+	  </ol>
+	</li>
+	<li><code>approveActivation</code>
+	  <ol type=a>
+	    <li><em>BB Activation Server</em> updates the <code>state</code>,
+	      <code>RegionalID</code>, <code>date</code>, and
+	      <code>DepotID</code> fields of the BB record.</li>
+	    <li>Sends a return status and the digital certificate back
+	      to the <em>Retail App</em>.</li>
+	  </ol>
+	  Note: The entire transaction is considered complete once
+	  the BB Record is updated.  This operation must be atomic.
+	</li>
+	<li><code>soldBB</code>
+	  <ol type=a>
+	    <li>This is a <em>deferred transaction</em> triggered by
+	      the completion of the BB activation transaction.</li>
+	    <li>Notifies the <em>Inventory Server</em> that the
+	      specified BB Player has been activated by that
+	      particular store.</li>
+	  </ol>
+	</li>
+	<li><code>writeCert</code>
+	  <ol type=a>
+	    <li><em>Retail App</em> receives the digital cert., and
+	      passes it along to the <em>Reinit Server</em> to be
+	      stored into the BB Card</li>
+	    <li>Indicates to the operator that the transaction has completed.</li>
+	  </ol>
+      </ol>
+      <h3>Post-conditions</h3>
+      <ol>
+	<li>The BB Record indicates this BB Player is now
+	  activated.</li>
+	<li>The BB Card contains the digital cert.</li>
+	<li>(<em>Deferred</em>) The inventory database is updated with
+	  this sale.</li>
+      </ol>
+      
+      <h3>Audit Records</h3>
+      <ol>
+	<li>Activation Request - <code>DepotID</code>,
+	  <code>BB_ID</code>, <code>date</code>, approval status.</li>
+      </ol>
+
+      <h3><a name="exception">Exceptions</a></h3>
+
+      <ol>
+	<li>Secure connection cannot be established - the <em>Retail
+	    App</em> needs to provide reason(s) of failure.</li>
+	<li>The activation request is not approved. In this case, only
+	  the status code will be returned by the <em>BB Activation Server</em>:
+	  <ol type=a>
+	    <li><code>BB_ID</code> not registered, or it has been
+	      suspended or retired.</li>
+	    <li>The BB Depot is black listed.</li>
+	    <li>BB Player fails to authenticate itself.</li>
+	    <li>Internal server error, e.g., database failure, backend
+	      server crashed, etc.</li>
+	  </ol>
+	</li>
+	<li>The BB Player has already activated - This is the case
+	  when a activated BB needs to reload its cert.  The server
+	  simply returns the corresponding cert.  The state of the BB
+	  is not change, and no inventory record is modified.
+	</li>
+	<li>Transaction has been completed (i.e., BB Record updated)
+	  but the digital certificate fails to be written to the BB
+	  Card - The BB Player is still considered sold, but the cert
+	  could be reloaded by repeating the activation process.</li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="overlayed/bb_act-ctrl.png">Control Flow</a></li>
+	<li><a target="data" href="overlayed/bb_act-data.png">Data Flow</a></li>
+      </ul>	  
+    </body>
+  </html>

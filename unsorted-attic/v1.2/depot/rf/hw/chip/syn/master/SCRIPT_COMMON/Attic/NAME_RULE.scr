@@ -1,0 +1,24 @@
+/********************************************************/
+/*     synopsys command script : NAME_RULE.scr          */ 
+/*                revision : v6.1.0                     */
+/*                2001 (c) NEC Corp.                    */
+/********************************************************/
+
+/* Naming Rules for Macro */
+define_name_rules "OpenCAD" -max_length "255" \
+                            -target_bus_naming_style "%s_%d_" \
+                            -allowed "a-zA-Z0-9_!$.&<=>?@^`{|}~" -type cell
+define_name_rules "OpenCAD" -max_length "255" \
+                            -target_bus_naming_style "%s_%d_" \
+                            -allowed "a-zA-Z0-9_$" -type port
+define_name_rules "OpenCAD" -max_length "255" \
+                            -target_bus_naming_style "%s_%d_" \
+                            -allowed "a-zA-Z0-9_!$.&<=>?@^`{|}~" -type net
+define_name_rules "OpenCAD" -case_insensitive
+
+/* Naming Rules for External pin */
+define_name_rules "OpenCAD-TOP" -max_length "64" \
+                                -target_bus_naming_style "%s_%d_" \
+                                -allowed "A-Z0-9_" -type port
+define_name_rules "OpenCAD-TOP" -case_insensitive
+

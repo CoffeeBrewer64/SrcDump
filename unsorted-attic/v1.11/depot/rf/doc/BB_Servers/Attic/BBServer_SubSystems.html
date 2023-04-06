@@ -1,0 +1,151 @@
+d23 1
+a23 1
+interfaces &amp; data flows between them.</li>
+d25 1
+a25 1
+    including a distinguishing identifier. See the ER diagram (<a href="ER-TransactionSubsystem.vsd">Transaction
+d43 101
+d162 1
+a162 1
+    <li>shipDate - shipment to the retailer</li>
+d212 1
+a212 2
+        <td width="34%">No new eTickets may be
+          issued.&nbsp;</td>
+d221 1
+a221 1
+          eTickets. Once eTickets are available, content may be downloaded.</td>
+d234 1
+a234 2
+    <li>Do we need to bind the sale of a BB to a retailer other than in the
+      transaction records?</li>
+d308 3
+a310 1
+      based on the needs or just used a cached value.&nbsp;</li>
+d314 1
+a314 1
+<p>A store is owned by a retailer, each store belongs
+d384 1
+a384 1
+        <td width="34%">Create &lt;storeID, status&gt; entry.</td>
+d436 1
+a452 1
+    <li>hardwareID - of the BB Depot</li>
+d508 1
+a508 1
+    <li>&lt;multiple line items&gt;</li>
+d568 1
+a568 1
+    <li>ticketStatus - Issued, Redeemed, Refunded, Revoked</li>
+d612 2
+a613 2
+    <li>Would we ever want to invalidate existing eTickets and reissue them
+      (using another License Key)? Revocation lists inside of eTickets.</li>
+d623 1
+a623 2
+download &amp; purchase by the depot, player etc. This made available per region
+allowing for future partitioning of data &amp; local pricing.</p>
+d694 1
+a694 1
+billing and SMS.&nbsp;&nbsp;</p>
+a933 100
+<h2><a name="Studio Subsystem"><span style="background-color: #C0C0C0">Studio Subsystem</span></a></h2>
+<ol>
+  <li>The SS registers studios/developers and interfaces with the DevKits given
+    to studios.</li>
+  <li>When content is released by the studios,&nbsp; it is uploaded to the SS
+    where it can undergo validation and transformation before it is published to
+    the XS.</li>
+</ol>
+<h3>SS Studio</h3>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>studioID</b></li>
+    <li>studioName</li>
+    <li>&lt;address, contact info&gt;</li>
+    <li>devKitURL - if remotely manageable</li>
+    <li>uploadDirectory - location where devKit posts once new content is
+      available</li>
+    <li>&lt;currentDigitalCertificate, privateKey&gt; - devKit uses public key
+      to encrypt and send content to CDS</li>
+    <li>status - New, Current, Suspended</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">RegisterDeveloper</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Developer signup</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">IssueNewCertificate</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Expiration or revocation of old certificate</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+</blockquote>
+<h3>SS Content</h3>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>contentID</b> - must be globally&nbsp; unique</li>
+    <li>studioID</li>
+    <li>meta data &lt;title, author, description, studio info, content-type, content-size, saved state
+      size,
+      boot information&gt;</li>
+    <li>contentStatus - released, readyForPublish, published</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%" height="68">
+      <tr>
+        <td width="23%" align="center" height="18"><b>Process</b></td>
+        <td width="21%" align="center" height="18"><b>Invoked By</b></td>
+        <td width="22%" align="center" height="18"><b>Upon</b></td>
+        <td width="34%" align="center" height="18"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">CreateContent</td>
+        <td width="21%" height="38">Developer</td>
+        <td width="22%" height="38">New content</td>
+        <td width="34%" height="38"></td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">ReleaseContent</td>
+        <td width="21%" height="38">Manager</td>
+        <td width="22%" height="38">Officially released</td>
+        <td width="34%" height="38"></td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">ValidateContent</td>
+        <td width="21%" height="38">Manager</td>
+        <td width="22%" height="38"></td>
+        <td width="34%" height="38">Reecnrypt and make content ready for
+          publishing including any validation checks</td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">PublishContent</td>
+        <td width="21%" height="38">Manager</td>
+        <td width="22%" height="38"></td>
+        <td width="34%" height="38">Make available in re-encrypted form to the
+          CDS &amp; XS</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+</blockquote>
+<hr style="background-color: #C0C0C0">

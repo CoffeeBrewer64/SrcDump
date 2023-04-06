@@ -1,0 +1,736 @@
+d28 7
+a34 7
+  <o:TotalTime>10638</o:TotalTime>
+  <o:LastPrinted>2002-07-16T22:38:00Z</o:LastPrinted>
+  <o:Created>2002-07-18T00:32:00Z</o:Created>
+  <o:LastSaved>2002-07-18T00:32:00Z</o:LastSaved>
+  <o:Pages>13</o:Pages>
+  <o:Words>3739</o:Words>
+  <o:Characters>21314</o:Characters>
+d36 3
+a38 3
+  <o:Lines>177</o:Lines>
+  <o:Paragraphs>42</o:Paragraphs>
+  <o:CharactersWithSpaces>26175</o:CharactersWithSpaces>
+d103 8
+d291 11
+d305 1
+a305 1
+@list l13:level1
+d312 1
+a312 1
+@list l14
+d316 1
+a316 1
+@list l14:level1
+d323 1
+a323 1
+@list l15
+d327 1
+a327 1
+@list l15:level1
+d335 1
+a335 1
+@list l15:level2
+d344 1
+a344 1
+@list l16
+d348 1
+a348 1
+@list l16:level1
+d355 1
+a355 1
+@list l17
+d359 1
+a359 1
+@list l17:level1
+d367 1
+a367 1
+@list l18
+d371 1
+a371 1
+@list l18:level1
+d378 1
+a378 1
+@list l19
+d382 1
+a382 1
+@list l19:level1
+d389 1
+a389 1
+@list l20
+d393 1
+a393 1
+@list l20:level1
+d400 1
+a400 1
+@list l20:level2
+d408 1
+a408 1
+@list l20:level3
+d415 1
+a415 1
+@list l21
+d419 1
+a419 1
+@list l21:level1
+d426 1
+a426 1
+@list l22
+d430 1
+a430 1
+@list l22:level1
+d437 1
+a437 1
+@list l22:level2
+d445 1
+a445 1
+@list l22:level3
+d452 10
+a461 1
+@list l23
+d465 1
+a465 1
+@list l23:level1
+d472 1
+a472 1
+@list l24
+d476 1
+a476 1
+@list l24:level1
+d483 1
+a483 1
+@list l25
+d487 1
+a487 1
+@list l25:level1
+d494 1
+a494 1
+@list l26
+d498 1
+a498 1
+@list l26:level1
+d506 16
+a521 1
+@list l27
+d525 1
+a525 1
+@list l27:level1
+d557 2
+a558 3
+document describes at a functional level, not protocols or algorithms.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+d563 1
+a563 1
+ <li class=MsoNormal style='mso-list:l25 level1 lfo1;tab-stops:list .5in'>Download
+d565 1
+a565 1
+ <li class=MsoNormal style='mso-list:l25 level1 lfo1;tab-stops:list .5in'>Download
+d567 1
+a567 1
+ <li class=MsoNormal style='mso-list:l25 level1 lfo1;tab-stops:list .5in'>Playback
+d579 10
+a588 3
+and describe the various secure operations in terms of<span
+style="mso-spacerun: yes">  </span>how they are implemented using these
+primitives.</p>
+d592 2
+a593 1
+<h3>Security Library Primitives</h3>
+d596 8
+a603 7
+library. The exact definition of the API will be the well documented
+security_library.h code <span style='font-family:Wingdings;mso-ascii-font-family:
+"Times New Roman";mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;
+mso-symbol-font-family:Wingdings'><span style='mso-char-type:symbol;mso-symbol-font-family:
+Wingdings'>J</span></span> (It will be linked to from here for reference). The
+following definition is for reference from the description below. Lower level
+functions that are not exposed are mentioned here only for clarity.</p>
+d607 2
+a608 1
+is not used, but structure names will be used.</p>
+d612 1
+a612 1
+<h1>Lowest level functions</h1>
+d614 4
+a617 58
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'><b>BigInt
+     library </b>Implements big integer arithmetic (not exposed)<b><o:p></o:p></b></li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'><b>F2M
+     library </b>Multi precision binary finite field representation in
+     polynomial basis, all operations modulo a fixed irreducible polynomial
+     (not exposed).</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'><b>EC
+     library </b>Point and curve representations and implementation of basic
+     operations (not exposed)</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'><b>Conversion
+     functions </b>Conversion from <b><o:p></o:p></b></li>
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'>Binary
+      string to octet string</li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'>Octet
+      string to large integer</li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'>Inverse
+      of above </li>
+ </ul>
+</ul>
+
+<p class=MsoNormal style='margin-left:.75in'>(above are considered not exposed
+unless needed)</p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'><b>DER
+     encoding </b>of following content for transmission or communicating via
+     protocols. In most cases it will adhere to standards, in other cases
+     custom.<b> </b>This API will be exposed.<b><o:p></o:p></b></li>
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'><b>DEREncodePubKey
+      (</b>ECPublicKey, DERString<b>)<o:p></o:p></b></li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'><b>DEREncodePvtKey
+      (</b>ECPrivateKey, DERString<b>)<o:p></o:p></b></li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'><b>DEREncodeSig
+      (</b>ECDSASignature, DERString)<b><o:p></o:p></b></li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'><b>DEREencodeCipherText
+      (</b>AESCipherText<b>, </b>DERString<b>)<o:p></o:p></b></li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'><b>DERtoPublicKey(</b>DERString,
+      ECPublicKey)<b><o:p></o:p></b></li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'><b>DERtoPrivateKey(</b>DERString,
+      ECPrivateKey)<b><o:p></o:p></b></li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'><b>DERtoECDSA(</b>DERString,
+      ECDSASignature)<b><o:p></o:p></b></li>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'><b>DERtoAESCipherText(</b>DERString,
+      ECIESCipherText)<b><o:p></o:p></b></li>
+ </ul>
+</ul>
+
+<p class=MsoNormal>There may be a higher level call to encode a certificate.</p>
+
+<p class=MsoNormal><b><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></b></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.5in'><b>For debugging:<o:p></o:p></b></p>
+
+<p class=MsoNormal><b><span style='mso-tab-count:2'>                        </span>DERtoHEXOutput(</b>DERString,
+String) in readable form</p>
+d621 2
+a622 24
+<h1>Elliptic curve Algorithm choices</h1>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>We
+     will use a binary field GF(2^m) with field arithmetic implemented in terms
+     of operations on bits. </li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>We
+     will use a polynomial basis (as opposed to normal basis of above field)
+     specified by an irreducible polynomial modulo 2, so a bit string (of 0s
+     and 1s) a_m….a_0<span style="mso-spacerun: yes">  </span>represents the
+     polynomial a_m t^m+…..a_0.</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>We
+     will use a pseudorandom curve over GF(2^m) , generated via SHA-1 based
+     method mentioned in ANSI X9.62 and IEEE 1363.</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>One
+     or many of the curves NIST_B_163, NIST_B_233, NIST_B_283, NIST_B_409 or
+     NIST_B_571 will be used as mentioned in the standard “Recommended Elliptic
+     Curves for Federal Gov Use”</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>For
+     signatures we will use ECDSA (IEEE 1363 and X9.62) with the above options</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>For
+     public key encryption we will use EC-DH for computing a shared key, (IEEE
+     1363) followed by 128 bit AES.</li>
+</ul>
+d626 2
+a627 12
+<h1>Domain Parameter initialization</h1>
+
+<p class=MsoNormal>Since we only use NIST recommended curves, we initialize the
+Domain Parameters structure using </p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>InitDomainParams(NIST_B_163,
+     ECDomainParameters dp);</li>
+</ul>
+
+<p class=MsoNormal>All the constants are defined as NIST_B_163 and will be
+initialized.<span style="mso-spacerun: yes">  </span>They are:</p>
+d630 18
+a647 7
+ <ul style='margin-top:0in' type=circle>
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'>Degree,
+      F2M elements a and b specifying the curve, generator point on the curve,
+      order r, and k, a positive prime integer and an irreducible polynomial.</li>
+ </ul>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>ValidateParams(dp);
+     </li>
+a649 2
+<p class=MsoNormal>(May not be necessary if we don’t allow custom parameters).</p>
+
+d652 2
+a653 10
+<h1>Generating keys</h1>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>GeneratePrivateKey(dp,
+     random r, ECPrivateKey pvtk)</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>GeneratePublicKey(dp,
+     pk, ECPublicKey pubk );</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>ValidateKeys(dp,
+     pvtk, pubk);</li>
+</ul>
+d657 2
+a658 6
+<h1>Generating signatures</h1>
+
+<p class=MsoNormal>Functions for generating and verifying ECDSA signatures,
+implicitly use SHA-1.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+d661 6
+a666 6
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>GenerateECDSA(dp,
+     ECPrivateKey pvtk,<span style="mso-spacerun: yes"> 
+     </span>OctetStringToInteger(sha-1(message)),<span style="mso-spacerun:
+     yes">  </span>ECDSASignature);</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>Boolean
+     VerifyECDSA(dp, ECDSASignature, OctetStringToInteger(sha-1(message)));</li>
+d671 2
+a672 40
+<h1>Encryption and Decryption (Public key)</h1>
+
+<p class=MsoNormal>This operation uses ECDH in ANSI X9.63 to encrypt a block of
+data using a public key and decrypt using a private key. (ElGamal is still a
+possibility).</p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>ECDHSharedKey(ECPublicKey
+     pubkey, ECPrivateKey pvtkey, DHSharedKey shkey) (server side and client
+     side function)</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>EncryptSymmetric(message,
+     DHSharedKey shkey, CipherObject ciphertext) (exposed)</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>DecryptSymmetric(CipherObject
+     ciphertext, DHSharedKey shkey, message)</li>
+</ul>
+
+<p class=MsoNormal>CipherObject has the (IV, ciphertext length, ciphertext)</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h1>Encryption and decryption (symmetric)</h1>
+
+<p class=MsoNormal>These function calls drive the AES hardware for decryption
+and software AES encryption. This functionality is hardcoded in the secure
+kernel, the AES decryption may be exposed for decrypting stored items on flash.</p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>AESInit(KeySchedule,
+     InitVector, AESObj)</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>AESKeyExpand(key,
+     KeySchedule);</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>AESEncrypt(AESObj,
+     input, output)</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>AESDecrypt(AESObj,
+     output, input)</li>
+</ul>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h1>General utilities</h1>
+d675 7
+a681 10
+ <li class=MsoNormal style='mso-list:l3 level1 lfo8;tab-stops:list .5in'>Read,
+     modify, write encrypted data in external flash </li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo8;tab-stops:list .5in'>ReencryptionKeyExists(key);
+     //location of licenses?</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo8;tab-stops:list .5in'>Parse
+     license unencrypted part</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo8;tab-stops:list .5in'>Parse
+     complete license with decryption</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo8;tab-stops:list .5in'>LookupBBID(uint32
+     &amp;BBID)</li>
+d684 1
+a684 3
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><b>Note: <o:p></o:p></b></p>
+d686 4
+a689 7
+<p class=MsoNormal><b>All exposed functionality will be exposed through a
+wrapper API below, which will be accessible from an application.<span
+style="mso-spacerun: yes">  </span>Internal quantities are assumed implicit
+parameters known and locatable only to the secure kernel. These include
+ECPrivatekey bbkey, ECPublicKey trustedroot, Uint RevocationListVersion…, data
+derived from encrypted structures on the flash, like content_keys etc.
+Encrypted quantities are directly passed through this API. <o:p></o:p></b></p>
+d691 3
+a693 23
+<p class=MsoNormal><b><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></b></p>
+
+<h4>SECURE KERNEL WRAPPER API DEFINITION</h4>
+
+<p class=MsoNormal>This layer is provided for current and future applications
+to utilize the crypto functionality on the chip to run secure applications. It
+exposes only public quantities, and any private quantities are encrypted, and
+will be decrypted and used internal to the chip. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><b>Signature computation and verification<o:p></o:p></b></p>
+
+<p class=MsoNormal>(TBD)</p>
+
+<p class=MsoNormal><b>Encryption<o:p></o:p></b></p>
+
+<p class=MsoNormal><b><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></b></p>
+
+<p class=MsoNormal>(TBD)</p>
+
+<h1><i><span style='font-size:14.0pt;mso-bidi-font-size:12.0pt'>Description of
+Primary Secure Operations<o:p></o:p></span></i></h1>
+d696 2
+a697 2
+fundamental quantity, a license(also known as eTicket). The purpose of the
+license, is as always, to permit a customer to play a certain content after
+d704 13
+a716 10
+<p class=MsoNormal>Licenses are issued, by an authorized license server to a BB
+either at a depot download station, or a customer’s BB. Licenses issued to a
+download station are called <b>personalizing licenses</b> and do not authorize
+a BB to play that content, merely to personalize it for another customer who has
+paid for it. Licenses issued to customer BBs are <b>playback licenses</b> that
+authorize a BB to play the content. Playback licenses can only be obtained by
+paying for content. Personalization licenses are issued to authorized depot
+retailers when they download content. Both are identical except that a bit in
+the permissions field identifies a playback permission and/or personalization
+permission.</p>
+d733 1
+a733 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>ContentID<span
+d736 1
+a736 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Meta-data (unencrypted)</li>
+d739 1
+a739 1
+      auto;mso-list:l15 level2 lfo11;tab-stops:list 1.0in'>content-type </li>
+d741 1
+a741 1
+      auto;mso-list:l15 level2 lfo11;tab-stops:list 1.0in'>content-size </li>
+d743 1
+a743 1
+      auto;mso-list:l15 level2 lfo11;tab-stops:list 1.0in'>size allocated for
+d746 1
+a746 1
+      auto;mso-list:l15 level2 lfo11;tab-stops:list 1.0in'>title </li>
+d748 1
+a748 1
+      auto;mso-list:l15 level2 lfo11;tab-stops:list 1.0in'>author </li>
+d750 1
+a750 1
+      auto;mso-list:l15 level2 lfo11;tab-stops:list 1.0in'>description </li>
+d752 1
+a752 1
+      auto;mso-list:l15 level2 lfo11;tab-stops:list 1.0in'>thumbnail image ??? </li>
+d770 1
+a770 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>BBID (id of BB this license
+d773 1
+a773 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Whether the following
+d776 1
+a776 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>-------------------------encrypted
+d779 1
+a779 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Content Decryption Key (or
+d782 1
+a782 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Content Signature (Hash
+d785 2
+a786 3
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>AES initialization vector
+     (initial 128-bit assumption used to encrypt content this license refers
+     to) </li>
+d788 1
+a788 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Load address (if n64 game,
+d793 1
+a793 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Boot length (number of
+d796 4
+a799 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Boot Signature (Hash over
+d802 1
+a802 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Re-encryption license or
+d805 1
+a805 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>If re-encryption license,
+d808 1
+a808 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>HW access rights </li>
+d810 1
+a810 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Optional license server CRL
+d813 1
+a813 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>________________________end
+d816 1
+a816 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>Certificates (for
+d819 1
+a819 1
+     mso-list:l15 level1 lfo11;tab-stops:list .5in'>License server signature
+d839 1
+a839 1
+ <li class=MsoNormal style='mso-list:l24 level1 lfo12;tab-stops:list .5in'>Depot
+d854 5
+d874 3
+a876 3
+<p class=MsoNormal><b>Inputs: </b>Playback<b> </b>license from server,
+personalization license from disk, Encrypted Content in depot, depot download
+BB certificate from disk</p>
+d888 3
+a890 3
+ <li class=MsoNormal style='mso-list:l21 level1 lfo2;tab-stops:list .5in'>Function
+     call ReEncryptionKeyExists to determine whether to proceed to personalize</li>
+ <li class=MsoNormal style='mso-list:l21 level1 lfo2;tab-stops:list .5in'>decryption
+d892 1
+a892 1
+ <li class=MsoNormal style='mso-list:l21 level1 lfo2;tab-stops:list .5in'>AES
+d894 1
+a894 1
+ <li class=MsoNormal style='mso-list:l21 level1 lfo2;tab-stops:list .5in'>ECDSA
+d896 4
+a899 6
+ <li class=MsoNormal style='mso-list:l21 level1 lfo2;tab-stops:list .5in'>PKI
+     decryption </li>
+ <li class=MsoNormal style='mso-list:l21 level1 lfo2;tab-stops:list .5in'>Function
+     call to read a block of content data from flash</li>
+ <li class=MsoNormal style='mso-list:l21 level1 lfo2;tab-stops:list .5in'>Function
+     call to read license from flash and parse<b><o:p></o:p></b></li>
+d905 1
+a905 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Locate
+d910 1
+a910 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Load
+d913 1
+a913 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Parse
+d920 2
+a921 2
+ <li class=MsoNormal style='mso-list:l19 level1 lfo27;tab-stops:list .5in'>Load
+     download station BB certificate from disk<b>.<o:p></o:p></b></li>
+d925 1
+a925 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Load
+d929 1
+a929 1
+  <li class=MsoNormal style='mso-list:l20 level2 lfo5;tab-stops:list 1.0in'>Check
+d932 3
+a934 1
+  <li class=MsoNormal style='mso-list:l20 level2 lfo5;tab-stops:list 1.0in'>Decrypt
+d937 1
+a937 1
+  <li class=MsoNormal style='mso-list:l20 level2 lfo5;tab-stops:list 1.0in'>Obtain
+d939 1
+a939 1
+  <li class=MsoNormal style='mso-list:l20 level2 lfo5;tab-stops:list 1.0in'>Load
+d942 1
+a942 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Generate
+d944 1
+a944 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Check
+d946 1
+a946 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Load
+d948 1
+a948 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>For
+d951 1
+a951 1
+  <li class=MsoNormal style='mso-list:l20 level2 lfo5;tab-stops:list 1.0in'>Decrypt
+d953 1
+a953 1
+  <li class=MsoNormal style='mso-list:l20 level2 lfo5;tab-stops:list 1.0in'>Compute
+d955 1
+a955 1
+  <li class=MsoNormal style='mso-list:l20 level2 lfo5;tab-stops:list 1.0in'>Re-encrypt
+d957 1
+a957 1
+  <li class=MsoNormal style='mso-list:l20 level2 lfo5;tab-stops:list 1.0in'>Write
+d967 1
+a967 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>If
+d970 1
+a970 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Encrypt
+d976 1
+a976 1
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'>ECDHSharedKey(ECPublicKey
+d978 1
+a978 1
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'>EncryptSymmetric(message,
+d980 1
+a980 1
+  <li class=MsoNormal style='mso-list:l22 level2 lfo7;tab-stops:list 1.0in'>Append
+d983 1
+a983 1
+ <li class=MsoNormal style='mso-list:l22 level1 lfo7;tab-stops:list .5in'>Write
+d998 28
+a1025 1
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+d1028 1
+a1028 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Load
+d1030 1
+a1030 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Load
+d1034 1
+a1034 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Load
+d1036 1
+a1036 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>If
+d1039 1
+a1039 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>SHA-1(Content)<span
+d1042 1
+a1042 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Setup
+d1044 1
+a1044 1
+ <li class=MsoNormal style='mso-list:l20 level1 lfo5;tab-stops:list .5in'>Exit
+d1052 3
+a1054 1
+<h1><i>Secure Operation 3: Content playback<o:p></o:p></i></h1>
+d1059 30
+d1097 2
+a1098 1
+     SHA-1(content, N bytes)</li>
+d1100 1
+a1100 1
+     hash from license decrypted contents</li>
+d1145 15
+d1176 6
+d1194 5
+a1198 8
+<p class=MsoNormal style='margin-left:.75in'>Encrypt above packet by server public
+key (exchanged during authentication). The purpose of this is not security, but
+some confidentiality, so that the world doesn’t know how many BBs the retailer
+is selling. For all these transactions compute a single ECDHSharedKey using
+depot-server key pairs and use AES.</p>
+
+<p class=MsoNormal style='margin-left:.75in'>Or if RSA is used, use standard
+public key encryption.</p>
+d1219 3
+a1221 3
+ <li class=MsoNormal style='mso-list:l10 level1 lfo20;tab-stops:list .5in'>At
+     this time, optionally, the server could ask the depot if the BB would like
+     to choose a name before the birth certificate is issued. The depot could
+d1231 3
+d1243 1
+a1243 1
+ <li class=MsoNormal style='mso-list:l23 level1 lfo18;tab-stops:list .5in'>Initialization
+d1246 1
+a1246 1
+ <li class=MsoNormal style='mso-list:l23 level1 lfo18;tab-stops:list .5in'>Activation
+d1249 1
+a1249 1
+ <li class=MsoNormal style='mso-list:l23 level1 lfo18;tab-stops:list .5in'>Restore
+d1251 1
+a1251 1
+ <li class=MsoNormal style='mso-list:l23 level1 lfo18;tab-stops:list .5in'>Go
+d1257 1
+a1257 1
+<h1><i>Secure Operation 5: License purchase<o:p></o:p></i></h1>
+d1275 1
+a1275 1
+     ECDSAVerify() to verify submitted certificate and extracts BBID, public
+d1318 1
+a1318 1
+ <li class=MsoNormal style='mso-list:l17 level1 lfo16;tab-stops:list .5in'>Two
+d1320 1
+a1320 1
+ <li class=MsoNormal style='mso-list:l17 level1 lfo16;tab-stops:list .5in'>Some
+d1323 1
+a1323 1
+ <li class=MsoNormal style='mso-list:l17 level1 lfo16;tab-stops:list .5in'>Depot-&gt;Server
+d1325 1
+a1325 1
+ <li class=MsoNormal style='mso-list:l17 level1 lfo16;tab-stops:list .5in'>Server-&gt;Depot
+d1327 1
+a1327 1
+ <li class=MsoNormal style='mso-list:l17 level1 lfo16;tab-stops:list .5in'>Depot-&gt;Server
+d1335 1
+a1335 1
+ <li class=MsoNormal style='mso-list:l17 level1 lfo16;tab-stops:list .5in'>Server-&gt;Depot
+d1337 1
+a1337 1
+ <li class=MsoNormal style='mso-list:l17 level1 lfo16;tab-stops:list .5in'>Server-&gt;Depot
+d1346 6
+a1351 2
+depot connection. But there is an authentication of depot required to make sure
+only depot BBs get free “personalization licenses”. </p>
+d1385 3
+a1387 2
+<p class=MsoNormal>We need an authenticated connection between server (license
+server) and depot.<span style="mso-spacerun: yes">  </span>In addition</p>
+d1390 1
+a1390 1
+ <li class=MsoNormal style='mso-list:l27 level1 lfo24;tab-stops:list .5in'>The
+d1413 1
+a1413 1
+ <li class=MsoNormal style='mso-list:l13 level1 lfo22;tab-stops:list .5in'>BB
+d1416 1
+a1416 1
+ <li class=MsoNormal style='mso-list:l13 level1 lfo22;tab-stops:list .5in'>On
+d1420 1
+a1420 1
+ <li class=MsoNormal style='mso-list:l13 level1 lfo22;tab-stops:list .5in'>The
+d1423 1
+a1423 1
+ <li class=MsoNormal style='mso-list:l13 level1 lfo22;tab-stops:list .5in'>The
+d1426 4
+d1437 201
+d1648 1
+a1648 1
+ <li class=MsoNormal style='mso-list:l18 level1 lfo25;tab-stops:list .5in'>Issuing
+d1650 2
+a1651 2
+ <li class=MsoNormal style='mso-list:l18 level1 lfo25;tab-stops:list .5in'>ID</li>
+ <li class=MsoNormal style='mso-list:l18 level1 lfo25;tab-stops:list .5in'>Public<span
+d1653 1
+a1653 1
+ <li class=MsoNormal style='mso-list:l18 level1 lfo25;tab-stops:list .5in'>Serial
+d1655 1
+a1655 1
+ <li class=MsoNormal style='mso-list:l18 level1 lfo25;tab-stops:list .5in'>Sign
+d1673 2
+a1674 1
+<p class=MsoNormal>ID of license server issuing authority (of this CRL)</p>
+d1838 1
+a1838 1
+Wingdings'>à</span></span>Operational CA<span style='font-family:Wingdings;
+d1841 1
+a1841 5
+symbol;mso-symbol-font-family:Wingdings'>à</span></span> license server
+certificate <span style='font-family:Wingdings;mso-ascii-font-family:"Times New Roman";
+mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:
+Wingdings'><span style='mso-char-type:symbol;mso-symbol-font-family:Wingdings'>à</span></span>
+license server CRL</p>
+d1848 1
+a1848 1
+Wingdings'>à</span></span>Operational CA<span style='font-family:Wingdings;
+d1851 1
+a1851 5
+symbol;mso-symbol-font-family:Wingdings'>à</span></span> license server
+certificate <span style='font-family:Wingdings;mso-ascii-font-family:"Times New Roman";
+mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:
+Wingdings'><span style='mso-char-type:symbol;mso-symbol-font-family:Wingdings'>à</span></span>
+content ID RL</p>
+d1856 2
+a1857 2
+other sensitive information like stored content keys, etc. The Operational CA
+will sign these other servers.</p>
+d1860 370

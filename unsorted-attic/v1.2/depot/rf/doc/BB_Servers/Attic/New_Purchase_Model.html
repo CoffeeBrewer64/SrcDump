@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>New Purchase Model</title>
+                 
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+</head>
+<body>
+<h2>New Online Purchase Model</h2>
+<h3>Problems that need to be solved:</h3>
+<ol>
+  <li>Since the BB Card is <b>not</b> a secure device, eTickets that have
+been issued cannot be easily revoked.</li>
+  <li>Returning of eTicket or BB Player should be avoided because this allows
+a shop owner to rent out games without paying us. &nbsp;On the other hand,
+returns are necessary for both customer satisfaction reason and handling of
+human error.</li>
+  <li>The current model of "pay first, download next" is too complicated.<br>
+  </li>
+</ol>
+Before we outline the solutions to the above two, we need to introduce a new
+mechanism:<br>
+<br>
+<h3>BB Player Version number</h3>
+We need to reserve a number in the internal flash of a BB Player. &nbsp;Let's
+call this "Player Version" (PV). &nbsp;This number is controlled by the secure
+kernel and can only be increased. &nbsp;On the server side, we keep a corresponding
+"Server Version" (SV). &nbsp;Furthermore, embedded into each eTicket is a
+"Ticket Version" (TV) which always equal to the current value of SV.<br>
+<br>
+Initially, both PV and SV equal to zero.<br>
+<br>
+Upon activation, SV is incremented by one. &nbsp;All eTickets that are subsequently
+issued will then have TV equals to SV, which in this case is "1".<br>
+<br>
+When a BB Player is turned on and a game is loaded, and if PV &lt; TV, then
+the value of TV is copied to PV.<br>
+<br>
+After&nbsp; PV is synchronized with TV, the player will allow a game to be
+player only when PV == TV. &nbsp;Otherwise, the eTicket is considered invalid
+and the player refuses to play the game.<br>
+<br>
+To return a BB Player, we need to increment SV by one, and then copy this
+new SV value to PV. &nbsp;This effectively invalidates all eTickets issued
+to this player.<br>
+<br>
+Programmatically:<br>
+<br>
+<b>activate:</b><br>
+<pre><tt>	++SV;<br>	TV = SV;</tt><br></pre>
+<b>play:<br>
+</b>
+<pre><tt>	if (PV &lt; TV)<br>	  PV = TV;<br>	if (PV == TV)<br>	  play game;<br>	else<br>	  reject game;<br></tt></pre>
+<b>return:</b>
+<pre><tt>	++SV;<br>	PV = SV;</tt></pre>
+What this mechanism allows is to do is that:<br>
+<ol>
+  <li>it allows us to tell if any game has been played since a Player was
+activated (i.e., whether PV == SV).</li>
+  <li>it allows us to invalidate all eTickets issued to this Player (BB Player
+needs to be present).</li>
+  <li>it allows a Player to be reset to a state that can be re-sold to another
+customer.</li>
+</ol>
+Furthermore, we could extend this mechanism to invalidate a single eTicket.
+&nbsp;This can be effectively done by first invalidate all eTickets, and then
+re-issue those eTickets that we want to keep.<br>
+<br>
+<h3>Preventing Game Rental</h3>
+&nbsp;It's fundamentally a conflicting requirement to prevent game rental
+(i.e., no return) and at the same time allow returns. &nbsp;In light of that,
+we could employ a business solution rather than a technical one:<br>
+<br>
+We believe that <i>as long as there is a cost to return a game, and this
+cost is higher than any profit a retailer might earn from renting it out,
+</i>he would have no incentive to cheat by returning a used game.<br>
+<br>
+As a policy, we will charge a fee for returning an eTicket, and this fee
+is proportional to the length of time that game has been sold. &nbsp;For
+example, there will be no returning fee if an eTicket is returned within
+15 minutes of sale, or the first 10 returns of a month, assuming that these
+are just honest mistakes. &nbsp;As the length of time increases, the return
+fee would be higher. &nbsp;After a certain period of time, say, 30 days,
+no refund would be issued. &nbsp;We could also increase the return fee if
+the same game for the same player is returned over and over again.<br>
+<br>
+Again, this policy only applies to the amount of refund we give the retailer.
+&nbsp;A retailer could always choose to give a full refund or no refund at
+all to the customers.<br>
+<br>
+<h3>BB Player Purchase</h3>
+When purchasing a new BB Player, we propose that the individualization of
+the BB Card, and downloading of any new eTickets <b>AND </b>the &nbsp;corresponding
+game content be done at the same time, through the BB Initialization Port.
+<br>
+This allows a one shot purchase and the Player is ready to go. &nbsp;<br>
+<br>
+With the new mechanism, we can implement a return policy based on:<br>
+<ol>
+  <li>If the BB Player has been used, and</li>
+  <li>the length of time the BB Player has been sold.</li>
+</ol>
+Furthermore, if a retailer accept such a player for return, he can always
+invalidate all existing eTickets on this player and re-sale it to another
+customer.<br>
+<h3>eTicket Purchase</h3>
+We propose a simplified purchasing model. &nbsp;When a customer has already
+purchased a BB Player, and returns to the store with his BB Card, he can
+go straight to the Download Station, browse and download any game. &nbsp;He
+then takes the BB Card to the Depot Console and pays for it, effectively
+downloading the eTicket for that game. &nbsp;This is similar to the "super
+market model", where you pick the merchandise first, and pay later.<br>
+<br>
+As an optional enhancement, we could allow a demo license to be loaded with
+the game. &nbsp;A customer could then select and download a game he likes,
+go home and try it out, and come back to pay for the full version later.<br>
+<br>
+This model is similar to the old model in that there is a user confirmation
+step (which is the selection of the game). &nbsp;And this releases the responsibility
+of the shop owner for making mistakes. &nbsp;Furthermore, we can simplify
+the Retail App by automatically showing the eTicket purchase screen for the
+game that has been downloaded on the BB Card but has not been purchased.<br>
+<br>
+Another benefit of this model is that it eliminates the need to have the
+DepotID inserted when the customer downloads a game.<br>
+<br>
+The only drawback is that if the customer wants to return a game, he would
+have to bring back the BB Player. &nbsp;But this is not unreasonable because
+he has already spent time selecting, downloading, and possibly even playing
+the game, and if he still wants to change his mind, he needs to do more.<br>
+<br>
+</body>
+</html>

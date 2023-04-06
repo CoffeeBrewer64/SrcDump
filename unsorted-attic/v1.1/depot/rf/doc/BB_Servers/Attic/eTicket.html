@@ -1,0 +1,75 @@
+d9 2
+a10 2
+	$Revision$<br>
+	$Date$
+d117 1
+a117 1
+      <h4>Transfering SC for another game</h4>
+d119 9
+a127 28
+	The binding between the SC and the game title could be
+	changed.  However, this can be done only through the BB Depot
+	specified in the SC record.
+	For example, if the shop owner makes
+	a mistake and requests a wrong title for the customer, or if
+	the customer changes his mind before downloading the eTicket,
+	the shop owner could request a <em>title transfer</em>, which
+	effectively changes the "game title ID" in the SC record to a
+	new one.
+      </p>
+      <p>
+	The reason why only a BB Depot can change the game title is
+	again to prevent a malicious user from changing a customer's
+	purchase selections, as described above.  
+	Note that this scheme
+	assumes that a BB Depot's ID (i.e., it's certificate and private
+	key) cannot be stolen or duplicated.  We propose storing such
+	information in a smart card or some removable, secure media
+	which is required to activate a BB Depot.
+      </p>
+      <p>
+	The reason why the customer must go to the original BB Depot
+	for a title transfer is a restriction implied by the refund
+	policy.  When a customer wants to transfer a SC to a cheaper
+	game, he would result with a credit balance and is entitled
+	for a refund.  Our refund policy dictates that this must be
+	down through the Depot that makes the original sale.  The time
+	limit set by the refund policy also applies to title transfer.
+a129 1
+      <!--
+d132 63
+a194 32
+	Since the BB ID is the only piece of information needed in
+	purchasing store credits, providing <em>gift certificates</em>
+	would be as easy as putting store credits into the right BB
+	account.  However, memorizing the account number (i.e.,
+	BB ID) is impractical for the customers.  It has been
+	suggested that we could allow each customer to specify a
+	human-friendly alias (such as their names, birthday, etc.).
+	However, it would require the Depot operator to enter this
+	alias to the console.  And we have decided that the operator
+	might not be able to handle a full keyboard, not to mention
+	entering Chinese characters.
+      </p>
+      <p>
+	Another possibility is to issue gift certificates that are not
+	bound to any specific BB.  To simplify matters, we could issue
+	pre-printed gift certificates of fixed denominations.  When a
+	customer purchase a gift cert., the shop  owner activates the
+	cert by entering an ID number printed on it.  Upon
+	activation, we deduct the correct amount of money from the
+	Depot's account and record the ID number.  The recipient
+	redeems the gift cert by presenting the memory module with the
+	certificate to a shop owner.  The gift amount is then
+	transferred to the corresponding BB account.
+      </p>
+      <p>
+	The vulnerability of this scheme is between the time a
+	cert. is activated and it is redeemed.  It is as safe as any
+	common gift certificate used in many retail stores.  We need
+	to make the ID number hard to guess.  However, we cannot
+	prevent a malicious shop owner from stealing gift cert. he
+	sold and putting the credits into another BB account, though
+	he could not get cash out from the system.
+a195 1
+-->

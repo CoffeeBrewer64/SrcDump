@@ -1,0 +1,52 @@
+d3 1
+a3 1
+      <title>Transaction: Download eTicket</title>
+d6 1
+a6 1
+      <h2><center>Transaction: Download eTicket</center></h2>
+d9 2
+a10 2
+	$Revision: 1.1 $<br>
+        $Date: 2002/08/23 01:52:31 $
+d34 1
+a34 1
+	<li>The BB owns the eTicket requested for download.</li>
+d70 2
+a71 2
+		App</em> for loading an eTicket, passing along the
+	      <code>BB_ID</code> and <code>Content_ID</code>.
+d85 2
+a86 2
+		Server</em> for the eTicket, passing along the
+	      <code>BB_ID</code> and <code>Content_ID</code>.</li>
+d92 1
+a92 1
+		<li>locates the corresponding eTicket Record and
+d98 2
+a99 2
+		  that corresponds to this eTicket.</li>
+		<li>generates the eTicket (exact format defined in
+d104 1
+a104 1
+	    <li><em>eTicket Server</em> updates the eTicket Record
+d106 1
+a106 1
+	      <code>redeemed</code>, if it was orignally
+d115 1
+a115 1
+		CA</em> to sign the eTicket</li>
+d117 1
+a117 1
+	      signed eTicket, and any CRL to the <em>Retail
+d125 1
+a125 1
+	    <li><em>eTicket Manager</em> loads the eTicket and CRL to
+d132 8
+a139 4
+	  Note:  as an optimization, the <em>eTicket Server</em> could
+	  generate all eTickets that have not been redeemed, and are
+	  already non-refundable, and send them back to the Download
+	  Station all at once.
+d146 1
+a146 1
+	<li>Optinally, any updated CRL is loaded to the BB Card.</li>

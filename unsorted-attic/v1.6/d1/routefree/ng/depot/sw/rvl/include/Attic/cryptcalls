@@ -1,0 +1,8 @@
+a6 1
+IOSError GenerateKey (IOSCKeyHandle handle);
+a11 1
+IOSError GenerateRand(u8 *randBytes, u32 numBytes);
+a17 1
+IOSError GeneratePublicKeySign(u8 * inputData, u32 inputSize, IOSCSecretKeyHandle signerHandle, u8 * signData);
+a21 1
+IOSError GenerateCertificate(IOSCSecretKeyHandle privateHandle, IOSCCertName certname, IOSCEccSignedCert *certificate);

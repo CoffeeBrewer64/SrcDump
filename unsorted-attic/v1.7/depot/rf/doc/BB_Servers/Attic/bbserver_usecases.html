@@ -1,0 +1,408 @@
+d3 1
+a3 1
+  <title>BroadOn Confidential - Use-case analysis for BB servers</title>
+d8 3
+a10 3
+$Revision: 1.6 $<br>
+$Date: 2002/08/13 01:28:35 $</i></center>
+<h2>1) Overview</h2>
+d13 6
+a18 3
+ This document  describes use cases from the&nbsp; BB Servers point of view.</li>
+  <li>Use cases from the BB Depot perspective are described in
+      <a href="bbdepot_arch.html">BB Depot Architecture</a>.</li>
+d21 12
+a32 1
+      <h2>2) Use Cases</h2>
+a33 1
+<h3>2.1 Use Cases for Operations</h3>
+d35 1
+a35 2
+<a id="releasedevkit">
+<h3>Use case: Release DevKit</h3>
+a36 1
+<blockquote>
+d38 76
+a113 1
+<dl>
+d115 1
+a115 4
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Private key for Studio will not be exposed outside of  Operation Center
+  </ul>
+a116 4
+<p><b>Precondition:</b>
+  <ul>
+  <li>None
+  </ul>
+d118 1
+d120 1
+a120 1
+<p><b>Participants:</b>
+d122 2
+a123 1
+  Studio, Operation Center, DevKit, Studio  DB<b></b>
+a124 1
+<p><b>Point of  control:</b>
+d126 1
+a126 4
+  Operation Center<p><b>Data:</b>
+  <ul>
+  <li>Studio public/private key pair
+  </ul>
+d128 1
+d130 3
+a132 1
+<p><b>Sequence of events</b>:
+d134 6
+a139 7
+  <ol>
+  <li>Studio signs up as a developer
+  <li>Operation Center generates/signs a certificate and asymmetric  keys for the studio.  The certificate and the keys will be registered along with  Studio information into Studio DB.
+  <li>Operation Center bundles the certificate into DevKit
+  <li>Operation Center ships the DevKit to the Studio
+  </ol>
+</dl>
+d142 1
+a142 1
+</blockquote>
+d144 1
+d146 2
+d150 12
+d163 39
+a201 2
+<a id="releasetitle">
+<h3>&nbsp;</h3>
+a202 1
+<h3>Use case: Studio Releases a Title/Content</h3>
+d204 1
+a204 1
+<blockquote>
+d206 2
+a207 1
+<dl>
+d209 3
+a211 4
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Studio has officially signed up
+  </ul>
+d213 5
+a217 1
+<p><b>Precondition:</b>
+d219 3
+a221 3
+  <ul>
+  <li>Studio has DevKit
+  </ul>
+d223 7
+a229 1
+<p><b>Participants:</b>
+d231 36
+a266 1
+  Studio, DevKit
+d268 4
+d273 1
+a273 1
+<p><b>Point of  control:</b>
+d275 2
+a276 1
+  DevKit 
+a277 4
+<a id="releasedevkit0">
+<p><b>Data:</b></a></a>
+  <ul>
+  <li>
+d279 1
+a279 2
+<a id="releasedevkit0">
+Encrypted content</a>
+d282 1
+a282 5
+<a id="releasetitle0">
+  <li>Signature: a hash of the title content
+  <li>Metadata (title name, description, required memory size,  size of saved game, image files for ads, etc)
+  </a>
+  </ul>
+d284 1
+d286 3
+a288 2
+<a id="releasetitle">
+<p><b>Sequence of events</b>:
+d290 3
+a292 6
+  <ol>
+  <li>Studio develops a title
+  <li>Studio uses DevKit to package the final title into a release  package. The process "package" will internally encrypt the title content by the  public key in the certificate that had been bundled in the DevKit, generates a  hash of 
+the content for validity check, and possibly archive all files into one  file.
+  <li>Studio delivers the release package to Operation Center. It can  be done on-line (via email, http post, etc), or off-line (CD-R, tapes, etc)
+  </ol>
+d294 3
+a296 1
+</dl>
+d298 3
+a300 1
+  </blockquote>
+d302 2
+d306 35
+d342 4
+a345 1
+<h3>&nbsp;</h3>
+d347 2
+a348 1
+<h3>Use case: Publish a Title</h3>
+d350 1
+a350 1
+<blockquote>
+a351 6
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Create no security hole in title distribution
+  <li>Create no single place that stores information that  makes it possible to  steal a title content 
+  </ul>
+d353 1
+a353 1
+<p><b>Precondition:</b>
+a354 3
+  <ul>
+  <li>Studio has been registered into Studio DB
+  </ul>
+d356 1
+a356 2
+<p><b>Point of  control:</b>
+  Content Publishing Server, Content DB, Studio DB,  eTicket DB
+a357 1
+<p><b>Point of  control:</b>
+d359 1
+a359 1
+  Content Publishing Server</a>
+d361 1
+a361 6
+<a id="releasedevkit1">
+<p><b>Data:</b></a>
+  <ul>
+  <li>Re-<a id="releasedevkit2">e</a><a id="releasedevkit2">ncrypted
+    content</a>
+  <li>Re-encryption key<a id="publishtitle">
+d364 1
+a364 2
+<a id="releasetitle1">
+  <li>
+d366 1
+d368 1
+a368 3
+<a id="releasetitle2">
+Metadata (title name, description, required memory size,  size of saved game, image files for ads, etc)</a></a>
+  </ul>
+d370 1
+d372 3
+a374 1
+  <p><b>Sequence of events</b>:
+d376 4
+a379 9
+  <ol>
+  <li>Upload a release package from Studio to Content Publish Server  via HTTP/Post
+  <li>Content Publish Server unpacks the package, and verify the  content by using the certificate and the signature
+  <li>Content Publish Server looks up Studio DB for the private key  of the public key in the certificate, and decrypt the title content
+  <li>Content Publish Server generates random symmetric key, and  encrypt the title content with the key
+  <li>Content Publish Server registers the encrypted content and its  signature into Content DB. Content DB generates a Content ID, and pass it back  to Content Publish Server. At same time, Content DB notifies Content  Distribution Server of the availability of new content. This will initiate the  event sequence of "Use case:  Distribute new titles" described below
+  <li>Content Publish Server registers the symmetric key of the title  content with the newly allocated Content ID into eTicket DB
+  </ol>
+</dl>
+d381 3
+d385 9
+a393 1
+</blockquote>
+d395 3
+d399 32
+a430 2
+<a id="distributetitle">
+<h3>&nbsp;</h3>
+a431 1
+<h3>Use case: Distribute new titles</h3>
+d433 1
+a433 1
+<blockquote>
+a434 5
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Create no security hole in title distribution
+  </ul>
+d436 1
+a436 1
+<p><b>Precondition:</b>
+a437 4
+  <ul>
+  <li>New title(s) has been registered into Content DB
+  <li>Symmetric key of the new title(s) may or may not  registered into eTicket DB
+  </ul>
+d439 1
+a439 1
+<p><b>Participants:</b>
+d441 1
+a441 1
+  Content Publishing Server, Content Distribution Server,  RMS DB, Content DB, BB Depot
+d443 3
+a445 1
+<p><b>Point of  control:</b>
+d447 2
+a448 1
+ Content Availability Server</a>
+d450 1
+a450 5
+<a id="releasedevkit3">
+<p><b>Data:</b></a>
+  <ul>
+  <li>Notification
+  </ul>
+d453 1
+a453 1
+<p><b>Sequence of events</b>:
+d455 1
+a455 11
+  <ol>
+  <li>Content Availability Server (CAS) decides on the date that content is
+    available for purchase and download on a per region basis
+  <li>Content Distribution Server (CDS) decides based on its heuristics when to
+    make content available to depots during synchronization
+  <li>CAS notifies RMS for the region about availability of new content
+  <li>RMS may send notification to BB Depots to initiate content synchronization
+    based on regionID. BB Depots may initiate contact with the CDS based on its
+    own internal timers. 
+  </ol>
+</dl>
+a456 1
+</blockquote>
+d458 1
+a458 1
+<a id="contentsync">
+d460 1
+a460 1
+<h3></h3>
+d462 1
+a462 1
+<h3>Use case: Content Synchronization</h3>
+d464 1
+a464 1
+<blockquote>
+d466 3
+a468 5
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Should not require secure connections between BB Depot  and BB servers
+  </ul>
+d470 5
+a474 1
+<p><b>Precondition:</b>
+d476 1
+a476 3
+  <ul>
+  <li>Internet connection is up
+  </ul>
+d478 1
+a478 1
+<p><b>Participants:</b>
+d480 3
+a482 1
+  BB Depot, Content Distribution Server, Content Download  Server
+d484 5
+a488 1
+<p><b>Point of  control:</b>
+d490 1
+a490 1
+  BB Depot</a> 
+d492 1
+a492 6
+<a id="releasedevkit5">
+<p><b>Data:</b></a>
+  <ul>
+  <li>Re-<a id="releasedevkit6">encrypted content</a>
+  <li>Metadata
+  </ul>
+d494 3
+d498 21
+a518 1
+<p><b>Sequence of events</b>:
+d520 1
+a520 10
+  <ol>
+  <li>Content Manager (= content acquisition module for BB Depot) connects  to Content Distribution Server with a "last updated" timestamp
+  <li>Content Distribution Server checks Content DB to get a list of  new title content.
+  <li>Content Distribution Server constructs URL(s) that the BB Depot  has access to for each title, and sends the list of URL(s) back to the Content  Manager. These URL(s) are most likely pointing to Content Download Server, but  any other location could be used to download. The list also contains "update  timestamp" which is the latest registration timestamp out of all titles to be  downloaded
+  <li>Content Manager uses the URLs to download title content into BB  Depot 
+  <li>If fail, Content Manager retries up to certain times, and exit.  This sequence will periodically be executed and therefore, the Content Manager  will try download later 
+  <li>If successfully download all titles in the list, Content  Manager persistently store the timestamp sent from the Content Distribution Server into BB Depot
+  </li>
+</ol>
+</dl>
+d522 4
+a525 1
+</blockquote>
+a526 2
+<a id="submitbbinfo">
+<h3>&nbsp;</h3>
+d528 1
+a528 1
+<h3>Use case: Submit Manufactured BB Player information</h3>
+d530 1
+a530 1
+<blockquote>
+d532 1
+a532 5
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Require secure connections to BB servers
+  </ul>
+d534 1
+a534 1
+<p><b>Precondition:</b>
+d536 1
+a536 3
+  <ul>
+  <li>Internet connection is up
+  </ul>
+d538 3
+a540 1
+<p><b>Participants:</b>
+d542 5
+a546 1
+  Manufacture Tool, Manufacture Interfacing Server
+d548 1
+a548 1
+<p><b>Point of  control:</b>
+d550 1
+a550 1
+  Manufacture Interfacing Server
+d552 3
+a554 5
+<a id="releasedevkit7">
+<p><b>Data:</b></a>
+  <ul>
+  <li>BBID, BB public key, manufacturing details
+  </ul>
+d556 4
+d561 3
+a563 1
+<p><b>Sequence of events</b>:
+d565 15
+a579 9
+  <ol>
+  <li>Operator at manufacture uses Manufacture Tool to connect to Operation Center
+      through Manufacture Interfacing Server
+  <li>Operator upload information about new BB manufactured into Operation Center
+      by using the Manufacture Tool which has been connected to the Manufacture
+	  Interfacing Server. The information contains - BB ID, public key, date
+	  manufactured, manufacture ID, batchID
+  <li>Operator closes the connection once information of all newly manufactured
+      BB players has been uploaded.
+d581 5
+a585 2
+</ol>
+</dl>
+a586 1
+</blockquote>

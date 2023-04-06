@@ -1,0 +1,622 @@
+  <html>
+    <head>
+      <title>BB System Issues</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h1 align="center">Overall BB System Issues</h1>
+      <center>
+	BroadOn Confidential<br>
+	  $Revision: 1.7 $<br>
+	    $Date: 2002/09/24 19:08:06 $
+      </center>
+
+      <p>
+	Listed here are issues that should be
+	revisited again after we have completed the overall design
+	discussion.   Some of them already have a temporary solution,
+	but they might been affected by changes in the business or user model.
+      </p>
+
+      <p>
+	<font color=red>red</font>: open issues that should be
+	addressed now<br>
+	<font color=orange>orange</font>: decided on general
+	  direction, but need to work out details<br> 
+	<font color=green>green</font>: resolved.<br>
+	black: tabled issues - to be discussed later
+      </p>
+	
+      <h3>UI &amp; User Experience</h3>
+      <table width=100% border=1>
+	<tr>
+	  <th width=45%>Issues</th>
+	  <th width=5%>Status</th>
+	  <th width=20%>Components Affected</th>
+	  <th width=30%>Proposed Solution</th>
+	</tr>
+	<tr valign=baseline>
+	  <td>1. <font color=orange>User Name (nickname)</font>
+	    <ul>
+	      Provide a way to individualize a BB Card with the
+	      customer's name or nickname.
+	    </ul>
+	  </td>
+	  <td><font color=orange>need details</font></td>
+	  <td>
+	    <strike>BB Depot Console and/or</strike> Browser Apps on Player
+	  </td>
+	  <td>
+	    <ol>
+	      <li><strike>Do not support:  difficult to enter Chinese
+		characters either through the console or the player.</strike>
+	      </li>
+	      <li><strike>Limited support: allow a user to enter via the
+		player a limited length (e.g. 6 characters) string of
+		predefined colored symbols, characters, or digits.</strike>
+	      </li>
+	      <li>allow user to enter their name or nickname using
+		pinyin, but display it on screen as Chinese
+		characters.  Question:  size of Chinese font is
+		large.  Proposal:  initially load the entire font, but
+		remove the unused ones after personalization.
+	      </li>
+	    </ol>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>
+	    2. <font color=green>I/O Device attached to BB Depot Console for customer
+	    confirmation of purchases</font>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    BB Depot Console, (indirectly) purchase model
+	  </td>
+	  <td>
+	    Do <strike>not</strike> support such a device.
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>3. <font color=green>Color-coded BB Card</font>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>BB Card
+	  </td>
+	  <td>
+	    <ol>
+	      <li><strike>provide BB Cards with different color</strike></li>
+	      <li><strike>provide various design of stickers to be placed on
+		the BB Card.</strike></li>
+	    </ol>
+	    Do not support color-coded BB Cards.
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>4. <font color=green>Package the BB Player and BB Card separately.</font>
+	    <ul>
+	      <strike>Allow the customer to choose different (colored) BB
+	      Card, and</strike> allow the BB Card to be used for various
+	      transaction without opening the BB Player package.
+	    </ul>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    BB Player packaging, (indirectly) BB Purchase model.
+	  </td>
+	  <td>
+	    <strike>Package BB Card separately.</strike>  Need to make
+	    sure BB Card can be inserted or removed from the BB Player
+	    without opening the package.
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>5. <font color=green>BB Player refund policy</font>
+	    <ul>
+	      Should we allow refund of BB Player?  If so, what is the
+	      refund policy. 
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    Server, Depot, purchase model
+	  </td>
+	  <td>
+	    <ol>
+	      <li><strike>Only allow refund of defective players, or</li>
+	      <li>Also allow refund of unused players</strike></li>
+	    </ol>
+	    We do not control the refund policy between customer and
+	    retailer.  But we do allow return of BB Player from retailer.
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>6. <font color=green>eTicket refund policy</font>
+	    <ul>
+	      Should we allow refund of eTicket?  If so, what is the
+	      refund policy.
+	    </ul>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    Server, Depot, purchase model
+	  </td>
+	  <td>
+	    <ol>
+	      <li><strike>Only allow this when it's retailer's mistake.</li>
+	      <li>Allow return but only a partial refund.  The amount
+		of refund is carefully set to avoid illegal rental.
+		The proposal is to set the cost of refund to be higher
+		than the profit from rental.</strike>
+	      </li>
+	    </ol>
+	    We do not allow eTicket refund.
+	  </td>
+	</tr>
+		
+	<tr valign=baseline>
+	  <td>7.  <font color=green>BB Player version</font>
+	    <ul>
+	      Should the secure kernel support a BB Player version
+	      number?  This number can be used to implement (a) secure
+	      deletion of issued eTickets, (b) detects if a new BB
+	      Player has been used, (c) restore a returned BB Player
+	      to the initial (pre-sold) state, (d) implement CRL.
+	    </ul>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    Secure kernel, purchase model, transaction server
+	  </td>
+	  <td>
+	    <strike>
+	    See <a href="New_Purchase_Model.html">New Purchase Model</a>.
+	    </strike><br>
+	    Do not support player version.
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>8. <font color=green>Is BB Activation still required?</font>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>purchase model, Depot's retail app, transaction server
+	  </td>
+	  <td>Yes, but do that in the factory.
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>9. <font color=green>Should we allow additional games to be purchased
+	    with BB Player?</font>
+	    <ul>
+	      That is, doing all the steps at the depot console
+	      without requiring the customer to walk over to the
+	      download station.
+	    </ul>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    Retail App, purchase model
+	  </td>
+	  <td>Since there is no more activation step, if a customer
+	    wants to purchase games in addition to those already
+	    bundled, he could go through the normal eTicket purchasing
+	    steps, possibly with shop owner's help.
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>10.  <font color=green>Should we keep track of actual retail price?</font>
+	    <ul>
+	      The server only keeps the MSRP of each game and the
+	      retailer discount.  Should we also keep track of the actual
+	      price that a customer paid?  (so that we know how much
+	      to refund if that's allowed).
+	    </ul>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    Server, retail app.
+	  </td>
+	  <td>
+	    The actual retail price is between the retailers and their
+	    customers.  We do not keep track of that.
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>11. <font color=red>Quantization of storage on BB Card</font></td>
+	  <td><font color=red>open</font></td>
+	  <td>retail apps, content meta data.</td>
+	  <td>In units of 1 Megabyte?</td>
+	</tr>
+	 
+	<tr valign=baseline>
+	  <td>12. Do we allow customers to download games
+	      at via their own broadband connections?
+	  </td>
+	  <td>tabled</td>
+	  <td>
+	    Server, purchase model.
+	  </td>
+	  <td>&nbsp;</td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>13. Do we need to give something
+	      physical (<em>could be as simple as a slip of paper</em>) 
+	      to the customer to indicate an eTicket has been
+	      sold?
+	  </td>
+	  <td>tabled</td>
+	  <td>purchase model, BB Depot</td>
+	  <td>&nbsp;</td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>14. <font color=green>Should we pre-activate BB Players at
+	      the factory?</font>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>manufacturing, security concern, purchase model</td>
+	  <td><strike>Probably not, for security reason.</strike><br>
+	      Yes.  The real security issues are in the delivery.
+	  </td>
+	</tr>
+	
+	<tr valign=baseline>
+	  <td>15. Can a customer purchase new BB Card by just
+	    bringing in an existing one instead of the BB Player?
+	  </td>
+	  <td>tabled</td>
+	  <td>purchase model, retail app</td>
+	  <td>&nbsp;</td>
+	</tr>
+	
+	<tr valign=baseline>
+	  <td>16. Instead of expandable BB Card, we should
+	    support only BB Cards with a number of fixed sizes.
+	  </td>
+	  <td>tabled</td>
+	  <td>manufacturing, purchase model, inventory tracking</td>
+	  <td>&nbsp;</td>
+	</tr>
+	
+	<tr valign=baseline>
+	  <td>17. Expansion Memory for BB Card
+	  </td>
+	  <td>tabled</td>
+	  <td>Retail App/BB Depot &amp; BB-App</td>
+	  <td>Need to recognize &amp; automatically initialize newly added memory.</td>
+	</tr>
+	
+	<tr valign=baseline>
+	  <td><font color="#FF0000">18. When &amp; how will the BB-App (First App,
+        Browser App) be updated on the BB Card</font>
+	  </td>
+	  <td><font color=red>open</font></td>
+	  <td>BB-App</td>
+	  <td>Customer may own multiple BB Cards, all of which will not be updated
+        simultaneously. These should continue to operate.&nbsp;</td>
+	</tr>
+	
+      </table>
+
+      <h3>Purchase Merchandise</h3>
+
+      <table width=100% border=1>
+	<tr>
+	  <th width=45%>Issues</th>
+	  <th width=5%>Status</th>
+	  <th width=20%>Components Affected</th>
+	  <th width=30%>Proposed Solution</th>
+	</tr>
+	<tr valign=baseline>
+	  <td>1. <font color=green>Gift Certificate</font></td>
+	  <td><font color=green>resolved</font></td>
+	  <td>Server and BB Depot</td>
+	  <td>
+	    <ol>
+	      <li><strike>Gifts is not common in China, so no need to support
+		this.</li>
+	      <li>Originally documented in the eTicket purchase
+		document, quoted here in footnote
+		<sup><a href="#fn1">(1)</a></sup></strike>
+	      </li>
+	    </ol>
+	    We do not support gift certificate.
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>2. <font color=orange>eMoney:</font>
+	    <ul>
+	      More elaborated version of gift cert.
+	    </ul>
+	  </td>
+	  <td><font color=orange>need details</font></td>
+	  <td>Server and BB Depot</td>
+	  <td>Secure kernel needs to support it, but we might not
+	    launch it in first round.  Need to define what exactly
+	    eMoney is.</td>
+	</tr>
+      </table>
+
+      <h3>Retailer</h3>
+      
+      <table width=100% border=1>
+	<tr>
+	  <th width=45%>Issues</th>
+	  <th width=5%>Status</th>
+	  <th width=20%>Components Affected</th>
+	  <th width=30%>Proposed Solution</th>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>1. <font color=orange>Delivery of Hardware:</font>
+	    <ul>
+	      Should we use electronic signature to confirm delivery
+	      of hardware, or move it out of our system and use
+	      whatever existing mechanism (e.g. a signed paper
+	      receipt).
+	    </ul>
+	  </td>
+	  <td><font color=orange>need details</font></td>
+	  <td>
+	    Server, BB Depot, secure token carried by delivery serviceman.
+	  </td>
+	  <td>
+	    <p>Briefly mentioned in <a href="bbserver_interfaces.html">
+		BB Servers Interface Specifications.</a>   The
+	      relevant sections are quoted in footnote <sup><a href="#fn2">
+		  (2)</a></sup>
+	    </p>
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>2. <font color=green>Can DepotID be used only within a specific store?</font>
+	    <ol>
+	      Is it a security requirement to verify, for <strong>each
+	      transaction</strong>, that a DepotID can only be used
+	      within the registered store?
+	    </ol>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    Depot's retail app, transaction server
+	  </td>
+	  <td>
+	    <strike>Only</strike> verify at start of retail app, do <strike>not</strike> verify for
+	    every transaction
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>3. <font color=green>Ask service technician to confirm retailer's info
+	    before proceeding with installation.</font>
+	    <ul>
+	      To minimize human error, display the retailer's info
+	      (street address of store, owner's name, etc.)
+	      corresponding to the storeID entered by the technician
+	      and ask for confirmation before proceeding.
+	    </ul>
+	  </td>
+	  <td><font color=green>resolved</font></td>
+	  <td>
+	    Depot's support of display Chinese characters, server
+	    lookup retailer's info.
+	  </td>
+	  <td>Display the info for confirmation.
+	  </td>
+	</tr>
+	<tr valign=baseline>
+	  <td>4. User ID/Password on BB Depot Console:
+	    <ul>
+	      Implement access control for the BB Depot Console by means of
+	      (numeric) user ID and password.
+	    </ul>
+	  </td>
+	  <td>tabled</td>
+	  <td>
+	    BB Depot
+	  </td>
+	  <td>
+	    No support
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>5. <font color=red>Advertising loop on download
+	      station</font>
+	    <ol>
+	      We should allow them, but what is the format? Executable
+	      content (but not interactive) or a video loop.
+	    </ol>
+	  </td>
+	  <td><font color=red>open</font></td>
+	  <td>
+	    BB Depot, advertising loop generation
+	  </td>
+	  <td>&nbsp;</td>
+	</tr>
+      </table>
+
+      <h3>Customer Service</h3>
+
+      <table width=100% border=1>
+	<tr>
+	  <th width=45%>Issues</th>
+	  <th width=5%>Status</th>
+	  <th width=20%>Components Affected</th>
+	  <th width=30%>Proposed Solution</th>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>1. <font color=orange>Human-readable serial number on BB Player</font>
+	  </td>
+	  <td><font color=orange>need details</font></td>
+	  <td>manufacturing process, returned of damaged BB Player,
+	    Server support.
+	  </td>
+	  <td>Yes, but no need to be on the outside of the player.
+	    Could be a label on the board or chip.
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>2. <font color=orange>Should we allow transfer of eTickets
+	      from a defective player to a new one?</font>
+	  </td>
+	  <td><font color=orange>need details</font></td>
+	  <td>server, security model, customer satisfaction</td>
+	  <td>Yes - but defective units should be sent back to
+	    op. center and, if service technician can determine the
+	    original ID (see item 1. above), eTickets would be transferred.</td>
+	</tr>
+       </table>
+
+      <h3>Servers</h3>
+      <table width=100% border=1>
+	<tr>
+	  <th width=45%>Issues</th>
+	  <th width=5%>Status</th>
+	  <th width=20%>Components Affected</th>
+	  <th width=30%>Proposed Solution</th>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>1. BB Depot with non-routable IP address:
+	    <ol>
+	      How to remote-manage Depots behind firewall, NAT router,
+	      or ISP with non-routable IP address.
+	    </ol>
+	  </td>
+	  <td>tabled</td>
+	  <td>
+	    RMS, Depot, Depot installation.
+	  </td>
+	  <td>
+	    See <a href="../bb_depot/remote_mgmt.htm"><em>Remote
+		Management for Clients Behind Firewalls</em></a>.
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>2. <font color=red>Combined signature for all eTickets</font>
+	    <ul>
+	      Put all eTickets owned by a BB Player together in a
+	      single package and sign the whole package.
+	    </ul>
+	  </td>
+	  <td><font color=red>open</font></td>
+	  <td>
+	  eTicket Server, download apps (eTicket synchronization), Browser
+	  apps, secure kernel
+	  </td>
+	  <td>&nbsp;
+	  </td>
+	</tr>
+
+	<tr valign=baseline>
+	  <td>3. Cache issued eTickets in the database
+	    <ul>
+	      Should we save a copy of every new eTicket issued in the
+	      database?
+	    </ul>
+	  </td>
+	  <td>tabled</td>
+	  <td>
+	  eTicket Server, eTicket license manager
+	  </td>
+	  <td>
+	    <ol>
+	      <li>Yes.  As a general security principle, we should
+		minimize the number of time invoking the license
+		manager.
+	      </li>
+	      <li>No.  The propability of reading the eTicket 
+		again after it has been issued is so low that it does
+		not justify the increased complexity.
+	      </li>
+	    </ol>
+	  </td>
+	</tr>
+
+
+      </table>
+      
+      <hr>
+      <h3>Footnotes</h3>
+      <strike>
+      <p>
+	<a name="fn1"><sup><b>1.</b></sup></a> Gift Cert:
+	Two gift models have been discussed.  The preferred model is
+        described first, followed by reasons why the second model is
+        rejected.
+      </p>
+      <p>
+        Gift certificates are cash-based.  They are pre-printed gift
+        cards of fixed denominations.  Each gift certificate is
+        imprinted with a unique ID number (or bar code, or magnetic
+        stripe).  A valid gift certificate ID number should be hard to
+        guess.  Gift certificates has no value until activated, at
+        which point the server records the ID number, cash value, and
+        the BB Depot ID in its database.  Gifts certificates should be
+        activated after a shop owner collects money from the customer.
+      </p>
+      <p>
+        Gift certificates could be used as cash for purchasing games.
+        So customers should treat them as cash and we are not
+        responsible for loss or illegal duplication.  To redeem a gift
+        certificate, its ID number is entered into the BB Depot which
+        sends it to the server for verification.  If everything
+        verifies, the shop owner will be credited with the proper
+        amount and the certificate ID will be voided.  The shop owner
+        might need to make cash changes if the purchase amount is
+        smaller than that of the gift certificate.
+      </p>
+      <p>
+        For the record, another gift model was previously proposed.
+        In that model, gift certificates are bound to a particular BB
+        upon activation and can be only redeemed by it.  This model
+        provides more protection for the gift recipients but is too
+        inconvenient and restrictive for the gift senders.  First,
+        many people like to purchase multiple gifts before deciding to
+        whom they would send them.  Second, it requires our customers
+        to broadcast their user names to all potential gift senders.
+      </p>
+	</strike>
+      
+      <hr>
+      <p>
+	<a name="fn2"><sup><b>2.</b></sup></a> Hardware Delivery:
+	  
+	<dl>
+	  <dt>Description</dt>
+	  <dd>
+	    
+	    When a shipment of BB's arrives at a store, the
+	    carrier and the store owner should both insert their
+	    USB token into the Depot, and enter the transaction
+	    via the console.  Money will be deducted from the
+	    store's account.
+	  </dd>
+	  <dt>Client</dt>
+	  <dd>BB Depot</dd>
+	  <dt>Server</dt>
+	  <dd>Transaction server</dd>
+	  <dt>Protocol</dt>
+	  
+	  <dd>BroadOn proprietary protocol over SSL</dd>
+	  <dt>Input</dt>
+	  <dd>Depot ID, Carrier ID, order ID</dd>
+	  <dt>Output</dt>
+	  <dd>Transaction status (ok or fail), database updated.</dd>
+	</dl>
+	
+	<p>
+	  The same operation applied for other hardware items,
+	  such as memory module, or other accessories.
+	</p>
+    </body>
+  </html>

@@ -1,0 +1,63 @@
+set search_path  ". \
+        ../../../RTL/include/ \
+        ../../../RTL/lib/usb_arc/verilog/ \
+	/opc/cb12_V3.1.0/solaris/lib/CB12/common/synopsys/analog \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/clockdriver \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/iobuffer \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/nec_bscan \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/nec_scan \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/primitive \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/scan \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/script \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/special \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/testact \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/softmacro \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/gating \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/oscillator \
+	/DATA4/design/bbsoc/bblib/RevA/CSR/current/lib/common/synopsys/AAD3835BM \
+	/DATA4/design/bbsoc/bblib/RevA/CSR/current/lib/common/synopsys/USB1 \
+	/DATA4/design/bbsoc/bblib/RevA/CSR/current/lib/common/synopsys/BINV \
+	/DATA4/design/bbsoc/bblib/RevA/SRAM_ROM/current/lib/CB12/cmos_1.5V \
+	/DATA4/design/bbsoc/bblib/RevA/VR4300/current \
+	/DATA4/design/bbsoc/bblib/RevA/Virage/current/nvcp_nc15gfh \
+	/DATA4/design/bbsoc/bblib/RevA/Virage/current/nvrm_nc15gfh_16x32 \
+	/DATA4/design/bbsoc/bblib/RevA/Virage/current/nvrm_nc15gfh_64x32 \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/softmacro/nec_scan \
+	/opc/cb12_V3.1.0/solaris/lib/common/synopsys/softmacro/testact \
+"
+
+read_db {\
+	analog.db \
+}
+read_db {\
+	clockdriver.db \
+	iobuffer.db \
+	nec_bscan.db \
+	nec_scan.db \
+	primitive.db \
+	scan.db \
+	special.db \
+	testact.db \
+	gating.db \
+	oscillator.db \
+	AAD3835BM.db \
+	USB1.db \
+	BINV.db \
+	WBROMSMHS2048W16C5N01_STA.db \
+	WBROMSMHS4096W32C5N01_STA.db \
+	WBSRAMDHDWR32W32C2_STA.db \
+	WBSRAMDHDWR32W72C2_STA.db \
+	WBSRAMMDWQR32W8C2_STA.db \
+	WBSRAMSHS128W8C3_STA.db \
+	WBSRAMSHS256W16C3B8_STA.db \
+	WBSRAMSHS256W41C3_STA.db \
+	WBSRAMSHS256W64C3B8_STA.db \
+	WBSRAMSHS4096W32C4B8_STA.db \
+	WBSRAMSHS512W64C3_STA.db \
+	NB4300V01_MAX_STA.db \
+	nvcp_nc15gfh_MAX_STA.db \
+	nvrm_nc15gfh_16x32_MAX_STA.db \
+	nvrm_nc15gfh_64x32_MAX_STA.db \
+}
+read_verilog -tec -libname nec_scan nec_scan.v
+read_verilog -tec -libname testact testact.v

@@ -1,0 +1,194 @@
+#!/usr/bin/perl -w
+
+# $Id: make_rvl_image,v 1.6 2006/04/08 00:54:38 craig Exp $
+
+#               Copyright (C) 2006, BroadOn Communications Corp.
+#
+#  These coded instructions, statements, and computer programs contain
+#  unpublished  proprietary information of BroadOn Communications Corp.,
+#  and  are protected by Federal copyright law. They may not be disclosed
+#  to  third  parties or copied or duplicated in any form, in whole or in
+#  part, without the prior written consent of BroadOn Communications Corp.
+
+# Create a revolution disk image, complete with TMD, e-ticket, 
+# certificate, and encrypted image.
+
+
+use strict;
+use Getopt::Long;
+use POSIX qw(tmpnam);
+
+sub
+usage()
+{
+    print "Usage: $0\n";
+    print "              -c [common key file]\n";
+    print "              -f                    Generate full image\n";
+    print "              -t [title_key_file]     (Not encrypted)\n";
+    print "                 (defaults to 'default.titlekey'\n";
+    print "              -g [game file] <-g [game file]>... \n";
+}
+
+sub
+main()
+{
+    my ($common_key_file, @game_array, $help, $verbose, $full_image);
+    my ($title_key_file, $encrypted_title_key_file);
+    my ($certificate_file, $script_file, $out_file);
+    my ($opt_return, $command);
+    my ($bin_path, $keydir);
+    my ($game, $game_num);
+
+    $Getopt::Long::ignorecase = 0;
+
+    # HACK
+    $ENV{'ROOT'} = '/home/craig/gba_root';
+
+    $keydir = "$ENV{'ROOT'}/usr/etc/pki_data";
+    # Defaults
+    $common_key_file  = "$keydir/common_tpki.aesKey";
+    $title_key_file   =  "default.titlekey";
+    $certificate_file = "$keydir/cert_tpki.sys";
+    $script_file      = "rvl.script.in";
+
+    $opt_return = GetOptions (
+                                 "commonkeyfile=s"    => \$common_key_file,
+                                 "game=s@"            => \@game_array,
+                                 "fullimage"          => \$full_image,
+                                 "help"               => \$help,
+                                 "output=s"           => \$out_file,
+                                 "path=s"             => \$bin_path,
+                                 "titlekeyfile=s"     => \$title_key_file,
+                                 "verbose"            => \$verbose,
+                             );
+    if ($opt_return != 1) {
+        usage();
+        exit(1);
+    }
+    if (defined ($help)) {
+        usage();
+        exit(0);
+    }
+
+    $encrypted_title_key_file = "encrypted_title_key";
+
+    if (! defined($common_key_file)) {
+        print "$0: Must give a common key file name\n";
+        usage();
+        exit(0);
+    }
+    if (! defined($title_key_file)) {
+        print "$0: Must give a title key file name\n";
+        usage();
+        exit(0);
+    }
+    if ($#game_array == -1) {
+        print "$0: Must give at least one game file name\n";
+    }
+    if (defined($bin_path)) {
+        $ENV{'PATH'} = $bin_path . ':' . $ENV{'PATH'};
+    }
+    elsif (defined ($ENV{'ROOT'})) {
+        $ENV{'PATH'} =  "$ENV{'ROOT'}/usr/bin/x86" . ':.:' . $ENV{'PATH'};
+    }
+    else {
+        print "$0: Must either set environment variable ROOT or use -p\n";
+    }
+
+    $command =   "aes_file -k $common_key_file -i $title_key_file" 
+               . " -o $encrypted_title_key_file";
+
+    if (system($command) != 0) {
+        print "$0: Command '$command' failed - exit\n";
+        exit(1);
+    }
+
+    open (SCRIPT_FILE, ">" . $script_file) or
+        die "Can't open file '$script_file' for writing";
+
+    $game_num = 0;
+    for ($game_num = 0; $game_num <= $#game_array; $game_num++) {
+        my ($tmd_file, $ticket_file);
+
+        # Generate H3 hashes - needed as input to tmd command
+        # Produces $game_array[$game_num].h3_hash
+        $command = "gen_h3_hash $game_array[$game_num]";
+        if (system($command) != 0) {
+            print STDERR "$0: Executing command $command failed - exit\n";
+            exit(1);
+        }
+        # Generate TMD
+        $command = "tmd -O";
+        $command .= " -K $encrypted_title_key_file";
+        $command .= " -c 0";             #content id is 0
+        $command .= " -i 0";             #content index is 0
+        $command .= " -C " . ($game_num + 1);
+        $command .= " -T " . ($game_num + 1);     # Title id is game number
+        $command .= " -P t";             # test PKI
+        $command .= " -n $game_array[$game_num].h3_hash";
+        $command .= " -t 2";             # content default is 'shared'
+
+        $command .= " > tmd.out 2>&1";
+        print "TMD command: $command\n";
+        if (system($command) != 0) {
+            print "$0: TMD create command '$command' failed - exit\n";
+            exit(1);
+        }
+        $tmd_file = sprintf("%08x.tmd", $game_num + 1);
+        
+        if (! -r $tmd_file) {
+            print ("$0: tmd command didn't produce file $tmd_file - exit\n");
+            exit(1);
+        }
+
+        # Generate e-ticket
+        $command = "ticket -O";
+        $command .= " -t " . ($game_num + 1);      
+        $command .= " -T " . ($game_num + 1);      
+        $command .= " -K 00000001.titleKey";
+        $command .= " -P t";            # test PKI
+        $command .= " > ticket.out 2>&1";
+        print "Ticket command: $command\n";
+        if (system($command) != 0) {
+            print "$0: ticket create command '$command' failed - exit\n";
+            exit(1);
+        }
+        $ticket_file = sprintf("%08x.tik", $game_num + 1);
+        
+        if (! -r $ticket_file) {
+            print ("$0: ticket command didn't produce file $tmd_file - exit\n");
+            exit(1);
+        }
+        print SCRIPT_FILE "[Game]\n";
+        print SCRIPT_FILE "content      = \"$game_array[$game_num]\"\n";
+        print SCRIPT_FILE "certificates = \"$certificate_file\"\n";
+        print SCRIPT_FILE "TMD          = \"$tmd_file\"\n";
+        print SCRIPT_FILE "eTicket      = \"$ticket_file\"\n";
+
+        if ($verbose) {
+            print "For content file '$game_array[$game_num]'\n";
+            print "\tUsing TMD file '$tmd_file'\n";
+            print "\tUsing eTicket file '$ticket_file'\n";
+        }
+
+        $game_num++;
+    }
+    close(SCRIPT_FILE);
+
+    $command = "rvl_image -e -z -s $script_file -t $title_key_file";
+    if (defined ($out_file)) {
+        $command .= " -o $out_file";
+    }
+    if (defined ($full_image)) {
+        $command .= ' -f';
+    }
+    if ($verbose) {
+        print "Rvl image command: $command\n";
+    }
+    if (system($command) != 0) {
+        print "$0: revolution image create command '$command' failed - exit\n";
+        exit(1);
+    }
+} #main
+
+main;

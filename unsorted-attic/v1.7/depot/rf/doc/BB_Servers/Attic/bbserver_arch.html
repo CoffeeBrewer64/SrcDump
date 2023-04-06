@@ -1,0 +1,173 @@
+d12 2
+a13 2
+$Revision: 1.6 $<br>
+$Date: 2002/08/15 02:15:55 $<br></i>
+d20 1
+a20 1
+"<a href="bbserver_usecases.html">Use case analysis for BB servers</a>" for
+d40 1
+a40 1
+
+d43 1
+a43 1
+ <td width="20%" align="center">BB servers</td>
+d53 1
+a53 1
+ <td width="20%" align="center">BB, or BB device</td>
+d59 1
+a59 1
+ <td width="20%" align="center">BB hardware options</td>
+d77 1
+a77 1
+ <td width="20%" align="center">BB Depot</td>
+d98 8
+a105 2
+ develop or localize <a href="#content">content</a>. It has embedded secure protocol to encrypt and
+ transfer master <a href="#content">content</a> to <a href="#op">the operation center</a></td>
+d107 1
+d117 1
+a117 1
+ <td width="20%" align="center">eTicket</td>
+d123 5
+d129 1
+a129 1
+ <td width="20%" align="center">Manufactures</td>
+d131 1
+a131 1
+ refers to manufactures of <a href="#bb">BB devices</a> and <a href="#optoin">options</a></td>
+d166 1
+a166 1
+ which is that BB has only eTicket downloaded without <a href="#content">content</a>.
+d168 3
+a170 1
+ preserved in <b>Safety Box</b> where you can always download from for free."</td>
+d177 2
+a178 1
+ acquire <a href="#devkit">DevKit</a> to publish content to
+d187 2
+a188 2
+The following design goals are set for the BB server architecture:
+<ul>
+d190 2
+a191 1
+   Though eventual goal is to build generic secure infrastructure, BB system
+d193 2
+a194 4
+   developers to BB devices, and securely issue eTickets to BB devices.<br>
+   BB system will be developed with generalization in mind, but
+   it is second priority at this point.
+<p><li><b>Covers the four functionality categories:</b>
+d208 3
+a210 3
+<p><li><b>Componentization</b><br>
+    Componentize the system into a set of functionality groupings, and give
+	clear role to each one of them. This will make the entire system more
+d212 1
+a212 4
+	changing others.<br>
+	In this document, "server" and "component" are a component with a difference
+	that "server" has an additional role to control others.
+<p><li><b>Minimize state to manage across servers and components</b><br>
+d215 2
+a216 2
+	components so that they can operate independently.
+<p><li><b>Use differed operation wherever possible</b><br>
+d218 1
+a218 1
+	delaying(or excluding) operations that need no real time response, and 2) makes
+d221 5
+a225 5
+	technologies to implement the differed operations.
+<p><li><b>Localizable</b><br>
+    At least, all user interfaces should be localizable for locales with
+	multibyte characters. Internationalization is optional.
+</ul>
+a244 2
+TBD which one to use ...
+  
+d252 4
+a255 3
+all in Java and several components are re-usable.<br>
+However, Java is behind to support secure protocols and algorithms,
+and has higher cpu resource consumption compared to C/C++. Therefore,
+d258 2
+a259 2
+C/C++ library into Java classes. However JNI has well known security
+hole that any APIs in JNI libraries can be accessed by anybody without
+d263 1
+a263 1
+functionality in C/C++ should be developed in C/C++.
+d269 6
+a274 9
+	<ul>
+	  <li>Oracle oriented mechanisms<br>
+	  Snapshot<br>
+	  DBMS queue
+	  <li>MOM (Message Oriented Middleware)<br>
+	  IBM WebSphere MQ<br>
+	  OpenJMS<br>
+	  Microsoft Message Queue Server<br> 
+	  Talarian SmartSockets<br>
+d276 11
+a286 2
+
+TBD which one to use ...</a>
+d289 1
+a289 1
+<h3>5. Assumptions</h3>
+d292 1
+a292 1
+  <li><b>Type of <a href="#retailer">retailers</a></b><br>
+d297 2
+a298 1
+     Majority is a kid with little knowledge of computer operations.
+d300 1
+a300 1
+  <li><b>Size of <a href="#region">region</a></b><br>
+d322 1
+a322 1
+<h3>6. Security Infrastructure</h3>
+d326 1
+a326 1
+There are two major items which need to be protected in BB system.<br>
+d331 3
+a333 3
+	  eTickets issued uniquely to the BB. Unless otherwise the encryption
+	  algorithm to be used is broken, it can be made sure that only certain
+	  BB device can use eTickets issued to the BB if the identity (private key)
+a334 1
+  <p>
+d342 1
+a342 1
+needs to achieve the following goals:<br>
+a346 1
+  <p>
+d350 1
+a350 2
+	  server/component with minimum effect on other severs/components. 	  
+  <p>
+d353 1
+a353 1
+	  monitored and auditted. Possible fraud should automatically be detected and
+d359 1
+a359 1
+<h4>6.2 Guidelines</h4>
+d375 1
+a375 1
+  <li>Master Content in Studio (non encrypted content made by DevKit) should
+d377 1
+a377 1
+  <li>No repository stores content without encryption if the content is in a
+a394 1
+  <p>
+a398 1
+  <p>
+a402 1
+  <p>
+d497 1
+d500 1
+a500 1
+	  <li>
+d678 1
+a678 1
+

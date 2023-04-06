@@ -1,0 +1,109 @@
+/*
+The Compass-provided dpbsh004h.vmd will not compile under VCS when 
+WORDSIZE = NUMBER_OF_SHIFTS.  The offending lines, which are executed 
+only when WORDSIZE > NUMBER_OF_SHIFTS are commented out here.
+
+- MJD 7-15-94
+
+Error: illegal repetition count in repeat concatenate (line 82):
+`include "/usr/people/doherty/mdevroot/PR/hw/chip/lib/verilog/dp/dpbsh004h.vmd"
+*/
+
+/**************************************************************/
+/*    Verilog module of datapath cell DPBSH004H               */
+/*    Designed by    Lin Yang    VLSI Technology  Feb.  5, 91 */
+/*    Designed by    Linda J. Xu      July, 1992              */
+/*                                                            */
+/*    Data ports                                              */
+/*        A    : the input port                               */
+/*        B    : the input port                               */
+/*        SEL  : the input port                               */
+/*        Z    : the output port                              */
+/*    Control ports                                           */
+/*        INST_S  : the switch A/B control signal             */
+/*    Parameters                                              */
+/*        WORDSIZE  : the word size of the datapath cell      */
+/*        NUMBER_OF_SHIFTS  : the number of shift bits        */
+/*        DELAY     : the delay time from input to output     */
+/*        BF        : the  with/without buffer flag           */
+/*                    0 for without buffer; 1 for with buffer */
+/**************************************************************/
+module dpbsh004h(A, B, SEL, Z, INST_S);
+
+  parameter WORDSIZE = 8, NUMBER_OF_SHIFTS = 8, DELAY = 5, BF = 1;
+  input  [WORDSIZE-1:0] A, B, SEL;
+  output [WORDSIZE-1:0] Z;
+  input  INST_S;
+
+  reg [2*WORDSIZE-1:0] ZZ;
+  reg [NUMBER_OF_SHIFTS-1:0] ZZZ;
+
+  function [WORDSIZE-1:0] bsh;
+    input [WORDSIZE-1:0] A, B, SEL;
+    input switch;
+
+    integer i, shift, num_1, temp, size;
+
+    begin
+      i = 0;
+      shift = 0;
+      num_1 = 0;
+
+      if (WORDSIZE > NUMBER_OF_SHIFTS)
+        size = NUMBER_OF_SHIFTS + 1;
+      else if (WORDSIZE == NUMBER_OF_SHIFTS)
+        size = NUMBER_OF_SHIFTS;
+
+      while (i<size)
+      begin
+        case (SEL[i])
+          'b1:  num_1 = num_1 + 1;
+          'b0:  if (num_1 < 1) shift = shift + 1;
+          default
+              begin
+                i = NUMBER_OF_SHIFTS;
+                num_1 = 2;
+              end
+        endcase
+        i = i + 1;
+      end
+
+      if (WORDSIZE == NUMBER_OF_SHIFTS)
+        case (switch)
+          'b1:  num_1 = num_1 + 1;
+          'b0:  ;
+          default num_1 = 2;
+        endcase
+
+      if (num_1 < 1)
+        begin
+          bsh = ZZ[WORDSIZE-1:0];
+        end
+      else if (num_1 > 1)
+        begin
+          bsh = {WORDSIZE{1'b x}};
+        end
+      else
+        begin
+          if (WORDSIZE == NUMBER_OF_SHIFTS)
+            ZZ = ({B,A} >> shift);
+/*
+          else if (WORDSIZE > NUMBER_OF_SHIFTS)
+            begin
+              ZZZ = B[WORDSIZE-1 : WORDSIZE-NUMBER_OF_SHIFTS];
+              ZZ = {{(WORDSIZE-NUMBER_OF_SHIFTS){1'b0}}, ZZZ, A} >> shift;
+            end
+*/
+          else
+            begin
+              bsh = {WORDSIZE{1'b x}};
+            end
+
+          bsh = ZZ[WORDSIZE-1:0];
+        end
+    end
+  endfunction
+
+    assign #DELAY Z = bsh(A, B, SEL, INST_S);
+
+endmodule

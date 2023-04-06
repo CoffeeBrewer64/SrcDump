@@ -1,0 +1,65 @@
+a0 64
+include $(ROOT)/usr/include/make/NGdefs
+
+TARGETS = es_stream.img es_stream2.img es_stream3.img
+
+FSAPI = $(ROOT)/usr/lib/rvl/libisfs.a
+ESAPI = $(ROOT)/usr/lib/rvl/libes.a
+
+default: $(TARGETS)
+
+include $(COMMONRULES)
+
+OPTIMIZER = -O
+LLDLIBS += -lioslibc -lios 
+#LCDEFS += -DES_DEBUG_LOG -DFS_DEBUG_LOG
+LLDOPTS = -Ttext $(MK_APPS_START) -T ddr.link -L$(ROOT)/usr/lib/rvl
+LCOPTS =
+LCINCS += -I.
+
+LDIRT += *.mrg
+
+es_stream.o: es_stream_data.c cert_data.c
+
+es_stream.elf:  $(CRT0) es_stream.o $(FSAPI) $(ESAPI)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+
+es_stream.img: $(ROOT)/usr/bin/rvl/loader.bin es_stream.mrg
+	$(OSMERGE) -b $(ROOT)/usr/bin/rvl/loader.bin -m es_stream.mrg -o $@
+
+es_stream2.img: $(ROOT)/usr/bin/rvl/loader.bin es_stream2.mrg
+	$(OSMERGE) -b $(ROOT)/usr/bin/rvl/loader.bin -m es_stream2.mrg -o $@
+
+es_stream3.img: $(ROOT)/usr/bin/rvl/loader.bin es_stream3.mrg
+	$(OSMERGE) -b $(ROOT)/usr/bin/rvl/loader.bin -m es_stream3.mrg -o $@
+
+# Merge es_stream.elf as USB process
+es_stream.mrg: $(ROOT)/usr/bin/rvl/ios_real.elf $(ROOT)/usr/bin/rvl/fs.elf \
+		$(ROOT)/usr/bin/rvl/es.elf $(ROOT)/usr/bin/rvl/tests/es_stream.elf $(NG_ADDR_MAP)
+	$(MERGE) -o $@ -k $(ROOT)/usr/bin/rvl/ios_real.elf \
+		-s $(MK_SHARED_START) \
+		-z $(MK_SHARED_SIZE) \
+		-f $(ROOT)/usr/bin/rvl/fs.elf \
+		-e $(ROOT)/usr/bin/rvl/es.elf \
+		-x $(ROOT)/usr/bin/rvl/tests/es_stream.elf
+
+# Merge es_stream.elf as USB process and use ES RM with WFS support
+es_stream2.mrg: $(ROOT)/usr/bin/rvl/ios_real.elf $(ROOT)/usr/bin/rvl/fs.elf \
+		$(ROOT)/usr/bin/rvl/es_wfs.elf $(ROOT)/usr/bin/rvl/tests/es_stream.elf $(NG_ADDR_MAP)
+	$(MERGE) -o $@ -k $(ROOT)/usr/bin/rvl/ios_real.elf \
+		-s $(MK_SHARED_START) \
+		-z $(MK_SHARED_SIZE) \
+		-f $(ROOT)/usr/bin/rvl/fs.elf \
+		-e $(ROOT)/usr/bin/rvl/es_wfs.elf \
+		-x $(ROOT)/usr/bin/rvl/tests/es_stream.elf
+
+# Merge es_stream.elf as KD process and use ES RM with WFS support
+es_stream3.mrg: $(ROOT)/usr/bin/rvl/ios_real.elf $(ROOT)/usr/bin/rvl/fs.elf \
+		$(ROOT)/usr/bin/rvl/es_wfs.elf $(ROOT)/usr/bin/rvl/tests/es_stream.elf $(NG_ADDR_MAP)
+	$(MERGE) -o $@ -k $(ROOT)/usr/bin/rvl/ios_real.elf \
+		-s $(MK_SHARED_START) \
+		-z $(MK_SHARED_SIZE) \
+		-f $(ROOT)/usr/bin/rvl/fs.elf \
+		-e $(ROOT)/usr/bin/rvl/es_wfs.elf \
+		-K $(ROOT)/usr/bin/rvl/tests/es_stream.elf
+

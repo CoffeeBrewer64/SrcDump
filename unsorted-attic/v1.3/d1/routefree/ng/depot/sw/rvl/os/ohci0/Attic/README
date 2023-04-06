@@ -1,0 +1,97 @@
+OHCI0 driver
+
+The driver for OH0 is now separated from the OH1 driver. It 
+includes support for isochronous transfers and insertion/removal
+of USB devices. The OH1 driver is unchanged and is only intended
+to be used with the soldered 2045 device.
+
+Files in IOP tree:
+------------------
+Public headers: [in rvl/include]
+  iosusbtypes.h - definitions for IOCTL commands, etc
+  iosusb.h  - prototypes for USB API functions
+
+Library: [rvl/os/ohci/libusb.c]
+  libusb.c  - implementation of USB API functions
+  [libusb.a is common to users of OH1, OH0. APIs related to
+   device insertion/removal and iso transfers are ignored
+   by the OH1 driver.
+  ]
+
+Driver: [in rvl/os/ohci/]
+  core.c    - Initialize host-controller
+            - Register resource manager
+            - Start event handling thread
+            - Call root hub functions [rhub.c] to 
+              enumerate devices
+            - Start resource manager
+  rhub.c    - Root hub functions to reset port, etc
+            - Enumeration & configuration of devices
+            - Handling of root hub changes 
+  rm.c      - Resource manager loop
+  devnodes.c  - deal with list of device nodes
+  events.c    - handles OHCI interrupts
+  transfers.c - handle Ctrl, Bulk, Intr transfers
+  intr.c      - handle endpoint descriptor tree for interrupt
+                transfers
+  iso.c       - functions related to isochronous transfers and
+                endpoints
+  mem.c       - initialize heap, allocate/free EDs, TDs, etc 
+  dbg.c       - print contents of descriptors, host controller 
+                state, etc for debugging.
+  bw.c        - Bandwidth calculations as specified by the USB
+                1.1 standard.
+  Headers:
+    usb11.h  - definitions derived from USB 1.1 standard
+    ohci.h, ohci_regs.h - definitions from OHCI standard
+    ohci_types.h, ohci_core.h - definitions for host controller driver's
+                           use, prototypes for internal functions
+                   
+Examples/tests:
+  mouse.c - Mouse driver which tests
+              - control, interrupt transfers
+              - suspend/resume API
+              - detect unplugging of device
+              - list devices by class
+  asix.c  - ASIX USB ethernet driver:
+              - control, interrupt, bulk transfers
+              - device-specific control transfers
+  bt.c    - BlueTooth dongle driver:
+             - control transfers
+             - suspend/resume API
+
+ audio.c  - Driver for USB audio device 
+             - control transfers
+             - iso OUT transfers
+-----------------
+Files in the iRD tree:
+Headers: [in RVL_SDK/include/private]
+  iosusbtypes.h - definitions for IOCTL commands, etc
+  iosusb.h  - prototypes for USB API functions
+
+Library: [ in RVL_SDK/build/libraries/usb/src]
+  usb.c - implementation of USB API functions. Closely
+          mirrors IOP side file, libusb.c.
+
+Examples/tests:
+  mouse.c - Mouse driver which uses async calls to test
+              - control, interrupt transfers
+              - suspend/resume API
+              - list devices by class
+  mousesyn.c - Similar to above, but using sync calls
+               Device removal test.
+  
+  asix.c  - ASIX USB ethernet driver:
+              - control, interrupt, bulk transfers
+              - device-specific control transfers
+           
+  bt.c    - BlueTooth dongle driver:
+             - control transfers
+             - suspend/resume API
+
+  insert.c - Device insertion test
+
+ Other tests:
+  wpad_bringup tests [build/tests/wpad/]
+         - can be used to test USB with BlueTooth controller
+-------------------------------------------------------------------

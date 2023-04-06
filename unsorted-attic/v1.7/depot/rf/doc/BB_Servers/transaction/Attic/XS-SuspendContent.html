@@ -1,0 +1,131 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Transaction: Suspend Content</title>
+</head>
+
+<body>
+
+<h2 align="center">Transaction: Suspend Content</h2>
+<h4><b>Participants</b></h4>
+<ul>
+  <li><b>Transaction - Content Availability Server (CAS)</b> (<i>point of
+    control)</i></li>
+  <li>Content Distribution Subsystem - Content Sync Server</li>
+  <li>RMS - Content Notifier</li>
+</ul>
+<h4>Requirements</h4>
+<ul>
+  <li>Should be able to stop future purchase of content</li>
+  <li>Optionally be able to suspend future downloads</li>
+</ul>
+<h4>Pre-conditions</h4>
+<ul>
+  <li>Content has previously be available for purchase and download</li>
+</ul>
+<h4>Input Parameters</h4>
+<ul>
+  <li><code>Region ID</code></li>
+  <li><code>ContentID&nbsp;</code></li>
+  <li><code>&quot;purchase suspension&quot; effective date</code></li>
+  <li><code>&quot;download suspension&quot; effective date</code></li>
+</ul>
+<h4>Data Records</h4>
+<ul>
+  <li><a href="../data_defs.html">Transaction - Content metadata</a></li>
+  <li><a href="../data_defs.html">Transaction - Region</a></li>
+  <li><a href="../data_defs.html">CDS - Content</a></li>
+  <li><a href="../data_defs.html">RMS - Depot</a></li>
+</ul>
+<h4>Output Parameters</h4>
+<blockquote>
+  <i>None</i>
+</blockquote>
+<h4>Sequence of Events</h4>
+<ol>
+  <li>	<code>Suspend Purchase</code>
+    <ol type="a">
+  <li>	The Marketing Manager selects the content and enters the <i> &quot;purchase
+    suspension&quot; effective date</i> and optionally the <i> &quot;download suspension&quot;
+    effective date</i> indicating specific regions if necessary in the CAS.&nbsp;</li>
+  <li>	Overlaps between the <i> &quot;purchase
+    suspension&quot; effective date</i>  and the <i> &quot;available for
+    purchase&quot; effective date</i>  are not permitted.</li>
+      <li>CAS updates the <i> &quot;purchase suspension&quot; effective date</i> into the content
+    metadata data store.</li>
+    </ol>
+  </li>
+  <li>	The transaction is considered to be complete at this point, unless a <i>
+    &quot;download suspension&quot; effective date</i> has also been specified, in which case
+    it continues with the following steps. Typically the
+    <i>
+    &quot;download suspension&quot;</i> start date &gt; <i> &quot;purchase suspension&quot;</i>
+    start date or is not entered at all. Downloads should typically be suspended
+    if and only if it has never been available for purchase.</li>
+  <li>	<code>Suspend Download</code>
+    <ol type="a">
+      <li>	CAS and Content Sync Server mutually authenticate themselves.</li>
+      <li>	CSS submits the <i> Content ID</i>, <i> Region ID</i>, and <i> &quot;download
+    suspension&quot; effective date</i> to the Content Sync Server &amp; receives
+    confirmation.</li>
+    </ol>
+  </li>
+  <li>	The transaction is now complete.&nbsp;</li>
+  <li>	Deferred Transactions
+    <ol type="a">
+  <li>	<code>Notify Region</code>
+    <ol type="i">
+      <li>	CAS &amp; RMS-Content Notifier mutually authenticate themselves, and the
+    CAS submits the <i> Region ID</i> and the <i> &quot;download suspension&quot;
+        effective date</i> to
+    the RMS &amp; receives confirmation</li>
+    </ol>
+  </li>
+      <li><code>Notify Content Synchronization Need</code>
+        <ol type="i">
+          <li>RMS-Content Notifier may decide to notify BB Depots belonging to the
+            <i>
+        Region ID</i> about the need for content synchronization.</li>
+        </ol>
+      </li>
+      <li><code>Content Synchronization</code>
+        <ol type="i">
+          <li>BB Depots-Content Manager may decide to initiate &quot;Content
+        Synchronization&quot; based on the notification rather than wait for the
+        periodic synchronization event.</li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+</ol>
+<h4>Post Condition</h4>
+<ol>
+  <li>   Content Sync Server, eTicket Server have an effective date for purchase
+    suspension &amp; download suspension respectively.</li>
+</ol>
+
+<h4>Audit Records</h4>
+<ol>
+  <li>Content Availability Server - Suspend Content Request - contentID, region ID, &quot;purchase
+    suspension&quot; effective date,&nbsp; &quot;download suspension&quot;
+    effective date</li>
+  <li>Content Sync Server - Suspend Download Request - content ID, region ID,
+    &quot;download suspension&quot; effective date</li>
+</ol>
+<h4>Exceptions</h4>
+<ol>
+  <li>If RMS notifications fail, the CAS retries till it succeeds.</li>
+</ol>
+
+<p><b>Figures</b></p>
+<ul>
+  <li><a href="XS-SuspendContent/XS-SuspendContent1_raster.gif">Control Flow</a></li>
+  <li><a href="XS-SuspendContent/XS-SuspendContent2_raster.gif">Data Flow</a></li>
+</ul>
+
+</body>
+
+</html>

@@ -1,0 +1,432 @@
+#include "rvldv.h"
+#include "iop.h"
+#include "initvar.h"
+
+#include "stress.h"
+
+
+/* 
+ * This program will launch two-four threads, all with
+ * various priorities.  The purpose is to test multiple
+ * message queues and threads, to see startup and shutdown
+ * sequences.  
+ *
+ *
+ * ONE is the pair of alpha & beta
+ * TWO is the pair of gamma & delta
+ */
+
+#define STACK_SIZE          1024
+
+#define PRIORITY_MOD_ONE    (-2)
+//#define PRIORITY_MOD_TWO    (-2)
+
+#ifdef PRIORITY_MOD_TWO
+#define MAX_THREADS         4
+#else
+#define MAX_THREADS         2
+#endif 
+
+u32  oneThreshold = 1000, twoThreshold = 5;
+
+enum IOS_Msg { MAIN_TIMER, MAIN_ERROR, MAIN_DONE,
+	       ONE_FAIL, ONE_QUIT, ONE_CONT,
+	       TWO_FAIL, TWO_QUIT, TWO_CONT};
+
+static IOSThreadId                 mainThread, alphaThread, betaThread, gammaThread, deltaThread;
+
+static IOSMessageQueueId           mainQueue;         
+static IOSMessageQueueId           alphaQueue, betaQueue, gammaQueue, deltaQueue;
+
+IOSMessage                  mainArray[4];
+static IOSMessage           alphaArray[2], betaArray[2];
+static IOSMessage                  main_msg, alpha_msg, beta_msg;
+
+#ifdef PRIORITY_MOD_TWO
+static IOSMessage                  gammaArray[2], deltaArray[2];
+static IOSMessage                  gamma_msg, delta_msg;
+#endif
+
+static u32                         one_cnt, two_cnt;
+
+u8     alphaStack[STACK_SIZE], betaStack[STACK_SIZE];
+#ifdef PRIORITY_MOD_TWO
+u8    gammaStack[STACK_SIZE], deltaStack[STACK_SIZE];
+#endif
+
+static void thread_alpha(void);
+static void thread_beta(void);
+
+#ifdef PRIORITY_MOD_TWO
+static void thread_gamma(void);
+static void thread_delta(void);
+#endif
+
+static IOSError msg_queue_init(void);
+static IOSError thread_init(void);
+static IOSError terminate(void);
+
+void main(int argc, char* argv[])
+{
+  IOSError rc;
+  int ctr = 0;
+  mainThread = IOS_GetThreadId();
+  mainQueue = alphaQueue = betaQueue = gammaQueue = deltaQueue = -1;
+  one_cnt = two_cnt = 0;
+
+  rc = msg_queue_init();
+  if(rc < 0) 
+    return;
+
+  rc = thread_init();
+  if(rc < 0) return;
+
+  IOS_SendMessage(mainQueue, MAIN_TIMER, IOS_MESSAGE_NOBLOCK);
+  // Created stuff, now sleepy time!
+  while (ctr < MAX_THREADS) {
+    strPrint(STR_DEBUG_CRIT, "MSG_QUEUE Test:  Main sleeping\n");
+    rc = IOS_ReceiveMessage(mainQueue, &main_msg, IOS_MESSAGE_BLOCK);
+    strPrint(STR_DEBUG_CRIT, "MSG_QUEUE TEST WAKE:  rc = %d, msg = %d\n", rc, main_msg);
+
+    if (IOS_ERROR_OK == rc) {
+      switch(main_msg) {
+      case MAIN_DONE:
+	strPrint(STR_DEBUG_CRIT, "MSG_QUEUE %d out of %d terminated\n", ctr++, MAX_THREADS);
+	break;
+      case MAIN_ERROR:
+	strPrint(STR_DEBUG_CRIT, "MSG_QUEUE received failure!  AHHHH!!!\n");
+	terminate();
+	break;
+      case MAIN_TIMER:
+	strPrint(STR_DEBUG_CRIT, "MSG_QUEUE timer hit:\n");
+	break;
+      default:
+	strPrint(STR_DEBUG_CRIT, "MSG_QUEUE msg not recognized\n");
+	break;
+      }
+    }
+    else {
+      strPrint(STR_DEBUG_CRIT, "MSG_QUEUE failure to rcv %d\n", rc);
+    }
+  }
+
+  terminate();
+  IOS_DestroyThread(0, NULL);
+}
+
+static IOSError msg_queue_init(void)
+{
+  mainQueue = IOS_CreateMessageQueue(mainArray, 4, 0);
+  alphaQueue = IOS_CreateMessageQueue(alphaArray, 2, 0);
+  betaQueue = IOS_CreateMessageQueue(betaArray, 2, 0);
+
+#ifdef PRIORITY_MOD_TWO
+  gammaQueue = IOS_CreateMessageQueue(gammaArray, 2, 0);
+  deltaQueue = IOS_CreateMessageQueue(deltaArray, 2, 0);
+#else
+  gammaQueue = 127;
+  deltaQueue = 127;
+#endif
+
+  strPrint(STR_DEBUG_CRIT, "MSG_QUEUE Test:  queues are:\n"
+	   "\t\tmain=%2d, alpha=%2d, beta=%2d, "
+	   "gamma=%2d, delta=%2d\n",  
+	   mainQueue, alphaQueue, betaQueue, gammaQueue, deltaQueue);
+
+  if(mainQueue < 0 || alphaQueue < 0 || betaQueue < 0 || gammaQueue < 0 || deltaQueue < 0) {
+    strPrint(STR_DEBUG_CRIT, "\nMSG_QUEUE Test:  FAIL -- msgQueue creation error\n");
+    return IOS_ERROR_UNKNOWN;
+  }
+  
+  return IOS_ERROR_OK;
+}
+
+static IOSError thread_init(void)
+{
+  alphaThread = IOS_CreateThread((IOSEntryProc)thread_alpha,
+				 NULL,
+				 alphaStack,
+                                 STACK_SIZE,
+				 IOS_GetThreadPriority(0) + PRIORITY_MOD_ONE,
+				 IOS_THREAD_CREATE_DETACHED);
+
+  betaThread = IOS_CreateThread((IOSEntryProc)thread_beta,
+				NULL,
+				betaStack,
+                                STACK_SIZE,
+				IOS_GetThreadPriority(0) + PRIORITY_MOD_ONE,
+				IOS_THREAD_CREATE_DETACHED);
+
+#ifdef PRIORITY_MOD_TWO 
+  gammaThread = IOS_CreateThread((IOSEntryProc)thread_gamma,
+				 NULL,
+				 gammaStack,
+                                 STACK_SIZE,
+				 IOS_GetThreadPriority(0) + PRIORITY_MOD_TWO,
+				 IOS_THREAD_CREATE_DETACHED);
+
+  deltaThread = IOS_CreateThread((IOSEntryProc)thread_delta,
+				 NULL,
+				 deltaStack,
+                                 STACK_SIZE,
+				 IOS_GetThreadPriority(0) + PRIORITY_MOD_TWO,
+				 IOS_THREAD_CREATE_DETACHED);
+#else
+  gammaThread = deltaThread = 127;
+#endif
+
+  strPrint(STR_DEBUG_CRIT, "MSG_QUEUE Test:  threads are:\n"
+	   "\t\tmain=%2d, alpha=%2d, beta=%2d, "
+	   "gamma=%2d, delta=%2d\n",
+	   mainThread, alphaThread, betaThread, gammaThread, deltaThread);
+
+  if(mainThread < 0 || alphaThread < 0 || betaThread < 0 || gammaThread < 0 || deltaThread < 0) {
+    strPrint(STR_DEBUG_CRIT, "\nMSG_QUEUE Test:  FAIL -- Thread creation error\n");
+    return IOS_ERROR_UNKNOWN;
+  }
+  else {
+    IOS_StartThread(alphaThread);
+    IOS_StartThread(betaThread);
+#ifdef PRIORITY_MOD_TWO
+    IOS_StartThread(gammaThread);
+    IOS_StartThread(deltaThread);
+#endif
+  }
+
+  return IOS_ERROR_OK;
+}
+
+static IOSError
+terminate(void)
+{
+  IOSError rc1, rc2;
+  // ENDING
+  strPrint(STR_DEBUG_CRIT, "MSG_QUEUE terminating service ...\n");
+  rc1 = IOS_JamMessage(betaQueue, ONE_QUIT, IOS_MESSAGE_BLOCK);
+  rc2 = IOS_JamMessage(deltaQueue, TWO_QUIT, IOS_MESSAGE_BLOCK);
+
+  strPrint(STR_DEBUG_CRIT, "\nMSG_QUEUE exiting w/ following success:  beta=%d,  delta=%d\n",
+	   rc1, rc2); 
+  
+  if(rc1 < 0 || rc2 < 0)
+    return ((rc1 < rc2) ? rc1 : rc2);
+  else
+    return IOS_ERROR_OK;
+}
+
+/* 
+ * ALPHA & GAMMA should be similar, doing the following:
+ * 
+ *     1)  keep count of something
+ *     2)  send msgs to BETA & DELTA
+ *     3)  wait for BETA & DELTA to wake itself up
+ *
+ *  i.e. roughly corresponds to intr
+ *
+ *
+ * BETA & DELTA are also similar, doing this:
+ *
+ *     1)  wait for message
+ *     2)  decide whether to run again
+ *     3)  send continue or quit to ALPHA & GAMMA
+ *
+ *  i.e. roughly corresponds to do
+ */
+
+static void 
+thread_alpha(void)
+{
+  IOSError rc;
+  int loop = 1;
+  
+  do {
+    one_cnt++;
+    
+    IOS_SendMessage(betaQueue, ONE_CONT, IOS_MESSAGE_NOBLOCK);
+      
+    rc = IOS_ReceiveMessage(alphaQueue, &alpha_msg, IOS_MESSAGE_BLOCK);
+    if(IOS_ERROR_OK != rc) {
+      strPrint(STR_DEBUG_CRIT, "ALPHA:  FAIL received %d while receiving\n", rc);
+      IOS_JamMessage(betaQueue, ONE_FAIL, IOS_MESSAGE_BLOCK);
+    }
+    else {
+      if (ONE_FAIL == alpha_msg) {
+	strPrint(STR_DEBUG_CRIT, "ALPHA:  alpha received fail into 0x%08x\n", &alpha_msg);
+      }
+      else if(ONE_QUIT == alpha_msg) {
+	strPrint(STR_DEBUG_CRIT, "ALPHA:  exiting from QUIT command\n");
+	loop = 0;
+      }
+      else if(ONE_CONT == alpha_msg) {
+	if(one_cnt % 100 == 0) {
+	  strPrint(STR_DEBUG_TRACE, "ALPHA:  count reached %6d  (%d)\n", one_cnt, IOS_SendMessage(mainQueue, MAIN_TIMER, IOS_MESSAGE_NOBLOCK));
+        }
+      }
+      else {
+	strPrint(STR_DEBUG_ERROR, "ALPHA:  received unexpected %d\n", alpha_msg);
+      }
+    }
+        if(one_cnt > oneThreshold) {
+          loop = 0;
+          strPrint(STR_DEBUG_CRIT, "ALPHA:  terminating after %6d  (%d)\n", one_cnt,
+                   IOS_SendMessage(mainQueue, MAIN_DONE, IOS_MESSAGE_NOBLOCK));
+        }
+        
+  } while (loop);
+
+  IOS_DestroyMessageQueue(alphaQueue);
+  IOS_DestroyThread(0, NULL);
+}
+
+static void 
+thread_beta(void)
+{
+  // More like do thread
+  IOSError rc;
+  int loop = 1, fail = 0;
+ 
+  do {
+    rc = IOS_ReceiveMessage(betaQueue, &beta_msg, IOS_MESSAGE_BLOCK);
+    if(IOS_ERROR_OK != rc) {
+      strPrint(STR_DEBUG_CRIT, "BETA :  FAIL received %d while receiving\n", rc);
+      loop = 0;
+      fail++;
+      beta_msg = -1;
+    }
+    else {
+      if(ONE_FAIL == beta_msg) {
+	fail++;
+	loop = 0;
+	strPrint(STR_DEBUG_CRIT, "BETA :  FAILING from alpha received\n");
+      }
+      else if(ONE_CONT == beta_msg) {
+	busDelay(1000);
+	if(one_cnt > oneThreshold) {
+	  loop = 0;
+	  strPrint(STR_DEBUG_CRIT, "BETA :  terminating ...\n");
+    	}
+	else {
+	  IOS_SendMessage(alphaQueue, ONE_CONT, IOS_MESSAGE_NOBLOCK);
+	}
+      }
+      else if(ONE_QUIT == beta_msg) {
+	loop = 0;
+	strPrint(STR_DEBUG_CRIT, "BETA :  exiting from QUIT command\n");
+      }
+      else {
+        strPrint(STR_DEBUG_CRIT, "BETA :  unexpected %d received\n", beta_msg);
+      }
+    }
+
+  } while(loop);
+
+  if(fail > 0) {
+    IOS_JamMessage(mainQueue, MAIN_ERROR, IOS_MESSAGE_NOBLOCK);
+  }
+  else {
+    rc = IOS_SendMessage(mainQueue, MAIN_DONE, IOS_MESSAGE_BLOCK);
+    strPrint(STR_DEBUG_CRIT, "BETA : Send Message %d (result == %d)\n", mainQueue, rc);
+  }
+
+  IOS_DestroyMessageQueue(betaQueue);
+  strPrint(STR_DEBUG_CRIT, "\nBETA :  FINAL COUNT == %d\n", one_cnt);
+  IOS_JamMessage(alphaQueue, ONE_QUIT, IOS_MESSAGE_BLOCK);
+  IOS_DestroyThread(0, NULL);
+}
+
+
+#ifdef PRIORITY_MOD_TWO
+
+static void 
+thread_gamma(void)
+{
+  IOSError rc;
+  int loop = 1;
+  
+  do {
+    two_cnt++;
+    
+    busDelay(10000);
+    rc = IOS_ReceiveMessage(gammaQueue, &gamma_msg, IOS_MESSAGE_BLOCK);
+    if(IOS_ERROR_OK != rc) {
+      strPrint(STR_DEBUG_CRIT, "GAMMA:  FAIL received %d while receiving\n", rc);
+      IOS_JamMessage(deltaQueue, TWO_FAIL, IOS_MESSAGE_BLOCK);
+    }
+    else {
+      if (TWO_FAIL == gamma_msg) {
+	strPrint(STR_DEBUG_CRIT, "GAMMA:  gamma received fail into 0x%08x\n", &gamma_msg);
+      }
+      else if(TWO_QUIT == gamma_msg) {
+	rc = IOS_DestroyMessageQueue(gammaQueue);
+	loop = 0;
+      }
+      else if(TWO_CONT == gamma_msg) {
+	if(two_cnt % 100 == 0) 
+	  strPrint(STR_DEBUG_TRACE, ".");
+      }
+      else {
+	strPrint(STR_DEBUG_ERROR, "GAMMA:  received unexpected %d\n\n", gamma_msg);
+      }
+    }
+
+    if(loop) 
+      IOS_SendMessage(deltaQueue, TWO_CONT, IOS_MESSAGE_NOBLOCK);
+  } while (loop);
+
+  IOS_DestroyThread(0, NULL);
+  
+}
+
+static void 
+thread_delta(void)
+{
+  
+  // More like do thread
+  IOSError rc;
+  int loop = 1, fail = 0;
+ 
+  do {
+    rc = IOS_ReceiveMessage(deltaQueue, &delta_msg, IOS_MESSAGE_BLOCK);
+    if(IOS_ERROR_OK != rc) {
+      strPrint(STR_DEBUG_CRIT, "DELTA :  FAIL received %d while receiving\n", rc);
+      loop = 0;
+      fail++;
+    }
+    else {
+      if(TWO_FAIL == delta_msg) {
+	fail++;
+	loop = 0;
+	strPrint(STR_DEBUG_CRIT, "DELTA :  FAILING from gamma received\n");
+      }
+      else if(TWO_CONT == delta_msg) {
+	busDelay(1000);
+	if(two_cnt > twoThreshold) {
+	  loop = 0;
+	  strPrint(STR_DEBUG_CRIT, "DELTA :  terminating ...\n");
+    	}
+	else {
+	  IOS_SendMessage(gammaQueue, TWO_CONT, IOS_MESSAGE_NOBLOCK);
+	}
+      }
+      else if(TWO_QUIT == delta_msg) {
+	loop = 0;
+	strPrint(STR_DEBUG_CRIT, "DELTA :  exiting from QUIT command\n");
+      }
+    }
+
+  } while(loop);
+
+  if(fail > 0) {
+    IOS_JamMessage(mainQueue, MAIN_ERROR, IOS_MESSAGE_NOBLOCK);
+  }
+  else {
+    IOS_SendMessage(mainQueue, MAIN_DONE, IOS_MESSAGE_NOBLOCK);
+  }
+
+  IOS_DestroyMessageQueue(deltaQueue);
+  strPrint(STR_DEBUG_CRIT, "\nDELTA :  FINAL COUNT == %d\n", two_cnt);
+  IOS_JamMessage(gammaQueue, TWO_QUIT, IOS_MESSAGE_BLOCK);
+  IOS_DestroyThread(0, NULL);
+}
+
+#endif

@@ -1,0 +1,320 @@
+d30 1
+a30 1
+SRAM, where it will run from. The SK must launch the BA, and relies on
+a38 3
+<p>
+To facilitate task partioning, a high-level description of the tasks is
+provided next.
+d40 3
+a42 1
+<h2>Tasks to be carried out</h2>
+d44 1
+d47 1
+a47 2
+the line are un-encrypted, while items below are encrypted. The license hash is
+computed over both the encrypted and un-encrypted portions.
+d60 1
+d80 2
+d84 14
+d103 13
+d120 3
+d133 4
+d138 1
+a138 21
+  <li> Recovery: <br>
+    Recovery is needed when the SK or first app (i.e., BA) on the flash has
+    become damaged and unusable. The memory card is brought to the depot.
+    Current thinking is the depot will have a special slot for memory cards
+    that is used for both license purchase and recovery. The Boot-ROM loads
+    the SK, so it must be able to detect the SK is bad and provide the
+    appropriate alert (LED or message to screen).
+    
+    <p>
+    In the unlikely case we decide to be extremely paranoid, and assume the SK
+    could go bad simultaneously with a block holding whatever authentication
+    data is requried to authenticate the memory module a the depot, the bootRom
+    must be capable of writing a "recovery packet" to the first good block.
+    This packet will likely contain (i) BBID (plaintext); (ii)
+    Encrypt_with_BB_priv_key(hash(BBID + <constant string>)), where constant
+    string is agreed upon before manufacture.  The recovery server will then
+    re-intiialize the FS and place the SK, BA and certificate in external flash
+    according to the FS.
+
+  <li> Power-on detects no flash: <br>
+       Must write informative message to the tv.
+a139 1
+</ul>
+d142 1
+a142 1
+<b>Potential Secure Kernel Tasks:</b>
+a143 6
+The tasks listed below are those that will require support from the secure
+kernel. This list is intended to itemize the work to be done, and not to
+suggest an optimal ordering for implementation. The sections to follow will
+address those issues, address the work distribution between the broswer
+application and secure kernel (secure SRAM), and provide another level of
+detail for task steps.
+d151 2
+a152 4
+    initialize cpu -
+      memory, cache, ... (anything the BootRom did not initialize)<br>
+    initialize hardware -
+      bcp, usb, ... <br>
+a153 32
+  <li> Activation: <br>
+    We don't know yet exactly when activation steps will occur (factory, depot,
+    ...). Prior to activation: 
+    <ul>
+      <li> the secure kernel must be present in external flash, occupying
+         the first good blocks (fixed size, so number blocks can be fixed).
+      <li> the BA must follow the SK on the next sequence of good blocks.
+      <li> the BB certificate, signed appropriately, must be in external flash.
+      <li> the flash file system <i>should</i> be initialized.
+    </ul>
+    The activation step will then occur at the depot. The details are still
+    being worked out.
+
+  <li> Recovery: <br>
+    The same text as in the "Boot-Rom Tasks" section apply here as well.
+    The SK must detect if the BA is bad and write the same recovery packet.
+
+  <li> Content Download: <br>
+    Most of the processing required to download content will occur in the
+    browser. However, authentication will be required. Pending definition of the
+    content download protocol, this is likely to include:
+    <ul> 
+      <li> a step dependent on the SK. This step is to authenticate the BB 
+        conducting the transaction. The depot BB conducting the transaction
+        may be required to authenticate itself using a challenge-response
+	scheme.
+      <li> a step that does not depend on the SK. This step is to authenticate 
+        the BB that will play the content. A BB certificate resides 
+	on disk from manufacturing or recovery, and all the browser needs to do
+	is locate this certificate on disk and pass it along. 
+    </ul>
+    
+d160 1
+a160 1
+      <li> Load, decrypt<a href=#footnote2><SUP>2</SUP></a> and verify license.
+d165 2
+a166 1
+	   specified in the license meta-data.
+d172 2
+d175 66
+a240 1
+  <li> Load an Application that has been re-encrypted: <br> 
+d244 8
+a251 5
+      <li> Locate and load license information from flash
+           may be passed in by browser app). We now have the CID.
+      <li> Load re-encryption key from CID/key table referenced via SFlash
+           (the actual table will be held in external flash).
+      <li> Setup cipher to use re-encryption key.
+d253 2
+a254 2
+      <li> Load first N bytes of content from flash to DRAM. N is specified
+           in the license.
+a256 2
+      <li> Setup PI to provide the loaded application a contiguous memory 
+           view of it's content in flash.
+d258 1
+a258 1
+      <li> Exit secure mode with PC at load address.
+a260 23
+  <li> Content Re-encryption<a href=#footnote3><SUP>3</SUP></a>: <br>
+       This is required before running an application (other than the first app
+       which is written during activation) acuired at the depot: the flash has
+       been removed, new content has been written (at the depot), and flash is
+       re-inserted. The re-encryption will occur just before the first attempt
+       to run the application.  Details for some of the steps below are given
+       in <a href=security/proposal_chip_security.htm>this</a> 
+       document. <br>
+    <ul>
+      <li> Locate and load license information from flash.
+      <li> use SFlash reference to external flash re-encryption key table to 
+	   see if there is an entry for this CID (assume there is not).
+      <li> Use the re-encryption data from the license to create a key.
+      <li> In place, a flash block should be re-encrypted using the new
+           key. As re-encryption proceeds the hash should be cumulatively
+	   computed.
+      <li> verify computed hash versus the one in the license over entire
+           content.
+      <li> write the CID/key pair to external flash table.
+    </ul>
+
+  <li> SK detects bad browser app : <br>
+       Must write informative message to the tv.
+d264 3
+a266 1
+       ECC related tasks must be performed.
+d281 7
+d294 1
+d311 3
+a313 6
+<i>No Flash Message to TV</i><br>
+Graphically display the informative message on the television. 
+<font COLOR=red>
+Since this is done in ROM, it would be nice if there was on LED for this
+purpose instead!
+</font>
+d329 1
+a329 1
+Compare the hash computed during loading to the falue in SFLASH. It is
+a332 25
+<i>Write Recovery Packet</i><br>
+This step is probably not needed, but it is included for now.
+<p>
+Prepare a recovery packet by:
+<ul>
+  <li> read BBID from SFLASH, and store in SRAM.
+  <li> read BB private key from SFLASH and encrpyt BBID followed
+    by some known plaintext. Write this directly following the BBID
+    in SRAM.
+</ul>
+Write the packet to the first page in the first good block of flash.
+
+<p>
+<i>Recover Message to TV</i><br>
+Graphically display the informative message on the television. 
+<font COLOR=red>
+Since this is done in ROM, it would be nice if there was on LED for this
+purpose instead!
+</font>
+<p>
+<font COLOR=red>
+Must add steps if this is for TV (VI interaction and frame buffer writing).
+</font>
+
+<p>
+d334 3
+a336 6
+<ul>
+  <li> Remap 0xbfc0000 to the SK start address in SRAM. 
+  <li> jump to appropriate start addres in SK (may not be
+   0xbfc0000, since this is where code to discriminate NMI
+   from soft reset will reside).
+</ul>
+d344 8
+a351 1
+implement the SK API.
+d370 2
+a371 2
+This is where the SK API is implemented. The specifics are TBD and will
+be covered in a separate document.
+d389 8
+a396 1
+<i>Locate First BA License</i> <br>
+d420 1
+a420 1
+
+d429 3
+a431 1
+       on this license. In the latter case this step is not necessary.</i>
+d438 5
+a442 10
+The SK must know enough about the <a href=../ffs/ffs.htm>flash file system</a>
+to locate the BA (first application) content. The first app content could be
+located using steps similar to those for finding the license. This is not
+necessary, however, since the first app blocks will always be located in
+sequence within the first good blocks of permanent storage. The number of
+blocks to load can be determined from the license data. The good block start
+offset (i.e., not counting bad blocks) is the fixed number of blocks dedicated
+to the SK. To determine if a block is good or bad, the SK can read the
+16-byte spare area and check the appropriate byte.
+
+d445 1
+a445 1
+<i>Load/Verify Hash</i> <br>
+d449 7
+a455 4
+       Decryption Key" from the license.
+  <li> DMA the number of bytes of content specified by the license "Boot
+       length" entry. Given the location of the content first flash block,
+       this will require walking the FAT to find all required blocks of
+d457 1
+d472 2
+a473 18
+<i>Write Recovery Packet</i><br>
+This is the same as for the boot-ROM, but repeated here for convenience.
+Prepare a recovery packet by:
+<ul>
+  <li> read BBID from SFLASH, and store in SRAM.
+  <li> read BB private key from SFLASH and encrpyt BBID followed
+    by some known plaintext. Write this directly following the BBID
+    in SRAM.
+</ul>
+Write the packet to the first page in the first good block of flash.
+
+<p>
+<i>Msg to TV</i>
+A message must inform the user recovery is required.
+<font COLOR=red>
+Must add steps if this is for TV (VI interaction and frame buffer writing).
+</font>
+
+d494 7
+d502 2
+a503 3
+<font COLOR=red>
+ToDo: Depot flow.
+</font>
+d506 2
+a507 5
+<i>FFS Check</i> and <i>Repair</i> <br>
+This check is mostly for taking care of things that were in progress when
+power went down. This includes basic FS blocks such as the FAT and directory
+file. If there was a power-down while re-encrypting content, that recovery
+will be postponed until the next attempt to execute the content by the user.
+d512 2
+a513 1
+connection protocol are still pending.
+d517 2
+a518 4
+All processing while connected to the depot is being encapsulated here.
+The usb connection can be used for both activation and content download.
+Once more details about the depot connection protocols and tasks are
+available they will be taken into account here.
+d525 1
+d540 1
+d542 1
+d548 1
+a548 1
+   SK_StartReencrypt(
+d564 1
+d566 1
+d593 1
+d595 1
+d603 1
+d605 1
+d612 1
+d619 1
+a619 1
+map appear contiguous.
+d631 314
+a944 11
+pLicense={locate license and load to memory};
+pKeyList={locate re-encryption key list and load to memory};
+SK_AppLaunch(pLicense,pKeyList);
+    // o uses CID in license to lookup key in SFlash,
+    // o sets cipher, 
+    // o DMA N bytes from flash to destination start address
+    //    N is the license "Boot length" entry.
+    //    (since PI mapping setup, this is simple)
+    // o Compute hash from loaded bytes (in main memory) -
+    //    Same as in "Load/Verify Hash" step in SK startup flow. 
+    // o Run, using same steps as "Run" block in SK startup flow.
+d949 18
+a991 13
+<p>
+<a name="footnote2">
+<SUP>2</SUP> &nbsp
+    The license for the first app will most likely not be encrypted using
+    this BB's public key, as all other licenses will be. It could be in the
+    clear, or encrypted with some other TBD global key that all BBs share.
+<p>
+<a name="footnote3">
+<SUP>3</SUP> &nbsp
+    These steps must actually be performed such that power loss cannot result
+    in content loss.  Also, in the event a block goes bad, there needs to be a
+    good amount of flash FS code to handle the content reshuffle. This portion
+    of code should reside outside the SK.

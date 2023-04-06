@@ -1,0 +1,366 @@
+d14 2
+a15 2
+	  $Revision: 1.15 $<br>
+	    $Date: 2002/08/27 20:24:47 $
+d19 1
+a19 1
+      <hr></hr>
+d38 2
+a39 2
+      <hr></hr>
+      <h2> Terminology</h2>
+d53 2
+a54 1
+          eTickets and content and plugs into the BB Player.</li>
+d58 1
+a58 1
+          the rights to play one content which is referred to as <i>Free Content</i>.&nbsp;</li>
+d61 1
+a61 1
+          his content is kept in a <i>Safety Box</i> on the server. The customer
+d63 5
+a67 3
+          Box </i>from where you can always download it at no cost&quot; Once a
+          customer has purchased an eTicket, the associated content will always
+          be available to him from his <i>Safety Box</i>.</li>
+d71 1
+a71 1
+        <li>BB Depot - computer used retailer (&amp; indirectly by customer) for
+d73 5
+a77 4
+        <li>Download Station - connected to a
+          BB Depot which is used for content downloads, used only by the
+          customer.</li>
+        <li>Memory Card Port - a port on the BB Depot where a BB Card can be
+d79 1
+a79 1
+        <li>Depot-BB Cable - a USB cable is used to plug in to the customer's BB
+d82 22
+a103 1
+          Depot</li>
+d105 5
+a109 1
+      <hr></hr>
+a124 2
+	  <li>BB Player return without going through <i>BB Player Purchase</i>
+	    process.</li>
+d128 1
+a128 1
+	  <li>Unable to contact server when customer wants to execute <i>BB Player
+d130 1
+a130 1
+	  <li>Unable to contact server when customer wants to execute <i>eTicket
+d133 1
+a133 1
+      <hr></hr>
+d136 1
+a136 1
+      <hr></hr>
+d143 3
+a145 2
+	    into our system so that we could track the inventory
+	    without dispute.</li>
+d150 8
+d164 1
+a164 1
+        Box</i> on the servers. This forces the customer to learn our
+d167 1
+a167 2
+	  <li>Retailer has authenticated depot to the
+	    server using DepotID.</li>
+d191 1
+a191 1
+		<li>Selects <em>BB Player Purchase</em> option in Retail
+d194 1
+a194 1
+		<li>Connect <i>Depot-BB Cable</i> to new BB player,
+d199 2
+a200 3
+		  player to customer. Instruct customer to go
+		  to the <i>Download Station</i> to get his free
+		  game.</li> 
+d207 3
+a209 4
+		<li>Customer proceeds to <i>Download Station</i>,
+			  takes the BB Card out of the box, inserts
+		  the BB Player's BB Card, and goes through with
+		  &quot;Content Download&quot;</li> 
+d215 11
+a225 1
+      <hr></hr>
+d228 1
+a228 1
+	  certain rights to content.</p>
+d234 10
+d246 9
+a254 11
+	  <li>Customer has purchased a BB Player and he has an
+	  individualized BB Card for his BB Player. Customer is
+	  responsible for ensuring that he does not bring in the BB
+	  Card belonging to some other BB Player.</li> 
+	  <li>The BB Card uniquely identifies (does not authenticate)
+	  the BB Player for which the eTicket will be issued.</li> 
+	  <li>Customer needs only the BB Card.</li>
+	  <li>After the eTicket purchase, the content for which the
+	  customer now has the rights, is kept in a virtual <i>Safety
+	    Box</i>, for subsequent download by him.</li> 
+	  <li>Retailer has authenticated depot to the server using DepotID.</li>
+d265 1
+a265 1
+		<li>Selects a content/game title from a
+d267 1
+a267 1
+		  wants to get the eTicket</li> 
+d270 1
+a270 1
+		  content title</li>
+d281 1
+a281 2
+		<li>Selects <em> eTicket Purchase </em>option
+		  from the Retail Application</li> 
+d284 1
+a284 2
+		<li>If the new title is too big to fit into the BB
+		  Card, prompts the retailer that a memory upgrade is
+d297 1
+a297 1
+		  download the game (see <em>Content Download</em> below).</li>
+d303 9
+a311 1
+      <hr></hr>
+d313 67
+a379 55
+      <h3><span style="background-color: #C0C0C0">Content Download</span></h3>
+      <p><b>Description: </b>Customer downloads content (redeems
+	eTicket) into his player's BB Card.</p>
+      <p><b>Rationale</b></p>
+      <ol>
+	<li>Customer may own a large number of eTickets, but have
+	  space for a limited number of content on his BB Card. So, he
+	  may constantly be deleting and reloading content into the BB
+	  Card from his virtual <i>Safety Box.</i></li> 
+	<li>Content download is a separate action from <i> eTicket
+	    Purchase</i>, since this may take a slightly longer period
+	  of time.</li> 
+	<li>By downloading the content of a game, the customer agrees
+	  that the corresponding eTicket is no longer refundable. 
+	</li>
+      </ol>
+      <p><b>Assumptions &amp; conditions</b></p>
+      <ol>
+	<li>The BB Card identifies (does not authenticate) the BB
+	  Player for which the eTicket has been. The actual BB Player
+	  does not need to be present.</li> 
+	<li>The BB Player owns at least one eTicket which identifies
+	  the content.</li>
+	<li>In order to complete download of the initial <i>Free
+	    Content</i> associated with the purchase of a BB Player,
+	  the customer has to open the packaging and retrieve the BB
+	  Card.</li> 
+	<li>Retailer may have to authenticate the depot the server
+	  unless the customer has downloaded that content before.</li>
+      </ol>
+      <p><b>Sequence of events/actions</b></p>
+      <table width=100%>
+	<tr>
+	  <th width=50%>Customer</th>
+	  <th>Retailer</th>
+	</tr>
+	<tr>
+	  <td width=50%>
+	    <ol>
+	      <li>Inserts his BB Card into the <i>Download Station</i></li>
+	      <li>Reviews all owned eTickets</li>
+	      <li>Using the BB controller on the <i>Download Station</i>, customer selects
+		content to be downloaded.</li> 
+	      <li>Waits for the display to indicate
+		completion of the download process</li> 
+	      <li>Repeats this process for all content
+		that he is interested in that he
+		owns</li> 
+	      <li>Removes BB Card.</li>
+	    </ol>
+	  </td>
+	  <td>&nbsp;</td>
+	</tr>
+      </table>
+      <hr></hr>
+d389 11
+d402 2
+d406 1
+a406 1
+	  <li>Shop owner has already paid for the merchandises when they
+d444 5
+d459 1
+a459 1
+	  <li>Provides the retailer with an option to return a recently purchased but unused BB Players back into
+d467 4
+a470 1
+        limit.</li>
+d472 2
+a473 2
+	    associated with the <i>Free Content</i> is downloaded from
+	    the servers or eTickets associated with any other content is downloaded to the BB.</li>
+d478 5
+a482 1
+	  <li>Retailer has authenticated depot to the server using DepotID.</li>
+d503 1
+a503 1
+		<li>Selects <em>BB Player Return</em> option in
+d506 1
+a506 1
+		<li>Connect <i>Depot-BB Cable</i> to new BB player,
+d509 4
+d515 1
+a515 3
+		  the amount of purchase. If the return process
+		  is unsuccessful, disconnects and returns BB
+		  Player back to customer.</li> 
+d522 1
+a522 1
+		<li>Takes money or BB Player, depending upon the outcome and leaves</li>
+d528 13
+d544 1
+a544 2
+	<p><b>Description: </b>Customer returns an unused
+	  eTicket for a cash refund.</p>
+d552 2
+a553 2
+	  <li>A refund will not be permitted if the eTicket is downloaded from the
+	    server into the BB Card.</li>
+d557 3
+a559 2
+	    asks for a refund for a recently purchased eTicket by customer#1.</li>
+	  <li>The server always has the complete information about the BB Player &amp;
+d563 2
+a564 2
+	  <li>Retailer has authenticated depot to the server using DepotID.</li>
+	  <li>A refund is only permitted from the same BB Depot (as identified by
+d587 1
+a587 2
+		<li>Selects the <em> eTicket Refund</em>
+		  option from the Retail Application and
+d593 1
+a593 2
+		<li>Receives confirmation from the server
+		  that eTicket has been refunded.</li>
+d608 9
+d623 1
+a623 1
+	  <li>Customer receives indication that his BB Card needs to be repaired.</li>
+d627 1
+a627 2
+	  <li>Content of BB Card might be corrupted, uninitialized, or
+	    the corresponding BB has not been activated.</li>
+d630 1
+a630 2
+	  <li>Retailer has authenticated depot to the
+	    server using DepotID.</li>
+d653 1
+a653 1
+          <i>BB </i><em>Card Repair</em></li>
+d659 3
+a661 2
+		<li>Then connects the <i> Depot-BB Cable</i> into the BB Player and selects
+          <i>BB </i><em>Card Individualization.</em></li>  
+d680 10
+d707 1
+a707 2
+	  <li>Retailer has authenticated depot to the
+	    server using DepotID.</li>
+d731 1
+a731 1
+		<li>Selects <em>BB Card Purchase</em> option in Retail
+d734 1
+a734 1
+		<li>Connect the <i>Depot-BB Cable</i> to customer's BB player.</li> 
+d754 10
+d772 4
+a775 3
+	    storage space on the BB Card, and will be prompted only
+	    when s/he wants to download a piece of content but the
+	    Card is full.</li>
+d778 8
+d792 1
+a792 3
+	  <li>If the (new) game is too big to fit in the current BB
+	    Card, customer will be prompted for a memory upgrade.</li>
+	  <li>Retailer does not have to authenticate the depot the the server.</li>
+d807 1
+a807 1
+		  select the title(s) to be moved into <i>Safety Box</i> on the server.</li>
+d819 6
+a824 64
+      <hr>
+	<h3><span style="background-color: #C0C0C0">BB Player return
+	    without going through <em>BB Player Purchase</em> process.</span></h3>
+	<p><b>Description: </b>Customer return a BB Player, which, due to human error, has not gone through
+	  the <em>BB Player Purchase</em> process.
+	</p>
+	<p><b>Rationale</b></p>
+	<ol>
+	  <li>This is a very rare case, but nonetheless could
+	    happen.</li>
+	</ol>
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>The BB Player is not an illegal clone, i.e. it is proper
+	    registered in our system.</li>
+	  <li>The system does not have a sale record for this BB Player.</li>
+	  <li>Retailer has authenticated depot to the
+	    server using DepotID.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100% border=0>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol>
+		<li>Hands over BB Player to Retailer and asks to
+		  return BB</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp</td>
+	  </tr>
+	  <tr>
+	    <td>&nbsp;</td>
+	    <td width=50%>
+	      <ol start=2>
+		<li>Selects <em>BB Player Return</em> option in
+		  Retail Application and is prompted to
+		  connect the BB Player</li> 
+		<li>Connect the <i>Depot-BB Cable</i> to new BB player,
+		  through a "hole" in the box.</li>
+		<li>Starts the return process</li>
+		<li>If the system can authenticate this player but
+		  detects that it has never been purchased, proceeds
+		  to approve the return, otherwise, rejects the return.</li>
+		<li>If return process is successful, puts BB
+		  Player back on display and refunds customer
+		  the amount of purchase. If the return process
+		  is unsuccessful, disconnects and returns BB
+		  Player back to customer.</li> 
+	      </ol>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol start=7>
+		<li>Takes money or BB Player and leaves</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	</table>
+d829 1
+a829 1
+	  <li>Unable to contact server when customer wants to execute
+d831 1
+a831 1
+	  <li>Unable to contact server when customer wants to execute
+d841 1
+a841 1
+      authenticated connection between the BB Depot and the server.&nbsp;</li>

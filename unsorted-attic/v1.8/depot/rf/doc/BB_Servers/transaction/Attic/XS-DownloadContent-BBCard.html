@@ -1,0 +1,114 @@
+<html>
+    <head>
+      <title>Download Station : Download Content to BB Card</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Download Station : Download Content to BB Card</center></h2>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>Download Station - Card Download Manager </strong>(<em>point of control</em>)</li>
+	<li>BB Depot - Depot Download Server</li>
+	<li>BB Depot - Content Manager</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>DepotID is not required to be inserted in the BB Depot.</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>The BB Card has been inserted into the Download Station.</li>
+	<li>The BB Card has been individualized.</li>
+	<li>Download Station has identified the BBID that is in the BB Card.</li>
+	<li>Content has been selected and the BBID either owns the selected content&nbsp;or
+      the content is available for purchase in the BB Depot region.</li>
+	<li>Sufficient free space is available in the BB Card for the selected
+      content</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>ContentID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li>BB Depot - Content Record</li>
+	<li>BB Card</li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li><code>status { content-available, content-unavailable }</code></li>
+	<li><code>download-information</code></li>
+	<li><code>content-object</code></li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>Request Download</code>
+      <ol type="a">
+        <li><i>Depot Download Server</i> receives download request with <i>ContentID</i></li>
+        <li><i>Depot Download Server</i> checks the BB Depot Content store for
+          the <i>ContentID</i></li>
+        <li>If the <i>ContentID</i> record is present in the BB Depot Content
+          store and the <i>content-state</i> is <i>downloadable</i>, it responds with
+          the <i>status</i> of <i>content-available </i>and <i>download-information
+          to </i>the Card Download Manager<i>.</i></li>
+        <li><i>Download Request</i> audit trail is created by the Card Download Manager</li>
+      </ol>
+	</li>
+	<li><code>Start Download</code>
+      <ol type="a">
+        <li>Using the <i>download-information, </i>the <i>Card Download Manager </i>starts
+          getting the <i>content-object</i> from the Depot Download server,
+          writing the contents to the BB Card.</li>
+      </ol>
+	</li>
+	<li><code>Update Status</code>
+      <ol type="a">
+        <li>Once the download is complete, the <i>content-status </i> on
+          the BB Card is updated</li>
+        <li>The Card Download Manager reports back the <i>download-status</i>
+          and <i>download</i><i>-duration </i> to the Depot Download Server</li>
+        <li><i>Download Completion</i> audit trail is created by the Card Download Manager&nbsp;</li>
+      </ol>
+	</li>
+      </ol>
+      <h3>Post-conditions</h3>
+      <ol>
+	<li>BB Card now has the <i>content-object</i> for the <i>ContentID.</i></li>
+      </ol>
+
+      <h3>Audit Records</h3>
+      <ol>
+        <li>Depot Download Server : Download Request - hardware ID,
+          region ID, BBID, contentID, content-state</li>
+        <li>Depot Download Server : Download Completion - hardware ID,
+          region ID, BBID, contentID, content size, content duration</li>
+      </ol>
+      
+      <h3>Exceptions</h3>
+
+      <ol>
+	<li>Connection cannot be made between the <em>Download
+	    Station</em> and the <em>BB Depot.</em> </li>
+	<li>If the <i>content-state</i> for <i>ContentID</i> in the Depot Content
+      record is <i>revoked,</i> then the eTickets for the <i>BBID</i> identified
+      by the BB Card are re-synchronized with what is present in the server. </li>
+	<li>If there is no entry for <i>ContentID</i> in the BB Depot Content store,
+      then a <i>status</i> of <i>content-unavailable</i> is returned to the
+      Download Station and the customer is requested to retry at a later time.
+      This is a critical error that needs to be rectified. </li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="XS-DownloadContent-BBCard/XS-DownloadContent-BBCard1_raster.gif">Control Flow</a></li>
+	<li><a target="data" href="XS-DownloadContent-BBCard/XS-DownloadContent-BBCard2_raster.gif">Data Flow</a></li>
+      </ul>	  
+    </body>
+  </html>

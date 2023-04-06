@@ -1,0 +1,110 @@
+#!/bin/sh 
+
+OPTS="-n"
+SIMU="no"
+
+usage()
+{
+    echo "Usage: vi [-i]"
+    echo "video test "
+    echo "   -i: use ipc simulator(defalt no)"
+    exit 1
+}
+
+while getopts "i?" a
+do 
+   case $a in 
+       i) OPTS="-i -n";SIMU="yes";;
+       *) usage;;
+   esac
+done
+
+if [ "$SIMU" = "yes" ]; then
+   echo "vi_snoop 1" > tmp.$$
+   ../../iosim/src/iosim -f tmp.$$
+   rm -rf tmp.$$
+fi
+
+#
+# Fill color bar 
+#
+GRAY=bfbfbf00
+YELLOW=bfbf00
+CYAN=00bfbf00
+GREEN=00bf0000
+MAGENTA=bf00bf00
+RED=bf000000
+BLUE=0000bf00
+black=00000000
+
+rm -rf tmp.$$
+write_color()
+{
+    cur=0;
+    while [ "$cur" -lt "$2" ]
+    do
+        echo "$1" >> tmp.$$
+    done
+}
+
+#
+# create 5 line color bar data
+#
+for i in 1 2 3 4 5 
+do
+   write_color $GRAY 80
+   write_color $YELLOW 80
+   write_color $CYAN 80
+   write_color $MAGENTA 80
+   write_color $black 80
+   write_color $RED 80
+   write_color $GREEN 80
+   write_color $BLUE 80
+done
+
+jtag $OPTS blk_load -b 0x3800 tmp.$$
+rm -rf tmp.$$
+
+#
+# VI Registers
+#
+
+VI_CRTL=0x04400000
+VI_ORIGIN=0x04400004
+VI_WIDTH=0x04400008
+VI_V_INT=0x0440000C
+VI_BURST=0x04400014
+VI_V_SYNC=0x04400018
+VI_H_SYNC=0x0440001C
+VI_LEAP=0x04400020
+VI_H_START=0x04400024
+VI_V_START=0x04400028
+VI_V_BURST=0x0440002C
+VI_X_SCALE=0x04400030
+VI_Y_SCALE=0x04400034
+VI_V_CURRENT=0x4400010
+
+jtag $OPTS $VI_CRTL 0
+jtag $OPTS $VI_ORIGIN 0x1000
+jtag $OPTS $VI_WIDTH 0x280
+jtag $OPTS $VI_V_INT 0x3ff
+jtag $OPTS $VI_BURST 0x3e22239
+jtag $OPTS $VI_V_SYNC 0x28
+jtag $OPTS $VI_H_SYNC 0xc15
+jtag $OPTS $VI_LEAP 0x0c150c15
+jtag $OPTS $VI_H_START 0x006c02ec
+jtag $OPTS $VI_V_START 0x00050025
+jtag $OPTS $VI_X_SCALE 0x00000400
+jtag $OPTS $VI_Y_SCALE 0x00000400
+
+jtag $OPTS $VI_CTL 0x00003303
+jtag $OPTS $VI_V_CURRENT 0
+
+sleep 2
+
+
+
+
+
+
+

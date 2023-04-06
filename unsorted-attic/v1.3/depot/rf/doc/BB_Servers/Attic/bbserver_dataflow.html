@@ -1,0 +1,545 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>BB Servers - Data Flow</title>
+</head>
+
+<body>
+
+<h3 align="left">Obsolete. This document has been superseded by</h3>
+<ul>
+  <li>
+    <p align="left"><a href="BB-Servers.html">BB Servers</a></li>
+  <li>
+    <p align="left"><a href="BB-Transactions.html">BB Transactions</a></li>
+  <li>
+    <p align="left"><a href="data_defs.html">BB Server - Data Structures</a></li>
+</ul>
+<hr>
+
+<center>
+<h2>BB Servers - Data Flow</h2>
+<b>BroadOn Confidential</b><p>
+<i>
+$Revision: 1.2 $<br>
+$Date: 2002/09/11 18:26:41 $<br></i>
+</center>
+
+<h3>1. Overview</h3>
+
+This document describes abstraction of data stored in BB server repositories
+and data exchange amongst BB server components, BB Depot and BB devices.
+Main focus of this document is to supplement the
+"<a href="bbserver_arch.html">BB Servers - Architectural Scoping Document</a>"
+document on abstracting flows of data amongst components. It also defines
+ownership of data element which would be duplicated in multiple repositories.
+Abstraction is used so that it can be isolated from what mechanism to transfer
+these data or how components are implemented, which are mostly irrelevant
+from high level data flow perspective.
+<br>
+Refer to protocol and secure infrastructure documents on
+how these data is securely transferred between components. Also refer to
+"<a href="bbserver_repository.html">BB Servers - Repositories</a>"
+for actual database schema and physical layout in detail.
+<p>
+BB system has multiple streams of data flow for the following:
+<ul>
+  <li><b>Content Distribution</b><br>
+     This is the data stream from Studio (Developers) to BB devices via
+	 BB servers and BB Depot for content distribution. All content will be
+	 distributed securely over this stream.
+  <li><b>eTicket Issuance</b><br>
+     This is the data stream from BB device manufactures to BB devices via
+	 BB servers and BB Depot for eTicket issuance. Actual eTicket production
+	 happens in Operation Center. All eTickets will be issued and delivered
+	 securely over this stream.
+  <li><b>Inventory Management</b><br>
+     This is the data stream from BB Depot to BB servers for inventory
+	 record and management. All sales records entered in BB Depot will
+	 be sent over this stream.
+  <li><b>Remote Management</b><br>
+     This is the same as what RMS and SME device does, and not described
+	 in this document.
+  <li><b>Activity Auditing</b><br>
+     This is the data stream from BB and BB Depot to BB servers for
+	 auditing of activities. Some data to be sent are not particularly
+	 for auditing, like data described above.  
+</ul>
+
+<h3>2. Data in Repositories</h3>
+
+This section describes major data stored in each repository. 
+Refer to the "<a href="bbserver_arch.html">BB Servers - Architectural Scoping Document</a>"
+document for roles of repositories and terminologies.
+
+<h4>2.1 Master Content DB</h4>
+<ul>
+  <li><b>Master Content: file</b><br>
+     Unencrypted master content file (game file) to be published. This form
+	 of content cannot be played on BB device.
+  <li><b>Master Content: metadata</b><br>
+     Unecrypted metadata for the content to be published. Metadata will be
+	 published along with the content file.
+</ul>
+
+<h4>2.2 RMS DB</h4>
+<ul>
+  <li><b>Gateway ID</b><br>
+     Universally unique ID that identifies BB Depot. It is called "BB Depot ID"
+	 in BB server documents.
+  <li><b>IP address (indexed by Gateway ID)</b><br>
+     IP address of given BB Depot ID. It may change over time, and need to
+	 retrieve whenever BB Depot needs to be accessed.
+</ul>
+
+<h4>2.3 Studio DB</h4>
+<ul>
+  <li><b>Studio ID</b><br>
+    Universally unique ID that identifies studio. Studio ID is generated and
+	assigned when studio is signed up for content development.
+  <li><b>Studio information (indexed by Studio ID)</b><br>
+    Logistics information, like name, address, billing information, etc.
+  <li><b>Studio signer certificate (indexed by Studio ID)</b><br>
+    Certificate issued for the studio when it signed up for content development.
+	This certificate is used solely for digital signature of content published
+	by the studio. Its private key cannot be found anywhere in BB server
+	repositories. It is stored only in DevKit.<br>
+  <li><b>Security keys for content publishing</b><br>
+    The type and index of security keys stored in this repository depends on
+	what secure
+	mechanism for content publishing from studio is. It may not even need to
+	store keys in this repository. (Refer to Security Infrastructure document
+	for detail)
+  <li><b>Activity records of studio (indexed by Studio ID & sequence number)</b><br>
+    All communications between Operation Center and Studio will be recorded
+	for auditing purpose. The following is the activities which will be recorded,
+	but not limited to:
+	<ul>
+	  <li>DevKit validation request
+	  <li>Issue of signer certificate
+	  <li>Content publishing request
+	  <li>Content publishing (success or faill; ip address of publisher)
+	</ul>
+</ul>
+
+<h4>2.4 Content DB</h4>
+<ul>
+  <li><b>Title ID</b><br>
+    This is the ID that will be published to BB users and retailers for them
+	to specify title for purchasing.<br>
+	Title ID is generated and assigned manually by Operation Center when new
+	title is registered to publish.
+  <li><b>Title Name (indexed by Title ID)</b><br>
+    Name of the title extracted from the metadata during content publishing
+	process. This is used solely for user interface, like BB server management
+	console. Updated content will replace this record.
+  <li><b>Title Description (indexed by Title ID)</b><br>
+    Description of the title extracted from the metadata during content publishing
+	process. This is used solely for user interface, like BB server management
+	console. Updated content will replace this record.
+  <li><b>Content ID (indexed by Title ID)</b><br>
+    Universally unique ID that identifies content. Content ID is generated and
+	assigned automatically by Content Publishing Server when the content is
+	published by studio. There would be multiple Content ID per Title ID in case
+	the content is updated due to bug fixes.<br>
+	Unlike Title ID, Content ID is unknown to studio.
+  <li><b>Encrypted content file (indexed by Content ID)</b><br>
+    Encrypted content file (game file) to be distributed. This form of content
+	can be played on BB device, and therefore, need to be protected. The secret
+	key used to encrypt the file will be same for multiple revision of content
+	so that it will not affect eTicket generation process for this content.<br>
+	The secret key cannot be found in this repository.<br>
+	<b><i>Issue: what to do for the secret key compromised</i></b>
+  <li><b>Metadata (indexed by Content ID)</b><br>
+    Metadata will not be encrypted.<br>
+	Metadata contains a set of data to be used to construct a catalog on
+	Operation Center as well as on BB Depot:
+	  <ul>
+	    <li>Title (support multibyte characters)
+		<li>Description (support multibyte characters)
+		<li>Size (in bytes)
+		<li>Studio ID
+		<li>Proxy file (image file for display in catalog)
+		<li>Release date
+		<li>Version
+		<li>Price (?)
+		<li>e.t.c.
+	  </ul>
+</ul>
+
+<h4>2.5 BB DB</h4>
+
+<ul>
+  <li><b>BB ID</b><br>
+     BB ID will be uploaded from manufacture (or generated within Operation
+	 Center).
+  <li><b>Public key (owned; indexed by BB ID)</b><br>
+     Publik key for individual BB will be uploaded from manufacture (or generated
+	 within Operation Center). No encryption required.
+  <li><b>(Owner information)</b><br>
+     TBD
+</ul>
+
+<h4>2.6 BB Depot Account DB</h4>
+
+<ul>
+  <li><b>Account ID</b><br>
+     Account ID, or Retailer ID is generated when a retailer signs up to sell
+	 BB devices.
+  <li><b>Account info (indexed by Account ID)</b><br>
+     Information about the retailer. Address, phone as well as billing information
+	 like bank account number, etc.
+  <li><b>BB Depot ID (indexed by Account ID)</b><br>
+     Register BB Depot ID used by this retailer. All transactions with the BB
+	 Depot are supposed to be done by the retailer.
+  <li><b>BB sales record (indexed by Account ID)</b><br>
+     All BB player and BB option sale transaction made via the retailer's
+	 BB Depot will be recorded. The retailer is responsible to pay the price
+	 for sold devices.
+	 Due to a delay caused by the deffered transactions,
+	 the records may not be updated realtime. These record will also be
+	 examined for auditing purpose.
+  <li><b>BB inventory record (indexed by Account ID)</b><br>
+     BB player and BB option inventory that the retailer supposed to have at
+	 given point in time. This record will be used to determine when and what
+	 devices need to be shipped to the retailer, or used to decide whether to
+	 send new devices to the retailer. Unless this record indicate that the
+	 retailer is running out of devices, no shipment should be done.
+  <li><b>Content sales record (indexed by Account ID)</b><br>
+     All content sale transactions made via the retailer's BB Depot will be
+	 recorded. The retailer is responsible to pay the price for sold content.
+	 Due to a delay caused by the deffered transactions,
+	 the records may not be updated realtime. These record will also be
+	 examined for auditing purpose.
+</ul>
+
+<h4>2.7 eTicket DB</h4>
+<ul>
+  <li><b>Content Encryption Key (indexed by Content ID)</b><br>
+     Content Encryption key is generated when content is published (re-encryption)
+	 and stored into Content DB. The key for the re-encryption is encrypted by
+	 a public key of eTicket Transaction server and stored into this repository.
+	 Therefore, it can be used only by the server.
+  <li><b>BB player public key (copied from BB DB)</b><br>
+     When "activation" request comes from BB player, its public key is retrieved
+	 and copied from BB DB.<br>
+	 (TBD: should this repository the owner of BB player public key ?)<br>
+	 This is the key to encrypt eTicket for designated BB player device.
+  <li><b>eTicket issuance record (indexed by BB ID)</b><br>
+     All issuance of eTicket will be recorded for billing and auditing purpose.
+	 The information will be delegated to BB DB and BB-Depot Account DB as
+	 "deffered transaction."
+</ul>
+
+
+<h4>2.8 Hardware Inventory DB</h4>
+<ul>
+  <li><b>BB player inventory</b><br>
+     Number of BB players available in stock. Daily in/out numbers will also
+	 be recorded.
+  <li><b>BB options inventory</b><br>
+     Number of each BB option available in stock. Daily in/out numbers will also
+	 be recorded.
+  <li><b>BB depot inventory</b><br>
+     Number of BB depots available in stock. Daily in/out numbers will also
+	 be recorded.  
+</ul>
+
+<h4>2.9 BB-Depot Account Transaction DB</h4>
+<ul>
+  <li><b>BB player sales</b><br>
+     Record BB ID, date, BB-Depot Account ID for each sale of BB player.
+	 This record will be a seed for delived records in other repositories.
+  <li><b>BB option sales</b><br>
+     Record BB option sold, date, BB-Depot Account ID for each sale of BB optoins.
+	 This record will be a seed for delived records in other repositories.
+  <li><b>BB-Depot interactions</b><br>
+     BB-Depot will periodically send all interaction records that BB-Depot
+	 operators made. All these interaction records will be logged in this
+	 repository for later auditing.<br>
+	 It may send immediate warning if obvious fraud is found.
+</ul>
+
+<h3>3. Data Flows</h3>
+
+<h4><a href="bbserver_usecases.html#buyeticket">
+Use case: Buy eTicket</a></h4>
+
+<dl>
+
+<dd><b>BB Memory Module -&gt eTicket Server (via eTicket port)</b><br>
+  <ul>
+    <li>BB ID for which this Memory Module is initialized
+	<li>BB Certificate<br>
+	<li>(Free space size)
+  </ul>
+  <p>
+
+<dd><b>BB Depot -&gt eTicket Server</b><br>
+  <ul>
+    <li>BB Depot ID
+    <li>Game Title ID
+  </ul>
+  <p>
+
+<dd><b>eTicket Server -&gt eTicket DB</b><br>
+  <ul>
+    <li>BB Depot ID
+	<li>BB ID
+	<li>Game Title ID
+	<li>Date of Sale
+  </ul>
+  <p>
+
+<dd><b>eTicket Server -&gt BB Memory Module (via eTicket port)</b><br>
+  <ul>
+    <li>eTicket
+  </ul>
+  <p>
+
+<dd><b>eTicket Server -&gt BB Account DB</b><br>
+  <ul>
+    <li>BB Depot ID
+    <li>BB ID
+    <li>Game Title ID
+	<li>Date of sale
+  </ul>
+  <p>
+    
+</dl>
+
+<h4><a href="bbserver_usecases.html#downloadtitle">
+Use case: Download a  title</a></h4>
+
+<dl>
+
+<dd><b>BB Memory Module -&gt BB Depot (via Download Station)</b><br>
+  <ul>
+    <li>BB ID for which this Memory Module is initialized
+	<li>Game Title ID
+  </ul>
+  <p>
+
+<dd><b>BB Depot -&gt BB Memory Module (via Download Station)</b><br>
+  <ul>
+    <li>Title Content
+  </ul>
+  <p>
+
+<dd><b>BB Depot -&gt Local Transaction Log</b><br>
+  <ul>
+    <li>BB ID for which this Memory Module is initialized
+	<li>Game Title ID
+	<li>Date of download
+  </ul>
+  <p>  
+
+</dl>
+
+
+<h4><a href="bbserver_usecases.html#buyhardwaredevice">
+Use case: Buy hardware  devices</a></h4>
+
+<dl>
+
+<dd><b>BB Depot -&gt Local Transaction Log</b><br>
+  <ul>
+    <li>Hardware device ID
+	<li>Number of devies sold
+	<li>Sales price
+	<li>Date of sale
+  </ul>
+  <p>
+
+</dl>
+
+<h4><a href="bbserver_usecases.html#deferredtransaction">
+Use case: Processing of deferred  transactions</a></h4>
+
+<dl>
+
+<dd><b>BB Depot -&gt BB-Depot Account Transaction Server/DB</b><br>
+  <ul>
+    <li>BB Depot ID
+	<li>Date of upload
+	<li>BB Hardware device sale transactions<br>
+	   <ul>
+	     <li>BB Hardware device ID
+		 <li>Number of devices sold
+		 <li>Sales price
+		 <li>Date of sale
+	   </ul> 
+	<li>Content download transactions
+	  <ul>
+	    <li>BB ID
+		<li>Game Title ID
+		<li>Date of download
+	  </ul>
+  </ul>
+  <p>
+
+<dd><b>BB Depot Account Transaction DB -&gt BB-Depot Account DB</b><br>
+  <ul>
+    <li>BB Depot ID
+    <li>BB Hardware device sale transactions
+	   <ul>
+	     <li>BB Hardware device ID
+		 <li>Number of devices sold
+		 <li>Sales price
+		 <li>Date of sale
+	   </ul> 
+  </ul>
+  <p>
+
+<dd><b>BB Depot Account DB -&gt Hardware Inventory DB</b><br>
+  <ul>
+    <li>BB Depot ID
+	<li>BB Hardware devices sold
+	   <ul>
+	     <li>BB Hardware ID
+		 <li>Number of devices sold
+		 <li>Date of sale
+	   </ul>
+  </ul>
+  <p>
+  
+</dl>
+
+<h4><a href="bbserver_usecases.html#releasedevkit">
+Use case: Release DevKit</a></h4>
+
+<dl>
+
+<dd><b>Operation Center -&gt Studio DB</b><br>
+  <ul>
+    <li>Studio ID
+	<li>Information about the Studio
+	<li>Certificate
+	<li>Private key
+  </ul>
+  <p>
+
+</dl>
+
+<h4><a href="bbserver_usecases.html#releasetitle">
+Use case: Release a Title</a></h4>
+
+<dl>
+
+<dd><b>None</b>
+
+</dl>
+
+<h4><a href="bbserver_usecases.html#publishtitle">
+Use case: Publish a Title</a></h4>
+
+<dl>
+
+<dd><b>Content Publishing Server -&gt Studio DB</b><br>
+  <ul>
+    <li>Studio ID
+	<li>Game information
+	  <ul>
+	  <li>Title
+	  <li>Required free space
+	  <li>Description
+	  <li>Thumbnail
+	  <li>TBD
+	  </ul>
+	<li>Date of publish
+  </ul>
+  <p>
+
+<dd><b>Content Publishing Server -&gt eTicket DB</b><br>
+  <ul>
+    <li>Content ID
+	<li>Symmetric key for encryption<br>
+	<b><i>to be encrypted by eTicket Server's public key</i></b>
+  </ul>
+  <p>
+  
+<dd><b>Content Publishing Server -&gt Content DB</b><br>
+  <ul>
+    <li>Content ID
+	<li>Encrypted Content files
+	<li>Metadata contains game information
+  </ul>
+  <p>
+
+</dl>
+
+<h4><a href="bbserver_usecases.html#distributetitle">
+Use case: Distribute new titles</a></h4>
+
+<dl>
+
+<dd><b>RMS DB -&gt Content Distribution Server</b><br>
+  <ul>
+    <li>List of Active BB Depots
+	  <ul>
+	    <li>BB Depot ID
+		<li>IP Address
+	  </ul>
+  </ul>
+  <p>
+
+<dd><b>Content Distribution Server -&gt BB Depot</b><br>
+  <ul>
+    <li>Notification message of new content
+  </ul>
+  <p>
+  
+</dl>
+
+<h4><a href="bbserver_usecases.html#contentsync">
+Use case: Content Synchronization</a></h4>
+
+<dl>
+
+<dd><b>BB Depot -&gt Content Distribution Server</b><br>
+  <ul>
+    <li>BB Depot ID
+	<li>Last updated timestamp
+  </ul>
+  <p>
+
+<dd><b>Content Distribution Server -&gt BB Depot</b><br>
+  <ul>
+    <li>A list of URLs where newly available content can be downloaded
+	<li>Timestamp of the list
+  </ul>
+  <p>
+  
+</dl>
+
+<h4><a href="bbserver_usecases.html#submitbbinfo">
+Use case: Submit BB Player information</a></h4>
+
+<dl>
+
+<dd><b>Manufacture Tool -&gt Manufacture Interfacing Server</b><br>
+  <ul>
+    <li>BB ID
+	<li>BB public key
+	<li>Date of manufacture
+  </ul>
+  <p>
+
+<dd><b>Manufacture Interfacing Server -&gt Hardware Inventory DB</b><br>
+  <ul>
+    <li>BB ID
+  </ul>
+  <p>
+
+<dd><b>Manufacture Interfacing Server -&gt BB DB</b><br>
+  <ul>
+    <li>BB ID
+	<li>BB public key
+  </ul>
+  <p>
+ 
+</dl>
+
+</body>
+</html>

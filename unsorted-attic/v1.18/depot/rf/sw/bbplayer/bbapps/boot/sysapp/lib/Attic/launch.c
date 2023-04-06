@@ -1,0 +1,17 @@
+a93 1
+    u16 *blkList;
+d95 2
+a96 4
+    OSBbMetaData md;
+    s32 fsret,fd,listSize;
+    int i,haveCrl=1;
+    u32 addr;
+d252 1
+a252 2
+    u8 *rlHeap,*certHeap,*keylist=heap;
+    u16 *blkList;
+a253 2
+    OSBbMetaData md;
+    s32 fsret,fd,listSize;
+a255 1
+    u32 addr;

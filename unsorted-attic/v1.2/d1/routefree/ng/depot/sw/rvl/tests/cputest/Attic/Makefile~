@@ -1,0 +1,433 @@
+#
+# $Id: Makefile~,v 1.1 2006/02/04 03:07:54 gzhang Exp $
+#
+
+
+CC=/opt/crosstool/arm-elf/bin/gcc
+
+ARM_INCLUDE_DIR = $(ROOT)/usr/include/arm
+RVL_INCLUDE_DIR = $(ROOT)/usr/include/rvl
+RVL_LIB_DIR = $(ROOT)/usr/lib/rvl
+
+
+SRAM_SPLASH_CFLAGS_B= -I$(ARM_INCLUDE_DIR) -I../include -I$(RVL_INCLUDE_DIR) -L$(RVL_LIB_DIR) -ffreestanding -nostdlib -mbig-endian -Ttext 0xfff00000 -Tdata 0xfff04000
+
+SRAM_CFLAGS_B= -I$(ARM_INCLUDE_DIR) -I../include -I$(ARM_INCLUDE_DIR) -I$(RVL_INCLUDE_DIR) -L$(RVL_LIB_DIR) -ffreestanding -nostdlib -mbig-endian -Ttext 0xfff00000 -Tdata 0xfff03000
+
+SRAM_CFLAGS_INT_B= -I$(ARM_INCLUDE_DIR) -I../include -I$(RVL_INCLUDE_DIR)/diag -ffreestanding -nostdlib -mbig-endian -Ttext 0xfff00000 -Tdata 0xfff02000
+
+SRAM_CFLAGS2_B= -I$(ARM_INCLUDE_DIR) -I../include -I$(BW_INCLUDE_DIR) -I$(BW_INCLUDE_DIR)/diag -I$(PROJECT_ROOT)/main/bw/include -ffreestanding -nostdlib -mbig-endian -Ttext 0xfff00000 -Tdata 0xfff05000
+
+CFLAGS_B=-x assembler-with-cpp -ffreestanding -nostdlib -mbig-endian -Ttext 0xffff0000
+SRAM_CFLAGS_2_B= -I../include -c -x assembler-with-cpp -mbig-endian -Ttext 0xfff00000 -Tdata 0xfff04000
+SPLASH_FLAGS_B= -I../include -ffreestanding -nostdlib -mbig-endian -Ttext 0x00100000 -Tdata 0x00103800
+SPLASH_FLAGS2_B= -I../include -ffreestanding -nostdlib -mbig-endian -Ttext 0x00011500 -Tdata 0x00012800
+SPLASH_FLAGS3_B= -I../include -I$(PROJECT_ROOT)/main/dist/include -I$(PROJECT_ROOT)/main/dist/include/diag -I$(PROJECT_ROOT)/main/bw/include -ffreestanding -nostdlib -mbig-endian -Ttext 0x00012000 -Tdata 0x00016800
+DDR_FLAGS_B= -I../include -ffreestanding -nostdlib -mbig-endian -Ttext 0x10000000 -Tdata 0x10002000
+DDR_FLAGS2_B= -I../include -I$(PROJECT_ROOT)/main/dist/include -I$(PROJECT_ROOT)/main/dist/include/diag -I$(PROJECT_ROOT)/main/bw/include -ffreestanding -nostdlib -mbig-endian -Ttext 0x10000000 -Tdata 0x10005000
+SRAM_FLAGS_B_C= -I../include -c -mbig-endian -Ttext 0xffff0000
+
+LIBS = -lrvldv -lsys -lioslibc -liossyscall
+
+
+ELF_FILES = \
+	cache_sram1B.elf \
+#	cache_sram2B.elf \
+
+ELF_FILES +=	cache_sram3B.elf \
+	cache_sram4B.elf \
+	cache_sram5B.elf \
+	cache_sram6B.elf \
+	cache_sram7B.elf \
+	cache_sram8B.elf \
+	cache_sram9B.elf \
+       	cache_sram10B.elf \
+	cache_sram11B.elf \
+	cache_sram12B.elf \
+	cache_sram13B.elf \
+	cache_sram14B.elf \
+	napa1B.elf \
+	napa2B.elf \
+	napa3B.elf \
+	napa4B.elf \
+	napa5B.elf \
+	napa6B.elf \
+	napa7B.elf \
+	napa8B.elf \
+	napa9B.elf \
+	napa10B.elf \
+	napa11B.elf \
+	napa.mem \
+	napa_2.mem \
+	napa_3.mem \
+	napa_9.mem \
+	napa_11.mem \
+	ddr1B.elf \
+	ddr4B.elf \
+	ddr5B.elf \
+	ddr.mem \
+	ddr_2.mem \
+	ddr_3.mem \
+	ddr_4.mem \
+	ddr_5.mem \
+	adwalk_test.elf
+
+all : $(ELF_FILES)
+
+#
+# NAPA test: I/D Caches disabled, NAPA code at 0x00100000
+#
+napa1B.elf: sram_init1B.o napa1.c 
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa1B.elf sram_init1B.o napa1.c $(LIBS)
+
+#
+# NAPA test: ICache enabled, NAPA code at 0x00100000
+#
+napa2B.elf: sram_init1B.o napa2.c 
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa2B.elf sram_init1B.o napa2.c $(LIBS)
+
+#
+# NAPA test: DCache + MMU enabled, NAPA code at 0x00100000
+#
+napa3B.elf: sram_init1B.o napa3.c 
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa3B.elf sram_init1B.o napa3.c $(LIBS)
+
+#
+# NAPA test: D+ICache + MMU enabled, NAPA code at 0x00100000
+#
+napa4B.elf: sram_init1B.o napa4.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa4B.elf sram_init1B.o napa4.c $(LIBS) 
+
+#
+# NAPA test: D+ICache + MMU enabled, NAPA code at 0x00011500
+#
+napa5B.elf: sram_init1B.o napa5.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa5B.elf sram_init1B.o napa5.c $(LIBS)
+
+#
+# NAPA test: D+ICache + MMU enabled, Nonbuffered SRAM, NAPA code at 0x00100000
+#
+napa6B.elf: sram_init1B.o napa6.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa6B.elf sram_init1B.o napa6.c $(LIBS) 
+
+#
+# NAPA test: D+ICache + MMU enabled, Nonbuffered SRAM, NAPA code at 0x00011500
+#
+napa7B.elf: sram_init1B.o napa7.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa7B.elf sram_init1B.o napa7.c $(LIBS)
+
+#
+# NAPA test: D+ICache + MMU enabled, Nonbuffered SRAM, NAPA code at 0x00100000
+#
+napa8B.elf: sram_init1B.o napa6.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa8B.elf sram_init1B.o napa6.c $(LIBS)
+
+#
+# NAPA test: DMA, NAPA code at 0x00012500
+#
+napa9B.elf: sram_init1B.o napa9.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa9B.elf sram_init1B.o napa9.c $(LIBS)
+
+#
+# NAPA test: DMA & D+ICache + MMU enabled, Nonbuffered SRAM, NAPA code at 0x00012500
+# Setup TTB for DMA access
+napa10B.elf: sram_init1B.o napa10.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa10B.elf sram_init1B.o napa10.c $(LIBS)
+
+#
+# NAPA test: DMA & D+ICache + MMU enabled, Nonbuffered SRAM, NAPA code at 0x00012500
+# Setup TTB for DMA + Int access
+napa11B.elf: sram_init3B.o napa10.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o napa11B.elf sram_init3B.o napa10.c $(LIBS)
+
+#
+# DDR test: D+ICache + MMU enabled
+#
+ddr1B.elf: sram_init1B.o ddr1.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o ddr1B.elf sram_init1B.o  ddr1.c $(LIBS)
+
+#
+# DDR test: DMA + D+ICache + MMU enabled
+#
+ddr4B.elf: sram_init1B.o ddr4.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o ddr4B.elf sram_init1B.o  ddr4.c $(LIBS)
+
+#
+# DDR test: DMA + D+ICache + MMU enabled + Interrupts
+#
+ddr5B.elf: sram_init3B.o ddr4.c
+	$(CC) $(SRAM_SPLASH_CFLAGS_B) -o ddr5B.elf sram_init3B.o  ddr4.c $(LIBS)
+
+#
+# Sram1 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code does not call the assembler cache enable routines,
+# so it should run uncached for I and D space.
+#
+cache_sram1B.elf: sram_init1B.o cache_sram1.c
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram1B.elf sram_init1B.o cache_sram1.c $(LIBS)
+
+#
+# Sram2 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for D
+# space, but the cache setting will be over-ridden by the MMU
+# disabled setting so it should still run uncached for D space 
+# and uncached for I space.
+#
+cache_sram2B.elf: sram_init1B.o cache_sram2.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram2B.elf sram_init1B.o cache_sram2.c $(LIBS)
+
+#
+# Sram3 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for D
+# space, but the MMU is set up in no-access mode, so no code
+# will be loaded or executed once the MMU is on.
+#
+cache_sram3B.elf: sram_init1B.o cache_sram3.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram3B.elf sram_init1B.o cache_sram3.c $(LIBS)
+
+#
+# Sram4 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for D
+# space, and the MMU is set up in manager mode, which does
+# not check permissions on pages, so code will be loaded and
+# executed once the MMU is on, and data reads and writes should
+# work as normal.   Section is non-buffered and non-cached.
+#
+cache_sram4B.elf: sram_init1B.o cache_sram4.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram4B.elf sram_init1B.o cache_sram4.c $(LIBS)
+
+#
+# Sram5 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for D
+# space, and the MMU is set up in manager mode, which does
+# not check permissions on pages, so code will be loaded and
+# executed once the MMU is on, and data reads and writes should
+# work as normal.     Section is buffered and non-cached.
+#
+cache_sram5B.elf: sram_init1B.o cache_sram5.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram5B.elf sram_init1B.o cache_sram5.c $(LIBS)
+
+#
+# Sram6 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for D
+# space, and the MMU is set up in manager mode, which does
+# not check permissions on pages, so code will be loaded and
+# executed once the MMU is on, and data reads and writes should
+# work as normal.     Section is write-through.
+#
+cache_sram6B.elf: sram_init1B.o cache_sram6.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram6B.elf sram_init1B.o cache_sram6.c $(LIBS)
+
+#
+# Sram7 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for D
+# space, and the MMU is set up in manager mode, which does
+# not check permissions on pages, so code will be loaded and
+# executed once the MMU is on, and data reads and writes should
+# work as normal.     Section is write-back.  No cache flush.
+#
+cache_sram7B.elf: sram_init1B.o cache_sram7.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram7B.elf sram_init1B.o cache_sram7.c $(LIBS)
+
+#
+# Sram8 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for D
+# space, and the MMU is set up in manager mode, which does
+# not check permissions on pages, so code will be loaded and
+# executed once the MMU is on, and data reads and writes should
+# work as normal.     Section is write-back.  D-cache gets flushed.
+#
+cache_sram8B.elf: sram_init1B.o cache_sram8.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram8B.elf sram_init1B.o cache_sram8.c $(LIBS)
+
+#
+# Sram9 (~Sram2) is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler I-cache enable routines for I
+# space, MMU is disabled, so it should still run uncached for D space
+# and cached for I space.
+#
+cache_sram9B.elf: sram_init1B.o cache_sram9.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram9B.elf sram_init1B.o cache_sram9.c $(LIBS)
+
+#
+# Sram10 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for I/D
+# space, setup MMU to enable I/D cache, it should run cached for I/D space
+#
+cache_sram10B.elf: sram_init1B.o cache_sram10.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram10B.elf sram_init1B.o cache_sram10.c $(LIBS)
+
+#
+# Sram11 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for I/D
+# space, setup MMU to enable I/D cache, it should run cached for I/D space
+# It tests R/W 4, 2, 1 byte size data
+#
+cache_sram11B.elf: sram_init1B.o cache_sram11.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram11B.elf sram_init1B.o cache_sram11.c $(LIBS)
+
+#
+# Sram11 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for I/D
+# space, setup MMU to enable I/D cache, it should run cached for I/D space
+# It tests R/W 4, 2, 1 byte size data
+#
+cache_sram12B.elf: sram_init1B.o cache_sram12.c 
+	$(CC) $(SRAM_CFLAGS_B) -o cache_sram12B.elf sram_init1B.o cache_sram12.c $(LIBS)
+#
+# Sram13 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for I/D
+# space, setup MMU to enable I/D cache, it should run cached for I space
+# Enable interrupts, R/W access in parallel with AES/DMA data transfers
+#
+cache_sram13B.elf: sram_init2B.o cache_sram13.c 
+	$(CC) $(SRAM_CFLAGS_INT_B) -o cache_sram13B.elf sram_init2B.o cache_sram13.c $(LIBS)
+
+#
+# Sram14 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+#
+# The c-code calls the assembler cache enable routines for I/D
+# space, setup MMU to enable I/D cache, it should run cached for I/D space
+# Enable interrupts, R/W access in parallel with AES/DMA data transfers
+#
+cache_sram14B.elf: sram_init2B.o cache_sram14.c 
+	$(CC) $(SRAM_CFLAGS_INT_B) -o cache_sram14B.elf sram_init2B.o cache_sram14.c $(LIBS)
+
+#
+# Sram_init1B.o is vector code which needs to be linked to a user
+# program, and which will be resident at the start of sram.
+#
+sram_init1B.o: sram_init1.s
+	$(CC) $(SRAM_CFLAGS_2_B) -o sram_init1B.o sram_init1.s
+#
+# Sram2 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+# Setsup (DMA) ISR
+#
+sram_init2B.o: sram_init2.s
+	$(CC) $(SRAM_CFLAGS_2_B) -o sram_init2B.o sram_init2.s
+
+#
+# Sram3 is a stand-alone program built from the sram-resident
+# vector code, plus a c-language user program.
+# Setsup (DMA) ISR; modified ver. of sram_init2 without external interrupt_service
+#
+sram_init3B.o: sram_init3.s
+	$(CC) $(SRAM_CFLAGS_2_B) -o sram_init3B.o sram_init3.s
+#
+# Sram4 provides ISR setup api
+#
+sram_init4B.o: sram_init4.s
+	$(CC) $(SRAM_CFLAGS_2_B) -o sram_init4B.o sram_init4.s
+
+#
+# cache test code which needs to be called from SRAM
+# program, and which will be resident in NAPA - at 0x00100000
+#
+napa.mem: cachetst.c
+	$(CC) $(SPLASH_FLAGS_B) -o napa.elf cachetst.c $(LIBS)
+
+#
+# cache test code which needs to be called from SRAM
+# program, and which will be resident in NAPA - at 0x00011500
+#
+napa_2.mem: cachetst.c
+	$(CC) $(SPLASH_FLAGS2_B) -o napa_2.elf cachetst.c $(LIBS)
+
+#
+# access 32 bit word; access pattern is out of order
+# resident in NAPA - at 0x00100000
+#
+napa_3.mem: cachetst3.c
+	$(CC) $(SPLASH_FLAGS_B) -o napa_3.elf cachetst3.c $(LIBS)
+
+#
+# access 32 bit word; concurrent DMA 
+# resident in NAPA - at 0x00012500
+#
+napa_9.mem: cachetst9.c dmatest.c aes.c 
+	$(CC) $(SPLASH_FLAGS3_B) -o napa_9.elf cachetst9.c dmatest.c aes.c $(LIBS)
+
+#
+# access 32 bit word; concurrent DMA 
+# resident in NAPA - at 0x00012500
+#
+napa_11.mem: cachetst9.c dmaInttest.c aes.c sram_init4B.o
+	$(CC) $(SPLASH_FLAGS3_B) -o napa_11.elf cachetst9.c dmaInttest.c aes.c sram_init4B.o $(LIBS)
+
+#
+# cache test code which needs to be called from SRAM
+# program, and which will be resident in DDR.
+#
+ddr.mem: cachetst.c
+	$(CC) $(DDR_FLAGS_B) -o ddr.elf cachetst.c $(LIBS)
+
+#
+# cache test code which needs to be called from SRAM
+# program, and which will be resident in DDR.
+#
+ddr_2.mem: cachetst2.c
+	$(CC) $(DDR_FLAGS_B) -o ddr_2.elf cachetst2.c $(LIBS)
+
+#
+# access 32 bit word, 16bit half word and bytes; access pattern is out of order
+#
+ddr_3.mem: cachetst4.c
+	$(CC) $(DDR_FLAGS_B) -o ddr_3.elf cachetst4.c $(LIBS)
+
+#
+# access 32 bit word, access pattern is out of order
+# includes DMA transfer 
+#
+ddr_4.mem: ddr_4.c dmatest.c aes.c 
+	$(CC) $(DDR_FLAGS2_B) -o ddr_4.elf ddr_4.c dmatest.c aes.c $(LIBS)
+
+#
+# access 32 bit word, access pattern is out of order
+# includes DMA transfer + Interrupt
+#
+ddr_5.mem: ddr_4.c dmaInttest.c aes.c sram_init4B.o
+	$(CC) $(DDR_FLAGS2_B) -o ddr_5.elf ddr_4.c dmaInttest.c aes.c sram_init4B.o $(LIBS)
+
+#
+# Test lives in SRAM and assumes that SRAM is working.
+# Do simple address and data bit line walk to test Napa and DDR space.
+#
+adwalk_test.elf: sram_init1B.o adwalk_test.c
+	rm -f sram.hex
+	$(CC) $(SRAM_CFLAGS2_B) -o adwalk_testB.elf sram_init1B.o adwalk_test.c $(LIBS)
+	$(OBJDUMP) -D adwalk_testB.elf > adwalk_testB.list
+	$(LIST2FILES) adwalk_testB.list
+	$(HEX2SRAM3) sram.hex adwalk_testB
+
+clean clobber:
+	rm -f *.elf *.list *.hex *.o *.mem
+
+# eof

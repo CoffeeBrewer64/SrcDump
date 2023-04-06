@@ -1,0 +1,108 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Transaction: Download Content</title>
+</head>
+
+<body>
+
+<h2 align="center">Transaction: Download Content to BB Depot</h2>
+<h4><b>Participants</b></h4>
+<ul>
+  <li> <b> BB Depot - Content Manager</b> (<i>point of control)</i></li>
+  <li> Content Distribution - Content Sync Server</li>
+  <li>Content Distribution -
+    Content Download Server</li>
+</ul>
+<h4>Requirements</h4>
+<ul>
+  <li>Depot and CDS must authenticate each other.</li>
+  <li>Should not require secure connections between BB Depot and CDS for content
+    download so that we can take advantage of content caching.</li>
+</ul>
+<h4>Pre-conditions</h4>
+<ul>
+  <li>BB Player requests to download content which does not exist in the BB
+    Depot's content cache.</li>
+</ul>
+<h4>Input Parameters</h4>
+<ul>
+  <li><code>HardwareID</code></li>
+  <li><code>ContentID</code></li>
+</ul>
+<h4>Data Records</h4>
+<ul>
+  <li><a href="../data_defs.html">BB Depot - Content</a></li>
+  <li><a href="../data_defs.html">CDS - Content</a></li>
+  <li><a href="../data_defs.html">CDS - Depot</a></li>
+</ul>
+<h4>Output Parameters</h4>
+<ul>
+  <li><code>Download URL</code></li>
+  <li><code>Content</code></li>
+</ul>
+<h4>Sequence of Events</h4>
+<ol>
+  <li>	<code>Authenticate</code>
+    <ol type="a">
+      <li>	The BB Depot and the Content Distribution Subsystem mutually
+    authenticate each other.&nbsp;</li>
+    </ol>
+  </li>
+  <li>	<code>Request Content</code>
+    <ol type="a">
+      <li>	The Content Manager sends the <i>Hardware ID, Content ID</i> to the
+        Content Sync Server.</li>
+      <li>	Content Sync Server responds with the <i> download URL</i></li>
+    </ol>
+  </li>
+  <li>	<code>Download Content</code>
+    <ol type="a">
+      <li>The Content Manager uses the URL to download the encrypted <i>Content</i>
+        from the Content Download Server to
+    BB Depot content storage.</li>
+    </ol>
+  </li>
+  <li>	<code>Add Content</code>
+    <ol type="a">
+      <li>After the encrypted content is completely downloaded, a new <i>Content</i>
+        record is created.</li>
+      <li>The Content Manager returns to the Content Download Server the <i>download-duration</i>
+        and <i>status</i>.</li>
+    </ol>
+  </li>
+  <li>The transaction is now complete.</li>
+</ol>
+<h4>Post Condition</h4>
+<ol>
+  <li>   BB Depot - Content records are updated.</li>
+</ol>
+
+<h4>Audit Records</h4>
+<ol>
+  <li>Content Sync Server : Sync Request - Hardware ID, Content ID</li>
+  <li>Content Download Server : Download Request - Hardware ID, Content ID</li>
+  <li>Content Download Server Download Completion - Hardware ID, Content ID, duration of download</li>
+</ol>
+<h4>Exceptions</h4>
+<ol>
+  <li>The CDS and BB Depot are not able to authenticate each other in which case an
+    appropriate error is returned and error logged</li>
+  <li>The CDS may not have the requested content, in which case an error is
+    returned and logged.</li>
+  <li>If the transaction did not complete, the Content Manager will retry
+    appropriately with suitable back off timers till it succeeds.&nbsp; </li>
+</ol>
+
+<p><b>Figures</b></p>
+<ul>
+  <li><a href="XS-DownloadContent/XS-DownloadContent1_raster.gif">Control Flow</a></li>
+  <li><a href="XS-DownloadContent/XS-DownloadContent2_raster.gif">Data Flow</a></li>
+</ul>
+
+</body>
+
+</html>

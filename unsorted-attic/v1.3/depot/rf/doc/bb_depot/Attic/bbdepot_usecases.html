@@ -1,0 +1,314 @@
+d1 1
+a1 1
+<html>
+d3 3
+a5 6
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Customer, Retailer - User model</title>
+</head>
+d7 1
+a7 1
+<body>
+d11 5
+a15 1
+<hr>
+a16 293
+      <p><i>User model outlines the customer or retailer experience as they go
+      about their roles. This document is split into two parts:</i></p>
+      <ul>
+        <li><i><a href="#Mainline User Model cases">The first part</a> of the
+          document lists out the Mainstream User Model cases.</i></li>
+        <li><i><a href="#Other User Model cases">The second part</a> of the
+          document discusses the exception or not so common cases.</i></li>
+      </ul>
+      <hr>
+      <h2><a name="Mainline User Model cases"><span style="background-color: #C0C0C0">Mainstream
+      User Model cases</span></a></h2>
+      <h3>Customer</h3>
+      <ol>
+        <li>BB Player purchase</li>
+        <li>BB Player return</li>
+        <li>eTicket Purchase</li>
+        <li>eTicket Refund</li>
+        <li>Content Download</li>
+        <li>Purchase expansion memory for BB Card</li>
+      </ol>
+      <hr>
+      <h3><span style="background-color: #C0C0C0">BB Player Purchase</span></h3>
+<p><b>Description: </b>Customer purchases BB player, and gets any free content associated with the purchase of the BB.</p>
+<p><b>Rationale</b></p>
+<ol>
+  <li>Ensure that only officially manufactured BB units are sold through BB Depots and can subsequently
+    purchase content (i.e. eTickets).</li>
+  <li>Promotional/free content eTicket will be issued at the time of the BB
+    Player purchase. This content may change from time to time based on marketing
+    promotions and therefore cannot be fixed at the time of manufacture.</li>
+</ol>
+<p>&nbsp;<b>Assumptions &amp; conditions</b></p>
+<ol>
+  <li>Customer may not return free content for refunds or cash.</li>
+  <li>Operator/Retailer has authenticated depot to the server using depotID.</li>
+</ol>
+<p><b>Sequence of events/actions</b></p>
+      <ol>
+	<li>Customer - selects or hands over BB Player to Retailer and asks to
+      purchase BB &amp; get Free Content</li>
+	<li>Retailer - selects <i> BB Purchase</i> option in Retail Application
+      &amp; is prompted to connect the BB Player</li>
+	<li>Retailer - connect special USB cable to new BB player, through
+	  a "hole" in the box.</li>
+	<li>Retailer - starts the purchase process</li>
+	<li>Retailer - when the display shows completion of purchase process,
+      retailer unplugs the cable and hand the BB player to
+	  customer. Customer is directed to go to the download station to get his
+      free game.</li>
+	<li>Customer proceeds to download station and goes through with
+      &quot;Content Download&quot;</li>
+      </ol>
+
+<hr>
+
+      <h3><span style="background-color: #C0C0C0">BB Player Return</span></h3>
+<p><b>Description: </b>Customer returns a recently purchased BB Player.</p>
+<p><b>Rationale</b></p>
+<ol>
+  <li>Provides the retailer with an option to return a recently purchased but unused BB Players back into
+    the stock in case of any erroneous purchases.</li>
+</ol>
+<p>&nbsp;<b>Assumptions &amp; conditions</b></p>
+<ol>
+  <li>After a BB Player has been purchased, a customer has up to 30 minutes during which
+    it may be returned for a refund. This forces the customer to learn our
+    process right away by following through with the content download soon after
+    purchase and limits inventory accounting issues if returns were not subject
+    to a time limit.</li>
+  <li>Returns will also not be permitted if the eTicket associated with the free
+    content is downloaded from the servers or any other eTickets associated with
+    other content is downloaded to the BB.</li>
+  <li>Operator/Retailer has authenticated depot to the server using depotID.</li>
+</ol>
+<p><b>Sequence of events/actions</b></p>
+<ol>
+	<li>Customer - hands over BB Player to Retailer and asks to return BB</li>
+	<li>Retailer - selects <i>BB Player Return</i> option in Retail Application
+      &amp; is prompted to connect the BB Player</li>
+	<li>Retailer - connect special USB cable to new BB player, through
+	  a "hole" in the box.</li>
+	<li>Retailer - starts the return process</li>
+	<li>Retailer - if return process is successful, puts BB Player back on
+      display and refunds customer the amount of purchase. If the return process
+      is unsuccessful, disconnects and returns BB Player back to customer.</li>
+</ol>
+<hr>
+      
+      <h3><span style="background-color: #C0C0C0">eTicket Purchase</span></h3>
+<p><b>Description: </b>Customer wants to purchase additional content.</p>
+<p><b>Rationale</b></p>
+<ol>
+  <li>eTicket i.e. content license is individualized for the BB Player. Possession of
+    content does not indicate ownership.&nbsp;</li>
+</ol>
+<p><b>Assumptions &amp; conditions</b></p>
+<ol>
+  <li>Customer has purchased a BB Player and he has a formatted BB Card.</li>
+  <li>Customer needs only the BB Card - since this contains his BB Player's
+    Digital Certificate (DC). The DC has the public key of the BB Player and a
+    unique
+    BBID.</li>
+  <li>The BB Card identifies (does not authenticate) the BB Player for which the
+    eTicket will be issued.</li>
+  <li>Operator/Retailer has authenticated depot to the server using depotID.</li>
+</ol>
+<p><b>Sequence of events/actions</b></p>
+	<ol>
+	  <li>Customer - selects a content/game title from a brochure or other
+        material for which he wants to get the eTicket</li>
+	  <li>Customer - hands over his BB player's BB
+        Card to the Retailer along with the money &amp; indicates the content</li>
+	  <li>Retailer - selects <i>Purchase eTicket </i>option from the Retail
+        Application</li>
+	  <li>Retailer - upon being prompted, plugs in the BB Card into the BB Depot</li>
+	  <li>Retailer - upon successful purchase
+	    returns the BB Card to the customer &amp; asks the customer to go to the
+        download station to download his content.</li>
+	  <li>Customer - walks over to the download station, inserts the BB Card.</li>
+	  <li>Customer - reviews display which shows all the content for which he
+        has eTickets, associated with his BB Player as
+        identified by the BB Card.</li>
+	  <li>Customer - selects the content he wants to download,
+	    confirms the selection, and
+	    removes the BB Card when the transaction is
+	    complete.  </li>
+	</ol>
+<hr>
+      
+      <h3><span style="background-color: #C0C0C0"> eTicket Refund</span></h3>
+<p><b>Description: </b>Permit the customer to get his money back for an unused
+eTicket which was purchased by Retailer error.</p>
+<p><b>Rationale</b></p>
+<ol>
+  <li>The Retailer&nbsp; may have made a mistake during the eTicket Purchase
+    process or the customer may have changed his mind about the purchase.</li>
+</ol>
+<p><b>Assumptions &amp; conditions</b></p>
+<ol>
+  <li>A refund will not be permitted if the eTicket is downloaded from the
+    server into the BB Card.</li>
+  <li>The customer also has only 30 minutes after the purchase of an eTicket to
+    get a refund. This is to limit the exposure we have where another customer#2
+    with a BB Card that contains the BB identification of customer#1's BB Player
+    asks for a refund of a recently purchased eTicket.</li>
+  <li>The BB Player identified by the BB Card has recently purchased an eTicket.&nbsp;</li>
+  <li>The server always has the complete information about the BB Player &amp;
+    eTickets that are owned by it.</li>
+  <li>The BB Card identifies (does not authenticate) the BB Player for which the
+    eTicket has been.</li>
+  <li>Retailer has authenticated depot to the server using depotID.</li>
+</ol>
+<p><b>Sequence of events/actions</b></p>
+	<ol>
+	  <li>Customer - indicates that he wants an eTicket refund, hands over the BB Card and identifies to the
+        Retailer the
+        content.</li>
+	  <li>Retailer -&nbsp; selects the <i> eTicket Refund</i> option from the
+        Retail Application and selects the eTicket in question</li>
+	  <li>Retailer - receives confirmation from the server that eTicket refund
+        may be issued since the conditions for refund have been met</li>
+	  <li>Retailer - confirms eTicket refund and amount of purchase</li>
+	  <li>Retailer - waits for transaction to complete and hands over the BB
+        Card and the money to the customer</li>
+	</ol>
+<hr>
+
+      <h3><span style="background-color: #C0C0C0">Content Download</span></h3>
+<p><b>Description: </b>Customer's BB Player owns eTickets and he wants to
+download the associated content into the BB Card.&nbsp;</p>
+<p><b>Rationale</b></p>
+<ol>
+  <li>Customer may own a large number of eTickets, but have space for a limited
+    number of content on his BB Card. So, he may constantly be deleting and
+    reloading content into the BB Card.</li>
+  <li>Content download is a separate action from
+    eTicket Purchase, since this may take a slightly longer period of
+    time.&nbsp;</li>
+</ol>
+<p><b>Assumptions &amp; conditions</b></p>
+<ol>
+  <li>The BB Card identifies (does not authenticate) the BB Player for which the
+    eTicket has been. The actual BB Player does not need to be present.</li>
+  <li>The BB Player owns at least one eTicket which identifies the content.&nbsp;</li>
+  <li>Retailer does not have to authenticate the depot the the server.</li>
+</ol>
+<p><b>Sequence of events/actions</b></p>
+      <ol>
+	<li>Customer - inserts his BB Card into the download station</li>
+	<li>Customer - reviews all owned eTickets</li>
+	<li>Customer - using&nbsp; the BB controller on the download station, customer
+	  selects content to be downloaded.</li>
+	<li>Customer - waits for the display to indicate completion of the download
+      process</li>
+	<li>Customer - repeats this process for all content that he is interested in
+      that he owns</li>
+	<li>Customer - removes BB Card.</li>
+      </ol>
+
+      <hr>
+      <h3><span style="background-color: #C0C0C0">Purchase expansion memory for
+      BB Card</span></h3>
+<p><b>Description: </b>Enable customer to purchase extra memory for his BB Card</p>
+<p><b>Assumptions &amp; conditions</b></p>
+<ol>
+	<li><em>Not</em> an online or secure operation.</li>
+	<li>Shop owner has already paid for the merchandises when they
+	  are delivered from the warehouse.</li>
+</ol>
+<p><b>Sequence of events/actions</b></p>
+      <ol>
+	<li>Customer - pays Retailer for extra memory</li>
+	<li>Customer - plugs in extra memory into BB Card&nbsp;</li>
+      </ol>
+      
+<hr>
+
+      <h2><a name="Other User Model cases"><span style="background-color: #C0C0C0">Other
+      User Model cases</span></a></h2>
+      <h3>Customer use cases - infrequent</h3>
+      <ol>
+        <li>Repair BB Card</li>
+        <li>Purchase BB Card</li>
+        <li>BB Card used space management</li>
+        <li>BB Player return without going through <i>BB Player Purchase</i>
+          process.</li>
+        <li>BB Player return after eTicket download or after time limit has
+          passed</li>
+      </ol>
+      <h3>Customer use cases - exceptions</h3>
+      <ol>
+        <li>Unable to contact server during the content download which follows <i>eTicket
+          Purchase</i></li>
+        <li>Unable to contact server when customer wants to execute <i>BB Player
+          Return</i></li>
+        <li>Unable to contact server when customer wants to execute <i>eTicket
+          Refund</i></li>
+      </ol>
+<hr>
+
+      <h3><span style="background-color: #C0C0C0">Repair BB Card</span></h3>
+<p><b>Description: </b>Customer has a BB Card that needs to be repaired.&nbsp;</p>
+<p><b>Rationale</b></p>
+<ol>
+  <li>Customer receives indication that his BB Card needs to be repaired.</li>
+</ol>
+<p><b>Assumptions &amp; conditions</b></p>
+<ol>
+  <li>BB has been activated.</li>
+  <li>Customer brings in the BB Player along with the BB Card to the
+    Retailer.&nbsp;</li>
+  <li>Retailer has to authenticate the depot the the server using the depotID.</li>
+</ol>
+<p><b>Sequence of events/actions</b></p>
+      <ol>
+	<li>Customer&nbsp;- takes BB and the BB Card to the Retailer.</li>
+	<li>Customer - hands over BB Player &amp; BB Card to the Retailer.</li>
+	<li>Retailer - plugs customer's BB Card into console
+	  recovery port and selects <i>Card Repair</i></li>
+	<li>Retailer - once the repair is complete, removes BB Card from the console
+      recover port and plugs it into the customer's BB Player</li>
+	<li>Retailer - plugs owner's BB into console activation port turns on BB and
+      selects <i>Card Customization</i></li>
+	<li>Retailer - confirms completion of customization process and hands back
+      BB Player and BB Card to the customer.</li>
+	<li>Retailer - directs customer to the download station for him to load any
+      content that he owns.</li>
+      </ol>
+
+<hr>
+
+      <h3><span style="background-color: #C0C0C0">Purchase BB Card</span></h3>
+<p><b>Description: </b>Customer wants to purchase another BB Card.</p>
+<p><b>Rationale</b></p>
+<ol>
+  <li>Customer has purchased a new BB Card to either replace a lost/damaged
+    card.</li>
+  <li>Customer has purchased an additional BB Card so that he can have more
+    content available to him without returning to the download station to swap
+    content.&nbsp;</li>
+</ol>
+<p><b>Assumptions &amp; conditions</b></p>
+<ol>
+  <li>BB has been activated.</li>
+  <li>Customer brings in the BB Player to the store.</li>
+  <li>Retailer has to authenticate the depot the the server using the depotID.</li>
+</ol>
+<p><b>Sequence of events/actions</b></p>
+      <ol>
+	<li>&nbsp;</li>
+      </ol>
+      
+</body>
+d18 664
+a681 1
+</html>

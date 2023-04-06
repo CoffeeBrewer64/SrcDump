@@ -1,0 +1,42 @@
+d64 1
+a64 2
+      <li>	The Content Sync Server looks up the <i>Region ID </i>of the BB
+        Depot and generates the <i> Content List</i> 
+d66 2
+a67 1
+        needs to be updated in the BB Depot.</li>
+d69 1
+a69 1
+      <li>	The Content Manager, compares the <i>Content List</i> to its stored list of content.  The result of the comparison is a list of content to remove,
+d74 1
+a74 1
+  <li>	<code>Remove Old Content</code>
+d76 2
+a77 2
+      <li>	For each record in the remove list, the Content Manager removes the
+        content from the Depot Content store.</li>
+d82 2
+a83 2
+      <li>	The Content Manager uses the <i> Content ID</i> to download
+    the encrypted content from the Content Download Server to the BB Depot's
+d85 3
+a87 15
+    </ol>
+  </li>
+  <li>	<code>Add New Content</code>
+    <ol type="a">
+      <li>After the encrypted content is downloaded, a new Content
+        record is created for the new content.</li>
+      <li>The Content Manager returns to the CDS the <code>download-duration </code>and
+        the <code>status</code> for each content added.</li>
+      <li>Steps 4 &amp; 5 are repeated for each new content.</li>
+    </ol>
+  </li>
+  <li><code>Update Content State</code>
+    <ol type="a">
+      <li>Content that has undergone state changes (like changes in <i>&quot;available
+        for download&quot; effective date) </i>is now updated.</li>
+d107 2
+a108 2
+  <li>Content Download Server : Download Completion - hardwareID, contentID, duration of download,
+    status</li>

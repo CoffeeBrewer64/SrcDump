@@ -1,0 +1,163 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Transaction: Content Synchronization</title>
+</head>
+
+<body>
+
+<h2 align="center">Transaction:  Content Synchronization</h2>
+<h4><b>Participants</b></h4>
+<ul>
+  <li> <b> BB Depot - Content Manager</b> (<i>point of control)</i></li>
+  <li> Content Distribution - Content Sync Server</li>
+  <li>Content Distribution -
+    Content Download Server</li>
+</ul>
+<h4>Requirements</h4>
+<ul>
+  <li>Depot and CDS must authenticate each other.</li>
+  <li>Should not require secure connections between BB Depot and CDS for content
+    download so that we can take advantage of content caching.</li>
+  <li>Minimize amount of traffic between BB Depot and CDS</li>
+</ul>
+<h4>Pre-conditions</h4>
+<p>One of the following:</p>
+<ul>
+  <li>Content Manager is notified by the RMS to start Content Synchronization</li>
+  <li>Content Manager starts its periodic synchronization sequences</li>
+</ul>
+<h4>Input Parameters</h4>
+<ul>
+  <li><code>HardwareID</code></li>
+  <li><code>CDS-Timestamp</code></li>
+  <li><code>ContentID</code></li>
+</ul>
+<h4>Data Records</h4>
+<ul>
+  <li><a href="../data_defs.html">BB Depot - Content</a></li>
+  <li><a href="../data_defs.html">CDS - Content</a></li>
+  <li><a href="../data_defs.html">CDS - Depot</a></li>
+</ul>
+<h4>Output Parameters</h4>
+<ul>
+  <li><code>Content</code></li>
+  <li><code>CDS-Timestamp</code></li>
+</ul>
+<h4>Sequence of Events</h4>
+<ol>
+  <li>	<code>Authenticate</code>
+    <ol type="a">
+      <li>	The BB Depot (using <i>hardwareID) </i>and the Content Distribution Subsystem
+        (using a server digital certificate) mutually
+    authenticate each other.</li>
+    </ol>
+  </li>
+  <li>	<code>Retrieve List</code>
+    <ol type="a">
+      <li>	The Content Manager securely connects to Content Sync Server</li>
+      <li>	The Content Manager passes the <i> Hardware ID</i> and <i>CDS-Timestamp
+        </i>(obtained during previous synchronization request, null if not
+        present) and
+        requests the list of changed content.</li>
+      <li>	<i>Synchronization Request</i> audit record is created by the
+        Content Sync Server.</li>
+      <li>	The Content Sync Server generates the <i> Content List</i> 
+        (ContentID, state, content-description, purchase-info) that
+        needs to be updated in the BB Depot and send it back to the Content
+        Manager and sends it back with a new <i>CDS-Timestamp</i></li>
+      <li>	The Content Manager, compares the <i>Content List</i> to its stored list of content.  The result of the comparison is
+        a list of
+        new content and a list of content that has data changes (state changes
+        from <i>downloadable</i>
+        to <i>revoked </i>or <i>purchase-info</i> has changed).</li>
+    </ol>
+  </li>
+  <li><code>Update Content State</code>
+    <ol type="a">
+      <li>Update <i>content-state</i> for <i>ContentID</i> in the <i>Content
+        List</i> that is in the <i>revoked </i>state in the BB Content record.</li>
+    </ol>
+  </li>
+  <li>	<code>Download Content</code>
+    <p>	For each <i>ContentID</i> in the <i>Content List</i> that is in the <i>downloadable</i>
+        state
+    <ol type="a">
+      <li>If an entry exists in the BB Depot Content record for <i>ContentID</i>
+        <ul>
+          <li>If <i>encrypted-content-checksum</i> is different, mark <i>ContentID</i>
+            for download of <i>content-object</i></li>
+          <li>Update <i>content-description</i> in the BB Content Record from <i>Content
+            List</i></li>
+          <li>Update<i> purchase-info</i> in the BB Content Record from <i>Content
+            List</i></li>
+        </ul>
+      </li>
+      <li>If an entry does not exist in the BB Depot Content record for <i>ContentID</i>
+        <ul>
+          <li>Create a new record for <i>ContentID</i></li>
+          <li>Update <i>content-description, purchase-info</i></li>
+          <li>Mark <i>ContentID</i> for download of <i>content-object</i></li>
+        </ul>
+      </li>
+      <li>If <i>content-object</i> has to be downloaded (new entry or <i>encrypted-content-checksum</i>
+        is different)
+        <ul>
+          <li><i>Download Request</i> audit record is created by the Content
+            Download Server.</li>
+          <li>	The Content Manager submits the <i>HardwareID </i> and<i> Content ID</i>&nbsp;
+            to the Content Download Server and starts download of the <i>content-object
+            </i>to the BB Depot's
+    Content data store.</li>
+          <li><i>content-object</i> is verified using <i>encrypted-content-checksum</i></li>
+        </ul>
+      </li>
+      <li><i>Download Completion</i> audit record is created by the Content
+            Manager.</li>
+    </ol>
+  </li>
+  <li>If no errors were encountered during <i>Download Content, </i>the
+    transaction is complete and successful. The Content Manager stores the <i> CDS-Timestamp</i> for use during the next synchronization
+    event.</li>
+</ol>
+<h4>Post Condition</h4>
+<ol>
+  <li>   BB Depot - content records are updated &amp; synchronized with the CDS.</li>
+  <li>   Content Sync Server supplied <i>CDS-Timestamp</i> is updated to note time of last synchronization.</li>
+</ol>
+
+<h4>Audit Records</h4>
+<ol>
+  <li>Content Sync Server : Synchronization Request - hardwareID, CDS-Timestamp</li>
+  <li>Content Download Server : Download Request - hardwareID, contentID</li>
+  <li>Content Manager : Download Completion - hardwareID, contentID, duration of
+    download</li>
+</ol>
+<h4>Exceptions</h4>
+<ol>
+  <li>The CDS and BB Depot are not able to authenticate each other in which case an
+    appropriate error is returned and error logged.</li>
+  <li>If the transaction did not successfully complete, the Content Manager will retry
+    appropriately with suitable back off timers till it succeeds using the old <i>CDS-Timestamp</i>. </li>
+  <li>If there is no BB Depot Content Store record for <i>ContentID</i> in the <i>Content
+    List</i> that is in the <i>revoked state,</i> a new record is created. </li>
+          <li>If an error is encountered during the download of <i>ContentID,</i>
+            continue with the next <i>ContentID</i> in the <i>downloadable</i>
+            state on the <i>Content List</i></li>
+          <li>If an error is encountered during any downloads, the<i>
+            CDS-Timestamp</i> is not written. The next synchronization request
+            will use the previous <i>CDS-Timestamp.</i></li>
+</ol>
+
+<h4><b>Figures</b></h4>
+<ul>
+  <li><a href="XS-ContentSync/XS-ContentSync1_raster.gif">Control Flow</a></li>
+  <li><a href="XS-ContentSync/XS-ContentSync2_raster.gif">Data Flow</a></li>
+</ul>
+
+</body>
+
+</html>

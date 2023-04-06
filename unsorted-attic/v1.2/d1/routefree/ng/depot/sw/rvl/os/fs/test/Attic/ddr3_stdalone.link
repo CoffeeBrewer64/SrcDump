@@ -1,0 +1,39 @@
+ENTRY(_start)
+
+SECTIONS
+{
+   . = 0x10001000;
+  .start :
+  {
+    *(.start);
+  }
+
+  .text ALIGN(0x20) :
+  {
+     PROVIDE(__text_start = .);
+     *(.text) *(strings) __text_end = .;
+  }
+  PROVIDE(__text_end = .);
+
+  .rodata ALIGN(0x20) :
+  {
+     PROVIDE(__rodata_start = .);
+     *(.rodata)
+  }
+  PROVIDE(__rodata_end = .);
+
+  .data ALIGN(0x20) :
+  {
+     PROVIDE(__data_start = .);
+     *(.data)
+  }
+  PROVIDE(__data_end = .);
+
+  .bss ALIGN(0x20) :
+  {
+     PROVIDE(__bss_start = .);
+     *(.bss)
+  }
+  PROVIDE(__bss_end = .);
+  PROVIDE(_end = .);
+}

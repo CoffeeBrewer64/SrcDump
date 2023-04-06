@@ -1,0 +1,174 @@
+d10 1
+a10 1
+Secure Kernel and Browser Application Flow
+d14 29
+d46 1
+a46 1
+defined in this document. License File Contents are listed below. Items above
+d63 2
+d73 3
+a75 1
+  <li> Re-encryption Data
+d87 37
+d130 1
+a130 1
+application and secure kernel (internal ROM), and provide another level of
+d132 5
+d138 1
+a138 1
+  <li> Initialize system: (0xbfc00000 mapped to embedded ROM) <br>
+d140 2
+a141 2
+      memory, cache, ... <br>
+    initialize all hardware -
+d145 11
+a155 5
+    We don't know yet exactly what activation steps are required. It is
+    likely that an initial first app (browser) will be written to flash at the
+    factory. This means that even though activation takes place at the depot,
+    the first app can take care of this task, so it doesn't need to be a part
+    of the SK startup logic.
+d158 17
+a174 15
+    Recovery is needed when the first app (browser) on the flash has become
+    damaged and unusable. The memory card is brought to the depot.
+    Current thinking is the depot will have a special slot for memory cards
+    that is used for both license purchase and recovery. In this case
+    the BB only needs to detect that recovery is needed, and does not need
+    to be capable of performing the recovery steps.
+    <p>
+    Other possibilities that have been discussed are getting a new memory
+    module and swapping the removable portions from the old to new. In this
+    case the SK doesn't have to do anything to support recovery. It is also
+    possible to require a USB connection running a secure protocol. This would
+    require some recovery steps to be implemented by the SK, such as a 
+    protocol over USB and writing the new first app to flash. The SK would
+    then launch the new first app which would continue with the recovery
+    process.
+d177 1
+a177 1
+       At system power-on or reset, the first application (browser app) will
+d200 2
+a201 1
+      <li> Load re-encryption key from CID/key table referenced via SFlash.
+d223 4
+a226 4
+      <li> Locate and load license information from flash
+      <li> check SFlash to see if there is an entry for this CID (assume
+           there is not)
+      <li> Use the re-encryption data from the license to create a key
+d232 1
+a232 1
+      <li> write the CID/key pair to SFlash.
+d235 1
+a235 10
+  <li> Initial flash file-system setup: <br>
+       This involves detecting bad blocks and setting up the initial
+       FS tables. It most likely occurs as part manufacture burn-in,
+       or at the depot, but I'm including here for completeness. Once
+       the activation scheme is chosen this should be known.
+   
+  <li> Power-on detects no flash: <br>
+       Must write informative message to the tv.
+
+  <li> Power-on detects bad browser app : <br>
+d245 7
+a251 5
+This section describes the startup flow for the SK and browser. From
+the SK startup it will be clear how the browser is launched. The browser
+flow description will also indicate required entrypoints to the SK.
+An effort is made to indicate when the same processing is required by
+both the SK and browser tasks.
+d253 1
+a253 1
+<h3>SK startup</h3>
+d255 1
+a255 2
+Figure 1, below, depicts the SK startup flow. The "first app" referred
+to in the figure is assumed to be the Browser application.
+d258 2
+a259 3
+<!- 478>
+<IMG src="skstartup.gif" width=408 align=center> <br>
+<b>Figure 1. Secure Kernel Startup Flow</b>
+d266 3
+a268 3
+This block performs basic system initialization. Memory is checked and
+all hardware registers requiring intialization are written. The CPU primary
+data and instruction caches are invalidated.
+d274 49
+a322 1
+graphically displayed on the television.
+d325 53
+a377 1
+<i>Locate First App License</i> <br>
+d404 1
+a404 1
+<i>Verify License</i> <br>
+d408 1
+a408 1
+  <li> decrypt license. <i>The first app will not be encrypted using the
+d416 1
+a416 1
+<i>Locate First App Content</i> <br>
+d418 1
+a418 1
+to locate the first application's content. The first app content could be
+d422 4
+a425 1
+blocks to load can be determined from the license data.
+d451 20
+d474 1
+a474 1
+Figure 2, below, depicts the browser (i.e., first) app startup flow. Note
+d483 2
+a484 3
+<!- 358>
+<IMG src="bastartup.gif" width=493 align=center> <br>
+<b>Figure 2. Browser Application Startup Flow</b>
+d488 6
+a493 1
+Each of the elements in Figure 2 are described below.
+d516 2
+a517 2
+The browser app present a UI for selection of content to launch.
+
+d520 13
+a532 4
+<i>Re-encrypt</i><br>
+This decision could actually be made by attempting to launch an
+app via the call SK_AppLaunch (below), and finding out from the
+SK return value that re-encryption is required first.
+d535 20
+a554 7
+<i>Recover</i><br>
+If a content re-encryption was interrupted by a powerdown, a portion of the
+content file will be re-encrypted, and a portion will still be in the
+encryption according to the license "Content Decryption Key".  This block will
+restore the state before powerdown, so the next block, "Loop block calls to
+SK", can complete the re-encryption.  Therefore, the next block, "Loop block
+calls to SK", must be carried out such that recovery is possible.
+d562 3
+d567 1
+a567 1
+lptr={locate license and load to memory};
+d569 3
+a571 3
+    cptr={load content block i to memory};
+    SK_ReEncrypt(lptr,i,cptr,&SK_state);
+        // SK_state allows SK to maintain state such as
+d573 5
+d584 15
+d615 3
+a617 2
+lptr={locate license and load to memory};
+SK_AppLaunch(lptr);
+d641 1
+a641 7
+<p>
+The main advantage of a secondary, smaller boostrapable app between the
+browser and SK is to make the SK's job of locating the first app easier.
+The new boostrap app would be small and located in the first few blocks.
+To locate the browser, the SK needs to know some FS info. The code to
+locate the browser should be pretty simple though, so it isn't clear
+we'd really benefit from a secondary bootstrap step at this point.

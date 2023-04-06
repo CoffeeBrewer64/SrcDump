@@ -1,0 +1,219 @@
+d9 2
+a10 2
+	  $Revision: 1.11 $<br>
+	    $Date: 2002/08/27 19:08:19 $
+d76 1
+a76 1
+		  <img src=data_defs/bb-state.png>
+d238 1
+a238 1
+	      <td>Unique ID for each content</td>
+d247 1
+a247 1
+	      <td>per <code>region_ID </code>keep the following information:
+d251 1
+a254 3
+              <li><code>&quot;purchase suspension&quot; effective date - </code>date
+                range during which the content will be suspended and not
+                available for purchase in the region</li>
+a260 3
+            <dl>
+              <dt>&nbsp;</dt>
+            </dl>
+d269 1
+a269 1
+          <img border="0" src="data_defs/xs-content-purchase-state.jpg" width="454" height="190" >
+d272 3
+a274 1
+		  <li>state == published</li>
+a276 2
+		  <li>state == published &amp;&amp; date in (&quot;purchase
+            suspension&quot; effective date)</li>
+a283 39
+        <tr>
+	      <td valign="top"><code>download state</code></td>
+	      <td>per <code>region_ID</code> keep the following information:
+            <ul>
+              <li><code>region_ID - </code>identifies region</li>
+              <li><code>&quot;available for download&quot; effective date - </code>date
+                range during which this content is available for download to the
+                BB Player in the region</li>
+              <li><code>&quot;download suspension&quot; effective date - </code>date
+                range during which the content will be suspended and not
+                available for download by the BB Player in the region</li>
+            </ul>
+            <ol>
+		  <li><code>published</code> -- initial state of
+		    this record after being published by the CMS</li>
+		  <li><code>revoked</code>&nbsp; -- content is revoked due to security considerations and
+            is no longer available for download</li>
+		</ol>
+	      </td>
+        </tr>
+        <tr>
+	      <td colspan=2>
+        <p align="center">
+		  <code>
+          <img border="0" src="data_defs/xs-content-download-state.jpg" width="454" height="190">
+          <p>download_state transitions
+		<ol type=A>
+		  <li>state == published</li>
+		  <li>state == published &amp;&amp; date in (&quot;available for
+            download&quot; effective date)</li>
+		  <li>state == published &amp;&amp; date in (&quot;download
+            suspension&quot; effective date)</li>
+		  <li>state == revoked
+          </li>
+		</ol>
+          <p>Content may be downloaded by the BB Player while in State B.&nbsp;
+		  </code>
+	      </td>
+        </tr>
+d290 2
+a291 8
+	    <tr valign=baseline>
+	      <td><code>content_hash</code></td>
+	      <td>
+          SHA digest of the content
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_description</code></td>
+d293 8
+d303 5
+d309 1
+a309 8
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>execution_information</code></td>
+	      <td>
+          This includes save-state-size, load-address, boot-length,
+          boot-code-state, boot-signature, hardware-access-rights
+	      </td>
+	    </tr>
+d387 9
+a395 1
+	      <td>ID of this content - unique amongst all content</td>
+d399 1
+a399 1
+	      <td>Actual content
+d410 2
+a411 1
+            the CDS &amp; Transaction subsystem</li>
+d417 1
+a417 1
+        <p align="center"><img border="0" src="data_defs/cms-content-state.jpg" width="220" height="71">
+d433 6
+a438 1
+	      <td>date this content was released by the studio</td>
+d447 1
+a447 7
+	      <td><code>content_hash</code></td>
+	      <td>
+          SHA digest of the content
+	      </td>
+        </tr>
+        <tr>
+	      <td><code>execution_information</code></td>
+d449 4
+d454 2
+a455 6
+          boot-code-state, boot-signature, hardware-access-rights
+	      </td>
+        </tr>
+        <tr>
+	      <td><code>content_description</code></td>
+	      <td>
+d458 5
+d481 1
+a481 1
+	      <td>Actual content</td>
+d483 1
+a483 9
+	    <tr valign=baseline>
+	      <td><code>content_hash</code></td>
+	      <td>SHA digest of the content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_size</code></td>
+	      <td>total size of the content object</td>
+	    </tr>
+	    <tr valign=baseline>
+d485 5
+a489 2
+	      <td>used by the Content Sync Server and Content Download Server</td>
+	    </tr>
+d491 1
+a491 1
+	      <td><code>content_description</code></td>
+d499 1
+a499 1
+	      <td>per <code>region ID.</code>
+d502 3
+a504 7
+                <li><code>region ID - </code>identifies region</li>
+                <li><code>&quot;available for download&quot; effective date - </code>date
+                  range during which this content is available for download to
+                  the BB Player in the region</li>
+                <li><code>&quot;download suspension&quot; effective date - </code>date
+                  range during which the content will be suspended and not
+                  available for download by the BB Player in the region
+d512 2
+d522 1
+a522 1
+        <p align="center"><img border="0" src="data_defs/cds-content-download-state.jpg" width="454" height="190">
+d524 1
+d528 1
+a528 4
+		  <li>state == published &amp;&amp; date in (&quot;available for
+            download&quot; effective date)</li>
+		  <li>state == published &amp;&amp; date in (&quot;download
+            suspension&quot; effective date)</li>
+a531 1
+        <p>Content may be downloaded by the BB Player while in State B.
+d601 1
+a601 13
+	      <td>Actual content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_hash</code></td>
+	      <td>SHA digest of the content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_size</code></td>
+	      <td>total size of the content object</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_update_date</code></td>
+	      <td>date of last update to the Content record</td>
+d611 1
+a611 1
+	      <td><code>download state</code></td>
+d615 3
+a617 3
+		  <li><code>published</code> -- content has been downloaded from CDS, but not
+            yet available for download</li>
+		  <li><code>revoked</code> -- content is revoked due to security considerations and
+d625 1
+a625 1
+        <p align="center"><img border="0" src="data_defs/bbdepot-content-download-state.jpg" width="454" height="190">
+d628 1
+a628 5
+		  <li>state == published</li>
+		  <li>state == published &amp;&amp; date in (&quot;available for
+            download&quot; effective date)</li>
+		  <li>state == published &amp;&amp; date in (&quot;download
+            suspension&quot; effective date)</li>
+a633 12
+	    <tr valign=baseline>
+	      <td>&nbsp;
+            <p><code>&quot;available for download&quot; effective date</code></p>
+          </td>
+	      <td>date range during which this content is available for download to
+            the BB Player in the region</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>&quot;download suspension&quot; effective date</code></td>
+	      <td>date range during which the content will be suspended and not
+            available for download by the BB Player in the region</td>
+	    </tr>

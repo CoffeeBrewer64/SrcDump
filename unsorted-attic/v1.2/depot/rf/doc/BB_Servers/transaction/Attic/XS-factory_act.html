@@ -1,0 +1,103 @@
+<html>
+    <head>
+      <title>Transaction: Factory Activation of BB Player</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Transaction: Factory Activation of BB Player</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.1 $<br>
+        $Date: 2002/09/24 01:10:26 $
+      </center>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>Manufacturer - BB Shipment Manager</strong> (<em>point of control</em>)</li>
+	<li>BB Player - Reinit Server</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>At the manufacturer site, there is a machine that is
+	  capable of communicating with a BB Player via the USB
+	  interface, and looking up a certificate from a CD.</li>
+	<li>After activation, the BB Card must be correctly matched
+	  with the corresponding BB Player until packaged.</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>A CD containing a list of BB Player digital certificates
+	  has been shipped to the manufacturer.</li>
+	<li>This CD(s) contains the digital certificates corresponding to
+	  all BB_IDs of BB Players to be manufactured.</li>
+	<li>The BB Player has the BB Card already inserted and
+	  initialized with the base applications</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>BB_ID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li>Manufacturer - BB Cert</li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li>digital cert. for BB Player</li>
+	<li>CA Chain for this cert.</li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>readID</code>
+	  <ol type=a>
+	    <li><em>BB Shipment Manager</em> asks the <em>Reinit Server</em> 
+	      for its <code>BB_ID</code></li>
+	  </ol>
+	</li>
+	<li><code>lookupCert</code>
+	  <ol type=a>
+	    <li> <em>BB Shipment Manager</em> looks up the corresponding
+	  digital certificate for this <code>BB_ID</code>.
+	    </li>
+	  </ol>
+	</li>
+	<li><code>writeCert</code>
+	  <ol type=a>
+	    <li><em>BB Shipment Manager</em> returns the digital
+	      certificate and the CA chain to the <em>Reinit Server</em>.</li>
+	    <li><em>Reinit Server</em> writes the cert. and CA chain
+	      to the <em>BB Card</em>.</li>
+	  </ol>
+	</li>
+      </ol>
+      
+      <h3>Audit Records</h3>
+      <ol>
+	<li>Activation  - <code>BB_ID</code>, <code>date</code>.</li>
+      </ol>
+
+      <h3><a name="exception">Exceptions</a></h3>
+
+      <ol>
+	<li>BB Defective -- The BB Player hardware, BB Card, or the
+	  USB connection could be defective.  The initialized content
+	  on the BB Card (i.e. secure kernel, browser app) could be
+	  corrupted.</li>
+	<li>Digital cert. missing -- The corresponding digital
+	  cert. could not be found.
+	</li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="overlayed/Factory_act-ctrl.png">Control Flow</a></li>
+	<li><a target="data" href="overlayed/Factory_act-data.png">Data Flow</a></li>
+      </ul>	  
+    </body>
+  </html>

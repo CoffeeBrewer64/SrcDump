@@ -1,0 +1,253 @@
+<!-- saved from url=(0022)http://internet.e-mail -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>SDIO Controller Issues</title>
+</head>
+<body>
+<br>
+<h2>SDIO Controller Known Issues and Work arounds</h2>
+This document contains the collected knowledge from
+ATI/Nintendo/BroadOn and BroadCom on the Arasan host controller
+integrated with RVL Vegas. Any bugs in this document please report
+them, since we would like to keep it accurate.<br>
+<h4>1. Block Count Bug </h4>
+Comment from Broadcom (w/ some small edits): &#8220;When doing a byte mode
+(non-block mode) write, the block count register should be a DontCare.
+However, the Arasan core was using this register to determine whether
+it was time to honor the interrupt period.&nbsp; The proposed SW
+workaround is to set this register to 1 when starting a byte mode
+transfer thus indicating to the (faulty) Arasan logic that this will be
+the last xfer and thus time to honor the interrupt period.&#8220;<br>
+<h4>2. CMD12 false interrupt</h4>
+During CMD12 may get false interrupts, CMD12 does not support
+interrupts in the specification, so not an issue to disable them on the
+slot when a CMD12 is sent (if memory card in slot, can disable
+interrupts all the time for that slot)<br>
+<br>
+s/w work around, disable interrupts for the slot when doing CMD12, if
+slot has Memory card, disable interrupts always.<br>
+<h4>3. Suspend / Resume read / write bug.</h4>
+When suspending w/ read suspend followed by non-DMA write.<br>
+<br>
+s/w work around, do not do suspend / resume. ATi may have another
+workaround w/ 16-bit /8-bit write support.<br>
+<br>
+Possible issue for multi-function card<br>
+<h4>4. Infinite-Read fails after Infinite-Write.</h4>
+Detailed the sequence :<br>
+<ol>
+  <li>Infinit-Write -&gt; CMD12(Abort) -&gt; SoftReset -&gt;
+Infinit-Read (Got CRC Error &amp; Read not Complete)</li>
+  <li>Infinit-Write -&gt; CMD12(Abort) -&gt; SoftReset -&gt; delay
+-&gt; SoftReset -&gt; Infinit-Read (No CRC Error But, Read not Complete)<br>
+  </li>
+</ol>
+<h4>5. Power is always on.</h4>
+Power is always on (no control from host controller) in bring-up board.
+Reset may not work as expected. Work- around, always issue cmd52 with
+io-RESET (otherwise RCA is valid and CMD 5 fails). That is function 0,
+register 6, with value 0x08.<br>
+<h4>6. Only 32 bit access to Arasan host controller works. </h4>
+There are two workarounds necessary. First use read modify write for
+write, and mask bits for read. See code below which is used in BroadOn
+SDIO driver. The exception is the transfer mode that has to be
+pre-combined with the command register (both 16bits in the same 32
+bits). i.e.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+/* 5 Set Transfer Mode */<br>
+&nbsp;&nbsp;&nbsp; </span><span style="font-family: monospace;">cmd32
+= (transfer_mode) | (command&lt;&lt;16);</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; /* </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; * 6 Set
+Command</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; * </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; *
+Writing the upper byte of the command register starts the</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; *
+command.&nbsp; All register initialization must already be complete</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; * by
+this point.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; */</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+WRITE_HOST_U32((u32)pslot-&gt;m_base, HOSTREG_TRANSMODE, cmd32);</span><br>
+</div>
+<br>
+Read/Modify/Write code which works for most cases:<br>
+<br>
+<div style="margin-left: 80px;"><span style="font-family: monospace;">u8</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">READ_HOST_U8(u32 base, u16 reg)</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">{</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u8 ret;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32 absolute =
+base+reg;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32* bp32 =
+(u32*)(absolute&amp;0xFFFFFFFC);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32 data =
+*bp32;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; int byte =
+(absolute&amp;0x00000003);</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; if (byte==0){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; ret = (data &amp; 0x000000FF);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; } </span><span
+ style="font-family: monospace;">else if (byte==1){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; ret = (data &amp; 0x0000FF00)&gt;&gt;8;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }</span><span
+ style="font-family: monospace;"> else if (byte==2){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; ret = (data &amp; 0x00FF0000)&gt;&gt;16;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }</span><span
+ style="font-family: monospace;"> else if (byte==3){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; ret = (data &amp; 0xFF000000)&gt;&gt;24;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; return ret; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">}</span><br
+ style="font-family: monospace;">
+<br>
+<span style="font-family: monospace;">void</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">WRITE_HOST_U8(u32 base, u16 reg,
+u8 val)</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">{</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32 absolute =
+base+reg;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32* bp32 =
+(u32*)(absolute&amp;0xFFFFFFFC);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32 data =
+*bp32;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; int byte =
+(absolute&amp;0x00000003);<br>
+<br style="font-family: monospace;">
+</span><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; if
+(byte==0){</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; data = (data &amp; 0xFFFFFF00)|val;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }</span><span
+ style="font-family: monospace;"> else if (byte==1){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; data = (data &amp; 0xFFFF00FF)|(val&lt;&lt;8);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }</span><span
+ style="font-family: monospace;"> else if (byte==2){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; data = (data &amp; 0xFF00FFFF)|(val&lt;&lt;16);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }</span><span
+ style="font-family: monospace;"> else if (byte==3){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; data = (data &amp; 0x00FFFFFF)|(val&lt;&lt;24);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; *bp32 = data;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">}</span><br
+ style="font-family: monospace;">
+<br>
+<span style="font-family: monospace;">u16</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">READ_HOST_U16(u32 base, u16 reg)</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">{</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u16 ret;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32 absolute =
+base+reg;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32* bp32 =
+(u32*)(absolute&amp;0xFFFFFFFC);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32 data =
+*bp32;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; int byte =
+(absolute&amp;0x00000002);</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; if (byte==0){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; ret = (data &amp; 0x0000FFFF);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }</span><span
+ style="font-family: monospace;"> else if (byte==2){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; ret = (data &amp; 0xFFFF0000)&gt;&gt;16;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; return ret;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">}</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">void</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">WRITE_HOST_U16(u32 base, u16 reg,
+u16 val)</span><br style="font-family: monospace;">
+{<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32 absolute =
+base+reg;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32* bp32 =
+(u32*)(absolute&amp;0xFFFFFFFC);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; u32 data =
+*bp32;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; int byte =
+(absolute&amp;0x00000002);</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; if (byte==0){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; data = (data &amp; 0xFFFF0000)|val;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; } </span><span
+ style="font-family: monospace;">else if (byte==2){</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; data = (data &amp; 0x0000FFFF)|(val&lt;&lt;16);</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; *bp32 = data;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">}</span></div>
+<br>
+<br>
+</body>
+</html>

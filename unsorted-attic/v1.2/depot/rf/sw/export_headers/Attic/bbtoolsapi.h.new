@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+
+#include <PR/bbtypes.h>
+#include <PR/bcp.h>
+#include <PR/bbvirage.h>
+#include <PR/bbmetadata.h>
+#include <PR/bbcert.h>
+#include <PR/bbnand.h>
+
+#define SIZE_RSA_CERTBLOB_WORDS 228
+#define SIZE_BB_CERTBLOB_WORDS 179
+/* 
+ * to get virage2 data blob 
+ */
+
+int getVirage2Data(u32 *constantsFile, 
+                   u32 constantsFileLen, 
+                   u32 bbID, 
+                   BbEccPrivateKey privateKey,
+                   BbEccPublicKey publicKey,
+                   u32 *rand, 
+                   void *viragePtr);
+/* 
+ * get Certificate for BB : create data in file format required
+ */
+
+int generateUnsignedBBCert(u32 certificateType, 
+                           u32 sigType, 
+                           u32 timestamp, 
+                           u8 * subjectname, 
+                           u8 * issuername, 
+                           BbEccPrivateKey privatekey, 
+                           u32 *ecccert,
+                           int sizeofblob);
+
+
+/*
+ * get Unsigned CRL
+ */
+
+int generateUnsignedCRL(u32 version, 
+                        u32 date, 
+                        u8 *issuername, 
+                        u32 numberRevoked, 
+                        u32 *serialNumbers,
+                        void *crl,
+                        int *crlsize);
+
+/* 
+ * get RSA certs : create data in file format required.
+ */
+int generateUnsignedRSACert(u32 certificateType, 
+                            u32 sigType, 
+                            u32 timestamp, 
+                            u8 * subjectname, 
+                            u8 * issuername, 
+                            u32 *publicKey, 
+                            u32 exponent, 
+                            u32 *rsacert,
+                            int sizeofblob);
+/* 
+ * create content meta data blob
+ */
+/* 
+ * create unsigned  meta data blob: called by content publishing 
+ */
+int generateUnsignedContentMetaDataHead( 
+                                    u32 contentRlVersion,
+                                    u32 caCrlVersion,
+                                    u32 cpCrlVersion,
+
+                                    BbContentId contentId, 
+                                    u32 contentSize, 
+                                    u32 descFlags, /* is it common encryption
+                                                    use BB_CMD_DESC_COMMON_KEY*/
+                                    u8 * commonIv, /* if we want 
+                                                      common encryption */
+                                    u8 * commonKey, /* this is in virage*/
+
+                                    u8 * contentKey, 
+                                    u8 * contentHash,
+                                    u8 * contentIv,
+                                    /* make this opaque to the server:7 words */
+                                    u32 * contentProperties,
+                                    /*
+                                    
+                                    u32 loadAddress, 
+                                    u32 romOffset,
+                                    u32 bootLength, 
+                                    u32 execFlags, 
+                                    u32 hwAccessRights, 
+                                    u32 secureKernelRights,
+                                    u32 sizeState, 
+                                    */
+
+                                    u32 bbid, /* optional to attach to one BB*/
+                                    u8 *issuername,
+                                    void *metadata);
+        
+int generateUnsignedEncryptedTicket( void *metadata, 
+                                     u32 bbid,
+                                     u32 tsCrlVersion, 
+                                     BbAesIv cmdIv, 
+                                     BbEccPrivateKey serverprivateKey,
+                                     BbEccPublicKey serverpublicKey,
+                                     BbEccPublicKey bbpublicKey,
+                                     u8 *issuername,
+                                     void *ticketdata);
+
+int generateCrlHeader(u32 versionNumber, 
+                      u32 date, 
+                      BbServerName issuer, 
+                      u32 numberRevoked, 
+                      u32 sigType, 
+                      u32 *crlHeaderBlob, 
+                      u32 *lengthBlob);

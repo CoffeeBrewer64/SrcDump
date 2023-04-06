@@ -1,0 +1,109 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Transaction: Publish Content</title>
+</head>
+
+<body>
+
+<h2 align="center">Transaction: Publish Content</h2>
+<h4><b>Participants</b></h4>
+<ul>
+  <li> <b>Content Management - Publishing Server</b> (<i>point of control)</i></li>
+  <li> Content Distribution - Content Upload Server</li>
+  <li> Transaction - eTicket Server</li>
+</ul>
+<h4>Requirements</h4>
+<ul>
+  <li>CMS must mutually authenticate with CDS &amp; Transaction Servers</li>
+  <li>Unique <i>ContentID</i> is determined by CMS.</li>
+  <li>Availability for purchase must be an independent step.</li>
+</ul>
+<h4>Pre-conditions</h4>
+<ul>
+  <li>Content must be completely validated before it is published.</li>
+</ul>
+<h4>Input Parameters</h4>
+<blockquote>
+  <i>None</i>
+</blockquote>
+<h4>Data Records</h4>
+<ul>
+  <li><a href="../data_defs.html#CMS - Content Record">CMS&nbsp; - Content</a></li>
+  <li><a href="../data_defs.html#CDS - Depot Record">CDS - Content</a></li>
+  <li><a href="../data_defs.html#Trasnaction - Content Metadata Record">Transaction - Content
+    Metadata</a></li>
+</ul>
+<h4>Output Parameters</h4>
+<blockquote>
+  <i>None</i>
+</blockquote>
+<h4>Sequence of Events</h4>
+<ol>
+  <li>	<code>Upload Content</code>
+    <ol type="a">
+  <li>	Publishing Server &amp; Content Upload Server mutually authenticate each
+    other.</li>
+  <li>	Publishing Server pushes<i> ContentID, content-object</i> and <i>content-description</i>
+    to the Content Upload Server</li>
+  <li>	If content record for <i>ContentID</i> does not already exist, a new
+    record is created in the <i>downloadable</i> state.</li>
+  <li>	<i>content-update-date</i> is updated with the current Content Upload
+    Server timestamp.</li>
+  <li>	<i>Uploaded Content</i> audit record is created in the CDS.</li>
+    </ol>
+  </li>
+  <li>	<code>Upload Content Metadata</code>
+    <ol type="a">
+      <li>	Publishing Server &amp; eTicket Server mutually authenticate each other.</li>
+      <li>	Publishing Server pushes <i>ContentID, content-decryption-key,
+        core-content-record</i> to the eTicket Server.</li>
+  <li>	If content record for <i>ContentID</i> does not already exist in Content
+    Metadata, a new record is created with <i>purchase-state</i> set to <i>published</i></li>
+  <li>	<i>update-date</i> is updated with the current eTicket Server timestamp.</li>
+  <li>	<i>Receive Published Content</i> audit record is created in the XS.</li>
+    </ol>
+  </li>
+  <li><code>Update Publish Date</code>
+    <ol type="a">
+      <li><i>state</i> is changed to <i>published</i> and <i>publish-date</i> is
+        updated in the CMS Content record.</li>
+      <li><i>Publish Content</i> audit record is created in the CMS.</li>
+    </ol>
+  </li>
+</ol>
+<h4>Post Condition</h4>
+<ol>
+  <li>   Transaction Content Metadata has <i>content-decryption-key</i> and <i>content-core-record</i>
+    &amp; CDS Content has <i>content-object</i> and <i>content-description</i>
+    for <i>ContentID.</i></li>
+</ol>
+
+<h4>Audit Records</h4>
+<ol>
+  <li>Publishing Server : Publish Content - ContentID, studio-ID</li>
+  <li>eTicket Server : Received Publish Content - ContentID</li>
+  <li>Content Upload Server : Uploaded Content - ContentID</li>
+</ol>
+<h4>Exceptions</h4>
+<ol>
+  <li>If <i>Upload Content Metadata</i> does not succeed, the Publishing Server
+    will retry, and will not rollback <i>Upload Content.</i></li>
+  <li>If entry for <i>ContentID</i> already exists in the XS Content Metadata
+    store, the <i>purchase-state</i> field is not updated.</li>
+  <li>If an entry for <i>ContentID</i> already exists in the CDS Content store,
+    the <i>download-state</i> field is not changed.</li>
+</ol>
+
+<p><b>Figures</b></p>
+<ul>
+  <li><a href="XS-PublishContent/XS-PublishContent1_raster.gif">Control Flow</a></li>
+  <li><a href="XS-PublishContent/XS-PublishContent2_raster.gif">Data Flow</a></li>
+</ul>
+
+</body>
+
+</html>

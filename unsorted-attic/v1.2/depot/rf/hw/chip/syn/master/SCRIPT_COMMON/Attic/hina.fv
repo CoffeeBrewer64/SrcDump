@@ -1,0 +1,31 @@
+# ======== set default parameters ======== 
+
+set verification_blackbox_match_mode identity
+set verification_set_undriven_signals PI
+set verification_passing_mode consistency
+# set name_match_flattened_hierarchy_separator_style _
+
+set hdlin_error_on_mismatch_message false
+set hdlin_ignore_full_case false
+set hdlin_ignore_parallel_case false
+
+# ======== set reference netlist ======== 
+read_verilog -c ref RTL.v
+link ref:/WORK/%CELLNAME%
+set_reference_design ref:/WORK/%CELLNAME%
+memory
+cputime
+
+set_compare_rule $ref -from {\(.*\)\[\([0-999]*\)\]} -to {\1_\2_}
+
+# ======== set implementation netlist ======== 
+read_verilog -c impl ../gate/%CELLNAME%.g.v
+link impl:/WORK/%CELLNAME%
+set_implementation_design impl:/WORK/%CELLNAME%
+memory
+cputime
+
+verify -matchonly
+verify
+
+quit

@@ -1,0 +1,204 @@
+d1 6
+a6 2
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+d8 227
+a234 4
+  <title>e-money.html</title>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <meta name="author" content="Raymond Lo">
+d236 56
+a291 16
+<body>
+<h2>E-money<br>
+</h2>
+E-money card (similar to Phone card) is a piece of paper or plastic with
+a concealed random number, called the E-money Code.&nbsp; The E-money cards
+are physical goods sold by the retailer, and distributed using the BB Player's
+distribution channel.<br>
+<h3>Use case for the kids<br>
+</h3>
+<ol>
+  <li>the kid buys a E-money card</li>
+  <li>the kid reveals the Code on the card</li>
+  <li>the kid goes to the download station and types in the Code</li>
+  <li>XS verifies the Code and credits the the account balance</li>
+  <li>the kid can use the balance to buy new games<br>
+  </li>
+d293 27
+a319 20
+<h3>E-money Generation and Registration Procedure<br>
+</h3>
+<ol>
+  <li>IQue owns a CA in US for E-money generation.&nbsp; Its public key is
+    <span style="font-style: italic;">Kc</span>. Its private key is <span
+ style="font-style: italic;">Kd</span>.</li>
+  <li>Generate a random E-money Code, <span style="font-style: italic;">R</span>,
+in US</li>
+  <li>Apply one-way hash function <span style="font-style: italic;">F</span>,
+on <span style="font-style: italic;">R</span>, producing <span
+ style="font-style: italic;">H</span></li>
+  <li>Create certificate information, <span style="font-style: italic;">I</span>.&nbsp;
+It contains the dollar amount, validity period, control number, etc.</li>
+  <li>Digitally sign the (<span style="font-style: italic;">H,I</span>) with
+    <span style="font-style: italic;">Kd</span>, producing <span
+ style="font-style: italic;">S</span>.</li>
+  <li>Register (<span style="font-style: italic;">H,I,S</span>) to XS </li>
+  <li>Ship <span style="font-style: italic;">R</span> to the PRINTER for
+printing, over a secure channel<br>
+  </li>
+d321 19
+a339 15
+<h3>E-money Code Verification Procedure<br>
+</h3>
+<ol>
+  <li>XS reads (<span style="font-style: italic;">BB-id,R</span>) from Depot
+over an encrypted channel.&nbsp; &nbsp;</li>
+  <li>XS applies one-way hash function <span style="font-style: italic;">F</span>
+on <span style="font-style: italic;">R</span>, producing <span
+ style="font-style: italic;">H</span></li>
+  <li>XS uses <span style="font-style: italic;">H</span> to find the database
+record</li>
+  <li>XS verifies <span style="font-style: italic;">I</span> is still valid</li>
+  <li>XS verifies (<span style="font-style: italic;">H,I</span>) has valid
+signature <span style="font-style: italic;">S</span> using <span
+ style="font-style: italic;">Kc</span><br>
+  </li>
+d341 9
+a349 12
+<h3>Security Properties and Attacks<br>
+</h3>
+Prop 1. Nobody can recover <span style="font-style: italic;">R</span> from
+(<span style="font-style: italic;">H,I,S</span>) <br>
+Direct consequence of property of one-way hash function <span
+ style="font-style: italic;">F</span>.<br>
+<br>
+Prop 2. Nobody can compute <span style="font-style: italic;">S</span> from
+combinations of <span style="font-style: italic;">R,H,I</span> without <span
+ style="font-style: italic;">Kd</span>.<br>
+Direct consequence of RSA signature algorithm, given that <span
+ style="font-style: italic;">Kd</span> is kept secret in US.<br>
+d354 2
+a355 119
+Prop 3. They cannot recover the random code to print "valid" money from the
+XS database - from Prop 1.<br>
+<br>
+Prop 4. They cannot insert unauthorized random code into the XS database
+- from Prop 2.<br>
+<br>
+<br>
+Attack 1.&nbsp; The operators at PRINTER can obtain the E-money code.&nbsp;
+This attack will be detected by complaints from retailer about invalid cards.<br>
+<br>
+Attack 2.&nbsp; The operators at XS restores the (<span
+ style="font-style: italic;">H,I,S</span>) record, after its value is exhausted.&nbsp;
+This attack should be detected from the audit record when the total spending
+of H exceeds its certified value.<br>
+<h2><br>
+</h2>
+<h2>Account Balance</h2>
+Account balance is not associated with BB-id.&nbsp; It's physically associated
+with the BB Card and logically associated with E-money Code. &nbsp;A BB Card
+records a list of E-money Code, unencrypted. &nbsp;On XS,&nbsp; each E-money
+Code has a database record.&nbsp; One of its fields is the remaining balance.&nbsp;
+Another field is the BB-id it is bound to.<br>
+<br>
+When the kid types in a new Code at the Depot, the XS verifies the Code,
+writes it to the BB Card, and updates the binding in the XS database.&nbsp;&nbsp;
+After the value of the Code is exhausted, the Code is removed from the BB
+Card.<br>
+<br>
+The account balance on a BB Card is the sum of unused values of the E-money
+Code stored on the Card.<br>
+<h3>Security Properties&nbsp;<br>
+</h3>
+Prop 1.&nbsp; If balance is associated with BB-id, whoever gain access to
+a lost BB card can spend the balance, even though the balance is added after
+the card is lost.&nbsp; By associating balance with E-money Code, this problem
+is avoided.<br>
+<br>
+Prop 2.&nbsp; If a BB-card is lost, whoever in possession of the BB card
+can spend the balance for that particular BB-id (but not any other BB-id).<br>
+<br>
+Prop 3.&nbsp; If a BB-card is damaged and need replacement, the balance on
+the BB Card is lost. &nbsp;The service center cannot reload the Code. &nbsp;The
+kid should keep its E-money printout.<br>
+<br>
+Prop 4. &nbsp;If the kid has two BB Card, each Card will show a different
+balance, depending on the Code stored on them. &nbsp; &nbsp;However, it is
+possible to transfer the balance from one-card to another if the kid keeps
+the E-money printout.<br>
+<br>
+Prop 5. &nbsp;Even a hacker gained accesses to a list of valid BB-ids and
+took control of a Depot, he cannot "spend" the E-money. &nbsp; In other words,
+&nbsp;the E-money security does not assume anything from the BB player and
+the Depot security design.<br>
+<br>
+<h3>Database Management<br>
+</h3>
+The number of entries in the database can grow very big if we don't remove
+old code.<br>
+<ol>
+  <li>Exhausted Code are backup and removed.</li>
+  <li>Introduce and enforce expiration date on E-money cards.<br>
+  </li>
+</ol>
+<br>
+<br>
+<h2>Business Policies/Decisions<br>
+</h2>
+<h3>E-money Card Distribution<br>
+</h3>
+E-money cards are bundled into packs.&nbsp; The minimum order unit is a pack.&nbsp;
+A pack contains N game cards, where N is to be decided.&nbsp;&nbsp; Each
+pack has a control or batch number.&nbsp; The control number is used to control
+batch activation/deactivation of the cards in the XS.<br>
+<br>
+Regarding the default state of the activations, we have two choices.<br>
+<br>
+1)&nbsp; The cards are default activiated.&nbsp; No "acknowledgement" from
+retailer or delivery person is needed.&nbsp; &nbsp;In the event of robbery
+or lost goods, the control numbers must be identified and the corresponding
+packs deactivated. &nbsp;<br>
+<br>
+OR<br>
+<br>
+2)&nbsp; The cards are default not activated.&nbsp; The delivery person sends
+delivery receipts to a center.&nbsp; The staff in the center activates the
+cards after delivery.<br>
+&nbsp;<br>
+<br>
+<h3>Denomination of the game card. &nbsp;<br>
+</h3>
+1) It can be in values like $5,$10,$20, ..., &nbsp;<br>
+<br>
+OR<br>
+<br>
+2) It can be the value of a game, assuming all games uses the same price.<br>
+<br>
+<br>
+<h3>Expiration of the game card<br>
+</h3>
+The expiration date is controlled by the digitally signed certificate.&nbsp;
+The objective is to keep the database size small.&nbsp; It is reasonable
+to enforce<br>
+<br>
+1) The balance expires after N months after the card is first used, e.g.&nbsp;
+N=6, &nbsp;<br>
+<br>
+AND<br>
+<br>
+2) The card expires M months after the expiration date printed on the card.
+e.g, M=3, if the card is not used.<br>
+<br>
+<h3>What to do with expired cards &nbsp;<br>
+</h3>
+1) We refund the retailer the value of expired cards, &nbsp;<br>
+<br>
+OR<br>
+<br>
+2) No refund. &nbsp;We expect the retailer should sell the card before it
+expires (e.g., deep discount)<br>
+d357 421
+d779 1

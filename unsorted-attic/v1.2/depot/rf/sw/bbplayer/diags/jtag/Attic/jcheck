@@ -1,0 +1,17 @@
+#!/bin/sh -x 
+
+jtag -r bypass
+
+Addr=0x1fc40000
+for i in `cat tmprom` ; do
+   jtag wd_write 0x${Addr} 0x${i}
+   jtag wd_write 0x${Addr} 0x${i}
+   back=`jtag wd_read 0x${Addr}`
+   
+   if [ "$i" != "$back" ]; then
+       echo "Failed: $Addr exp=$i real=$back"
+   fi
+ 
+   Addr=$(($Addr + 4))
+done
+

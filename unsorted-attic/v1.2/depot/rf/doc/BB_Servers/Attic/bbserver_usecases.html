@@ -1,0 +1,857 @@
+d1 799
+a799 855
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>BroadOn Confidential - Use-case analysis for BB servers</title>
+</head>
+<body lang="EN-US" style="tab-interval: .5in">
+<h1>Use-case analysis for BB servers</h1>
+<center><i>BroadOn Confidential<br>
+$Revision: 1.1 $<br>
+$Date: 2002/04/06 03:32:08 $</i></center>
+<h2>1) Overviews</h2>
+ This document  describes use cases amongst BB servers, BB  Depot, BB and
+personals interacting  with these. Section "2) Behavior Model" describes
+high-level behavior model from which all  use cases in this document are
+derived. Section "3) Use Cases" describes detail of the use cases with exact
+events  to occur during the  course of each use case. Sequence diagrams provided
+in a  separate document  figures major sequence of events to supplements
+the description for better understanding. 
+<h2>2) Behavior Model </h2>
+<h3>2.1 Purchase eTicket</h3>
+<h5>Scenario 1) Purchase eTicket at BB shop</h5>
+<dl>
+<dt><b>Description:</b>
+<dd>Customer visits one of official  shops of BB products. The customer may 
+or may not have selected a title to  purchase. In any case, the customer browses
+a printed catalog of all titles, and  look at Title ID to purchase.
+<p>
+The customer then goes to the  retailer and asks for the title. The retailer
+takes and attaches his/her BB to  eTicket port (designated Ethernet port
+for title purchase) of BB Depot, which  brings a page for title purchase
+on BB Depot Console.
+<p>
+The retailer enters the Title ID  to BB Depot Console and the BB Depot
+Console  displays detailed information about  the title. Once the retailer
+confirms  the title with the customer and collects  money, s/he hits purchase
+button  of the BB Depot Console to start eTicket  issue process, which the
+BB Depot  accesses to eTicket Server to issue and  download an eTicket for
+the title  of the BB device. The eTicket Server records  about the eTicket
+into eTicket  DB.
+<p>
+Upon successfully completion, the  BB indicates that eTicket of new title
+ has been acquired.
+<p>
+  There is no option to download the  title content all together because
+the  point of control is different between  buying eTicket and downloading
+title.
+
+<dt><p><b>Point of  Control:</b>
+  <dd>BB Depot
+<dt><p><b>Use Cases Derived from this  model:</b>
+ <ul>
+  <li>Use case: Buy a title
+  <li>Use case: Buy eTicket
+  <li>Use case: Revoke eTicket
+  <li>Use case: Download a title
+  <li>Use case: Buy hardware devices
+  <li>Use case: Processing of deferred transactions
+ </ul>
+</dl>
+
+<h5>Scenario 2) Purchase eTicket over the Internet</h5>
+
+<dl>
+<dt><b>Description:</b>
+<dd>Operation Center sets up eTicket  web site, which is an e-commerce portal
+for BB users to purchase eTicket over  the Internet. The eTicket web site
+has a catalog of all titles and functionality  to process monetary transactions
+over the net.
+<p>
+Customer uses web browser to visit  eTicket site, browse titles, and processes
+ purchase request for titles to  purchase. The eTicket site authenticates
+and validates the customer, and  executes a transaction to 1) charges to
+the credit card specified; 2) record the  purchase in eTicket DB.
+<p>
+  Customer then use "Recover  eTicket" model to download the new eTicket
+to the BB.
+<dt><b>Issues:</b>
+
+  <ul>
+  <li>How to bind customer and BB  device?
+  <li>How to issue and download eTicket to BB in real time so  that the customer
+ can check the completion of purchase on  BB?
+  </ul>
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>eTicket web site during a purchase BB during downloading of eTicket
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>TBD
+  </ul>
+
+<h3>2.2 Download a Title</h3>
+<h5>Scenario 1) Download at BB shop</h5>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  Customer who has purchased BB and  eTicket(s) of titles(s) visits one of
+ official shops of BB products, and connect  his/her BB to any available
+"Safty Box" port of BB Depot.
+<p>
+  The customer uses controller of BB  to display information of titles whose
+ eTicket has been downloaded into the BB,  and specifies a title to download.
+<p>
+  BB asks for the title content to  BB Depot, and starts downloading from 
+BB Depot.
+<p>
+  Available space can be checked in  two ways:
+  <ol>
+  <li>Metadata in eTicket has size information so that BB can know  whether it can fit to free space of the BB or not in advance. In a case that the  free space is not enough, BB does not allow to try download, or
+  <li>BB always try to download, and report error if no enough  space
+  </ol>
+<br>
+  In case of 2., BB reports "no  enough space" error to the customer when 
+failed, and the customer needs to  remove existing title content, or attach 
+additional memory to the BB. Once any  one of the actions were taken, BB retries
+to download the title.
+<p>
+  Upon successful completion of  downloading, BB displays it on its LCD screen
+ to indicate the customer of the  completion.
+
+<dt><p><b>Point of  Control:</b>
+  <dd>BB
+<dt><p><b>Use Cases Derived from this  model:</b>
+  <ul>
+  <li>Use case: Download a title
+  <li>Use case: Push Tag-alone content
+  <li>Use case: Buy hardware devices
+  <li>Use case: Processing of deferred transactions
+  </ul>
+</dl>
+<h5>Scenario 2) Download at home</h5>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  Customer who has purchased BB and  eTicket(s) of titles(s) connects his/her
+ BB to the Internet.
+<p>
+  The customer uses controller of BB  to display information of titles whose
+ eTicket has been downloaded into the BB,  and specifies a title to download.
+<p>
+  BB asks for the title content to  Content Download Server (instead of BB
+ Depot), and starts downloading from BB  Depot.
+<p>
+  Available space can be checked in  the same way above.
+<p>
+  Upon successful completion of  downloading, BB displays it on its LCD screen
+ to indicate the customer of the  completion.
+
+<dt><b> Issue:</b>
+  <ul>
+  <li>How to come up with a URL to Content Download  Server?
+  </ul>
+<dt><p><b>Point of  Control:</b>
+  <dd>BB
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+  <ul>
+  <li>TBD
+  </ul>
+</dl>
+
+<h3>2.3 Purchase hardware options</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  Customer visits one of official  shops of BB products, and ask retailer 
+for hardware option(s) to purchase.
+<p>
+  The retailer uses BB Depot Console  to enter the sale of hardware options,
+ collects money from the customer, and  give the hardware to the customer.
+ BB Depot will record the transaction locally,  and eventually (may or may
+ not in real time) transfer the transaction to  BB-Depot Account Transaction
+ Server to record the transaction into BB-Depot  Account Transaction DB.
+
+<dt><p><b>Point of  Control:</b>
+  <dd>BB Depot
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>Use case: Download a title
+  <li>Use case: Buy hardware devices
+  <li>Use case: Processing of deferred transactions
+  </ul>
+</dl>
+
+<h3>2.4 Recover eTicket</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  TBD
+
+<dt><p><b>Point of  Control:</b>
+  <dd> BB
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>TBD
+  </ul>
+</dl>
+
+<h3>2.5 Release New Title</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  Development studio will sign up  with Operation Center as a developer of
+ BB titles. Operation Center registers  studios who signed up into Studio
+DB.
+<p>
+  DevKit will be released and used  by those official development studios 
+to develop and package titles that run on  BB. A certificate is issued for 
+each studio, and bundled in DevKit for the  studio. New certificate will periodically
+be issued and released to studio that  will be loaded into DevKit.
+<p>
+  During a packaging process of new  title, DevKit automatically encrypt
+the  title content by using the public key in  the certificate. DevKit also
+calculate  a hash of the title content and bundles  in the release package
+along with  the certificate.
+<p>
+  The release package created by  DevKit can be shipped to Operation Center
+ via online (http, ftp, email, etc) or  offline (snail mail of CD-R, etc).
+<p>
+  The release package is uploaded to  Content Publish Server by operator
+in  Operation Center or directly from the  studio via secure channel over
+the  Internet. Content Publish Server unpacks the  package and checks the
+validity  of the title content. Once it is validated to be  trusted title
+content, Content Publish Server looks up a private key for the  certificate
+and decrypt the title content. It will then generate random  symmetric key
+and re-encrypt  the title content by the key. Content Publish  Server registers
+the encrypted  title content into Content DB, and the symmetric  key into
+eTicket DB. This  whole process is controlled by Content Publish  Server.
+<p>
+  Upon a completion of re-packaging  of title, Content Publish Server notifies
+ Content Distribution Server of the  availability of the title, and the point
+ of control migrates to the Content  Distribution Server.
+<p>
+  Content Distribution Server will  use RMS DB to look up a list of BB Depots,
+ and notifies them of the availability  of the new title. Content Distribution
+ Server may delay sending notifications so  that it does not have to notify
+ once for every new titles. When it fails to  notify BB Depot, it will schedule
+ for retry in future.
+<p>
+  Title content downloading from BB  server to BB Depot is controlled by
+BB  Depot itself. Though Content Distribution  Server notifies BB Depot of
+new  titles, Content Distribution Server does not  push title content to
+BB Depot.  Instead, BB Depot accesses back to the Content  Distribution Server
+to get  a list of URLs where BB Depot can download new titles  from, and
+fetch files  one by one by using the URLs. BB Depot also access to the  Content
+Distribution  Server periodically to check availability of new titles.  
+
+<dt><b>Issue:</b>
+
+  <ul>
+  <li>Any security hole created by bundling the certificate  into the
+  release 
+package?
+  <li>Is the notification of new titles to BB Depot necessary?  BB Depot
+  periodically checks the availability anyway.
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>Varies in each stage as described  above
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>Use  case: Release DevKit
+  <li>Use  case: Release a Title
+  <li>Use  case: Publish a Title
+  <li>Use  case: Distribute new titles
+  <li>Use  case: Content Synchronization
+  </ul> 
+</dl>
+
+<h3>2.6 Manufacture BB</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  TBD
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>Manufacture
+
+<dt><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>Use case: Submit new BB information
+  <li>TBD
+  </ul>
+</dl>
+
+<h3>2.7 Auditing of Retailer Activities</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  TBD
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>Activity Auditing Server
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>TBD
+  </ul>
+</dl>
+
+<h3>2.8 Auditing of Studios</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  TBD
+
+<dt> <p><b>Point of  Control:</b>
+
+  <dd>Activity Auditing Server
+
+<dt><p><b> Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>TBD
+  </ul>
+</dl>
+
+<h2>3) Use Cases</h2>
+
+<h3>3.1. Use Cases for Transactions</h3>
+
+<h3>Use case: Buy a title</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+
+  <ul>
+  <li>Retailer needs to validate purchase and collect money  accordingly
+  <li>Purchase transactions need to be recorded to the server  in real time
+  <li>RetailerÅfs involvement needs to be minimized
+  <li>Do not leave eTicket other than a particular BB
+  </ul>
+
+<dt><p><b>Precondition</b>:
+
+  <ul>
+  <li>No eTicket for the title in BB
+  <li>May or may not have enough memory space on the BB
+  <li>Title content had been downloaded into BB Depot
+  <li>Internet connection is up
+  </ul>
+
+<dt><p><b>Participants:</b>
+
+  <dd>Customer, Retailer, BB, BB Depot, eTicket Server,  eTicket DB, Content
+Distribution  Server, Content Download Server, Content DB
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>BB Depot 
+
+
+<dt><p><b>Sequence of events</b>:
+  <dd>A combination of "Use case: Buy eTicket" and "Use case: Download a title"
+  achieves this use case.
+
+</dl>
+
+<h3>Use case: Buy eTicket</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Retailer needs to validate purchase and collect money  accordingly
+  <li>Purchase transactions need to be recorded to the server  in real time<b></b>
+  <li>RetailerÅfs involvement needs to be  minimized<b></b>
+  <li>Do not leave eTicket other than a particular  BB<b></b>
+  </ul>
+
+<dt><p><b>Precondition</b>:
+
+  <ul>
+  <li>No eTicket for the title in BB
+  <li>Title content might have been downloaded into BB
+  <li>Title content had been downloaded into BB Depot
+  <li>Internet connection is up
+  </ul>
+
+<dt><p><b>Participants:</b>
+
+  <dd>Customer, Retailer, BB, BB Depot, eTicket Server,  eTicket DB
+
+<dt><p><b>Point of  control</b>:
+
+  <dd>BB Depot 
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Customer tells Retailer a title to purchase
+  <li>Customer attaches the BB to the designated port of BB Depot  Console for an eTicket purchase process. BB Depot will detect the BB  automatically and reads its BB ID. The port will be located near by BB Depot  Console so that Retailer can make sure appropriate BB is attached to the  port.
+  <li>Retailer interacts with BB Depot Console to enter which port to  use and what title to sell
+  <li>Interaction with the BB Depot Console will initiate and setup a  session for the eTicket purchase process with the BB attached to the designated  port.
+  <li>Begin a distributed transaction amongst BB and eTicket server.  BB Depot takes a role of transaction manager for the distributed transaction. "Begin a distributed transaction" is a logical notion to be aware only the  session  at this point.
+  <li>The session (BB Depot) sends an eTicket issue request to the  eTicket server. It will send: BB Depot ID, BB ID, and Title ID. This will  effectively involve the eTicket server into the distributed transaction.  
+  <li>eTicket server generates new eTicket for the BB/Title, and  sends it back to the session
+  <li>The session sends the eTicket back to the BB. This will  effectively involve the BB into the distributed transaction.
+  <li>If one of the above  fails, the session rolls back the transaction. Both BB and eTicket server will  also need to rollback whenever the connection to the session gets  terminated.
+  <li>The session sends  "prepare to commit" request to the eTicket server and the BB.
+  <li>eTicket server start  a transaction with eTicket DB to record the eTicket submission, and report the  status of it to the session
+  <li>BB makes sure that  the eTicket has been stored and secured, and report the status to the session.  At this point, BB needs to make the eTicket in a status that cannot be used yet  (deactivated).
+  <li>If one of the above  fails, the session rolls back the transaction.
+  <li>The session sends "commit" request to the eTicket server and the BB to complete the distributed transaction. The eTicket server commit the transaction with the eTicket DB, and  BB turns the eTicket status to be "activated."<br>
+For the case of failure on the commit stage, both  eTicket server and BB need to have a mechanism to restart commit by logging the  transaction. For eTicket server case, it will rely on database  functionality.  For BB case, use eTicket server to  restore (or activate) the eTicket (see below)
+  <li>BB Depot console and  BB indicate the completion to Retailer and Customer
+  <li>Customer detach the  BB (or continue the event sequence of "Use case: Download a title" if necessary)
+  <li>BB Depot automatically detects the disconnection of the BB, and close the session
+
+</dl>
+
+<h3>Use case: Revoke eTicket</h3>
+
+<dl>
+
+<dt><b>Requirements:</b>
+  <ul>
+  <li>TBD
+  </ul>
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li>TBD
+  </ul>
+<dt><p><b>Participants:</b>
+  <dd>
+<dt><p><b>Point of  control:</b>
+  <dd>
+
+<dt><p><b>Sequence of events</b>:
+  <ol>
+  <li>TBD
+  </ol>
+</dl>
+
+<h3>Use case: Download a  title</h3>
+
+<dl>
+
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Retailer should not be involved
+  <li>Should be functional without internet connection
+  </ul>
+
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li>May or may not own a valid eTicket for the tile
+  <li>May or may not have enough memory space on the BB
+  <li>Title content had been downloaded into BB Depot
+  <li>Internet connection may or may not be up
+
+<dt><p><b>Participants:</b>
+
+  <dd> Customer, Retailer, BB, BB Depot, Content Distribution  Server, Content 
+Download Server, Content DB
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>BB
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Customer connects BB to any port
+  <li>BB Depot automatically detects the BB and read its BB ID. It  then initiates a session with idle state for the BB
+  <li>Customer uses BB to select a title to download. BB displays  title one by one on its LCD screen so that Customer can pick one by a controller  of the BB. BB may use "title browsing" protocol to get size information so that  it can display whether it has enough free space to download or not.
+  <li>BB sends "equest for download" request to the session to  execute "downloading a title" process
+  <li>The session looks up the title content in Content Manager, and  start transfer of the file(s) to the BB. Failure of look up will be reported to BB.
+  </ol>
+
+<h4>One of the following sequences will follow:</h4>
+
+  <ol type=a>
+  <li><b>Failure on no enough space: delete tag-alone  content</b>
+
+    <ol start=6>
+    <li>BB fails to store the title content, and report it to the  session
+    <li>The session goes back to the state just before the downloading  (still keep a context of title browsing, etc)
+    <li>Customer tells BB to delete tag-alone content to create more  free space
+    <li>Customer tells BB to retry the download by sending the same "request for download" request to the session
+    </ol>
+
+  <li><b>Failure on no enough space: delete other title(s) and  continue</b>
+
+    <ol start=6>
+    <li>BB fails to store the title content, and report it to the  session
+    <li>The session goes back to the state just before the  downloading
+    <li>Customer uses BB to delete existing title(s) to create more  free space
+    <li>Customer tells BB to retry the download by sending the same  "request for download" request to the session
+    </ol>
+
+  <li><b>Failure on no enough space: attach additional memory  and continue</b>
+
+    <ol start=6>
+    <li>BB fails to store the title content, and report it to the  session
+    <li>The session goes back to the state just before the  downloading
+    <li>Execute the event sequence of "Use case: Buy hardware devices" to proceed purchase of memory
+    <li>Customer attach an additional memory (or two) to the BB
+    <li>(BB detects the memory, or) Customer tells BB to retry the download by sending the same "request  for download" request to the session
+    </ol>
+
+  <li><b>Failure on no enough space: stop the  sequence</b>
+
+    <ol start=6>
+    <li>BB fails to store the title content, and report it to the  session
+    <li>The session goes back to the state just before the  downloading
+    <li>Customer detach the BB from the port
+    <li>BB Depot automatically detects the disconnection of the BB and  close the session
+    </ol>
+
+  <li><b>Download completes successfully</b>
+
+     <ol start=6>
+     <li>BB completes download and secure the file(s) into memory, and report it to the session
+     <li>The session logs the  download information (BB Depot ID, BB ID, Title ID) to local sales log. These  are deferred transactions that BB Depot periodically complete with BB-Depot  Account Transaction Server. (Refer to the "Use case: Processing of deferred  transaction")
+     <li>The session goes  back to the state just before the downloading
+     <li>Customer may  continue title browsing for other title download, and specify a title to  download if any. In this case, the sequence goes back to the sequence 4 above.
+     <li>Customer detach the  BB from the port once all desired titles get downloaded into BB
+     <li>BB Depot automatically detects the disconnection of the BB and close the session
+     </ol>
+  </ol>
+</dl>
+
+
+<h3>Use case: Push Tag-alone  content</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>TBD
+  </ul>
+
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li>TBD
+  </ul>
+
+<dt><p><b>Participants:</b>
+  <dd>
+
+<dt><p><b>Point of  control:</b>
+  <dd>
+
+<dt><p><b>Sequence of events</b>:
+  <ol>
+  <li>TBD
+  </ol>
+</dl>
+
+<h3>Use case: Buy hardware  devices</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>No need to keep track of individual hardware devices  distributed from manufacture  to retailers. E.g. BB devices can be shipped to any  retailers without recording  BB ID of the devices
+  <li>Should be functional without internet connection
+  </ul>
+
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li> Internet connection may or may not up
+  </ul>
+
+<dt><p><b>Participants:</b>
+  <dd> Customer, Retailer, BB Depot
+
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>BB Depot
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Customer asks Retailer hardware device(s) to purchase
+  <li>Retailer enters the sale to BB Depot Console.
+  <li>BB Depot records the sale in local sale log for periodical  deferred transaction process
+  <li>Retailer give the device(s) to customer and collect money
+  <ol>
+  <dd>Refer to the "Use case: Processing of deferred  transaction" for how these sales logs get transferred to the  server.
+
+</dl>
+
+<h3>Use case: Processing of deferred  transactions</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Used for non time critical transactions
+  <li>Used for transactions that can afford being lost if BB Depot  gets broken
+  <li>A deferred transaction should be able to handle ambiguous type  of data set
+  <li>No human intervention required
+  </ul>
+
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li>Internet connection may or may not be up
+  </ul>
+
+<dt><p><b>Participants:</b>
+  <dd> BB Depot, BB-Depot Account Transaction Server, BB-Depot  Account Transaction DB
+
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>BB Depot 
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>BB Depot checks the local transaction log
+  <li>If no deferred transaction is found, exit
+  <li>BB Depot picks one deferred transaction in order by the  creation time
+  <li>BB Depot executes atomic commit transaction with BB-Depot  account transaction server for the deferred transaction.
+  <li>If fail, exit.
+  <li>Continue from the sequence 
+  </ol>
+
+</dl>
+ 
+<h3>3.2 Use Cases for Operations</h3>
+
+<h3>Use case: Release DevKit</h3>
+
+<dl>
+
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Private key for Studio will not be exposed outside of  Operation Center
+  </ul>
+
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li>None
+  </ul>
+
+
+<dt><p><b>Participants:</b>
+
+  <dd>Studio, Operation Center, DevKit, Studio  DB<b></b>
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>Operation Center
+
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Studio signs up as a developer
+  <li>Operation Center generates/signs a certificate and asymmetric  keys for the studio.  The certificate and the keys will be registered along with  Studio information into Studio DB.
+  <li>Operation Center bundles the certificate into DevKit
+  <li>Operation Center ships the DevKit to the Studio
+  </ol>
+</dl>
+
+
+<h3>Use case: Release a Title</h3>
+
+<dl>
+
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Studio has officially signed up
+  </ul>
+
+<dt><p><b>Precondition</b>:
+
+  <ul>
+  <li>Studio has DevKit
+  </ul>
+
+<dt><p><b>Participants:</b>
+
+  <dd>Studio, DevKit
+
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>DevKit 
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Studio develops a title
+  <li>Studio uses DevKit to package the final title into a release  package. The process "package" will internally encrypt the title content by the  public key in the certificate that had been bundled in the DevKit, generates a  hash of 
+the content for validity check, and possibly archive all files into one  file.
+  <li>Studio delivers the release package to Operation Center. It can  be done on-line (via email, http post, etc), or off-line (CD-R, tapes, etc)
+  </ol>
+
+<dt><b>Note:</b>
+
+  <dd>"Release Package" will consist  from the following:
+  <ul>
+  <li>Certificate bundled
+  <li>Encrypted title content
+  <li>Signature: a hash of the title content
+  <li>Metadata (title name, description, required memory size,  size of saved game, image files for ads, etc)
+  </ul>
+
+</dl>
+
+<h3>Use case: Publish a Title</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Create no security hole in title distribution
+  <li>Create no single place that stores information that  makes it possible to  steal a title content 
+  </ul>
+
+<dt><p><b>Precondition</b>:
+
+  <ul>
+  <li>Studio has been registered into Studio DB
+  </ul>
+
+<dt><p><b>Point of  control:</b>
+  <dd>Content Publishing Server, Content DB, Studio DB,  eTicket DB
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>Content Publishing Server
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Upload a release package from Studio to Content Publish Server  via HTTP/Post
+  <li>Content Publish Server unpacks the package, and verify the  content by using the certificate and the signature
+  <li>Content Publish Server looks up Studio DB for the private key  of the public key in the certificate, and decrypt the title content
+  <li>Content Publish Server generates random symmetric key, and  encrypt the title content with the key
+  <li>Content Publish Server registers the encrypted content and its  signature into Content DB. Content DB generates a Content ID, and pass it back  to Content Publish Server. At same time, Content DB notifies Content  Distribution Server of the availability of new content. This will initiate the  event sequence of "Use case:  Distribute new titles" described below
+  <li>Content Publish Server registers the symmetric key of the title  content with the newly allocated Content ID into eTicket DB
+  </ol>
+</dl>
+
+
+<h3>Use case: Distribute new titles</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Create no security hole in title distribution
+  </ul>
+
+<dt><p><b>Precondition</b>:
+
+  <ul>
+  <li>New title(s) has been registered into Content DB
+  <li>Symmetric key of the new title(s) may or may not  registered into eTicket DB
+  </ul>
+
+<dt><p><b>Participants:</b>
+
+  <dd>Content Publishing Server, Content Distribution Server,  RMS DB, Content DB, BB Depot
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>Content Distribution Server
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Content Distribution Server looks up a list of BB Depots from  RMS DB, and put their IDs into a queue.
+  <li>Pick one BB Depot ID from the queue, lookup IP address of the  BB Depot ID from RMS DB. If the queue is empty, exit.  
+  <li>Send a trigger message of content synchronization to the BB  Depot 
+  <li>If fails to send the message, queue the BB Depot ID for later  retries. For retries, Content Distribution Server has a timer to execute this  use case periodically until no BB Depot ID remains in the queue.
+  <li>Successful trigger message delivery starts the sequence of "Use case: Content  Synchronization" for the BB Depot 
+  <li>Continue to 7 
+  </ol>
+</dl>
+
+<h3>Use case: Content Synchronization</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Should not require secure connections between BB Depot  and BB servers
+  </ul>
+
+<dt><p><b>Precondition</b>:
+
+  <ul>
+  <li>Internet connection is up
+  </ul>
+
+<dt><p><b>Participants:</b>
+
+  <dd>BB Depot, Content Distribution Server, Content Download  Server
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>BB Depot 
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Content Manager (= content acquisition module for BB) connects  to Content Distribution Server with a "last updated" timestamp
+  <li>Content Distribution Server checks Content DB to get a list of  new title content.  (<i>issue: do we trust the timestamp ?)</i>
+  <li>Content Distribution Server constructs URL(s) that the BB Depot  has access to for each title, and sends the list of URL(s) back to the Content  Manager. These URL(s) are most likely pointing to Content Download Server, but  any other location could be used to download. The list also contains "update  timestamp" which is the latest registration timestamp out of all titles to be  downloaded
+  <li>Content Manager uses the URLs to download title content into BB  Depot 
+  <li>If fail, Content Manager retries up to certain times, and exit.  This sequence will periodically be executed and therefore, the Content Manager  will try download later 
+  <li>If successfully download all titles in the list, Content  Manager persistently store the timestamp sent from the Content Distribution Server into BB Depot
+  </li>
+</dl>
+
+<h3>Use case: Submit new BB information</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>TBD
+  </ul>
+
+<dt><p><b>Precondition</b>:
+
+  <ul>
+  <li>TBD
+  </ul>
+<dt><p><b>Participants:</b>
+
+  <dd>
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>TBD
+  </ol>
+
+</body>
+</html>

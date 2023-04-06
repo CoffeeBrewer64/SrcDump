@@ -1,0 +1,751 @@
+d1 723
+a723 749
+  <html>
+    <head>
+      <title>BB System - Data Definitions</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h1 align="center">BB System - Data Definitions</h1>
+      <center>
+	BroadOn Confidential<br>
+	  $Revision: 1.9 $<br>
+	    $Date: 2002/08/24 00:12:29 $
+      </center>
+      
+      <h2>Transaction</h2>
+      <dl>
+	<dt><a name="bb_rec">BB Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>BB_ID</code></td>
+	      <td>unique ID for this BB</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>state</code></td>
+	      <td>State of this BB:
+		<ol>
+		  <li><code>registered</code> -- The public key and
+		    BB_ID have been reported by the manufacturer.</li>
+		  <li><code>activated</code> -- Server received and
+		    approved activation request.</li>
+		  <li><code>suspended</code> -- Server should reject
+		    all transaction regarding this BB.</li>
+		  <li><code>retired</code> -- permanently removed from
+		    our system.</li>
+		</ol>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>region_ID</code></td>
+	      <td>Regional server of last transaction.</td>
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<hr>
+		<em>Following are primarily used by the
+		    activation/deactivation processes.</em>
+		  <hr>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>date</code></td>
+	      <td>Time and date this BB was activated.</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>DepotID</code></td>
+	      <td>Depot that activated this BB.</td>
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<hr>
+		  <em>Following are birth info. of this BB that is
+		    never changed (and rarely used.).</em>
+		  <hr>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>cert</code></td>
+	      <td>Digital certificate for this BB.</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>birth_ID</code></td>
+	      <td>identified the birth record, which provides info
+		such as manufacturer ID, manufacturing date, etc.</td>
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<center>
+		  <img src=data_defs/bb-state.png>
+		</center>
+		<ol type=A>
+		  <code>
+		    <li>state == registered</li>
+		    <li>state == activated && date &lt time_limit &&
+		      own no eTicket</li>
+		    <li>state == activated && (date &gt= time_limit ||
+		      own eTicket(s))</li>
+		    <li>state == suspended</li>
+		    <li>state == retired</li>
+		  </code>
+		</ol>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+        <hr>
+	<dt><a name="eticket">eTicket Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>eTicketID</code></td>
+	      <td>ID of this eTicket</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>BB_ID</code></td>
+	      <td>The BB that owns this ticket</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>Content_ID</code></td>
+	      <td>Identify the content this ticket is for</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>date</code></td>
+	      <td>Time and date that this eTicket record was created</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>state</code></td>
+	      <td><ol>
+		  <li><code>not_redeemed</code> -- initial state of
+		    this record; the purchase request has been
+		    approved but the eTicket has never been downloaded.</li>
+		  <li><code>redeemed</code> -- this eTicket has been
+		    downloaded (at least once).</li>
+		  <li><code>revoked</code> -- the license server that
+		    issued this eTicket has been revoked.</li>
+		  <li><code>returned</code> -- this eTicket is no
+		    longer valid: the customer no longer owns this
+		    eTicket and cannot download it (but can purchase
+		    a new eTicket for this content).</li>
+		</ol>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>
+        <code>license_mgr_ID</code>
+	      </td>
+	      <td>
+        <code>License manager identifer</code>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>
+        <code>eTicket_object</code>
+	      </td>
+	      <td>
+        <code>Actual eTicket object created</code>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td colspan=2>
+		<center>
+		  <img src=data_defs/eTicket-state.png></img>
+		</center>
+		<ol type=A>
+		    <code>
+		      <li>Refundable:<br>
+			  state == not_redeemed && date &lt time_limit</li>
+		      <li>Returned:<br>
+			  state == returned</li>
+		      <li>Non-refundable:<br>
+			  state == not_redeemed && date &gt= time_limit</li>
+		      <li>Redeemed:<br>
+			  state == redeemed</li>
+		      <li>Revoked:<br>
+			  state == revoked</li>
+		    </code>
+		  </ol>
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+        <hr>
+	<dt><a name="trans_info">Transaction Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>transID</code></td>
+	      <td>unique Transaction ID</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>transType</code></td>
+	      <td>Transaction type:
+		<ol>
+		  <li><code>eTicket_purchase</code></li>
+		  <li><code>eTicket_refund</code></li>
+		</ol>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>BB_ID</code></td>
+	      <td>The BB purchasing this eTicket</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>eTicketID</code></td>
+	      <td>Index to the corresponding eTicket record</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>DepotID</code></td>
+	      <td>The Depot that carries out the transaction</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>price</code></td>
+	      <td>Actual price we charged/refunded the shop. Zero for <i>Free
+            Content</i></td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>date</code></td>
+	      <td>Time/date of this transaction</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <dl>
+    <hr>
+	<dt><a name="Transaction - Region Record">Region Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>region_ID</code></td>
+	      <td>unique identifier for region.</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>RMS_ID</code></td>
+	      <td>Identifier for RMS for this region.
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>CDS_ID</code></td>
+	      <td>Identifier for CDS for this region.</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <dl>
+    <hr>
+	<dt><a name="Trasnaction - Content Metadata Record">Content Metadata Record:</a></dt>
+      </dl>
+      <dl>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>content_ID</code></td>
+	      <td>Unique ID for each content</td>
+	    </tr>
+        <tr>
+	      <td><code>update_date</code></td>
+	      <td>Timestamp this record was last updated
+	      </td>
+        </tr>
+        <tr>
+	      <td valign="top"><code>purchase_state</code></td>
+	      <td>per <code>region_ID </code>keep the following information:
+            <ul>
+              <li><code>region_ID - </code>identifies region</li>
+              <li><code>price - </code>list price for region</li>
+              <li><code>&quot;available for purchase&quot; effective date - </code>date
+                range during which this content is available for purchase in the
+                region</li>
+              <li><code>&quot;purchase suspension&quot; effective date - </code>date
+                range during which the content will be suspended and not
+                available for purchase in the region</li>
+            </ul>
+            <ol>
+		  <li><code>published</code> -- initial state of
+		    this record after being published by the CMS</li>
+		  <li><code>purchasable</code> -- content may be purchased by customer,
+            results in eTicket being issued</li>
+		  <li><code>suspended</code> -- content is no longer available for
+            purchase</li>
+		  <li><code>revoked</code> -- content is revoked due to security
+            considerations and is no longer available for purchase
+            <dl>
+              <dt>&nbsp;</dt>
+            </dl>
+          </li>
+		</ol>
+	      </td>
+        </tr>
+        <tr>
+	      <td colspan=2>
+        <p align="center">
+		  <code>
+          <img border="0" src="data_defs/xs-content-purchase-state.jpg" >
+          <p>purchase_state transitions
+		<ol type=A>
+		  <li>state == published</li>
+		  <li>state == purchasable</li>
+		  <li>state == suspended</li>
+		  <li>state == revoked
+            <dl>
+              <dt>&nbsp;</dt>
+            </dl>
+          </li>
+		  </code>
+		</ol>
+	      </td>
+        </tr>
+        <tr>
+	      <td valign="top"><code>download state</code></td>
+	      <td>per <code>region_ID</code> keep the following information:
+            <ul>
+              <li><code>region_ID - </code>identifies region</li>
+              <li><code>&quot;available for download&quot; effective date - </code>date
+                range during which this content is available for download to the
+                BB Player in the region</li>
+              <li><code>&quot;download suspension&quot; effective date - </code>date
+                range during which the content will be suspended and not
+                available for download by the BB Player in the region</li>
+            </ul>
+            <ol>
+		  <li><code>published</code> -- initial state of
+		    this record after being published by the CMS</li>
+		  <li><code>downloadable</code> -- content may be downloaded by BB Depot</li>
+		  <li><code>suspended</code> -- content is no longer available for
+            download</li>
+		  <li>revoked -- content is revoked due to security considerations and
+            is no longer available for download</li>
+		</ol>
+	      </td>
+        </tr>
+        <tr>
+	      <td colspan=2>
+        <p align="center">
+		  <code>
+          <img border="0" src="data_defs/xs-content-download-state.jpg" width="454" height="190">
+          <p>download_state transitions
+		<ol type=A>
+		  <li>state == published</li>
+		  <li>state == downloadable</li>
+		  <li>state == suspended</li>
+		  <li>state == revoked
+            <dl>
+              <dt>&nbsp;</dt>
+            </dl>
+          </li>
+		  </code>
+		</ol>
+	      </td>
+        </tr>
+	    <tr valign=baseline>
+	      <td><code>symmetric_encryption_key</code></td>
+	      <td>Key used to encrypt the content once it has been validated, but
+            before it is published
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_hash</code></td>
+	      <td>
+          SHA digest of the content
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_description</code></td>
+	      <td>
+          This includes content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>execution_information</code></td>
+	      <td>
+          This includes save-state-size, load-address, boot-length,
+          boot-code-state, boot-signature, hardware-access-rights
+	      </td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <hr>
+      <dl>
+	<dt><a name="Transaction - Depot Record">Depot Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>hardware_ID</code></td>
+	      <td>unique identifier for BB Depot</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>depot_ID</code></td>
+	      <td>hardware token ID issued to the BB Depot
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>store_ID</code></td>
+	      <td>store that the BB Depot belongs to</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <dl>
+      <hr>
+      <dl>
+	<dt><a name="Transaction - Store Record">Store Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>store_ID</code></td>
+	      <td>unique identifier for store</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>region_ID</code></td>
+	      <td>region that the BB Depot belongs to</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>retailer_ID</code></td>
+	      <td>retailer that the store belongs to</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <hr>
+      <dl>
+	<dt><a name="Transaction - Retailer Record">Retailer Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>retailer_ID</code></td>
+	      <td>unique identifier for retailer</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>commission_rate</code></td>
+	      <td>special discount rate for retailer
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>account_balance</code></td>
+	      <td>account balance for the retailer</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+    <hr>
+      </dl>
+      
+      <h2>Content Management (CMS)</h2>
+      <hr>
+      <dl>
+	<dt><a name="CMS - Content Record">Content Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>content_ID</code></td>
+	      <td>ID of this content - unique amongst all content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_object</code></td>
+	      <td>Actual content</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <dl>
+    <hr>
+	<dt><a name="CMS - Content Metadata Record">Content Metadata Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>content ID</code></td>
+	      <td></td>
+	    </tr>
+        <tr>
+	      <td><code>state</code></td>
+	      <td><ol>
+		  <li><code>released</code> -- initial state of
+		    this record upon release from the studio</li>
+		  <li><code>validated</code> -- this content has passed all validation
+            checks and is approved for publishing</li>
+		  <li><code>published</code> -- content and metadata has been pushed to
+            the CDS &amp; Transaction subsystem</li>
+		</ol>
+	      </td>
+        </tr>
+        <tr>
+	      <td colspan=2>
+        <p align="center"><img border="0" src="data_defs/cms-content-state.jpg" width="220" height="71">
+		<ol type=A>
+		  <code>
+		  <li>state == released</li>
+		  <li>state == validated</li>
+		  <li>state == published</li>
+		  </code>
+		</ol>
+	      </td>
+        </tr>
+	    <tr valign=baseline>
+	      <td><code>studio_ID</code></td>
+	      <td>ID of studio that generated this content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>release_date</code></td>
+	      <td>date this content was released by the studio</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>symmetric_encryption_key</code></td>
+	      <td>key used to encrypt the content once it has been validated, but
+            before it is published
+	      </td>
+	    </tr>
+        <tr>
+	      <td><code>content_hash</code></td>
+	      <td>
+          SHA digest of the content
+	      </td>
+        </tr>
+        <tr>
+	      <td><code>execution_information</code></td>
+	      <td>
+          This includes save-state-size, load-address, boot-length,
+          boot-code-state, boot-signature, hardware-access-rights
+	      </td>
+        </tr>
+        <tr>
+	      <td><code>content_description</code></td>
+	      <td>
+          This includes content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image
+	      </td>
+        </tr>
+	  </table>
+	</dd>
+      </dl>
+      <hr>
+      <h2>Content Distribution (CDS)</h2>
+      <hr>
+      <dl>
+	<dt><a name="CDS - Content Record">Content Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>content_ID</code></td>
+	      <td>ID of this content - unique amongst all content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_object</code></td>
+	      <td>Actual content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_download_URL</code></td>
+	      <td>URL used by the BB Depot's for download</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_hash</code></td>
+	      <td>SHA digest of the content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_size</code></td>
+	      <td>total size of the content object</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_update_date</code></td>
+	      <td>used by the Content Sync Server and Content Download Server</td>
+	    </tr>
+        <tr>
+	      <td><code>content_description</code></td>
+	      <td>
+          This includes content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image
+	      </td>
+        </tr>
+        <tr>
+	      <td colspan=2>
+        <p align="center"><img border="0" src="data_defs/cds-content-download-state.jpg" width="454" height="190">
+		  <code>
+          <p>download_state transitions
+		<ol type=A>
+		  <li>state == new</li>
+		  <li>state == downloadable</li>
+		  <li>state == suspended</li>
+		  <li>state == revoked
+            <dl>
+              <dt>&nbsp;</dt>
+            </dl>
+          </li>
+		  </code>
+		</ol>
+	      </td>
+        </tr>
+	    <tr valign=baseline>
+	      <td valign="top"><code>download_state</code></td>
+	      <td>per <code>region ID.</code>
+            <dl>
+              <ul>
+                <li><code>region ID - </code>identifies region</li>
+                <li><code>&quot;available for download&quot; effective date - </code>date
+                  range during which this content is available for download to
+                  the BB Player in the region</li>
+                <li><code>&quot;download suspension&quot; effective date - </code>date
+                  range during which the content will be suspended and not
+                  available for download by the BB Player in the region
+                  <dl>
+                    <dt>&nbsp;</dt>
+                  </dl>
+                </li>
+              </ul>
+              <ol type="A">
+		  <li><code>new</code> -- content has recently been downloaded by the BB
+            Depot&nbsp;</li>
+		  <li><code>downloadable</code> -- content may be downloaded by BB Depot</li>
+		  <li><code>suspended</code> -- content is no longer available for
+            download</li>
+		  <li><code>revoked</code> -- content is revoked due to security considerations and
+            is no longer available for download</li>
+		</ol>
+            </dl>
+          </td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <dl>
+    <hr>
+      </dl>
+      <dl>
+	<dt><a name="CDS - Depot Record">Depot Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>hardware_ID</code></td>
+	      <td>unique identifier for BB Depot</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>region_ID</code></td>
+	      <td>region that the Depot belongs to
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>last_sync_date</code></td>
+	      <td>date that the last successful synchronization event took place
+            between the BB Depot and the CDS</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <dl>
+    <hr>
+      </dl>
+      <h2>Remote Management Server (RMS)</h2>
+      <dl>
+    <hr>
+	<dt><a name="RMS - Depot Record">Depot Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>hardware_ID</code></td>
+	      <td>unique identifier for BB Depot</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>region_ID</code></td>
+	      <td>region that the BB Depot belongs to
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>last_notificate_date</code></td>
+	      <td>date that the last successful notification was sent from the Depot
+            Notifier to the BB Depot</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <dl>
+    <hr>
+      </dl>
+      <h2>BB Depot</h2>
+      <hr>
+      <dl>
+	<dt><a name="BB Depot - Content Record">Content Record:</a></dt>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>content_ID</code></td>
+	      <td>ID of this content - unique amongst all content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_object</code></td>
+	      <td>Actual content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_hash</code></td>
+	      <td>SHA digest of the content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_size</code></td>
+	      <td>total size of the content object</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_update_date</code></td>
+	      <td>date of last update to the Content record</td>
+	    </tr>
+        <tr>
+	      <td><code>content_description</code></td>
+	      <td>
+          This includes content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image
+	      </td>
+        </tr>
+        <tr>
+	      <td colspan=2>
+        <p align="center"><img border="0" src="data_defs/bbdepot-content-download-state.jpg" width="454" height="190">
+		<ol type=A>
+		  <code>
+		  <li>state == new</li>
+		  <li>state == downloadable</li>
+		  <li>state == suspended</li>
+		  <li>state == revoked</li>
+		  </code>
+		</ol>
+	      </td>
+        </tr>
+	    <tr valign=baseline>
+	      <td><code>state</code></td>
+	      <td>
+            <dl>
+              <ol type="A">
+		  <li><code>new</code> -- content has been downloaded from CDS, but not
+            yet available for download</li>
+		  <li><code>downloadable</code> -- content may be downloaded by BB Depot</li>
+		  <li><code>suspended</code> -- content is no longer available for
+            download</li>
+		  <li><code>revoked</code> -- content is revoked due to security considerations and
+            is no longer available for download</li>
+		</ol>
+            </dl>
+          </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td>&nbsp;
+            <p><code>&quot;available for download&quot; effective date</code></p>
+          </td>
+	      <td>date range during which this content is available for download to
+            the BB Player in the region</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>&quot;download suspension&quot; effective date</code></td>
+	      <td>date range during which the content will be suspended and not
+            available for download by the BB Player in the region</td>
+	    </tr>
+        <tr>
+	      <td><code>Content Download Server URL</code></td>
+	      <td>URL used by the BB Depot's for download</td>
+        </tr>
+	    <tr valign=baseline>
+	      <td><code>Content Sync Server URL </code></td>
+	      <td>URL used for content synchronization</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>Content Sync Server timestamp </code></td>
+	      <td>timestamp supplied by the Content Sync Server for last successful
+            synchronization</td>
+	    </tr>
+	  </table>
+	</dd>
+      </dl>
+      <dl>
+    <hr>
+      </dl>
+    </body>
+  </html>
+

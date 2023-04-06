@@ -1,0 +1,21 @@
+#!/usr/bin/perl -w
+
+open(INFILE,$ARGV[0]);
+
+while(<INFILE>) {
+
+    $target = $_ ;
+    $len = length($target) ;
+
+    while ($len > 1000 ) {
+       $cur = substr($target,0,1000) ;
+       print "$cur\n";
+       $target = substr($target,1000) ;
+       $len = length($target) ;
+    }
+
+    print $target;
+
+}
+
+close(INFILE)

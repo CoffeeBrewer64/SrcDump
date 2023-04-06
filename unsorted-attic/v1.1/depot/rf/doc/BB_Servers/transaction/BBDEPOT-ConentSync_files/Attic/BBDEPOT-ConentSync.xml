@@ -1,0 +1,19 @@
+d15 2
+a16 1
+Network connection between BB Depot and Content Distribution Server is up 
+d25 3
+a27 3
+2.	The Content Manager, after receiving the list, compares this list  to its stored list of title content.  The result of the comparison is a list of title content to remove and a list of title content to download.
+3.	The Content Manager first processes the list to remove.  For each record in the list, the Content Manager autonomously moves the encrypted content and metadata from content storage to temporary storage and title content from the existing list of title content (not the list to remove).
+4.	After list to remove is processed, the Content Manager processes the download list.  For each record in the download list, the Content Manager uses the Content ID to download both encrypted content and metadata from the Content Download Server to a temporary storage.  After both are completely downloaded, the Content Manager autonomously moves both encrypted content and metadata to actual content storage and add the title content to its list of title content.
+d927 2
+a928 3
+move content from content storage o temporary storage
+remove title content record from existing list of title content
+delete content from temporary storage
+d930 1
+a930 1
+repeat until removal list done
+d936 1
+a936 1
+repeat until download list done	

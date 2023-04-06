@@ -1,0 +1,119 @@
+d1 51
+a51 117
+  <html>
+    <head>
+      <title>BroadOn Confidential - BB Depot Architecture</title>
+    </head>
+    <body bgcolor="FFFFFF">
+      <h1><center>BB Depot Architecture</center></h1>
+      <center>
+	BroadOn Confidential<br>
+	  $Revision: 1.5 $<br>
+	    $Date: 2002/07/17 22:02:07 $
+      </center>
+
+      <h2>I. Hardware</h2>
+      <p>
+	Click <a href="bbdepot_hw_arch.html">here</a> for the expanded hardware architecture document.
+
+      </p>
+
+      <h2>II. User Interactions</h2>
+
+      <h4>BB Activation</h4>
+      <ol>
+	<li>Operator logs in to the console by entering user id and
+	  password on the touch screen display.</li>
+	<li>Operator selects BB activation menu.</li>
+	<li>Operator connect special USB cable to new BB player, through
+	  a "hole" in the box.</li>
+	<li>Operator initiates BB activation process</li>
+	<li>When the display shows completion of activation process,
+	  operator unplugs the cable and hand the BB player to
+	  customer.</li>
+	<li>Operator logs out of console (or leave it logged on for
+	  next transaction).</li>
+      </ol>
+
+      <h4>BB Deactivation</h4>
+      Same as BB Activation, except the activation request is
+      replaced by a deactivation request.
+      
+      <h4>Purchase eTicket</h4>
+      <p>Click <a href="eTicket.html">here</a> for an updated
+	description of the eTicket purchasing model.</p>
+
+      <h4>Purchase Hardware Options</h4>
+      <ul>
+	<li>Customer purchases extra memory module or other
+	  accessories at the shop.</li>
+	<li><em>Not</em> an online operation.</li>
+	<li>Shop owner has already paid for the merchandises when they
+	  are delivered from the warehouse.</li>
+      </ul>
+
+      <h4>Content Download</h4>
+      <ol>
+	<li>Customer insert his/her personalized memory module into
+	  download station.</li>
+	<li>The display shows a menu of available content</li>
+	<li>using the BB controller on the download station, customer
+	  selects content to be downloaded.</li>
+	<li>The display (and the LED on the memory module) indicates
+	  completion of download</li>
+	<li>customer removes memory module</li>
+      </ol>
+
+      <h4>Recovering (trashed) Memory Module</h4>
+      <ol>
+	<li>user attempts to start BB, error LED is on and does not go
+	  out (Memory module is plugged in).</li> 
+	<li>owner takes BB, with memory module, to depot.</li>
+	<li>console operator verifies error LED indicates recovery is required.</li>
+	<li>console operator plugs owner's memory module into console
+	  recovery port and indicate re-initialization.</li>
+	<li>console operator removes memory module from console
+	  recovery port, and plugs into owner's BB.</li>   
+	<li>console operator plugs owner's BB into console activation
+	  port, and turn on BB (to <em>customize</em> the memory module) .</li>
+      </ol>
+
+      <h4>Recovering eTickets</h4>
+      <ol>
+	<li>This step is implicitly done and is transparent to the
+	  user.</li>
+	<li>When the user download a content, the download station
+	  silently checks (only if necessary) if there is any
+	  purchased eTickets that have not been written to the memory
+	  module.  If so, download them from the server.</li>
+      </ol>
+      
+      <h2>III. Software Components</h2>
+      <h4>Main Module</h4>
+      <ul>
+	<li>based on GatewayOS with most services removed.</li>
+	<li>no email, fileshare, web server, VPN, backup server,
+	  printer server, or wireless network</li>
+	<li>need multiple users support (for identifying console
+	  operator).</li>
+	<li>need LVM and journal file system</li>
+	<li>router feature not needed: NAT, port forwarding, dhcp
+	  server, DNS.</li>
+	<li>network feature needed: firewall, dhcp client.</li>
+	<li>configuration could now be done via the console display
+	  (i.e., no apache).</li>
+	<li>need remote management (probably without remove console),
+	  sysmon, time service.</li>
+	<li>drivers for touch screen display, USB connections with BB
+	  player, memory card reader.</li>
+	<li>secure communication with server</li>
+      </ul>
+      <h4>Download Station</h4>
+      <ul>
+	<li>special apps for content download</li>
+	<li>possibly run a demo program while not in used</li>
+	<li>loading of demo program controlled by Depot</li>
+      </ul>
+    </body>
+  </html>
+  

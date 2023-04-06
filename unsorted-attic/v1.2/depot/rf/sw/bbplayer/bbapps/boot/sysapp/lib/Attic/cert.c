@@ -1,0 +1,21 @@
+d12 1
+a12 1
+        return BB_SYSAPP_FAIL;
+d27 1
+a27 1
+            return BB_SYSAPP_FAIL;
+d42 1
+a42 1
+        return BB_SYSAPP_FAIL;
+d58 1
+a58 1
+        return BB_SYSAPP_FAIL;
+d72 1
+a72 1
+                return BB_SYSAPP_FAIL;
+d78 1
+a78 1
+        return BB_SYSAPP_FAIL;
+d92 1
+a92 1
+            return BB_SYSAPP_FAIL;

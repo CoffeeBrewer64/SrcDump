@@ -1,0 +1,18 @@
+include $(ROOT)/usr/include/make/NGdefs
+
+## This allows easy overriding of later
+##   functions
+COMMONPREF=ng
+include $(COMMONRULES)
+
+COMMON_INSTALLDIR=$(ROOT)/usr
+
+INSTALLDIR = $(COMMON_INSTALLDIR)
+
+install: $(RVL_TARGETS)
+	$(INSTALL) -m 444 $(RVL_TARGETS) $(INSTALLDIR)
+
+clobber: $(COMMONPREF)clobber
+	cd $(INSTALLDIR); $(RM) $(RVL_TARGETS)
+
+clean: $(COMMONPREF)clean

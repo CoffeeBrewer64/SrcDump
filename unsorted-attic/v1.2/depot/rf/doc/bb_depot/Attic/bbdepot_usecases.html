@@ -1,0 +1,219 @@
+d7 1
+a7 1
+<title>BB Depot, Player - Use cases/User interactions</title>
+d12 1
+a12 1
+      <h2 align="center">BB Depot, Player - Use cases/User interactions</h2>
+d16 29
+a44 10
+      <h3><span style="background-color: #C0C0C0">BB Activation</span></h3>
+<p><b>Purpose: </b>Customer purchases BB player, activates it and gets any free
+games associated with the purchase of the BB.</p>
+<p><b>Rationale for BB Activation</b></p>
+<p>The activation step is used for a couple of reasons</p>
+<ol>
+  <li>Ensure that only officially manufactured BB units (which causes BBID to be
+    registered with the servers) can purchase eTickets (i.e. content).</li>
+  <li>Permit a promotional/free content eTicket to be issued at the time of the
+    purchase. This content may change from time to time based on marketing
+d49 2
+a50 3
+  <li>Free content may not be returned for refunds etc.</li>
+  <li>Operator/Retailer has authenticated depot to the server using depotID
+    since this is considered a secure transaction.</li>
+d54 5
+a58 2
+	<li>Operator selects BB activation menu.</li>
+	<li>Operator connect special USB cable to new BB player, through
+d60 7
+a66 4
+	<li>Operator initiates BB activation process</li>
+	<li>When the display shows completion of activation process,
+	  operator unplugs the cable and hand the BB player to
+	  customer.</li>
+d71 3
+a73 3
+      <h3><span style="background-color: #C0C0C0">BB Deactivation</span></h3>
+<p><b>Purpose: </b>Customer wants to return a recently purchased BB Player.</p>
+<p><b>Rationale for BB Deactivation</b></p>
+d75 2
+a76 2
+  <li>Permits the retailer to return activated but unused BB Players back into
+    the stock.&nbsp;</li>
+d80 6
+a85 3
+  <li>After a BB has been activated, there is a fixed time period during which
+    it may be deactivated.</li>
+  <li>Deactivation will not be permitted if eTicket associated with the free
+d88 1
+a88 2
+  <li>Operator/Retailer has authenticated depot to the server using depotID
+    since this is considered a secure transaction.</li>
+d92 9
+a100 3
+  <li>
+      Same as BB Activation, except the activation request is
+      replaced by a deactivation request.</li>
+d104 3
+a106 3
+      <h3><span style="background-color: #C0C0C0">Purchase eTicket</span></h3>
+<p><b>Purpose: </b>Customer wants to purchase additional content.</p>
+<p><b>Rationale for eTicket Purchase</b></p>
+d108 1
+a108 1
+  <li>Content playback license is a individualized license. Possession of
+d113 1
+a113 1
+  <li>BB has been activated and the BB Card has been initialized.</li>
+d115 2
+a116 1
+    Digital Certificate. The DC has the public key of the BB Player and also the
+d120 1
+a120 2
+  <li>Operator/Retailer has authenticated depot to the server using depotID
+    since this is considered a secure transaction.</li>
+d124 13
+a136 7
+	  <li>Customer selects a game title</li>
+	  <li>Customer pays for the selected game, and hands over his player's BB
+        Card to the shop owner</li>
+	  <li>Operator executes an eTicket Purchase for the BB Card and
+	    returns the memory module to the customer</li>
+	  <li>Customer walks over to the download station, inserts the BB Card.</li>
+	  <li>The display shows all the titles associated with the BB Player as
+d138 1
+a138 1
+	  <li>Customer selects the content he wants to download,
+d145 4
+a148 4
+      <h3><span style="background-color: #C0C0C0">Refund eTicket</span></h3>
+<p><b>Purpose: </b>Permit the customer to get his money back for content that he
+does not want.&nbsp;</p>
+<p><b>Rationale for eTicket Refund.</b></p>
+d150 2
+a151 1
+  <li>The Operator may have made a mistake in the content selection.</li>
+d155 8
+a162 3
+  <li>BB has been activated and the BB Card has been initialized.</li>
+  <li>BB identified by the BB Card has recently purchased an eTicket.&nbsp;</li>
+  <li>The server always has the complete information about the BBID &amp;
+d166 1
+a166 3
+  <li>Customer has not downloaded the eTicket to his BB Card.</li>
+  <li>Operator/Retailer has authenticated depot to the server using depotID
+    since this is considered a secure transaction.</li>
+d170 10
+a179 7
+	  <li>Customer hands over the BB Card and identifies to the Operator the
+        content for which he wishes to get a refund.</li>
+	  <li>Operator verifies that the eTicket has not been downloaded to the BB
+        Card by contacting the server.</li>
+	  <li>Operator issues a 'Refund eTicket' action</li>
+	  <li>Operator gets confirmation from the server and hands over card and
+        refund amount to the customer.</li>
+a180 18
+      <p>
+    <b>Vulnerability</b> 
+      </p>
+<ol>
+  <li>A fake BB Card which contains the BB Digital Certificate of another BB
+    Player may be used to refund a recently purchased eTicket.</li>
+</ol>
+<hr>
+
+      <h3><span style="background-color: #C0C0C0">Purchase Hardware Options</span></h3>
+<p><b>Purpose: </b>Enable customer to purchase extra BB Cards or other
+accessories at the store.</p>
+<p><b>Assumptions &amp; conditions</b></p>
+<ol>
+	<li><em>Not</em> an online or secure operation.</li>
+	<li>Shop owner has already paid for the merchandises when they
+	  are delivered from the warehouse.</li>
+</ol>
+d184 3
+a186 3
+<p><b>Purpose: </b>Customer wants to download content for which he has the
+eTickets into his BB Card.</p>
+<p><b>Rationale for Content Download</b></p>
+d191 1
+a191 1
+  <li>In addition to the above, content download is a separate action from
+a196 3
+  <li>BB has been activated and the BB Card has been initialized.</li>
+  <li>BB identified by the BB Card has purchased at least one eTicket which
+    identifies the content.&nbsp;</li>
+d199 2
+a200 2
+  <li>Operator/Retailer does not have to authenticate the depot the the server,
+    since this is not considered a secure operation.</li>
+d204 3
+a206 4
+	<li>Customer insert his/her personalized BB Card into
+	  download station.</li>
+	<li>The display shows a menu of available content</li>
+	<li>Using the BB controller on the download station, customer
+d208 5
+a212 3
+	<li>The display indicates
+	  completion of download</li>
+	<li>Customer removes BB Card.</li>
+d215 39
+d256 3
+a258 3
+      <h3><span style="background-color: #C0C0C0">Initialize BB Card</span></h3>
+<p><b>Purpose: </b>Permit the customer to initialize a BB Card&nbsp;</p>
+<p><b>Rationale for initializing BB Card&nbsp;</b></p>
+d260 1
+a260 2
+  <li>Customer may have lost the old one and/or needs to initialize a new BB
+    Card which he has purchased to have more content available.&nbsp;</li>
+d264 4
+a267 4
+  <li>BB has been activated and the BB Card has been initialized.</li>
+  <li>Customer brings in the BB Player to confirm that the BB Card has indeed
+    been initialized ok &amp; to perform any subsequent downloads of
+    eTicket/content.</li>
+d271 12
+a282 10
+	<li>Customer attempts to start BB, error LED is on and does not go
+	  out (BB Card is plugged in).</li> 
+	<li>Customer&nbsp; takes BB, with BB Card, to depot.</li>
+	<li>Console operator verifies error LED indicates recovery is required.</li>
+	<li>Console operator plugs owner's BB Card into console
+	  recovery port and indicate re-initialization.</li>
+	<li>Console operator removes BB Card from console
+	  recovery port, and plugs into owner's BB.</li>   
+	<li>Console operator plugs owner's BB into console activation
+	  port, and turn on BB (to <em>customize</em> the memory module) .</li>
+d287 9
+a295 7
+      <h3><span style="background-color: #C0C0C0">Recovering eTickets</span></h3>
+<p><b>Purpose: </b>Permit customer to recover from the server all eTickets that
+he owns so that he can subsequently download the associated content.</p>
+<p><b>Rationale for Recovering eTickets</b></p>
+<ol>
+  <li>Customer may have lost the old one and/or needs to initialize a new BB
+    Card which he has purchased to have more content available.</li>
+d299 3
+a301 4
+  <li>BB has been activated and the BB Card has been initialized.</li>
+  <li>Customer brings in the BB Player to confirm that the BB Card has indeed
+    been initialized ok &amp; to perform any subsequent downloads of
+    eTicket/content.</li>
+d305 1
+a305 7
+	<li>Customer plugs his BB Player into the BB Depot with recently initialized
+      BB Card.</li>
+	<li>Customer indicates that he wants to synchronize eTicket information with
+      what is on the server, or the Depot automatically detects that needs to be
+      done based on the state of the BB Card.</li>
+	<li>All eTickets for the BB Player are retrieved from the server and written
+      to the BB Card.</li>
+a307 6
+<p><b>Open issue</b></p>
+<ul>
+  <li>Is this a secure transaction?</li>
+</ul>
+<hr>
+

@@ -1,0 +1,382 @@
+d14 2
+a15 2
+	  $Revision: 1.18 $<br>
+	    $Date: 2002/08/28 23:28:43 $
+d59 4
+a62 5
+        <li>BB Safety Box - When a customer has rights to content, either
+          through the purchase of an eTicket or by getting <i>Free Content</i>,
+          his content is kept in a <i>Safety Box</i> on the Server. The customer
+          is told that &quot;your purchased content is securely preserved in <i>Safety
+          Box </i>from where you can always download it at no cost&quot;.</li>
+d67 2
+d76 1
+a76 1
+          BB Depot via a USB cablewhich&nbsp; is used for content downloads, used only by the
+d87 1
+a87 2
+        <li>BB Depot USB ports - at least 5 ports with sufficient power for
+          printers connection, DepotID plug-in, Download Station connection, BB
+d116 1
+a116 1
+	  <li>Content Download</li>
+a121 1
+	  <li>eTicket Refund</li>
+d124 2
+a125 8
+	  <li>BB Card Used Space Management</li>
+	</ol>
+	<h3>Exception customer use cases</h3>
+	<ol start=11>
+	  <li>Unable to contact Server when customer wants to execute <i>BB Player
+	      Return</i></li>
+	  <li>Unable to contact Server when customer wants to execute <i>eTicket
+	      Refund</i></li>
+d132 1
+a132 2
+	<p><b>Description: </b>Customer purchases BB player, and downloads any <i>Free
+    Content</i> associated with the purchase of the BB.</p>
+d135 6
+a140 7
+	    <li>Ensure that at the point of sale a record is entered
+	    into our system so that we could track the inventory. Without this step,
+          a customer is not permitted to purchase eTickets for his BB Player.
+          This effectively prevents the sale of unauthorized BB Players.</li>
+	  <li><i>Free Content</i> eTicket will be issued at the time of the BB
+	    Player purchase. This content may change from time to time based on marketing
+	    promotions and therefore cannot be fixed at the time of manufacture.</li>
+d144 8
+a151 2
+        <li>Retailer must be able to complete the BB Purchase and <i>individualize</i>
+          the BB Card without opening the package.</li>
+d153 4
+a156 2
+          the BB Player.</li>
+        <li>BB Player may be successfully purchased once only.</li>
+d162 3
+a164 4
+	  <li>Customers are expected to download their free game
+	    right after purchase ("<em>diaper training</em>") from their <i>Safety
+        Box</i> on the Servers. This forces the customer to learn our
+	    process right away.&nbsp;
+a165 1
+	  <li>Retailer has authenticated depot to the Server using DepotID.</li>
+d177 1
+a177 1
+		  and asks to purchase BB and get <i>Free Content</i>
+d189 6
+a194 10
+		<li>Selects <em>BB Player Purchase</em> button in Retail
+		  Application and is prompted to connect the BB
+		  Player</li> 
+		<li>Connect <i>BB Initialization Port</i> to new BB player,
+		  through a "hole" in the box.</li> 
+		<li>Starts the purchase process</li>
+		<li>When the display shows successful completion of purchase
+		  process, unplugs the cable and hand the BB
+		  player to customer. Instructs customer to go
+		  to the <i>Download Station</i> to get his <i>Free Content</i>.</li> 
+d201 1
+a201 3
+		<li>Customer walks over to <i>Download Station</i>,
+			  takes the BB Card out of the box and inserts it into the <i>Download
+          Station.</i> Proceeds to download the content (see <em>Content Download</em> below).</li> 
+a206 10
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+        <li>Servers and BB Depot fail to mutually authenticate each other.</li>
+        <li>BB Player is not recognized by the Server as a officially
+          manufactured unit.</li>
+        <li>BB Player does not respond or initialization fails.</li>
+        <li>BB Player has been purchased before and has already gone through
+          this process successfully once.</li>
+        <li>No response is received from the Server.</li>
+      </ol>
+d209 2
+a210 2
+	<p><b>Description: </b>Customer purchases an eTicket which gives him
+	  certain rights to the associated content.</p>
+d223 2
+a224 2
+        <li>ContentID must be a 5 digit numeric code that does not require entry
+          of leading zeros.</li>
+a233 2
+	  <li>After the eTicket purchase, the content for which the customer now has the rights, is kept in a
+        virtual <i>Safety Box</i>, for subsequent download by him.</li>
+d245 3
+a247 6
+		<li>Selects a content from a
+		  brochure or other material for which he
+		  wants to get the eTicket.</li> 
+		<li>Hands over his BB Card to the Retailer
+		  along with the money and indicates the
+		  content title.</li>
+a255 2
+		<li>Accepts money from customer and notes the
+		  content title</li>
+d258 6
+a263 3
+		  into the BB Depot <i>Memory Card Port</i> and enters the content ID</li> 
+		<li>If the content size requirements are larger than the BB Card capacity, prompts the retailer that a memory upgrade is
+		  needed.  Gives retailer a choice to proceed anyway.</li>
+d265 1
+a265 3
+		  Card to the customer and asks the customer
+		  to go to the <i>Download Station</i> to download
+		  his content from the <i>Safety Box.</i></li>
+d271 2
+a272 3
+	      <ol start=8>
+		<li>Walks over to the <i>Download Station</i> and
+		  downloads the content (see <em>Content Download</em> below).</li>
+d281 1
+a281 2
+        <li>BBID is not recognized by the Server as identifying an officially
+          purchased BB Player.</li>
+d287 3
+a289 3
+	<h3><span style="background-color: #C0C0C0">Content Download</span></h3>
+	<p><b>Description: </b>Customer downloads content (implicitly redeeming
+    recently purchased eTickets) into his player's BB Card.</p>
+d293 5
+a297 2
+	    number of content on his BB Card. So, he may constantly be deleting and
+	    reloading content into the BB Card from his virtual <i>Safety Box.</i></li>
+d300 2
+a301 5
+	    slightly longer period of time.</li>
+	  <li>By downloading the content of a game,
+	    the customer agrees that the
+	    corresponding eTicket is no longer refundable.
+	  </li>
+d308 3
+d317 2
+a318 4
+	  <li>In order to complete download of the initial <i>Free Content</i> associated
+        with the purchase of a BB Player, the customer has to open the packaging
+        and retrieve the BB Card.</li>
+	  <li>Retailer may have to authenticate the depot the server unless the customer has downloaded that content before.</li>
+d330 2
+a331 1
+		<li>Reviews all owned eTickets</li>
+d333 1
+a333 1
+		  content to be downloaded.</li> 
+d337 1
+a337 1
+		  that he is interested in that he
+d339 10
+a348 1
+		<li>Removes BB Card.</li>
+d356 2
+a358 5
+        <li>BB Card is not initialized or BBID is not recognized by the Server
+          as identifying an officially purchased BB Player.</li>
+        <li>Customer is not able to see eTicket that he has purchased.&nbsp;</li>
+        <li>Purchased content is not available locally on the BB Depot for
+          download</li>
+d367 1
+a367 1
+	  <li>Customer may have been told by the Retailer during <i>eTicket Purchase</i>
+d369 2
+a370 1
+	  <li>Customer may want more memory to hold more content.</li>
+d442 1
+a442 2
+	  <li>Enables the retailer to return a recently purchased but unused BB Players back into
+	    the stock in case of any erroneous purchases.</li>
+d446 7
+a452 19
+	  <li>After a BB Player has been purchased, a customer has up to 30 minutes during which
+	    it may be returned for a refund. This limits inventory accounting issues if returns were not subject
+	    to a time limit. There isn't any security requirement for the time
+        limit.&nbsp; The time limit must be a BB System configurable option.</li>
+	  <li>The BB Player Return is purely between the retailer and the BB System.
+        The retailer is permitted to follow any policy he prefers wrt BB Player
+        Return with the customer.</li>
+	  <li>Returns will also not be permitted if the eTicket
+	    associated with the <i>Free Content</i>  has been redeemed (i.e. downloaded from
+	    the Servers) or eTickets associated with any other purchased content is downloaded to the BB.</li>
+	  <li> <strong>What we really tell the
+	      customers</strong> should be that once they've
+	    opened the box and used the BB Card, or if they have
+	    left the store, they cannot return it.</li>  
+	  <li> We permit returns of official manufactured units which have not gone
+        through the purchase process. This would happen if the Retailer forgets
+        to go through with the BB Player Purchase process and just hands over a
+        BB Player to the customer.</li>  
+	  <li>Retailer has authenticated depot to the Server using DepotID.</li>
+d473 6
+a478 21
+		<li>Selects <em>BB Player Return</em> button in
+		  Retail Application and is prompted to
+		  connect the BB Player</li> 
+		<li>Connect <i>BB Initialization Port</i> to new BB player,
+		  through a "hole" in the box.</li>
+		<li>Starts the return process</li>
+		<li>Retailer is advised of any eTicket refunds if the customer had
+          purchased additional eTickets.</li> 
+		<li>A return of an official unit that has not gone through the purchase
+          process is permitted in case the retailer forgot to go through with a
+          BB Purchase.&nbsp;</li> 
+		<li>If return process is successful, puts BB
+		  Player back on display and refunds customer
+		  the amount of purchase and eTickets.</li> 
+	      </ol>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol start=6>
+		<li>Takes money and leaves</li>
+a480 1
+	    <td>&nbsp;</td>
+d485 4
+a488 10
+        <li>Servers and BB Depot fail to mutually authenticate each other.</li>
+        <li>BB Player does not respond.</li>
+        <li>BB Player is not recognized as an official manufactured unit.</li>
+        <li>BB Player time limit has expired and the system does not permit the
+          return.</li>
+        <li>BB Player may be returned for a refund, but eTicket timers have
+          expired.&nbsp;</li>
+        <li>Customer has already redeemed the <i>Free Content</i> eTicket or
+          some other recently purchased eTicket.</li>
+        <li>No response is received from the BB Depot or the Server.</li>
+d493 2
+a494 1
+	<p><b>Description: </b>Customer returns an un-redeemed eTicket for a cash refund.</p>
+d497 4
+a500 2
+	  <li>The Retailer&nbsp; may have made a mistake during the <i> eTicket Purchase</i>
+	    process or the customer may have changed his mind about the purchase.</li>
+a501 67
+	<p><b>Assumptions &amp; conditions</b></p>
+	<ol>
+	  <li>A refund will not be permitted if the eTicket is downloaded (eTicket
+        has been redeemed) from the Server into the BB Card.</li>
+	  <li>The customer also has only 30 minutes after the purchase of an eTicket to
+	    get a refund. This is to limit the exposure we have where another customer#2
+	    with a BB Card that contains the BB identification of customer#1's BB Player
+	    asks for a refund for a recently purchased eTicket by customer#1.&nbsp;
+        The time limit must be a BB System configurable option.</li>
+	  <li>The Server always has the complete information about the BB Player &amp;
+	    eTickets that are owned by it.</li>
+	  <li>The BB Card identifies (does not authenticate) the BB Player for which the
+	    eTicket has been purchased.</li>
+	  <li>Retailer has authenticated depot to the Server using DepotID.</li>
+	  <li>A refund is only permitted from the same Store (as identified by
+        the DepotID) where the eTicket Purchase was made.</li>
+	</ol>
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100%>
+	  <tr>
+	    <th width=50%>Customer</th>
+	    <th>Retailer</th>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol>
+		<li>Indicates that he wants an eTicket
+		  refund, hands over the BB Card and
+		  identifies the content to the Retailer.</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td>&nbsp;</td>
+	    <td>
+	      <ol start=2>
+		<li>Selects the <em> eTicket Refund</em> button from the Retail Application and
+		  inserts the BB Card when prompted.</li>
+		<li>All eTickets (and the amount of purchases)
+		  that are eligible for refund are shown on
+		  the screen.  The retailer selects the one
+		  to be refunded.</li> 
+		<li>Receives confirmation from the Server that eTicket has been refunded.</li>
+		<li>Hands over the BB Card and the money to
+		  the customer</li>
+	      </ol>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <ol start=6>
+		<li> Receives money and leaves.</li>
+	      </ol>
+	    </td>
+	    <td>&nbsp;</td>
+	  </tr>
+	</table>
+      <p><b>Error/Failure Conditions</b></p>
+      <ol>
+        <li>Servers and BB Depot fail to mutually authenticate each other.</li>
+        <li>BB Player identified by the BB Card is not recognized as an
+          officially purchased unit.</li>
+        <li>BB Player does not have any eTickets eligible for refunds i.e. the
+          time limit has expired or the customer has redeemed the eTicket.</li>
+        <li>No response is received from the BB Depot or the Server.</li>
+      </ol>
+d505 1
+a505 1
+	<p><b>Description: </b>Customer repairs a BB Card.&nbsp;</p>
+d570 1
+a570 1
+          recognized as an officially purchased unit.</li>
+d643 1
+a643 1
+          recognized as an officially purchased unit.</li>
+d650 1
+a650 1
+	<h3><span style="background-color: #C0C0C0">BB Card Used Space Management</span></h3>
+d652 1
+a652 2
+	<p><b>Description: </b>Customer manages space in his BB Card for
+      downloading content.</p>
+a654 2
+	  <li>Customer should not be responsible for keeping track of
+	    storage space on the BB Card.</li>
+d673 1
+a673 1
+	    if some of the old ones are deleted.</li>
+d689 1
+a689 1
+		  select the title to be moved into <i>Safety Box</i> on the Server.</li>
+d691 1
+a691 1
+		  customer selects content to be removed.</li> 
+d708 4
+a711 2
+	<h3><span style="background-color: #C0C0C0">Customer use cases
+	    - exceptions</span></h3>
+d713 2
+a714 4
+	  <li>Unable to contact Server when customer wants to execute
+	    <i>BB Player Return</i></li>
+	  <li>Unable to contact Server when customer wants to execute
+	    <i>eTicket Refund</i></li> 
+d717 1
+a717 1
+	<p><b>Rationale</b></p>
+d719 8
+a726 5
+        <li>Both these cases involve use cases which have a time limit, after which
+      a return or refund is not possible.</li>
+        <li>If the network is down, the Depot
+      Console will lock out any applications that require a secure and
+      authenticated connection between the BB Depot and the Server.&nbsp;</li>
+d728 2
+a729 2
+	<p><b>Sequence of events/actions</b></p>
+	<table width=100% border=0>
+d735 12
+d748 35
+d785 16
+a800 2
+          <ol>
+            <li>Refuse refund since they are not supported by the system.</li>
+d802 1
+a802 1
+	    </td>
+d805 4

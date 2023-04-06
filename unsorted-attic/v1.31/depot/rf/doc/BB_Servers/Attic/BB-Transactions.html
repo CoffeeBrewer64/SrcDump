@@ -1,0 +1,238 @@
+d3 3
+a5 6
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>BB Transactions</title>
+</head>
+d7 1
+a7 1
+<body>
+d9 222
+a230 219
+<h2 align="center">BB Transactions</h2>
+<p>The following lists the transactions initiated by <a href="BB-Servers.html">BB
+Servers</a>. The details of the transactions are given in separate documents
+and indicates interactions between the different servers, their effects on the data stores
+and the realtime/synchronous or deferred nature.&nbsp;</p>
+<ol>
+  <li>BB Depot - System Monitor
+    <ul>
+      <li>Register BB Depot</li>
+      <li>Report BB Depot Status</li>
+    </ul>
+  </li>
+  <li>BB Depot - Software Update
+    <ul>
+      <li>BB Depot Software Update Check</li>
+    </ul>
+  </li>
+  <li>BB Depot - Content Manager
+    <ul>
+      <li><a href="transaction/XS-ContentSync.html">Content Synchronization</a></li>
+    </ul>
+  </li>
+  <li>BB Depot - Retail App
+    <ul>
+      <li><a href="transaction/XS-bb_act.html">BB Activation</a></li>
+      <li><a href="transaction/XS-bb_deact.html">BB Deactivation</a></li>
+      <li><a href="transaction/XS-buy_eTicket.html">Purchase eTicket</a></li>
+      <li><a href="transaction/XS-refund_eTicket.html">Refund eTicket</a></li>
+      <li>Purchase hardware options</li>
+    </ul>
+  </li>
+  <li>BB Depot - Inventory App
+    <ul>
+      <li>Order Inventory (includes BB, accessories)</li>
+      <li>Receive Inventory</li>
+    </ul>
+  </li>
+  <li>BB Depot - Installer App
+    <ul>
+      <li>Register BB Depot</li>
+      <li>Register DepotID</li>
+      <li>Register Download Station</li>
+    </ul>
+  </li>
+  <li>BB Depot - BB Recovery Manager
+    <ul>
+      <li><a href="transaction/XS-reinit_card.html">Reinitialize BB Card</a></li>
+    </ul>
+  </li>
+  <li>Download Station - Download
+    <ul>
+      <li><a href="transaction/XS-DownloadContent-BBCard.html">Download Content to BB Card</a></li>
+    </ul>
+  </li>
+  <li>Download Station - eTicket Manager
+    <ul>
+      <li><a href="transaction/XS-browse_eTickets.html">Browse eTicket Info</a></li>
+      <li><a href="transaction/XS-load_eTicket.html">Download/Recover eTicket</a></li>
+    </ul>
+  </li>
+  <li>BB Player - Re-Init Server
+    <ul>
+      <li>This server is passive and does not initiate transactions, but
+        participates in the initialization of the memory card.</li>
+    </ul>
+  </li>
+  <li>Transaction - Content Availability Server
+    <ul>
+      <li><a href="transaction/XS-StartContentDistribution.html">Start Content
+        Distribution</a></li>
+      <li><a href="transaction/XS-RevokeContent.html">Revoke Content</a></li>
+    </ul>
+  </li>
+  <li>Transaction - BB Activation Server, eTicket Server, Inventory Server, Installer Server, BB
+    Recovery Server
+    <ul>
+      <li>These servers are passive and do&nbsp; not initiate transactions</li>
+    </ul>
+  </li>
+  <li>Manufacturer - BB Chip Manufacture
+    <ul>
+      <li>BB Chip Manufacture - when chips are manufactured &amp; BB private key is
+        burnt into the chip</li>
+    </ul>
+  </li>
+  <li>Manufacturer - BB Shipment Manager
+    <ul>
+      <li>BB Shipment- when completed unit is manufactured and
+        shipped from the factory</li>
+    </ul>
+  </li>
+  <li>Release Kit&nbsp; - Content Packager&nbsp;
+    <ul>
+      <li>Package Content - when content is developed and ready to be send to
+        the studio server</li>
+    </ul>
+  </li>
+  <li>Release Kit - Content Release Manager
+    <ul>
+      <li>Release Content - release content to the studio server</li>
+    </ul>
+  </li>
+  <li>Content Management - Release Kit Manager
+    <ul>
+      <li>Register Studio - create new studio</li>
+    </ul>
+  </li>
+  <li>Content Management - Validation Server
+    <ul>
+      <li>Receive Content - receives new content from studio Release Kit</li>
+      <li>Validate Content</li>
+      <li>Package Content</li>
+    </ul>
+  </li>
+  <li>Content Management - Publishing Server
+    <ul>
+      <li><a href="transaction/XS-PublishContent.html">Publish Content</a> - pushes content &amp; meta data to the CDS
+        &amp; XS</li>
+    </ul>
+  </li>
+  <li>Content Distribution
+    <ul>
+      <li>This server is passive and does not initiate transactions, but
+        participates in Publish Content, Content Synchronization &amp; Download
+        Content to BB Depot transactions.</li>
+    </ul>
+  </li>
+  <li>RMS - Content Notifier
+    <ul>
+      <li>Notify Depot</li>
+    </ul>
+  </li>
+  <li>RMS - System Status, Statistics, Software Update
+    <ul>
+      <li>These servers are passive and do not initiate transactions.</li>
+    </ul>
+  </li>
+  <li>Certificate Authority - BB Key Manager
+    <ul>
+      <li>Generate BBID</li>
+      <li>Update BB</li>
+    </ul>
+  </li>
+  <li>Certificate Authority - BB CA
+    <ul>
+      <li>Issue BB DC</li>
+    </ul>
+  </li>
+  <li>Certificate Authority - License Manager CA
+    <ul>
+      <li>Issue License Manager DC</li>
+      <li>Revoke License Manager DC</li>
+    </ul>
+  </li>
+  <li>Certificate Authority - Studio CA
+    <ul>
+      <li>Issue Studio DC - when current certificate
+        expires or is compromised</li>
+    </ul>
+  </li>
+  <li>Certificate Authority - Depot CA
+  </li>
+  <li>Certificate Authority - Server CA
+  </li>
+  <li>BB Software - Software Release Manager
+    <ul>
+      <li>Release BB Software</li>
+    </ul>
+  </li>
+  <li>Customer Service
+    <ul>
+      <li>BB
+        <ul>
+      <li>Select Free Game - for use with BB Activation</li>
+          <li>Return Defective BB Player - credit retailer</li>
+          <li>Revoke eTicket - if customer has reported problems with ContentID</li>
+          <li>Issue eTicket - issue a replacement for a revoked eTicket</li>
+        </ul>
+      </li>
+      <li>Region
+        <ul>
+          <li>Create Region</li>
+        </ul>
+      </li>
+      <li>Retailer/Store
+        <ul>
+          <li>Create Retailer</li>
+          <li>Activate Retailer</li>
+          <li>Suspend Retailer</li>
+          <li>Create Store</li>
+          <li>Open Store</li>
+          <li>Close Store</li>
+        </ul>
+      </li>
+      <li>Depot
+        <ul>
+          <li>Create BB Depot</li>
+          <li>Suspend BB Depot</li>
+          <li>Activate DepotID</li>
+          <li>Suspend DepotID</li>
+        </ul>
+      </li>
+      <li>Inventory
+        <ul>
+          <li>Place New Order</li>
+          <li>Cancel Order/Modify Order</li>
+        </ul>
+      </li>
+      <li>Network Failure Recovery
+        <ul>
+          <li>Execute 'eTicket Refund' on behalf of retailer</li>
+          <li>Execute 'BB Player Return' on behalf of retailer</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Billing/Account Management
+  </li>
+</ol>
+d232 1
+a232 1
+</body>
+d234 1
+a234 1
+</html>

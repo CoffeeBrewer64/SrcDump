@@ -1,0 +1,48 @@
+d12 2
+a13 2
+<div align="center">$Revision: 1.9 $<br>
+$Date: 2006/03/21 22:33:02 $<br>
+d21 1
+a21 1
+JTAGJet XXXX.<br>
+d85 1
+a85 1
+  <li>$ROOT/usr/bin/x86</li>
+d89 1
+a89 1
+<pre>export PATH=$PATH:$ROOT/usr/bin/x86<span style="font-weight: bold;"><br></span></pre>
+d97 1
+a97 1
+<pre style="margin-left: 80px;">export ROOT=~/SDK_ROOT (or wherever you put the SDK)<br>export PATH=$PATH:$ROOT/usr/bin/x86<br></pre>
+d115 1
+a115 2
+XXXX<br>
+Power the NDEV board off.<br>
+a116 8
+Write down current switch settings if you are going to restore them
+later, and change the switch settings to be this: </>
+<ul>
+  <li>SW1 10001000 </li>
+  <li>SW2 11001000 </li>
+  <li>SW4 00000000 </li>
+  <li>SW5 00000000 </li>
+</ul>
+d118 2
+a119 2
+ADA-JDS-ARM20/14) onto the NDEV board into the socket PT25 at the lower
+right corner of the board nearest the reset button. </p>
+d189 1
+a189 6
+It will reset the board, load IOS, and present the IOS prompt in the Virtual IO window.
+<br><br><br>
+XXX testing everything<br>
+&nbsp;&nbsp;&nbsp; connect everything, power on your hardware, etc<br>
+&nbsp;&nbsp;&nbsp; click on iosshell<br>
+&nbsp;&nbsp;&nbsp; type help ... you should see a list of command.<br>
+d203 3
+a205 2
+&gt;hload /path-to-$ROOT/usr/bin/rvl/mq.elf<br>
+&gt;run mq.elf<br>
+d208 2
+a209 1
+In this example "hload" loads the elf executable to memory. "run" will

@@ -1,0 +1,199 @@
+d1 125
+a125 197
+<html>
+    <head>
+      <title>BroadOn Confidential - eTickets Purchase Model</title>
+    </head>
+    <body bgcolor="FFFFFF">
+      <h2><center>Revised Model for Purchasing eTickets</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.1 $<br>
+	$Date: 2002/06/20 23:47:54 $
+      </center>
+	  
+      <h3>I. Motivation</h3>
+      <p>
+	The old model has several problems that we need to solve:
+	<ol>
+	  <li>There is no practical way to revoke a eTicket.  It is
+	    unacceptable not to refund the customer if a
+	    wrong eTicket is issued because of operator error.
+	  </li>
+	  <li>One way avoid this problem is to shift the
+	    responsibility to the customer.  That is, we require the
+	    customer to verify the eTicket title and give explicit 
+	    confirmation before the transaction is processed. However,
+	    this requires extra hardware (e.g., an extra display and
+	    keypad) on the BB Depot.</li>
+	  <li>Instead of providing extra hardware, we could overload
+	    the download station to be used for confirmation of
+	    purchases.  But this requires exclusive access to the
+	    download station during the entire purchasing process.</li>
+	</ol>
+      </p>
+      <h3>II. The New Model</h3>
+      <p>
+	The key idea is to decouple customer payment from the
+	actual processing of the eTickets.  From the customer's point
+	of view, it takes the following steps to purchase a eTicket:
+	<ol>
+	  <li>customer selects a game title</li>
+	  <li>customer pays for the selected game, and hands over his memory
+	    module to the shop owner</li>
+	  <li>shop owner registers a <em>store credit</em> for the
+	    selected game with the BB as identified by the memory module, and
+	    returns the memory module to the customer</li>
+	  <li>customer walks over to the download station, inserts the memory
+	    module, and selects from a menu on the display for eTicket
+	    purchases.</li>
+	  <li>the display shows all the titles associated with this BB
+	    for which it has store credit.</li>
+	  <li>customer selects the eTicket(s) that he wants to download,
+	    confirm the selection, and
+	    removes the memory module when the transaction is
+	    complete.  </li>
+	</ol>
+      </p>
+      <p>
+	Note that once a eTicket is downloaded, it cannot be revoked.
+	However, in the new model the customer is given a chance to
+	confirm the purchase.  As long as the eTicket has not been
+	downloaded, he could go back to the shop owner and switch his
+	store credits for another game. 
+      </p>
+      <h3>III. Store Credits</h3>
+      <p>
+	Store Credits (SC) is a new concept that requires some
+	explanation.  It is a record in our server database that contains:
+	<ol>
+	  <li>BB ID</li>
+	  <li>Depot ID</li>
+	  <li>cash value</li>
+	  <li>game title ID</li>
+	</ol>
+	When a customer purchases a game via a particular BB Depot, an
+	SC record is created in the server's database.  It is a token
+	that binds the BB and the Depot with the specified game.  When
+	the customer redeems the SC for a eTicket, it will be issued
+	for that particular BB and that particular game only.
+      </p>
+      <p>
+	The reason for using such a restrictive SC is that the
+	removable memory module by itself is <strong>not</strong> a
+	secure device (i.e., it could be cloned).  If we use a
+	cash-based SC, a malicious user who got hold of a victim's BB
+	ID could use the victim's SC to purchase any game.  Even
+	though the games purchased are still owned by the victim and
+	the corresponding eTickets are useless to the malicious user,
+	the victim would end up with games that he might not want to
+	purchase.
+      </p>
+      <h4>Refund</h4>
+      <p>
+	Refund is allowed provided the refund request is issued from the
+	same BB Depot shown in the SC record, and the corresponding
+	eTicket has not been redeemed.  The original shop that creates
+	the SC record <em>owns</em> the sale, and it is the only shop
+	that is authorized to issue refund.
+      </p>
+      <p>This restriction is important to prevent a malicious shop
+	owner from requesting refund (and hence gets money from us)
+	for arbitrary customers without actually paying
+	them.  We still have no way to know if the shop owner who made
+	the original sale actually returns the money to his customer,
+	but at least this customer would know who to complain.
+      </p>
+      <p>
+	The refund process is designed to handle operator errors and
+	allow the customer to change his mind after making the
+	purchase.  A refund request is expected to be made while the
+	customer is still in the store.  In practice, we should set
+	a short time limit after which no refund is allowed.  This
+	<em>"while customer is in store"</em> refund policy is needed also to
+	guard against a malicious user requesting refund on SC that a
+	victim owns but has not redeemed, assuming it is hard to
+	pretend to be the victim while he is still in the store.
+      </p>
+
+      <h4>Exchange</h4>
+      <p>
+	If the shop owner makes a mistake and issue a purchase request
+	for the wrong game title, or the customer changes his mind
+	before redeeming the SC, an exchange request can be made.
+	Effectively, an exchange is just a refund of the original SC,
+	followed by a new purchase request, and then the shop owner
+	refunds or collect the difference in price.  As such, an
+	exchange request is subject to the same restriction as a
+	refund, i.e., same Depot, same BB, and limit to a short period
+	of time after the initial sales.
+      </p>
+
+      <h3>IV. Gift Certificates</h3>
+      <p>
+	Two gift models have been discussed.  The preferred model is
+	described first, followed by reasons why the second model is
+	rejected.
+      </p>
+      <p>
+	Gift certificates are cash-based.  They are pre-printed gift
+	cards of fixed denominations.  Each gift certificate is
+	imprinted with a unique ID number (or bar code, or magnetic
+	stripe).  A valid gift certificate ID number should be hard to
+	guess.  Gift certificates has no value until activated, at
+	which point the server records the ID number, cash value, and
+	the BB Depot ID in its database.  Gifts certificates should be
+	activated after a shop owner collects money from the customer.
+      </p>
+      <p>
+	Gift certificates could be used as cash for purchasing games.
+	So customers should treat them as cash and we are not
+	responsible for loss or illegal duplication.  To redeem a gift
+	certificate, its ID number is entered into the BB Depot which
+	sends it to the server for verification.  If everything
+	verifies, the shop owner will be credited with the proper
+	amount and the certificate ID will be voided.  The shop owner
+	might need to make cash changes if the purchase amount is
+	smaller than that of the gift certificate.
+      </p>
+      <p>
+	For the record, another gift model was previously proposed.
+	In that model, gift certificates are bound to a particular BB
+	upon activation and can be only redeemed by it.  This model
+	provides more protection for the gift recipients but is too
+	inconvenient and restrictive for the gift senders.  First,
+	many people like to purchase multiple gifts before deciding to
+	whom they would send them.  Second, it requires our customers
+	to broadcast their user names to all potential gift senders.
+      </p>
+
+
+      <h3>V. Security Analysis</h3>
+      <p>
+	Given that the memory module carried by a customer is
+	<strong>not</strong> a secure device, there is no guarantee that
+	its content cannot be duplicated.  As a result, it is possible
+	to steal the identity of a BB owner by cloning his memory
+	module.  We decided to trade off this security risk for user
+	convenience.
+      </p>
+      <p>
+	It is still possible to minimize the security risk.  
+	Limiting the time where refund and exchange can be made
+	substantially reduces the window of opportunity for an
+	identity thief.  In fact, most customers are expected to
+	finish a purchase transaction within a few minutes.
+      </p>
+      <p>
+	Another way to reduce the vulnerability is to include a sequence
+	number with the BB ID (with proper encryption, digital
+	signature, etc.).  This sequence number is incremented every
+	time the memory module is plugged in back to the BB
+	controller.  To authenticate a user, the server checks that
+	the sequence number is greater than or equal to the one use in
+	the last transaction.  This scheme does not fully authenticate
+	a customer, but at least invalidates the stolen identity upon
+	the real owner's next visit.
+      </p>
+    </body>
+</html>

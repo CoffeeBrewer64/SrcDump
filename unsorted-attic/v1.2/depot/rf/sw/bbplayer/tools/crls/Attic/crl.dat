@@ -1,0 +1,25 @@
+until CAPITAL(start)  the following text is not processed.
+First write the following in a line
+privateKeyFile type subtype versionnumber date issuer 4096/2048(Signature len) numberRevoked
+
+type is integer from one of these
+#define BB_CRL_TYPE_TS 0  /* ticket server */
+#define BB_CRL_TYPE_CP 1  /* content publishing server */
+#define BB_CRL_TYPE_CA 2  /* ca server */
+#define BB_CRL_TYPE_CT 3  /* content */
+
+subtype is if CA revocation is done, which one or both: pick from 
+#define  CPCA_REV 0
+#define    LSCA_REV 1
+#define  CPLSCA_REV 2
+(or zero if it is not a CA revocation)
+
+Then in each line write the name of the server to revoke (match numberRevoked
+above.)
+
+START
+
+tsbindata 0 0 2 16 Root-TSCA00000001 2048 3
+TS0000000a
+TS0000000b
+TS0000000c

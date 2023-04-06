@@ -1,0 +1,33 @@
+a12 4
+<ul>
+  <li><a href="XS-ContentSync/XS-ContentSync1_raster.gif">Control Flow</a></li>
+  <li><a href="XS-ContentSync/XS-ContentSync2_raster.gif">Data Flow</a></li>
+</ul>
+d15 1
+a15 1
+  <li> BB Depot - Content Manager (<i>point of control)</i></li>
+d22 3
+a24 1
+  <li>Should not require secure connections between BB Depot and BB servers</li>
+d37 3
+a39 1
+  <li>Encrypted content</li>
+d41 4
+d47 3
+a49 1
+  <li>	The BB Depot and the Content Distribution Subsystem mutually
+d51 5
+a55 1
+  <li>	The Content Manager connects to the Content Sync Server requesting a
+d57 14
+a70 5
+  <li>	Content Sync Server responds with the download URL</li>
+  <li>	The Content Manager uses the URL to download both encrypted content from the Content Download Server to
+    BB Depot content storage.  After encrypted content is downloaded, the Content Manager add the content to its list of content.</li>
+  <li>	The transaction is considered to be complete once the timestamp written to local persistent
+    storage.</li>
+d85 2
+a86 2
+  <li>The CDS may not recognize the hardwareID as a valid BB Depot in which case an
+    appropriate error is returned and logged.</li>
+d92 6

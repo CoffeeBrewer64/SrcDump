@@ -1,0 +1,339 @@
+d9 2
+a10 2
+$Revision: 1.2 $<br>
+$Date: 2002/04/06 03:39:45 $</i></center>
+d20 2
+a21 333
+<h3>2.1 Purchase</h3>
+
+<a id="scenario1-1">
+<h4>Scenario 1) Purchase BB player</h4>
+
+<dl>
+<dt><b>Description:</b>
+<dd>A customer visits one of official  shops of BB products, and picks a BB player
+to purchase for self or gift. The customer brings the BB player of choise to
+BB Depot operator (register at the retailer) for its payment.
+<p>
+The operator opens a hole on the package of BB player and connect USB cable from
+BB Depot to the BB player through the hole. It powers the BB player up.<br>
+The operator interacts with BB Depot to activate the BB player - causes
+BB server to authenticate the BB player and record the newly activated BB
+player. The BB player will also start initialization of BB Memory Module
+when it is activated.
+<p>
+Customers get free eTicket(s) on purchase. Once activation process is finished,
+the customer need to tell the operator what eTicket(s) to get. This is exactly
+the same process as the <a href="#scenario1-2">scenario 2</a>. 
+<p>
+
+<dt><b>Issues:</b>
+
+  <ul>
+  <li>How to bind customer and BB device?
+  </ul>
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>BB Depot
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>Activate BB Player
+  </ul>
+</dl>
+  
+<a id="scenario1-2">
+<h4>Scenario 2) Purchase eTicket at BB shop</h4>
+<dl>
+<dt><b>Description:</b>
+<dd>Customer visits one of official  shops of BB products with one's
+BB Memory Module. The customer may bring one's BB player that
+the memory-card is attached.<br>
+The customer may or may not have selected a title to  purchase. In any case,
+the customer browses a printed catalog of all titles, and  look at Title ID
+to purchase.
+<p>
+The customer then goes to the  retailer and asks for the title. The retailer
+takes and attaches the customer's BB Memory Module to available eTicket
+port (BB player owned by the retailer that is connected to the BB Depot over
+USB cable), or BB player to the USB cable if the customer brought one's BB
+player with. BB Depot brings a page for title purchase on its console once
+the connection is made.
+<p>
+The retailer enters the Title ID  to BB Depot Console and the BB Depot
+Console  displays detailed information about  the title. Once the retailer
+confirms  the title with the customer and collects  money, s/he hits purchase
+button  of the BB Depot Console to start eTicket  issue process, which the
+BB Depot  accesses to eTicket Server to issue and  download an eTicket for
+the title  of the BB device into the BB Memory Module via USB connection
+to BB player. The eTicket Server records  about the eTicket into eTicket  DB.
+<p>
+Upon successfully completion, the  BB indicates that eTicket of new title
+has been acquired.
+<p>
+  There is no option to download the  title content all together because
+the  point of control is different between  buying eTicket and downloading
+title.
+
+<dt><p><b>Point of  Control:</b>
+  <dd>BB Depot
+<dt><p><b>Use Cases Derived from this  model:</b>
+ <ul>
+  <li><a href="#buyeticket">Use case: Buy eTicket</a>
+  <li><a href="#downloadtitle">Use case: Download a title</a>
+  <li><a href="#buyhardwaredevice">Use case: Buy hardware devices</a>
+  <li><a href="#deferredtransaction">Use case: Processing of deferred transactions</a>
+ </ul>
+</dl>
+
+
+<h3>2.2 Download a Title</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  Customer who has purchased BB and  eTicket(s) of titles(s) brings
+  BB Memory Module with/without BB player to one of
+ official shops of BB products, and connect it to "Safty Box" port 
+ (BB player owned by the retailer that is connected to the BB Depot over
+  USB cable) of BB Depot, or BB player to the USB cable if the customer brought
+  one's BB player with.
+<p>
+  The customer uses controller of BB player to display information of titles
+  whose eTicket has been downloaded into the BB Memory Module, and
+  specifies a title to download.
+<p>
+  BB asks for the title content to  BB Depot, and starts downloading from 
+BB Depot.
+<p>
+  Available space can be checked in  two ways:
+  <ol>
+  <li>Metadata in eTicket has size information so that BB can know  whether it can fit to free space of the BB or not in advance. In a case that the  free space is not enough, BB does not allow to try download, or
+  <li>BB always try to download, and report error if no enough  space
+  </ol>
+<br>
+  In case of 2., BB reports "no  enough space" error to the customer when 
+failed, and the customer needs to  remove existing title content, or attach 
+additional memory to the BB. Once any  one of the actions were taken, BB retries
+to download the title.
+<p>
+  Upon successful completion of  downloading, BB displays it on its LCD screen
+ to indicate the customer of the  completion.
+
+<dt><p><b>Point of  Control:</b>
+  <dd>BB
+<dt><p><b>Use Cases Derived from this  model:</b>
+  <ul>
+  <li><a href="#downloadtitle">Use case: Download a title</a>
+  <li><a href="#buyhardwaredevice">Use case: Buy hardware devices</a>
+  <li><a href="#deferredtransaction">Use case: Processing of deferred transactions</a>
+  </ul>
+</dl>
+
+<h3>2.3 Purchase hardware options</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  Customer visits one of official  shops of BB products, and ask retailer 
+for hardware option(s) to purchase.
+<p>
+  The retailer uses BB Depot Console  to enter the sale of hardware options,
+ collects money from the customer, and  give the hardware to the customer.
+ BB Depot will record the transaction locally,  and eventually (may or may
+ not in real time) transfer the transaction to  BB-Depot Account Transaction
+ Server to record the transaction into BB-Depot  Account Transaction DB.
+
+<dt><p><b>Point of  Control:</b>
+  <dd>BB Depot
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li><a href="#downloadtitle">Use case: Download a title</a>
+  <li><a href="#buyhardwaredevice">Use case: Buy hardware devices</a>
+  <li><a href="#deferredtransaction">Use case: Processing of deferred transactions</a>
+  </ul>
+</dl>
+
+<h3>2.4 Recover eTicket</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  TBD
+
+<dt><p><b>Point of  Control:</b>
+  <dd> BB
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>TBD
+  </ul>
+</dl>
+
+<h3>2.5 Publish New Title</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  Development studio will sign up  with Operation Center as a developer of
+ BB titles. Operation Center registers  studios who signed up into Studio DB.
+<p>
+  DevKit will be released and used  by those official development studios 
+to develop and package titles that run on  BB. A certificate is issued for 
+each studio, and bundled in DevKit for the  studio. New certificate will
+periodically be issued and released to studio that  will be loaded into DevKit.
+<p>
+  During packaging process of new  title, DevKit automatically encrypt
+the  title content by using the public key in  the certificate. DevKit also
+calculate  a hash of the title content and bundles  in the release package
+along with  the certificate.
+<p>
+  The release package created by  DevKit can be shipped to Operation Center
+ via online (http, ftp, email, etc) or  offline (snail mail of CD-R, etc).
+<p>
+  The release package is uploaded to  Content Publish Server by operator
+in  Operation Center or directly from the  studio via secure channel over
+the  Internet. Content Publish Server unpacks the  package and checks the
+validity  of the title content. Once it is validated to be  trusted title
+content, Content Publish Server looks up a private key for the  certificate
+and decrypt the title content. It will then generate random  symmetric key
+and re-encrypt  the title content by the key. Content Publish  Server registers
+the encrypted  title content into Content DB, and the symmetric  key into
+eTicket DB. This  whole process is controlled by Content Publish  Server.
+<p>
+  Upon a completion of re-packaging  of title, Content Publish Server notifies
+ Content Distribution Server of the  availability of the title.
+
+<dt><b>Issue:</b>
+
+  <ul>
+  <li>Any security hole created by bundling the certificate  into the
+  release package?
+  <li>Is the notification of new titles to BB Depot necessary?  BB Depot
+  periodically checks the availability anyway.
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>Content Publishing Server
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li><a href="#releasedevkit">Use  case: Release DevKit</a>
+  <li><a href="#releasetitle">Use  case: Release a Title</a>
+  <li><a href="#publishtitle">Use  case: Publish a Title</a>
+  </ul> 
+</dl>
+
+<h3>2.6 Distribute New Title</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+
+<p>
+  Content Distribution Server will be notified of newly published content. When
+  it is notified, Content Distribution Server use RMS DB to look up a list of
+  BB Depots, and notifies them of the availability  of the new title.
+  Content Distribution Server may delay sending notifications so  that it does
+  not have to notify
+ once for every new titles. When it fails to  notify BB Depot, it will schedule
+ for retry in future.
+<p>
+  Content downloading of newly available titles from BB  server to BB Depot
+  is controlled by BB Depot itself. Though Content Distribution  Server notifies
+  BB Depot of new  titles, Content Distribution Server does not  push title
+  content to BB Depot. Content  Distribution Server only sends a notification
+  that the content in BB Depot might be out of sync from ones in Content
+  Distribution Server. BB Depot, then get a list of URLs where BB Depot can
+  download new titles  from from Content Distribution Server and fetches files
+  one by one by using the URLs. This process is called "Content Synchronization."
+  (not a notion of push or pull) The Content Synchronization process might be
+  started periodically on BB Depots.
+
+<dt><b>Issue:</b>
+
+  <ul>
+  <li>Any security hole created by bundling the certificate  into the
+   release package?
+  </ul>
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>BB Depot
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li><a href="#distributetitle">Use  case: Distribute new titles</a>
+  <li><a href="#contentsync">Use  case: Content Synchronization</a>
+  </ul> 
+</dl>
+
+<h3>2.7 Manufacture BB players</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+A tool to upload public keys of BB players along with their IDs will be
+provided to BB Player manufactures.
+<p>
+When new BB players are manufactured and keys are embeded into these BB players,
+manufacture will use the tool to upload public keys of these key pairs along
+with BB IDs through Manufacture Interfacing Server.
+<p>
+Manufacture Interfacing Server will store the list of BB players manufactured
+and keys into Hardware Inventory DB, BB DB, and eTicket DB.
+<p>
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>Manufacture Interfacing Server
+<p>
+<dt><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li><a href="#submitbbinfo">Use case: Submit new BB information</a>
+  </ul>
+</dl>
+
+<h3>2.8 Auditing of Retailer Activities</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  TBD
+
+<dt><p><b>Point of  Control:</b>
+
+  <dd>Activity Auditing Server
+
+<dt><p><b>Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>TBD
+  </ul>
+</dl>
+
+<h3>2.9 Auditing of Studios</h3>
+
+<dl>
+<dt><b>Description:</b>
+<dd>
+  TBD
+
+<dt> <p><b>Point of  Control:</b>
+
+  <dd>Activity Auditing Server
+
+<dt><p><b> Use Cases Derived from this  model:</b>
+
+  <ul>
+  <li>TBD
+  </ul>
+</dl>

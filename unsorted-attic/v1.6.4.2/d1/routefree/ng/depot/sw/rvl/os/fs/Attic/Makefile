@@ -1,0 +1,9 @@
+d4 1
+a4 1
+LCDEFS += -DISFS_DISABLE_SECURITY -DIOS_ENABLE -DNAPA_WORKAROUND
+d9 1
+a9 1
+LLDLIBS += -lioslibc -liossyscall 
+d56 1
+a56 1
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)  -Ttext=0x13f30000

@@ -1,0 +1,51 @@
+d35 3
+a37 3
+  <li>Hardware ID</li>
+  <li>CDS Timestamp</li>
+  <li>Content ID</li>
+d41 3
+a43 3
+  <li>BB Depot - Content</li>
+  <li>CDS - Content</li>
+  <li>CDS - Depot</li>
+d47 2
+a48 1
+  <li>Content, CDS Timestamp</li>
+d64 3
+a66 2
+      <li>	The Content Sync Server generates the <i> Content List</i> 
+        (includes ContentID, hash, size, state) that
+d69 1
+a69 1
+      <li>	The Content Manager, compares the new content list to its stored list of content.  The result of the comparison is a list of content to remove,
+d71 1
+a71 1
+        new content to download and a list of content that has state changes.</li>
+d76 2
+a77 2
+      <li>	The Content Manager first processes the list to remove.  For each record in the remove list, the Content Manager
+        updates the state field in the Content record to <i>Suspended</i>.</li>
+d82 1
+a82 2
+      <li>	The Content Manager then processes the download list.</li>
+      <li>	For each record in the download list, the Content Manager uses the Content ID to download
+d89 1
+a89 1
+      <li>After the encrypted content is completely downloaded, a new Content
+d91 3
+a93 2
+      <li>The Content Manager returns to the CDS the duration of download and
+        the status for each content added.</li>
+d98 2
+a99 1
+      <li>Content that has undergone state changes is now updated.</li>
+d111 2
+a112 2
+  <li>   BB Depot - Content records are updated &amp; synchronized with the CMS.</li>
+  <li>   <i>CMS Timestamp</i> is updated to note time of last synchronization.</li>
+d117 1
+a117 1
+  <li>Content Sync Server : Synchronization Request - hardwareID, CMS timestamp</li>
+d119 1
+a119 1
+  <li>Content Download Server : Download Logs - hardwareID, contentID, duration of download,

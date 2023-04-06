@@ -1,0 +1,28 @@
+d1 1
+a1 1
+#ident "$Id: dvd_hw_reg.i,v 1.6 2006/02/27 21:38:00 craig Exp $"
+d129 39
+d174 1
+a174 1
+    busWrt32(DI_STATUS_ADDR, value);
+d186 1
+a186 1
+    busWrt32(DI_COVER_ADDR, value);
+d197 1
+a197 1
+    busWrt32(DI_CMD_BUF_0_ADDR, value);
+d207 1
+a207 1
+    busWrt32(DI_CMD_BUF_1_ADDR, value);
+d218 1
+a218 1
+    busWrt32(DI_CMD_BUF_2_ADDR, value);
+d233 1
+a233 1
+    busWrt32(DI_DMA_DEST_ADDR, value);
+d244 1
+a244 1
+    busWrt32(DI_LENGTH_ADDR, value);
+d255 1
+a255 1
+    busWrt32(DI_CONTROL_ADDR, value);

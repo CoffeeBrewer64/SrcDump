@@ -1,0 +1,551 @@
+d12 2
+a13 2
+$Revision: 1.8 $<br>
+$Date: 2002/08/23 17:43:06 $<br></i>
+d60 1
+a60 1
+ <td width="80%">Flash memory, modem, keypad, or any other optional devices
+d85 2
+a86 2
+ <td width="20%" align="center">Content</td>
+ <td width="80%">In the context of </a> <a href="#bbsystem">BB system</a>, it
+d90 2
+a91 2
+ There are two types of content; "<b>Regular Content</b>" and "<b>Tag-alone Content</b>."
+ Regular Content is content for sale, and Tag-alone Content is content that
+d96 2
+a97 2
+ <td width="20%" align="center">DevKit</td>
+ <td width="80%">Software tool to help </a> <a href="#developer">developers</a> to
+d109 2
+a110 3
+ <a name="developer">
+ <td width="20%" align="center">Developers</td>
+ <td width="80%">They are the people who develop or localize </a> <a href="#content">content</a>
+d122 1
+a122 1
+ <td width="20%" align="center">Chip Manufacturer</td>
+d127 2
+a128 3
+ <a name="manufacture">
+ <td width="20%" align="center">Manufacturer</td>
+ <td width="80%">In the context of </a> <a href="#bbsystem">BB system</a>, it
+d132 2
+a133 3
+ <a name="op">
+ <td width="20%" align="center">Operation Center</td>
+ <td width="80%">The operation center of the company, which runs </a> <a href="#bbsystem">BB system</a>
+d137 2
+a138 3
+ <a name="retailer">
+ <td width="20%" align="center">Retailers</td>
+ <td width="80%">In the context of </a> <a href="#bbsystem">BB system</a>, it
+d145 5
+a149 4
+ <td width="20%" align="center">Region</td>
+ <td width="80%">Logical grouping for the operation that is geographically
+ defined. Refer to the "</a><a href="#region_def">Assumptions</a>" section for
+ detail.</td>
+d153 1
+a153 1
+ <td width="20%" align="center">Regional Servers</td>
+d155 1
+a155 2
+ for each region. Refer to the "</a><a href="#roles">Role Definition</a>" section
+ for detail.</td>
+d160 1
+a160 1
+ <td width="20%" align="center">Safety Box</td>
+d162 1
+a162 1
+ which is that BB has only eTicket downloaded without </a> <a href="#content">content</a>.
+d171 1
+a171 1
+ <td width="20%" align="center">Studios</td>
+d173 1
+a173 1
+ acquire </a> <a href="#devkit">DevKit</a>&nbsp; and <a href="#Release Kit">Release
+d402 1
+a402 2
+	 certificates can be managed per operation center.<br>
+	 All BB servers 
+d405 2
+a406 2
+<a name="roles">
+<h3>7. Role Definition</h3>
+a407 475
+<h4>7.1 Operation Center
+
+<center>
+</h4>
+<table border="1" width="90%">
+<tr>
+    <th align="center" width="10%">Components in the <a href="#op">Operation Center</a></th>
+    <th align="center" width="45%">IS/DOES</th>
+    <th align="center" width="45%">IS NOT/DOES NOT</th>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Remote Management of BB Depot</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">BB Server Management Console</td>
+    <td width="45%">
+	  <li>User interface to manage BB servers from single point
+	  <li>Super set of RMS Management Console
+	</td>
+    <td width="45%">
+	  <li>Not specifically designed for BB system
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">RMS</td>
+    <td width="45%">
+	  <li>User interface to manage BB Depot remotely from single point
+	  <li>Subset of BB Server Management Console
+	  <li>Same console used for SME devices
+	</td>
+    <td width="45%">
+	  <li>Not specifically designed for BB system
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">RMS DB</td>
+    <td width="45%">
+	  <li>Repository and a set of software for managing BB Depot
+	  <li>Same DB used for SME devices
+	</td>
+    <td width="45%">
+	  <li>Not specifically designed for BB system
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">RMS (Remote Management Server)</td>
+    <td width="45%">
+	  <li>Servers that interact with BB Depot devices over the Internet to
+	  execute remote management operations
+	  <li>Same servers used for SME devices
+	</td>
+    <td width="45%">
+	  <li>Not specifically designed for BB system
+	</td>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Secure Content Delivery</b></center></td>
+</tr>
+   
+<tr>
+    <td align="center" width="10%">Content Publishing Server</td>
+    <td width="45%">
+	  <li>A server that interacts with DevKit to download master content from Studio
+	  to the Operation Center over secure channel
+	  <li>Will transfer master content to Content DB possibly after it
+	  encrypts (re-encrypts) master content.
+	</td>
+    <td width="45%">
+	  <li>Not a server to distribute content to BB Depot
+	  <li>Does not initiate a communication to DevKit
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">DevKit Validation Server</td>
+    <td width="45%">
+      <ul>
+	  <li>A server that audits and enables DevKit during the period of licensed
+	  term of the studio who is using the DevKit.
+      </ul>
+	</td>
+    <td width="45%">
+	  <li>Does not initiate a communication to DevKit
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Studio DB</td>
+    <td width="45%">
+	  <li>Repository and a set of software to manage studios.
+	  <li>Auditing is
+	  performed against it, and possibly disable DevKit of the studio which
+	  were found to be violating the license. 
+	</td>
+    <td width="45%">
+	  <li>
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Content DB</td>
+    <td width="45%">
+	  <li>Repository and a set of software to manage encrypted content for
+	  delivery to BB Depot. 
+	</td>
+    <td width="45%">
+	  <li>Does not store secure keys
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Content Distribution Server</td>
+    <td width="45%">
+	  <li>Server that interacts with BB Depot over the Internet to push
+	  content (a set of files) to it.
+	  <li>Classified as one
+	  of <a href="#regional_servers">regional servers</a>.
+	  <li>Based on
+	  <a href="#assumptions">the assumptions</a> above, there will be
+	  one Content Distribution Server per 200 BB Depots. with this scale,
+	  "push" delivery is more efficient over "pull."
+	</td>
+    <td width="45%">
+	  <li>Does not distribute secure keys
+	</td>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Secure eTicket issuing</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">BB DB</td>
+    <td width="45%">
+	  <li>Repository and a set of software to manage BB devices
+	  <li>Records activities with BB devices for auditing purpose.
+	  <li>Possibly records owner's information for some purpose
+	</td>
+    <td width="45%">
+	  <li>(does not store key ?)
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">eTicket DB</td>
+    <td width="45%">
+	  <li>Repository and a set of software to manage eTickets issued
+	  <li>Transactions against this component will be propagated to BB DB and
+	  BB-Depot Account DB for backend processing,
+	  like auditing, billing, inventory management, etc.
+	  <li>This repository belongs to <a href="#regional_servers">regional servers</a>
+	</td>
+    <td width="45%">
+	  <li>Does not store content or its metadata except IDs
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">eTicket Transaction Server</td>
+    <td width="45%">
+	  <li>A server that interacts with BB Depot to perform transactions
+	  to issue eTickets over secure channel.
+	  <li>All transaction activities will be recorded to eTicket DB for the
+	  backend processing.
+	  <li>This server is one of <a href="#regional_servers">regional servers</a>.
+	</td>
+    <td width="45%">
+	  <li>Does not distribute content itself
+	  <li>Does not guarantee eTicket issued is always stored on BB. This is the
+	  role that BB Depot does. Refer to "<a href="#transaction_mgr">Transaction
+	  manager role</a>" of the BB-Depot Application.
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Manufacture Interfacing Server</td>
+    <td width="45%">
+	  <li>A server that interacts with Manufacture Tool to download secure keys
+	  for BB devices that are manufactured.
+	  <li>(subject to change based on the secure mechanism of BB which has not been
+	  defined)
+	</td>
+    <td width="45%">
+	  <li>Not a licensing server
+	</td>
+</tr>
+
+
+<tr>
+    <td colspan="3"><center><b>BB-Depot Account Management</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">BB-Depot Account DB</td>
+    <td width="45%">
+	  <li>Repository and a set of software to manage BB-Depot Accounts, which
+	  are effectively retailers.
+	  <li>Items to manage are; BB and hardware option sales, inventory of BB
+	  and hardware options, eTicket issuance records, and content download
+	  records.
+	  <li>Propagates sales to <a href="#billing">billing system control server</a>
+	  <li>Propagates hardware (BB and BB options) shipment requests to
+	  <a href="#shipment">Product Shipment Control Server</a>
+	  <li>Inventory information will be propagated to Hardware Inventory DB
+	  for inventory management
+	  <li>Auditing is performed against each account, and possibly revoke
+	  license for accounts that are found to be violating license.
+	  <li>(one to one relationship to BB-Depot device ?)
+	</td>
+    <td width="45%">
+	  <li>Not a billing system
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">BB-Depot Account Transaction DB</td>
+    <td width="45%">
+	  <li>Repository and a set of software to manage hardware option sales
+	  and activities of each BB-Depot Account
+	  <li>Records BB hardware option sales and user's interactions against
+	  BB Depot
+	  <li>Transactions against this component will be propagated to
+	  BB-Depot Account DB for backend processing,
+	  like auditing, billing, inventory management, etc.
+	</td>
+    <td width="45%">
+	  <li>
+	</td>
+</tr>
+
+<a name="billing">
+<tr>
+    <td align="center" width="10%">Billing System Control Server</td>
+    <td width="45%">
+	  <li>A server that handles billing and payment processing for BB-Depot
+	  accounts (= retailers)
+	  <li>Generates monthly (or weekly) bills and payment report
+	</td>
+    <td width="45%">
+	  <li>(deposit or withdraw money from retailer's bank over the net ?)
+	</td>
+</tr>
+
+</a>
+
+<a name="shipment">
+<tr>
+    <td align="center" width="10%">Product Shipment Control Server</td>
+    <td width="45%">
+	  <li>A server that manages shipping of hardware devices to BB-Depot
+	  accounts (= retailers)
+	  <li>Generates monthly (or weekly) shipment report
+	</td>
+    <td width="45%">
+	  <li>Does not connect to shipper's system over the net for now
+	</td>
+</tr>
+</a>
+
+<tr>
+    <td colspan="3"><center><b>Auditing</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Activity Auditing Server</td>
+    <td width="45%">
+	  <li>Perform auditing in batch
+	  <li>Use Studio DB, BB DB, BB-Depot Account DB, and Hardware Inventory
+	  DB to check any violations to license or usage of BB Depot or BB devices.
+	  <li>Implement some heuristics to detect violations
+	  <li>Generates report of auditing performed
+	</td>
+    <td width="45%">
+	  <li>Not a general purpose auditing engine
+	</td>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Inventory Control</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Hardware Inventory DB</td>
+    <td width="45%">
+	  <li>Repository and a set of software to manage hardware inventories
+	  of BB, BB options and BB Depot in the operation center.
+	  <li>Records
+	</td>
+    <td width="45%">
+	  <li>
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%"></td>
+    <td width="45%">
+	  <li>
+	</td>
+    <td width="45%">
+	  <li>
+	</td>
+</tr>
+
+</table>
+</center>
+
+<h4>7.2 Retailer</h4>
+
+<center>
+<table border="1" width="90%">
+<tr>
+    <th align="center" width="10%">Components in <a href="#retailer">Retailers</a></th>
+    <th align="center" width="45%">IS/DOES</th>
+    <th align="center" width="45%">IS NOT/DOES NOT</th>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Remote Management of BB Depot</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">swupd</td>
+    <td width="45%">
+	  <li>A command that updates system software for BB Depot
+	  <li>Same as the one in BroadOn SME
+	</td>
+    <td width="45%">
+	  <li>Not specifically designed for BB system
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">sysmon</td>
+    <td width="45%">
+	  <li>A daemon that performs system management operations periodically
+	  <li>Accepts requests from RMS to perform the management operations
+	  <li>Same as the one in BroadOn SME
+	</td>
+    <td width="45%">
+	  <li>Not specifically designed for BB system
+	</td>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Secure Content Delivery</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Content Manager</td>
+    <td width="45%">
+	  <li>A daemon that interacts with Content Distribution Server to download
+	  content from the operation center.
+	  <li>Manage file system to organize content in the hard disk
+	  <li>Provides query of contents on the hard disk
+	  <li>Optionally perform "pull" content download
+	</td>
+    <td width="45%">
+	  <li>Does not get involved in eTicket transactions
+	</td>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Secure eTicket Issuing</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">BB-Depot Application</td>
+    <td width="45%">
+      <ul>
+	  <li>An application process that implements transaction processes and
+	  protocols amongst BB servers, BB, and BB Depot itself
+	  <li>Also implement operational process to download content from its hard
+	  disk to BB device over network interface.
+	  <li>Controls BB-Depot Console and keypad for retailer's interactions
+	  <li>Controls eTicket port for eTicket issuance
+	  <li>Controls <a href="#safety_box">Safety Box</a> port for content 
+	  downloading to BB
+	  <a name="transaction_mgr">
+	  <li>Takes a role of transaction manager to commit eTicket transaction
+	  with eTicket server and BB device
+	  <li>Refer to the </a><a href="bbdepot_arch.html">BB Depot Architecture</a>
+	  document for detail
+      </ul>
+	</td>
+    <td width="45%">
+	  <li>Is not POS (Point of Sale) system
+	  <li>Does not download content on demand (at least for now)
+	</td>
+</tr>
+
+
+</table>
+</center>
+
+
+<h4>7.3 Studio</h4>
+
+<center>
+<table border="1" width="90%">
+<tr>
+    <th align="center" width="10%">Components in <a href="#studio">Studios</a></th>
+    <th align="center" width="45%">IS/DOES</th>
+    <th align="center" width="45%">IS NOT/DOES NOT</th>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Secure Content Delivery</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Master Content DB</td>
+    <td width="45%">
+	  <li>Repository where all master content developed by the studio is preserved
+	  <li>Could be just a file system on PC
+	</td>
+    <td width="45%">
+	  <li>Not a database
+	</td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">DevKit</td>
+    <td width="45%">
+	  <li>A tool to develop or localize title content
+	  <li>Accesses to DevKit Validation Server to be validated in order to function.
+	  (a client of DevKit Validation Server)
+	  <li>Transparently execute secure processing for master content
+	  <li>Interacts with Content Publishing Server when download new master content
+	</td>
+    <td width="45%">
+	  <li>Not a server
+	</td>
+</tr>
+
+
+</table>
+</center>
+
+<h4>7.4 Manufacture</h4>
+
+<center>
+<table border="1" width="90%">
+<tr>
+    <th align="center" width="10%">Components in <a href="#manufacture">Manufactures</a></th>
+    <th align="center" width="45%">IS/DOES</th>
+    <th align="center" width="45%">IS NOT/DOES NOT</th>
+</tr>
+
+<tr>
+    <td colspan="3"><center><b>Secure eTicket Issuing</b></center></td>
+</tr>
+
+<tr>
+    <td align="center" width="10%">Manufacture Tool</td>
+    <td width="45%">
+	  <li>A tool to download secure keys of BB devices manufactured to the 
+	  operation center.
+	  <li>Client of Manufacture Interfacing Server
+	</td>
+    <td width="45%">
+	  <li>Not a server
+	</td>
+</tr>
+
+</table>
+</center>
+
+<a name="deployment"><h3>Appendix: Deployment Diagram</h3>
+  </a>

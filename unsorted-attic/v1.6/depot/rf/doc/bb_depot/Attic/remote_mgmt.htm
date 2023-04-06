@@ -1,0 +1,429 @@
+<!-- saved from url=(0022)http://internet.e-mail -->
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./remote_mgmt_files/filelist.xml">
+<link rel=Edit-Time-Data href="./remote_mgmt_files/editdata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<title>Remote Management of Clients Behind Firewalls</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>Alfredo D. Dark</o:LastAuthor>
+  <o:Revision>7</o:Revision>
+  <o:TotalTime>5871</o:TotalTime>
+  <o:Created>2002-09-19T18:24:00Z</o:Created>
+  <o:LastSaved>2002-09-20T23:21:00Z</o:LastSaved>
+  <o:Pages>3</o:Pages>
+  <o:Words>1162</o:Words>
+  <o:Characters>6624</o:Characters>
+  <o:Company>Meals-on-Wheels</o:Company>
+  <o:Lines>55</o:Lines>
+  <o:Paragraphs>13</o:Paragraphs>
+  <o:CharactersWithSpaces>8134</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:751240749;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1416285602 67698703 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1029"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<h1 align=center style='text-align:center'>Remote Management for Clients Behind
+Firewalls</h1>
+
+<p class=MsoNormal align=center style='text-align:center'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal align=center style='text-align:center'>$Date: 2002/09/20
+17:29:28 $</p>
+
+<p class=MsoNormal align=center style='text-align:center'>$Revision: 1.5 $</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Background</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The RMS uses two mechanisms to interact with the
+client.<span style="mso-spacerun: yes">   </span>(The client refers to the SME,
+the BB Depot, or some future BroadOn product.)<span style="mso-spacerun:
+yes">   </span>First, the RMS uses a GET/SET mechanism to read/modify the
+configuration variables on the client.<span style="mso-spacerun: yes">  
+</span>Second, the RMS uses a remote console to access client status and modify
+client configurations.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>When RMS interacts with the client directly using the GET/SET
+mechanism or the remote console, the client’s setup must satisfy one of the
+following conditions for the management function to work.</p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo3;tab-stops:list .5in'>The
+     client is not behind any firewall and has a routable IP address.<span
+     style="mso-spacerun: yes">  </span>If the IP address is dynamic, the IP
+     address is reported to the RMS whenever it’s changed.</li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo3;tab-stops:list .5in'>The
+     client is behind firewall and has a non-routable IP address.<span
+     style="mso-spacerun: yes">  </span>The firewall has a routable IP address
+     and allows setup of port forwarding of the remote management ports to the
+     client.<span style="mso-spacerun: yes">   </span>If the IP address of the firewall
+     is dynamic, its IP address is reported to the RMS whenever it’s changed.</li>
+</ol>
+
+<p class=MsoNormal>In other cases, the RMS cannot manage the client
+interactively.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The RFRMP “reboot” service and “check for software update”
+are special cases of the GET/SET mechanism.<span style="mso-spacerun: yes"> 
+</span>The services are triggered by setting the corresponding management
+variables, i.e., sys.cmd.reboot, and sys.cmd.updateSoftware.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Non-interactive reporting, such as alert messages and daily
+status reporting, are posted from the client to the RMS directly.<span
+style="mso-spacerun: yes">  </span>It is not affected by firewalls and
+therefore not covered in this document.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Problem</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Some clients have a non-routable address and they are behind
+firewalls that do not forward traffic to the management ports of our
+clients.<span style="mso-spacerun: yes">  </span>Also, the firewall
+configuration cannot be modified.<span style="mso-spacerun: yes">  </span>The
+objective is to support the interactive management function offered by the RMS
+to such clients.<span style="mso-spacerun: yes">  </span>The problem is that
+the RMS cannot reach the client through the firewall.<span style="mso-spacerun:
+yes">   </span>In addition, the solution must be scalable to handle a large
+number of clients.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Solution</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Assumptions:<span style="mso-spacerun: yes">  </span>the
+firewall allows TCP and UDP traffic initiated from the client behind the
+firewall to pass through and also allows replies to the client to pass through.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The solution contains 2 components:<span
+style="mso-spacerun: yes">  </span>a notification service, and a proxy
+service.<span style="mso-spacerun: yes">   </span>The notification service
+provides an efficient way to find out if the RMS needs to connect to the
+client.<span style="mso-spacerun: yes">  </span>The proxy service supports the
+GET/SET mechanism and the remote console by relaying a TCP connection through
+the firewall.<span style="mso-spacerun: yes">    </span>For example, to reboot
+a SME from the RMS, the RMS first uses the notification service to start the
+client proxy, and then the SME connects to the RMS using the proxy service to
+get new values for the management variables.<span style="mso-spacerun: yes"> 
+</span>In this case,<span style="mso-spacerun: yes">  </span>sys.cmd.reboot is
+set to 1.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h3>Notification Service</h3>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>A client polls the notification server periodically (e.g.,
+every 60 seconds).<span style="mso-spacerun: yes">  </span>The polling function
+must be simple and has low processing overhead.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The notification server maintains a data structure, indexed by
+the HR-ID, for each client.<span style="mso-spacerun: yes">  </span>The data
+structure contains the source IP address and port number of the polling message
+from the client, and the arrival time of the message.<span style="mso-spacerun:
+yes">   </span>The data structure contains a message flag to indicate whether
+the RMS needs to connect to the client, the destination port to which the RMS
+wants to connect, and the socket file descriptor of the RMS connection. The
+data structure also maintains a timer to timeout outstanding notifications.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>To determine if there’re any pending connection for the
+client, the client sends a UDP packet to the notification server every
+POLL_INTERVAL.<span style="mso-spacerun: yes">  </span>Upon receipt of the UDP
+packet, the notification server records the source IP address and the source
+port number of the message.<span style="mso-spacerun: yes">   </span>It also
+records the packet’s arrival time.<span style="mso-spacerun: yes">  </span>The
+address and port number is used to forward messages to the client later.<span
+style="mso-spacerun: yes">  </span>The notification server does not need to
+reply if the notification flag is not set.<span style="mso-spacerun: yes"> 
+</span>Otherwise, a notification UDP packet is sent to the client.<span
+style="mso-spacerun: yes">  </span>To reduce delay, the UDP packet can be sent
+to the client immediately when the flag is being set.<span style="mso-spacerun:
+yes">   </span>Since UDP is not a reliable transport, the UDP packet is sent
+every time a poll from the client is received.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h3>Proxy Service</h3>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Two proxy servers are used to relay a TCP connection between
+the client and the RMS to enable remote maintenance.<span style="mso-spacerun:
+yes">   </span>A proxy server, called the client proxy, runs on the
+client.<span style="mso-spacerun: yes">   </span>Another proxy server, called
+the RMS proxy, runs on the RMS server.<span style="mso-spacerun: yes"> 
+</span>Constrained by the firewall, the management connection must be initiated
+from the client.<span style="mso-spacerun: yes">   </span>Constrained by the
+existing RMS software implementation, the management connection is preferably
+initiated from the RMS.<span style="mso-spacerun: yes">    </span>In addition,
+the web server/sysmon on the client listens for connections.<span
+style="mso-spacerun: yes">   </span>We use the client proxy and the RMS proxy
+to satisfy all these constraints.<span style="mso-spacerun: yes">   </span>The
+client proxy initiates connections to the client web server/sysmon and the RMS
+proxy.<span style="mso-spacerun: yes">  </span>The RMS proxy accepts
+connections from the client proxy and the RMS software.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>When RMS wants to control a client, it first starts a TCP
+connection to the notification server, and specifies which client and which
+port to connect to.<span style="mso-spacerun: yes">   </span>If the client is
+off-line (determined by examining the last polling time), the notification
+server returns an error to RMS and close the TCP connection.<span
+style="mso-spacerun: yes">  </span>Otherwise, the notification server delivers
+a notification packet to the client.<span style="mso-spacerun: yes">  </span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Upon receipt of the notification, the client starts the
+client proxy.<span style="mso-spacerun: yes">   </span>The client proxy first
+creates a TCP connection to the notification server to obtain the destination
+port.<span style="mso-spacerun: yes">   </span>It creates a connection to the
+local destination port, and then sends to the notification server the status of
+the destination port connection.</p>
+
+<p class=MsoNormal><span style="mso-spacerun: yes"> </span></p>
+
+<p class=MsoNormal>Upon receiving a successful destination connection from the
+client, the notification server spawns the RMS proxy, using existing sockets,
+to connect the client proxy and the RMS.<span style="mso-spacerun: yes">  
+</span>If client cannot connect to the local destination port, relay the error
+back to RMS.<span style="mso-spacerun: yes">  </span>If the notification server
+does not receive any connection from the client proxy after a predetermined
+time (e.g., 2 minute), the notification server assumes the client is off-line
+and returns an error to RMS.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>For the client proxy and RMS proxy, after the initial
+processing, data is simply read from one connection and sent to the other, and
+vice versa.<span style="mso-spacerun: yes">   </span>They terminates when
+either of its connections is closed. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The client (sysmon) needs to accept traffic to the web
+console and the remote management port without using SSL if the traffic is
+originated from a local port (the client proxy).</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><!--[if gte vml 1]><v:shapetype id="_x0000_t75" coordsize="21600,21600"
+ o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f"
+ stroked="f">
+ <v:stroke joinstyle="miter"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+  <v:f eqn="sum @0 1 0"/>
+  <v:f eqn="sum 0 0 @1"/>
+  <v:f eqn="prod @2 1 2"/>
+  <v:f eqn="prod @3 21600 pixelWidth"/>
+  <v:f eqn="prod @3 21600 pixelHeight"/>
+  <v:f eqn="sum @0 0 1"/>
+  <v:f eqn="prod @6 1 2"/>
+  <v:f eqn="prod @7 21600 pixelWidth"/>
+  <v:f eqn="sum @8 21600 0"/>
+  <v:f eqn="prod @7 21600 pixelHeight"/>
+  <v:f eqn="sum @10 21600 0"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+ <o:lock v:ext="edit" aspectratio="t"/>
+</v:shapetype><v:shape id="_x0000_i1025" type="#_x0000_t75" style='width:6in;
+ height:166.5pt'>
+ <v:imagedata src="./remote_mgmt_files/image001.gif" o:title="fig1"/>
+</v:shape><![endif]--><![if !vml]><img width=576 height=222
+src="./remote_mgmt_files/image001.gif" v:shapes="_x0000_i1025"><![endif]></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h3>State Transition Diagram</h3>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><!--[if gte vml 1]><v:shape id="_x0000_i1026" type="#_x0000_t75"
+ style='width:431.25pt;height:247.5pt'>
+ <v:imagedata src="./remote_mgmt_files/image002.gif" o:title="Fig2"/>
+</v:shape><![endif]--><![if !vml]><img width=575 height=330
+src="./remote_mgmt_files/image003.gif" v:shapes="_x0000_i1026"><![endif]></p>
+
+<h3>Security</h3>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Use <b><i>SSL-wrapper</i></b> to the TCP connection
+initiated from the client proxy to the RMS proxy.<span style="mso-spacerun:
+yes">    </span>Use SSLv3 as SSL Method.<span style="mso-spacerun: yes"> 
+</span>Weak encryption strength is applied the macro WEAK_CRYPTO is set by the
+PRODUCT definition.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The SSL applies both client and server authentications.<span
+style="mso-spacerun: yes">  </span>The client needs a HR-cert or
+Hardware-ID.<span style="mso-spacerun: yes">    </span>HR-cert is signed with
+the manufacturer CA.<span style="mso-spacerun: yes">  </span>The manufacturer
+CA is signed with the root CA.<span style="mso-spacerun: yes">  
+</span>Hardware-ID is signed with the Installer-CA.<span style="mso-spacerun:
+yes">   </span>The Installer-CA is signed with the root CA.<span
+style="mso-spacerun: yes">   </span>The client (if it is a SME) also keeps the
+manufacturer’s cert and the root CA cert. The client (if it is a BB-Depot)
+keeps the Installer-CA cert and the root CA cert.<span style="mso-spacerun:
+yes">   </span>The notification needs a Notification-Server cert that is signed
+with root CA.<span style="mso-spacerun: yes">  </span>It also keeps the root CA
+cert.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The notification server might be behind a firewall.<span
+style="mso-spacerun: yes">   </span>It uses a one pre-defined UDP port and one
+pre-defined TCP port.<span style="mso-spacerun: yes">   </span>The firewall
+needs to be configured to forward traffic to these two ports to the
+notification server.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h3>Serialization</h3>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The RMS might need to start multiple connections to the
+client.<span style="mso-spacerun: yes">  </span>However, the notification server
+only keeps two states – no connections needed, and waited to be connected.<span
+style="mso-spacerun: yes">   </span>The notification server will serialize the
+connection requests from the RMS.<span style="mso-spacerun: yes">   </span>Only
+one outstanding connection is being established at one time for each client.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h3>Extension - Notification by TCP</h3>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Notification by UDP is 9 times more efficient than TCP.<span
+style="mso-spacerun: yes">   </span>Nevertheless, some firewall might disable
+admission of UDP traffic.<span style="mso-spacerun: yes">  </span>If we are to
+support such configurations, the notification server needs a simple extension
+to allow notification queries by client via a TCP connection.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+</div>
+
+</body>
+
+</html>

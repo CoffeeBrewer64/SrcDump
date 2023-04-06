@@ -1,0 +1,169 @@
+<html>
+    <head>
+      <title>Transaction: Download Hardware ID</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Transaction: Download Hardware ID</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.6 $<br>
+        $Date: 2002/09/13 00:19:56 $
+      </center>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>BB Depot - Installer App</strong> (<em>point of control</em>)</li>
+	<li>Transaction - Installer Server</li>
+	<li>Content Distribution - Content Sync</li>
+	<li>RMS - Depot Notifier</li>
+	<li>serviceID</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>Communication between the Depot and the Server is secure.</li>
+	<li>The Depot and the Server must authenticate either other.</li>
+	<li>Only authorized service personnel can configure a BB Depot.</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>The Retailer has registered with our system and a storeID
+	  has been assigned to the new store.</li>
+	<li>The <em>Service Technician</em> was given the storeID and
+	  street address of this store.</li>
+	<li>The <em>Service Technician</em> has a valid serviceID (a
+	  secure USB token) and has inserted it into the BB Depot.</li>
+	<li>Internet connection has been set up.</li>
+	<li>The BB Depot has been configured with the URL of the
+	  regional Transaction Server.</li>
+	<li>The validity of the storeID has been verified (when the
+	  Depot parameters were configured).</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>storeID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li><a href="../data_defs.html#Transaction - Depot Record">Transaction - Depot Record</a></li>
+	<li><a href="../data_defs.html#Transaction - Hardware Record">Transaction - Hardware Record</a></li>
+	<li><a href="../data_defs.html#CDS - Depot Record">CDS - Depot Record</a></li>
+	<li><a href="../data_defs.html#RMS - Depot Record">RMS - Depot Record</a></li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li>A digital certificate with the Depot's MAC address as CN,
+	signed by the Depot CA signer.</li>
+	<li>The corresponding private key.</li>
+	<li>A copy of the Root certificate.</li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>authenticate</code>
+	  <ol type=a>
+	    <li><em>Installer App</em> connects to <em>Installer Server</em></li>
+	    <li>mutually authenticate with the server using the <em>serviceID</em>.</li>
+	    <li>establishes secure communication link</li>
+	  </ol>
+	</li>
+	<li><code>getHWID</code>
+	  <ol type=a>
+	    <li><em>Installer App</em> send a request to the
+	      <em>Installer Server</em> asking for a new
+	      <em>hardwareID</em>, passing the <code>storeID</code>
+	      and the Depot's MAC address as parameters.
+	    </li>
+	    <li><em>Installer Server</em> generates:
+	      <ol type=i>
+		<li>derive a unique hardware identity number from the
+		  Depot's MAC address .</li>
+		<li>a public, private key pair.</li>
+		<li>a digital certificate containing this public key, 
+		  the hardware ID.</li>
+	      </ol>
+	    </li>
+	    <li><em>Installer Server</em> updates the <em>Hardware
+		Record</em> with the mapping from this
+	      <em>hardwareID</em> to the <code>storeID</code>.
+	    </li>
+	  </ol>
+	</li>
+	<li><code>registerHWID</code>
+	  <ol type=a>
+	    <li><em>Installer Server</em> retrieves the
+	      <code>regionID</code> corresponding to this store.</li>
+	    <li><em>Installer Server</em> sends the hardwareID and the
+	      regionID to the <em>Content Sync Server</em> in the CDS,
+	      which generates a corresponding <em>Depot Record</em>.
+	      This is a deferred operation and the <em>Installer
+		Server</em> needs not wait for it to finish.</li>
+	    <li><em>Installer Server</em> sends the hardwareID and the
+	      regionID to the <em>Depot Notifier Server</em> in the RMS,
+	      which generates a corresponding <em>Depot Record</em>.
+	      This is a deferred operation and the <em>Installer
+		Server</em> needs not wait for it to finish.</li>
+	  </ol>
+	</li>
+	<li><code>storeHWID</code>
+	  <ol type=a>
+	    <li><em>Installer Server</em> returns the digital
+	      certificate, the private key, the Root certificate, and
+	      the nececessary CA chain to the <em>Installer App</em>.</li> 
+	  </ol>
+	</li>
+	<li><code>storeHWID</code>
+	  <ol type=a>
+	    <li><em>Installer App</em> stores the digital certificate,
+	      the private key, the Root certificate and the CA chain to the
+	      designated disk partition..
+	    </li>
+	  </ol>
+	</li>
+      </ol>
+      <h3>Post-conditions</h3>
+      <ol>
+	<li>The BB Depot has a digital identity which can be used to
+	  authenticate itself for the purpose of content download,
+	  software upgrade, and remote management.
+	</li>
+	<li>Both the CDS and RMS register this hardwareID with the
+	  corresponding region.  Depending on when the deferred
+	  transactions completes, they might not recognize this Depot
+	  right away.  But this does not cause any harm and the Depot
+	  will silently retry any failed connection.
+	</li>
+      </ol>
+
+      <h3>Audit Records</h3>
+      <ol>
+	<li>HardwareID Configuration - <code>storeID</code>,
+	  <code>serviceID</code>, <code>region_ID</code>.
+	</li>
+      </ol>
+	  
+      <h3>Exceptions</h3>
+
+      <ol>
+	<li>Unrecognized <code>storeID</code> -- retailer registration
+	  process is not complete.
+	</li>
+	<li>Network connection failure -- need to properly configure
+	  the network parameter; might need to contact ISP.</li>
+	<li>Invalid or unauthorized serviceID -- <em>Installer
+	    Server</em> will not allow unauthorized attempt to
+	  download configuration parameters.</li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="overlayed/load_HWID-ctrl.png">Control Flow</a></li>
+	<li><a target="data" href="overlayed/load_HWID-data.png">Data Flow</a></li>
+      </ul>	  
+    </body>
+  </html>

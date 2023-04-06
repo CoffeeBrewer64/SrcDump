@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Developing Software with the RVL IOP SDK</title>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+</head>
+<body>
+<h2 align="center">IOP SDK Release Notes<br>
+</h2>
+<div align="center">$Revision: 1.2 $<br>
+$Date: 2006/04/04 05:51:15 $<br>
+</div>
+<h3>Summary</h3>
+This release (version 1.1.0) contains the following features/bug fixes:
+<ul>
+  <li>Increase number of system resources for IOS development such as:
+    <ul>
+      <li>Threads: 32</li>
+      <li>Message Queues: 128</li>
+      <li>Timers: 64</li>
+      <li>File descriptors: 64</li>
+    </ul>
+  </li>
+  <br>
+  <li>Include SDIO register definitions in $ROOT/usr/src/signum/rvl_iop.def</li>
+  <br><br>
+  <li>Include new symbol definitions and address map for WD and WL 
+      in $ROOT/usr/include/make/NGaddrs_debug:
+    <ul>
+      <li>MK_WD_START</li>
+      <li>MK_WL_START</li>
+    </ul>
+    These above definitions should be used in WD and WL Makefile to ensure
+    that correct address space is used for each module. 
+  </li>
+  <br><br>
+  <li>Added the following functions to libioslibc.a lilbrary:
+    <ul>
+      <li>strncat()</li>
+      <li>snprintf()</li>
+      <li>vsnprintf()</li>
+    </ul>
+  </li>
+  <br>
+  <li>Fix IOS_FlushDCache() to correctly handle number of cache lines to 
+      flush.</li>
+  <br><br>
+  <li>Fix IOS_FlushMem() by providing critical section protection when
+      accessing hardware registers.
+  <br><br>
+  <li>Fix IOS_Alloc() to handle back link correctly.</li>
+</ul>
+When launched, the iossh program should display:
+<span style="font: courier;"><pre>     [build time: 04/03/06 08:25:34 PM  OS version: 00005000] 
+</pre></span>
+<h3>Known Issues</h3>
+<ul>
+<li>To run any of the test programs properly, make sure that you type 
+"exit" in the the VIO window (although a prompt doesn't appear) after you type 
+"run". 
+</li>
+<li><a href="SDIO_Issues.html">List of SDIO controller issues/work-arounds</a>
+</li>
+</ul>
+</body>
+</html>

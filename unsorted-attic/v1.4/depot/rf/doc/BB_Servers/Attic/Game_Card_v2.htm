@@ -1,0 +1,464 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./Game_Card_v2_files/filelist.xml">
+<title>Game Card Specification Version 2</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Alfredo D. Dark</o:Author>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>Alfredo D. Dark</o:LastAuthor>
+  <o:Revision>30</o:Revision>
+  <o:TotalTime>3034</o:TotalTime>
+  <o:LastPrinted>2003-02-11T22:47:00Z</o:LastPrinted>
+  <o:Created>2003-02-04T01:09:00Z</o:Created>
+  <o:LastSaved>2003-02-15T00:06:00Z</o:LastSaved>
+  <o:Pages>3</o:Pages>
+  <o:Words>701</o:Words>
+  <o:Characters>4000</o:Characters>
+  <o:Company>Meals-on-Wheels</o:Company>
+  <o:Lines>33</o:Lines>
+  <o:Paragraphs>8</o:Paragraphs>
+  <o:CharactersWithSpaces>4912</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:66467166;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1300651258 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<h1>ECard Specification Ver. 2.1</h1>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>This document (<a
+href="http://intwww/bb/rf/doc/BB_Servers/ECard_v2.htm">http://intwww/bb/rf/doc/BB_Servers/ECard_v2.htm</a>)
+expands the document ECard_v1 (<a
+href="http://intwww/bb/rf/doc/BB_Servers/ECard_v1.htm">http://intwww/bb/rf/doc/BB_Servers/ECard_v1.htm</a>).<span
+style="mso-spacerun: yes">  </span>The version 1 document assumes the Ecard
+number are to entered by the customer, therefore the number must be as short as
+reasonable.<span style="mso-spacerun: yes">   </span>This version assumes the
+Ecard number to be entered via a barcode reader.<span style="mso-spacerun:
+yes">   </span>The length of barcode is limited by the number of digits that
+can be practically printed on a credit-card-sized card.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Security Properties</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo3;tab-stops:list .5in'>The
+     Depot does not disclose E-card numbers to any other system.<span
+     style="mso-spacerun: yes">   </span>(Depot does not need to trust XS)<span
+     style="mso-spacerun: yes">  </span></li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo3;tab-stops:list .5in'>The XS
+     has ability to verify the E-card number (XS does not need to trust Depot,
+     and the Ecard distribution path from BroadOn to the Depot).</li>
+ <li class=MsoNormal style='mso-list:l0 level1 lfo3;tab-stops:list .5in'>The XS
+     cannot generate E-card numbers.<span style="mso-spacerun: yes"> 
+     </span>The XS does not have accesses to the E-card numbers.<span
+     style="mso-spacerun: yes">  </span>(BroadOn does not need to trust iQue
+     for E-card generation, distribution, or the protection of Ecard numbers).</li>
+</ul>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Ecard Number</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The Ecard number starts with a card type number.<span
+style="mso-spacerun: yes">   </span>If the first digit is 0 or 1, the card type
+number, T,<span style="mso-spacerun: yes">  </span>is 6 digits.<span
+style="mso-spacerun: yes">  </span>The card-type specifies the format and
+interpretation of the rest of the number.<span style="mso-spacerun: yes">  
+</span>The code range “000000” to “099999” is reserved for the BB Player
+Ecards.<span style="mso-spacerun: yes">   </span>Currently “000100” represents
+the bronze card, “000200” the silver card, and “000300” the gold card.<span
+style="mso-spacerun: yes">  </span>The code range “100000” to “199999” is
+reserved for the BB2 project.<span style="mso-spacerun: yes">  </span>The
+card-type number is followed by 2 additional numbers:<span style="mso-spacerun:
+yes">  </span>S and R.<span style="mso-spacerun: yes">   </span>S is a 10-digit
+unique serial number.<span style="mso-spacerun: yes">   </span>R is a 10-digit
+random number.<span style="mso-spacerun: yes">   </span>S is used to index into
+the database.<span style="mso-spacerun: yes">  </span>T is used to determine
+the monetary value of the card.<span style="mso-spacerun: yes">   </span>R is
+used to prevent forgery.<span style="mso-spacerun: yes">   </span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<table border=1 cellspacing=0 cellpadding=0 style='border-collapse:collapse;
+ border:none;mso-border-alt:solid windowtext .5pt;mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+ <tr>
+  <td width=197 valign=top style='width:2.05in;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+  </td>
+  <td width=197 valign=top style='width:2.05in;border:solid windowtext .5pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>Number of Decimal Digits</p>
+  </td>
+  <td width=197 valign=top style='width:2.05in;border:solid windowtext .5pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>Binary length</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=197 valign=top style='width:2.05in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>T</p>
+  </td>
+  <td width=197 valign=top style='width:2.05in;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>6</p>
+  </td>
+  <td width=197 valign=top style='width:2.05in;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=197 valign=top style='width:2.05in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>S</p>
+  </td>
+  <td width=197 valign=top style='width:2.05in;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>10 </p>
+  </td>
+  <td width=197 valign=top style='width:2.05in;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>&gt; 32 bits</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=197 valign=top style='width:2.05in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>R</p>
+  </td>
+  <td width=197 valign=top style='width:2.05in;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>10</p>
+  </td>
+  <td width=197 valign=top style='width:2.05in;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal>&gt; 32 bits</p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Barcode</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The barcode will be encoded using Code 128C.<span
+style="mso-spacerun: yes">   </span>It is most compact code available.<span
+style="mso-spacerun: yes">  </span>Each character is encoded using 11
+elements.<span style="mso-spacerun: yes">  </span>Each character, holding
+values between 0 and 102, represents two decimal digits.<span
+style="mso-spacerun: yes">  </span>The recommended barcode X-dimensional (the
+element width) is 8 mil or 10 mil (1 mil is 1/1000 of an inch). At 8 mil, the
+size of the Ecard number barcode is 1.42 x 0.25 inches.<span
+style="mso-spacerun: yes">   </span>At 10 mil, the size is 1.78 x 0.27 inches.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Other numbers</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Define the 128-bit hash value H of the random number.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span style="mso-spacerun: yes">  </span>H = MD5(R)</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Generate the Message M.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span style="mso-spacerun: yes">  </span>M = (T | S | H) </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Define the signature of the Ecard SM.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span style="mso-spacerun: yes">  </span>SM = RSA_Signature
+( M,<span style="mso-spacerun: yes">  </span>PrivKey[C])</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>where PrivKey[C] is a private key held by the BroadOn HSM
+used to certify Ecard numbers, and C is the certificate ID of the Key used to
+sign the Ecard.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>RSA_Signature and RSA_verify are the digital signature
+functions defined in PKCS#11 v1.5.<span style="mso-spacerun: yes">   
+</span>The length of signed message SM equals to the length of the encryption
+key PrivKey[C].</p>
+
+<p class=MsoNormal><span style="mso-spacerun: yes"> </span></p>
+
+<h2>Ecard Number Generation</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The Ecard number is generated in the BroadOn Center.<span
+style="mso-spacerun: yes">   </span>BroadOn Center maintains a Ecard
+database.<span style="mso-spacerun: yes">   </span>For example, when the cards
+are generated, who prints the card, the cert id used to sign the card, which XS
+the card uploads, etc.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The BroadOn center also defines the monetary value
+represented by T of the Ecard.<span style="mso-spacerun: yes">   </span>The
+table should be downloaded to the Depot through CDS.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The serial number (starting from 1262300000) is stored in
+the database.<span style="mso-spacerun: yes">   </span>The serial number is
+incremented when a new number is generated.<span style="mso-spacerun: yes">  
+</span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The 10 digit random number is generated by the HSM.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>A Ecard record in the BroadOn database is comprised of<span
+style="mso-spacerun: yes">  </span>T, S, R, SM, C</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>T, S, R is sent to the card printer.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>T, S, SM, C is uploaded to the iQue Center.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Depot Operation</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>After reading a Ecard, the depot obtains T, S, R.<span
+style="mso-spacerun: yes">   </span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Compute H = MD5(R).</p>
+
+<p class=MsoNormal><span style="mso-spacerun: yes">   </span></p>
+
+<p class=MsoNormal>Sends T, S, H to the transaction server XS.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Upload Verfication</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>No per eticket check is performed.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The Ecard is uploaded using database to database
+synchronization.<span style="mso-spacerun: yes">    </span>The synchronization
+is protected by authentication and secured by VPN.<span style="mso-spacerun:
+yes">  </span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Purchase Verification</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>XS receivies T, S, and H.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Compute M = T | S | H.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Compute Result = RSA_verify(M, SM, PubKey[C] ).</p>
+
+<h2><span style='font-size:12.0pt;font-family:"Times New Roman";font-weight:
+normal;font-style:normal'>If <span style="mso-spacerun: yes"> </span>Result is
+true, then the Ecard number is validated.<o:p></o:p></span></h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>RSA Key Length and Lifetime</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>To save space, the key length is 1024 bit.<span
+style="mso-spacerun: yes">   </span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Each key will be used to generate at most 4 million keys
+(i.e., one month generation at busy time) or 1 year.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The signature key generation is automatically handled by the
+Ecard Generation Software.<span style="mso-spacerun: yes">   </span><span
+style="mso-spacerun: yes"> </span>However, the software might require insertion
+of a higher privileged HSM token to perform signature-key generation.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Database Requirements</h2>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Keep at least 20 million Ecard in the database.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>20 million cards added annually.<span style="mso-spacerun:
+yes">  </span>Ability to prune/compact the database.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Determine database transaction time and throughput on Ecard
+accesses.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Determine size requirement for 20 million Ecards.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+</div>
+
+</body>
+
+</html>

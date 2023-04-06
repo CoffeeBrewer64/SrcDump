@@ -1,0 +1,42 @@
+d25 1
+d34 3
+a38 1
+  <li>pricing information</li>
+d49 1
+a49 1
+<p><i>None</i></p>
+d53 3
+a55 2
+  <li>	The Administrator selects the content and enters the price, the &quot;available for purchase&quot; date and
+    &quot;download start&quot; date for each region to release in the CAS.
+d62 1
+a62 1
+    the Content ID, Region ID, and &quot;download start&quot; date to the
+d68 11
+d82 1
+a82 1
+      <li>CAS submits the Region ID and the &quot;download start&quot; date to the RMS
+a85 9
+  <li>	<code>New Content Available for Purchase</code>
+    <ol type="a">
+      <li>	CAS updates the &quot;available for purchase&quot; date into the content
+    metadata data store. At this point, the &quot;Start Content
+    Distribution&quot; transaction is considered to be complete.</li>
+    </ol>
+  </li>
+  <li>	Cascaded Transactions/Notifications
+    <ol>
+d104 4
+a107 2
+  <li>   The Content ID is available for download and purchase based on the
+    specified dates.</li>
+d110 1
+a110 1
+<h4>Transaction Records</h4>
+d112 3
+a114 2
+  <li>XS - Start Content Distribution - contentID, region ID</li>
+  <li>CDS - Start Content Distribution - contentID, region ID</li>
+d119 1
+a119 1
+  <li>If CDS or RMS notifications fail, the CAS retries till it succeeds.</li>

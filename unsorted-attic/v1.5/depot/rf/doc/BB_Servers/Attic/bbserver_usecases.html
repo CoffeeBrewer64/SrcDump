@@ -1,0 +1,177 @@
+d6 1
+a6 1
+<h1>Use-case analysis for BB servers</h1>
+d8 2
+a9 2
+$Revision: 1.4 $<br>
+$Date: 2002/08/10 00:28:36 $</i></center>
+d11 6
+a16 10
+ This document  describes use cases amongst BB servers, BB  Depot, BB and
+personals interacting  with these. Section "2) Behavior Model" describes
+high-level behavior model from which all  use cases in this document are
+derived. Section "3) Use Cases" describes detail of the use cases with exact
+events  to occur during the  course of each use case. Sequence diagrams provided
+in a  separate document  figures major sequence of events to supplements
+the description for better understanding. 
+<h2>2) Behavior Model </h2>
+    <em>This section is replaced by the "User Interactions" section in
+      <a href="bbdepot_arch.html">BB Depot Architecture</a>.</em>
+d18 1
+a18 1
+      <h2>3) Use Cases</h2>
+d20 1
+a20 1
+<h3>3.1 Use Cases for Operations</h3>
+d25 2
+d34 1
+a34 1
+<dt><p><b>Precondition</b>:
+d40 1
+a40 1
+<dt><p><b>Participants:</b>
+d42 1
+a42 1
+  <dd>Studio, Operation Center, DevKit, Studio  DB<b></b>
+d44 1
+a44 1
+<dt><p><b>Point of  control:</b>
+d46 4
+a49 1
+  <dd>Operation Center
+d52 1
+a52 1
+<dt><p><b>Sequence of events</b>:
+d63 6
+d70 5
+a74 1
+<h3>Use case: Release a Title</h3>
+d83 1
+a83 1
+<dt><p><b>Precondition</b>:
+d89 3
+a91 1
+<dt><p><b>Participants:</b>
+a92 1
+  <dd>Studio, DevKit
+d94 1
+d96 1
+a96 1
+<dt><p><b>Point of  control:</b>
+d98 14
+a111 1
+  <dd>DevKit 
+d113 3
+a115 1
+<dt><p><b>Sequence of events</b>:
+d124 1
+a124 1
+<dt><b>Note:</b>
+d126 1
+a126 7
+  <dd>"Release Package" will consist  from the following:
+  <ul>
+  <li>Certificate bundled
+  <li>Encrypted title content
+  <li>Signature: a hash of the title content
+  <li>Metadata (title name, description, required memory size,  size of saved game, image files for ads, etc)
+  </ul>
+d128 1
+a128 1
+</dl>
+d131 2
+d135 2
+d144 1
+a144 1
+<dt><p><b>Precondition</b>:
+d150 17
+a166 2
+<dt><p><b>Point of  control:</b>
+  <dd>Content Publishing Server, Content DB, Studio DB,  eTicket DB
+a167 1
+<dt><p><b>Point of  control:</b>
+d169 4
+a172 1
+  <dd>Content Publishing Server
+d174 1
+a174 1
+<dt><p><b>Sequence of events</b>:
+d187 3
+d191 2
+d195 2
+d203 1
+a203 1
+<dt><p><b>Precondition</b>:
+d210 3
+a212 1
+<dt><p><b>Participants:</b>
+d214 1
+a214 1
+  <dd>Content Publishing Server, Content Distribution Server,  RMS DB, Content DB, BB Depot
+d216 7
+a222 1
+<dt><p><b>Point of  control:</b>
+a223 1
+  <dd>Content Distribution Server
+d225 1
+a225 1
+<dt><p><b>Sequence of events</b>:
+d228 8
+a235 6
+  <li>Content Distribution Server looks up a list of BB Depots from  RMS DB, and put their IDs into a queue.
+  <li>Pick one BB Depot ID from the queue, lookup IP address of the  BB Depot ID from RMS DB. If the queue is empty, exit.  
+  <li>Send a trigger message of content synchronization to the BB  Depot 
+  <li>If fails to send the message, queue the BB Depot ID for later  retries. For retries, Content Distribution Server has a timer to execute this  use case periodically until no BB Depot ID remains in the queue.
+  <li>Successful trigger message delivery starts the sequence of "Use case: Content  Synchronization" for the BB Depot 
+  <li>Continue to 7 
+d239 2
+d242 3
+d247 2
+d255 1
+a255 1
+<dt><p><b>Precondition</b>:
+d261 3
+a263 1
+<dt><p><b>Participants:</b>
+d265 1
+a265 1
+  <dd>BB Depot, Content Distribution Server, Content Download  Server
+d267 8
+a274 1
+<dt><p><b>Point of  control:</b>
+a275 1
+  <dd>BB Depot 
+d277 1
+a277 1
+<dt><p><b>Sequence of events</b>:
+d280 2
+a281 2
+  <li>Content Manager (= content acquisition module for BB) connects  to Content Distribution Server with a "last updated" timestamp
+  <li>Content Distribution Server checks Content DB to get a list of  new title content.  (<i>issue: do we trust the timestamp ?)</i>
+d287 1
+d290 2
+d293 5
+a297 1
+<h3>Use case: Submit BB Player information</h3>
+d305 1
+a305 1
+<dt><p><b>Precondition</b>:
+d311 3
+a313 1
+<dt><p><b>Participants:</b>
+d315 1
+a315 1
+  <dd>Manufacture Tool, Manufacture Interfacing Server
+d317 7
+a323 1
+<dt><p><b>Point of  control:</b>
+a324 1
+  <dd>Manufacture Interfacing Server
+d326 1
+a326 1
+<dt><p><b>Sequence of events</b>:
+d334 1
+a334 1
+	  manufactured, manufacture ID, etc.
+d338 1
+d340 130

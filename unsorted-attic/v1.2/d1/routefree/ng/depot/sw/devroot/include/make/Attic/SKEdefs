@@ -1,0 +1,16 @@
+include $(ROOT)/usr/include/make/commondefs
+
+CC = $(HOST_CC)
+C++ = $(HOST_C++)
+
+# C compiler variables
+GCDEFS = -D_LANGUAGE_C
+GCOPTS = $(OPTIMIZER)  -Wall -Werror -fno-builtin
+GCINCS = -I$(ROOT)/usr/include/ske -I$(ROOT)/usr/include
+
+# C++ compiler variables
+GC++DEFS = -D_LANGUAGE_C
+GC++OPTS = $(OPTIMIZER)  -Wall -Werror
+GC++INCS = -I$(ROOT)/usr/include/ske -I$(ROOT)/usr/include
+
+GLDOPTS = -L$(ROOT)/usr/lib/ske -Wl,--export-dynamic

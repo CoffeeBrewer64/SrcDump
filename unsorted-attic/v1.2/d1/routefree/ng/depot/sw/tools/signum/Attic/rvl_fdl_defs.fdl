@@ -1,0 +1,2039 @@
+
+struct IPCP2SMSG 32 32 0x0d800000 rw
+{ 
+       32 uint msg;
+}
+       
+struct IPCPPCCTRL 32 32 0x0d800004 rw
+{	
+        1 	uint 	OUT_MSG;
+        1 	uint    IN_ACK;
+        1 	uint 	IN_MSG;
+        1 	uint 	OUT_ACK;
+        1 	uint 	MSG_INTR;
+        1 	uint 	ACK_INTR;
+       26	pad;
+}
+
+struct IPCS2PMSG 32 32 0x0d800008 rw
+{ 
+       32 uint msg;
+}
+
+struct IPCIOPCTRL 32 32 0x0d8000c rw
+{	
+        1 	uint 	OUT_MSG;
+        1 	uint    IN_ACK;
+        1 	uint 	IN_MSG;
+        1 	uint 	OUT_ACK;
+        1 	uint 	MSG_INTR;
+        1 	uint 	ACK_INTR;
+       26	pad;
+}
+
+struct ACRTMRCNT 32 32 0x0d800010 r 
+{
+       32 uint cnt;
+}
+
+struct ACRTMRCMP 32 32 0x0d800014 rw 
+{
+       32 uint cnt;
+}
+
+struct ACRVI1CFG 32 32 0x0d800018 rw
+{	
+       10 	uint 	LACV;
+        6 	uint 	LPRB;
+        1 	uint 	NINTL_IPOL;
+        1 	uint 	VISEL;
+       14	pad;
+}
+
+struct ACRVIDIM 32 32 0x0d80001c rw
+{	
+        3 	uint 	CHROMA_SHFT;
+        3 	uint 	LUMA_SHFT;
+        1 	uint 	DIM_EN;
+        1 	uint 	FORCE_DIM;
+       24	pad;
+}
+
+struct ACRVIDIM 32 32 0x0d800020 rw
+{
+       32 uint vidim;
+}
+struct ACRVISOLIDCLR 32 32 0x0d800024 rw
+{	
+        1 	uint 	VI_SOLCLREN;
+        7 	pad ;
+        8 	uint 	VI_YCOL;
+        8 	uint 	VI_UCOL;
+        8	uint    VI_VCOL;
+}
+
+struct ACRSIFRMCNT 32 32 0x0d800028 rw
+{
+       16 	uint 	COUNT;
+        1	unit	RF_IDLE;
+       15	pad;
+}
+
+struct ACRHDCFG 32 32 0x0d80002c rw
+{	
+        1 	uint 	CONEXANT_EN;
+        1 	uint 	HD_EN;
+        3 	uint 	CFGADDR;
+       27       pad;
+}
+
+
+
+struct ACRPPCINTSTS 32 32 0x0d800030 rw
+{	
+	1	unit	TMRINT;
+	1	unit	FLAINT;
+	1	unit	AESINT;
+	1	unit	SHAINT;
+	1	unit	EHCINT;
+	1	unit	OH0INT;
+	1	unit	OH1INT;
+	1	unit	SD0INT;
+	1	unit	SD1INT;
+	1	unit	BFMINT;
+	1	unit	GPIPPCINT;
+	1	unit	GPIIOPINT;
+	1	unit	AHBDBGINT;
+	1	unit	VIPIWRINT;
+	1	unit	SIEMUINT;
+	1	unit	SYSRSTBINT;
+	1	unit	VIVSYNCINT;
+	1	unit	RSWINT;
+	1	unit	DIINT;
+	1	unit	SIINT;
+	1	unit	EXIINT;
+	1	unit	AIINT;
+	1	unit	DSPINT;
+	1	unit	MEMINT;
+	1	unit	VIINT;
+	1	unit	PEINT0;
+	1	unit	PEINT1;
+	1	unit	CPINT;
+	1	unit	DBGINT;
+	1	unit	SDINT;
+	1	unit	ACRIPCPPC;
+	1	unit	ACRIPCIOP;
+}
+struct ACRPPCINTEN 32 32 0x0d800034 rw
+{	
+	1	unit	TMRINT;
+	1	unit	FLAINT;
+	1	unit	AESINT;
+	1	unit	SHAINT;
+	1	unit	EHCINT;
+	1	unit	OH0INT;
+	1	unit	OH1INT;
+	1	unit	SD0INT;
+	1	unit	SD1INT;
+	1	unit	BFMINT;
+	1	unit	GPIPPCINT;
+	1	unit	GPIIOPINT;
+	1	unit	AHBDBGINT;
+	1	unit	VIPIWRINT;
+	1	unit	SIEMUINT;
+	1	unit	SYSRSTBINT;
+	1	unit	VIVSYNCINT;
+	1	unit	RSWINT;
+	1	unit	DIINT;
+	1	unit	SIINT;
+	1	unit	EXIINT;
+	1	unit	AIINT;
+	1	unit	DSPINT;
+	1	unit	MEMINT;
+	1	unit	VIINT;
+	1	unit	PEINT0;
+	1	unit	PEINT1;
+	1	unit	CPINT;
+	1	unit	DBGINT;
+	1	unit	SDINT;
+	1	unit	ACRIPCPPC;
+	1	unit	ACRIPCIOP;
+}
+struct ACRIOPINTSTS 32 32 0x0d800038 rw
+{	
+	1	unit	TMRINT;
+	1	unit	FLAINT;
+	1	unit	AESINT;
+	1	unit	SHAINT;
+	1	unit	EHCINT;
+	1	unit	OH0INT;
+	1	unit	OH1INT;
+	1	unit	SD0INT;
+	1	unit	SD1INT;
+	1	unit	BFMINT;
+	1	unit	GPIPPCINT;
+	1	unit	GPIIOPINT;
+	1	unit	AHBDBGINT;
+	1	unit	VIPIWRINT;
+	1	unit	SIEMUINT;
+	1	unit	SYSRSTBINT;
+	1	unit	VIVSYNCINT;
+	1	unit	RSWINT;
+	1	unit	DIINT;
+	1	unit	SIINT;
+	1	unit	EXIINT;
+	1	unit	AIINT;
+	1	unit	DSPINT;
+	1	unit	MEMINT;
+	1	unit	VIINT;
+	1	unit	PEINT0;
+	1	unit	PEINT1;
+	1	unit	CPINT;
+	1	unit	DBGINT;
+	1	unit	SDINT;
+	1	unit	ACRIPCPPC;
+	1	unit	ACRIPCIOP;
+}
+struct ACRIOPIRQINTEN 32 32 0x0d80003c rw
+{	
+	1	unit	TMRINT;
+	1	unit	FLAINT;
+	1	unit	AESINT;
+	1	unit	SHAINT;
+	1	unit	EHCINT;
+	1	unit	OH0INT;
+	1	unit	OH1INT;
+	1	unit	SD0INT;
+	1	unit	SD1INT;
+	1	unit	BFMINT;
+	1	unit	GPIPPCINT;
+	1	unit	GPIIOPINT;
+	1	unit	AHBDBGINT;
+	1	unit	VIPIWRINT;
+	1	unit	SIEMUINT;
+	1	unit	SYSRSTBINT;
+	1	unit	VIVSYNCINT;
+	1	unit	RSWINT;
+	1	unit	DIINT;
+	1	unit	SIINT;
+	1	unit	EXIINT;
+	1	unit	AIINT;
+	1	unit	DSPINT;
+	1	unit	MEMINT;
+	1	unit	VIINT;
+	1	unit	PEINT0;
+	1	unit	PEINT1;
+	1	unit	CPINT;
+	1	unit	DBGINT;
+	1	unit	SDINT;
+	1	unit	ACRIPCPPC;
+	1	unit	ACRIPCIOP;
+}
+struct ACRIOPFIQINTEN 32 32 0x0d800040 rw
+{	
+	1	unit	TMRINT;
+	1	unit	FLAINT;
+	1	unit	AESINT;
+	1	unit	SHAINT;
+	1	unit	EHCINT;
+	1	unit	OH0INT;
+	1	unit	OH1INT;
+	1	unit	SD0INT;
+	1	unit	SD1INT;
+	1	unit	BFMINT;
+	1	unit	GPIPPCINT;
+	1	unit	GPIIOPINT;
+	1	unit	AHBDBGINT;
+	1	unit	VIPIWRINT;
+	1	unit	SIEMUINT;
+	1	unit	SYSRSTBINT;
+	1	unit	VIVSYNCINT;
+	1	unit	RSWINT;
+	1	unit	DIINT;
+	1	unit	SIINT;
+	1	unit	EXIINT;
+	1	unit	AIINT;
+	1	unit	DSPINT;
+	1	unit	MEMINT;
+	1	unit	VIINT;
+	1	unit	PEINT0;
+	1	unit	PEINT1;
+	1	unit	CPINT;
+	1	unit	DBGINT;
+	1	unit	SDINT;
+	1	unit	ACRIPCPPC;
+	1	unit	ACRIPCIOP;
+}
+
+struct ACRIOPINTPPC 32 32 0x0d800044 rw
+{	
+	1	unit	TMRINT;
+	1	unit	FLAINT;
+	1	unit	AESINT;
+	1	unit	SHAINT;
+	1	unit	EHCINT;
+	1	unit	OH0INT;
+	1	unit	OH1INT;
+	1	unit	SD0INT;
+	1	unit	SD1INT;
+	1	unit	BFMINT;
+	1	unit	GPIPPCINT;
+	1	unit	GPIIOPINT;
+	1	unit	AHBDBGINT;
+	1	unit	VIPIWRINT;
+	1	unit	SIEMUINT;
+	1	unit	SYSRSTBINT;
+	1	unit	VIVSYNCINT;
+	1	unit	RSWINT;
+	1	unit	DIINT;
+	1	unit	SIINT;
+	1	unit	EXIINT;
+	1	unit	AIINT;
+	1	unit	DSPINT;
+	1	unit	MEMINT;
+	1	unit	VIINT;
+	1	unit	PEINT0;
+	1	unit	PEINT1;
+	1	unit	CPINT;
+	1	unit	DBGINT;
+	1	unit	SDINT;
+	1	unit	ACRIPCPPC;
+	1	unit	ACRIPCIOP;
+}
+struct ACRWDGINTSTS 32 32 0x0d800048 rw
+{	
+	1	unit	TMRINT;
+	1	unit	FLAINT;
+	1	unit	AESINT;
+	1	unit	SHAINT;
+	1	unit	EHCINT;
+	1	unit	OH0INT;
+	1	unit	OH1INT;
+	1	unit	SD0INT;
+	1	unit	SD1INT;
+	1	unit	BFMINT;
+	1	unit	GPIPPCINT;
+	1	unit	GPIIOPINT;
+	1	unit	AHBDBGINT;
+	1	unit	VIPIWRINT;
+	1	unit	SIEMUINT;
+	1	unit	SYSRSTBINT;
+	1	unit	VIVSYNCINT;
+	1	unit	RSWINT;
+	1	unit	DIINT;
+	1	unit	SIINT;
+	1	unit	EXIINT;
+	1	unit	AIINT;
+	1	unit	DSPINT;
+	1	unit	MEMINT;
+	1	unit	VIINT;
+	1	unit	PEINT0;
+	1	unit	PEINT1;
+	1	unit	CPINT;
+	1	unit	DBGINT;
+	1	unit	SDINT;
+	1	unit	ACRIPCPPC;
+	1	unit	ACRIPCIOP;
+}
+struct ACRDMAADRINTSTS 32 32 0x0d800050 rw
+{	
+	1	unit	STS;
+	4	unit	HMASTER;
+	1	unit	HWRITE;
+	26	unit	HADDR;
+}
+struct ACRWDGCFG_reg 32 32  0x0d80004c rw
+{
+       1 uint CLR_INTRPT;
+       2 uint WTIMER;
+       29 pad;
+}
+
+struct ACRCPUADRINTSTS 32 32 0x0d800054 rw
+{	
+	1	unit	STS;
+	4	unit	HMASTER;
+	1	unit	HWRITE;
+	26	unit	HADDR;
+}
+
+struct AHBDBGINTSTS 32 32 0x0d800058 rw
+{	
+	1	unit	ERRINT;
+	1	unit	AHPERR;
+	1	unit	ACRPROT;
+	1	unit	AHMPROT;
+	1	unit	SRNPROT;
+	1	unit	MEMPROT;
+	1	unit	CPUARBPROT;
+	1	unit	WDGERR;
+	1	unit	DMAADR;
+	1	unit	CPUADR;
+        1       unit    ARBPCNTOVL;
+        1       unit    ELAINT;
+	20	pad;
+}
+struct AHBDBGINTEN 32 32 0x0d80005c rw
+{	
+	1	unit	ERRINT;
+	1	unit	AHPERR;
+	1	unit	ACRPROT;
+	1	unit	AHMPROT;
+	1	unit	SRNPROT;
+	1	unit	MEMPROT;
+	1	unit	CPUARBPROT;
+	1	unit	WDGERR;
+	1	unit	DMAADR;
+	1	unit	CPUADR;
+        1       unit    ARBPCNTOVL;
+        1       unit    ELAINT;
+	20	pad;
+}
+
+struct ACRSRNPROT 32 32 0x0d800060 rw
+{	
+        1 	uint 	AESEN;
+        1 	uint 	SHAEN;
+        1 	uint 	FLAEN;
+        1 	uint 	AHPEN;
+        1 	uint 	OH1EN;
+        1 	uint 	IOUEN;
+        1 	uint 	IOPDBGEN;
+       25	pad;
+}
+
+struct ACRBUSPROT 32 32 0x0d800064 rw
+{
+        1 pad;
+        1 	uint 	PPCFLAEN;
+        1 	uint 	PPCAESEN;
+        1 	uint 	PPCSHAEN;
+        1 	uint 	PPCEHCEN;
+        1 	uint 	PPCOH0EN;
+        1 	uint 	PPCOH1EN;
+        1 	uint 	PPCSD0EN;
+        1 	uint 	PPCSD1EN;
+        7 	pad;
+        1 pad;
+        1 	uint 	IOPFLAEN;
+        1 	uint 	IOPAESEN;
+        1 	uint 	IOPSHAEN;
+        1 	uint 	IOPEHCEN;
+        1 	uint 	IOPOH0EN;
+        1 	uint 	IOPOH1EN;
+        1 	uint 	IOPSD0EN;
+        1 	uint 	IOPSD1EN;
+        6   pad;
+        1 	uint 	PPCKERN;
+}
+
+struct AIPPROT 32 32 0x0d800070 rw
+{
+    	1	uint	ENAHBIOPI;
+    	1	uint	ENAHBPI2AI;
+	1 	uint 	ENAHBPI2EXI;
+	1 	uint	ENAHBPI2SI;
+	1 	uint	ENAHBPI2DI;
+       27	pad;
+}
+
+struct AIPIOCTRL 32 32 0x0d800074 rw
+{	
+	1 	uint 	ENAHBIOMEM;
+        1	pad;
+	1 	uint 	EXI0;
+	1 	uint	EXI1;
+	1 	uint 	EXI2;
+    27	pad;
+}
+struct GPIPPCOUT 32 32 0x0d8000c0 rw
+{	
+       24 	uint 	OUT;
+        8	pad;
+}
+
+struct GPIPPCOE 32 32 0x0d8000c4 rw
+{	
+       24 	uint 	OE;
+        8	pad;
+}
+
+struct GPIPPCIN 32 32 0x0d8000c8 rw
+{	
+       24 	uint 	IN;
+        8	pad;
+}
+
+struct GPIPPCINTPOL 32 32 0x0d8000cc rw
+{	
+       24 	uint 	POLARITY;
+        8	pad;
+}
+
+struct GPIPPCINTSTS 32 32 0x0d8000d0 rw
+{	
+       24 	uint 	INTSTS;
+        8	pad;
+}
+
+struct GPIPPCINTEN 32 32 0x0d8000d4 rw
+{	
+       24 	uint 	INTEN;
+        8	pad;
+}
+
+struct GPIPPCSTRAPS 32 32 0x0d8000d8 rw
+{	
+       24 	uint 	STRAPS;
+        8	pad;
+}
+
+struct GPIIOPEN 32 32 0x0d8000dc rw
+{	
+       24 	uint 	EN;
+        8	pad;
+}
+
+
+struct GPIIOPOUT 32 32 0x0d8000e0 rw
+{	
+       24 	uint 	OUT;
+        8	pad;
+}
+
+struct GPIIOPOE 32 32 0x0d8000e4 rw
+{	
+       24 	uint 	OE;
+        8	pad;
+}
+
+struct GPIIOPIN 32 32 0x0d8000e8 rw
+{	
+       24 	uint 	IN;
+        8	pad;
+}
+
+struct GPIIOPINTPOL 32 32 0x0d8000ec rw
+{	
+       24 	uint 	POLARITY;
+        8	pad;
+}
+
+struct GPIIOPINTSTS 32 32 0x0d8000f0 rw
+{	
+       24 	uint 	INTSTS;
+        8	pad;
+}
+
+struct GPIIOPINTEN 32 32 0x0d8000f4 rw
+{	
+       24 	uint 	INTEN;
+        8	pad;
+}
+
+struct GPIIOPSTRAPS 32 32 0x0d8000f8 rw
+{	
+       24 	uint 	STRAPS;
+        8	pad;
+}
+
+struct GPIIOPPPCOWNER 32 32 0x0d8000fc rw
+{	
+       24 	uint 	PPCOWNER;
+        8	pad;
+}
+
+struct ACRARBCFGM0 32 32 0x0d800100 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM1 32 32 0x0d800104 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM2 32 32 0x0d800108 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM3 32 32 0x0d80010c rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM4 32 32 0x0d800110 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM5 32 32 0x0d800114 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM6 32 32 0x0d800118 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM7 32 32 0x0d80011c rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM8 32 32 0x0d800120 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGM9 32 32 0x0d800124 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGMC 32 32 0x0d800130 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGMD 32 32 0x0d800134 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGME 32 32 0x0d800138 rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+struct ACRARBCFGMF 32 32 0x0d80013c rw
+{	
+        3 	uint 	BYTEMIN;
+        1	uint    GRANTTODIS;
+        2	uint    GRANTTO;
+        4	uint    CYMIN;
+        1 	uint 	REQMASK;
+        1 	uint 	DMAREQPRI;
+       20	pad;
+}
+
+struct ACRARBCFGCPU 32 32 0x0d800140 rw
+{	
+        1 	uint 	DELAYEN;
+        3	pad;
+       12 	uint 	DELAYCNT;
+        4 	uint 	STOPCNT;
+        1       uint    ARB_DIS_CY;
+        1       uint    ARB_DIS_BYTE;
+       10	pad;
+}
+
+struct ACRARBCFGDMA 32 32 0x0d800144 rw
+{	
+        1 	uint 	DELAYEN;
+        3	pad;
+       12 	uint 	DELAYCNT;
+        1 	uint 	PRI_EN;
+        3 	uint 	LP_COUNT;
+        1       uint    ARB_DIS_CY;
+        1       uint    ARB_DIS_BYTE;
+       10	pad;
+}
+
+struct ACRARBPCNTCFG 32 32 0x0d800148 rw
+{	
+        8 	uint 	CNT_PSET;
+        4 	uint 	CNT_TYPE;
+        4 	uint 	MASTER;
+        1 	uint 	CUMUL_EN;
+        15 	pad ;
+}
+
+struct ACRARBPCNTSTS 32 32 0x0d80014c rw
+{	
+        20 	uint 	COUNT;
+        10 	pad ;
+        1 	uint 	COUNT_VALID;
+        1 	uint 	OVERFLOW;
+}
+
+struct ACRSPARE2 32 32 0x0d800170 rw
+{	
+	32 	uint	RW_BITS;
+}
+
+struct ACRSPARE3 32 32 0x0d800174 rw
+{	
+	32 	uint	RW_BITS;
+}
+
+struct ACRCOMPAT 32 32 0x0d800180 rw
+{	
+        1 	uint 	PI_DEEP3;
+        1 	uint 	PI_AHB_DEC_EN;
+        1 	uint 	PI_AHB_INT_EN;
+        1 	uint 	PI_EXP_ADDR;
+        1 	uint 	PI_STR_EN;
+        1 	uint 	PI_MEMRSTB_EN;
+        1 	uint 	PI_DIRSTB_EN;
+        1 	uint 	AI_48K_CLK;
+        1 	uint 	AI_CLK_FIX;
+        1 	uint 	SI_PRG_DIV_EN;
+        1 	uint 	EXI_NEW_DIV_EN;
+        1 	uint 	EXI_EXP_ADDR;
+        1 	uint 	DI_EXP_ADDR;
+        1 	uint 	CP_EXP_ADDR;
+        1 	uint 	TC_EXP_ADDR;
+        1 	uint 	DSP_NEW_MEM;
+        1 	uint 	DSP_EXP_ADDR;
+        1 	uint 	PE_EXP_ADDR;
+        1 	uint 	VI_EXP_ADDR;
+	1 	uint	EXI_BOOTREG_RWEN;
+	1	uint 	EXI_USE_BOOTREG;
+	1	uint 	DI_NODVDRD_EN;
+	1	uint 	DI_RSTBUGCOMPAT;
+        9	pad;
+}
+
+struct ACRRSTAHB 32 32 0x0d800184 rw
+{	1	uint 	RSTB_SRN;
+	1 	uint 	RSTB_AES;
+	1	uint	RSTB_SHA;
+	1 	uint	RSTB_FLA;
+	1	uint 	RSTB_ACR;
+	1 	uint	RSTB_AIM;
+	1	uint	RSTB_AHM;
+	1	uint	RSTB_SDI;
+	1	uint	RSTB_USB;
+	1	uint	RSTB_AHP;
+	1	uint	RSTB_ARB_CPU;
+	1	uint	RSTB_DEC_CPU;
+	1	uint	RSTB_ARB_DMA;
+	1	uint	RSTB_DEC_DMA;
+	1	uint	RSTB_ELA;
+	1	uint	RSTB_WTCHDG;
+	16	pad;
+}
+
+struct ACRSPARE0 32 32 0x0d800188 rw
+{	
+	1	uint	AHM_PREFDIS;
+	4	uint	WDG_OUT_DISABLE;
+	1	uint	AI_64XBCLK_DISABLE;
+	1	uint	AI_SYNCBOUNDFIX_DISABLE;
+	1	uint	AIP_DISABLE_FIX532;
+	8	uint	AHM_CF2CHNG_DISABLE;
+	12	uint	ARB_FRC_REQ_DMA;
+	4	uint	ARB_FRC_REQ_CPU;
+}
+
+struct ACRSPARE1 32 32 0x0d800018c rw
+{	
+	4 	uint	DMA_HMASTER;
+	4 	uint	CPU_HMASTER;
+	2 	uint	SDI_CF2CHNG_DISABLE;
+	6 	uint	RW_BITS;
+	12 	uint	DMA_FRC_HSPLIT;
+	4 	uint	CPU_FRC_HSPLIT;
+}
+
+struct ACRSYSCTRL 32 32 0x0d800190 rw
+{	
+        1 	uint 	USE_FXCLK;
+        1 	uint 	SYSPLL_CMPTBL;
+       30	pad;
+}
+
+struct ACRRSTCTRL 32 32 0x0d800194 rw
+{	
+1 	uint 	RSTINB;
+1 	uint 	CRSTB;
+1 	uint 	RSTB;
+1 	uint 	RSTB_DSKPLL;
+1 	uint 	CPURSTB;
+1 	uint 	CPUSRSTB;
+1 	uint 	RSTB_SYSPLL;
+1 	uint 	NLCKB_SYSPLL;
+1 	uint 	RSTB_MEMRSTB;
+1 	uint 	RSTB_PI;
+1 	uint 	RSTB_DIRSTB;
+1 	uint 	RSTB_MEM;
+1 	uint 	RSTB_GFXTCPE;
+1 	uint 	RSTB_GFX;
+1 	uint 	RSTB_IOAI;
+1 	uint 	RSTB_IOSI;
+1 	uint 	RSTB_IOEXI;
+1 	uint 	RSTB_IODI;
+1 	uint 	RSTB_IOMEM;
+1 	uint 	RSTB_IOPI;
+1 	uint 	RSTB_VI;
+1 	uint 	RSTB_VI1;
+1 	uint 	RSTB_DSP;
+1 	uint 	RSTB_IOP;
+1 	uint 	RSTB_AHB;
+1 	uint 	RSTB_EDRAMS;
+1 	uint 	NLCKB_EDRAMS;
+ 	5	pad;
+}
+
+struct ACRCLKGATE 32 32 0x0d800198 rw
+{	
+        1 	uint 	GATE_MYCLK;
+        1  	uint 	GATE_MSCLK;
+        1  	uint 	GATE_CPUCLK;
+        1  	uint 	GATE_CCLK_FB;
+        1  	uint 	GATE_CCLK_PI;
+        1  	uint 	GATE_CCLK_MEM;
+        1  	uint 	GATE_CCLK_IO;
+        1  	uint 	GATE_CCLK_SD;
+        1  	uint 	GATE_CCLK_USB;
+        1  	uint 	GATE_CCLK_ELA;
+        1  	uint 	GATE_CCLK_AHM;
+        1  	uint 	GATE_CCLK_DSP;
+        1  	uint 	GATE_CCLK_VI;
+        1  	uint 	GATE_DSPCLK;
+        1  	uint 	GATE_VICLK;
+        1  	uint 	GATE_VHCLK;
+        1  	uint 	GATE_LCDCLK;
+        1  	uint 	GATE_AICLK;
+        1  	uint 	GATE_AHCLK;
+        1  	uint 	GATE_AI256CLK;
+        1  	uint 	GATE_USBCLK;
+        1  	uint 	GATE_SDCLK;
+        1  	uint 	GATE_GFXCLK;
+        1  	uint 	GATE_EDRAMS;
+       8  	pad;
+}
+
+struct ACRPLLDR 32 32 0x0d80019c rw
+{	
+       16 	uint 	PLLRSTPW;
+       16  	uint 	PLLRSTLD;
+}
+
+struct ACRPLLSYS 32 32 0x0d8001b0 rw
+{	
+        6 	uint 	SYSPLL_CLKR;
+       12  	uint 	SYSPLL_CLKF;
+        9  	uint 	SYSPLL_CLKO_0;
+        1  	uint 	SYSPLL_BYPVCO;
+        1  	uint 	SYSPLL_BYPOUT;
+        1  	uint 	SYSPLL_PWRDN;
+        1  	uint 	SYSPLL_TEST;
+        1  	uint 	SYSPLL_NLCK;
+}
+
+struct ACRPLLSYSEXT 32 32 0x0d8001b4 rw
+{	
+        9 	uint 	SYSPLL_CLKO_1;
+	9	pad;
+	9	pad;
+        1  	uint	SYSPLL_ENSAT;
+        1  	uint	SYSPLL_FASTEN;
+        1  	uint	SYSPLL_OUTRESET;
+	2	pad;
+}
+
+struct ACRPLLDSK 32 32 0x0d8001b8 rw
+{	
+        2 	uint 	DSKPLL_CLKF;
+        1	uint 	DSKPLL_BYPASS;
+        1  	uint 	DSKPLL_PWRDN;
+        1  	uint 	DSKPLL_TEST;
+        1  	uint 	DSKPLL_ENSAT;
+        1  	uint 	DSKPLL_IFB;
+        1  	uint 	DSKPLL_NLCK;
+	24	pad;
+}
+
+struct ACRPLLDDR 32 32 0x0d8001bc rw
+{	
+        6 	uint 	DDRPLL_CLKR;
+       12  	uint 	DDRPLL_CLKF;
+        9  	uint 	DDRPLL_CLKO_0;
+        1  	uint 	DDRPLL_BYPVCO;
+        1  	uint 	DDRPLL_BYPOUT;
+        1  	uint 	DDRPLL_PWRDN;
+        1  	uint 	DDRPLL_TEST;
+        1  	uint 	DDRPLL_NLCK;
+}
+
+struct ACRPLLDDREXT 32 32 0x0d8001c0 rw
+{	
+        9 	pad;
+	9	pad;
+	9	pad;
+        1  	uint	DDRPLL_ENSAT;
+        1  	uint	DDRPLL_FASTEN;
+        1  	uint	DDRPLL_OUTRESET;
+        1  	uint	DDRPLL_RSTB;
+        1  	uint	DDRPLL_NLCKB;
+}
+
+struct ACRPLLVI 32 32 0x0d8001c4 rw
+{	
+        6 	uint 	VIPLL_CLKR;
+       12  	uint 	VIPLL_CLKF;
+        9  	uint 	VIPLL_CLKO_0;
+        1  	uint 	VIPLL_BYPVCO;
+        1  	uint 	VIPLL_BYPOUT;
+        1  	uint 	VIPLL_PWRDN;
+        1  	uint 	VIPLL_TEST;
+        1  	uint 	VIPLL_NLCK;
+}
+
+struct ACRPLLVIEXT 32 32 0x0d8001c8 rw
+{	
+        9 	uint 	VIPLL_CLKO_1;
+	9	unit	VIPLL_CLKO_2;
+	9	unit	VIPLL_CLKO_3;
+        1  	uint	VIPLL_ENSAT;
+        1  	uint	VIPLL_FASTEN;
+        1  	uint	VIPLL_OUTRESET;
+        1  	uint	VIPLL_RSTB;
+        1  	uint	VIPLL_NLCKB;
+}
+
+struct ACRPLLAI 32 32 0x0d8001cc rw
+{	
+        6 	uint 	AIPLL_CLKR;
+       12  	uint 	AIPLL_CLKF;
+        9  	uint 	AIPLL_CLKO_0;
+        1  	uint 	AIPLL_BYPVCO;
+        1  	uint 	AIPLL_BYPOUT;
+        1  	uint 	AIPLL_PWRDN;
+        1  	uint 	AIPLL_TEST;
+        1  	uint 	AIPLL_NLCK;
+}
+
+struct ACRPLLAIEXT 32 32 0x0d8001d0 rw
+{	
+        9 	pad;
+	9	pad;
+	9	pad;
+        1  	uint	AIPLL_ENSAT;
+        1  	uint	AIPLL_FASTEN;
+        1  	uint	AIPLL_OUTRESET;
+        1  	uint	AIPLL_RSTB;
+        1  	uint	AIPLL_NLCKB;
+}
+
+struct ACRPLLUSB 32 32 0x0d8001d4 rw
+{	
+        6 	uint 	USBPLL_CLKR;
+       12  	uint 	USBPLL_CLKF;
+        9  	uint 	USBPLL_CLKO_0;
+        1  	uint 	USBPLL_BYPVCO;
+        1  	uint 	USBPLL_BYPOUT;
+        1  	uint 	USBPLL_PWRDN;
+        1  	uint 	USBPLL_TEST;
+        1  	uint 	USBPLL_NLCK;
+}
+
+struct ACRPLLUSBEXT 32 32 0x0d8001d8 rw
+{	
+        9 	uint    USBPLL_CLKO_1;
+	9	pad;
+	9	pad;
+        1  	uint	USBPLL_ENSAT;
+        1  	uint	USBPLL_FASTEN;
+        1  	uint	USBPLL_OUTRESET;
+        1  	uint	USBPLL_RSTB;
+        1  	uint	USBPLL_NLCKB;
+}
+
+
+struct ACRIOPWRCTRL 32 32 0x0d800000 rw
+{	
+	1	uint 	OE_PI;
+	1	uint 	IE_PI;
+	1	unit	OE_MEM;
+	1	unit	IE_MEM;
+	1	unit	OE_DDR;
+	1	unit	IE_DDR;
+	1	unit    OE_DI;
+	1	unit    IE_DI;
+	1	uint 	OE_VI;
+	1	uint 	IE_VI;
+	1	uint 	OE_LCD;
+	1	uint 	IE_LCD;
+	1	uint 	OE_AI;
+	1	uint 	IE_AI;
+	1	uint 	OE_AIS;
+	1	uint 	IE_AIS;
+	1	uint 	OE_EXI;
+	1	uint 	IE_EXI;
+	1	uint 	OE_SI;
+	1	uint 	IE_SI;
+	1	uint 	OE_SDIO;
+	1	uint 	IE_SDIO;
+	1	uint 	OE_FLASH;
+	1	uint 	IE_FLASH;
+	1	uint 	OE_GPIO;
+	1	uint 	IE_GPIO;
+	1	uint 	OE_GPIOLV;
+	1	uint 	IE_GPIOLV;
+        4 	pad;
+}
+
+struct ACRIOSTRCTRL0 32 32 0x0d8001e0 rw
+{	
+	3	uint 	AI;
+	3	uint 	AIS;
+	3	uint 	SI;
+	3	uint 	EXI2;
+	3	uint 	EXI1;
+	3	uint 	EXI0;
+	3	uint 	DI;
+	3	uint 	VI;
+        8 	pad;
+}
+
+struct ACRIOSTRCTRL1 32 32 0x0d8001e4 rw
+{	
+	3	uint 	P_PI;
+	3	uint 	N_PI;
+	3	uint 	P_LCD;
+	3	uint 	N_LCD;
+	3	uint 	FLASH;
+	3	uint 	GPIO;
+	3	uint 	GPIOLV;
+	3	uint 	SDIO;
+	1	uint 	LCD_AUTO;
+        7 	pad;
+}
+
+struct ACRCLKSTRCTRL 32 32 0x0d8001e8 rw
+{	
+	3	uint 	CPUCLK_PSTRP;
+	3	uint 	CPUCLK_PSTRN;
+	3	uint 	CPUCLK_NSTRP;
+	3	uint 	CPUCLK_NSTRN;
+	1	uint 	XTAL_EN0;
+	1	uint 	XTAL_EN1;
+        18 	pad;
+}
+
+struct ACREFUSEADDR 32 32 0x0d8001ec rw
+{	
+	5	uint 	EFADDR;
+        26 	pad;
+	1	uint 	EFEN;
+}
+
+struct ACREFUSEDATA 32 32 0x0d8001f0 rw
+{	
+	32	uint 	EFDATA;
+}
+
+struct ACRDBGCLK 32 32 0x0d8001f4 rw
+{	
+	1       unit    OBS_CLK0_EN; 
+	3       unit    OBS_CLK0_SEL; 
+	3       unit    OBS_CLK0_DIV; 
+	1       unit    OBS_CLK0_INV; 
+	1       unit    OBS_CLK1_EN; 
+	3       unit    OBS_CLK1_SEL; 
+	3       unit    OBS_CLK1_DIV; 
+	1       unit    OBS_CLK1_INV; 
+	1       unit    DBG_CLK_SYSPLL_SEL; 
+	1       unit    DBG_CLK_DDRPLL_SEL; 
+	1       unit    DBG_CLK_VLCLK_SEL; 
+	1       unit    DBG_CLK_VCCLK_SEL; 
+	1       unit    DBG_CLK_AIPLL_SEL; 
+	1       unit    DBG_CLK_USBPLL_SEL; 
+	1       unit    DBG_SWAP_CLKS; 
+        9	pad;
+}
+
+struct ACROBSCLKOCTRL 32 32 0x0d8001f8 rw
+{
+        2       unit    DRVDUTY;
+        5       unit    PSTR;
+        5       unit    NSTR;
+        20      pad;
+}
+
+struct ACRDBGCLKICTRL 32 32 0x0d8001fc rw
+{	
+        1       unit    CLK0_REFVEB;
+        2       unit    CLK0_RECDUTY;
+        1       unit    CLK0_PDE;
+        2       unit    CLK0_PDSTR;
+        2	pad;
+        1       unit    CLK1_REFVEB;
+        2       unit    CLK1_RECDUTY;
+        1       unit    CLK1_PDE;
+        2       unit    CLK1_PDSTR;
+        2	pad;
+        1       unit    CLK2_REFVEB;
+        2       unit    CLK2_RECDUTY;
+        1       unit    CLK2_PDE;
+        2       unit    CLK2_PDSTR;
+        2	pad;
+        1       unit    CLK3_REFVEB;
+        2       unit    CLK3_RECDUTY;
+        1       unit    CLK3_PDE;
+        2       unit    CLK3_PDSTR;
+        2	pad;
+
+}
+
+struct ACRDBGPORT 32 32 0x0d800200 rw
+{	
+        1       unit    OBS_DBG0_EN;
+        8       unit    OBS_DBG0_SEL;
+        3       unit    OBS_DBG0_DIV;
+        1       unit    OBS_DBG1_PORT0;
+        1       unit    OBS_DBG1_EN;
+        8       unit    OBS_DBG1_SEL;
+        3       unit    OBS_DBG1_DIV;
+        1       unit    OBS_DBG0_PORT1;
+        6	pad;
+}
+
+struct ACRSICLKDIV 32 32 0x0d800204 rw
+{	
+        8 	uint 	DIVISOR;
+       24	pad;
+}
+
+struct ACRSICTRL 32 32 0x0d800208 rw
+{	
+        1 	uint 	RD_WR;
+        1 	uint 	LAST_WR;
+        1	pad;
+        5 	uint 	ADDR;
+        4	pad;
+        4 	uint 	SOFTR;
+       16	pad;
+}
+
+struct ACRSIDATA 32 32 0x0d80020c rw
+{	
+       16 	uint 	WDATA;
+       16	pad;
+}
+
+struct ACRSIINT 32 32 0x0d800210 rw
+{	
+        1 	uint 	INTR_MSK0;
+        1 	uint 	NEW_RUMBLE0;
+        2 	uint 	RUMBLE_STATE0;
+        1 	uint 	INTR_MSK1;
+        1 	uint 	NEW_RUMBLE1;
+        2 	uint 	RUMBLE_STATE1;
+        1 	uint 	INTR_MSK2;
+        1 	uint 	NEW_RUMBLE2;
+        2 	uint 	RUMBLE_STATE2;
+        1 	uint 	INTR_MSK3;
+        1 	uint 	NEW_RUMBLE3;
+        2 	uint 	RUMBLE_STATE3;
+        1 	uint 	WR_DONE_MASK;
+        1 	uint 	WR_DONE;
+        1 	uint 	WR_IN_PROG;
+       13	pad;
+}
+
+#struct GPIPPCOUTEN 32 32 0x0d800000 rw
+#{	
+#       24 	uint 	OUTEN;
+#        8	pad;
+#}
+
+
+struct ACRMEMTSTN 32 32 0x0d800098 rw
+{	
+        1 	uint 	IDATAN;
+        1 	uint 	REFVEBN;
+        5 	uint 	PSTRN;
+        5 	uint 	NSTRN;
+        3 	uint 	OEN;
+        3 	uint 	ODATAN;
+        2 	uint 	VREF_INT;
+       12	pad;
+}
+
+struct ACRMEMTSTP 32 32 0x0d80009c rw
+{	
+        1 	uint 	IDATAP;
+        1 	uint 	REFVEBP;
+        5 	uint 	PSTRP;
+        5 	uint 	NSTRP;
+        3 	uint 	OEP;
+        3 	uint 	ODATAP;
+       14	pad;
+}
+
+struct EHCCAPLENVER 32 32 0x0d840000 rw
+{
+	8	uint	CAPLENGTH;
+	8	pad;
+	16	uint	HCIVERSION;
+}
+
+struct EHCOPRUSBINTR 32 32 0x0d840008 rw
+{	
+	1	uint	USBINTEN;
+	1	uint	USBERRINTEN;
+	1	uint	PRTCHGDETINTEN;
+	1	uint	FRMLSTROLINTEN;
+	1	uint	HSTSYSERRINTEN;
+	1	uint	ASYNCADVINTEN;
+	26	pad;
+}
+
+struct EHCOPRCONFIGFLAG 32 32 0x0d840040 rw
+{	
+	1	uint	CF;
+	31	pad;
+}
+
+
+struct USB_CHICKENBITS 32 32 0x0d8400bc rw
+{	
+	1	uint	ENABLE_OHCI_OUT_TH48;
+	1	uint	ECO251_ENABLE;
+	1	uint	NO_EHC_RETRYLIMIT;
+	1	uint	EHC_INC_RETRYLIMIT;
+	1	uint	EHC_BREAK_BC128_EN;
+	1	uint	EHC_BREAK_BC128_SEL;
+	1	uint	PCI_FRC_NO_BABBLE;
+	1	uint	ENABLE_OHC_PREFETCH;
+	1	uint	SELECT_OHC_PREFETCH;
+	1	uint	ENABLE_OHC_TD_PREFETCH;
+	1	uint	SET_RECLAMATION_FIX_EN;
+        1       uint    EN_OHC0_IRQ;
+        1       uint    EN_OHC1_IRQ;
+        1       uint    EN_OHC0_SMI;
+        1       uint    EN_OHC1_SMI;
+	17	pad;
+}
+
+# The SDIO register map.
+
+struct SDISYSADDR 32 32 0x0d860000 rw
+{	
+	# System Address Register
+	32	uint	SYSADDR;
+}
+
+struct SDIBLKSZCNT 32 32 0x0d860004 rw
+{	
+	# Block Size Register
+	12	uint	XFRBLKSIZ;
+	3	uint	HSTBUFSIZ;
+	1	pad;
+
+	# Block Count Register
+	16	uint	CURBLKCNT;
+}
+
+struct SDIARG 32 32 0x0d860008 rw
+{
+	# Argument Register
+	32	uint	ARG;
+}
+
+struct SDITMDCMD 32 32 0x0d86000c rw
+{
+	# Transfer Mode Register
+	1	uint	DMA_EN;
+	1	uint	BCNT_EN;
+	1	uint	ACMD12_EN;
+	1	pad;
+	1	uint	DAT_TRAN_DIR;
+	1	uint	MBLK;
+	10	pad;
+
+	# Command Register
+	2	uint	RSPN_TYPE;
+	1	pad;
+	1	uint	CMD_CRC_CK_EN;
+	1	uint	CMD_IDX_CK_EN;
+	1	uint	DP_SEL;
+	2	uint	CMD_TYPE;
+	6	uint	CMD_IDX;
+	2	pad;
+}
+
+struct SDIRSPN01 32 32 0x0d860010 rw
+{
+	# Command Response Register: bits 0-31
+	32	uint	RSPN01;
+}
+
+struct SDIRSPN23 32 32 0x0d860014 rw
+{
+	# Command Response Register: bits 32-63
+	32	uint	RSPN23;
+}
+
+struct SDIRSPN45 32 32 0x0d860018 rw
+{
+	# Command Response Register: bits 64-95
+	32	uint	RSPN45;
+}
+
+struct SDIRSPN67 32 32 0x0d86001c rw
+{
+	# Command Response Register: bits 96-127
+	32	uint	RSPN67;
+}
+
+struct SDIBDPORT 32 32 0x0d860020 rw
+{
+	# Buffer Data Port Register
+	32	uint	BDATA;
+}
+
+struct SDIPSTATE 32 32 0x0d860024 rw
+{
+	# Present State Register
+	1	uint	CMD_INHB_CMD;
+	1	uint	CMD_INHB_DAT;
+	1	uint	DAT_LN_ACT;
+	5	pad;
+	1	uint	WTRAN_ACT;
+	1	uint	RTRAN_ACT;
+	1	uint	BUFW_EN;
+	1	uint	BUFR_EN;
+	4	pad;
+	1	uint	CARD_INS;
+	1	uint	CARD_STBL;
+	1	uint	CARD_DET_PIN_LVL;
+	1	uint	WPROT_SWT_PIN_LVL;
+	4	uint	DAT_LN_SIG_LVL;
+	1	uint	CMD_LN_SIG_LVL;
+	7	pad;
+}
+
+struct SDICTRL 32 32 0x0d860028 rw
+{
+	# Host Control Register
+	1	uint	LED_CTRL;
+	1	uint	DAT_TRAN_WIDTH;
+	1	uint	HIGH_SPEED_EN;
+	5	pad;
+
+	# Power Control Register
+	1	uint	SD_BUS_PWR;
+	3	uint	SD_BUS_VSEL;
+	4	pad;
+
+	# Block Gap Control Register
+	1	uint	BGAP_STOP_REQ;
+	1	uint	CONT_REQ;
+	1	uint	RW_CTRL;
+	1	uint	BGAP_INT_REQ;
+	4	pad;
+
+	# Wakeup Control Register
+	1	uint	WAKE_CARD_INT_EN;
+	1	uint	WAKE_CARD_INS_EN;
+	1	uint	WAKE_CARD_REM_EN;
+	5	pad;
+}
+
+struct SDICLKRST 32 32 0x0d86002c rw
+{
+	# Clock Control Register
+	1	uint	ICLK_EN;
+	1	uint	ICLK_STBL;
+	1	uint	SDCLK_EN;
+	5	pad;
+	8	uint	SDCLK_FREQ_SEL;
+
+	# Timeout Control Register
+	4	uint	DTIMEOUT_CNT_VAL;
+	4	pad;
+
+	# Software Reset Register
+	1	uint	RST_ALL;
+	1	uint	RST_CMD_LN;
+	1	uint	RST_DAT_LN;
+	5	pad;
+}
+
+struct SDIINTSTAT 32 32 0x0d860030 rw
+{
+	# Normal Interrupt Status Register
+	1	uint	CMD_CMPLT;
+	1	uint	TRAN_CMPLT;
+	1	uint	BGAP_EVT;
+	1	uint	DMA_INT;
+	1	uint	BUFW_RDY;
+	1	uint	BUFR_RDY;
+	1	uint	CARD_INS;
+	1	uint	CARD_REM;
+	1	uint	CARD_INT;
+	6	pad;
+	1	uint	ERR_INT;
+
+	# Error Interrupt Status Register
+	1	uint	CMD_TIMEOUT_ERR;
+	1	uint	CMD_CRC_ERR;
+	1	uint	CMD_EBIT_ERR;
+	1	uint	CMD_IDX_ERR;
+	1	uint	DAT_TIMEOUT_ERR;
+	1	uint	DAT_CRC_ERR;
+	1	uint	DAT_EBIT_ERR;
+	1	uint	CUR_LIM_ERR;
+	1	uint	ACMD12_ERR;
+	3	pad;
+	4	uint	VEND_SPEC_ERR;
+}
+
+struct SDIINTSTATEN 32 32 0x0d860034 rw
+{
+	# Normal Interrupt Status Enable Register
+	1	uint	CMD_CMPLT_EN;
+	1	uint	TRAN_CMPLT_EN;
+	1	uint	BGAP_EVT_EN;
+	1	uint	DMA_INT_EN;
+	1	uint	BUFW_RDY_EN;
+	1	uint	BUFR_RDY_EN;
+	1	uint	CARD_INS_EN;
+	1	uint	CARD_REM_EN;
+	1	uint	CARD_INT_EN;
+	7	pad;
+
+	# Error Interrupt Status Enable Register
+	1	uint	CMD_TIMEOUT_ERR_EN;
+	1	uint	CMD_CRC_ERR_EN;
+	1	uint	CMD_EBIT_ERR_EN;
+	1	uint	CMD_IDX_ERR_EN;
+	1	uint	DAT_TIMEOUT_ERR_EN;
+	1	uint	DAT_CRC_ERR_EN;
+	1	uint	DAT_EBIT_ERR_EN;
+	1	uint	CUR_LIM_ERR_EN;
+	1	uint	ACMD12_ERR_EN;
+	3	pad;
+	4	uint	VEND_SPEC_ERR_EN;
+}
+
+struct SDIINTSIGEN 32 32 0x0d860038 rw
+{
+	# Normal Interrupt Signal Enable Register
+	1	uint	CMD_CMPLT_SIG_EN;
+	1	uint	TRAN_CMPLT_SIG_EN;
+	1	uint	BGAP_EVT_SIG_EN;
+	1	uint	DMA_INT_SIG_EN;
+	1	uint	BUFW_RDY_SIG_EN;
+	1	uint	BUFR_RDY_SIG_EN;
+	1	uint	CARD_INS_SIG_EN;
+	1	uint	CARD_REM_SIG_EN;
+	1	uint	CARD_INT_SIG_EN;
+	7	pad;
+
+	# Error Interrupt Signal Enable Register
+	1	uint	CMD_TIMEOUT_ERR_SIG_EN;
+	1	uint	CMD_CRC_ERR_SIG_EN;
+	1	uint	CMD_EBIT_ERR_SIG_EN;
+	1	uint	CMD_IDX_ERR_SIG_EN;
+	1	uint	DAT_TIMEOUT_ERR_SIG_EN;
+	1	uint	DAT_CRC_ERR_SIG_EN;
+	1	uint	DAT_EBIT_ERR_SIG_EN;
+	1	uint	CUR_LIM_ERR_SIG_EN;
+	1	uint	ACMD12_ERR_SIG_EN;
+	3	pad;
+	4	uint	VEND_SPEC_ERR_SIG_EN;
+}
+
+struct SDIACMD12ERRSTAT 32 32 0x0d86003c rw
+{
+	# Auto CMD12 Error Status Register
+	1	uint	ACMD12_NOT_EXEC;
+	1	uint	ACMD12_TIMEOUT_ERR;
+	1	uint	ACMD12_CRC_ERR;
+	1	uint	ACMD12_EBIT_ERR;
+	1	uint	ACMD12_IDX_ERR;
+	2	pad;
+	1	uint	CMD_NOT_ISSUED_ERR;
+	8	pad;
+
+	# UNIMPLEMENTED
+	16	pad;
+}
+
+struct SDICAP01 32 32 0x0d860040 rw
+{
+	# Capabilities Register: bits 0-31
+	6	uint	TIMEOUT_CLK_FREQ;
+	1	pad;
+	1	uint	TIMEOUT_CLK_UNIT;
+	6	uint	BASE_SDCLK_FREQ;
+	2	pad;
+	2	uint	MAX_BLK_LEN;
+	3	pad;
+	1	uint	HIGH_SPEED_SUP;
+	1	uint	DMA_SUP;
+	1	uint	SUSPEND_RESUME_SUP;
+	1	uint	V3_3_SUP;
+	1	uint	V3_0_SUP;
+	1	uint	V1_8_SUP;
+	5	pad;
+}
+
+struct SDICAP23 32 32 0x0d860044 rw
+{
+	# Capabilities Register: bits 32-63
+	32	pad;
+}
+
+struct SDIMAXCURCAP01 32 32 0x0d860048 rw
+{
+	# Maximum Current Capabilities Register: bits 0-31
+	8	uint	V3_3_MAXCUR;
+	8	uint	V3_0_MAXCUR;
+	8	uint	V1_8_MAXCUR;
+	8	pad;
+}
+
+struct SDIMAXCURCAP23 32 32 0x0d86004c rw
+{
+	# Maximum Current Capabilities Register: bits 32-63
+	32	pad;
+}
+
+struct SDISISVER 32 32 0x0d8600fc rw
+{
+	# Slot Interrupt Status Register
+	8	uint	SLOT_INT_SIG;
+	8	pad;
+
+	# Host Controller Version Register
+	8	uint	SPEC_VER;
+	8	uint	VEND_VER;
+}
+
+struct AHMSECDDR_reg 32 32  0x0d8b0000 rw
+{
+       1 uint COARSE_EN_DDR;
+       1 uint FINE_EN_DDR;
+       3 uint PTSIZE_DDR;
+       1 uint DIS_DDR;
+       1 uint DIS_REG;
+       1 pad;
+       8 uint BASE_ADDR_DDR_FINE;
+       4 pad;
+       8 uint BASE_ADDR_DDR_COARSE;
+       4 pad;
+}
+
+struct AHMSECSPL_reg 32 32  0x0d8b0004 rw
+{
+       1 uint COARSE_EN_SPL;
+       1 uint FINE_EN_SPL;
+       3 uint PTSIZE_SPL;
+       1 uint DIS_SPL;
+       2 pad;
+       6 uint BASE_ADDR_SPL_FINE;
+       6 pad;
+       6 uint BASE_ADDR_SPL_COARSE;
+       6 pad;
+}
+struct AHMRDBI_reg 32 32 0x0d8b0008 rw
+{
+       1 uint AHBEXIDI_RDBI;
+       1 uint FLASH_RDBI;
+       1 uint AES_RDBI;
+       1 uint SHA_RDBI;
+       1 uint EHCI_RDBI;
+       1 uint OHCI0_RDBI;
+       1 uint OHCI1_RDBI;
+       1 uint SDIO0_RDBI;
+       1 uint SDIO1_RDBI;
+       1 uint BMD_RDBI;
+       2 pad;
+       1 uint BMC_RDBI;
+       1 pad;
+       1 uint IOPI_RDBI;
+       1 uint IOPD_RDBI;
+      16 pad;
+}
+
+#XXX Fix contents
+struct AHMPREFC 32 32  0x0d8b0010 rw
+{ 
+      32 uint val;
+}
+
+struct AHMINTMASK 32 32  0x0d8b0020 rw
+{
+       1 uint EXI_DI_SEL ;
+       1 uint FLA_SEL ;
+       1 uint AES_SEL ;
+       1 uint SHA_SEL ;
+       1 uint EHC_SEL ;
+       1 uint OH0_SEL ;
+       1 uint OH1_SEL ;
+       1 uint SD0_SEL ;
+       1 uint SD1_SEL ;
+       3 pad ;
+       1 uint BLKADR_MTCH ;
+       1 uint HREADY0 ;
+       1 uint SPLIT4NODATA ;
+       1 uint SPLIT4FULL ;
+       15 pad ;
+       1 uint CPUSEL;
+}
+
+struct AHMINTSTAT_reg 32 32 0x0d8b0030 rw
+{
+       1 uint EXIDI;
+       1 uint FLA;
+       1 uint AES;
+       1 uint SHA;
+       1 uint EHC;
+       1 uint OH0;
+       1 uint OH1;
+       1 uint SD0;
+       1 uint SD1;
+       7 pad;
+       1 uint SPLIT4FULLCNTOVL;
+       1 uint SPLIT4NODATACNTOVL;
+       1 uint BLKADR_MTCHCNTOVL;
+       1 uint HREADY0_CNTOVL;
+       12 pad;
+}
+
+struct AHMRESPCNTR_reg 32 32  0x0d8b0040 rw
+{
+       8  uint SPLIT4FULL;
+       8  uint SPLIT4NODATA;
+       16 uint HREADY0;
+}
+
+struct AHMPREFCNTR_reg 32 32  0x0d8b0044 rw
+{
+       16 uint BLKADR_MTCH;
+       16  pad ;
+}
+
+struct FLACTR  32 32 0x0d810000 rw
+{ 
+  12 uint SIZE;
+  1 uint ECC;
+  1 uint RDP;
+  1 uint WDP;
+  1 uint RDY;
+  8 uint CMD;
+  5 uint ADP;
+  1 uint MVIOL;
+  1 uint MASK;
+  1 uint EXEC;
+}
+
+struct FLACFG  32 32 0x0d810004 rw
+{ 
+  8 uint CAA;
+  8 uint WEA;
+  8 uint REA;
+  3 uint RSA;
+  1 uint DEV;
+  3 uint EOC;
+  1 uint WP;
+}
+
+struct FLAAD0  32 32 0x0d810008 rw
+{
+  32 uint val;
+}
+
+struct FLAAD1 32 32 0x0d81000c rw
+{
+  32 uint val;
+}
+
+struct FLAMA0  32 32 0x0d810010 rw
+{
+  32 uint val;
+}
+  
+struct FLAMA1  32 32 0x0d810014 rw
+{
+  32 uint val;
+}
+
+struct FLADIV  32 32 0x0d810018 rw
+{
+  32 uint val;
+}
+
+struct AESCTRL 32 32  0x0d820000 rw
+{
+    10      uint    SIZE;
+    19      pad;
+     1      uint    MVIOL;
+     1      uint    MASK;
+     1      uint    EXEC;
+}
+
+struct AESRDPTR 32 32 0x0d820004 rw
+{
+     4      pad;
+    28      uint RPTR;
+}
+
+struct AESWRPTR 32 32 0x0d820008 rw
+{
+     32 uint val;
+}
+
+struct AESWKEY 32 32 0x0d82000c rw
+{
+     32 uint val;
+}
+
+struct AESWIV 32 32 0x0d820010 rw
+{
+     32 uint val;
+}
+
+struct SHACTRL 32 32  0x0d830000 rw
+{
+    10      uint    SIZE;
+    19      pad;
+     1      uint    MVIOL;
+     1      uint    MASK;
+     1      uint    EXEC;
+}
+
+struct SHARPTR 32 32 0x0d830004 rw
+{
+    4       pad;
+    28      uint    RPTR;
+}
+struct SHABUF0 32 32 0x0d830008 rw
+{
+    32 uint val;
+}
+struct SHABUF1 32 32 0x0d83000c rw
+{
+    32 uint val;
+}
+struct SHABUF2 32 32 0x0d830010 rw
+{
+    32 uint val;
+}
+struct SHABUF3 32 32 0x0d830014 rw
+{
+    32 uint val;
+}
+struct SHABUF4 32 32 0x0d830018 rw
+{
+    32 uint val;
+}
+
+struct HCREV 32 32 0x0d850000 rw
+{	
+	# HC Revision
+	8	uint	REV;
+	24	pad; 
+}
+
+struct HCCTRL 32 32 0x0d850004 rw
+{	
+	# HC Control
+	2	uint	CBSR;
+	1	uint	PLE;
+	1 	uint	IE;
+	1	uint 	CLE;
+	1	uint	BLE;
+	2	uint	HCFS;
+	1	uint	IR;
+	1	uint	RWC;
+	1 	uint	RWE;
+	21	pad; 
+}
+
+struct HCCMDSTAT 32 32 0x0d850008 rw
+{	
+	# HC Command Status
+	1	uint	HCR;
+	1	uint	CLF;
+	1 	uint	BLF;
+	1	uint 	OCR;
+	12	pad;
+	2	uint	SOC;
+	14	pad; 
+}
+
+struct HCINTSTAT 32 32 0x0d85000c rw
+{	
+	# HC Interrupt Status
+	1	uint	SO;
+	1	uint	WDH;
+	1 	uint	SF;
+	1	uint 	RD;
+	1	uint	UE;
+	1	uint	FNO;
+	1	uint	RHSC;
+	23	pad;
+	1 	uint	OC;
+	1	pad; 
+}
+
+struct HCINTEN 32 32 0x0d850010 rw
+{	
+	# HC Interrupt Enable
+	1	uint	SO;
+	1	uint	WDH;
+	1 	uint	SF;
+	1	uint 	RD;
+	1	uint	UE;
+	1	uint	FNO;
+	1	uint	RHSC;
+	23	pad;
+	1 	uint	OC;
+	1	uint	MIE; 
+}
+
+struct HCINTDIS 32 32 0x0d850014 rw
+{	
+	# HC Interrupt Disable
+	1	uint	SO;
+	1	uint	WDH;
+	1 	uint	SF;
+	1	uint 	RD;
+	1	uint	UE;
+	1	uint	FNO;
+	1	uint	RHSC;
+	23	pad;
+	1 	uint	OC;
+	1	uint	MIE; 
+}
+
+struct HCHCCA 32 32 0x0d850018 rw
+{	
+	# HC Communication Area Register
+	8	pad;
+	24	uint	HCCA;
+}
+
+struct HCPERCUR 32 32 0x0d85001c rw
+{	
+	# HC Period Current ED
+	4	pad;
+	28	uint	PCED;
+}
+
+struct HCCTRLHD 32 32 0x0d850020 rw
+{	
+	# HC Control Head ED
+	4	pad;
+	28	uint	CHED;
+}
+
+struct HCCTRLCUR 32 32 0x0d850024 rw
+{	
+	# HC Control Current ED
+	4	pad;
+	28	uint	CCED;
+}
+
+struct HCBLKHD 32 32 0x0d850028 rw
+{	
+	# HC Bulk Head ED
+	4	pad;
+	28	uint	BHED;
+}
+
+struct HCBLKCUR 32 32 0x0d85002c rw
+{	
+	# HC Bulk Current ED
+	4	pad;
+	28	uint	BCED;
+}
+
+struct HCDNHD 32 32 0x0d850030 rw
+{	
+	# HC Done Head
+	4	pad;
+	28	uint	DH;
+}
+
+struct HCFMINT 32 32 0x0d850034 rw
+{	
+	# HC Frame Interval
+	14	uint	FI;
+	2	pad;
+	15	uint	FSMPS;
+	1	uint	FIT;
+}
+
+struct HCFMREM 32 32 0x0d850038 rw
+{	
+	# HC Frame Remaining
+	14	uint	FR;
+	17	pad;
+	1	uint	FRT;
+}
+
+struct HCFMNUM 32 32 0x0d85003c rw
+{	
+	# HC Frame Number
+	16	uint	FN;
+	16	pad;
+}
+
+struct HCPERST 32 32 0x0d850040 rw
+{	
+	# HC Period Start
+	14	uint	PS;
+	18	pad;
+}
+
+struct HCLSTHRESH 32 32 0x0d850044 rw
+{	
+	# HC LS Threshold
+	12	uint	LST;
+	20	pad;
+}
+
+struct HCRHDESCA 32 32 0x0d850048 rw
+{	
+	# HC Root Hub Descriptor A
+	8	uint	NDP;
+	1	uint	PSM;
+	1 	uint	NPS;
+	1	uint 	DT;
+	1	uint	OCPM;
+	1	uint	NOCP;
+	11	pad;
+	8 	uint	POTPGT;
+}
+
+struct HCRHDESCB 32 32 0x0d85004c rw
+{	
+	# HC Root Hub Descriptor B
+	16	uint	DR;
+	16	uint	PPCM;
+
+}
+
+struct HCRHSTAT 32 32 0x0d850050 rw
+{	
+	# HC Root Hub Status
+	1	uint	LPS;
+	1	uint	OCI;
+	13	pad;
+	1 	uint	DRWE;
+	1	uint 	LPSC;
+	1	uint	OCIC;
+	13	pad;
+	1 	uint	CRWE;
+}
+
+struct HCRHPORT1STAT 32 32 0x0d850054 rw
+{	
+	# HC Root Hub Port 1 Status
+	1	uint	CCS;
+	1	uint	PES;
+	1	uint	PSS;
+	1	uint	POCI;
+	1	uint	PRS;
+	3	pad;
+	1 	uint	PPS;
+	1	uint 	LSDA;
+	6	pad;
+	1	uint	CSC;
+	1	uint	PESC;
+	1	uint	PSSC;
+	1	uint	OCIC;
+	1	uint	PRSC;
+	11	pad;
+}
+
+struct HCRHPORT2STAT 32 32 0x0d850058 rw
+{	
+	# HC Root Hub Port 2 Status
+	1	uint	CCS;
+	1	uint	PES;
+	1	uint	PSS;
+	1	uint	POCI;
+	1	uint	PRS;
+	3	pad;
+	1 	uint	PPS;
+	1	uint 	LSDA;
+	6	pad;
+	1	uint	CSC;
+	1	uint	PESC;
+	1	uint	PSSC;
+	1	uint	OCIC;
+	1	uint	PRSC;
+	11	pad;
+}
+
+struct ACRVICFGDATA 32 32 0x0d800220 rw
+{	
+        32 	uint 	CFGDATA;
+}

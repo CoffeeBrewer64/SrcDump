@@ -1,0 +1,223 @@
+Using the Versatile ARM926EJ-S development board with the 
+JTAGJet debugger
+=====================================================
+
+This README describes the steps needed to build and run a simple program
+on the ARM development board.
+
+Basic environment
+-----------------
+The basic environment consists of a Versatile ARM926EJ-S development board
+connected to a PCI backplane. A JTAG debugger, JTAGJet, is connected to 
+the board and a PC. The serial port is also connected to the PC.
+
+0) Description of the ARM board:
+   ----------------------------
+  The ARM board includes a large number of peripherals. But we are not
+  interested in most of them.
+ 
+  Here are the things we need to know about:
+   - processor: ARM926EJ-S
+   - SDRAM
+   - NOR flash to save programs in
+   - Disk on Chip, which is also flash that has the boot loader, etc.
+   - JTAG port to connect the debugger
+   - Serial port for a serial console
+   - Switches used to select configurations
+   - Power and reset buttons
+   - LEDS
+   - PCI slots
+   - Timer
+   
+1) Description of the JTAG debugger (Chameleon):
+   --------------------------------------------
+   This is the same debugger used for the SC project. Andy's document
+   http://intwww/gba/doc/fpga/fpga_test_environment.htm
+   contains information about the debugger.
+   
+   The debugger needs some configuration files to know about registers on the 
+   board and about the board's memory map. I have already added these files
+   and set up the debugger to use them by default.
+
+   See the note at the end of the document about "Fiddle extensions" for
+   information about how to generate the .def file needed by Chameleon, 
+   using data in a .fdl file. The "fiddle" program also knows how
+   generate header files, macros to access and set fields, etc.
+   
+
+2) Description of software:
+   ------------------------
+   In C:\ARM, we have an installation of the examples, documents and firmware
+   that came with the ARM board.
+
+   In C:\Signum, we have an installation of the software and documents that 
+   came with the debugger. C:\Signum\versa_arm9 has the configuration files
+   mentioned in (1), needed to make the debugger work with our board.
+   
+3) Starting the boot monitor program:
+   --------------------------------- 
+   - On the PC dolphin, there's an icon on the desktop to start Chameleon.
+     Start Chameleon.
+
+   - Power up the board, using the power switch on the right side of the PCI
+     backplane enclosure. You should see the red LED glow on the PCI baseboard.
+     Press the switch next to the red LED. This powers on the board.
+     
+     Note: The reset and power buttons on the ARM board itself are taken over
+           by the buttons on the PCI backplane board. 
+
+  -  Click the "GO" button in Chameleon. This starts off the boot monitor.
+     
+     The board is currently set up to print messages to virtual IO (VIO), when
+     a JTAG debugger is connected and to the serial console otherwise. See
+     switch S6 to change this.
+
+     The messages from the boot monitor appear in the VIO window of the
+     debugger.
+
+4) Using the boot monitor:
+   ---------------------- 
+   Type "help" to see the boot monitor commands.
+   Here are useful commands:
+   directory  - see files on DoC
+   flash   - switch to flash menu
+   
+   Under flash:
+   help - list commands
+   list images  - list programs in NOR flash
+   erase image <image name> - delete a program from NOR flash
+   write C:\your_file  name your_program_name flash_address free_flash_address
+                       - copy your program from the PC to flash. When you "list
+                        images", it tells you where in the flash the images are
+                        located. You can used the "display" command to find
+                        out the size of the image and give it an address to 
+                        write your program into. It refuses to overwrite used 
+                        areas. You have to delete the program at an address in
+                        flash, before you can write a new program there.
+   run  <image_name> - load and run the program "image_name".
+
+
+5) Writing and running a sample program:
+  ------------------------------------- 
+   This section describes how to build, install and run a simple 
+   program, which flashes LED's by reading data from an on board
+   counter and writing bits 13:6 to the SYS_LED register.
+   
+   The sample program:
+   
+   /* led.c */
+   #define SYS_100Hz 0x10000024 
+   #define SYS_LED   0x10000008
+   int 
+   main (void)
+   {
+      unsigned int data;
+      while (1) {
+          data = *(volatile unsigned int *)(SYS_100Hz);
+          data = (data >> 6) & 0xFF;
+          (*(volatile unsigned int *)(SYS_LED)) = data;
+      }
+      return 0;
+   }
+
+   Building the sample program:
+
+    a) Install cross build tools (identical to that for the NC project):
+       cd sw/tools/ios
+       make install_root
+
+    b)
+       The boot monitor seems to be able to load normal elf programs, using the 
+       text address in the program. 
+
+      The example above can be built, for example, by using the following 
+      Makefile. The boot monitor uses SDRAM addresses below 0x04000000. You 
+      can load your programs at 0x04000000 and have the boot monitor jump
+      there, when you execute a "run ..." command.
+      ----------------------------------------------
+      #Makefile for LED example
+      CC = /opt/crosstool/bin/arm-elf-gcc
+      STRIP=/opt/crosstool/bin/arm-elf-strip
+      CFLAGS = -mlittle-endian -Wall -Werror -fno-builtin -fomit-frame-pointer -ffreestanding -Ttext 0x04000000 -nostdlib 
+
+      all: leds.axf
+
+      leds.o: leds.c
+          $(CC) $(CFLAGS) -c $^ -o $@
+
+      leds.axf: leds.o
+          $(CC) $(CFLAGS) -Wl,--entry=main $^ -o $@
+          $(STRIP) $@
+       --------------------------------------------
+
+    Running the sample program:
+    
+     a) Transfer leds.axf to the Windows PC dolphin. (scp the binary from your
+        machine to dolphin, using cygwin on dolphin.)
+        Say, your program is in C:\armtest\leds.axf.
+
+     b) Bring up the boot monitor on the board with the debugger connected,
+        as described above.
+
+     c) Copy program to NOR flash:
+        > flash
+        > list images
+       Find a location for your program, say 0x36000000.
+        > write image C:\armtest\leds.axf  name leds.axf 
+                                                flash_address 0x36000000
+
+    d) Run program:
+       In boot monitor go to flash menu and do:
+         > run leds.axf
+       or in the boot monitor do:
+         >flash run leds.axf
+
+     You should see the leds flashing as the values in the 100Hz counter change.
+     The leds are  on your left, next to switches S6.
+
+7) Debugging using Chameleon:
+   -------------------------
+   a) You can use the "View" menu to
+       - look at registers 
+       - look at memory
+   b) Right clicking in the memory window lets you look at a particular
+      address, set breakpoints, etc.
+
+   c) See the "Debug" menu to single step through programs, etc.
+
+   d) In the register window, you can set a refresh time to have 
+      it automatically refresh the values. When the board is up, 
+      you will see several counters/oscillator registers counting.
+   
+      It also shows you fields in the registers (as defined in the .def file
+      described above.
+
+
+8) Fiddle extensions:
+   -----------------
+   As most of you know, registers for the AHB subsystem are defined by a
+   .fdl file, which is processed by "fiddle", which can convert it to
+   .h, .v and other formats of files. Our local fiddle knows how to convert
+   .fdl files to .def files, used to tell Chameleon about registers on a 
+   board.
+
+   Extended .fdl syntax:
+   struct (name) (size) (pad) [(address) (access_modes)] 
+   { 
+      [ [(size) (type) (field_name)] [(size) (pad)] ]*
+   }
+   
+   Access modes are "r" "w" "rw".
+   type is uint32
+   
+   Example:
+       struct sys_osc0 32 13 0x1000000c rw 
+        {
+           13 pad;
+           3 uint32 divide;
+           7 uint32 rdw;
+           9 uint32 vdw;
+        }
+
+---------------------------------------------------------------------------
+Copyright (C) 2005, BroadOn Communications Corp.

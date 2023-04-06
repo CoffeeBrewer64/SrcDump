@@ -1,0 +1,1043 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>BB Subsystems Model</title>
+</head>
+
+<body>
+
+<h1 align="center">BB Servers Subsystems Model</h1>
+<h2><span style="background-color: #C0C0C0">Definitions</span></h2>
+<ol>
+  <li>A region is a collection of stores &amp; the depots associated with the
+    stores.
+    Typically this will be geographical in nature, although that is not a
+    requirement. Region definitions/groupings do not dictate any any architectural
+    decision.</li>
+  <li>
+Subsystems are a logical collection of functionality with well defined
+interfaces &amp; <a href="Server-DataFlow.vsd"> data flows</a> between them.</li>
+  <li>An entity is an object with a collection of attributes which describe it,
+    including a distinguishing identifier. See the ER (Visio) diagram (<a href="ER-TransactionSubsystem.vsd">Transaction
+    Subsystem ER</a>, <a href="ER-StudioSubsystem.vsd">Studio Subsystem ER</a>)
+    for overview of different entities and their relationships.</li>
+</ol>
+<h2><span style="background-color: #C0C0C0">Subsystems</span></h2>
+<ol>
+  <li><a href="#Transactional Subsystem">Transactional subsystem</a> (XS)</li>
+  <li><a href="#CDS Subsystem">CDS subsystem</a> (CDS)</li>
+  <li><a href="#Studio Subsystem">Studio subsystem</a> (SS)</li>
+  <li><a href="#Manufacturing Subsystem">Manufacturing subsystem</a> (MS)</li>
+  <li><a href="#HQ Subsystem">HQ subsystem</a></li>
+  <li><a href="#RMS Subsystem">RMS subsystem</a> (RMS)</li>
+  <li><a href="#Subscriber Subsystem">Subscriber subsystem</a> - may be used
+        for email application, promotional features etc</li>
+  <li>Billing, Account Management &amp; Inventory subsystem</li>
+  <li>Audit subsystem</li>
+</ol>
+<hr style="background-color: #C0C0C0">
+
+<h2><a name="Studio Subsystem"><span style="background-color: #C0C0C0">Studio Subsystem</span></a></h2>
+<ol>
+  <li>The SS registers studios/developers and interfaces with the DevKits given
+    to studios.</li>
+  <li>When content is released by the studios,&nbsp; it is uploaded to the SS
+    where it can undergo validation and transformation before it is published to
+    the XS.</li>
+</ol>
+<h3>SS Studio</h3>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>studioID</b></li>
+    <li>studioName</li>
+    <li>&lt;address, contact info&gt;</li>
+    <li>devKitURL - if remotely manageable</li>
+    <li>uploadDirectory - location where devKit posts once new content is
+      available</li>
+    <li>&lt;currentDigitalCertificate, privateKey&gt; - devKit uses public key
+      to encrypt and send content to CDS</li>
+    <li>status - New, Active, Suspended</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">RegisterDeveloper</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Developer signup</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">IssueNewCertificate</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Expiration or revocation of old certificate</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+</blockquote>
+<h3>SS Content</h3>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>contentID</b> - must be globally&nbsp; unique</li>
+    <li>studioID</li>
+    <li>meta data &lt;title, author, description, studio info, content-type, content-size, saved state
+      size,
+      boot information&gt;</li>
+    <li>contentStatus - New, Released, readyForPublish, published</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%" height="68">
+      <tr>
+        <td width="23%" align="center" height="18"><b>Process</b></td>
+        <td width="21%" align="center" height="18"><b>Invoked By</b></td>
+        <td width="22%" align="center" height="18"><b>Upon</b></td>
+        <td width="34%" align="center" height="18"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">CreateContent</td>
+        <td width="21%" height="38">Developer</td>
+        <td width="22%" height="38">New content</td>
+        <td width="34%" height="38"></td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">ReleaseContent</td>
+        <td width="21%" height="38">Manager</td>
+        <td width="22%" height="38">Officially released</td>
+        <td width="34%" height="38"></td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">ValidateContent</td>
+        <td width="21%" height="38">Manager</td>
+        <td width="22%" height="38"></td>
+        <td width="34%" height="38">Reecnrypt and make content ready for
+          publishing including any validation checks</td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">PublishContent</td>
+        <td width="21%" height="38">Manager</td>
+        <td width="22%" height="38"></td>
+        <td width="34%" height="38">Make available in re-encrypted form to the
+          CDS &amp; XS</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+</blockquote>
+<hr style="background-color: #C0C0C0">
+<h2><a name="Transactional Subsystem"><span style="background-color: #C0C0C0">Transactional Subsystem</span></a></h2>
+<ol>
+  <li>The Transactional Subsystem is central to the server complex. It decides
+    when to make content available for purchase, browsing and is responsible for
+    BB Player sales and content sales.</li>
+  <li>Gift Certificates will not be implemented in the first round.</li>
+</ol>
+<h3>BB</h3>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>bbID</b> - serial number unique amongst all chips</li>
+    <li>modelID - used to determine secureKernel, browserApp, browserAppTicket versions for
+      reinitializing memory card.</li>
+    <li>publicKey - private key exists only in the chip</li>
+    <li>manufacturerID</li>
+    <li>manufactureDate</li>
+    <li>&lt;other manufacturing particulars like batchID&gt;</li>
+    <li>shipDate - shipment from the manufacturer</li>
+    <li>digitalCertificate - sent to the BB upon activation,
+      contains bbID</li>
+    <li>regionID - identifies the region that the BB belongs to; populated
+      upon shipment, activation, latest activity etc.</li>
+    <li>username - link to the subscriber subsystem</li>
+    <li>type - retailPlayer, downloadStation</li>
+    <li>status - Manufactured; ReadyForActivation; Activated, Suspended</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">CreateBB</td>
+        <td width="21%">Manufacturing subsystem</td>
+        <td width="22%">New system built</td>
+        <td width="34%">Register BB in DB along with bbID &amp; publicKey</td>
+      </tr>
+      <tr>
+        <td width="23%">ReadyForActivation</td>
+        <td width="21%">Manufacturing subsystem</td>
+        <td width="22%">Shipment from factory</td>
+        <td width="34%">Ready for purchase by customer</td>
+      </tr>
+      <tr>
+        <td width="23%">ActivateBB</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Purchase by owner</td>
+        <td width="34%">Registers BB &amp; makes subsequent purchases/downloads possible
+          for the BB</td>
+      </tr>
+      <tr>
+        <td width="23%">DeactivateBB</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Owner returns BB within a certain time period of
+          purchase.&nbsp;</td>
+        <td width="34%">Put BB back into ReadyForActivation state with funds
+          debited back to the Retailer/Store.</td>
+      </tr>
+      <tr>
+        <td width="23%">SuspendBB</td>
+        <td width="21%">Audit or Customer Service</td>
+        <td width="22%">Hardware failure, fraud</td>
+        <td width="34%">No new eTickets may be issued to the BB.</td>
+      </tr>
+      <tr>
+        <td width="23%">ReinitMemoryCard</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Blank Memory card</td>
+        <td width="34%">Replacement memory card is reinitialized. This involves
+          taking the BB to the Depot, authenticating it &amp; downloading to the memory card, the DC,
+          secureKernel, browserApp, browserAppTicket&nbsp;and any purchased
+          eTickets.</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>What is the purpose of tracking regionID per BB?</li>
+    <li>How do we handle promotions like - purchase BB and get 3 free games? Do
+      they get three specific games or a credit for any 3 games of their choice.
+      Typically these are triggered by Activation and Marketing might want a
+      number of different promotion schemes.</li>
+    <li>Do we need to bind the sale of a BB to a retailer?</li>
+  </ul>
+</blockquote>
+<h3>BB Software</h3>
+<p>Information used to reinitialize memory modules in both playback BBs and
+download stations. XS keeps track of software releases for BB players.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>modelID</b></li>
+    <li>secureKernel</li>
+    <li>browserApp</li>
+    <li>browserAppTicket</li>
+  </ul>
+</blockquote>
+<h3>BB Retailer</h3>
+<p>A retailer may own multiple stores, which may span regions. This top level entity
+will open an account, establish credit limit etc.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>retailerID</b></li>
+    <li>bankAccountInfo - debits/credits to the actual bank account are expected
+      out of the Accounting/Billing/SMS subsystem</li>
+    <li>creditBalance - allows us to determine whether to allow/disallow
+      transactions</li>
+    <li>retailerContactInfo</li>
+    <li>status - New, Active, Suspended</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">CreateRetailer</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">New retailer is signed up</td>
+        <td width="34%">Enter information, including credits.</td>
+      </tr>
+      <tr>
+        <td width="23%">ActivateRetailer</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Open for business</td>
+        <td width="34%">Change status. Only Active retailers may have stores
+          created.</td>
+      </tr>
+      <tr>
+        <td width="23%">RetailerCreditBalance</td>
+        <td width="21%">&nbsp;</td>
+        <td width="22%">For &quot;cash&quot; transactions</td>
+        <td width="34%">Determine whether to move ahead with a transaction or
+          not.&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">SuspendRetailer</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Defaults etc</td>
+        <td width="34%">Retailer and associated stores &amp; depots may no
+          longer issue eTickets or transact sales.</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>Credit balance etc needs to be worked out based on business issues. One
+      may check account balance in the Accounting subsystem in real time or not
+      based on the needs or just used a cached value.</li>
+    <li>Are Retailers created here or in the Account Management subsystem and
+      imported into the XS?</li>
+  </ul>
+</blockquote>
+<h3>BB Store</h3>
+<p>A store is owned by a retailer and has a physical presence, each store belongs
+to a region and may have more than one depot in it.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>storeID</b></li>
+    <li>retailerID</li>
+    <li>regionID</li>
+    <li>storeAddress - contact information</li>
+    <li>storeStatus - New, Active, Suspend</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">CreateStore</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">New store is to be bought on line</td>
+        <td width="34%">Store must belong to a region.</td>
+      </tr>
+      <tr>
+        <td width="23%">ActivateStore</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Ready for Operations</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">SuspendStore</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Various issues like fraud, cease operations etc</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+</blockquote>
+<h3>BB Depot</h3>
+<p>A depot may belong to one and only one store.&nbsp; The hardwareID is an
+piece of identification which is in the depot and is used by the CDS &amp; RMS.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>hardwareID</b> - this must be presented for downloading of content and RMS
+      operations.</li>
+    <li>storeID</li>
+    <li>depotStatus - New, Installed, Active, Suspend</li>
+    <li>&lt;registered download stations bbID&gt;</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">NewDepot</td>
+        <td width="21%">CustomerService</td>
+        <td width="22%">&nbsp;</td>
+        <td width="34%">Create &lt;storeID, hardwareID, status&gt; entry.</td>
+      </tr>
+      <tr>
+        <td width="23%">RegisterDepot</td>
+        <td width="21%">Depot</td>
+        <td width="22%">Installation in store</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">ActivateDepot</td>
+        <td width="21%">Depot or Customer Service</td>
+        <td width="22%">Ready for operations</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">SuspendDepot</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Various issues including hardware failure, fraud,
+          suspension of retailer or store.</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">RegisterDownloadStation</td>
+        <td width="21%">Depot</td>
+        <td width="22%">Installation of new download stations</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">DeactivateDownloadStation</td>
+        <td width="21%">Depot</td>
+        <td width="22%">Removal of download stations</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>Depot Installation workflow could involve the following:
+      <ol>
+        <li>Install Depot, establish internet connection etc</li>
+        <li>Insert &quot;Installer Token&quot;</li>
+        <li>Establish connection to Transaction Subsystem (XS) for the region
+          &amp; authenticate the &quot;installer&quot;.</li>
+        <li> Validate &lt;hardwareID, storeID&gt; mapping with the XS, receive
+          regionID &amp; RMS information</li>
+        <li>Authenticate and register Download Depots bbIDs with the XS</li>
+        <li>Register &quot;store&quot; tokens that are issued and
+          may be used for subsequent secure/cash transactions</li>
+        <li>Establish connection to RMS for region &amp; register IP Address,
+          hardwareID, regionID</li>
+        <li>Establish connection with the CDS.</li>
+        <li>Logout</li>
+      </ol>
+    </li>
+    <li>Is hardwareID sufficient for authenticating depot to RMS &amp;
+      CDS?&nbsp;</li>
+  </ul>
+</blockquote>
+<h3>BB Token</h3>
+<p>For each depot there is a&nbsp; physical token that is issued which may be
+used for 'secure'/cash transactions. It must be possible to issue a new token in
+case the old one is lost or compromised. depotID and tokenID are synonyms and
+refer&nbsp; to the hardware token that is in each depot.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>depotID</b> - aka tokenID. Public key of the token</li>
+    <li>storeID</li>
+    <li>status - New, activated, suspended</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">NewToken</td>
+        <td width="21%">Installer or Customer Service</td>
+        <td width="22%">New token issued to the store or Depot</td>
+        <td width="34%">Create &lt;storeID, tokenID&gt; association.</td>
+      </tr>
+      <tr>
+        <td width="23%">ActivateToken</td>
+        <td width="21%">Installer or Customer Service</td>
+        <td width="22%">Ready for Operations</td>
+        <td width="34%">Permit cash/&quot;secure&quot; transactions based on
+          token authentication.</td>
+      </tr>
+      <tr>
+        <td width="23%">SuspendToken</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">Disallow any further &quot;secure&quot; transactions if
+          lost or compromised.</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>What does the Depot application look like? Does it have the concept of
+      one token, but many store operators who may have to login? Are the logins
+      processed locally? Is there a need for an audit trail?</li>
+    <li>Is the token tied to a store or is it tied to a depot (more
+      restrictive)?</li>
+  </ul>
+</blockquote>
+<h3>BB Order</h3>
+<p>An order is created from the BB, against which one may receive goods. May be
+placed by Customer Service also.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>orderID</b></li>
+    <li>storeID</li>
+    <li>regionID</li>
+    <li>&lt;line items&gt;</li>
+    <li>orderStatus - New, shipped, received, cancelled</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">PlaceNewOrder</td>
+        <td width="21%">BB Depot, Customer Service</td>
+        <td width="22%">New order from store</td>
+        <td width="34%">Relay order to the Accounting/Inventory subsystem</td>
+      </tr>
+      <tr>
+        <td width="23%">ShippedOrder</td>
+        <td width="21%">Accounting/Inventory subsystem</td>
+        <td width="22%">Order shipped from factory etc</td>
+        <td width="34%">Enter expected receipt data</td>
+      </tr>
+      <tr>
+        <td width="23%">ReceiveShipment</td>
+        <td width="21%">BB Depot</td>
+        <td width="22%">Receiving inventory</td>
+        <td width="34%">Update received information to be forwarded to the
+          Accounting/Inventory subsystem</td>
+      </tr>
+      <tr>
+        <td width="23%">CancelOrder</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">&nbsp;</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+    </table>
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>How will orders be placed, fulfilled etc. Interface with Accounting/Order
+      Management subsystem.</li>
+    <li>When inventory is received, we know the list of bbIDs that are at each
+      store/retailer. Hence this may be used to cross check during BB Activation
+      if necessary.&nbsp;</li>
+  </ul>
+</blockquote>
+<h3>BB eTicket</h3>
+<p>An eTicket is issued by the server license server and redeemed by a subscriber.
+If we revoke an eTicket license server, older eTickets have to be reissued using
+another License Key.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>eTicketID</b></li>
+    <li>&lt;bbID, contentID&gt; Uniquely identifies the eTicket. - always issued
+      to the end player.</li>
+    <li>transactionID</li>
+    <li>storeCreditValue - when non-zero, this may be refunded back to the store
+      &amp; the owner</li>
+    <li>&lt;eTicket blob&gt; - includes content hash etc. eTicket is signed by
+      the License Manager certificate.</li>
+    <li>timeStamp</li>
+    <li>ticketStatus - Issued, Redeemed, Refunded</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%" height="355" cellspacing="1">
+      <tr>
+        <td width="23%" align="center" height="19"><b>Process</b></td>
+        <td width="21%" align="center" height="19"><b>Invoked By</b></td>
+        <td width="22%" align="center" height="19"><b>Upon</b></td>
+        <td width="34%" align="center" height="19"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">PurchaseTicket</td>
+        <td width="21%" height="38">BB Depot</td>
+        <td width="22%" height="38">Store owner using depotID/token</td>
+        <td width="34%" height="38">Issue store credit</td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">RedeemTicket</td>
+        <td width="21%" height="38">BB Depot</td>
+        <td width="22%" height="38">BB owner/end-user using download stations</td>
+        <td width="34%" height="38">Issue &amp; download eTicket to Depot, remove store credit
+          on the server.</td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">RefundTicket</td>
+        <td width="21%" height="38">BB Depot</td>
+        <td width="22%" height="38">Store owner using depotID/token</td>
+        <td width="34%" height="38">issue refund, cancel content selection, return store
+          credit</td>
+      </tr>
+      <tr>
+        <td width="23%" height="38">ListTickets</td>
+        <td width="21%" height="38">BB Depot</td>
+        <td width="22%" height="38">Seeing 'store credit' mark in the memory
+          card</td>
+        <td width="34%" height="38">Make list available (and download) to the customer for downloads</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+  <p><b>Open issues</b></p>
+  <ul>
+    <li>If the BB player is destroyed, does the owner have any claim to the
+      assets as represented by the eTickets in his memory card? How do we verify
+      that the BB player is indeed destroyed.&nbsp;We may have to deal with this
+      if the BB is returned within the warranty period and we can indeed verify
+      the BBID of the player.</li>
+    <li>Handling of revocation list and installation of new license keys.</li>
+  </ul>
+</blockquote>
+<h3>BB Content</h3>
+<p>Identifies the various pieces of content published and made available for
+downloads, purchase etc. Available on the transactional system for viewing,
+download &amp; purchase by the depot, player etc.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>contentID</b> - must be globally&nbsp; unique</li>
+    <li>publishDate - from Studio Subsystem</li>
+    <li>meta data &lt;title, author, description, studio info, content-type, content-size, saved state size,
+      encrypted content
+      hash,
+      boot information&gt;</li>
+    <li>content decryption key, content hash</li>
+    <li>regionID - This just determines which region may sell the content.</li>
+    <li>price - Note that pricing is a regional issue.</li>
+    <li>contentAvailableDate - date it is available for browsing, purchase etc</li>
+    <li>status - published, available, suspended</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">PublishContent</td>
+        <td width="21%">Studio</td>
+        <td width="22%">New content available</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">LaunchContent</td>
+        <td width="21%">Studio, Marketing Dept.</td>
+        <td width="22%">Make content available to a new Region</td>
+        <td width="34%">Content is now available for browsing/purchase etc.
+          Price, Region and availableDate are set.</td>
+      </tr>
+      <tr>
+        <td width="23%">SuspendContent</td>
+        <td width="21%">Studio, Marketing Dept.</td>
+        <td width="22%">Suspension of new sales for content</td>
+        <td width="34%">Content is now longer available for purchase</td>
+      </tr>
+      <tr>
+        <td width="23%">GetList</td>
+        <td width="21%">Depot</td>
+        <td width="22%">Browsing</td>
+        <td width="34%">Based on criteria like new releases, since &lt;date&gt;
+          etc, send a list down for browsing.</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>CRL information - how &amp; when does this get embedded into the
+      license?</li>
+    <li>Generic content description language - content needs a structure where a game may have movies, previews etc associated
+      with it.</li>
+    <li>This assumes that we're going to price the content title per region.
+      Will we have to support special pricing or discounts per retailer?</li>
+    <li>What happens when we release another version of the same game? Does this
+      result in a new contentID or do we have version numbers?</li>
+  </ul>
+</blockquote>
+<h3>BB Transaction</h3>
+<p>Every transaction, whether resulting in any funds exchange or not is recorded
+and may be reviewed later on by the audit department,
+billing and Account Management subsystem.&nbsp;&nbsp;</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>transactionID</b></li>
+    <li>timeStamp</li>
+    <li>hardwareID - identifies the depot that generated the transaction</li>
+    <li>depotID - note that cash/&quot;secure&quot; transactions must have a depotID
+      (aka&nbsp; tokenID) associated
+      with it</li>
+    <li>transactionType - eTicket sale, eTicket redemption, BB
+      purchase/activation, BB deactivation, accessory,
+      purchase order etc</li>
+    <li>transactionTypeInformation
+      <ul>
+        <li>BB Activation - bbID, storeID, depotID, salePrice</li>
+        <li>BB Deactivation - bbID, storeID, depotID, creditIssued</li>
+        <li>BB Memory Card Reinitialization - bbID, storeID, depotID</li>
+        <li>eTicket Purchase - bbID, eTicketID, storeID, depotID, salePrice</li>
+        <li>eTicket Redemption - bbID, eTicketID, storeID, depotID</li>
+        <li>storeCredit Refund - bbID, eTicketID, storeID, depotID, refundAmount</li>
+        <li>Place order from Store - storeID, depotID, orderID</li>
+        <li>Receive inventory at Store - storeID, depotID, orderID</li>
+        <li>Register Depot - tokenID (of installer), depotID, hardwareID</li>
+        <li>Associate Depot to Store - depotID, hardwareID, storeID, tokenID (of
+          installer)</li>
+        <li>Register Download Station - storeID, bbID</li>
+        <li>Download eTicket - storeID, depotID (tokenID), contentID,
+          eTicketID</li>
+      </ul>
+    </li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">NewTransaction</td>
+        <td width="21%">Depot</td>
+        <td width="22%">Any activity involving &quot;secure&quot; transactions</td>
+        <td width="34%">Enter event for later analysis.</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+</blockquote>
+<h3>BB EventLog</h3>
+<p>Significant events are recorded
+and may be reviewed later on by the audit department,
+billing and SMS.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>eventLogID</b></li>
+    <li>hardwareID</li>
+    <li>depotID - note that cash transactions must have a depotID associated
+      with it</li>
+    <li>eventLogType - identifies subsystem or event. It may be be login, logout, etc</li>
+    <li>priority - debug, informational, alert etc</li>
+    <li>text</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">EnterLogEvent</td>
+        <td width="21%">Depot, Server subsystems</td>
+        <td width="22%">Significant events</td>
+        <td width="34%">Log event for later analysis. Trigger alerts etc.&nbsp;</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  &nbsp;
+</blockquote>
+<h3>Region</h3>
+<p>Defines a geographical area which may be used to distribute services etc.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>regionID</b></li>
+    <li>regionAttributes</li>
+    <li>&lt;RMS center information, associated CDS&gt;</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">CreateRegion</td>
+        <td width="21%">Customer Service</td>
+        <td width="22%">New Region is created for Operations</td>
+        <td width="34%">Enter related information.</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+</blockquote>
+<h3>BB Transaction Server Configuration Data</h3>
+<blockquote>
+  <ul>
+    <li>&lt;eTicket DC, private key&gt; for signing eTicket/License - use a
+      hardware token</li>
+    <li>Associated certificate chains</li>
+    <li>&lt;regionID, installerTokens&gt; - people who are permitted to install
+      Depots &amp; download stations</li>
+  </ul>
+</blockquote>
+<hr style="background-color: #C0C0C0">
+<h2><a name="CDS Subsystem"><span style="background-color: #C0C0C0">CDS Subsystem</span></a></h2>
+<ul>
+  <li>Receives content from the Studio Subsystem</li>
+  <li>Content synchronization &amp; downloads available to the Depots</li>
+  <li>Never initiates contact with the Depot, relies on RMS to do that if
+    necessary.</li>
+  <li>Authenticates Depot based on hardwareID only.</li>
+</ul>
+<h3>CDS Depot</h3>
+<p>List of depots (identified by hardwareID) that are authorized for downloading
+content. Pulled from the Transaction Subsystem on a regular basis and used for
+depot authentication.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>hardwareID</b></li>
+    <li>regionID</li>
+    <li>storeID</li>
+  </ul>
+</blockquote>
+<h3>CDS Content</h3>
+<p>New content is published from the Studio Subsystem, queried by the Depot for
+synchronization.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>contentID</b></li>
+    <li>meta data &lt;title, author, description, studio info, content-type, content-size, saved state size,
+      encrypted content
+      hash,
+      boot information&gt;</li>
+    <li>datePublished</li>
+    <li>contentAvailableDate - not made available till this date</li>
+    <li>regionID - Content has to be published once for each region allowing for
+      regional distribution. May be used for content synchronization purposes.</li>
+    <li>&lt;content blob&gt;</li>
+    <li>status - New/Published; Available; Suspended</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">PublishContent</td>
+        <td width="21%">Studio subsystem</td>
+        <td width="22%">Availability of new content</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">ContentAvailable</td>
+        <td width="21%">XS</td>
+        <td width="22%">Release for public distribution by Customer Service</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">SuspendContent</td>
+        <td width="21%">XS</td>
+        <td width="22%">Content is not available for any future downloads.&nbsp;</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">ContentSync</td>
+        <td width="21%">Depot</td>
+        <td width="22%">Content Synchronization request</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">ContentDownload</td>
+        <td width="21%">Depot</td>
+        <td width="22%">&nbsp;</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>How is content organized? Is the meta-data separate or all bundled into
+      one file etc.</li>
+    <li>Content synchronization may cause content to be deleted on the depots
+      also.</li>
+  </ul>
+</blockquote>
+<h3>CDS Transaction</h3>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>transactionID</b></li>
+    <li>timeStamp</li>
+    <li>transaction type - download, synchronization, content publishing,
+      content release, content suspension</li>
+    <li>transactionTypeInformation
+      <ul>
+        <li>Download - depotID, storeID,
+          contentID, download statistics</li>
+        <li>Synchronization - depotID,
+          storeID, synch statistics</li>
+        <li>Content Publishing, release, suspension - studioID, contentID</li>
+      </ul>
+    </li>
+  </ul>
+</blockquote>
+
+<hr style="background-color: #C0C0C0">
+
+<h2><a name="Manufacturing Subsystem"><span style="background-color: #C0C0C0">Manufacturing Subsystem</span></a></h2>
+<ol>
+  <li>The manufacturing subsystem generates &lt;public key, private key, BBID&gt;
+    groups.</li>
+  <li>Once the private key is burnt into the chip, it is destroyed and the
+    public key, BBID pair is transferred to the XS.</li>
+  <li>When BBs are shipped from the factory, the BBID shipment information is
+    sent to the XS.&nbsp;</li>
+</ol>
+<p><b>BB</b></p>
+<blockquote>
+<p><b>Attributes</b></p>
+  <ul>
+    <li><b>bbID</b></li>
+    <li>publicKey</li>
+    <li>modelID</li>
+    <li>&lt;manufacturing details like batchID, manufacture date&gt;</li>
+    <li>shipmentDate</li>
+  </ul>
+<p><b>Open Issues</b></p>
+<ul>
+  <li>Workflow between chip manufacturer, board manufacturer, shipment &amp; BB
+    state on the server.</li>
+</ul>
+</blockquote>
+<p><b>Manufacturer</b></p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>manufacturerID</b></li>
+    <li>manufacturerName</li>
+    <li>&lt;contact information&gt;</li>
+  </ul>
+</blockquote>
+<hr style="background-color: #C0C0C0">
+
+<h2><a name="HQ Subsystem"><span style="background-color: #C0C0C0">HQ Subsystem</span></a></h2>
+<ol>
+  <li>Receives &lt;bbID, public key&gt; and generates digital certificates. This
+    ensures that we do not have to give the CA certificate to the XS.</li>
+  <li>Makes available BB software releases based on manufacturing batchID etc</li>
+  <li>Manages eTicket licenses and maintains revocation lists.&nbsp;</li>
+</ol>
+<hr style="background-color: #C0C0C0">
+<h2><a name="RMS Subsystem"><span style="background-color: #C0C0C0">RMS Subsystem</span></a></h2>
+<ol>
+  <li>Always has the latest IP address for each Depot and is able to contact the
+    Depot via RFRMP or equivalent mechanism.</li>
+  <li>Maintains &lt;hardwareID, regionID, ipAddress&gt; mappings.</li>
+  <li>Depots get to know about RMS subsystem during depot installation
+    procedures.</li>
+</ol>
+<hr style="background-color: #C0C0C0">
+
+<h2><a name="Subscriber Subsystem"><span style="background-color: #C0C0C0">Subscriber/Owner Subsystem</span></a></h2>
+<h3>BB Owner/Subscriber</h3>
+<p>A BB subscriber may register using out-of-band mechanisms. Typically this is
+used for building online communities, tie promotions to individuals, provide for
+applications like email etc.</p>
+<blockquote>
+  <p><b>Attributes</b></p>
+  <ul>
+    <li><b>username</b> - unique, used for online community etc. e.g.&nbsp; <a href="mailto:username@ique">username@ique.net</a>
+      &nbsp;</li>
+    <li>preferences, password</li>
+    <li>contactInfo - email, telephone etc</li>
+    <li>&lt;sequence of bbID&gt; - optional, since one may register without
+      owning a unit. Each subscriber/user name may be associated with
+      multiple BBs</li>
+  </ul>
+  <p><b>Methods/Processes</b></p>
+  <div align="center">
+    <center>
+    <table border="1" width="90%">
+      <tr>
+        <td width="23%" align="center"><b>Process</b></td>
+        <td width="21%" align="center"><b>Invoked By</b></td>
+        <td width="22%" align="center"><b>Upon</b></td>
+        <td width="34%" align="center"><b>Action</b></td>
+      </tr>
+      <tr>
+        <td width="23%">RegisterSubsciber</td>
+        <td width="21%">&nbsp;</td>
+        <td width="22%">&nbsp;</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+      <tr>
+        <td width="23%">AssociateBBOwner</td>
+        <td width="21%">Depot</td>
+        <td width="22%">&nbsp;</td>
+        <td width="34%">&nbsp;</td>
+      </tr>
+    </table>
+    </center>
+  </div>
+  <p><b>Open Issues</b></p>
+  <ul>
+    <li>Generating &amp; registering user names, email addresses and associated
+      applications</li>
+    <li>How &amp; when do we bind subscriber/player owner name to BB.</li>
+  </ul>
+</blockquote>
+<hr style="background-color: #C0C0C0">
+
+</body>
+
+</html>

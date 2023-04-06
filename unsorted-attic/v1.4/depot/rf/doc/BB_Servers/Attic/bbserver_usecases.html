@@ -1,0 +1,226 @@
+a0 1
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+d8 2
+a9 2
+$Revision: 1.3 $<br>
+$Date: 2002/06/15 00:46:40 $</i></center>
+d22 1
+a22 1
+<h2>3) Use Cases</h2>
+d24 1
+a24 215
+<h3>3.1. Use Cases for Transactions</h3>
+
+<a id="buyeticket">
+<h3>Use case: Buy eTicket</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Retailer needs to validate purchase and collect money  accordingly
+  <li>Purchase transactions need to be recorded to the server  in real time<b></b>
+  <li>RetailerÅfs involvement needs to be  minimized<b></b>
+  <li>Do not leave eTicket other than a particular  BB<b></b>
+  </ul>
+
+<dt><p><b>Precondition</b>:
+
+  <ul>
+  <li>No eTicket for the title in BB
+  <li>Title content might have been downloaded into BB
+  <li>Title content had been downloaded into BB Depot
+  <li>Internet connection is up
+  </ul>
+
+<dt><p><b>Participants:</b>
+
+  <dd>Customer, Retailer, BB, BB Depot, eTicket Server,  eTicket DB
+
+<dt><p><b>Point of  control</b>:
+
+  <dd>BB Depot 
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Customer tells Retailer a title to purchase
+  <li>Customer attaches the BB Memory Module to the designated port of BB Depot
+  for an eTicket purchase process. BB Depot will detect the BB  automatically and
+  reads its BB ID.
+  The port will be located near by BB Depot Console so that Retailer can make
+  sure appropriate BB is attached to the  port.
+  <li>Retailer interacts with BB Depot Console to enter which port to use and
+  what title to sell
+  <li>BB Depot sends an eTicket issue request to the  eTicket server.
+  It will send: BB Depot ID, BB ID, and Title ID.
+  This will  effectively involve the eTicket server into
+  the distributed transaction.  
+  <li>eTicket server generates new eTicket for the BB/Title, and  sends it
+  back to the BB Memory Module via the BB Depot
+  <li>If one of the above  fails, BB Depot rolls back the transaction.
+  Both BB Memory Module and eTicket server will also need to rollback
+  whenever the connection to the session gets  terminated.
+  <li>BB Depot console and  BB indicate the completion to Retailer and Customer
+  <li>Customer detach the  BB Memory Module
+  <li>BB Depot automatically detects the disconnection of the BB Memory Module
+  </ol>
+
+</dl>
+
+<a id="downloadtitle">
+<h3>Use case: Download a  title</h3>
+
+<dl>
+
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Retailer should not be involved
+  <li>Should be functional without internet connection
+  </ul>
+
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li>May or may not own a valid eTicket for the tile
+  <li>May or may not have enough memory space on the BB
+  <li>Title content had been downloaded into BB Depot
+  <li>Internet connection may or may not be up
+
+<dt><p><b>Participants:</b>
+
+  <dd> Customer, Retailer, Download Station (=BB Player), BB Depot,
+  Content Distribution  Server, Content Download Server, Content DB
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>BB
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Customer connects BB Memory Module to any download station
+  <li>BB Depot automatically detects the BB Memory Module and read its BB ID
+  <li>Customer uses download station (=BB player) to select a title to download.
+  BB displays  title one by one on its LCD screen so that Customer can pick
+  one by a controller  of the BB. 
+  <li>BB Depot looks up the title content in Content Manager, and  start
+  transfer of the file(s) to the BB Memory Module. Failure of look up will
+  be reported to download station.
+  </ol>
+
+<h4>One of the following sequences will follow:</h4>
+
+  <ol type=a>
+
+  <li><b>Failure on no enough space: delete other title(s) and  continue</b>
+
+    <ol start=5>
+    <li>Download Station fails to store the title content, and report it to the customer
+    <li>Customer uses Download Station to delete existing title(s) to create more  free space
+    <li>Customer tells Download Station to retry the download by sending the same
+	"request for download" request to the BB Depot
+    </ol>
+
+  <li><b>Failure on no enough space: attach additional memory  and continue</b>
+
+    <ol start=5>
+    <li>Download Station fails to store the title content, and report it to the customer
+    <li>Execute the event sequence of "Use case: Buy hardware devices" to proceed purchase of memory
+    <li>Customer attach an additional memory (or two) to the BB Memory Module
+    <li>(BB Memory Module detects the memory, or) Customer tells Download Station
+	to retry the download
+    </ol>
+
+  <li><b>Failure on no enough space: stop the  sequence</b>
+
+    <ol start=5>
+    <li>Download Station fails to store the title content, and report it to the customer
+    <li>Customer detach the BB Memory Module from the Download Station
+    <li>BB Depot automatically detects the disconnection of the BB Memory Module
+    </ol>
+
+  <li><b>Download completes successfully</b>
+
+     <ol start=5>
+     <li>Download Station completes download and secure the file(s) into memory, and report it to the customer
+     <li>The BB Depot logs the  download information (BB Depot ID, BB ID, Title ID) to local sales log. These  are deferred transactions that BB Depot periodically complete with BB-Depot  Account Transaction Server. (Refer to the "Use case: Processing of deferred  transaction")
+     <li>Customer may  continue title browsing for other title download, and specify a title to  download if any. In this case, the sequence goes back to the sequence 4 above.
+     <li>Customer detach the  BB Memory Module from the Download Station once all desired titles get downloaded into BB Memory Module
+     <li>BB Depot automatically detects the disconnection of the BB Memory Module
+     </ol>
+  </ol>
+</dl>
+
+<a id="buyhardwaredevice">
+<h3>Use case: Buy hardware  devices</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>No need to keep track of individual hardware devices  distributed from manufacture  to retailers. E.g. BB devices can be shipped to any  retailers without recording  BB ID of the devices
+  <li>Should be functional without internet connection
+  </ul>
+
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li> Internet connection may or may not up
+  </ul>
+
+<dt><p><b>Participants:</b>
+  <dd> Customer, Retailer, BB Depot
+
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>BB Depot
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>Customer asks Retailer hardware device(s) to purchase
+  <li>Retailer enters the sale to BB Depot Console.
+  <li>BB Depot records the sale in local sale log for periodical  deferred transaction process
+  <li>Retailer give the device(s) to customer and collect money
+  <ol>
+  <dd>Refer to the "Use case: Processing of deferred  transaction" for how these sales logs get transferred to the  server.
+
+</dl>
+
+<a id="deferredtransaction">
+<h3>Use case: Processing of deferred  transactions</h3>
+
+<dl>
+<dt><b>Requirements:</b>
+  <ul>
+  <li>Used for non time critical transactions
+  <li>Used for transactions that can afford being lost if BB Depot  gets broken
+  <li>A deferred transaction should be able to handle ambiguous type  of data set
+  <li>No human intervention required
+  </ul>
+
+<dt><p><b>Precondition</b>:
+  <ul>
+  <li>Internet connection may or may not be up
+  </ul>
+
+<dt><p><b>Participants:</b>
+  <dd> BB Depot, BB-Depot Account Transaction Server, BB-Depot  Account Transaction DB
+
+
+<dt><p><b>Point of  control:</b>
+
+  <dd>BB Depot 
+
+<dt><p><b>Sequence of events</b>:
+
+  <ol>
+  <li>BB Depot checks the local transaction log
+  <li>If no deferred transaction is found, exit
+  <li>BB Depot picks one deferred transaction in order by the  creation time
+  <li>BB Depot executes atomic commit transaction with BB-Depot  account transaction server for the deferred transaction.
+  <li>If fail, exit.
+  <li>Continue from the sequence 
+  </ol>
+
+</dl>
+ 
+<h3>3.2 Use Cases for Operations</h3>

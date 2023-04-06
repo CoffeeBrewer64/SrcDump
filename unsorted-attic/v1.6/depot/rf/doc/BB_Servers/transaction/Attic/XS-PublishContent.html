@@ -1,0 +1,37 @@
+d17 1
+a17 1
+  <li> Transaction - Content Availability Server</li>
+d22 1
+a22 1
+  <li>Unique <code>ContentID </code>is determined by CMS.</li>
+d50 6
+a55 4
+  <li>	Publishing Server pushes <code>ContentID, Content </code>and <code>Content
+    Metadata to </code>the CDS</li>
+  <li>	CDS creates entry for <code>ContentID </code>in the <code>published</code><code>
+    </code>state with no regional information.</li>
+d60 7
+a66 5
+      <li>	Publishing Server &amp; CAS mutually authenticate each other.</li>
+      <li>	Publishing Server pushes <code>ContentID</code><code> </code>and <code>Content
+        Metadata </code> to the CAS</li>
+      <li>	CAS creates entry for <code>ContentID </code>in the <code>published</code><code>
+        </code>state with no regional information.</li>
+d71 3
+a73 1
+      <li><code>publish_date </code>in CMS Content record is updated.</li>
+d79 3
+a81 1
+  <li>   Transaction &amp; CDS have content and content metadata for content ID.</li>
+d86 3
+a88 3
+  <li>Publishing Server : Publish Content - content ID, studio ID</li>
+  <li>Content Availability Server : Received Publish Content - content ID</li>
+  <li>Content Upload Server : Received Publish Content - content ID</li>
+d92 6
+a97 5
+  <li>Once &quot;Upload Content&quot; succeeds, the Publishing Server will keep
+    trying till &quot;Upload Content Metadata&quot; succeeds.</li>
+  <li>If entry for <code>ContentID </code>already exists in the CDS or CAS, only
+    the <code>Content</code><code> </code>and <code>Metadata</code><code> </code>are
+    updated with no effect on the other fields.</li>

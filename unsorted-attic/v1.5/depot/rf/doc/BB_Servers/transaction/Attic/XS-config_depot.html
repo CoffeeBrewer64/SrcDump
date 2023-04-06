@@ -1,0 +1,136 @@
+<html>
+    <head>
+      <title>Transaction: Configure Depot</title>
+    </head>
+    <body bgcolor="#ffffff">
+      <h2><center>Transaction: Configure Depot</center></h2>
+      <center>
+	BroadOn Confidential<br>
+	$Revision: 1.4 $<br>
+        $Date: 2002/09/13 00:19:56 $
+      </center>
+
+      <h3>Participants</h3>
+      <ul>
+	<li><strong>BB Depot - Installer App</strong> (<em>point of control</em>)</li>
+	<li>Transaction - Installer Server</li>
+	<li>serviceID</li>
+      </ul>
+
+      <h3>Requirements</h3>
+      <ul>
+	<li>Communication between the Depot and the Server is secure.</li>
+	<li>The Depot and the Server must authenticate either other.</li>
+	<li>Only authorized service personnel can configure a BB Depot.</li>
+      </ul>
+	  
+      <h3>Pre-conditions</h3>
+      <ol>
+	<li>The Retailer has registered with our system and a storeID
+	  has been assigned to the new store.</li>
+	<li>The <em>Service Technician</em> was given the storeID and
+	  street address of this store.</li>
+	<li>The <em>Service Technician</em> has a valid serviceID (a
+	  secure USB token) and has inserted it into the BB Depot.</li>
+	<li>Internet connection for the BB Depot has been set up.</li>
+      </ol>
+      
+      <h3>Input parameters</h3>
+      <ol>
+	<li><code>storeID</code></li>
+      </ol>
+      
+      <h3>Data records</h3>
+      <ol>
+	<li><a href="../data_defs.html#Transaction - Store Record">Transaction - Store Record</a></li>
+	<li><a href="../data_defs.html#Transaction - Region Record">Transaction - Region Record</a></li>
+      </ol>
+
+      <h3>Output parameters</h3>
+      <ol>
+	<li>URL of the RMS, CDS, and transaction server for this store
+	(region).</li>
+      </ol>
+
+      <h3>Sequence of events</h3>
+      <ol>
+	<li><code>authenticate</code>
+	  <ol type=a>
+	    <li><em>Installer App</em> connects to <em>Installer Server</em></li>
+	    <li>mutually authenticate with the server using the <em>serviceID</em>.</li>
+	    <li>establishes secure communication link</li>
+	  </ol>
+	</li>
+	<li><code>getConfigParam</code>
+	  <ol type=a>
+	    <li><em>Installer App</em> requests for depot
+	      configuration, passing the <code>storeID</code> to the
+
+	      <em>Installer Server</em>.
+	    </li>
+	    <li><em>Installer Server</em> retrieves the configuration
+	      parameters:
+	      <ol type=i>
+		<li>reads the Store Record which gives the
+		  <code>region_ID</code> to which this store belongs.
+		Also reads the account info corresponding to this
+		  store (e.g., street address, shop owner's name).</li>
+		<li>reads from corresponding Region Record the URLs
+		  for the CDS, RMS, and transaction servers of this region.</li>
+		<li>return these parameters and the shop account info
+		  to the <em>Installer App</em> 
+	      </ol>
+	    </li>
+	  </ol>
+	</li>
+	<li><code>storeConfigParam</code>
+	  <ol type=a>
+	    <li><em>Installer App</em> displays the shop account info
+	      on the screen, and prompts the service technician to
+	      confirm.  This is needed in case the service technician
+	      enters the wrong storeID.</li>
+	    <li><em>Installer App</em> installs these parameters to
+	      the BB Depot.</li>
+	    <li><em>Installer App</em> verifies connections to these
+	      servers.</li>
+	    <li><em>Installer App</em> indicates completion of
+	      configuration process.</li>
+	  </ol>
+	</li>
+      </ol>
+      <h3>Post-conditions</h3>
+      <ol>
+	<li>The BB Depot knows the URLs for contacting the necessary
+	  servers for normal operation.</li>
+      </ol>
+
+      <h3>Audit Records</h3>
+      <ol>
+	<li>Depot Configuration - <code>storeID</code>,
+	  <code>serviceID</code>, <code>region_ID</code> (i.e., this
+	  particular store is now configured to work in this region.).</li>
+      </ol>
+	  
+      <h3>Exceptions</h3>
+
+      <ol>
+	<li>Unrecognized <code>storeID</code> -- retailer registration
+	  process is not complete.
+	</li>
+	<li>Network connection failure -- need to properly configure
+	  the network parameter; might need to contact ISP.</li>
+	<li>Invalid or unauthorized serviceID -- <em>Installer
+	    Server</em> will not allow unauthorized attempt to
+	  download configuration parameters.</li>
+	<li>cannot connect to servers -- either network is not
+	  operating or the configuration parameters are incorrect.</li>
+      </ol>
+
+
+      <h3>Figures</h3>
+      <ul>
+	<li><a target="ctrl" href="overlayed/config_depot-ctrl.png">Control Flow</a></li>
+	<li><a target="data" href="overlayed/config_depot-data.png">Data Flow</a></li>
+      </ul>	  
+    </body>
+  </html>

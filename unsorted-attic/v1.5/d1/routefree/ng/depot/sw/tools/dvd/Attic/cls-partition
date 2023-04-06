@@ -1,0 +1,458 @@
+#!/usr/bin/perl -w
+
+# $Id: cls-partition,v 1.4 2006/08/01 21:18:18 craig Exp $
+
+#               Copyright (C) 2006, BroadOn Communications Corp.
+#
+#  These coded instructions, statements, and computer programs contain
+#  unpublished  proprietary information of BroadOn Communications Corp.,
+#  and  are protected by Federal copyright law. They may not be disclosed
+#  to  third  parties or copied or duplicated in any form, in whole or in
+#  part, without the prior written consent of BroadOn Communications Corp.
+
+
+# This script generates an encrypted partition on a CLS machine.
+# It takes an unencrypted partition as input, and produces
+# an encrypted partition as output.
+
+
+use strict;
+use Getopt::Long;
+use Cwd;
+use File::Basename;
+
+my $eTicketExt       = ".eticket";
+my $encryptedExt     = ".cry";
+my $defaultTitleId   = "0xcafedead";
+my $genLicDirExt     = ".lic";
+my $genLic           = "/opt/broadon/pkgs/cls/bin/genLic";
+
+sub
+usage()
+{
+    print "Usage: $0 [options] <encrypted partition name>\n";
+    print " Options:\n";
+    print "           -t <title Id>    - Give title ID [default: 0xdeadcafe]\n";
+    print "           -k               - Keep intermediate files\n";
+}
+
+# Create an encrypted partition given the component files found
+# on a CLS machine.
+
+sub
+generateEncPartition($$)
+{
+    my ($dir, $keepFiles) = @_;
+    my ($origDir, $mainDir);
+    my (@subdirs, @allfiles);
+    my ($file, $baseName, $eTicketFound, $contentFound, $tmpDirName);
+    my ($eTicketName, $tmdName, $contentName, $hashName);
+    my ($caName, $cpName, $xsName, @certList);
+    my ($allCerts, $command);
+    my $retVal = 1;
+
+
+    $origDir = cwd();
+    unless (chdir($dir)) {
+        print "Can't change to directory $dir\n";
+        return(0);
+    }
+    $tmpDirName = "part_files.$$";
+    if (-e $tmpDirName) {
+        print "$0: Error - file/directory $tmpDirName exists already";
+        # Don't goto exit - don't want to remove existing file/dir
+        return(0);
+    }
+
+    unless (mkdir($tmpDirName)) {
+        print "$0: Can't make directory $tmpDirName ($!) - exit\n";
+        $retVal = 0;
+        goto end;
+    }
+
+    unless (opendir(DIR_HANDLE, ".")) {
+        print "Can't open directory $dir\n";
+        $retVal = 0;
+        goto end;
+    }
+    # Grab all the file names except for . and ..
+    @allfiles = grep !/^\.\.?$/, readdir DIR_HANDLE;
+    closedir(DIR_HANDLE);
+
+    # Look for a file with ending $eTicketExt
+    # If there isn't exactly one such file, return error.
+    # Use the base name of that file to find the tmd file.
+    $eTicketFound = 0;
+    foreach $file (@allfiles) {
+        my ($name, $suffix, $extension);
+
+        if (-f $file && -r $file) {
+
+            ($name, $dir, $suffix) = fileparse($file, $eTicketExt);
+            if ($suffix eq $eTicketExt) {
+                if ($eTicketFound == 1) {
+                    print "$0: Error - more than one file with extension";
+                    print " $extension was found - exit\n";
+                    $retVal = 0;
+                    goto end;
+                }
+                $eTicketFound = 1;
+                $baseName = $name;
+                $eTicketName = $file;
+            }
+        }
+    }
+
+    if ($eTicketFound == 0) {
+        print "$0: Error - no file with extension";
+        print " $eTicketExt was found - exit\n";
+        $retVal = 0;
+        goto end;
+    }
+
+    $tmdName = "$baseName.tmd";
+    if (! -r $tmdName) {
+        print "$0: Error - can't read TMD file $baseName.tmd - exit";
+        $retVal = 0;
+        goto end;
+    }
+
+    $contentFound = 0;
+    foreach $file (@allfiles) {
+        my ($name, $suffix, $extension);
+
+        if (-f $file && -r $file) {
+
+            ($name, $dir, $suffix) = fileparse($file, $encryptedExt);
+            if ($suffix eq $encryptedExt) {
+                if ($contentFound == 1) {
+                    print "$0: Error - more than one file with extension";
+                    print " $encryptedExt was found - exit\n";
+                    $retVal = 0;
+                    goto end;
+                }
+                $contentFound = 1;
+                $contentName = $file;
+            }
+        }
+    }
+
+    if ($contentFound == 0) {
+        print "$0: Error - no file with extension";
+        print " $encryptedExt was found - exit\n";
+        $retVal = 0;
+        goto end;
+    }
+
+    $hashName = "$baseName.hash";
+    if (! -r $hashName) {
+        print "$0: Error - can't read hash file $hashName\n";
+        $retVal = 0;
+        goto end;
+    }
+
+    $mainDir = cwd();
+    unless (chdir($tmpDirName)) {
+        print "$0: Can't change to directory $tmpDirName ($!)\n";
+        $retVal = 0;
+        goto end;
+    }
+
+    unless (symlink("../$eTicketName", "$baseName.tik")) {
+        print "$0: Can't symlink '$eTicketName'\n";
+        $retVal = 0;
+        goto end;
+    }
+    unless (symlink("../$tmdName", "$baseName.tmd")) {
+        print "$0: Can't symlink '$tmdName'\n";
+        $retVal = 0;
+        goto end;
+    }
+    unless (symlink("../$contentName", "$baseName.app")) {
+        print "$0: Can't symlink '$contentName'\n";
+        $retVal = 0;
+        goto end;
+    }
+    unless (symlink("../$hashName", "$baseName.hash")) {
+        print "$0: Can't symlink '$hashName'\n";
+        $retVal = 0;
+        goto end;
+    }
+
+    unless (chdir($mainDir)) {
+        print "$0: Can't change to directory $mainDir ($!)\n";
+        $retVal = 0;
+        goto end;
+    }
+
+    $caName = "CA-cert.raw";
+    $cpName = "CP-cert.raw";
+    $xsName = "XS-cert.raw";
+
+    @certList = ($caName, $cpName, $xsName);
+
+    foreach $file (@certList) {
+        if (! -r $file) {
+            print "$0: File $file doesn't exist or isn't readable - exit\n";
+            $retVal = 0;
+            goto end;
+        }
+    }
+
+    $allCerts = "$tmpDirName/allCerts";
+
+    $command = "cat $caName $cpName $xsName > $allCerts"; 
+    if (system($command) != 0) {
+        print "$0: Command $command failed - exit\n";
+        $retVal = 0;
+        goto end;
+    }
+
+    $command = "rvl_prod_partition -c $tmpDirName -x $allCerts -o $baseName.enc_part"; 
+    if ($keepFiles) {
+        $command .= " -k";
+    }
+    if (system($command) != 0) {
+        print "$0: Assembling the partition failed.\n";
+        print "$0: Command was: $command\n";
+        $retVal = 0;
+        goto end;
+    }
+
+end:
+    if (! $keepFiles && -e $tmpDirName) {
+        if (system("rm -r $tmpDirName") != 0) {
+            print "$0: Can't remove temporary directory $tmpDirName\n";
+        }
+    }
+    unless (chdir($origDir)) {
+        print "Can't change to directory $origDir\n";
+        return;
+    }
+    return($retVal);
+}
+
+# *********************************************************************
+sub
+createPropertyFile($$$)
+{
+    my ($propertyName, $titleName, $titleId) = @_;
+
+    unless (open (PROPERTY, ">" . $propertyName)) {
+        print STDERR "$0: Can't open property file '$propertyName' for writing ($!)\n";
+        return(0);
+    }
+    print PROPERTY "TITLE_ID = $titleId\n";
+    print PROPERTY "TITLE_NAME = $titleName\n";
+    print PROPERTY "TITLE_TYPE = GAME\n";
+    print PROPERTY "PASSWORD = t\n";
+    unless (close (PROPERTY)) {
+        print STDERR "$0: Can't close property file '$propertyName' for writing ($!)\n";
+        return(0);
+    }
+    return(1);
+}
+# *********************************************************************
+sub 
+setupLicenseDir($$$)
+{
+    my ($licenseDir, $titleId, $encryptDir) = @_;
+    my ($origDir);
+
+    $origDir = cwd();
+    unless (mkdir ($licenseDir, 0777)) {
+        print STDERR "$0: Can't make directory $licenseDir ($!)\n";
+        return(0);
+    }
+    unless (chdir ($licenseDir)) {
+        print STDERR "$0: Can't change to directory $licenseDir ($!)\n";
+        return(0);
+    }
+    unless(createPropertyFile("properties", $licenseDir, $titleId)) {
+        return(0);
+    }
+    unless (mkdir ("v0000", 0777)) {
+        print STDERR "$0: Can't make directory v0000 ($!)\n";
+        return(0);
+    }
+    $$encryptDir = cwd() . "/v0000";
+    unless (chdir ($origDir)) {
+        print STDERR "$0: Can't change to directory $origDir ($!)\n";
+        return(0);
+    }
+}
+# *********************************************************************
+# Decrypt the developer partition named '$develPart'.
+# RETURNS: 1 if everything went OK
+#          0 otherwise
+# Also returns a hash in 'returnVal' with the full path to each of the
+# partition components if all went well
+sub
+decryptPartition($$$)
+{
+    my ($develPart, $decryptDir, $returnVal) = @_;
+    my ($command, $currentDir, %returnVal, $key);
+
+    unless (chdir ($decryptDir)) {
+        print STDERR "$0: Can't change to directory $decryptDir ($!)\n";
+        return(0);
+    }
+    $command = "decrypt_rvl_partition ../$develPart -o $develPart";
+
+    if (system($command) != 0) {
+        print STDERR "$0: command $command failed\n";
+        return(0);
+    }
+    $currentDir = cwd();
+
+    $returnVal->{'data'}        = "$currentDir/$develPart.part";
+    $returnVal->{'ticket'}      = "$currentDir/$develPart.ticket";
+    $returnVal->{'tmd'}         = "$currentDir/$develPart.tmd";
+    $returnVal->{'h3Hashes'}    = "$currentDir/$develPart.h3Hashes";
+
+    foreach $key (keys %$returnVal) {
+        unless (-r $returnVal->{$key}) {
+            print STDERR "$0: Can't read file $returnVal{$key}\n";
+            return(0);
+        }
+    }
+    unless (chdir ("..")) {
+        print STDERR "$0: Can't change to directory .. ($!)\n";
+        return(0);
+    }
+    return(1);
+} #decryptPartition
+
+# *********************************************************************
+
+sub
+checkedRename($$)
+{
+    my ($fileFrom, $fileTo) = @_;
+    unless(rename($fileFrom, $fileTo)) {
+        print STDERR "$0: rename of $fileFrom to $fileTo failed ($!)\n";
+        return(0);
+    }
+}
+# *********************************************************************
+sub setupEncryptionDir($$%)
+{
+    my ($encryptDir, $baseName, %decryptFiles) = @_;
+
+    unless (chdir($encryptDir)) {
+        print STDERR "$0: Can't change to directory $encryptDir ($!)\n";
+        return(0);
+    }
+    unless(checkedRename($decryptFiles{'data'}, "000-data")) {
+        return(0);
+    }
+    unless(checkedRename($decryptFiles{'ticket'}, "eticket.template")) {
+        return(0);
+    }
+    unless(checkedRename($decryptFiles{'tmd'}, "tmd.template")) {
+        return(0);
+    }
+    unless(checkedRename($decryptFiles{'h3Hashes'},
+                         "$baseName-v0.h3Hashes")) {
+        return(0);
+    }
+    return(1);
+}
+# *********************************************************************
+
+sub
+main()
+{
+    my ($help, $licenseDir,  $keep, $titleId, $verbose);
+    my ($optReturn, $exitVal);
+    my ($decryptDir, $command);
+    my ($develPart, %decryptFiles, $encryptDir);
+
+    $optReturn = GetOptions (
+                                 "help"    	        => \$help,
+                                 "licenseDir=s"         => \$licenseDir,
+                                 "keep"    	        => \$keep,
+                                 "titleId=s"            => \$titleId,
+                                 "verbose" 	        => \$verbose,
+                             );
+    unless ($optReturn) {
+        print STDERR "Parsing command line options failed\n";
+        usage();
+        exit(1);
+    }
+
+    if ($#ARGV == -1) {
+	print STDERR "$0: Need name of developer encrypted partition\n";
+	usage();
+	exit(1);
+    }
+    elsif ($#ARGV > 0) {
+	print STDERR "$0: Too many partition names\n";
+	usage();
+	exit(1);
+    }
+    else {
+        $develPart = $ARGV[0];
+    }
+    if (! defined ($keep)) {
+        $keep = 0;
+    }
+    unless (defined ($titleId)) {
+        $titleId = "deadcafe";
+    }
+
+    $decryptDir = "$develPart.decrypt";
+    unless (mkdir ($decryptDir, 0777)) {
+        print STDERR "$0: Can't make directory $decryptDir ($!) -exit\n";
+        exit(1);
+    }
+
+    unless(decryptPartition($develPart, $decryptDir, \%decryptFiles)) {
+        print STDERR "$0: Decrypting files failed -exit\n";
+        $exitVal = 1;
+        goto end;
+    }
+
+    if (defined($licenseDir)) {
+        print STDERR "This isn't supported yet\n";
+        exit(1);
+    }
+    else {
+        $licenseDir = "$develPart" . "$genLicDirExt";
+        unless (setupLicenseDir($licenseDir, $titleId,
+                \$encryptDir)) {
+        }
+    }
+    unless (setupEncryptionDir($encryptDir, $licenseDir, %decryptFiles)) {
+        print STDERR "$0: Setting up up the encryption directory failed -exit\n";
+        $exitVal = 1;
+        goto end;
+    }
+    my $command = "$genLic $licenseDir -split -dvd";
+    print "Command is: $command\n";
+    if (system($command) != 0) {
+        print STDERR "$0: Running genLic failed -exit\n";
+        $exitVal = 1;
+    }
+    exit(0);
+
+    unless (generateEncPartition($encryptDir, $keep)) {
+        print STDERR "$0: Setting up up the encryption directory failed -exit\n";
+        $exitVal = 1;
+        goto end;
+    }
+
+end:
+    unless ($keep) {
+        my $command;
+
+        $command = "rm -r $decryptDir";
+        if (system ($command) != 0)  {
+            print STDERR "$0: Removing decrypt directory $decryptDir failed\n";
+        }
+    }
+    $exitVal = 0;
+    exit($exitVal);
+}
+
+main;

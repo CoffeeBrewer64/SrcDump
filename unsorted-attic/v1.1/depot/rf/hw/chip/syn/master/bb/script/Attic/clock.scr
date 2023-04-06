@@ -1,0 +1,48 @@
+d1 4
+d6 2
+a7 1
+ * define all clocks
+d11 1
+d13 2
+a14 3
+create_clock -name VCLK vclk_tree/N01 -period 18.8 -waveform { 0.0 9.4  } 
+create_clock -name MEMCLK memclk_tree/N01 -period 4.7 -waveform { 0.0 2.35 }
+create_clock -name DBG_SCLK tap_blk/clksram -period 18.8 -waveform { 0.0 9.4  }
+d17 1
+a17 1
+ * set clock undcertainties
+d21 1
+a21 1
+set_clock_skew -uncertainty 0.250 VCLK		/* TBCTS 250ps */
+d23 1
+a23 1
+set_clock_skew -uncertainty 0.250 DBG_SCLK	/* TBCTS 250ps */
+d25 8
+a32 2
+/****  set_drive 0 {sysclk memclk vclock usb_clk dbg_sclk} ****/
+/****  set_drive 0 {rst_l avrst_l dbg_rst dbg_sclk}        ****/
+d34 11
+a44 1
+dont_touch_network {SYSCLK USBCLK VCLK MEMCLK DBG_SCLK}
+a45 21
+/* input output delay */
+set_input_delay  2 -clock SYSCLK   all_inputs()
+set_input_delay  0 -clock SYSCLK   {PAD_RST_L}
+set_output_delay 2 -clock SYSCLK   all_outputs()
+set_drive        0                 {PAD_RST_L}
+set_input_delay  2 -clock USBCLK  all_inputs()
+set_output_delay 2 -clock USBCLK  all_outputs()
+set_input_delay  2 -clock VCLK    all_inputs()
+set_output_delay 2 -clock VCLK    all_outputs()
+set_input_delay  2 -clock MEMCLK   all_inputs()
+set_output_delay 2 -clock MEMCLK   all_outputs()
+set_input_delay  2 -clock DBG_SCLK all_inputs()
+set_output_delay 2 -clock DBG_SCLK all_outputs()
+
+/*  Desable Timing for NOVeA  */
+set_disable_timing nvrm_nc15gfh_64x32_MAX/nvrm_nc15gfh_64x32 -from RECALL -to RCREADY
+set_disable_timing nvrm_nc15gfh_64x32_MAX/nvrm_nc15gfh_64x32 -from COMP   -to RCREADY
+set_disable_timing nvrm_nc15gfh_64x32_MAX/nvrm_nc15gfh_64x32 -from COMP   -to MATCH
+set_disable_timing nvrm_nc15gfh_16x32_MAX/nvrm_nc15gfh_16x32 -from RECALL -to RCREADY
+set_disable_timing nvrm_nc15gfh_16x32_MAX/nvrm_nc15gfh_16x32 -from COMP   -to RCREADY
+set_disable_timing nvrm_nc15gfh_16x32_MAX/nvrm_nc15gfh_16x32 -from COMP   -to MATCH

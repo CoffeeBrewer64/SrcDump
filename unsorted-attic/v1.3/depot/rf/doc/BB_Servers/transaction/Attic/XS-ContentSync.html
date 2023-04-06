@@ -1,0 +1,47 @@
+d22 1
+a25 1
+  <li>Depot and CDS must authenticate each other.</li>
+d34 5
+a38 3
+<blockquote>
+  <p><i>None</i></p>
+</blockquote>
+d46 3
+a48 3
+<blockquote>
+  <i>None</i>
+</blockquote>
+d59 10
+a68 2
+      <li>	Over a secure link, the Content Manager connects to Content Sync Server passing the timestamp of last synchronization and requesting the list of new content.  The Sync Server uses the provided
+        BB Depot's Hardware ID and timestamp to query the Content DB to get the list of new content that the BB Depot should have.  The new content list, the associated download URLs and a new timestamp is returned back to the Content Manager.</li>
+d71 1
+a71 1
+  <li>	<code>Remove Old Content</code>
+d73 2
+a74 5
+      <li>	The Content Manager, compares the new content list to its stored list of content.  The result of the comparison is a list of content to remove and a list of content to
+    download.</li>
+      <li>	The Content Manager first processes the list to remove.  For each record in the remove list, the Content Manager removes content record from the stored list of
+    content and the encrypted content from content
+    storage.</li>
+d79 2
+a80 1
+      <li>	The Content Manager then processes the download list.  For each record in the download list, the Content Manager uses the Content ID to download
+d87 4
+a90 1
+      <li>After the encrypted content is completely downloaded, the Content Manager add the content to its list of content. The Content Manager stores the timestamp for use during the next synchronization
+d94 2
+a95 1
+  <li>	The transaction is considered to be complete once the timestamp written to local persistent
+d100 2
+a101 1
+  <li>   BB Depot has the same list of content as the one retrieved from the Content Distribution Server</li>
+d104 1
+a104 1
+<h4>Transaction Records</h4>
+d106 3
+a108 3
+  <li>Synchronization Request - hardwareID, Content Manager submitted timestamp</li>
+  <li>Download Request - hardwareID, contentID</li>
+  <li>Download Completion - hardwareID, contentID, duration of download</li>

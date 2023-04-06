@@ -1,0 +1,110 @@
+IOS version 240.x.x (Release Candidate 1) (02/19/2008)
+
+
+Summary:
+--------
+This is release candidate for IOS 240.x.x (10MB map). 
+This release contains support for both 128MB and 64MB configurations.
+
+The main features of this release are:
+  1) Enhancements and bug fixes (IOS, ES, Compat Boot, Mini-IOS)
+
+Please note that the subsystem release notes below only describe changes 
+that are included in this release since the previous release on 01/26/2008.
+     
+
+Limitations:
+------------
+  1) Testing 
+     a) The following configuration was used:
+        - NDEV2: ES 2.11 + 128 MB GDDR3
+        - NDEV2: ES 2.11 + 64 MB GDDR3
+
+  2) See additional release notes below from each subsystem.
+
+ 
+Known Issues/Problems:
+----------------------
+  1) See additional release notes below from each subsystem.
+
+
+Subsystem Release Notes:
+------------------------
+A) OS
+
+   1. Features/Changes
+      - Support additional common key.
+
+   2. Bug fixes
+      - Fix RSA signing verification routine.
+      - Add PPC buffer address check in IPC server.
+
+   3. Known issues/Problems
+      - None
+
+
+B) ES
+
+   1. Features/Changes 
+      - Support additional common key.
+
+   2. Bug fixes
+      - None
+
+   3. Known issues/Problems
+      - None
+
+
+C) ISFS
+
+   1. Features/Changes
+      - None
+
+   2. Bug fixes
+      - None
+
+   3. Known issues/Problems
+      - None
+
+
+D) DI
+
+   1. Features/Changes
+      - None
+
+   2. Bug fixes
+      - None
+
+   3. Known issues/Problems
+      - None
+
+
+F) SD 
+
+   1. Features/Changes
+      - None
+
+   2. Bug fixes
+      - None
+
+   3. Known issues/Problems
+      - None
+
+
+G) GC Compatible Mode 
+
+   1. Features/Changes
+      - In Mini-IOS, clear and scramble GDDR3 memory before releasing PPC 
+        from reset.
+      - In compat boot1, add stricter checking when verifying boot2 wad header,
+        ticket and tmd.
+      - If compat boot1 fails, the LED display toggles between reason code & 
+        ~(reason code) to match the behavior of normal mode boot1.
+
+   2. Bug fixes
+      - Fix RSA signature verification
+
+   3. Known issues/Problems
+      - None
+
+

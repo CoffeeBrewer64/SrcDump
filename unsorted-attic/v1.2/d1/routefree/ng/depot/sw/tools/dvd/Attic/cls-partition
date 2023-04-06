@@ -1,0 +1,22 @@
+d3 1
+a3 1
+# $Id: cls-partition,v 1.1 2006/07/26 18:04:56 craig Exp $
+d25 2
+a26 1
+my $eTicketExtension = ".eticket";
+d43 1
+a43 1
+    my ($file, $baseName, $eTicketFound, $tmpDirName);
+d77 3
+d86 2
+a87 2
+            ($name, $dir, $suffix) = fileparse($file, $eTicketExtension);
+            if ($suffix eq $eTicketExtension) {
+d103 1
+a103 1
+        print " $eTicketExtension was found - exit\n";
+d115 23
+a137 3
+    $contentName = "$baseName.cry";
+    if (! -r $contentName) {
+        print "$0: Error - can't read content file $contentName - exit";

@@ -1,0 +1,268 @@
+d9 2
+a10 2
+	  $Revision: 1.12 $<br>
+	    $Date: 2002/08/30 22:19:31 $
+d13 99
+d136 1
+a136 1
+	      <td><code>region_ID</code></td>
+d205 1
+a205 1
+	      <td><code>Content_ID</code></td>
+d314 1
+a314 1
+	      <td width=140><code>region_ID</code></td>
+d318 1
+a318 1
+	      <td><code>RMS_ID</code></td>
+d322 1
+a322 1
+	      <td><code>CDS_ID</code></td>
+d336 1
+a336 1
+	      <td width=140><code>content_ID</code></td>
+d340 1
+a340 1
+	      <td><code>update_date</code></td>
+d345 2
+a346 2
+	      <td valign="top"><code>purchase_state</code></td>
+	      <td>Maintain the following information per <code>region_ID: </code>
+d348 1
+a348 1
+              <li><code>region_ID - </code>identifies region</li>
+d350 1
+a350 1
+              <li><code>state - </code>{published, revoked}</li>
+d369 1
+a369 1
+          <p>purchase_state transitions
+d383 6
+a388 4
+	    <tr valign=baseline>
+	      <td><code>content_decryption_key</code></td>
+	      <td>Key used to encrypt the content once it has been validated, but
+            before it is published
+d390 1
+a390 1
+	    </tr>
+a393 1
+          This consists of
+d395 4
+a398 4
+            <li><code>content_hash - </code>
+          SHA digest of the content</li>
+            <li><code>execution_information - </code>
+          This includes save-state-size, load-address, boot-length,
+d400 4
+a403 3
+            <li><code>content_description - </code>
+          This includes content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image
+d420 1
+a420 1
+	      <td width=140><code>hardware_ID</code></td>
+d424 1
+a424 1
+	      <td><code>depot_ID</code></td>
+d428 1
+a428 1
+	      <td><code>store_ID</code></td>
+d441 1
+a441 1
+	      <td width=140><code>store_ID</code></td>
+d445 1
+a445 1
+	      <td><code>region_ID</code></td>
+d449 1
+a449 1
+	      <td><code>retailer_ID</code></td>
+d461 1
+a461 1
+	      <td width=140><code>retailer_ID</code></td>
+d465 1
+a465 1
+	      <td><code>commission_rate</code></td>
+d469 1
+a469 1
+	      <td><code>account_balance</code></td>
+a474 1
+    <hr>
+a476 91
+      <h2>Content Management (CMS)</h2>
+      <hr>
+      <dl>
+	<dt><a name="CMS - Content Record">Content Record:</a></dt>
+      </dl>
+      <dl>
+	<dd>
+	  <table border="1">
+	    <tr valign=baseline>
+	      <td width=140><code>content ID</code></td>
+	      <td><i>ContentID</i> consists of two components
+            <ul>
+              <li><i>Customer ContentID</i> - customer &amp; retailer visible 4
+                digit content ID that is published in catalogs and brochures.</li>
+              <li><i>Content Version # </i>- 1 digit&nbsp; version number.
+                Versions may be issued for updates to the content or for bug
+                fixes.</li>
+            </ul>
+          </td>
+	    </tr>
+        <tr>
+	      <td><code>content_object</code></td>
+	      <td>Content blob
+	      </td>
+        </tr>
+        <tr>
+	      <td><code>state</code></td>
+	      <td><ol>
+		  <li><code>released</code> -- initial state of
+		    this record upon release from the studio</li>
+		  <li><code>validated</code> -- this content has passed all validation
+            checks and is approved for publishing</li>
+		  <li><code>published</code> -- content and metadata has been pushed to
+            the CDS &amp; Transaction subsystem and may be made available for
+            purchase.</li>
+		</ol>
+	      </td>
+        </tr>
+        <tr>
+	      <td colspan=2>
+        <p align="center"><img border="0" src="data_defs/cms-content-state.jpg" width="349" height="39">
+		<ol type=A>
+		  <code>
+		  <li>state == released</li>
+		  <li>state == validated</li>
+		  <li>state == published</li>
+		  </code>
+		</ol>
+	      </td>
+        </tr>
+	    <tr valign=baseline>
+	      <td><code>studio_ID</code></td>
+	      <td>ID of studio that generated this content</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>release_date</code></td>
+	      <td>Date this content was released by the studio.</td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>publish_date</code></td>
+	      <td>Date content is published to XS &amp; CDS
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content_decryption_key</code></td>
+	      <td>Key used to encrypt the content once it has been validated, but
+            before it is published
+	      </td>
+	    </tr>
+        <tr>
+	      <td><code>core content record</code></td>
+	      <td>
+          <ul>
+            <li><code>content_hash - </code>
+          SHA digest of the content</li>
+            <li><code>execution_information - </code>
+          This includes save-state-size, load-address, boot-length,
+          boot-code-state, boot-signature, hardware-access-rights</li>
+            <li><code>content_description - </code>
+          This includes content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image
+              <dl>
+                <dt>&nbsp;</dt>
+              </dl>
+            </li>
+          </ul>
+	      </td>
+        </tr>
+	  </table>
+	</dd>
+      </dl>
+d485 2
+a486 2
+	      <td width=140><code>content_ID</code></td>
+	      <td>ID of this content - unique amongst all content</td>
+d489 2
+a490 2
+	      <td><code>content_object</code></td>
+	      <td>Content blob.</td>
+d493 1
+a493 1
+	      <td><code>content_update_date</code></td>
+d495 2
+a496 1
+          Date this record was last updated. Used by Content Sync Server and
+d501 1
+a501 1
+	      <td><code>content_description&nbsp;</code></td>
+d503 3
+a505 2
+          This includes content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image
+d509 2
+a510 2
+	      <td valign="top"><code>download_state</code></td>
+	      <td>State is maintained per <code>region ID.</code>
+a511 9
+              <ul>
+                <li><code>state - </code>{published, downloadable, revoked}
+                </li>
+                <li><code>region ID - </code>identifies region
+                  <dl>
+                    <dt>&nbsp;</dt>
+                  </dl>
+                </li>
+              </ul>
+d513 2
+a514 3
+		  <li><code>published</code> -- content has recently been uploaded into the CDS&nbsp;</li>
+		  <li><code>downloadable</code> -- content must be made available for
+            download to BB Players&nbsp;</li>
+d525 2
+a526 2
+          <img border="0" src="data_defs/cds-content-download-state.jpg" width="454" height="190">
+          <p>download_state transitions
+a527 1
+		  <li>state == published</li>
+d546 3
+a548 2
+	      <td width=140><code>hardware_ID</code></td>
+	      <td>unique identifier for BB Depot</td>
+d551 1
+a551 1
+	      <td><code>region_ID</code></td>
+a553 5
+	    <tr valign=baseline>
+	      <td><code>last_sync_date</code></td>
+	      <td>date that the last successful synchronization event took place
+            between the BB Depot and the CDS</td>
+	    </tr>
+d567 1
+a567 1
+	      <td width=140><code>hardware_ID</code></td>
+d571 1
+a571 1
+	      <td><code>region_ID</code></td>
+d575 1
+a575 1
+	      <td><code>last_notificate_date</code></td>
+d592 2
+a593 2
+	      <td width=140><code>content_ID</code></td>
+	      <td>ID of this content - unique amongst all content</td>
+d596 2
+a597 2
+	      <td><code>content_object</code></td>
+	      <td>Actual content blob.</td>
+d600 1
+a600 1
+	      <td><code>content_description</code></td>
+d602 3
+a604 2
+          This includes content-type, content-size, title-name,
+          title-description, author, text-description, thumbnail-image
+d613 2
+a614 1
+            and is available for download to BB Player</li>

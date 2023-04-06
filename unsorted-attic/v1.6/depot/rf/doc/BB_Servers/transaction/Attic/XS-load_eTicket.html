@@ -1,0 +1,59 @@
+d3 1
+a3 1
+      <title>Transaction: Download/Reocover eTicket</title>
+d6 1
+a6 1
+      <h2><center>Transaction: Download/Recover eTicket</center></h2>
+d9 2
+a10 2
+	$Revision: 1.5 $<br>
+        $Date: 2002/08/27 19:28:33 $
+a17 1
+	<li>Certificate Authority - License Manager CA</li>
+a23 2
+	<li>Maintain stable state, i.e., transaction either succeeds
+	  or fails but never lost.</li>
+a28 1
+	<li>The Depot has the specified content loaded in its local disk.</li>
+a31 2
+	<li>The <code>state</code> of the corresponding eTicket Record
+	  is neither <code>revoked</code> nor <code>returned</code>.</li>
+d89 1
+a89 2
+		  not equals to <code>revoked</code> or
+		  <code>returned</code>.
+a99 6
+	    <li><em>eTicket Server</em> updates the eTicket Records
+	      changing the <code>state</code> field to
+	      <code>redeemed</code>, if it was originally
+	      <code>not_redeemed</code>.  At this point, the transaction
+	      is considered complete.
+	    </li>
+a109 4
+	    <li>If the status code indicates that there is no more
+	      unredeemed eTicket, clears the flag on the <em>BB
+		Card</em> so that the Download Station does not need
+	      to sync up the list of eTicket next time.</li>
+d114 1
+a114 5
+	  not been loaded on the <em>BB Card</em>, but are already
+	  non-refundable.  This 
+	  minimizes the need to contact the server for the list of
+	  unredeemed eTickets next time when the customer wants to
+	  download other content.
+a120 4
+	<li>The flag indicating outstanding non-redeemed eTicket might
+	  be cleared.</li>
+	<li>If the state of the eTicket Record was originally
+	  <code>not_redeemed</code>, it is now changed to <code>redeemed.</code></li>
+d146 1
+a146 1
+	    <li>The specified eTicket is either revoked or returned.</li>
+d151 3
+a153 6
+	<li>The <em>eTicket Server</em> received the download request
+	  and changes the eTicket Record states to
+	  <code>redeemed</code>, but the eTicket issued never got
+	  written onto the <em>BB Card</em> - the eTicket Record state
+	  change will not be reversed and the eTicket is still considered
+	  redeemeded.  The eTicket could be recovered by

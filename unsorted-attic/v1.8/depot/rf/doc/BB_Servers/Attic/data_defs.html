@@ -1,0 +1,399 @@
+d3 1
+a3 1
+      <title>Data Definitions</title>
+d6 1
+a6 1
+      <h1>Data Definitions</h1>
+d9 2
+a10 2
+	  $Revision: 1.7 $<br>
+	    $Date: 2002/08/23 19:20:09 $
+d17 1
+a17 1
+	  <table>
+a22 4
+	      <td><code>pub_key</code></td>
+	      <td>Public key generated for this BB</td>
+	    </tr>
+	    <tr valign=baseline>
+d37 1
+a37 1
+	      <td><code>regionalID</code></td>
+a74 1
+		<hr></hr>
+d93 1
+a93 1
+        <hr></hr>
+d96 1
+a96 1
+	  <table>
+d131 16
+a147 1
+		<hr></hr>
+d164 1
+a164 1
+        <hr></hr>
+d167 1
+a167 1
+	  <table>
+d186 1
+a186 1
+	      <td>index to the corresponding eTicket record</td>
+d194 2
+a195 1
+	      <td>actual price we charged/refunded the shop.</td>
+d208 1
+a208 1
+	  <table>
+d210 2
+a211 2
+	      <td width=140><code>region ID</code></td>
+	      <td>unique identifier for region</td>
+d214 2
+a215 2
+	      <td><code>RMS-Depot Notifier URL</code></td>
+	      <td>URL for accessing the Depot Notifier for the region
+d218 2
+a219 2
+	      <td><code>CDS-Content Sync Server URL</code></td>
+	      <td>URL for accessing the Content Sync Server for the region</td>
+d230 1
+a230 1
+	  <table>
+d232 2
+a233 2
+	      <td width=140><code>content ID</code></td>
+	      <td></td>
+d236 2
+a237 2
+	      <td><code>update date</code></td>
+	      <td>timestamp this record was last updated
+d241 2
+a242 15
+	      <td colspan=2>
+        <p align="center"><img border="0" src="data_defs/xs-content-purchase-state.png" width="314" height="103">
+		  <code>
+          <p>Purchase state
+		<ol type=A>
+		  <li>state == published</li>
+		  <li>state == purchasable</li>
+		  <li>state == suspended</li>
+		  </code>
+		</ol>
+	      </td>
+        </tr>
+        <tr>
+	      <td><code>purchase state</code></td>
+	      <td>per <code>region ID</code>.
+d244 2
+a245 1
+              <li><code>region ID - </code>identifies region</li>
+d260 6
+d271 1
+a271 1
+        <p align="center"><img border="0" src="data_defs/xs-content-download-state.png" width="314" height="103">
+d273 2
+a274 1
+          <p>Download state
+d277 1
+a277 1
+		  <li>state == downloadable</li>
+d279 5
+d289 2
+a290 2
+	      <td><code>download state</code></td>
+	      <td>per <code>region ID</code>.
+d292 1
+a292 1
+              <li><code>region ID - </code>identifies region</li>
+d306 21
+d331 2
+a332 2
+	      <td><code>symmetric encryption key</code></td>
+	      <td>key used to encrypt the content once it has been validated, but
+d337 1
+a337 1
+	      <td><code>content signature</code></td>
+d339 1
+d343 1
+a343 1
+	      <td><code>content-type</code></td>
+d345 2
+d350 1
+a350 1
+	      <td><code>content-size</code></td>
+d352 2
+d356 8
+d365 2
+a366 3
+	      <td><code>title name</code></td>
+	      <td>
+	      </td>
+d369 2
+a370 3
+	      <td><code>title description</code></td>
+	      <td>
+	      </td>
+d373 2
+a374 3
+	      <td><code>author</code></td>
+	      <td>
+	      </td>
+d376 9
+d386 2
+a387 3
+	      <td><code>text description</code></td>
+	      <td>
+	      </td>
+d390 2
+a391 31
+	      <td><code>thumbnail image</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>save state size</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>load address</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>boot length</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>boot code state</code></td>
+	      <td><ol>
+		  <li><code>compressed</code> --&nbsp;</li>
+		  <li><code>uncompressed</code> --&nbsp;</li>
+		</ol>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>boot signature</code></td>
+	      <td>
+	      </td>
+d394 2
+a395 3
+	      <td><code>hardware access rights</code></td>
+	      <td>
+	      </td>
+d402 1
+a402 1
+	<dt><a name="Transaction - Depot Record">Depot Record:</a></dt>
+d404 1
+a404 5
+	  <table>
+	    <tr valign=baseline>
+	      <td width=140><code>hardware ID</code></td>
+	      <td>unique identifier for BB Depot</td>
+	    </tr>
+d406 2
+a407 2
+	      <td><code>depot ID</code></td>
+	      <td>hardware token ID issued to the BB Depot
+d410 2
+a411 2
+	      <td><code>region ID</code></td>
+	      <td>region that the BB Depot belongs to</td>
+d414 2
+a415 2
+	      <td><code>retailer ID</code></td>
+	      <td>retailer that the BB Depot belongs to</td>
+a419 1
+      <dl>
+d428 1
+a428 1
+	  <table>
+d430 1
+a430 1
+	      <td width=140><code>content ID</code></td>
+d434 1
+a434 1
+	      <td><code>content object</code></td>
+d444 1
+a444 1
+	  <table>
+d463 1
+a463 1
+        <p align="center"><img border="0" src="data_defs/cms-content-state.png" width="220" height="71">
+d474 1
+a474 1
+	      <td><code>studio ID</code></td>
+d478 1
+a478 1
+	      <td><code>release date</code></td>
+d482 1
+a482 1
+	      <td><code>symmetric encryption key</code></td>
+d487 2
+a488 2
+	    <tr valign=baseline>
+	      <td><code>content signature</code></td>
+d490 1
+d492 3
+a494 3
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content-type</code></td>
+d496 2
+d499 3
+a501 3
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>content-size</code></td>
+d503 2
+d506 1
+a506 59
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>title name</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>title description</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>author</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>text description</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>thumbnail image</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>save state size</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>load address</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>boot length</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>boot code state</code></td>
+	      <td><ol>
+		  <li><code>compressed</code> --&nbsp;</li>
+		  <li><code>uncompressed</code> --&nbsp;</li>
+		</ol>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>boot signature</code></td>
+	      <td>
+	      </td>
+	    </tr>
+	    <tr valign=baseline>
+	      <td><code>hardware access rights</code></td>
+	      <td>
+	      </td>
+	    </tr>
+d516 1
+a516 1
+	  <table>
+d518 1
+a518 1
+	      <td width=140><code>content ID</code></td>
+d522 1
+a522 1
+	      <td><code>content object</code></td>
+d526 1
+a526 1
+	      <td><code>content download URL</code></td>
+d530 2
+a531 2
+	      <td><code>content signature</code></td>
+	      <td></td>
+d534 1
+a534 1
+	      <td><code>content size</code></td>
+d538 1
+a538 1
+	      <td><code>content update date</code></td>
+d542 7
+d550 3
+a552 1
+        <p align="center"><img border="0" src="data_defs/cds-content-download-state.png" width="314" height="103">
+a553 1
+		  <code>
+d557 5
+d567 1
+a567 1
+	      <td><code>download state</code></td>
+d589 2
+a591 1
+              <dt>&nbsp;</dt>
+d604 1
+a604 1
+	  <table>
+d606 1
+a606 1
+	      <td width=140><code>hardware ID</code></td>
+d610 2
+a611 2
+	      <td><code>depot ID</code></td>
+	      <td>hardware token ID issued to the BB Depot
+d614 1
+a614 1
+	      <td><code>last sync date</code></td>
+d629 1
+a629 1
+	  <table>
+d631 1
+a631 1
+	      <td width=140><code>hardware ID</code></td>
+d635 1
+a635 1
+	      <td><code>region ID</code></td>
+d639 1
+a639 1
+	      <td><code>last notification date</code></td>
+d654 1
+a654 1
+	  <table>
+d656 1
+a656 1
+	      <td width=140><code>content ID</code></td>
+d660 1
+a660 1
+	      <td><code>content object</code></td>
+d664 2
+a665 2
+	      <td><code>content signature</code></td>
+	      <td></td>
+d668 1
+a668 1
+	      <td><code>content size</code></td>
+d672 1
+a672 1
+	      <td><code>content update date</code></td>
+d676 7
+d684 1
+a684 1
+        <p align="center"><img border="0" src="data_defs/bbdepot-content-download-state.png" width="314" height="103">
+d690 1
+d705 2
+d712 3
+a714 1
+	      <td><code>&quot;available for download&quot; effective date</code></td>

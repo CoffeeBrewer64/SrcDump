@@ -1,0 +1,72 @@
+a16 1
+  <li> Content Distribution Subsystem - Content Sync Server</li>
+d25 1
+a25 1
+  <li>Should be able to stage content to the BB Depots ahead of purchase date.</li>
+d30 2
+a31 1
+  <li>Content has already been published to the CDS and CAS</li>
+d36 1
+a36 1
+  <li><code>Region ID</code></li>
+d38 1
+a38 1
+  <li><code>Content price</code></li>
+d54 2
+d58 3
+a60 11
+  <li>	<code>New Content Available for Download</code>
+    <ol type="a">
+      <li>CAS and Content Sync Server mutually authenticate themselves.</li>
+      <li>Begin <i>Start Content Distribution Transaction</i></li>
+      <li>CAS submits
+    the <i> Content ID</i>, and &quot;<i>Content Available
+        for Download&quot; </i>command to the
+    Content Sync Server.</li>
+      <li>
+    Content Sync Server updates the <i>download_state</i> of the <i>ContentID</i>
+        to <i>downloadable</i></li>
+d63 1
+a63 1
+  <li>	<code>New Content Available for Purchase</code>
+a64 7
+      <li>	CAS updates the <i> &quot;available for purchase&quot; effective date</i> into the content
+    metadata data store.</li>
+      <li>	End <i>Start Content Distribution Transaction</i></li>
+    </ol>
+  </li>
+  <li>Cascaded Transaction - Update BB Stores
+    <ol>
+d66 3
+a68 3
+    <ol type="a">
+      <li>	CAS &amp; RMS-Content Notifier mutually authenticate themselves.</li>
+      <li>CAS submits the <i> Region ID</i> and the <i>
+a69 2
+    </ol>
+  </li>
+d71 7
+a77 7
+        <ol type="a">
+          <li>RMS-Content Notifier notifies BB Depots about availability of new content.</li>
+        </ol>
+      </li>
+      <li><code> Content Synchronization</code>
+        <ol type="a">
+          <li>BB Depots-Content Manager may decide to initiate &quot;Content
+d80 2
+d86 2
+a90 2
+  <li>   Content Sync Server changes content state from <i>Published</i> to <i>Downloadable</i>
+    state</li>
+d93 1
+a93 1
+    effective date</i>   range in <i>regionID.</i> &nbsp; </li>
+d100 1
+a100 2
+  <li>Content Sync Server - Content Available for Download - contentID</li>
+  <li>RMS - Notify BB Depots - Content Synchronization</li>
+a103 3
+  <li>CDS &amp; CAS fail to mutually authenticate each other - a critical error
+    is logged.</li>
+  <li>ContentID is not present in the CDS -&nbsp; a critical error is logged.</li>
