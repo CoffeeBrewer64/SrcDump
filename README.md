@@ -34,4 +34,4 @@ Some code is too large for us to store in this repo! Instead, we have just linke
 
 RenderWare code has been ripped from the [InternetArchive](https://archive.org/details/renderwaregraphics3.7sdkandstudio2.01).
 
-GameBoy ROM Packs have been ripped from [hiddenpalace.org](https://hiddenpalace.org/Prototypes_by_system/Game_Boy)
+GameBoy ROM Packs have been ripped from [hiddenpalace.org](https://hiddenpalace.org/Prototypes_by_system/Game_Boy).
