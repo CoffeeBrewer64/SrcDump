@@ -1,3 +1,5 @@
+Current size: 917.9mb
+
 # SrcDump
 
 SrcDump is *your* go-to place for getting software source code and software demos.
