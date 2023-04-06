@@ -1,8 +1,8 @@
 # SrcDump
 
-SrcDump is *your* go-to place for getting software source code.
+SrcDump is *your* go-to place for getting software source code and software demos.
 
-SrcDump does not intend, but may, host pre-compiled versions of the software. **Download at your own risk.**
+SrcDump does not intend to, but may, host pre-compiled versions of the software. **Download at your own risk.** (This does not apply to demo versions of software.)
 
 ## Legal
 
@@ -33,3 +33,5 @@ Some code is too large for us to store in this repo! Instead, we have just linke
 # Sources
 
 RenderWare code has been ripped from the [InternetArchive](https://archive.org/details/renderwaregraphics3.7sdkandstudio2.01).
+
+GameBoy ROM Packs have been ripped from [hiddenpalace.org](https://hiddenpalace.org/Prototypes_by_system/Game_Boy)
