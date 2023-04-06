@@ -1,0 +1,39 @@
+
+
+	include	fntequ.def
+	include	type.def
+	include	group.def
+	include	pm_debug.def	;追加（村川）
+
+bank2f	group	G_BANK2f		;bank4->bank2fへ変更（村川）
+
+	public	waza_name_tbl
+
+;;	extern	muspunch
+;;	extern	muskamitsuki
+;;	extern	muschoppu
+;;	extern	muskick
+;;	extern	mustaiatari
+;;	extern	mustobigeri
+;;	extern	musfumitsuke
+;;	extern	mussippo
+;;	extern	musbinta
+;;	extern	muszutsuki
+;;	extern	mushikkaki
+;;	extern	musseoinage
+;;	extern	musfire
+;;	extern	musscrew
+;;	extern	muswater
+;;	extern	musbeam
+
+
+waza_name_tbl:
+	include		..\data\wazaname.dat
+
+
+banke	group	14
+	public	waza_tbl
+
+waza_tbl:
+	include		..\data\waza_tbl.dat
+

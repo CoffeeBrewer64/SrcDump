@@ -1,0 +1,1100 @@
+
+	include		pm_debug.def
+	include		group.def
+
+bank2	group	G_MUSHEAD1
+
+	org	4000h
+
+;*****************************************
+;*					*
+;*	  MUSIC DATA (BANK 2)		*
+;*					*
+;*   (c)copyright 1991 Junichi.Masuda	*
+;*	  all rights reserved		*
+;*					*
+;*****************************************
+
+	extern	Hometown1
+	extern	Hometown2
+	extern	Hometown3
+
+	extern	Gym1
+	extern	Gym2
+	extern	Gym3
+
+	extern	PMC1
+	extern	PMC2
+	extern	PMC3
+
+	extern	Town11
+	extern	Town12
+	extern	Town13
+	extern	Town14
+
+	extern	Town21
+	extern	Town22
+	extern	Town23
+
+	extern	Town31
+	extern	Town32
+	extern	Town33
+
+	extern	Town41
+	extern	Town42
+	extern	Town43
+
+	extern	Town51
+	extern	Town52
+	extern	Town53
+	extern	Town54
+
+	extern	Town61
+	extern	Town62
+	extern	Town63
+	extern	Town64
+
+	extern	AutoWalk11
+	extern	AutoWalk12
+	extern	AutoWalk13
+	extern	AutoWalk14
+
+	extern	Ohkido11
+	extern	Ohkido12
+	extern	Ohkido13
+
+	extern	Raibaru11
+	extern	Raibaru12
+	extern	Raibaru13
+
+	extern	Santoannu11
+	extern	Santoannu12
+	extern	Santoannu13
+
+;	extern	Koukan13
+;	extern	Koukan23
+
+	extern	Shinka1
+	extern	Shinka2
+	extern	Shinka3
+
+	extern	Asa1
+	extern	Asa2
+	extern	Asa3
+
+	extern	Field11
+	extern	Field12
+	extern	Field13
+	extern	Field14
+
+	extern	Field21
+	extern	Field22
+	extern	Field23
+	extern	Field24
+
+	extern	Field31
+	extern	Field32
+	extern	Field33
+	extern	Field34
+
+	extern	Field41
+	extern	Field42
+	extern	Field43
+	extern	Field44
+
+	extern	Field51
+	extern	Field52
+	extern	Field53
+	extern	Field54
+
+	extern	Fanfare11
+	extern	Fanfare12
+	extern	Fanfare13
+
+	extern	Fanfare31
+	extern	Fanfare32
+	extern	Fanfare33
+
+	extern	Fanfare51
+	extern	Fanfare52
+	extern	Fanfare53
+
+	extern	Fanfare61
+	extern	Fanfare62
+	extern	Fanfare63
+
+	public	msadr
+	public	drumend
+	public	bgmfirst
+	public	bgmend	
+	public	musend	
+	public	monsfirst	
+	public	monsend	
+	public	wavedata
+
+	public	mushometown
+	public	muspmc
+	public	musgym
+	public	mustown1
+	public	mustown2
+	public	mustown3
+	public	mustown4
+	public	mustown5
+	public	mustown6
+	public	musshinka
+	public	musasa
+	public	musfield1
+	public	musfield2
+	public	musfield3
+	public	musfield4
+	public	musfield5
+	public	musautowalk
+	public	musohkido
+	public	musraibaru
+	public	mussantoannu
+
+;	public	muskoukan1
+;	public	muskoukan2
+
+	public	muspi
+	public	musdoor
+	public	musgo
+	public	musfanfare3
+	public	musfanfare5
+	public	musfanfare6
+
+	public	muskon
+	public	muswngo
+	public	muscha
+	public	muschikin
+	public	musboo
+	public	muszazaza
+	public	musrinrin
+	public	mussave
+	public	musfanfare
+	public	muskusuri
+	public	musitemuse
+	public	muswarai
+	public	mustaberu
+	public	muscomputer
+	public	muspoweroff
+	public	musnetworks
+	public	muspoko
+	public	muswarpup
+	public	muswarpdown
+	public	musturnup
+	public	musjump
+	public	mussucha
+	public	musbird
+	public	musboboo
+	public	muspyun
+	public	musiwa
+	public	mussyu
+	public	mussyowan
+	public	musswitch
+	public	musfue
+	public	musship
+	public	muspinpon
+
+
+	public	mushariusagi
+
+	public	musget
+drum0:						; dummy
+	db	0FFh
+	db	0FFh
+	db	0FFh
+
+msadr	equ	* - 3
+MSADRS:
+	db	007h
+	dw	drum1
+	db	007h
+	dw	drum2
+	db	007h
+	dw	drum3
+	db	007h
+	dw	drum4
+	db	007h
+	dw	drum5
+	db	007h
+	dw	drum6
+	db	007h
+	dw	drum7
+	db	007h
+	dw	drum8
+	db	007h
+	dw	drum9
+	db	007h
+	dw	druma
+	db	007h
+	dw	drumb
+	db	007h
+	dw	drumc
+	db	007h
+	dw	drumd
+	db	007h
+	dw	drume
+	db	007h
+	dw	drumf
+	db	007h
+	dw	drum10
+	db	007h
+	dw	drum11
+	db	007h
+	dw	drum12
+	db	007h
+	dw	drum13
+
+drumend		equ	* - MSADRS / 3 + 1
+
+
+monsfirst	equ	* - MSADRS / 3 + 1
+
+mushariusagi	equ	* - MSADRS / 3 + 1
+	include mvoice.h
+
+monsend		equ	* - MSADRS / 3 + 1
+
+
+
+;-----------------------------------------------;
+;    Common "mushead.src" And "mushead2.src"	;
+;-----------------------------------------------;
+;muspi		equ	* - MSADRS / 3 + 1
+;	db	004h
+;	dw	pi
+
+musfanfare		equ	* - MSADRS / 3 + 1
+	db	084h
+	dw	Fanfare11
+	db	005h
+	dw	Fanfare12
+	db	006h
+	dw	Fanfare13
+
+musfanfare5		equ	* - MSADRS / 3 + 1
+	db	084h
+	dw	Fanfare51
+	db	005h
+	dw	Fanfare52
+	db	006h
+	dw	Fanfare53
+
+muswngo		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	wngo1
+muskusuri	equ	* - MSADRS / 3 + 1		; All Bank
+	db	004h
+	dw	kusuri1
+musitemuse	equ	* - MSADRS / 3 + 1		; All Bank
+	db	004h
+	dw	itemuse1
+;muspinchi1		equ	* - MSADRS / 3 + 1		; Fight Bank
+;	db	004h
+;	dw	pinchi1
+mussyu		equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	syu1
+musrinrin		equ	* - MSADRS / 3 + 1
+muspi		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	rinrin
+;-----------------------------------------------;
+
+musfanfare3		equ	* - MSADRS / 3 + 1
+	db	084h
+	dw	Fanfare31
+	db	005h
+	dw	Fanfare32
+	db	006h
+	dw	Fanfare33
+
+musfanfare6		equ	* - MSADRS / 3 + 1
+	db	084h
+	dw	Fanfare61
+	db	005h
+	dw	Fanfare62
+	db	006h
+	dw	Fanfare63
+
+muswarai	equ	* - MSADRS / 3 + 1		; Town Bank
+	db	004h
+	dw	warai1
+mustaberu	equ	* - MSADRS / 3 + 1		; Town Bank (Network)
+	db	004h
+	dw	taberu1
+muscomputer	equ	* - MSADRS / 3 + 1		; Town Bank (Network)
+	db	004h
+	dw	computer
+muspoweroff	equ	* - MSADRS / 3 + 1		; Town Bank (Network)
+	db	004h
+	dw	poweroff
+musnetworks	equ	* - MSADRS / 3 + 1		; Town Bank (Network)
+	db	004h
+	dw	networks
+mussyowan	equ	* - MSADRS / 3 + 1		; Town Bank
+	db	004h
+	dw	syowan1
+musswitch	equ	* - MSADRS / 3 + 1		; Town Bank
+	db	004h
+	dw	switch1
+muspoko		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	poko1
+muswarpup	equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	warpup
+muswarpdown	equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	warpdown
+musturnup	equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	turnup
+musjump		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	jump
+mussucha	equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	sucha
+musbird		equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	bird
+musboboo	equ	* - MSADRS / 3 + 1
+	db	044h
+	dw	boboo1
+	db	005h
+	dw	boboo2
+muspyun		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	pyun
+musiwa		equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	iwa
+musship		equ	* - MSADRS / 3 + 1
+	db	044h
+	dw	ship1
+	db	005h
+	dw	ship2
+musget		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	get
+musgo		equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	go
+musdoor		equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	door
+muskon		equ	* - MSADRS / 3 + 1
+	db	044h
+	dw	kon1
+	db	005h
+	dw	kon2
+muscha		equ	* - MSADRS / 3 + 1
+	db	044h
+	dw	cha1
+	db	005h
+	dw	cha2
+muschikin		equ	* - MSADRS / 3 + 1
+	db	044h
+	dw	chikin1
+	db	005h
+	dw	chikin2
+musboo		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	boo
+muszazaza		equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	zazaza
+mussave			equ	* - MSADRS / 3 + 1
+	db	044h
+	dw	save1
+	db	005h
+	dw	save2
+musfue		equ	* - MSADRS / 3 + 1
+	db	002h
+	dw	fue1
+muspinpon		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	pinpon
+
+bgmfirst	equ	* - MSADRS / 3
+mushometown		equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Hometown1
+	db	001h
+	dw	Hometown2
+	db	002h
+	dw	Hometown3
+muspmc			equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	PMC1
+	db	001h
+	dw	PMC2
+	db	002h
+	dw	PMC3
+musgym			equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Gym1
+	db	001h
+	dw	Gym2
+	db	002h
+	dw	Gym3
+mustown1		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Town11
+	db	001h
+	dw	Town12
+	db	002h
+	dw	Town13
+	db	003h
+	dw	Town14
+mustown2		equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Town21
+	db	001h
+	dw	Town22
+	db	002h
+	dw	Town23
+mustown3		equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Town31
+	db	001h
+	dw	Town32
+	db	002h
+	dw	Town33
+mustown4		equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Town41
+	db	001h
+	dw	Town42
+	db	002h
+	dw	Town43
+mustown5		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Town51
+	db	001h
+	dw	Town52
+	db	002h
+	dw	Town53
+	db	003h
+	dw	Town54
+mustown6		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Town61
+	db	001h
+	dw	Town62
+	db	002h
+	dw	Town63
+	db	003h
+	dw	Town64
+mussantoannu		equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Santoannu11
+	db	001h
+	dw	Santoannu12
+	db	002h
+	dw	Santoannu13
+musohkido		equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Ohkido11
+	db	001h
+	dw	Ohkido12
+	db	002h
+	dw	Ohkido13
+musraibaru		equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Raibaru11
+	db	001h
+	dw	Raibaru12
+	db	002h
+	dw	Raibaru13
+musautowalk		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	AutoWalk11
+	db	001h
+	dw	AutoWalk12
+	db	002h
+	dw	AutoWalk13
+	db	003h
+	dw	AutoWalk14
+;muskoukan1		equ	* - MSADRS / 3 + 1
+;	db	002h
+;	dw	Koukan13
+;muskoukan2		equ	* - MSADRS / 3 + 1
+;	db	002h
+;	dw	Koukan23
+musshinka	equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Shinka1
+	db	001h
+	dw	Shinka2
+	db	002h
+	dw	Shinka3
+musasa		equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Asa1
+	db	001h
+	dw	Asa2
+	db	002h
+	dw	Asa3
+musfield1		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Field11
+	db	001h
+	dw	Field12
+	db	002h
+	dw	Field13
+	db	003h
+	dw	Field14
+musfield2		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Field21
+	db	001h
+	dw	Field22
+	db	002h
+	dw	Field23
+	db	003h
+	dw	Field24
+musfield3		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Field31
+	db	001h
+	dw	Field32
+	db	002h
+	dw	Field33
+	db	003h
+	dw	Field34
+musfield4		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Field41
+	db	001h
+	dw	Field42
+	db	002h
+	dw	Field43
+	db	003h
+	dw	Field44
+musfield5		equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Field51
+	db	001h
+	dw	Field52
+	db	002h
+	dw	Field53
+	db	003h
+	dw	Field54
+bgmend		equ	* - MSADRS / 3
+musend		equ	* - MSADRS / 3 + 1
+
+
+drum1:						; Snare Drum 
+	db	020h,0c1h,033h
+	db	0FFh
+drum2:						; Snare Drum 
+	db	020h,0b1h,033h
+	db	0FFh
+drum3:						; Snare Drum 
+	db	020h,0a1h,033h
+	db	0FFh
+drum4:						; Snare Drum 
+	db	020h,081h,033h
+	db	0FFh
+drum5:						; SE Snare Drum 
+	db	027h,084h,037h
+	db	026h,084h,036h
+	db	025h,083h,035h
+	db	024h,083h,034h
+	db	023h,082h,033h
+	db	022h,081h,032h
+	db	0FFh
+drum6:						; BEATS Snare Drum 
+	db	020h,051h,02ah
+	db	0FFh
+
+drum7:						; DOUBLE Snare Drum 
+	db	021h,041h,02bh
+	db	020h,061h,02ah
+	db	0FFh
+
+drum8:						; CLOSE Hi-Hat
+	db	020h,081h,010h
+	db	0FFh
+
+drum9:						; HI Tom
+	db	020h,082h,023h
+	db	0FFh
+druma:						; MID Tom
+	db	020h,082h,025h
+	db	0FFh
+drumb:						; LOW Tom
+	db	020h,082h,026h
+	db	0FFh
+drumc:						; CLOSE Hi-Hat
+	db	020h,0a1h,010h
+	db	0FFh
+drumd:						; OPEN Hi-Hat
+	db	020h,0a2h,011h
+	db	0FFh
+drume:						; Snare Drum 
+	db	020h,0a2h,050h
+	db	0FFh
+drumf:						; Rim Shot 
+	db	020h,0a1h,018h
+	db	020h,031h,033h
+	db	0FFh
+
+drum10:						; Rim Shot 2
+	db	022h,091h,028h
+	db	020h,071h,018h
+	db	0FFh
+
+drum11:						; Snare Drum 
+	db	020h,091h,022h
+	db	0FFh
+drum12:						; Snare Drum 
+	db	020h,071h,022h
+	db	0FFh
+drum13:						; Snare Drum 
+	db	020h,061h,022h
+	db	0FFh
+
+
+wavedata:
+	dw	w1$
+	dw	w2$
+	dw	w3$
+	dw	w4$
+	dw	w5$
+	dw	w6$
+	dw	w7$
+	dw	w8$
+	dw	w9$
+
+w1$:
+	db	002h,046h,08ah,0ceh
+	db	0ffh,0feh,0edh,0dch
+	db	0cbh,0a9h,087h,065h
+	db	044h,033h,022h,011h
+w2$:
+	db	002h,046h,08ah,0ceh
+	db	0efh,0ffh,0feh,0eeh
+	db	0ddh,0cbh,0a9h,087h
+	db	065h,043h,022h,011h
+w3$:
+	db	013h,069h,0bdh,0eeh
+	db	0eeh,0ffh,0ffh,0edh
+	db	0deh,0ffh,0ffh,0eeh
+	db	0eeh,0dbh,096h,031h
+w4$:
+	db	002h,046h,08ah,0cdh
+	db	0efh,0feh,0deh,0ffh
+	db	0eeh,0dch,0bah,098h
+	db	076h,054h,032h,010h
+w5$:
+	db	001h,023h,045h,067h
+	db	08ah,0cdh,0eeh,0f7h
+	db	07fh,0eeh,0dch,0a8h
+	db	076h,054h,032h,010h
+w6$:
+w7$:
+w8$:
+w9$:
+
+
+; --- SOUND EFFECTS ---
+
+syu1:
+	db	021h,0e2h,033h
+	db	028h,0e1h,022h
+	db	0ffh
+
+
+fue1:
+	db	0eah,010h,014h
+	db	0dch,010h
+; P3-1
+	db	0e3h,041h
+	db	051h
+	db	073h
+	db	091h
+	db	071h
+	db	0e2h,003h
+; P3-2
+	db	001h
+	db	021h
+	db	001h
+	db	0e3h,071h
+	db	091h
+	db	051h
+	db	077h
+	db	0cbh
+	db	0ffh
+
+
+
+
+go:
+	db	022h,0f7h,024h
+	db	022h,0f7h,034h
+	db	024h,0f7h,044h
+	db	028h,0f4h,055h
+	db	028h,0f1h,044h
+	db	0ffh
+
+door:
+	db	029h,0f1h,044h
+	db	028h,0d1h,043h
+	db	0ffh
+
+kon1:
+	db	0ech,002h
+	db	028h,0e1h,040h,007h
+	db	0ffh
+kon2:
+	db	0ech,002h
+	db	022h,008h,000h,000h
+	db	028h,0b1h,041h,007h
+	db	0ffh
+
+wngo1:
+	db	0ech,002h
+	db	010h,03ah
+	db	024h,0f2h,000h,002h
+	db	010h,022h
+	db	028h,0e2h,000h,002h
+	db	010h,008h
+	db	0ffh
+
+cha1:
+;	db	0f0h,072h
+	db	0ech,002h
+	db	024h,0f1h,080h,007h
+	db	0ffh
+cha2:
+	db	0ech,002h
+	db	021h,008h,000h,000h
+	db	024h,0a1h,061h,007h
+	db	0ffh
+
+chikin1:
+;	db	0f0h,027h
+	db	0ech,002h
+	db	024h,0e1h,000h,007h
+	db	028h,0f2h,0e0h,007h
+	db	0ffh
+chikin2:
+	db	0ech,002h
+	db	021h,008h,000h,000h
+	db	024h,091h,0c1h,006h
+	db	028h,0a2h,0a1h,007h
+	db	0ffh
+
+boo:
+	db	0ech,002h
+	db	010h,05ah
+	db	02fh,0f1h,000h,003h
+	db	010h,008h
+	db	0ffh
+
+zazaza:
+	db	022h,0f1h,054h
+	db	02ch,071h,023h
+	db	022h,0b1h,054h
+	db	02ch,061h,023h
+	db	026h,041h,054h
+	db	0ffh
+
+rinrin:
+	db	0ech,002h
+	db	020h,091h,0c0h,007h
+	db	020h,081h,0d0h,007h
+	db	020h,091h,0c0h,007h
+	db	02ch,0a1h,0d0h,007h
+	db	0ffh
+
+  ifn pokemon_type			; Red Or Green Star	
+save1:					; Red
+	db	0ech,002h
+	db	024h,0f4h,000h,007h
+	db	022h,0e4h,000h,006h
+	db	022h,0e4h,080h,006h
+	db	022h,0e4h,0c0h,006h
+	db	022h,0e4h,000h,007h
+	db	022h,0e4h,0a0h,007h
+	db	02fh,0f2h,0e0h,007h
+	db	0ffh
+save2:
+	db	0ech,002h
+	db	024h,008h,000h,000h
+	db	022h,0d4h,001h,007h
+	db	022h,0c4h,001h,006h
+	db	022h,0c4h,081h,006h
+	db	022h,0c4h,0c1h,006h
+	db	022h,0c4h,001h,007h
+	db	022h,0c4h,0a1h,007h
+	db	02fh,0d2h,0e1h,007h
+	db	0ffh
+  else
+save1:					; Green
+	db	0ech,002h
+	db	024h,0f4h,000h,007h
+	db	022h,0e4h,080h,006h
+	db	022h,0e4h,000h,007h
+	db	022h,0e4h,0c0h,007h
+	db	02fh,0f2h,0e0h,007h
+	db	0ffh
+save2:
+	db	0ech,002h
+	db	022h,008h,000h,000h
+	db	024h,0d4h,001h,007h
+	db	022h,0c4h,081h,006h
+	db	022h,0c4h,001h,007h
+	db	022h,0c4h,0c1h,007h
+	db	02fh,0d2h,0e1h,007h
+	db	0ffh
+  endif
+
+kusuri1:
+	db	0ech,002h
+	db	010h,017h
+	db	02fh,0f0h,0f0h,004h
+	db	02fh,0f2h,050h,006h
+	db	010h,008h
+	db	0ffh
+
+warai1:
+	db	0ech,000h
+	db	010h,014h
+	db	024h,0f2h,000h,006h
+	db	0feh,004h
+	dw	warai1
+	db	02fh,0f3h,000h,006h
+	db	010h,008h
+	db	0ffh
+
+itemuse1:
+	db	0ech,002h
+	db	010h,014h
+	db	024h,0f2h,000h,006h
+	db	024h,0f2h,000h,006h
+	db	010h,017h
+	db	02fh,0f2h,000h,006h
+	db	010h,008h
+	db	0ffh
+
+taberu1:
+	db	0ech,002h
+	db	010h,015h
+	db	02fh,0f0h,0f0h,004h
+	db	02fh,0f2h,050h,006h
+	db	010h,008h
+	db	0ffh
+
+computer:
+	db	0ech,002h
+	db	02fh,0f2h,0c0h,007h
+	db	02fh,000h,000h,000h
+	db	023h,0a1h,080h,007h
+	db	023h,0a1h,000h,007h
+	db	023h,0a1h,040h,007h
+	db	023h,0a1h,000h,007h
+	db	023h,0a1h,080h,007h
+	db	023h,0a1h,000h,007h
+	db	023h,0a1h,0c0h,007h
+	db	028h,0a1h,000h,007h
+	db	0ffh
+
+poweroff:
+	db	0ech,002h
+	db	024h,0f0h,000h,006h
+	db	024h,0f0h,000h,004h
+	db	024h,0f0h,000h,002h
+	db	021h,000h,000h,000h
+	db	0ffh
+
+networks:
+	db	0ech,002h
+	db	026h,0f0h,000h,007h
+	db	024h,000h,000h,000h
+	db	026h,0f0h,000h,007h
+	db	021h,000h,000h,000h
+	db	0ffh
+
+syowan1:
+	db	0ech,001h
+	db	010h,017h
+	db	02fh,0d7h,000h,006h
+	db	02fh,0b7h,080h,005h
+	db	02fh,087h,000h,005h
+	db	02fh,047h,080h,004h
+	db	02fh,017h,000h,004h
+	db	010h,008h
+	db	0ffh
+
+switch1:
+	db	0ech,002h
+	db	024h,000h,000h,000h
+	db	022h,0f1h,080h,006h
+	db	021h,000h,000h,000h
+	db	024h,0f1h,080h,007h
+	db	024h,000h,000h,000h
+	db	0ffh
+
+
+poko1:
+	db	0ech,002h
+	db	010h,02ch
+	db	024h,0f2h,000h,005h
+	db	010h,022h
+	db	022h,0f1h,000h,005h
+	db	010h,008h
+	db	021h,000h,000h,000h
+	db	0ffh
+
+warpup:
+	db	0ech,001h
+	db	010h,017h
+	db	02fh,0d7h,000h,005h
+	db	02fh,0b7h,080h,005h
+	db	02fh,087h,000h,006h
+	db	02fh,047h,080h,006h
+	db	02fh,017h,000h,007h
+	db	010h,008h
+	db	0ffh
+
+warpdown:
+	db	0ech,001h
+	db	010h,017h
+	db	02fh,0d7h,000h,007h
+	db	02fh,0b7h,080h,006h
+	db	02fh,087h,000h,006h
+	db	02fh,047h,080h,005h
+	db	02fh,017h,000h,005h
+	db	010h,008h
+	db	0ffh
+
+turnup:
+	db	0ech,001h
+	db	010h,016h
+	db	02fh,0d2h,000h,005h
+	db	010h,008h
+	db	0ffh
+
+jump:
+	db	0ech,002h
+	db	010h,095h
+	db	02fh,0f2h,000h,004h
+	db	010h,008h
+	db	0ffh
+
+sucha:
+	db	022h,0f1h,032h
+	db	022h,000h,000h
+	db	022h,0f1h,022h
+	db	021h,000h,000h
+	db	0ffh
+
+bird:
+	db	022h,0f1h,012h
+	db	022h,000h,000h
+	db	022h,0a1h,012h
+	db	022h,000h,000h
+	db	022h,0d1h,012h
+	db	022h,000h,000h
+	db	022h,081h,012h
+	db	022h,000h,000h
+	db	022h,0b1h,012h
+	db	022h,000h,000h
+	db	022h,061h,012h
+	db	022h,000h,000h
+	db	022h,091h,012h
+	db	022h,000h,000h
+	db	022h,041h,012h
+	db	022h,000h,000h
+	db	0ffh
+
+boboo1:
+	db	0ech,003h
+	db	010h,05ah
+	db	024h,0f0h,000h,005h
+	db	010h,008h
+	db	024h,000h,000h,000h
+	db	02fh,0f0h,000h,005h
+	db	021h,000h,000h,000h
+	db	0ffh
+
+boboo2:
+	db	0ech,003h
+	db	024h,0f0h,001h,004h
+	db	024h,000h,000h,000h
+	db	02fh,0f0h,001h,004h
+	db	021h,000h,000h,000h
+	db	0ffh
+
+pyun:
+	db	0ech,000h
+	db	010h,017h
+	db	02fh,0d2h,000h,007h
+	db	010h,008h
+	db	0ffh
+
+iwa:
+	db	024h,0a2h,023h
+	db	028h,0f1h,034h
+	db	02fh,000h,000h
+	db	022h,0f7h,024h
+	db	022h,0f7h,034h
+	db	024h,0f7h,044h
+	db	028h,0f4h,055h
+	db	028h,0f1h,044h
+	db	0ffh
+
+ship1:
+	db	0ech,002h
+	db	02fh,0f0h,000h,005h
+	db	024h,000h,000h,000h
+	db	02fh,0f0h,000h,005h
+	db	02fh,0f0h,000h,005h
+	db	02fh,0f0h,000h,005h
+	db	02fh,0f0h,000h,005h
+	db	02fh,0f2h,000h,005h
+	db	0ffh
+
+ship2:
+	db	0ech,003h
+	db	02fh,0f0h,082h,004h
+	db	024h,000h,000h,000h
+	db	02fh,0f0h,082h,004h
+	db	02fh,0f0h,082h,004h
+	db	02fh,0f0h,082h,004h
+	db	02fh,0f0h,082h,004h
+	db	02fh,0f2h,082h,004h
+	db	0ffh
+
+get:
+	db	0ech,001h
+	db	010h,03ah
+	db	024h,0f2h,000h,005h
+	db	010h,022h
+	db	024h,0e2h,000h,005h
+	db	010h,03ah
+	db	024h,0f2h,000h,007h
+	db	010h,022h
+	db	02fh,0e2h,000h,007h
+	db	010h,008h
+	db	0ffh
+
+pinpon:
+	db	0ech,002h
+	db	02fh,0f3h,030h,007h
+	db	028h,065h,030h,007h
+	db	02fh,0f4h,000h,007h
+	db	02fh,074h,000h,007h
+	db	02fh,044h,000h,007h
+	db	02fh,024h,000h,007h
+	db	0ffh
+
+
+; --- MONSTERS VOICE ---
+
+	include mvoice.dat

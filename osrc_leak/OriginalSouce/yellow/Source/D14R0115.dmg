@@ -1,0 +1,491 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	dealer.def
+	include	macro.h
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	d14_room1_15f
+
+
+	extern	D14R1F15msg2
+	extern	SetActorSite
+	extern	put_wait
+	extern	table_jump
+	extern	bank2bank
+	extern	bank_push_call
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stopping
+	extern	capsule_item
+	extern	acttbl_h_adrs
+	extern	acttbl_l_adrs
+	extern	mk_trace_cmd
+	extern	CheckAssignPos
+	extern	GetAnimeStatus
+	extern	GetMoveStatus
+	extern	init_hero_anime
+
+	extern	musraibaru
+;;	extern	musraibaru2
+	extern	set_now_music
+	extern	set_ending_room_music
+	extern	direct_play
+
+	extern	pf_kanban
+	extern	hotel_kanban
+
+
+
+HITOKAGE		equ	176
+ZENIGAME		equ	177
+FUSIGIDANE		equ	153
+
+
+CHAMPCUP_TYPE	equ	7
+EXIT		=	0ffh
+
+
+seq_d14r1f15	equ	seq_ctrl_buf + 05ch
+
+
+d14_room1_15f:
+ysiz	=	4
+xsiz	=	4
+	db	CHAMPCUP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	dendou2			; map data adrs
+	dw	msg_d14r1f15		; message tbl adrs
+	dw	ev_d14r1f15		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d14r1f15
+
+
+ev_d14r1f15:
+	call	init_for_talkmap
+
+	ld	hl,d14r1f15_tbl
+	ld	a,(seq_d14r1f15)
+	call	table_jump
+
+	ret
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+d14r1f15_tbl:
+	initndw	main,SeqMain
+	ndw	FirstStep,SeqFirstStep		; event no 1
+	ndw	Step,SeqStep			; event no 2
+	ndw	after_battle,seq_after_battle	; event no 3
+	ndw	Okido,SeqOkido			; event no 4
+	ndw	Step1,SeqStep1			; event no 5
+	ndw	Step2,SeqStep2			; event no 6
+	ndw	Step3,SeqStep3			; event no 7
+	ndw	Step4,SeqStep4			; event no 8
+	ndw	Step5,SeqStep5			; event no 9
+	ndw	Step6,SeqStep6			; event no 10
+
+
+main:
+	ret
+
+
+FirstStep:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	hl,ctrl_move_val
+	ld	de,to_last$
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	call	init_hero_anime
+
+	ld	a,SeqStep
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+to_last$:
+	db	040h,1
+	db	010h,1
+	db	040h,3				; command top
+	db	0ffh
+
+
+Step:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	call	put_wait
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	hl,my_lvl
+	res	7,(hl)
+
+	ld	a,MsgRival
+	ld	(work1),a
+	call	talk_map			; battle start
+
+	call	put_wait
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg1_win			; hero lose
+	ld	de,msg1_lose			; hero win
+	call	set_battle_msg
+
+	ld	a,d_rival3
+	ld	(event_fight_no),a
+	ld	a,(rival_monster)
+	add	a,00h
+	ld	(take_mons_ptn),a		; rival pattern = 1,2,3
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,seq_after_battle
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+after_battle:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return
+
+	call	actor_blanch
+
+	ld	hl,ev_d14 + 4
+	set	1,(hl)
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,MsgRival
+	ld	(work1),a
+	call	talk_msg
+
+	ld	a,MsgRival
+	ld	(work1),a
+	call	obj_stopping
+
+	ld	a,SeqOkido
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+Okido:
+	ld	b,2
+	ld	hl,set_ending_room_music
+	call	bank_push_call
+
+	ld	a,MsgOkido
+	ld	(work1),a
+	call	talk_msg
+
+	ld	a,MsgOkido
+	ld	(work1),a
+	call	obj_stopping
+
+	ld	de,okido_in$
+	ld	a,MsgOkido
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,D14R1F15msg2
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	ld	a,SeqStep1
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+okido_in$:
+	db	040h,040h,040h,040h,040h,0ffh
+
+
+Step1:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,2
+	ld	(watashi_muki),a
+
+	ld	a,MsgRival
+	ld	(work1),a
+	ld	a,08h
+	ld	(work2),a
+	call	SetActorSite
+
+	ld	a,MsgOkido
+	ld	(work1),a
+	xor	a
+	ld	(work2),a
+	call	SetActorSite
+
+	ld	a,MsgOkido1
+	ld	(work1),a
+	call	talk_msg
+
+	ld	a,SeqStep2
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+Step2:
+	ld	a,MsgOkido
+	ld	(work1),a
+	ld	a,0ch
+	ld	(work2),a
+	call	SetActorSite
+
+	ld	a,MsgOkido2
+	ld	(work1),a
+	call	talk_msg
+
+	ld	a,SeqStep3
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+Step3:
+	ld	a,MsgOkido
+	ld	(work1),a
+	xor	a
+	ld	(work2),a
+	call	SetActorSite
+
+	ld	a,MsgOkido3
+	ld	(work1),a
+	call	talk_msg
+
+	ld	de,okido_out$
+	ld	a,MsgOkido
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,SeqStep4
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+okido_out$:
+	db	040h,040h,0ffh
+
+
+Step4:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,D14R1F15msg2
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,SeqStep5
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+Step5:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	hl,ctrl_move_val
+	ld	de,to_last$
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	call	init_hero_anime
+
+	ld	a,SeqStep6
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+to_last$:
+	db	040h,4
+	db	020h,1				; command top
+	db	0ffh
+
+
+Step6:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,SeqMain
+	ld	(seq_d14r1f15),a
+
+	ret
+
+
+
+talk_msg:
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	call	talk_map
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ret
+
+
+
+msg_d14r1f15:
+	msgndw	msg1,MsgRival
+	ndw	msg2,MsgOkido
+	ndw	msg2_1,MsgOkido1
+	ndw	msg2_2,MsgOkido2
+	ndw	msg2_3,MsgOkido3
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_d14 + 4)
+	bit	1,a
+	ld	hl,msg1_0
+	jr	z,rts$
+
+	ld	hl,msg1_after
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+
+
+msg1_0:
+	extern	msg1_0_0_D14R0115
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_D14R0115	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_1_D14R0115
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_D14R0115	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_lose:
+	extern	msg1_lose_2_D14R0115
+	db I_MSG2	; mvmsg追加
+	dw msg1_lose_2_D14R0115	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_3_D14R0115
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_3_D14R0115	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_4_D14R0115
+	db I_MSG2	; mvmsg追加
+	dw msg2_4_D14R0115	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1:
+	db	CALL_MSG
+
+	ld	a,(hero_monster)
+	ld	(in_dat),a
+	call	get_mons_name
+
+	ld	hl,msg2_1_a$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg2_1_a$:
+	extern	msg2_1_a_5_D14R0115
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_a_5_D14R0115	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_2:
+	extern	msg2_2_6_D14R0115
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_6_D14R0115	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_3:
+	extern	msg2_3_7_D14R0115
+	db I_MSG2	; mvmsg追加
+	dw msg2_3_7_D14R0115	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d14r1f15:
+	include	..\sxy\d14r0115.sxy
+
+
+dendou2:
+	include	..\mapdata\dendou2.map
+

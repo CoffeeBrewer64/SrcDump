@@ -1,0 +1,88 @@
+;==============================================================================
+; Update 1998/01/22
+; Update 1998/02/22
+;==============================================================================
+
+
+	include	common.def	
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	pm_debug.def
+	include macro.h
+	include group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	t1_room1_2f
+
+
+	extern	room2f
+	extern	table_jump
+
+
+
+ROOM2F_TYPE	equ	4
+
+
+seq_t1r1f2	equ	seq_ctrl_buf + 01ch
+
+
+t1_room1_2f:
+ysiz	=	4
+xsiz	=	4
+	db	ROOM2F_TYPE			; map type
+	db	ysiz,xsiz			; yx size
+	dw	room2f				; map data adrs
+	dw	msg_t1r1f2
+	dw	ev_t1r1f2
+	db	0				; map link flg
+	dw	room_str
+
+
+
+
+ev_t1r1f2:
+	call	init_for_talkmap
+
+	ld	hl,event_table
+	ld	a,00h				; event sequence
+	call	table_jump
+
+	ret
+
+
+event_table:
+	initndw	main_t1r1f2,seq_main_t1r1f2
+	ndw	struct_01,seq_struct_01
+	ndw	struct_02,seq_struct_02
+	ndw	struct_03,seq_struct_03
+	ndw	struct_04,seq_struct_04
+
+
+main_t1r1f2:
+struct_01:
+struct_02:
+struct_03:
+struct_04:
+	ret
+
+
+msg_t1r1f2:
+	db	EOM
+
+
+
+
+room_str:
+  ifn	pm_debug
+	include	..\sxy\t01r0102.dbg
+  else
+	include	..\sxy\t01r0102.sxy
+  endif
+
+
+
+

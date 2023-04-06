@@ -1,0 +1,244 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t8_room4
+
+
+	extern	capsule_item
+	extern	yes_no
+	extern	look_guide
+	extern	rock_on
+	extern	check_pack
+	extern	remove_item
+	extern	bank_push_call
+
+
+
+KENKYUJO_TYPE	equ	20
+EXIT		=	0ffh
+
+
+t8_room4:
+ysiz	=	4
+xsiz	=	5
+	db	KENKYUJO_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	kaicho			; map data adrs
+	dw	msg_t8r4f1		; message tbl adrs
+	dw	ev_t8r4f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t8r4f1
+
+
+ev_t8r4f1:
+	jp	init_for_talkmap
+
+
+
+msg_t8r4f1:
+	dw	msg1
+	dw	capsule_item
+	dw	rock_on
+	dw	myu2
+	dw	myu2
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t8_4 + 0)
+	bit	0,a
+	jr	nz,event_end$
+
+	ld	b,64
+	call	check_pack
+	jr	nz,obtained$
+
+	ld	a,(ev_t8_4 + 0)
+	bit	1,a
+	jr	nz,yet$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+ 
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	ld	hl,msg1_2$
+	jr	nz,no$
+
+	ld	hl,msg1_1$
+
+no$:
+	call	put_win_msg
+
+	jr	rts$
+
+
+obtained$:
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+	ld	a,64
+	ld	(DA_BUF + 0),a
+	ld	b,5
+	ld	hl,remove_item
+	call	bank_push_call
+
+	ld	hl,ev_t8_4 + 0
+	set	1,(hl)
+
+yet$:
+	ld	hl,msg1_4$
+	call	put_win_msg
+
+	ld	bc,199 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg1_5$
+	call	put_win_msg
+
+	ld	hl,ev_t8_4 + 0
+	set	0,(hl)
+
+	jr	rts$
+
+
+event_end$:
+	ld	hl,msg1_6$
+	call	put_win_msg
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg1_7$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_3_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE
+	extern	msg1_3_4_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_4_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_4$:
+	extern	msg1_4_5_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_5_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_5$:
+	extern	msg1_5_6_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_5_6_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg1_6$:
+	extern	msg1_6_7_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_6_7_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_7$:
+	extern	msg1_7_8_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_7_8_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+myu2:
+	db	CALL_MSG
+
+	ld	a,(work1)
+	cp	4
+	ld	hl,msg5_0$
+	jr	nz,set$
+
+	ld	hl,msg4_0$
+
+set$:
+	call	put_win_msg
+
+; no visual
+;	ld	a,131
+;	call	look_guide
+
+	jp	msg_return
+
+
+msg4_0$:
+	extern	msg4_0_9_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_9_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_0$:
+	extern	msg5_0_10_T08R0401
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_10_T08R0401	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t8r4f1:
+	include	..\sxy\t08r0401.sxy
+
+
+kaicho:
+	include	..\mapdata\kaicho_5.map
+

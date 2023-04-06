@@ -1,0 +1,24 @@
+; 11/19/95		07:51:21
+michi_tbl$:
+	db	02ch
+ie_tbl$:
+	db	001h
+	db	005h,008h,000h,R22R1F1
+kanban_tbl$:
+	db	001h
+	db	00Bh,007h,3
+hito_tbl$:
+	db	002h
+	db	RIVAL
+	db	005h+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	RIVAL
+	db	005h+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+ram_map_tbl$:
+	dw	01ah * 003h + 005h + ram_map
+	db	005h,008h

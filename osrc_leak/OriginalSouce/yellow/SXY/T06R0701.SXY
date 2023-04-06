@@ -1,0 +1,21 @@
+; 06/02/98		16:16:47
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	002h
+	db	007h,002h,007h,EXIT
+	db	007h,003h,007h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	001h
+	db	HOTELM
+	db	005h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	001h
+ram_map_tbl$:
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,002h
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,003h

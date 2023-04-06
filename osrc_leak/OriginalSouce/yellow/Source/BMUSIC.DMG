@@ -1,0 +1,2170 @@
+
+	include	common.def
+	include	group.def
+
+bank2	group	G_MUSIC1
+
+;*************************************************
+;**     POCKET MONSTER MUSIC MAIN ROUTINE	**
+;**						**
+;**	 Copyright 1.Nov.1994	Ver 3.00	**
+;**						**
+;**		  Town Music Bank		**
+;**		 (Bank 1, P-Bank 2)		**
+;**						**
+;**		  by Junichi.Masuda		**
+;**						**
+;*************************************************
+
+	public	bmusic
+	public	initialize
+
+	public	set_rival_leave_music
+	public	set_ending_room_music
+	public	set_rival_in_fast_music
+	public	set_rival_out_fast_music
+
+	extern	SoundInitialize
+
+	extern	Raibaru111
+	extern	Raibaru121
+
+	extern	Town11_END
+	extern	mustown1
+
+	extern	msadr
+	extern	bgmfirst
+	extern	bgmend
+	extern	drumend
+	extern	monsfirst
+	extern	monsend
+	extern	musend
+
+	extern	musraibaru
+	extern	direct_play
+	extern	Raibaru21		; Set Rival Leave Music Used
+	extern	Raibaru22
+	extern	Raibaru23
+
+
+bmusic:
+	ld	c,000h			; not break C register
+z1$:
+	ld	b,000h
+	ld	hl,condetion
+	add	hl,bc
+	ld	a,(hl)
+	and	a
+	jr	z,z2$
+	ld	a,c
+	cp	004h
+	jr	nc,z3$
+	ld	a,(muspausefg)
+	and	a
+	jr	z,z3$
+	bit	7,a
+	jr	nz,z2$
+	set	7,a
+	ld	(muspausefg),a
+	xor	a
+	ld	(NR51),a
+	ld	(NR30),a
+	ld	a,080h
+	ld	(NR30),a
+	jr	z2$
+z3$:
+	call	lenCHECK
+z2$:
+	ld	a,c
+	inc	c
+	cp	007h
+	jr	nz,z1$
+	ret
+
+lenCHECK:				; sound length check
+	ld	b,000h
+	ld	hl,sound_len
+	add	hl,bc
+	ld	a,(hl)
+	cp	001h
+	jp	z,setSOUND$		; sound set routine
+	dec	a
+	ld	(hl),a
+
+	ld	a,c			; Sound Priority Check
+	cp	004h
+	jr	nc,EFFECT$
+	ld	hl,condetion+4
+	add	hl,bc
+	ld	a,(hl)
+	and	a
+	jr	z,EFFECT$
+	ret
+EFFECT$:
+	ld	hl,com_fg
+	add	hl,bc
+	bit	6,(hl)			; duty changer check
+	jr	z,noDC$
+	call	dutyCHANGERset
+noDC$:
+	ld	b,000h
+	ld	hl,eff_fg		; Adding By 1995.3.9
+	add	hl,bc
+	bit	0,(hl)
+	jr	nz,check_on$
+
+	ld	hl,com_fg
+	add	hl,bc			; Adding By 1995.3.9
+	bit	2,(hl)			; Check effect2x Command
+	jr	nz,noPOR_noVIB$
+
+check_on$:
+	ld	hl,com_fg
+	add	hl,bc
+	bit	4,(hl)			; portamento check
+	jr	z,noPOR$
+	jp	portamentoSET
+noPOR$:
+	ld	hl,vib_wait		; vibrato check
+	add	hl,bc
+	ld	a,(hl)
+	and	a
+	jr	z,z2$
+	dec	(hl)
+noPOR_noVIB$:
+	ret
+z2$:
+	ld	hl,vib_wave
+	add	hl,bc
+	ld	a,(hl)
+	and	a
+	jr	nz,z3$
+	ret
+z3$:
+	ld	d,a
+	ld	hl,vib_wave_wait
+	add	hl,bc
+	ld	a,(hl)
+	and	00fh
+	and	a
+	jr	z,z5$
+	dec	(hl)
+	ret
+z5$:
+	ld	a,(hl)
+	swap	(hl)
+	or	(hl)
+	ld	(hl),a			; high = low
+	ld	hl,vib_tone
+	add	hl,bc
+	ld	e,(hl)
+	ld	hl,com_fg
+	add	hl,bc
+	bit	3,(hl)
+	jr	z,up$
+down$:
+	res	3,(hl)
+	ld	a,d
+	and	00fh
+	ld	d,a
+	ld	a,e
+	sub	d
+	jr	nc,z4$
+	ld	a,000h
+z4$:
+	jr	set$
+up$:
+	set	3,(hl)
+	ld	a,d
+	and	0f0h
+	swap	a
+	add	a,e
+	jr	nc,set$
+	ld	a,0ffh
+set$:
+	ld	d,a
+	ld	b,003h
+	call	calcNR
+	ld	(hl),d
+	ret
+
+setSOUND$:
+	ld	hl,vib_work		; vibrato wait value recover
+	add	hl,bc
+	ld	a,(hl)
+
+	ld	hl,vib_wait
+	add	hl,bc
+	ld	(hl),a
+
+	ld	hl,com_fg		; portamento flag initialize
+	add	hl,bc
+	res	4,(hl)
+	res	5,(hl)
+
+
+	ld	a,c			; Pinchi Sound Check
+	cp	004h
+	jr	nz,no_pinchi_ch$
+
+	ld	a,(pinchi_flg)
+	bit	7,a
+;	ret	nz			; Now Pinchi! (Controlled "play.src")
+	jr	z,no_pinchi_ch$
+
+	call	soundON
+	ret
+no_pinchi_ch$:
+
+	call	comCHECK
+	ret
+
+
+
+
+
+
+
+
+
+	
+
+comCHECK:				; command check start
+	call	dataLOAD
+	ld	d,a
+
+ENDorRET:
+	cp	0ffh
+	jp	nz,callDATA
+	ld	b,000h
+	ld	hl,com_fg
+	add	hl,bc
+	bit	1,(hl)			; return fg
+	jr	nz,RET$
+	ld	a,c
+	cp	003h
+	jr	nc,z1$
+	jr	END$
+z1$:
+	res	2,(hl)			; 3-7 com_fg(effect) clear
+	ld	hl,eff_fg
+	add	hl,bc
+	res	0,(hl)
+	cp	006h
+	jr	nz,z3$
+	ld	a,000h
+	ld	(NR30),a
+	ld	a,080h
+	ld	(NR30),a
+z3$:
+	jr	nz,z2$
+	ld	a,(calldrum_fg)
+	and	a
+	jr	z,z2$
+	xor	a
+	ld	(calldrum_fg),a
+	jr	END$
+z2$:
+	jr	CON$			; condetion clear
+
+RET$:
+	res	1,(hl)
+	ld	d,000h
+	ld	a,c
+	add	a,a
+	ld	e,a
+	ld	hl,mus_adrs
+	add	hl,de
+	push	hl
+	ld	hl,mus_stack
+	add	hl,de
+	ld	e,l
+	ld	d,h
+	pop	hl
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hl),a
+	jp	comCHECK
+END$:
+;	ld	b,000h		1992.10.15
+	ld	hl,offMASK
+	add	hl,bc
+	ld	a,(NR51)
+	and	(hl)
+	ld	(NR51),a
+CON$:
+	ld	a,(condetion+4)
+	cp	monsfirst
+	jr	nc,z10$
+	jr	clearCON$
+z10$:
+	ld	a,(condetion+4)
+	cp	monsend
+	jr	z,clearCON$
+	jr	c,z11$
+	jr	clearCON$
+z11$:
+	ld	a,c
+	cp	004h
+	jr	z,endMONS$
+	call	monsCHECK
+	ret	c
+endMONS$:
+	ld	a,(vol_rec)
+	ld	(NR50),a
+	xor	a
+	ld	(vol_rec),a
+clearCON$:
+	ld	hl,condetion
+	add	hl,bc
+	ld	(hl),b
+	ret
+
+
+callDATA:
+	cp	0fdh
+	jp	nz,loop
+	call	dataLOAD
+	push	af
+	call	dataLOAD
+	ld	d,a
+	pop	af
+	ld	e,a
+	push	de
+	ld	d,000h
+	ld	a,c
+	add	a,a
+	ld	e,a
+	ld	hl,mus_adrs
+	add	hl,de
+	push	hl
+	ld	hl,mus_stack
+	add	hl,de
+	ld	e,l
+	ld	d,h
+	pop	hl
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hld)
+	ld	(de),a
+	pop	de
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+	ld	b,000h
+	ld	hl,com_fg
+	add	hl,bc
+	set	1,(hl)
+	jp	comCHECK
+
+loop:
+	cp	0feh
+	jp	nz,init
+	call	dataLOAD
+	ld	e,a
+	and	a
+	jr	z,z2$
+	ld	b,000h
+	ld	hl,loop_val
+	add	hl,bc
+	ld	a,(hl)
+	cp	e
+	jr	nz,z1$
+	ld	a,001h
+	ld	(hl),a			; init
+	call	dataLOAD
+	call	dataLOAD
+	jp	comCHECK
+z1$:
+	inc	a
+	ld	(hl),a
+z2$:
+	call	dataLOAD
+	push	af
+	call	dataLOAD
+	ld	b,a
+	ld	d,000h
+	ld	a,c
+	add	a,a
+	ld	e,a
+	ld	hl,mus_adrs
+	add	hl,de
+	pop	af
+	ld	(hli),a
+	ld	(hl),b
+	jp	comCHECK
+
+init:
+	and	0f0h
+	cp	0d0h
+	jp	nz,chorus
+	ld	a,d
+	and	00fh
+	ld	b,000h
+	ld	hl,D_tempo
+	add	hl,bc
+	ld	(hl),a
+
+	ld	a,c
+	cp	003h
+	jr	z,z4$
+	call	dataLOAD		; env or sound3(out level and wave num)
+	ld	d,a
+	ld	a,c
+	cp	002h
+	jr	z,z3$
+	cp	006h
+	jr	nz,z1$
+	ld	hl,wave_num+1
+	jr	z2$
+z3$:
+	ld	hl,wave_num+0
+z2$:
+	ld	a,d
+	and	00fh
+	ld	(hl),a
+	ld	a,d
+	and	030h
+	sla	a
+	ld	d,a
+z1$:
+	ld	b,000h
+	ld	hl,env_val
+	add	hl,bc
+	ld	(hl),d
+z4$:
+	jp	comCHECK
+
+chorus:
+	ld	a,d
+	cp	0e8h
+	jr	nz,vibrato
+	ld	b,000h
+	ld	hl,com_fg
+	add	hl,bc
+	ld	a,(hl)
+	xor	001h
+	ld	(hl),a
+	jp	comCHECK
+
+vibrato:
+	cp	0eah
+	jr	nz,portamento
+	call	dataLOAD
+	ld	b,000h
+	ld	hl,vib_wait
+	add	hl,bc
+	ld	(hl),a
+	ld	hl,vib_work
+	add	hl,bc
+	ld	(hl),a
+	call	dataLOAD
+	ld	d,a
+	and	0f0h
+	swap	a
+	ld	b,000h
+	ld	hl,vib_wave
+	add	hl,bc
+	srl	a
+	ld	e,a
+	adc	a,b
+	swap	a
+	or	e
+	ld	(hl),a
+	ld	a,d
+	and	00fh
+	ld	d,a
+	ld	hl,vib_wave_wait
+	add	hl,bc
+	swap	a
+	or	d
+	ld	(hl),a
+	jp	comCHECK
+
+portamento:
+	cp	0ebh
+	jr	nz,duty
+	call	dataLOAD
+	ld	b,000h
+	ld	hl,por_len
+	add	hl,bc
+	ld	(hl),a
+
+	call	dataLOAD
+	ld	d,a
+	and	0f0h
+	swap	a
+	ld	b,a
+	ld	a,d
+	and	00fh
+
+	call	calcTONE
+z2$:
+	ld	b,000h
+	ld	hl,por_evalh
+	add	hl,bc
+	ld	(hl),d
+	ld	hl,por_evall
+	add	hl,bc
+	ld	(hl),e
+
+	ld	b,000h
+	ld	hl,com_fg
+	add	hl,bc
+	set	4,(hl)
+
+	call	dataLOAD
+	ld	d,a
+	jp	len
+
+duty:					; FAMICOM = store
+	cp	0ech
+	jr	nz,tempo
+	call	dataLOAD
+	rrca
+	rrca
+	and	0c0h
+	ld	b,000h
+	ld	hl,duty_val
+	add	hl,bc
+	ld	(hl),a
+z1$:
+	jp	comCHECK
+
+tempo:
+	cp	0edh
+	jr	nz,balance
+	ld	a,c
+	cp	004h
+	jr	nc,z1$
+	call	dataLOAD
+	ld	(bgm_tempo+0),a
+	call	dataLOAD
+	ld	(bgm_tempo+1),a
+	xor	a
+	ld	(tempo_counter+0),a
+	ld	(tempo_counter+1),a
+	ld	(tempo_counter+2),a
+	ld	(tempo_counter+3),a
+	jr	z2$
+z1$:
+	call	dataLOAD
+	ld	(se_tempo+0),a
+	call	dataLOAD
+	ld	(se_tempo+1),a
+	xor	a
+	ld	(tempo_counter+4),a
+	ld	(tempo_counter+5),a
+	ld	(tempo_counter+6),a
+	ld	(tempo_counter+7),a
+z2$:
+	jp	comCHECK
+
+balance:				; FAMICOM = call drum
+	cp	0eeh
+	jr	nz,calldrum
+	call	dataLOAD
+	ld	(balance_mask),a
+	jp	comCHECK
+
+calldrum:
+	cp	0efh
+	jr	nz,dutychanger
+	call	dataLOAD
+	push	bc
+;	call	initialize
+	ld	b,a
+	call	SoundInitialize
+	pop	bc
+	ld	a,(calldrum_fg)
+	and	a
+	jr	nz,z1$
+	ld	a,(condetion+7)
+	ld	(calldrum_fg),a
+	xor	a
+	ld	(condetion+7),a
+z1$:
+	jp	comCHECK
+
+dutychanger:
+	cp	0fch
+	jr	nz,volume
+	call	dataLOAD
+	ld	b,000h
+	ld	hl,dc_val
+	add	hl,bc
+	ld	(hl),a
+	and	0c0h
+	ld	hl,duty_val
+	add	hl,bc
+	ld	(hl),a
+	ld	hl,com_fg
+	add	hl,bc
+	set	6,(hl)			; duty changer
+	jp	comCHECK
+
+volume:
+	cp	0f0h
+	jr	nz,eff
+	call	dataLOAD
+	ld	(NR50),a
+	jp	comCHECK
+
+eff:
+	cp	0f8h
+	jr	nz,oct
+	ld	b,000h
+	ld	hl,eff_fg		; effect fg set (0f8h command)
+	add	hl,bc
+	set	0,(hl)
+	jp	comCHECK
+
+oct:
+	and	0f0h
+	cp	0e0h
+	jr	nz,effect2x
+	ld	hl,oct_val
+	ld	b,000h
+	add	hl,bc
+	ld	a,d
+	and	00fh
+	ld	(hl),a
+	jp	comCHECK
+
+effect2x:
+	cp	020h
+	jr	nz,effect10
+	ld	a,c
+	cp	003h
+	jr	c,effect10
+	ld	b,000h
+	ld	hl,eff_fg
+	add	hl,bc
+	bit	0,(hl)
+	jr	nz,effect10
+	call	len
+	ld	d,a
+	ld	b,000h
+	ld	hl,duty_val
+	add	hl,bc
+	ld	a,(hl)
+	or	d
+	ld	d,a
+	ld	b,001h
+	call	calcNR
+	ld	(hl),d			; duty and length set
+	call	dataLOAD
+	ld	d,a
+	ld	b,002h
+	call	calcNR
+	ld	(hl),d			; envelope set
+	call	dataLOAD
+	ld	e,a			; porinomial or tone(low)
+	ld	a,c
+	cp	007h
+	ld	a,000h
+	jr	z,noREAD$
+	push	de
+	call	dataLOAD
+	pop	de
+noREAD$:
+	ld	d,a			; counter or tone(hi)
+	push	de
+	call	setLEN
+	call	soundON
+	pop	de
+	call	setTONE
+	ret
+
+
+effect10:
+	ld	a,c
+	cp	004h
+	jr	c,noise
+	ld	a,d
+	cp	010h			; db	010h,$xx,02hx,$xx,$xx,$xx,0ffh
+	jr	nz,noise
+	ld	b,000h
+	ld	hl,eff_fg
+	add	hl,bc
+	bit	0,(hl)
+	jr	nz,noise
+	call	dataLOAD
+	ld	(NR10),a		; sweep set
+	jp	comCHECK
+
+noise:
+	ld	a,c
+	cp	003h
+	jr	nz,len
+	ld	a,d
+	and	0f0h
+	cp	0b0h
+	jr	z,z1$
+	jr	nc,len
+	swap	a
+	ld	b,a
+	ld	a,d
+	and	00fh
+	ld	d,a
+	ld	a,b
+	push	de
+	push	bc
+	jr	z2$
+z1$:
+	ld	a,d
+	and	00fh
+	push	af
+	push	bc
+	call	dataLOAD
+z2$:
+	ld	d,a
+	ld	a,(calldrum_fg)
+	and	a
+	jr	nz,z3$
+;	ld	a,d
+;	call	initialize
+	ld	b,d
+	call	SoundInitialize
+z3$:
+	pop	bc
+	pop	de
+len:
+	ld	a,d
+	push	af
+	and	00fh			; sound length
+	inc	a			; len = 001h-010h
+	ld	b,000h
+	ld	e,a
+	ld	d,b
+	ld	hl,D_tempo
+	add	hl,bc
+	ld	a,(hl)
+	ld	l,b
+	call	multi			; D_tempo * len(int) = sound_len
+	ld	a,c
+	cp	004h
+	jr	nc,z3$
+	ld	a,(bgm_tempo)
+	ld	d,a
+	ld	a,(bgm_tempo+1)
+	ld	e,a
+	jr	z5$
+z3$:
+	ld	d,001h
+	ld	e,000h
+	cp	007h
+	jr	z,z5$
+
+	call	mons_voice_speed	; Monster Voice Speed Changer
+	ld	a,(se_tempo+0)		; Int
+	ld	d,a
+	ld	a,(se_tempo+1)		; Float
+	ld	e,a
+z5$:
+	ld	a,l
+	ld	b,000h
+	ld	hl,tempo_counter
+	add	hl,bc
+	ld	l,(hl)
+	call	multi			; sound length * tempo = len
+	ld	e,l			; dust float val
+	ld	d,h
+	ld	hl,tempo_counter
+	add	hl,bc
+	ld	(hl),e
+	ld	a,d
+	ld	hl,sound_len
+	add	hl,bc
+	ld	(hl),a
+
+	ld	hl,eff_fg
+	add	hl,bc
+	bit	0,(hl)
+	jr	nz,z2$
+	ld	hl,com_fg
+	add	hl,bc
+	bit	2,(hl)
+	jr	z,z2$
+	pop	hl
+	ret
+z2$:
+	pop	af
+suspend:				; kyuufu
+	and	0f0h
+	cp	0c0h
+	jr	nz,tone
+	ld	a,c
+	cp	004h
+	jr	nc,z1$
+	ld	hl,condetion+4
+	add	hl,bc
+	ld	a,(hl)
+	and	a
+	jr	nz,z2$
+z1$:
+	ld	a,c
+	cp	002h
+	jr	z,z4$
+	cp	006h
+	jr	nz,z3$
+z4$:
+;	ld	a,0ffh
+;	ld	(NR33),a
+;	ld	a,087h
+;	ld	(NR34),a
+
+	ld	b,000h			; sound 3 off
+	ld	hl,offMASK
+	add	hl,bc
+	ld	a,(NR51)
+	and	(hl)
+	ld	(NR51),a
+	jr	z2$
+z3$:
+	ld	b,002h
+	call	calcNR
+	ld	a,008h
+	ld	(hli),a
+	inc	hl
+	ld	a,080h
+	ld	(hl),a
+z2$:
+	ret
+
+tone:
+	swap	a
+	ld	b,000h
+	ld	hl,oct_val
+	add	hl,bc
+	ld	b,(hl)
+
+	call	calcTONE
+
+	ld	b,000h
+	ld	hl,com_fg
+	add	hl,bc
+	bit	4,(hl)
+	jr	z,z1$
+	call	portamentoINIT
+z1$:
+	push	de
+
+condetionCHECK:
+	ld	a,c
+	cp	004h
+	jr	nc,SET
+	ld	hl,condetion+4
+	ld	d,000h
+	ld	e,a
+	add	hl,de
+	ld	a,(hl)
+	and	a
+	jr	nz,z2$
+	jr	SET
+z2$:
+	pop	de
+	ret
+
+SET:
+	ld	b,000h
+	ld	hl,env_val		; envelope
+	add	hl,bc
+	ld	d,(hl)
+	ld	b,002h
+	call	calcNR
+	ld	(hl),d
+
+	call	setLEN
+	call	soundON
+
+	pop	de
+	ld	b,000h
+	ld	hl,com_fg		; chorus
+	add	hl,bc
+	bit	0,(hl)
+	jr	z,z1$
+	inc	e
+	jr	nc,z1$
+	inc	d
+z1$:
+	ld	hl,vib_tone		; low tone set (vibrato use)
+	add	hl,bc
+	ld	(hl),e
+
+	call	setTONE
+
+	ret
+
+
+
+soundON:				; a & b & d & hl = break
+	ld	b,000h
+;	ld	hl,onMASK
+	call	onMASKset
+	add	hl,bc
+	ld	a,(NR51)
+	or	(hl)
+	ld	d,a
+	ld	a,c
+	cp	007h
+	jr	z,z1$
+	cp	004h
+	jr	nc,z2$
+	ld	hl,condetion+4
+	add	hl,bc
+	ld	a,(hl)
+	and	a
+	jr	nz,z2$
+z1$:
+	ld	a,(balance_mask)
+;	ld	hl,onMASK
+	call	onMASKset
+	add	hl,bc
+	and	(hl)
+	ld	d,a
+	ld	a,(NR51)
+	ld	hl,offMASK
+	add	hl,bc
+	and	(hl)
+	or	d
+	ld	d,a
+z2$:
+	ld	a,d
+	ld	(NR51),a
+	ret
+
+setLEN:					; a & b & d & hl = break
+	ld	b,000h
+	ld	hl,sound_len
+	add	hl,bc
+	ld	d,(hl)
+	ld	a,c
+	cp	002h
+	jr	z,z1$
+	cp	006h
+	jr	z,z1$
+	ld	a,d
+	and	03fh
+	ld	d,a
+	ld	hl,duty_val
+	add	hl,bc
+	ld	a,(hl)
+	or	d
+	ld	d,a
+z1$:
+	ld	b,001h
+	call	calcNR
+	ld	(hl),d
+	ret
+
+
+
+setTONE:				; de = tone data, a & b = break
+	ld	a,c
+	cp	002h
+	jr	z,z5$
+	cp	006h
+	jr	nz,z2$
+z5$:
+	push	de
+	ld	de,wave_num+0
+	cp	002h
+	jr	z,z4$
+	ld	de,wave_num+1
+z4$:
+	ld	a,(de)
+	add	a,a
+	ld	d,000h
+	ld	e,a
+	ld	hl,wavedata
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ld	hl,waveram		; 0FF30h
+	ld	b,00fh
+
+	ld	a,000h
+	ld	(NR30),a
+z3$:
+	ld	a,(de)			; writting wave data
+	inc	de
+	ld	(hli),a
+	ld	a,b
+	dec	b
+	and	a
+	jr	nz,z3$
+
+	ld	a,080h
+	ld	(NR30),a
+	pop	de
+
+z2$:
+	ld	a,d
+	or	080h			; init fg on
+	and	0c7h
+	ld	d,a
+z6$:
+	ld	b,003h
+	call	calcNR
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+
+	ld	a,c
+	cp	004h			; Check SE
+	jr	c,z1$
+	call	mons_changer
+z1$:
+	ret
+
+
+
+
+
+
+;---------------------------------------;
+;     Monster Voice Function Clear	;
+;---------------------------------------;
+mons_voice_clear:
+	ld	a,c			; Pinchi Sound Check
+	cp	004h
+	ret	nz
+
+	ld	a,(pinchi_flg)
+	bit	7,a
+	ret	z
+
+now_pinchi$:
+	xor	a
+	ld	(mons_voice_offset),a
+	ld	a,080h
+	ld	(mons_voice_tempo),a
+	ret
+
+
+;---------------------------------------;
+;					;
+;	Monster Voice Tempo Changer	;
+;					;
+;	  00h(First)-0FFh(Slow)		;
+;	se_tempo = 00.80 - 01.80	;
+;---------------------------------------;
+
+mons_voice_speed:
+	call	MonsterVoiceCheck
+	jr	c,voice$
+
+	call	WazaSECheck
+	jr	nc,not_waza$
+voice$:
+	ld	d,00h
+	ld	a,(mons_voice_tempo)
+	add	a,080h
+	jr	nc,z1$
+	inc	d
+z1$:
+	ld	(se_tempo+1),a		; Float
+	ld	a,d
+	ld	(se_tempo+0),a		; Int
+	ret
+not_waza$:
+	xor	a
+	ld	(se_tempo+1),a		; Float
+	inc	a
+	ld	(se_tempo+0),a		; Int
+ret$:
+	ret
+
+
+;---------------------------------------;
+;					;
+;	Monster Voice Tone Changer	;
+;					;
+;---------------------------------------;
+
+mons_changer:
+	call	MonsterVoiceCheck
+	jr	c,mons_voice$
+
+	call	WazaSECheck
+	ret	nc
+
+mons_voice$:
+	ld	a,(mons_voice_offset)
+	add	a,e
+	jr	nc,z1$
+	inc	d
+z1$:
+	dec	hl
+	ld	e,a
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+not_waza$:
+	ret
+
+
+
+;---------------------------------------;
+;	 Monster Voice Only Mode!	;
+;					;
+;	  Wait For Channel 4 End	;
+;---------------------------------------;
+monsCHECK:				; Monster Voice (CAPSULE MONSTERS ONLY)
+	call	MonsterVoiceCheck
+	jr	nc,noMONS$
+
+	ld	hl,mus_adrs
+	ld	e,c			; Creg = Channel
+	ld	d,000h
+	sla	e
+	rl	d			; * 2
+	add	hl,de
+	ld	a,(hl)
+	sub	001h
+	ld	(hl),a			; Music Address Low -= 1
+	inc	hl
+	ld	a,(hl)
+	sbc	a,000h
+	ld	(hl),a			; Music Address High -= Cy
+	scf				; carry set
+	ret
+noMONS$:
+	and	a			; carry reset
+	ret
+
+
+MonsterVoiceCheck:
+	ld	a,(condetion+4)
+	cp	monsfirst
+	jr	nc,z10$
+	jr	noMONS$
+z10$:
+	cp	monsend
+	jr	z,noMONS$
+	jr	c,MONS$
+
+noMONS$:
+	scf
+	ccf				; carry reset
+	ret
+MONS$:
+	scf				; carry set
+	ret
+
+	extern	wazafirst2
+	extern	wazaend2
+WazaSECheck:
+	ld	a,(music_bank_flg)
+	cp	MUSIC_BANK2_NO
+	jr	nz,no_waza$
+
+	ld	a,(condetion+7)
+	ld	b,a
+	ld	a,(condetion+4)
+	or	b
+	cp	wazafirst2
+	jr	c,no_waza$
+	cp	wazaend2
+	jr	z,waza$
+	jr	c,waza$
+no_waza$:
+	and	a			; carry reset
+	ret
+waza$:
+	scf				; carry set
+	ret
+
+portamentoSET:
+	ld	hl,com_fg
+	add	hl,bc
+	bit	5,(hl)
+	jp	nz,porUP$
+porDOWN$:
+	ld	hl,por_svall
+	add	hl,bc
+	ld	e,(hl)
+	ld	hl,por_svalh
+	add	hl,bc
+	ld	d,(hl)
+
+	ld	hl,por_addi
+	add	hl,bc
+	ld	l,(hl)
+	ld	h,b
+
+	add	hl,de
+	ld	d,h
+	ld	e,l
+
+	ld	hl,por_addt
+	add	hl,bc
+	push	hl
+	ld	hl,por_addf
+	add	hl,bc
+	ld	a,(hl)
+	pop	hl
+	add	a,(hl)
+	ld	(hl),a
+
+	ld	a,000h
+	adc	a,e
+	ld	e,a
+	ld	a,000h
+	adc	a,d
+	ld	d,a
+
+	ld	hl,por_evalh		; portament end check (down mode) 
+	add	hl,bc
+	ld	a,(hl)
+	cp	d
+	jp	c,porEND$
+	jr	nz,porSET$
+	ld	hl,por_evall
+	add	hl,bc
+	ld	a,(hl)
+	cp	e
+	jp	c,porEND$
+	jr	porSET$
+porUP$:
+	ld	hl,por_svall
+	add	hl,bc
+	ld	a,(hl)
+	ld	hl,por_svalh
+	add	hl,bc
+	ld	d,(hl)
+
+	ld	hl,por_addi
+	add	hl,bc
+	ld	e,(hl)
+
+	sub	e
+	ld	e,a
+	ld	a,d
+	sbc	a,b
+	ld	d,a
+
+	ld	hl,por_addf
+	add	hl,bc
+	ld	a,(hl)
+	add	a,a
+	ld	(hl),a
+
+	ld	a,e
+	sbc	a,b
+	ld	e,a
+	ld	a,d
+	sbc	a,b
+	ld	d,a
+
+	ld	hl,por_evalh		; portament end check (up mode) 
+	add	hl,bc
+	ld	a,d
+	cp	(hl)
+	jr	c,porEND$
+	jr	nz,porSET$
+	ld	hl,por_evall
+	add	hl,bc
+	ld	a,e
+	cp	(hl)
+	jr	c,porEND$
+porSET$:
+	ld	hl,por_svall
+	add	hl,bc
+	ld	(hl),e
+	ld	hl,por_svalh
+	add	hl,bc
+	ld	(hl),d
+	ld	b,003h
+	call	calcNR
+	ld	a,e
+	ld	(hli),a
+	ld	(hl),d
+
+	ret
+porEND$:
+	ld	hl,com_fg
+	add	hl,bc
+	res	4,(hl)
+	res	5,(hl)
+
+	ret
+
+
+portamentoINIT:
+	ld	hl,por_svalh
+	add	hl,bc
+	ld	(hl),d			; tone data
+	ld	hl,por_svall
+	add	hl,bc
+	ld	(hl),e
+
+	ld	hl,sound_len
+	add	hl,bc
+	ld	a,(hl)
+	ld	hl,por_len
+	add	hl,bc
+	sub	(hl)
+	jr	nc,z3$
+	ld	a,001h
+z3$:
+	ld	(hl),a			; portamento length set
+up$:
+	ld	hl,por_evall
+	add	hl,bc
+	ld	a,e
+	sub	(hl)
+	ld	e,a
+	ld	a,d
+	sbc	a,b
+
+	ld	hl,por_evalh
+	add	hl,bc
+	sub	(hl)
+	jr	c,down$
+	ld	d,a
+
+	ld	b,000h
+	ld	hl,com_fg
+	add	hl,bc
+	set	5,(hl)
+
+	jr	calcADD$
+down$:
+	ld	hl,por_svalh
+	add	hl,bc
+	ld	d,(hl)
+	ld	hl,por_svall
+	add	hl,bc
+	ld	e,(hl)
+
+	ld	hl,por_evall
+	add	hl,bc
+	ld	a,(hl)
+	sub	e
+	ld	e,a
+	ld	a,d
+	sbc	a,b
+	ld	d,a
+
+	ld	hl,por_evalh
+	add	hl,bc
+	ld	a,(hl)
+	sub	d
+	ld	d,a
+
+	ld	b,000h
+	ld	hl,com_fg
+	add	hl,bc
+	res	5,(hl)
+
+calcADD$:
+	ld	hl,por_len
+	add	hl,bc
+z1$:
+	inc	b
+	ld	a,e
+	sub	(hl)
+	ld	e,a
+	jr	nc,z1$
+	ld	a,d
+	and	a
+	jr	z,z2$
+	dec	a
+	ld	d,a
+	jr	z1$
+z2$:
+	ld	a,e
+	add	a,(hl)
+	ld	d,b
+
+	ld	b,000h
+	ld	hl,por_addi		; set portamento add value
+	add	hl,bc
+	ld	(hl),d
+	ld	hl,por_addf
+	add	hl,bc
+	ld	(hl),a
+	ld	hl,por_addt
+	add	hl,bc
+	ld	(hl),a
+
+	ret
+
+dutyCHANGERset:
+	ld	b,000h
+	ld	hl,dc_val
+	add	hl,bc
+	ld	a,(hl)
+	rlca
+	rlca
+	ld	(hl),a
+	and	0c0h
+	ld	d,a
+	ld	b,001h
+	call	calcNR
+	ld	a,(hl)
+	and	03fh
+	or	d
+	ld	(hl),a
+	ret
+
+dataLOAD:				; hl & de = break, (o)a = data
+	extern	MusicDataLOAD
+	call	MusicDataLOAD
+	ret
+
+calcNR:					; a = break, (i)b = NR index
+	ld	a,c			; (o)hl = NR adrs
+	ld	hl,dataNR
+	add	a,l
+	jr	nc,z1$
+	inc	h
+z1$:
+	ld	l,a
+	ld	a,(hl)
+	add	a,b
+	ld	l,a
+	ld	h,0ffh
+	ret
+
+multi:					; (i)a = A, (i)de = B, (i)l = float
+	ld	h,000h			; (o)hl = A*B
+z1$:
+	srl	a
+	jr	nc,z2$
+	add	hl,de
+z2$:
+	sla	e
+	rl	d
+	and	a
+	jr	z,z3$
+	jr	z1$
+z3$:
+	ret
+
+calcTONE:				; hl = break, (i)a = tone, (i)b = oct
+	ld	h,000h			;(o)de = tone value
+	ld	l,a
+	add	hl,hl
+	ld	d,h
+	ld	e,l
+	ld	hl,toneDATA
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ld	a,b
+z1$:
+	cp	oct_init_val
+	jr	z,z2$
+	sra	d
+	rr	e
+	inc	a
+	jr	z1$
+z2$:
+	ld	a,008h
+	add	a,d
+	ld	d,a
+	ret
+
+NoiseInit:
+;	ld	a,(music_bank_flg)
+	
+
+
+;**************************************************
+;**		INITIALIZE			**
+;**						**
+;**************************************************
+	extern	BGMinitialize
+	extern	SEinitialize
+	extern	BGMSEinitialize
+initialize:
+	ld	(mus_num),a
+	
+	ld	a,(mus_num)
+	cp	0ffh
+	jp	z,bgmseINIT
+	cp	bgmfirst
+	jp	z,seINIT
+	jp	c,seINIT
+	cp	bgmend
+	jr	z,bgmINIT
+	jp	nc,seINIT
+bgmINIT:
+	call	BGMinitialize
+	jp	setADRS
+
+seINIT:
+	ld	l,a
+	ld      e,a
+
+	ld      h,000h
+	ld      d,h
+	add     hl,hl
+	add     hl,de
+	ld      de,msadr
+	add     hl,de
+	ld	a,h
+	ld	(work+0),a
+	ld	a,l
+	ld	(work+1),a
+	ld      a,(hl)
+	and	0c0h
+	rlca
+	rlca
+	ld	c,a
+loop$:
+	ld	d,c
+	ld	a,c
+	add	a,a
+	add	a,c
+	ld	c,a
+	ld	b,000h
+	ld	a,(work+0)
+	ld	h,a
+	ld	a,(work+1)
+	ld	l,a
+	add	hl,bc
+	ld	c,d
+	ld      a,(hl)
+	and     00fh
+	ld      e,a
+	ld      d,000h
+	ld      hl,condetion
+	add     hl,de
+	ld      a,(hl)
+	and     a
+	jr      z,z1$
+	ld	a,e
+	cp	007h
+	jr	nz,z3$
+	ld      a,(mus_num)
+	cp	drumend
+	jr	nc,z2$
+	ret				; mus_num < drumend
+z2$:
+	ld	a,(hl)
+	cp	drumend			; playing sound = music drum ?
+	jr	z,z1$
+	jr	c,z1$
+z3$:
+	ld      a,(mus_num)
+	cp      (hl)                    ; priority check
+	jr      z,z1$                    ;   drumend : hi  bgmfirst : low
+	jr	c,z1$
+	ret				; condetion < mus_num
+z1$:
+	call	SEinitialize
+
+	ld	a,c
+	and	a
+	jp	z,setADRS
+	dec	c
+	jp	loop$
+
+bgmseINIT:				; Areg = 0FFh
+	call	BGMSEinitialize
+	ret
+
+ ifn 0
+;**************************************************
+;**		INITIALIZE(SUB)			**
+;**************************************************
+	public	BGMinitMain
+	public	SEinitMain
+	public	BGMSEinitMain
+BGMinitMain:
+	xor	a
+	ld	(vblank_fg),a
+	ld	(calldrum_fg),a
+	ld	(bgm_tempo+1),a		; float
+
+	ld	(wave_num+0),a
+	ld	(wave_num+1),a
+
+	ld	d,008h
+	ld	hl,mus_stack
+	call	clearBYTE
+
+	ld	hl,mus_adrs
+	call	clearBYTE
+
+	ld	d,004h
+	ld	hl,condetion
+	call	clearBYTE
+
+	ld	hl,com_fg
+	call	clearBYTE
+
+	ld	hl,duty_val
+	call	clearBYTE
+
+	ld	hl,dc_val
+	call	clearBYTE
+
+	ld	hl,vib_wait
+	call	clearBYTE
+
+	ld	hl,vib_wave
+	call	clearBYTE
+
+	ld	hl,vib_wave_wait
+	call	clearBYTE
+
+	ld	hl,vib_tone
+	call	clearBYTE
+
+	ld	hl,vib_work
+	call	clearBYTE
+
+	ld	hl,eff_fg
+	call	clearBYTE
+
+	ld	hl,por_len			; portamento
+	call	clearBYTE
+
+	ld	hl,por_addi
+	call	clearBYTE
+
+	ld	hl,por_addf
+	call	clearBYTE
+
+	ld	hl,por_addt
+	call	clearBYTE
+
+	ld	hl,por_svalh
+	call	clearBYTE
+
+	ld	hl,por_svall
+	call	clearBYTE
+
+	ld	hl,por_evalh
+	call	clearBYTE
+
+	ld	hl,por_evall
+	call	clearBYTE
+
+	ld	a,001h
+	ld	hl,loop_val
+	call	clearBYTE
+
+	ld	hl,sound_len
+	call	clearBYTE
+
+	ld	hl,D_tempo
+	call	clearBYTE
+
+	ld	(bgm_tempo+0),a		; int
+
+	ld	a,0ffh
+	ld	(balance_mask),a
+
+	xor	a
+	ld	(NR50),a
+
+	ld	a,008h
+	ld	(NR10),a			; sweep off
+
+	ld	a,000h
+	ld	(NR51),a			; all sound flag reset
+
+	xor	a
+	ld	(NR30),a			; sound 3 stop
+	ld      a,080h
+	ld	(NR30),a			; sound 3 output
+
+	ld	a,077h
+	ld	(NR50),a
+	ret
+
+SEinitMain:
+	xor	a			; se init
+
+	push	de
+	ld	h,d
+	ld	l,e
+	add	hl,hl
+	ld	d,h
+	ld	e,l
+
+	ld	hl,mus_stack
+	add	hl,de
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,mus_adrs
+	add	hl,de
+	ld	(hli),a
+	ld	(hl),a
+
+	pop	de
+
+	ld	hl,condetion
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,com_fg
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,duty_val
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,dc_val
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_wait
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_wave
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_wave_wait
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_tone
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_work
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_len			; portamento
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_addi
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_addf
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_addt
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_svalh
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_svall
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_evalh
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_evall
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,eff_fg
+	add	hl,de
+	ld	(hl),a
+
+	ld	a,001h
+
+	ld	hl,loop_val
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,sound_len
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,D_tempo
+	add	hl,de
+	ld	(hl),a
+
+
+	ld	a,e
+	cp	004h
+	ret	nz
+	ld	a,008h
+	ld	(NR10),a		; sweep off
+	ret
+
+BGMSEinitMain:
+	ld	a,080h
+	ld	(NR52),a		; all sound on
+	ld	(NR30),a		; sound 3 output
+
+	xor	a
+	ld	(NR51),a		; sound	fg
+	ld	(NR32),a		; sound 3 no sound
+
+	ld	a,008h
+	ld	(NR10),a		; no sweep
+
+	ld	(NR12),a		; enverope
+	ld	(NR22),a
+	ld	(NR42),a
+
+	ld	a,040h
+	ld	(NR14),a		; renzoku counter
+	ld	(NR24),a
+	ld	(NR44),a
+
+	ld	a,077h
+	ld	(NR50),a		; volume
+
+	xor	a
+	ld	(vblank_fg),a
+	ld	(calldrum_fg),a
+	ld	(muspausefg),a
+
+	ld	(bgm_tempo+1),a		; float
+	ld	(se_tempo+1),a
+
+	ld	(wave_num+0),a
+	ld	(wave_num+1),a
+
+; 0 Clear mus_adrs , mus_stack , condetion , com_fg , eff_fg , duty_val , dc_val
+;	  vib_wait , vib_wave , vib_wave_wait , vib_tone , vib_work
+;	  por_len , por_addi , por_addf , por_addt , por_svalh , por_svall
+;	  por_evalh & por_evall
+
+	ld	d,0a0h
+	ld	hl,mus_adrs
+	call	clearBYTE
+
+; 1 Setting sound_len , loop_val & D_tempo
+
+	ld	a,001h
+	ld	d,018h
+	ld	hl,sound_len
+	call	clearBYTE
+
+	ld	(bgm_tempo+0),a		; int
+	ld	(se_tempo+0),a
+
+	ld	a,0ffh
+	ld	(balance_mask),a
+	ret
+
+
+
+
+
+clearBYTE:				; (i)hl = clear adrs ,(i)a = clear val
+	ld	b,d			; (i)d = loop number , b = break
+z1$:
+	ld	(hli),a
+	dec	b
+	jr	nz,z1$
+	ret
+ endif
+
+setADRS:
+	ld	a,(mus_num)
+	ld	l,a
+	ld	e,a
+	ld	h,000h
+	ld	d,h
+	add	hl,hl
+	add	hl,de
+	ld	de,msadr
+	add	hl,de
+	ld	e,l
+	ld	d,h
+	ld	hl,mus_adrs
+z1$:
+	ld	a,(de)
+	ld	b,a
+	rlca
+	rlca
+	and	003h			; number of sound (2 bits)
+	ld	c,a
+	ld	a,b
+	and	00fh			; sound number
+	ld	b,c
+	inc	b
+	inc	de
+	ld	c,000h
+z2$:
+	cp	c
+	jr	z,z3$
+	inc	c
+	inc	hl			; music address inc
+	inc	hl
+	jr	z2$
+z3$:
+	push	af
+	push	hl
+	push	bc
+;	push	af
+	ld	b,000h
+	ld	c,a
+;	ld	hl,condetion		; set condetion
+;	add	hl,bc
+;	ld	a,(mus_num)
+;	ld	(hl),a
+
+;	pop	af
+	cp	003h			; 3-7 com_fg set
+	jr	c,z4$
+	ld	hl,com_fg
+	add	hl,bc
+	set	2,(hl)
+z4$:
+	pop	bc
+	pop	hl
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+
+	pop	af
+	push	hl
+	push	bc
+	ld	b,000h
+	ld	c,a
+	ld	hl,condetion		; set condetion
+	add	hl,bc
+	ld	a,(mus_num)
+	ld	(hl),a
+	pop	bc
+	pop	hl
+ 
+	inc	c
+	dec	b
+	ld	a,b
+	and	a
+	ld	a,(de)
+	inc	de
+	jr	nz,z2$
+
+
+; Monster Voice (CAPSULE MONSTERS ONLY)
+	ld	a,(mus_num)
+	cp	monsfirst
+	jr	nc,z10$
+	jr	noMONS$
+z10$:
+	ld	a,(mus_num)
+	cp	monsend
+	jr	z,noMONS$
+	jr	c,z11$
+	jr	noMONS$
+z11$:
+	ld	hl,condetion+4
+	ld	(hli),a			; sound A
+	ld	(hli),a			; sound B
+	ld	(hli),a			; sound C
+	ld	(hl),a			; Noise
+
+	ld	hl,mus_adrs+12		; sound C address set
+	ld	de,monsDUMMYadrs
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+
+	ld	a,(vol_rec)
+	and	a
+	jr	nz,noMONS$
+	ld	a,(NR50)
+	ld	(vol_rec),a
+
+	ld	a,077h
+	ld	(NR50),a
+noMONS$:
+	ret
+
+monsDUMMYadrs:
+	db	0ffh
+
+dataNR:
+	db	010h,015h,01ah,01fh		; 5 bytes tan-i (sound 2,4 wa chuui)
+	db	010h,015h,01ah,01fh
+
+offMASK:
+	db	0eeh,0ddh,0bbh,077h
+	db	0eeh,0ddh,0bbh,077h
+
+onMASKset:
+	push	af
+	push	bc
+
+	ld	a,(my_lvl)
+	and	00110000b
+	srl	a
+	ld	c,a
+	ld	b,00h
+	ld	hl,onMASKtable$
+	add	hl,bc
+
+	pop	bc
+	pop	af
+	ret
+onMASKtable$:
+	db	011h,022h,044h,088h	;Monoral
+	db	011h,022h,044h,088h
+
+	db	001h,020h,044h,088h	;Stereo1
+	db	011h,022h,044h,088h
+
+	db	001h,020h,004h,080h	;Stereo2
+	db	001h,020h,004h,080h
+
+	db	001h,002h,040h,080h	;Stereo3
+	db	001h,002h,040h,080h
+
+
+
+
+
+toneDATA:
+	dw	0f82ch	; c
+	dw	0f89dh	; c#
+	dw	0f907h	; d
+	dw	0f96bh	; d#
+	dw	0f9cah	; e
+	dw	0fa23h	; f
+	dw	0fa77h	; f#
+	dw	0fac7h	; g
+	dw	0fb12h	; g#
+	dw	0fb58h	; a
+	dw	0fb9bh	; a#
+	dw	0fbdah	; b
+
+
+;-----------------------------------------------;
+;	      Set Rival Leave Music		;
+;						;
+;	   Not Process Over Is Break!		;
+;-----------------------------------------------;
+set_rival_leave_music:
+	ld	c,MUSIC_BANK1_NO
+	ld	a,musraibaru
+	call	direct_play
+
+	ld	hl,mus_adrs
+	ld	de,Raibaru21
+	call	set_address
+
+	ld	de,Raibaru22
+	call	set_address
+
+	ld	de,Raibaru23
+set_address:
+	ld	a,e
+	ld	(hli),a
+	ld	a,d
+	ld	(hli),a
+	ret
+
+
+;-----------------------------------------------;
+;	      Set Rival Fast Music		;
+;						;
+;	   Not Process Over Is Break!		;
+;-----------------------------------------------;
+set_rival_in_fast_music:
+	ld	c,MUSIC_BANK1_NO
+	ld	a,musraibaru
+	call	direct_play
+
+;	ld	hl,mus_adrs
+	ld	de,Raibaru111
+;	jp	set_address
+	jr	set_rival_fast_music
+
+set_rival_out_fast_music:
+	call	set_rival_leave_music
+
+;	ld	hl,mus_adrs
+	ld	de,Raibaru121
+;	jp	set_address
+
+set_rival_fast_music:
+	ld	hl,mus_adrs
+	jp	set_address
+	ret
+
+
+;-----------------------------------------------;
+;	      Set Ending Room Music		;
+;						;
+;	   Not Process Over Is Break!		;
+;-----------------------------------------------;
+set_ending_room_music:
+	ld	a,0ah
+	ld	(fade_play_wait),a
+	ld	(fade_play_cou),a
+	ld	a,0ffh
+	ld	(fade_play_fg),a	; = Music Number
+
+	ld	c,100
+	extern	wait_vb_s
+	call	wait_vb_s
+
+	ld	c,MUSIC_BANK1_NO
+	ld	a,mustown1
+	call	direct_play
+
+	ld	hl,mus_adrs
+	ld	de,Town11_END
+	jp	set_address
+
+wavedata:
+	dw	w1$
+	dw	w2$
+	dw	w3$
+	dw	w4$
+	dw	w5$
+	dw	w6$
+	dw	w7$
+	dw	w8$
+;	dw	w9$
+
+w1$:
+	db	002h,046h,08ah,0ceh
+	db	0ffh,0feh,0edh,0dch
+	db	0cbh,0a9h,087h,065h
+	db	044h,033h,022h,011h
+w2$:
+	db	002h,046h,08ah,0ceh
+	db	0efh,0ffh,0feh,0eeh
+	db	0ddh,0cbh,0a9h,087h
+	db	065h,043h,022h,011h
+w3$:
+	db	013h,069h,0bdh,0eeh
+	db	0eeh,0ffh,0ffh,0edh
+	db	0deh,0ffh,0ffh,0eeh
+	db	0eeh,0dbh,096h,031h
+w4$:
+	db	002h,046h,08ah,0cdh
+	db	0efh,0feh,0deh,0ffh
+	db	0eeh,0dch,0bah,098h
+	db	076h,054h,032h,010h
+w5$:
+	db	001h,023h,045h,067h
+	db	08ah,0cdh,0eeh,0f7h
+	db	07fh,0eeh,0dch,0a8h
+	db	076h,054h,032h,010h
+w6$:
+w7$:
+w8$:
+w9$:
+
+
+
+

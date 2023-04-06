@@ -1,0 +1,503 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include macro.h
+	include	group.def
+	include	pika.def
+
+
+bank15	group	G_BANK15
+
+
+	public	r5_room3
+
+
+	extern	add_capsule2
+	extern	gyaarth_play
+	extern	yes_no
+	extern	pal_off_put_wait
+	extern	set_objdata
+	extern	get_pet_name
+	extern	mul_any
+	extern	set_monsdata_dmy
+	extern	get_level
+	extern	bank_push_call
+	extern	chk_hiden_mons0
+	extern	bank2bank
+	extern	check_money
+	extern	muschikin
+	extern	se_play
+	extern	palset
+	extern	color_rewrite
+	extern	minka_3
+	extern	level_to_exp
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+r5_room3:  
+ysiz	=	4
+xsiz	=	4
+  	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_3 	 	; map data adrs
+	dw	msg_r5r3f1 		; message tbl adrs
+	dw	ev_r5r3f1 			; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r5r3f1
+
+
+ev_r5r3f1:
+	jp	init_for_talkmap
+
+
+msg_r5r3f1:
+	dw	msg1
+
+msg1:
+	db	CALL_MSG
+
+	call	push_vram_m
+
+	ld	a,(benriya_flg)
+	and	a
+	jp	nz,azuketeiru$
+	
+	ld	hl,msg1_1$		; nanika sodateru ?
+	call	put_win_msg
+	
+	call	yes_no
+
+	ld	a,(allow_cnt)
+	and	a
+	ld	hl,msg1_10$		; mata kinasaiyo
+	jp	nz,ret$
+
+	ld	a,(my_cap_tbl)
+	dec	a
+	ld	hl,msg1_12$		; 1piki sika inai
+	jp	z,ret$
+
+	ld	hl,msg1_2$		; nani wo sodateru ?
+	call	put_win_msg
+
+	xor	a
+	ld	(oam_flg),a
+	ld	(ef_size),a
+	ld	(select_allow),a	; debug by sige 98/02/12
+	call	cap_list
+	push	af
+	call	pal_off_put_wait
+	call	set_objdata
+	call	color_reset
+	pop	af
+	ld	hl,msg1_9$		; souka soreja
+	jp	c,ret$			; Cancel
+
+	ld	hl,chk_hiden_mons0
+	ld	b,08h
+	call	bank_push_call
+	ld	hl,msg1_13$		; hiden mons ha azukarenai
+	jp	c,ret$			; Cancel
+
+	xor	a
+	ld	(allow_sv_mons),a
+
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_name
+	call	get_pet_name
+
+	ld	hl,msg1_3$		; wakatta sibaraku azukarou
+	call	put_win_msg
+
+	ld	a,1
+	ld	(benriya_flg),a
+
+	ld	a,3
+	ld	(cap_or_mons),a
+	call	add_capsule2
+
+	ld	hl,check_pika
+	ld	b,G_BANK3f
+	call	bank_push_call
+	push	af			; flag save
+
+	xor	a
+	ld	(cap_or_mons),a
+	call	sub_capsule
+
+	pop	af			; flag load
+	jr	c,azuke_pika$
+
+	ld	a,(sel_item_no)
+	call	gyaarth_play
+	jr	matakina$
+
+azuke_pika$:
+	ld	e,1bh
+	extern	PikaVoicePlay
+	ld	hl,PikaVoicePlay
+	ld	b,BANK__PikaVoicePlay	;	ld	b,G_BANK3b
+	call	bank_push_call
+
+matakina$:
+	ld	hl,msg1_3_2$		; jikanga tattara mata kinasai
+	jp	ret$
+
+	
+azuketeiru$:
+	xor	a
+	ld	hl,benri_mons_name
+	call	get_pet_name
+
+	ld	a,3
+	ld	(my_or_gein),a
+	call	set_monsdata_dmy
+
+	ld	hl,get_level
+	ld	b,16h
+	call	bank_push_call
+	
+	ld	a,d
+	cp	100
+	jr	c,pass1$
+
+	ld	d,100
+	ld	hl,level_to_exp
+	ld	b,016h
+	call	bank_push_call
+
+	ld	hl,benri_mons_data + 14
+	ld	a,(calc_work1)
+	ld	(hli),a
+	ld	a,(calc_work2)
+	ld	(hli),a
+	ld	a,(calc_work3)
+	ld	(hl),a
+
+	ld	d,100
+pass1$:
+	xor	a
+	ld	(usr_buf + 1),a
+
+	ld	hl,benri_mons_data + 3
+	ld	a,(hl)			; old level
+	ld	(usr_buf),a
+	cp	d
+	ld	(hl),d
+	ld	hl,msg1_8$		; nanda mou kitanoka
+	jr	z,look_status$
+	
+	ld	a,(usr_buf)
+	ld	b,a
+	ld	a,d
+	sub	b
+	ld	(usr_buf + 1),a
+	
+	ld	hl,msg1_4$		; zuibun seityo sitazo
+					; level de iuto oo kurai
+look_status$:
+	call	put_win_msg
+	
+;	ld	hl,msg1_5$ 		; mitemiru?
+;	call	put_win_msg
+
+;	call	yes_no
+;	ld	hl,msg1_9$
+;	ld	a,(allow_cnt)
+;	and	a
+;	jp	nz,not_take_out$
+
+;	ld	a,3
+;	ld	(my_or_gein),a
+;	ld	a,B_MONS_CARD
+;	call	bank2bank
+;	ld	a,B_CHG_SKILL
+;	call	bank2bank
+;	call	map_rewrite
+;	call	color_rewrite
+;	call	palset
+
+	ld	a,(my_cap_tbl)
+	cp	CAP_MAX
+	ld	hl,msg1_11$
+	jp	z,not_take_out$
+
+	ld	de,usr_buf + 2
+	xor	a
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	ld	hl,usr_buf + 4
+	ld	a,1
+	ld	(hli),a
+	ld	(hl),0
+	ld	a,(usr_buf + 1)
+	inc	a
+	ld	b,a
+	ld	c,2
+
+loop$:
+	push	hl
+	push	de
+	push	bc
+	ld	a,B_BCD_ADD
+	call	bank2bank
+	pop	bc
+	pop	de
+	pop	hl
+	dec	b
+	jr	nz,loop$
+
+	ld	hl,msg1_6$
+	call	put_win_msg
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win
+
+	call	yes_no
+	ld	hl,msg1_9$			; souka soreja
+	ld	a,(allow_cnt)
+	and	a
+	jp	nz,not_take_out$
+
+	ld	hl,usr_buf + 2
+;	xor	a
+	ld	(divwk1 + 0),a
+	ld	a,(hli)
+	ld	(divwk1 + 1),a
+	ld	a,(hl)
+	ld	(divwk1 + 2),a
+	call	check_money
+	jr	nc,ok$
+
+	ld	hl,msg1_15$			; kane ga taranna
+	jp	not_take_out$
+
+ok$:
+	xor	a
+	ld	(benriya_flg),a
+
+	ld	hl,usr_buf + 1
+	ld	(hli),a
+	inc	hl
+	ld	de,my_gold + 2
+	ld	c,3
+	ld	a,B_BCD_SUB
+	call	bank2bank
+
+	ld	a,muschikin
+	call	se_play
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win
+
+	ld	hl,msg1_14$			; hoi tashikani tureteke
+	call	put_win_msg
+
+	ld	a,2
+	ld	(cap_or_mons),a
+	call	add_capsule2
+
+	ld	a,(benri_mons_data)
+	ld	(sel_item_no),a
+
+	ld	a,(my_cap_tbl)
+	dec	a
+	push	af
+	ld	bc,CAPDATA_LEN
+	push	bc
+
+	ld	hl,my_cap_data + 8		; waza pos
+	call	mul_any
+
+	ld	d,h
+	ld	e,l
+
+	ld	a,1
+	ld	(yes_no_map),a			; waza set mode
+	ld	a,B_WAZA_SET
+	call	bank2bank
+
+	pop	bc
+	pop	af
+	ld	hl,my_cap_data + 1
+	call	mul_any
+	
+	ld	d,h
+	ld	e,l
+
+	ld	bc,33
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hl)
+	ld	(de),a			; maxHP -> nowHP
+
+	ld	a,(my_cap_tbl)
+	dec	a
+	ld	(sel_item_pos),a
+	extern	check_pika
+	ld	hl,check_pika
+	ld	b,G_BANK3f
+	call	bank_push_call
+	jr	c,hikitori_pika$
+
+	ld	a,(sel_item_no)
+	call	gyaarth_play
+	jr	hikitotta$
+
+hikitori_pika$:
+	ld	a,LEFT_PIKA_SET		; ピカチュウを引き取ったときの位置補正
+	ld	(pika_set_pos),a	;
+
+	extern	set_pika
+	ld	hl,set_pika
+	ld	b,G_BANK3f
+	ld	hl,bank_push_call
+
+	ld	e,22h
+	ld	hl,PikaVoicePlay
+	ld	b,BANK__PikaVoicePlay	;	ld	b,G_BANK3b
+	call	bank_push_call
+
+hikitotta$:
+	ld	hl,msg1_7$		; hikitotta
+	jr	ret$
+
+not_take_out$:
+	ld	a,(usr_buf)
+	ld	(benri_mons_data + 3),a
+
+ret$:	
+	call	put_win_msg
+	jp	msg_return
+	
+
+msg1_1$:
+	extern	msg1_1_0_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_0_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_2$:
+	extern	msg1_2_1_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_1_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_3$:
+	extern	msg1_3_2_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_2_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+msg1_3_2$:
+	extern	msg1_3_2_3_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_2_3_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_4$:
+	extern	msg1_4_4_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_4_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+  ifn 0
+msg1_5$:
+	db	D_MSG
+	db	ki_,mi_,no_,spc@,EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,mi_,te_,mi_,ru_,ka_,ne_,hate@
+	db	EOMeom
+  endif
+
+msg1_6$:
+	extern	msg1_6_5_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_6_5_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_7$:
+	extern	msg1_7_6_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_7_6_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_8$:
+	extern	msg1_8_7_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_8_7_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_9$:
+	extern	msg1_9_8_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_9_8_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+msg1_10$:
+	extern	msg1_10_9_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_10_9_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_11$:
+	extern	msg1_11_10_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_11_10_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_12$:
+	extern	msg1_12_11_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_12_11_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+msg1_13$:
+	extern	msg1_13_12_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_13_12_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_14$:
+	extern	msg1_14_13_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_14_13_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_15$:
+	extern	msg1_15_14_R05R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_15_14_R05R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sxy_r5r3f1:
+	include	..\sxy\r05r0301.sxy
+
+
+;minka_x:
+;	include	..\mapdata\minka_a.map
+

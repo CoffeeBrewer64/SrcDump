@@ -1,0 +1,74 @@
+; 11/24/95		23:58:18
+machi_tbl$:
+	db	043h
+ie_tbl$:
+	db	009h
+	db	003h,00bh,000h,T6R1F1
+	db	00dh,009h,000h,T6R2F1
+	db	00dh,017h,000h,T6R3F1
+	db	013h,00ch,000h,T6R4F1
+	db	013h,017h,000h,T6R5F1
+	db	01fh,012h,000h,T6R6F1
+	db	01fh,013h,000h,T6R6F1
+	db	00dh,00fh,000h,T6R7F1
+	db	003h,007h,000h,T6R8F1
+kanban_tbl$:
+	db	007h
+	db	003h,01Bh,7
+	db	00Dh,025h,8
+	db	00Dh,018h,9
+	db	003h,00Ch,10
+	db	00Dh,007h,11
+	db	013h,007h,12
+	db	00Fh,01Dh,13
+hito_tbl$:
+	db	006h
+	db	HOTELW
+	db	007h+4,013h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	001h
+	db	GSAN
+	db	006h+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+	db	FUNANORI
+	db	01Eh+4,013h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	003h
+	db	GSAN
+	db	007h+4,01Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+	db	MONSTER
+	db	009h+4,01Dh+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	005h
+	db	FUNANORI
+	db	01Bh+4,019h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	006h
+ram_map_tbl$:
+	dw	01ah * 002h + 006h + ram_map
+	db	003h,00bh
+	dw	01ah * 007h + 005h + ram_map
+	db	00dh,009h
+	dw	01ah * 007h + 00ch + ram_map
+	db	00dh,017h
+	dw	01ah * 00ah + 007h + ram_map
+	db	013h,00ch
+	dw	01ah * 00ah + 00ch + ram_map
+	db	013h,017h
+	dw	01ah * 010h + 00ah + ram_map
+	db	01fh,012h
+	dw	01ah * 010h + 00ah + ram_map
+	db	01fh,013h
+	dw	01ah * 007h + 008h + ram_map
+	db	00dh,00fh
+	dw	01ah * 002h + 004h + ram_map
+	db	003h,007h

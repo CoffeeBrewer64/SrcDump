@@ -1,0 +1,375 @@
+
+	include	common.def
+	include	fntequ.def
+	include macro.h
+
+
+bank0	group	0
+
+
+	public	vblank
+	public	wait_vb
+	public	b_to_n
+	public	n_to_b
+	public	n_to_w
+	public	w_to_n
+	public	color_reset
+	public	play_time
+
+
+	extern	all_put
+	extern	block_prt
+	extern	chr_move
+	extern	fnt_move
+	extern	fadeplay
+	extern	bmusic
+	extern	bmusic2
+	extern	bmusic3
+;;	extern	fadeplay2
+	extern	check_pinchi_sound
+	extern	haji_put
+	extern	actor_put
+	extern	wave
+	extern	rnd
+	extern	wait_vb_s
+;;	extern	noise_on
+	extern	play
+	extern	bank_push_call
+
+
+COLWAIT		equ	08h
+
+
+vblank:
+	push	af
+	push	bc
+	push	de
+	push	hl
+
+	ld	a,(rombankno)
+	ld	(bank_vblank),a			; saved section bank number
+
+	ld	a,(headerx)
+	ld	(SCX),a
+	ld	a,(headery)
+	ld	(SCY),a
+
+	ld	a,(window_shake_flag)		; for "battle effect"
+	and	a
+	jr	nz,no_init$
+
+	ld	a,(window_y)
+	ld	(WY),a
+
+no_init$:
+	call	all_put
+	call	block_prt
+	call	haji_put
+	call	chr_move
+	call	fnt_move
+	call	wave
+
+	call	dmasub
+
+	ld	a,1
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	actor_put
+
+	call	rnd
+
+	ld	a,(vb_sw)
+	and	a
+	jr	z,pass1$
+
+	xor	a
+	ld	(vb_sw),a
+
+pass1$:
+	ld	a,(vb_count)
+	and	a
+	jr	z,z1$
+
+	dec	a
+	ld	(vb_count),a
+
+z1$:
+	call	fadeplay			; Music Fadeout Function
+
+	ld	a,(music_bank_flg)		; 2:City / 8:Fight / 1f:ETC
+	ld	(rombankno),a
+	ld      (ROMBANK),a
+ 
+	cp	MUSIC_BANK1_NO			; Bank 2 (Town, Dungeon, Tou)
+	jr	nz,b8$
+
+	call    bmusic
+
+	jr	music_end$
+
+
+b8$: 
+	cp	MUSIC_BANK2_NO			; Bank 8 (Fight, Waza SE)
+	jr	nz,b9$
+
+	call	check_pinchi_sound		; "play.src" Included
+	call    bmusic2
+
+	jr	music_end$
+
+
+b9$:
+        call    bmusic3
+
+music_end$:
+	ld	b,006h
+	ld	hl,play_time
+	call	bank_push_call
+
+
+ ifn	ASSEMBLE__ENGLISH
+	extern	cont_vblank			; チャタリング対策としてキー入力は
+	ld	a,(syscom_trans_flg)		; 毎フレーム単位に変更する（英語版仕様）
+	and	a				; 但し、ＳＧＢコマンド転送中はポート（Ｐ１）
+	call	z, cont_vblank			; 入力をしないようにする必要がある
+ endif
+
+	ld	a,(bank_vblank)
+	ld	(rombankno),a
+        ld      (ROMBANK),a
+
+	pop	hl
+	pop	de
+	pop	bc
+	pop	af
+
+	reti
+
+
+
+
+
+
+
+
+
+wait_vb:
+	ld	a,001h
+	ld	(vb_sw),a	; vb_sw = 001h
+
+z1$:
+	halt			; CPU stop
+	ld	a,(vb_sw)
+	and	a
+	jr	nz,z1$
+
+	ret			; vb_sw == 0 return
+
+
+color_reset:
+	ld	a,(base_color)		; event nite set(base_color=0~9)
+;	ld	a,(dendou_no + 1)
+	ld	b,a
+	ld	hl,color3 + 9
+	ld	a,l
+	sub	b
+	ld	l,a
+	jr	nc,z1$
+
+	dec	h
+
+z1$:
+	ld	a,(hli)
+	ld	(BGP),a		; BG palette data
+	ld	a,(hli)
+	ld	(OBP0),a	; OBP0 palette,oam palette flag = 0
+	ld	a,(hli)
+	ld	(OBP1),a	; OBP1 palette,oam palette flag = 1
+
+	ret
+
+
+;*********************************
+;*				*
+;*	black -> normal		*
+;*				*
+;*********************************
+b_to_n:
+	ld	hl,color3
+	ld	b,4
+
+	jr	color_inc
+
+
+;*********************************
+;*				*
+;*	normal -> white		*
+;*				*
+;*********************************
+n_to_w:
+	ld	hl,color4 + 3
+	ld	b,3
+
+color_inc:
+z1$:
+	ld	a,(hli)
+	ld	(BGP),a
+	ld	a,(hli)
+	ld	(OBP0),a
+	ld	a,(hli)
+	ld	(OBP1),a
+	ld	c,COLWAIT
+	call	wait_vb_s
+	dec	b
+	jr	nz,z1$
+
+	ret
+
+
+;*********************************
+;*				*
+;*	normal -> black		*
+;*				*
+;*********************************
+n_to_b:
+	ld	hl,color3+11
+	ld	b,4
+	jr	color_dec
+
+
+;*********************************
+;*				*
+;*	white -> normal		*
+;*				*
+;*********************************
+w_to_n:
+	ld	hl,color4+8
+	ld	b,3
+
+color_dec:
+z1$:
+	ld	a,(hld)
+	ld	(OBP1),a
+	ld	a,(hld)
+	ld	(OBP0),a
+	ld	a,(hld)
+	ld	(BGP),a
+	ld	c,COLWAIT
+	call	wait_vb_s
+	dec	b
+	jr	nz,z1$
+
+	ret
+
+
+color3:
+	db	0ffh,0ffh,0ffh		; GBP,OBP0,OBP1
+	db	0feh,0feh,0f8h
+	db	0f9h,0e4h,0e4h
+	db	0e4h,0d0h,0e0h
+
+color4:
+	db	0e4h,0d0h,0e0h
+	db	090h,080h,090h
+	db	040h,040h,040h
+	db	000h,000h,000h
+
+	
+
+
+bank6	group	6
+
+
+
+
+play_time:
+	call	count_down
+
+	ld	a,(game_mode + 0)
+	bit	0,a				; check allowed count time
+	ret	z
+
+	ld	a,(play_time_h + 1)
+	and	a
+	ret	nz				; counter stop
+
+	ld	a,(play_time_cnt)
+	inc	a
+	ld	(play_time_cnt),a
+	cp	60				; for second count limit
+	ret	nz
+
+s_up$:
+	xor	a
+	ld	(play_time_cnt),a
+
+	ld	a,(play_time_s)
+	inc	a
+	ld	(play_time_s),a
+	cp	60				; for minute count limit
+	ret	nz
+
+m_up$:
+	xor	a
+	ld	(play_time_s),a
+
+	ld	a,(play_time_m)
+	inc	a
+	ld	(play_time_m),a
+	cp	60				; for hour count limit
+	ret	nz
+
+h_up$:
+	xor	a
+	ld	(play_time_m),a
+
+	ld	a,(play_time_h + 0)
+	inc	a
+	ld	(play_time_h + 0),a
+	cp	255				; for hour upper limit
+	ret	nz
+
+h_stop$:
+	ld	a,255
+	ld	(play_time_h + 1),a
+
+	ret
+
+
+count_down:
+	ld	a,(tm_count)
+	and	a
+	jr	nz,z1$
+
+	ld	a,0ffh
+
+	jr	z2$
+
+
+z1$:
+	dec	a				; timer count down
+
+z2$:
+	ld	(tm_count),a
+
+	and	a
+	ret	nz
+
+	ld	a,(obs_system)
+	res	1,a				; tomer off
+	res	2,a				; normal step(program) mode
+	bit	5,a				; cehck cancel all key value
+	res	5,a
+	ld	(obs_system),a
+	ret	z
+
+	xor	a
+	ld	(joy_on),a
+	ld	(joy_status),a
+
+	ret
+
+
+
+

@@ -1,0 +1,32 @@
+; 10/29/95		20:42:12
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	004h
+	db	000h,004h,001h,EXIT
+	db	000h,005h,001h,EXIT
+	db	007h,004h,000h,D1R1F1
+	db	007h,005h,000h,D1R1F1
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	NIICHYAN
+	db	002h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	GSAN2
+	db	005h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+ram_map_tbl$:
+	dw	00bh * 001h + 003h + ram_map
+	db	000h,004h
+	dw	00bh * 001h + 003h + ram_map
+	db	000h,005h
+	dw	00bh * 004h + 003h + ram_map
+	db	007h,004h
+	dw	00bh * 004h + 003h + ram_map
+	db	007h,005h

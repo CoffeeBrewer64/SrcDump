@@ -1,0 +1,23 @@
+; 04/07/95		17:38:53
+dun_tbl$:
+	db	00fh
+ie_tbl$:
+	db	002h
+	db	007h,004h,001h,EXIT
+	db	007h,005h,001h,EXIT
+kanban_tbl$:
+	db	002h
+	db	000h,002h,2
+	db	000h,007h,3
+hito_tbl$:
+	db	001h
+	db	KAKUTOU
+	db	002h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+ram_map_tbl$:
+	dw	00bh * 004h + 003h + ram_map
+	db	007h,004h
+	dw	00bh * 004h + 003h + ram_map
+	db	007h,005h

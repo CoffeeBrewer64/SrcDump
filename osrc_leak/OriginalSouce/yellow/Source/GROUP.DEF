@@ -1,0 +1,94 @@
+G_MUSHEAD1	equ	2
+G_MUSHEAD2	equ	8
+G_MUSHEAD3	equ	1fh
+G_MUSHEAD4	equ	20h		;28h->20hに変更（村川）
+G_MUSIC1	equ	2
+G_MUSIC2	equ	8
+G_MUSIC3	equ	1fh
+G_MUSIC4	equ	20h		;28h->20hに変更（村川）
+
+G_RST		equ	0
+G_HEADER	equ	0
+G_WORKRAM	equ	0
+G_WORKRAM0	equ	0
+G_WORKRAM2	equ	0
+G_EXTRAM	equ	0
+
+G_BANK0		equ	0
+G_BANK1		equ	1
+G_BANK2		equ	2
+G_BANK3		equ	3
+G_BANK4		equ	4
+G_BANK5		equ	5
+G_BANK6		equ	6
+G_BANK7		equ	7
+G_BANK8		equ	8
+G_BANK9		equ	9
+G_BANKa		equ	10
+G_BANKb		equ	11
+G_BANKc		equ	12
+G_BANKd		equ	13
+G_BANKe		equ	14
+G_BANKf		equ	15
+G_BANK10	equ	16
+G_BANK11	equ	17
+G_BANK12	equ	18
+G_BANK13	equ	19
+G_BANK14	equ	20
+G_BANK15	equ	21
+G_BANK16	equ	22
+G_BANK17	equ	23
+G_BANK18	equ	24
+G_BANK19	equ	25
+G_BANK1a	equ	26
+G_BANK1b	equ	27
+G_BANK1c	equ	28
+G_BANK1d	equ	29
+G_BANK1e	equ	30
+G_BANK1f	equ	31
+
+G_BANK20	equ	32
+G_BANK21	equ	33
+G_BANK22	equ	34
+G_BANK23	equ	35
+G_BANK24	equ	36
+G_BANK25	equ	37
+G_BANK26	equ	38
+G_BANK27	equ	39
+G_BANK28	equ	40
+G_BANK29	equ	41
+G_BANK2a	equ	42
+G_BANK2b	equ	43
+G_BANK2c	equ	44
+G_BANK2d	equ	45
+G_BANK2e	equ	46
+G_BANK2f	equ	47
+G_BANK30	equ	48
+G_BANK31	equ	49
+G_BANK32	equ	50
+G_BANK33	equ	51
+G_BANK34	equ	52
+G_BANK35	equ	53
+G_BANK36	equ	54
+G_BANK37	equ	55
+G_BANK38	equ	56
+G_BANK39	equ	57
+G_BANK3a	equ	58
+G_BANK3b	equ	59
+G_BANK3c	equ	60
+G_BANK3d	equ	61
+G_BANK3e	equ	62
+G_BANK3f	equ	63
+
+
+;***********************************************************************************************
+;	イエロー英語版で空きバンクを確保する為に移動したルーチンのバンク番号を設定する
+
+BANK__PikaVoicePlay		=	G_BANK3c	; 日本語版は G_BANK3b に設定されていた
+										; 注意！）"P_VOICE.DMG(90)"の group 定義の変更も忘れずに！
+
+ASSEMBLE__BANK_CHANGE	=	1			; 各関数ごとにバンクラベルを付けて対応するのは面倒なので、
+										; バンク変更するための条件アセンブルフラグを設ける
+
+;***********************************************************************************************
+

@@ -1,0 +1,448 @@
+D_MSG		=	0		; normal message
+I_MSG		=	1		; indirect message
+B_MSG		=	2		; bcd data
+ADRSET		=	3		; = dmy_vram adrs
+WAKU		=	4		; draw window
+CR_MSG		=	5		; kaigyou
+WAIT		=	6		; wait a b key
+SCR_MSG		=	7		; scroll
+CALL_MSG	=	8		; event rtn call
+N_MSG		=	9		; decimal data
+E_WAIT		=	10		; easy wait
+FANFARE		=	11		; fanfare
+TENTEN		=	12		; tenten
+WAIT_NP		=	13		; wait no prompt
+FANFARE3	=	14		; fanfare
+FANFARE4	=	15		; fanfare
+FANFARE5	=	16		; fanfare
+FANFARE6	=	17		; fanfare
+FANFARE2	=	18		; fanfare
+FANFARE7	=	19		; fanfare
+
+NIDORIINA	=	20		; nidoriina scream
+PJOTTO		=	21
+JUGON		=	22
+
+;***  ポケモン英語版仕様  ***
+I_MSG2		=	23		; bank & indirect message
+zukan@		=	049h		; ずかん解説送り処理用
+gaspc@		=	04ah		; "ga_,spc@"
+pkmn@		=	gaspc@		; （注意！）英語版の pkmn@ を gaspc@ の位置に定義する
+;****************************
+
+scrwait@	=	04bh		; wait after scroll
+scr@		=	04ch		; scroll
+wait@		=	04dh		; wait
+cr@		=	04eh		; new line
+home@		=	04fh		; new line & home position
+EOM		=	050h		; end of message
+normal@		=	051h		; normal wait
+myname@		=	052h		; print my name
+rival@		=	053h		; print rival name 
+poke@		=	054h		; "po__,ke__,mo__,n__" 
+gyo3@		=	055h		; 3gyou scroll 
+tenten2@	=	056h		; "tenten@,tenten@"
+EOMeom		=	057h		; "EOM,EOM" 
+EOMwaiteom	=	058h		; "EOM,WAIT,EOM" 
+monsname1@	=	059h		; attacktu_rn=0 : put enemy monster name
+					; attacktu_rn=1 : put my monster name
+monsname2@	=	05ah		; attacktu_rn=0 : put my monster name
+					; attacktu_rn=1 : put enemy monster name
+paso@		=	05bh		; "pa__,so__,ko__,n__" 
+skill@		=	05ch		; "wa_,za_,ma__,si__,n__" 
+trainer@	=	05dh		; "to__,re__,bou@,na__,bou@"
+rocket@		=	05eh		; "ro ke TU to da n"
+ktenEOM		=	05fh		; "kten@,EOM"
+
+;--------------------------------------- An Institution...
+HOTEL		=	0ffh		; Capsule Hotel
+ITEM_SHOP	=	0feh		; P.F ( Item Shop )
+MONSSTOCK    	=	0fdh		; Town01 Ookido 
+ITEMSTOCK 	=	0fch		; My House 2F
+CHAMPCUP	=	0fbh		; Champ Cup    
+CAPSHOP		=	0fah
+VMUNIX		=	0f9h		; Vertual terminated computer
+ITEM_GET	=	0f8h		; getting item from capsule
+
+;---------------------------------------Status Abnormal Check !
+DEAD		=	0d0h
+DEAD2		=	0d1h
+SPLAY		=	0d2h
+;---------------------------------------
+MASTER		=	050h
+;---------------------------------------
+
+a@	=	96
+b@	=	a@ + 1
+c@	=	a@ + 2
+d@	=	a@ + 3
+e@	=	a@ + 4
+f@	=	a@ + 5
+g@	=	a@ + 6
+h@	=	a@ + 7
+i@	=	a@ + 8
+j@	=	a@ + 9
+k@	=	a@ + 10
+l@	=	a@ + 11
+m@	=	a@ + 12
+n@	=	a@ + 13
+o@	=	a@ + 14
+p@	=	a@ + 15
+q@	=	a@ + 16
+r@	=	a@ + 17
+s@	=	a@ + 18
+t@	=	a@ + 19
+u@	=	a@ + 20
+v@	=	a@ + 21
+w@	=	a@ + 22
+x@	=	a@ + 23
+y@	=	a@ + 24
+z@	=	a@ + 25
+
+n0@	=	76h + 80h
+n1@	=	n0@ + 1
+n2@	=	n0@ + 2	
+n3@	=	n0@ + 3
+n4@	=	n0@ + 4
+n5@	=	n0@ + 5
+n6@	=	n0@ + 6
+n7@	=	n0@ + 7
+n8@	=	n0@ + 8
+n9@	=	n0@ + 9
+
+a_	=	31h + 80h		; hiragana
+i_	=	a_ + 1
+u_	=	a_ + 2
+e_	=	a_ + 3
+o_	=	a_ + 4
+
+ka_	=	a_ + 5
+ki_	=	a_ + 6
+ku_	=	a_ + 7
+ke_	=	a_ + 8
+ko_	=	a_ + 9
+
+sa_	=	a_ + 10
+si_	=	a_ + 11
+su_	=	a_ + 12
+se_	=	a_ + 13
+so_	=	a_ + 14
+
+ta_	=	a_ + 15
+ti_	=	a_ + 16
+tu_	=	a_ + 17
+te_	=	a_ + 18
+to_	=	a_ + 19
+
+na_	=	a_ + 20
+ni_	=	a_ + 21
+nu_	=	a_ + 22
+ne_	=	a_ + 23
+no_	=	a_ + 24
+
+ha_	=	a_ + 25
+hi_	=	a_ + 26
+hu_	=	a_ + 27
+he_	=	a_ + 28
+ho_	=	a_ + 29
+
+ma_	=	a_ + 30
+mi_	=	a_ + 31
+mu_	=	a_ + 32
+me_	=	a_ + 33
+mo_	=	a_ + 34
+
+ya_	=	a_ + 35
+yu_	=	a_ + 36
+yo_	=	a_ + 37
+
+ra_	=	a_ + 38
+ri_	=	a_ + 39
+ru_	=	a_ + 40
+re_	=	a_ + 41
+ro_	=	a_ + 42
+
+wa_	=	a_ + 43
+wo_	=	a_ + 44
+n_	=	a_ + 45
+
+ttu_	=	a_ + 46
+yya_	=	a_ + 47
+yyu_	=	a_ + 48
+yyo_	=	a_ + 49
+
+aa_	=	a@ + 22
+ii_	=	a@ + 14
+uu_	=	a@ + 15
+ee_	=	a@ + 23
+oo_	=	a@ + 24
+
+a__	=	00h + 80h		; katakana
+i__	=	a__ + 1
+u__	=	a__ + 2
+e__	=	a__ + 3
+o__	=	a__ + 4
+
+ka__	=	a__ + 5
+ki__	=	a__ + 6
+ku__	=	a__ + 7
+ke__	=	a__ + 8
+ko__	=	a__ + 9
+
+sa__	=	a__ + 10
+si__	=	a__ + 11
+su__	=	a__ + 12
+se__	=	a__ + 13
+so__	=	a__ + 14
+
+ta__	=	a__ + 15
+ti__	=	a__ + 16
+tu__	=	a__ + 17
+te__	=	a__ + 18
+to__	=	a__ + 19
+
+na__	=	a__ + 20
+ni__	=	a__ + 21
+nu__	=	a__ + 22
+ne__	=	a__ + 23
+no__	=	a__ + 24
+
+ha__	=	a__ + 25
+hi__	=	a__ + 26
+hu__	=	a__ + 27
+he__	=	he_
+ho__	=	a__ + 28
+
+ma__	=	a__ + 29
+mi__	=	a__ + 30
+mu__	=	a__ + 31
+me__	=	a__ + 32
+mo__	=	a__ + 33
+
+ya__	=	a__ + 34
+yu__	=	a__ + 35
+yo__	=	a__ + 36
+
+ra__	=	a__ + 37
+ri__	=	ri_
+ru__	=	a__ + 38
+re__	=	a__ + 39
+ro__	=	a__ + 40
+
+wa__	=	a__ + 41
+wo__	=	a__ + 42
+n__	=	a__ + 43
+
+ttu__	=	a__ + 44
+
+yya__	=	a__ + 45
+yyu__	=	a__ + 46
+yyo__	=	a__ + 47
+
+ii__	=	a__ + 48
+
+aa__	=	69h + 80h
+uu__	=	aa__ + 1
+ee__	=	aa__ + 2
+
+oo__	=	74h + 80h
+
+ga_	=	ka_ - 90h
+gi_	=	ga_ + 1
+gu_	=	ga_ + 2
+ge_	=	ga_ + 3
+go_	=	ga_ + 4
+
+za_	=	ga_ + 5
+zi_	=	ga_ + 6
+zu_	=	ga_ + 7
+ze_	=	ga_ + 8
+zo_	=	ga_ + 9
+
+da_	=	ga_ + 10
+di_	=	ga_ + 11
+du_	=	ga_ + 12
+de_	=	ga_ + 13
+do_	=	ga_ + 14
+
+ba_	=	ga_ + 20
+bi_	=	ga_ + 21
+bu_	=	ga_ + 22
+be_	=	ga_ + 23
+bo_	=	ga_ + 24
+
+ga__	=	ka__ - 80h
+gi__	=	ga__ + 1
+gu__	=	ga__ + 2
+ge__	=	ga__ + 3
+go__	=	ga__ + 4
+
+za__	=	ga__ + 5
+zi__	=	ga__ + 6
+zu__	=	ga__ + 7
+ze__	=	ga__ + 8
+zo__	=	ga__ + 9
+
+da__	=	ga__ + 10
+di__	=	ga__ + 11
+du__	=	ga__ + 12
+de__	=	ga__ + 13
+do__	=	ga__ + 14
+
+ba__	=	ga__ + 20
+bi__	=	ga__ + 21
+bu__	=	ga__ + 22
+be__	=	be_
+bo__	=	ga__ + 23
+
+pa_	=	ha_ - 86h
+pi_	=	pa_ + 1
+pu_	=	pa_ + 2
+pe_	=	pa_ + 3
+po_	=	pa_ + 4
+
+pa__	=	ha__ - 59h
+pi__	=	pa__ + 1
+pu__	=	pa__ + 2
+pe__	=	pe_ 
+po__	=	pa__ + 3
+
+bou@	=	63h + 80h		; -
+maru@	=	bou@ + 1
+ten@	=	bou@ + 2
+hate@	=	bou@ + 3		; ?
+gyoe@	=	bou@ + 4		; !
+kten@	=	bou@ + 5
+pow1@	=	bou@ + 6
+pow2@	=	bou@ + 7
+pow3@	=	bou@ + 8
+alloww@	=	bou@ + 9
+allow@	=	bou@ + 10
+allowd@	=	bou@ + 11
+osu@	=	bou@ + 12
+colon@	=	bou@ + 12		; Now play2.src only use
+yen@ 	=	bou@ + 13		; kanji no en
+batu@	=	bou@ + 14
+dot@	=	bou@ + 15
+sura@	=	bou@ + 16
+mesu@	=	bou@ + 18
+
+spc@	=	a@ + 31
+ind1@	=	1h
+ind2@	=	0h
+
+kako@	=	a@ + 16 
+kakot@	=	a@ + 17 
+kako2@	=	a@ + 18 
+kakot2@	=	a@ + 19 
+nakag@	=	a@ + 20 
+tenten@	=	a@ + 21 
+maruc@	=	a@ + 26
+
+life0@	=	a@ + 2
+life1@	=	a@ + 3
+life2@	=	a@ + 4
+life3@	=	a@ + 5
+life4@	=	a@ + 6
+life5@	=	a@ + 7
+life6@	=	a@ + 8
+life7@	=	a@ + 9
+life8@	=	a@ +10
+life9@	=	a@ +11
+life10@	=	a@ +12
+life11@ =	a@ +13
+
+water@	=	a@ +14
+fire@	=	a@ +15
+thund@	=	a@ +16
+
+id@	=	a@ +19
+No@	=	a@ +20
+
+waku0@	=	z@
+waku1@	=	z@ + 1
+waku2@	=	z@ + 2
+waku3@	=	z@ + 3
+waku4@	=	waku3@
+waku5@	=	z@ + 4
+waku6@	=	waku1@
+wAku7@	=	z@ + 5
+
+
+; ポケモン英語版フォント定義追加（村川）
+usf_a	=	080h
+usf_b	=	usf_a + 01h
+usf_c	=	usf_a + 02h
+usf_d	=	usf_a + 03h
+usf_e	=	usf_a + 04h
+usf_f	=	usf_a + 05h
+usf_g	=	usf_a + 06h
+usf_h	=	usf_a + 07h
+usf_i	=	usf_a + 08h
+usf_j	=	usf_a + 09h
+usf_k	=	usf_a + 0ah
+usf_l	=	usf_a + 0bh
+usf_m	=	usf_a + 0ch
+usf_n	=	usf_a + 0dh
+usf_o	=	usf_a + 0eh
+usf_p	=	usf_a + 0fh
+usf_q	=	usf_a + 10h
+usf_r	=	usf_a + 11h
+usf_s	=	usf_a + 12h
+usf_t	=	usf_a + 13h
+usf_u	=	usf_a + 14h
+usf_v	=	usf_a + 15h
+usf_w	=	usf_a + 16h
+usf_x	=	usf_a + 17h
+usf_y	=	usf_a + 18h
+usf_z	=	usf_a + 19h
+
+par@	=	usf_a + 1ah
+part@	=	usf_a + 1bh
+colon2@	=	usf_a + 1ch
+semico@	=	usf_a + 1dh
+bra@	=	usf_a + 1eh
+brat@	=	usf_a + 1fh
+
+usf_a_	=	0a0h
+usf_b_	=	usf_a_ + 01h
+usf_c_	=	usf_a_ + 02h
+usf_d_	=	usf_a_ + 03h
+usf_e_	=	usf_a_ + 04h
+usf_f_	=	usf_a_ + 05h
+usf_g_	=	usf_a_ + 06h
+usf_h_	=	usf_a_ + 07h
+usf_i_	=	usf_a_ + 08h
+usf_j_	=	usf_a_ + 09h
+usf_k_	=	usf_a_ + 0ah
+usf_l_	=	usf_a_ + 0bh
+usf_m_	=	usf_a_ + 0ch
+usf_n_	=	usf_a_ + 0dh
+usf_o_	=	usf_a_ + 0eh
+usf_p_	=	usf_a_ + 0fh
+usf_q_	=	usf_a_ + 10h
+usf_r_	=	usf_a_ + 11h
+usf_s_	=	usf_a_ + 12h
+usf_t_	=	usf_a_ + 13h
+usf_u_	=	usf_a_ + 14h
+usf_v_	=	usf_a_ + 15h
+usf_w_	=	usf_a_ + 16h
+usf_x_	=	usf_a_ + 17h
+usf_y_	=	usf_a_ + 18h
+usf_z_	=	usf_a_ + 19h
+
+acc_e_	=	usf_a_ + 1ah
+apt_d_	=	usf_a_ + 1bh
+apt_l_	=	usf_a_ + 1ch
+apt_s_	=	usf_a_ + 1dh
+apt_t_	=	usf_a_ + 1eh
+apt_v_	=	usf_a_ + 1fh
+apt_r_	=	maru@
+apt_m_	=	ten@
+
+apos@	=	0e0h
+pk@		=	0e1h
+mn@		=	0e2h
+dol@	=	0f0h
+comma@	=	0f4h
+

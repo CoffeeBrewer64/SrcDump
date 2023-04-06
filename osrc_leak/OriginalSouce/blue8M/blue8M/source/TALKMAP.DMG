@@ -1,0 +1,5196 @@
+
+;****************************************
+;* Making name	: Pocket Monsters	*
+;* Source file	: talkmap.src		*
+;****************************************
+
+	include	common.def
+	include	fntequ.def
+	include banktool.def
+	include sgb_col.def
+	include map.def
+	include maptype.def
+	include fight.def
+	include macro.h
+	include	pm_debug.def
+
+
+;*********
+;* bank0 *
+;*********
+	public	set_data
+	public	talk_map
+	public	sub_item
+	public	add_item
+	public	add_waza1
+	public	hotel2
+	public	shop_window
+	public	get_mons_name
+	public	get_mons_name2
+	public  get_item_name
+	public  get_hiden_name
+	public	map_rewrite
+	public	map_rewrite2		; map_data only
+	public	doku_dead
+	public	plural
+	public	get_waza_name
+	public	how_many_bit
+	public	obj_rewrite
+	public	talk_99
+	public	talk_100
+	public	talk_200
+	public	chk_hidenmachine
+
+
+;**********
+;* Bank 1 *
+;**********
+	public	itemshop_main
+	public	hotel_main
+	public	change_mons_pos
+	public	sys_init
+	public	okuri_naoshi
+
+;**********
+;* Bank 4 *
+;**********
+	public	check_waza_flg
+	public	get_hiden_no
+	public	list_allow_cls
+
+
+
+	public	statuswaku_dat
+
+
+	extern	msg_return
+	extern	set_objdata
+	extern	set_objdata_main
+	extern	hero_setup
+	extern	picture
+	extern	set_kana
+	extern	set_serifu
+	extern	chg_skill
+	extern	set_map_bank
+	extern	put_msg
+;	extern	wait_msg
+	extern	put_win_msg
+	extern	put_nowin_msg
+	extern	put_window
+	extern	put_wait
+	extern	yes_no
+	extern	put_map
+	extern	put_bcd
+	extern	put_dec
+	extern	put_all
+	extern	wait_vb
+	extern	oam_clr
+	extern	cont
+	extern	cont_abwait
+	extern	cont_repeat
+	extern	actor_blanch
+	extern	n_to_b
+	extern	n_to_w
+	extern	b_to_n
+	extern	w_to_n
+	extern	color_reset
+	extern	allow
+	extern	cls_allow
+	extern	block_cls
+	extern	cmp_byt
+	extern	str_cpy
+	extern	gyaarth_play
+	extern	add_capsule_new
+	extern	sub_capsule
+	extern	add_capsule2
+	extern	cap_list
+	extern	cap_list2
+	extern	cap_list_sub2
+	extern	item_list
+	extern	block_move
+	extern	mons_card
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	set_mapimg
+	extern	set_item_param
+	extern	get_gold
+	extern	get_table
+	extern	item_gold_tbl
+	extern	mons_name_tbl
+	extern	table_search
+	extern	white_allow
+	extern	chrmove
+	extern	fontset
+	extern	get_monsadr
+	extern	set_monsdata_dmy
+	extern	get_pet_name
+	extern	put_level_s
+	extern	fontmove
+	extern	wait_vb_s
+	extern	objct
+	extern	set_jiki
+	extern	push_vram
+	extern	pop_vram
+	extern	push_vram_m
+	extern	pop_vram_m
+	extern	pop_vram_s
+	extern	check_item2
+	extern	use_item2
+	extern	split_item2
+	extern	step_prn_win
+	extern	chrset
+	extern	play
+	extern	se_play
+	extern	musasa
+	extern	mussave
+	extern	muschari
+	extern  muspi
+	extern  mussyu
+	extern  muschikin
+	extern  muskon
+	extern  se_wait
+	extern	push_bank
+	extern 	pop_bank   
+	extern	bank_push_call
+	extern	bank2bank
+	extern  check_life_all
+	extern  check_item
+	extern  set_str_buf
+	extern	leave
+	extern	main_loop
+	extern	dvram_cls
+	extern	fnt_serifu
+	extern	SetActorSite
+	extern	CheckAssignPos
+	extern	config
+	extern	maptype_check
+
+	extern	mul_any
+	extern	mul_6
+	extern	div_direct
+	extern	cap_list1
+	extern	set_objects
+	extern	hero_size1
+	extern	search_hit
+	extern	badge_dat
+	extern	color_set
+	extern	color_rewrite
+	extern	palset
+	extern	pal_off
+	extern	pal_off_put_wait
+	extern	hotel_effect
+	extern	waza_tbl
+	extern	bank_chg_block_m
+	extern	terminal
+	extern	save_tuusin_data
+	extern	send_send_buf2
+	extern	send_dmy
+	extern	allow_1
+
+	extern	reset
+
+	extern	item_stock0
+	extern	mons_stock0
+	extern	vunix
+
+
+bank0	group	0
+
+ACTOR_NEXT_ADRS		equ	actor_table + 0100h
+
+
+;===============================================;
+;						;
+;	conversation system main frame		;
+;	IN					;
+;	work1					;
+;		message number(001h -- 0ffh)	;
+;	win_cancel				;
+;		bit-1 : no window frame		;
+;	wait_pass_flg				;
+;		val-1 : no waiting for push key	;
+;						;
+;===============================================;
+talk_map:
+	ld	a,(rombankno)
+	push	af				; before calling
+
+	ld	b,001h
+	ld	hl,sys_init
+	call	bank_push_call
+
+	ld	hl,priority_buffer
+	bit	0,(hl)
+	res	0,(hl)				; set on "ev_tool.src"
+	jr	nz,hook$
+
+	ld	a,(mapno)
+	call	set_map_bank			; to differ by calling sequence
+
+hook$:
+	ld	a,30
+	ld	(vb_count),a
+
+	ld	hl,map_msg_tbl_adr
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	d,0
+
+	ld	a,(work1)
+	ld	(sv_msg_no),a
+	and	a
+	jp	z,personal			; personal data view
+
+	cp	0d3h
+	jp	z,SafariEnd
+
+;	cp	0d4h
+;	jp	z,benriya_level_up		; benriya no monster level up 
+
+	cp	DEAD
+	jp	z,doku_dead			; message of death for poison
+
+	cp	DEAD2
+	jp	z,zenmetu			; message of total destraction
+
+	cp	SPLAY
+	jp	z,splay_kireta			; message of limit over
+
+	ld	a,(murabito_cnt)
+	ld	e,a
+	ld	a,(work1)			; message number
+	cp	e
+	jr	z,hito$
+;	jr	c,hito$
+
+	jr	nc,set$
+
+
+hito$:
+	push	hl
+
+;-----------------------------------------------;
+	push	de
+	push	bc
+
+	ld	b,004h
+	ld	hl,talking_actor
+	call	bank_push_call
+
+	pop	bc
+	pop	de
+
+	ld	hl,hito_tbl	
+	ld	a,(work1)
+	dec	a				; message number for 1 origin
+	add	a,a
+	add	a,l
+	ld	l,a
+	jr	nc,hito_jump$
+
+	inc	h
+
+hito_jump$:
+	inc	hl
+	ld	a,(hl)				; message number array data
+
+	pop	hl				; event message table address
+	
+set$:
+	dec	a				; message number 1 origin
+	ld	e,a
+	sla	e
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; hl regs = message data top
+	ld	a,(hl)				; check common system
+
+	cp	ITEM_SHOP
+	jp	z,itemshop
+
+	cp	HOTEL
+	jp	z,hotel1
+
+	cp	ITEMSTOCK
+	jp	z,item_stock0			; "observe.src"
+
+	cp	MONSSTOCK
+	jp	z,mons_stock0			; "observe.src"
+
+	cp	VMUNIX
+	jp	z,vunix				; "observe.src"
+
+	cp	0f5h				; machine
+	jr	nz,go_f7$
+
+	ld	b,01dh
+	extern	DrinkMachine
+	ld	hl,DrinkMachine
+	call	bank_push_call
+
+	jr	talk_99
+
+
+go_f7$:
+	cp	0f7h
+	extern	coin_goods
+	jp	z,coin_goods			; "observe.src"
+
+	cp	0f6h
+	jr	nz,pass1$
+
+	ld	hl,termgirl
+	ld	b,1
+	call	bank_push_call
+
+	jr	talk_99
+
+
+pass1$:
+	call	put_nowin_msg			; message data print out(main)
+
+	ld	a,(wait_pass_flg)
+	and	a				; message wait check
+	jr	nz,talk_100
+
+talk_99:
+	ld	a,(send_send_cnt)
+	and	a
+	jr	nz,talk_100
+
+	call	cont_abwait			; check to push a(or b)-button
+
+talk_100:
+	call	cont
+
+	ld	a,(joy_status)
+	bit	0,a				; Check 'A' Button
+	jr	nz,talk_100
+
+talk_200:
+	ld	a,(mapno)
+	call	set_map_bank			; to differ by calling sequence
+
+	ld	a,144
+	ld	(window_y),a
+;	call	color_rewrite
+	call	wait_vb
+	call	color_reset
+
+	xor	a
+	ld	(all_put_req),a
+
+	ld	hl,actor_table + 100h + 019h
+	ld	c,15				; actor_table element lot
+	ld	de,10h				; actor_table offset
+
+pop1$:
+	ld	a,(hl)
+	dec	h		
+	ld	(hl),a
+
+	inc	h
+	add	hl,de
+	dec	c
+	jr	nz,pop1$
+
+obj_rewrite:
+	ld	a,5
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	set_objects
+
+	ld	hl,talking_flg
+	res	0,(hl)				; mode of talking to other
+
+	ld	a,(game_mode + 0)
+	bit	3,a
+	call	z,set_jiki
+
+	call	put_map
+
+	pop	af				; before calling
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	jp	actor_blanch
+
+
+
+;===============================;
+;	item shop system	;
+;===============================;
+itemshop:
+	push	hl
+
+	ld	hl,pf_start_msg$
+	call	put_win_msg
+
+	pop	hl
+
+	inc	hl
+	call	set_data
+
+	ld	a,2
+	ld	(mons_or_item),a
+
+	ld	a,(rombankno)
+	push	af
+	ld	a,1
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	itemshop_main
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	jp	talk_99
+
+
+pf_start_msg$:
+	extern	pf_start_msg_0_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_start_msg_0_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+;===============================;
+;	skill shop system	;
+;===============================;
+wazashop:
+
+;=======================================================;
+;	common routine for skill shop & item shop	;
+;=======================================================;
+set_data:
+	ld	a,1
+	ld	(oam_flg),a
+
+	ld	a,h
+	ld	(work_stack + 0),a
+	ld	a,l
+	ld	(work_stack + 1),a
+
+	ld	de,shop_item_tbl
+
+loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	cp	0ffh
+	jr	nz,loop$
+
+	ret
+
+
+;===============================================;
+;						;
+;	recover status of monsters & hotel	;
+;						;
+;===============================================;
+hotel1:
+hotel2:		; no using & don't use
+	xor	a 
+	ld	(work0),a
+	ld	(work1),a
+	ld	(work2),a
+
+	inc	hl
+
+	ld	a,(rombankno)
+	push	af
+	ld	a,1
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	hotel_main  
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	jp	talk_99
+
+
+;===============================================;
+;						;
+;	down status by poisonous effect		;
+;						;
+;===============================================;
+	extern	SafariEndMsg
+SafariEnd:
+	ld	hl,SafariEndMsg
+	ld	b,7
+	call	bank_push_call
+	jp	talk_99
+
+;===============================================;
+;						;
+;	down status by poisonous effect		;
+;						;
+;===============================================;
+doku_dead:
+	ld	hl,dead_msg$
+	call	put_win_msg
+
+	jp	talk_99
+
+
+dead_msg$:
+	extern	dead_msg_1_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw dead_msg_1_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+
+
+;===============================================;
+;						;
+;	all down status of pocket monster	;
+;						;
+;===============================================;
+zenmetu:
+	ld	hl,zenmetu_msg$
+	call	put_win_msg
+
+	ld	a,(game_mode + 0)	;ë∫êÏïœçX
+	res	5,a					;ë∫êÏïœçX
+	ld	(game_mode + 0),a	;ë∫êÏïœçX
+
+	jp	talk_100
+
+
+zenmetu_msg$:
+	extern	zenmetu_msg_2_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw zenmetu_msg_2_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+;===============================================;
+;						;
+;	all down status of pocket monster	;
+;						;
+;===============================================;
+splay_kireta:
+	ld	hl,kireta_msg$
+	call	put_win_msg
+
+	jp	talk_99
+
+
+kireta_msg$:
+	extern	kireta_msg_3_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw kireta_msg_3_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+;===============================================;
+;						;
+;	benriya no monster level up		;
+;						;
+;===============================================;
+;=============================================================;
+; Status of capsule & item list & personal status & play mode ;
+;=============================================================;
+personal:
+	ld	a,4
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	a,(chyari_flg)
+	ld	(chyari_sv),a
+
+	ld	a,mussyu
+	call	play
+
+watashi1:
+	ld	b,1
+	ld	hl,personal_init
+	call	bank_push_call
+
+	ld	b,3
+	extern	timer_put
+	ld	hl,timer_put
+	call	bank_push_call
+
+	call	actor_blanch
+
+allow$:
+	call	allow
+	ld	b,a
+	
+	bit	6,a				; Up key
+	jr	z,z10$
+
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,allow$
+	
+	ld	a,(allow_old)
+	and	a
+	jr	nz,allow$
+
+	ld	a,(ev_t1_3)
+	bit	5,a
+	ld	a,6
+	jr	nz,z100$
+	dec	a
+z100$:
+	ld	(allow_cnt),a
+
+	call	cls_allow
+
+	jr	allow$
+
+
+z10$:
+	bit	7,a				; Down key
+	jr	z,z50$
+
+	ld	a,(ev_t1_3)
+	bit	5,a
+	ld	a,(allow_cnt)
+	ld	c,7
+	jr	nz,z200$
+	dec	c
+z200$:
+	cp	c
+	jr	nz,allow$
+	
+	xor	a
+	ld	(allow_cnt),a
+
+	call	cls_allow
+
+	jr	allow$
+
+	
+z50$:
+	call	white_allow			; white allow system
+
+	ld	a,(allow_cnt)
+	ld	(allow_sv_sys),a		; select colum saving
+
+	ld	a,b
+	and	0ah				; cancel by b, start
+	jp	nz,serifu_talk_100
+
+	call	push_vram_m
+
+	ld	a,(ev_t1_3)
+	bit	5,a
+	ld	a,(allow_cnt)
+	jr	nz,next$
+;	and	a
+;	jr	z,next$
+	inc	a
+next$:
+	cp	0
+	jp	z,guide_book			; guide book (bank4)
+
+	cp	1
+	jp	z,act_capsule			; capsule work (bank4)
+
+	cp	2
+	jp	z,act_item			; item box (bank4)
+
+	cp	3
+	jp	z,act_status			; personal data (bank4)
+
+	cp	4
+	jp	z,act_save  			; game data saving (bank4)
+
+	cp	5
+	jp	z,act_config	 		; config (bank1)
+
+serifu_talk_100:
+	call	cont
+
+	ld	a,(joy_on)
+	bit	0,a				; Check 'A' Button
+	jr	nz,serifu_talk_100
+
+	call	set_serifu
+
+	jp	talk_200
+
+
+;****************************************
+;*	how many bit 			*
+;*   IN   :  hl = flag address		*
+;*        :  b  = byte			*
+;*   OUT  :  in_dat			*
+;****************************************
+how_many_bit:
+	ld	c,0				; file counter
+
+loop1$:
+	ld	a,(hli)
+	ld	e,a
+	ld	d,8
+
+loop2$:
+	srl	e
+	ld	a,0
+	adc	a,c
+	ld	c,a
+	dec	d
+	jr	nz,loop2$
+
+	dec	b
+	jr	nz,loop1$
+
+	ld	a,c
+	ld	(in_dat),a
+
+	ret
+
+
+
+;*****************************************
+;*	kaeruka ? check			*
+;*  in : divwk0,1,2 = mono no nedan	*
+;*  out: if cy then gane ga tarinai	*
+;*****************************************
+	public	chk_pey
+chk_pey:
+	ld	b,001h
+	ld	hl,chk_pey_main
+	jp	bank_push_call
+
+
+;*****************************************
+;*	buy item			*
+;*****************************************
+buy_item:
+	ld	de,my_gold + 2			; mochigane under 2 number
+	ld	hl,divwk1 + 2			; item seal of gold
+	ld	c,3				; 3 byte
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win
+
+	ld	a,muschikin
+	call	se_play
+	jp	se_wait
+
+
+
+;****************************************
+;*	sub item			*
+;* IN  : sel_item_pos			*
+;*     : item_kosuu = suteru kosuu	*
+;*     : hl = item list address		*
+;****************************************
+sub_item:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,003h
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	sub_item_main
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+
+;********************************
+;* Add on the item		*
+;* IN  : sel_item_no		*
+;*       (item_kosuu) = kosuu	*
+;*	 hl = item table	*
+;* OUT : C	take		*
+;* 	NC	cannot take	*
+;********************************
+add_item:
+	push	bc
+	ld	a,(rombankno)
+	push	af
+;	ld	a,(item_kosuu)
+;	push	af
+
+	ld	a,003h
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	add_item_main
+
+;	pop	bc
+;	ld	a,b
+;	ld	(item_kosuu),a
+	pop	bc
+	ld	a,b
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	pop	bc
+
+	ret
+
+
+
+;*****************************************
+;* Function:shop window			*
+;*  in : (item_list_adrs)		*
+;*	 (mons_or_item)			*
+;*		0 = monster		*
+;*		1 = waza		*
+;*		2 = sale item		*
+;*		3 = my item 		*
+;*		4 = elevator 		*
+;*	 (gold_req)			*
+;*		0 = not print		*
+;*		1 = print		*
+;*  out: if cy then cancel		*
+;*	(sel_item_pos) = item list pos	*
+;*	(sel_item_no) = item no.	*
+;*****************************************
+shop_window:
+	xor	a
+	ld	(all_put_req),a
+	ld	a,1
+	ld	(cont_joy_flg),a
+
+	ld	a,(demo_fight_no)
+	and	a
+	jr	nz,set_fight_bank$	; Setting 'fight.src' Bank Number = 0fh
+
+	ld	a,1
+
+	jr	set_bank_no$
+
+
+set_fight_bank$:
+	ld	a,0fh			
+
+set_bank_no$:
+	call	push_bank	
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+	xor	a
+	ld	(select_allow),a
+	ld	(tbl_max),a
+
+	ld	a,(item_list_adrs)	; HL = Item List Address
+	ld	l,a
+	ld	a,(item_list_adrs + 1)
+	ld	h,a
+	ld	a,(hl)
+	ld	(tbl_max),a		; Table Max Number Save
+
+	SET_WIN_MOD SHOP_WIN     
+	call	step_prn_win
+
+	call	actor_blanch
+
+	ld	hl,20*2 + 4 + dmy_vram
+	ld	de,9*100h + 14
+
+	ld	a,(mons_or_item)	; monster = 0  waza = 1  sale item = 2
+					; stock item = 3
+	and	a
+	jr	nz,once$
+
+	call	actor_blanch		; case by monster
+
+once$:
+	ld	a,1
+	ld	(scloll_sw),a		; Scroll Switch = 1
+	ld	a,(tbl_max)
+	cp	2
+	jr	c,jp1$
+
+	ld	a,2			; allow counter max 0-2
+
+jp1$:					; Allow System
+	ld	(allow_max),a
+	ld	a,4
+	ld	(allow_pos),a
+	ld	a,5
+	ld	(allow_pos+1),a
+	ld	a,BT_A + BT_B + BT_SE
+	ld	(allow_msk),a		; use a,b select key
+
+jp2$:
+	ld	c,10
+	call	wait_vb_s
+
+shop_win_loop:
+	xor	a
+	ld	(all_put_req),a
+	call	put_item_g		; Shop window display
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+
+	ld	a,(demo_fight_no)
+	and	a
+	jr	z,demo_pass1$
+
+	ld	a,allow@
+	ld	(4*20 + 5 + dmy_vram),a
+	ld	c,80
+	call	wait_vb_s	
+
+	xor	a
+	ld	(allow_cnt),a
+
+	S_POS	5,4
+	ld	a,l
+	ld	(allow_dv_adr),a
+	ld	a,h
+	ld	(allow_dv_adr + 1),a
+	jr	demo_relay1$
+
+
+demo_pass1$:
+	call	color_reset
+	call	allow
+	push	af
+
+	call	allow_1
+
+	pop	af
+	bit	0,a			; Push'A' Button
+	jp	z,chk_bit1$
+
+demo_relay1$:
+	ld	a,(allow_cnt)
+	call	white_allow		; Push A Key ( jikou keltutei )
+
+	ld	a,BT_A
+	ld	(push_btn),a
+	ld	(func_ret),a  
+	
+	xor	a			; next item Display 
+	ld	(scloll_sw),a		; scroll switch init
+	ld	a,(allow_cnt)		; a key push position
+	ld	c,a			; Allow 
+	ld	a,(scloll_sv)
+	add	a,c
+	ld	c,a
+	ld	a,(tbl_max)
+	and	a
+	jp	z,sel_end		; ikko mo nashi
+
+	dec	a
+	cp	c
+	jp	c,owari_select		; owari select
+
+	ld	a,c
+	ld	(sel_item_pos),a	; set item position
+
+	ld	a,(mons_or_item)
+	cp	3			; stock item
+	jr	nz,jp3$
+
+	sla	c			; * 2
+
+jp3$:
+	ld	a,(item_list_adrs)	; HL = item list address
+	ld	l,a
+	ld	a,(item_list_adrs + 1)
+	ld	h,a
+	inc	hl			; item data position
+	ld	b,0
+	add	hl,bc			; Position Compute 
+	ld	a,(hl)			; Select item position 
+	ld	(sel_item_no),a		; select item number
+
+	ld	a,(mons_or_item)
+	and	a
+	jr	z,mons$
+
+	push	hl
+	call	get_gold
+	pop	hl
+
+	ld	a,(mons_or_item)
+	cp	3			; mons_or_item = 3 .. stock item
+	jr	nz,item_pos$
+
+	inc	hl
+	ld	a,(hl)
+	ld	(take_item_kosuu),a
+	
+item_pos$:
+	ld	a,(sel_item_no)
+	ld	(tbl_pos),a
+	ld	a,1
+	ld	(tbl_bank),a
+	call	get_table
+	jr	str_buf_set$
+
+mons$:
+	ld	hl,my_cap_tbl
+	ld	a,(item_list_adrs)	; HL = item list address
+	cp	l
+	ld	hl,my_cap_name
+	jr	z,pet_name_set$
+
+	ld	hl,my_mons_name
+pet_name_set$:
+	ld	a,(sel_item_pos)
+	call	get_pet_name
+
+str_buf_set$:
+	ld	de,table_data
+	call	str_cpy			; name area copy
+
+	ld	a,BT_A
+	ld	(push_btn),a
+	ld	a,(allow_cnt)
+	ld	(func_ret),a
+
+	xor	a
+	ld	(cont_joy_flg),a
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	jp	pop_bank
+
+
+chk_bit1$:
+	bit	1,a			; Push 'B' Button
+	jp	nz,sel_end
+
+	bit	2,a			; select button
+	jp	nz,change_item_pos
+
+	ld	b,a
+	;PSH_BTN 7,b
+	bit	7,b
+	ld	hl,scloll_sv
+	jr	z,scr_scl$
+
+	ld	a,(hl)			; dwn
+	add	a,3
+	ld	b,a
+	ld	a,(tbl_max)
+	cp	b
+	jp	c,shop_win_loop
+
+	inc	(hl)			; scloll_sv
+
+	jp	shop_win_loop
+
+
+scr_scl$:
+	ld	a,(hl)			; scloll_sv
+	and	a
+	jp	z,shop_win_loop
+
+	dec	(hl)			; scloll_sv
+
+	jp	shop_win_loop
+
+
+plural:					; fukusuu
+	SET_WIN_POS 15,9,19,11
+
+	ld	a,(mons_or_item)
+	cp	2
+	jr	nz,window$
+
+	SET_WIN_POS 7,9,19,11
+
+window$:
+	call	put_window
+	S_POS	16,10
+	ld	a,(mons_or_item)
+	cp	2
+	jr	nz,window2$
+
+  ifn	pm_jmsg
+	ld	a,yen@
+	ld	(20*10 + 18 + dmy_vram),a
+  endif
+	S_POS	8,10
+
+window2$:
+	ld	de,x01$
+	call	put_msg
+
+	xor	a
+	ld	(item_kosuu),a
+
+	jp	count_up$
+
+
+plural_loop$:
+	call	cont_repeat
+
+	ld	a,(joy_on)
+;	ld	a,(joy_status)
+	bit	0,a			; "A" button
+	jp	nz,kettei$
+
+	bit	1,a			; "B" button
+	jp	nz,cancel$
+
+	bit	6,a			; up key
+	jr	nz,count_up$
+
+	bit	7,a			; down key
+	jr	nz,count_down$
+
+	jr	plural_loop$
+
+	
+count_up$:
+	ld	a,(take_item_kosuu)	; max
+	inc	a
+	ld	b,a
+
+	ld	hl,item_kosuu
+	inc	(hl)
+	ld	a,(hl)
+	cp	b
+	jr	nz,put_dec$
+	
+	ld	a,1
+	ld	(hl),a
+
+	jr	put_dec$
+
+
+count_down$:
+	ld	hl,item_kosuu
+	dec	(hl)
+	jr	nz,put_dec$
+
+	ld	a,(take_item_kosuu)	; max
+	ld	(hl),a
+
+put_dec$:
+	S_POS	17,10
+	ld	a,(mons_or_item)
+	cp	2
+	jr	nz,put_dec2$
+	
+	ld	c,3			; 3byte data
+	ld	a,(item_kosuu)
+	ld	b,a
+	ld	hl,divwk1
+	xor	a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+nedan_loop$:
+	ld	de,divwk1 + 2
+	ld	hl,work2
+	push	bc
+	ld	a,B_BCD_ADD
+	call	bank2bank
+	pop	bc
+	dec	b
+	jr	nz,nedan_loop$
+
+	ld	a,(work3)		; work3 ... 1 = uru  0 = kau
+	and	a
+	jr	z,nedan_put$
+
+	xor	a
+	ld	(divwk2),a			; divwk2 = 00 00 02 
+	ld	(divwk2 + 1),a
+	ld	a,002h
+	ld	(divwk2 + 2),a
+
+	ld	a,B_BCD_DIV
+	call	bank2bank
+
+	ld	a,(divwk2)
+	ld	(divwk1),a
+	ld	a,(divwk2 + 1)
+	ld	(divwk1 + 1),a
+	ld	a,(divwk2 + 2)
+	ld	(divwk1 + 2),a
+
+nedan_put$:
+	S_POS	12,10
+	ld	de,spc6$
+	call	put_msg
+	ld	de,divwk1
+  ifn	pm_jmsg
+	ld	c,083h			; data byte = 3   not zero print
+  else
+	ld	c,0a3h
+  endif
+	call	put_bcd
+
+	S_POS	9,10
+
+put_dec2$:
+	ld	de,item_kosuu
+	ld	bc,08102h		; 1byte 2keta zero print
+	call	put_dec
+
+	jp	plural_loop$
+
+
+kettei$:
+	xor	a
+;	========================		; ï¿Ç—ë÷Ç¶ÇÃÉZÉåÉNÉgÉ{É^ÉìÇ…ä÷Ç∑ÇÈÉoÉOèCê≥
+ ifn	ASSEMBLE__ENGLISH			; ÉQÅ[ÉÄÉtÉäÅ[ÉNêXñ{éÅÇÊÇËÇÃÉÅÅ[Éã('98 8/3
+	ld	(select_allow),a		; å¥ìcÇ≥ÇÒéÛÇØ) Ç…è]Ç¡ÇƒïœçXÇ∑ÇÈ
+ endif						;
+;	========================		;
+
+	ret
+
+
+cancel$:
+;	========================		; ï¿Ç—ë÷Ç¶ÇÃÉZÉåÉNÉgÉ{É^ÉìÇ…ä÷Ç∑ÇÈÉoÉOèCê≥
+ ifn	ASSEMBLE__ENGLISH			; ÉQÅ[ÉÄÉtÉäÅ[ÉNêXñ{éÅÇÊÇËÇÃÉÅÅ[Éã('98 8/3
+	xor	a				; å¥ìcÇ≥ÇÒéÛÇØ) Ç…è]Ç¡ÇƒïœçXÇ∑ÇÈ
+	ld	(select_allow),a		;
+ endif						;
+;	========================		;
+	ld	a,0ffh
+
+	ret
+
+
+x01$:
+	db	batu@,n0@,n1@
+	db	EOM
+
+	
+spc6$:
+	db	spc@,spc@,spc@,spc@,spc@,spc@
+	db	EOM
+
+
+owari_select:
+;	ld	a,(mons_or_item)
+;	cp	3
+;	jr	c,sel_end
+;
+;	call	item_sort
+;	xor	a
+;	ld	(allow_cnt),a
+;	ld	(scloll_sv),a
+;	ld	a,1
+;	ld	(scloll_sw),a
+;	jp	shop_win_loop
+
+sel_end:
+	ld	a,(allow_cnt)
+	ld	(func_ret),a
+	ld	a,BT_B
+	ld	(push_btn),a
+	ld	(scloll_sw),a		; scroll switch = 0
+
+	xor	a
+	ld	(cont_joy_flg),a
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	pop_bank
+;	========================		; ï¿Ç—ë÷Ç¶ÇÃÉZÉåÉNÉgÉ{É^ÉìÇ…ä÷Ç∑ÇÈÉoÉOèCê≥
+ ifn	ASSEMBLE__ENGLISH			; ÉQÅ[ÉÄÉtÉäÅ[ÉNêXñ{éÅÇÊÇËÇÃÉÅÅ[Éã('98 8/3
+	xor	a				; å¥ìcÇ≥ÇÒéÛÇØ) Ç…è]Ç¡ÇƒïœçXÇ∑ÇÈ
+	ld	(select_allow),a		;
+ endif						;
+;	========================		;
+	scf
+
+	ret
+
+
+
+;****************************************
+;* Shop Window in Data Display Function *
+;* IN					*
+;* item_list_adrs			*
+;* mons_or_item ... Monster or Item     *
+;*                                      *
+;*   flag kind  ... 0:monster           *
+;*		    1:waza		*
+;*                  2:sale item         *
+;*		    3:stock item	*
+;****************************************
+put_item_g:
+	SET_BLOCK 5,3,19,12
+	call	block_cls
+
+	ld	a,(item_list_adrs)	; item list address get
+	ld	e,a
+	ld	a,(item_list_adrs + 1)
+	ld	d,a
+	inc	de			; item list total number skip 
+
+	ld	a,(scloll_sv)		; Scroll Prog.
+	ld	c,a
+	ld	a,(mons_or_item)
+	cp	3			; 3 = stock item
+	ld	a,c
+	jr	nz,jp0$
+
+	sla	a			; because item no kosuu ga arukara
+	sla	c
+
+jp0$:
+	add	a,e
+	ld	e,a
+	jr	nc,jp1$
+
+	inc	d			; D reg ++
+
+jp1$:
+	S_POS	6,4
+	ld	b,4
+
+loop1$:
+	ld	a,b
+	ld	(sel_item_pos),a
+
+	ld	a,(de)			; item_list_adrs data
+	ld	(in_dat),a		; Data Table in Number Data
+	cp	0ffh			; 'owari' check
+	jp	z,owari1$
+
+	push	bc
+	push	de
+	push	hl			; 
+
+	push	hl
+	push	de
+	ld	a,(mons_or_item)	; Monster or Item ?
+	and	a
+;	ld	a,c
+					; mons_or_item area info.
+	jr	z,mons1$		; 0 ... monster process
+					; 1 ... waza    process
+					; 2 ... sale item    process
+					; 3 ... stock item    process
+	cp	1
+	jr	z,waza1$
+
+	call	get_item_name		; display item name
+
+	jr	pass1$
+
+
+mons1$:
+;	call	get_mons_name		; display monster name
+
+	push	hl
+	ld	hl,my_cap_tbl
+	ld	a,(item_list_adrs)
+	cp	l
+	ld	hl,my_cap_name
+	jr	z,pet_name$
+	ld	hl,my_mons_name
+
+pet_name$:
+	ld	a,(sel_item_pos)
+	ld	b,a
+	ld	a,4
+	sub	b
+	ld	b,a
+	ld	a,(scloll_sv)		; Scroll Prog.
+	add	a,b
+
+	call	get_pet_name		
+	pop	hl
+
+	jr	pass1$
+
+
+waza1$:
+	call	get_waza_name		; display waza name
+
+pass1$:
+	call	put_msg
+
+	pop	de
+	pop	hl
+
+	ld	a,(gold_req)		; Name Only ?
+	and	a
+	jr	z,next0$
+
+	push	hl
+
+	ld	a,(de)
+	ld	de,item_gold_tbl	; set item gold table
+
+;mons2$:
+	ld	(sel_item_no),a
+	call	get_gold		; Return Reg = DE
+	pop	hl
+
+ ifn	ASSEMBLE__ENGLISH		; //// ìXÇÃÉAÉCÉeÉÄÇÃílíiÇï\é¶
+	ld	bc,25			; ï\é¶ó·ÅjÉÇÉìÉXÉ^Å[É{Å[Éã
+ else					;			  ÇQÇOÇOâ~
+	ld	bc,6			; X position herasita ( Old= ld bc,7 )
+ endif					; ï\é¶ó·ÅjÉÇÉìÉXÉ^Å[É{Å[Éã  ÇQÇOÇOâ~
+	add	hl,bc
+;	push	hl			; Money Display Position Save
+  ifn	pm_jmsg
+	ld	c,083h			; 3 Byte & 0 suppress on
+  else
+	ld	c,0a3h
+  endif
+	call	put_bcd			; gold
+
+;	pop	hl			; Money Display position Load
+	
+;	ld	bc,6			; okane wo hyoujisite sonoato
+;	add	hl,bc			;  ni 'en' wo hyouji suru tame dayo
+  ifn	pm_jmsg
+	ld	(hl),yen@
+  endif
+
+next0$:					; Name Only Display Position Compute	
+	ld	a,(mons_or_item)
+	and	a
+	jr	nz,next1$		; not monster
+
+	ld	a,(in_dat)
+	push	af
+	push	hl
+
+	ld	hl,my_cap_tbl
+	ld	a,(item_list_adrs)	
+	cp	l
+	ld	a,0
+	jr	z,mons$
+
+	ld	a,2
+
+mons$:
+	ld	(my_or_gein),a
+
+	ld	hl,sel_item_pos
+	ld	a,(hl)
+	ld	b,a
+	ld	a,4
+	sub	b
+	ld	b,a
+	ld	a,(scloll_sv)		; Scroll Prog.
+	add	a,b
+	ld	(hl),a
+	call	set_monsdata_dmy
+
+	ld	a,(my_or_gein)
+	and	a
+	jr	z,level$
+
+	ld	a,(monsdata_dmy + 3)		; level
+	ld	(monsdata_dmy + 33),a
+level$:
+	pop	hl
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,28				;ï\é¶ó·ÅjÉsÉJÉ`ÉÖÉE
+						;		:LÇQÇS
+ else
+	ld	bc,6				;ï\é¶ó·ÅjÉsÉJÉ`ÉÖÉE  :LÇQÇS
+ endif
+	add	hl,bc
+
+	call	put_level_s
+
+	pop	af
+	ld	(in_dat),a
+
+next1$:
+	pop	hl
+	pop	de
+	inc	de
+	ld	a,(mons_or_item)
+	cp	3			; 3 = stock item
+	jr	nz,next3$
+
+	ld	a,(in_dat)
+	ld	(sel_item_no),a
+	call	check_item2
+	ld	a,(check_flg)
+	and	a
+	jr	nz,next2$		; important item ha x oo wo dasanai
+
+	push	hl			; x oo	system		ó·ÅjÉLÉYÇÆÇ∑ÇË    Å~ÇPÇT
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,28			; ó·ÅjÉLÉYÇÆÇ∑ÇË
+ else					;		   Å~ÇPÇT	ÅiÇPíiâ∫Ç…ï\é¶Ç∑ÇÈÅj
+	ld	bc,9			; ó·ÅjÉLÉYÇÆÇ∑ÇË    Å~ÇPÇT	ÅiÉIÉäÉWÉiÉãî≈ÇÃï\é¶Åj
+ endif
+	add	hl,bc
+	ld	a,batu@
+	ld	(hli),a
+	ld	a,(in_dat)
+	push	af
+	ld	a,(de)			; a number of item
+	ld	(take_item_kosuu),a
+	push	de
+	ld	de,in_dat
+	ld	(de),a
+	ld	bc,00102h			; 1byte2keta
+	call	put_dec
+	pop	de
+	pop	af
+	ld	(in_dat),a
+	pop	hl
+
+next2$:
+	inc	de		
+	pop	bc
+	inc	c
+	push	bc
+	inc	c
+	ld	a,(select_allow)
+	and	a
+	jr	z,next3$
+
+	sla	a
+	cp	c
+	jr	nz,next3$
+	
+	dec	hl
+	ld	a,alloww@
+	ld	(hli),a
+	
+next3$:
+	ld	bc,40
+	add	hl,bc
+	pop	bc
+	inc	c
+	dec	b
+	jp	nz,loop1$
+
+	ld	bc,-8
+	add	hl,bc
+	ld	a,allowd@
+	ld	(hl),a	
+	ret
+
+owari1$:
+	ld	de,owari_msg1$	; Window Select Item 'owari'
+
+;	ld	a,(mons_or_item)
+;	cp	3
+;	jr	c,owari2$
+;	;ld	de,owari_msg2$
+;owari2$:
+
+	jp	put_msg
+
+owari_msg1$:
+  ifn	pm_jmsg
+	db	ya_,me_,ru_
+	db	EOM
+  else
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l
+	db	EOM
+  endif
+
+;owari_msg2$:
+;	db	a__,i__,te__,mu__,se_,i_,ri_
+;	db	EOM
+
+
+
+;*********************************************
+;*  Function :  get_mons_name                *
+;*           : Display Window in data set    *
+;*  IN DATA  : in_dat                        *
+;*           : Select Monster Number in Data * 
+;*  Out Data : DE = table_data 		     *
+;*  Use Reg  : A,DE,HL   		     *
+;*********************************************
+ ifn	ASSEMBLE__ENGLISH
+get_mons_name:
+get_mons_name2:
+	push	hl
+	ld	a,(rombankno)
+	push	af
+	ld	a,MONS_NAME_BANK
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	a,(in_dat)
+	dec	a
+	ld	hl,mons_name_tbl
+	ld	c, MONS_NAME_LEN -1
+	ld	b,0
+	call	mul_any			; HL= &mons_name_tbl[(MONS_NAME_LEN -1)*(in_dat)]
+
+	ld	de,table_data
+	push	de
+	ld	bc, MONS_NAME_LEN -1
+	call	block_move
+
+	ld	hl,table_data + MONS_NAME_LEN -1
+	ld	(hl),EOM
+	pop	de
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	pop	hl
+	ret
+
+ else
+
+get_mons_name:
+get_mons_name2:
+	push	hl
+	ld	a,(rombankno)
+	push	af
+	ld	a,MONS_DATA_BANK
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	a,(in_dat)
+	dec	a
+	ld	hl,mons_name_tbl
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	add	hl,de
+	add	hl,de
+	add	hl,de
+	add	hl,de			; HL= &mons_name_tbl[5*(in_dat)]
+
+	ld	de,table_data
+	push	de
+	ld	bc,5
+	call	block_move
+
+	ld	hl,table_data + 5
+	ld	(hl),EOM
+	pop	de
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	pop	hl
+	ret
+
+ endif
+
+;*********************************************
+;*  Function : get_item_name                 *
+;*           : Display Window in data set    *
+;*  IN DATA  : in_dat                        *
+;*           : Select Item Number in Data    * 
+;*  Return   : DE = table_data 		     *
+;*  Use Reg  : A,DE,HL   		     *
+;*********************************************
+get_item_name:
+	push	hl			; dmy_vram address save
+	push	bc
+
+	ld	a,(in_dat)		; item No
+	cp	196
+	jr	nc,hidensyo$
+
+	ld	(tbl_pos),a
+	ld	a,ASGN_ITEM_NAME
+	ld	(tbl_number),a
+	ld	a,1
+	ld	(tbl_bank),a
+	call	get_table		; get the name strings
+
+	jr	ret$
+
+
+hidensyo$:
+	call	get_hiden_name
+
+ret$:
+	ld	de,table_data
+
+	pop	bc
+	pop	hl			; pop dmy_vram address
+
+	ret
+
+;********************************
+;	get_hiden_name		*
+;  IN  :  in_dat		*
+;********************************
+get_hiden_name:
+	push	hl
+	push	de
+	push	bc
+	ld	a,(in_dat)			; item No
+	push	af
+
+	cp	201
+	jr	nc,pass1$			; not hiden machine
+
+	add	a,5
+	ld	(in_dat),a
+	ld	hl,hidenmachine_str$
+  ifn	pm_jmsg
+	ld	bc,6				;ì˙ñ{åÍÇ≈ÇÕÅuÇ–Ç≈ÇÒÉ}ÉVÉìÅvÇ≈ÇUï∂éö
+  else
+	ld	bc,2				;âpåÍÇ≈ÇÕÅuÇgÇlÅvÇ≈ÇQï∂éö
+  endif
+	jr	pass2$
+
+pass1$:
+	ld	hl,wazamachine_str$
+  ifn	pm_jmsg
+	ld	bc,5	;ì˙ñ{åÍÉÇÅ[ÉhÇ≈ÇÕÅuÇÌÇ¥É}ÉVÉìÅvÇ∆ÇTï∂éö
+  else
+	ld	bc,2	;âpåÍÉÇÅ[ÉhÇ≈ÇÕÅuÇsÇlÅvÇ∆ÇQï∂éö
+  endif
+pass2$:
+	ld	de,table_data
+	call	block_move
+	
+	ld	a,(in_dat)			; item No
+	sub	200
+	ld	b,n0@
+
+loop$:
+	sub	10
+	jr	c,ichi_no_kurai$
+	inc	b
+	jr	loop$
+
+ichi_no_kurai$:
+	add	a,10
+	push	af
+	ld	a,b
+	ld	(de),a
+	inc	de
+	pop	af
+
+	ld	b,n0@
+	add	a,b
+	ld	(de),a
+	inc	de
+	ld	a,EOM
+	ld	(de),a
+
+	pop	af
+	ld	(in_dat),a
+
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+wazamachine_str$:
+  ifn	pm_jmsg
+	db	wa_,za_,ma__,si__,n__
+  else
+	db	usf_t,usf_m
+  endif
+
+hidenmachine_str$:
+  ifn	pm_jmsg
+	db	hi_,de_,n_,ma__,si__,n__
+  else
+	db	usf_h,usf_m
+  endif
+
+chk_hidenmachine:
+	cp	196
+	jr	c,no$
+	cp	201
+	ret
+
+no$:
+	and	a			; NC
+	ret
+
+chk_hidenwaza:
+	ld	hl,hidenwaza_tbl
+	ld	de,1
+	jp	table_search
+
+hidenwaza_tbl:
+	db	15,19,57,70,148
+	db	0ffh
+
+;*********************************************
+;*  Function : get_waza_name                 *
+;*           : Display Window in data set    *
+;*  IN DATA  : in_dat                        *
+;*           : Select Waza Number in Data    * 
+;*  Return   : DE = table_data 		     *
+;*  Use Reg  : A,DE,HL   		     *
+;*********************************************
+get_waza_name:
+	push	hl			; dmy_vram address save
+
+	ld	a,ASGN_WAZA_NAME
+	ld	(tbl_number),a
+	ld	a,(in_dat)
+	ld	(tbl_pos),a
+	ld	a,02ch				; waza_name_tblÇÃ ﬁ›∏#
+	ld	(tbl_bank),a
+	call	get_table		; get the name strings
+	ld	de,table_data
+	
+	pop	hl			; pop dmy_vram address
+
+	ret
+
+
+map_rewrite:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,(mapno)
+	call	set_map_bank			; Map Bank Set
+
+	call	lcdc_stop			; LCD Control Stop
+	call	set_serifu
+	call	put_map	
+	call	set_mapimg
+	call	lcdc_on				; LCD Control Start
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+
+map_rewrite2:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,(mapno)
+	call	set_map_bank			; Map Bank Set
+	call	lcdc_stop			; LCD Control Stop
+	call	set_mapimg
+	call	lcdc_on				; LCD Control Start
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	ret
+
+
+	extern	worldmap2
+wing_ticket:
+	ld	hl,obs_player
+	res	4,(hl)
+
+	ld	b,1ch
+	ld	hl,worldmap2
+	jp	bank_push_call
+
+
+bank1	group	1
+
+chk_pey_main:
+	ld	de,my_gold		; temochi no okane
+	ld	hl,divwk1
+	ld	c,3			; 3byte hikaku
+	call	cmp_byt
+	ret	c			; kane ga tarinai node modoru
+
+	ld	de,my_gold + 2		; simo 2 keta
+	ld	hl,divwk1 + 2		; siharai kingaku
+	ld	c,3			; 3byte bun
+	ld	a,B_BCD_SUB
+	call	bank2bank
+
+	ld	a,KANE_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+
+	and	a			; NC
+	ret
+
+
+;************************
+;  change_item_pos	*
+;************************
+
+change_item_pos:
+	ld	a,(mons_or_item)
+	cp	3
+;	jp	c,shop_win_loop
+	jp	nz,shop_win_loop	; debug by Sige 96-10-1 (birthday)
+
+	push	hl
+
+;	ld	a,(item_list_adrs)	
+;	ld	l,a
+;	ld	a,(item_list_adrs + 1)	
+;	ld	h,a
+	ld	hl,item_list_adrs
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	
+	inc	hl
+
+	ld	a,(allow_cnt)
+	ld	b,a
+	ld	a,(scloll_sv)
+	add	a,b
+	add	a,a
+
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hl)
+	pop	hl
+	inc	a		; item seiri
+	jp	z,shop_win_loop
+
+	ld	a,(select_allow)
+	and	a
+	jr	nz,change$
+
+	ld	a,(allow_cnt)
+	inc	a
+	ld	b,a
+	ld	a,(scloll_sv)
+	add	a,b
+	ld	(select_allow),a
+
+	ld	c,20
+	call	wait_vb_s
+
+	jp	shop_win_loop
+
+
+change$:
+	ld	a,(allow_cnt)
+	inc	a
+	ld	b,a
+	ld	a,(scloll_sv)
+	add	a,b
+	ld	b,a
+	ld	a,(select_allow)
+	cp	b
+	jp	z,shop_win_loop
+
+	dec	a
+	ld	(select_allow),a
+
+	ld	c,20
+	call	wait_vb_s
+
+	push	hl
+	push	de
+
+;	ld	a,(item_list_adrs)	
+;	ld	l,a
+;	ld	a,(item_list_adrs + 1)	
+;	ld	h,a
+	ld	hl,item_list_adrs
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	inc	hl
+
+	ld	d,h
+	ld	e,l
+
+	ld	a,(allow_cnt)
+	ld	b,a
+	ld	a,(scloll_sv)
+	add	a,b
+
+	add	a,a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(select_allow)
+	add	a,a
+
+	add	a,e
+	ld	e,a
+	jr	nc,pass2$
+
+	inc	d
+
+pass2$:
+	ld	a,(de)
+	ld	b,a
+	ld	a,(hli)
+	cp	b
+	jr	z,gattai$		; onaji item no toki ha gattai saseru
+
+	ld	(calc_work0),a
+	ld	a,(hld)
+	ld	(calc_work1),a
+
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hl),a
+	
+	ld	a,(calc_work1)
+	ld	(de),a
+	dec	de
+	ld	a,(calc_work0)
+	ld	(de),a
+
+	xor	a
+	ld	(select_allow),a
+
+	pop	de
+	pop	hl
+
+	jp	shop_win_loop
+
+
+gattai$:
+	inc	de
+	ld	a,(hl)
+	ld	b,a
+	ld	a,(de)
+	add	a,b
+	cp	100
+	jr	c,tumeru$
+
+	sub	99
+	ld	(de),a
+	ld	a,99
+	ld	(hl),a
+
+	jr	gattai_end$
+
+	
+tumeru$:
+	ld	(hl),a
+
+;	ld	a,(item_list_adrs)	
+;	ld	l,a
+;	ld	a,(item_list_adrs + 1)	
+;	ld	h,a
+
+	ld	hl,item_list_adrs
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+;	ld	a,(hl)
+;	dec	a
+;	ld	(hl),a
+	dec	(hl)
+	ld	a,(hl)
+	ld	(tbl_max),a
+	cp	1
+	jr	nz,tumeru2$
+
+	ld	(allow_max),a
+
+tumeru2$:
+	dec	de
+	ld	h,d
+	ld	l,e
+	inc	hl
+	inc	hl
+
+tumeru_loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+;	cp	0ffh
+	inc	a
+	jr	z,tumeru3$
+
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+
+	jr	tumeru_loop$
+
+
+tumeru3$:
+	xor	a
+	ld	(scloll_sv),a
+	ld	(allow_cnt),a
+
+gattai_end$:
+	xor	a
+	ld	(select_allow),a
+
+	pop	de
+	pop	hl
+
+	jp	shop_win_loop
+
+
+
+;=======================================;
+;					;
+;	item shop main frame routine	;
+;					;
+;=======================================;
+itemshop_main:
+	ld	a,(scloll_sv)
+
+;	=====================		;ÅiÉoÉOèCê≥ÅIÅjpush af ÇÉRÉÅÉìÉgÉAÉEÉgÇµÅA
+					; ld (ef_char_x),a Çë}ì¸Ç∑ÇÈ <= ñ¢égópÇæÇ¡ÇΩÇíÇÅÇçÇégóp
+;;;	push	af			; ÉVÉáÉbÉvÇ≈ìπãÔÇÇΩÇ≠Ç≥ÇÒîÑÇ¡ÇƒÇµÇ‹Ç§Ç∆ÅAé©ï™ÇÃÇ«Ç§ÇÆ
+					; ÇäJÇ¢ÇΩéûÅAïœÇ»Ç∆Ç±ÇÎÇ…ÉJÅ[É\ÉãÇ™Ç¢Ç≠ÉoÉOÅB
+	ld	(ef_char_x),a		; ÉQÅ[ÉÄÉtÉäÅ[ÉNêXñ{éÅÇÊÇËÇÃÉÅÅ[Éã('98 8/6 å¥ìcÇ≥ÇÒéÛÇØ)
+;	=====================		; Ç…è]Ç¡ÇƒïœçXÇ∑ÇÈÅi(2468)çsñ⁄Ç™push,popÇÃëŒÇ…Ç»Ç¡ÇƒÇ¢ÇÈÅj
+					;			(3803)çsñ⁄Ç‡ä÷åWÇ†ÇË
+	call	actor_blanch
+
+	xor	a
+	ld	(shop_flg),a
+
+shop_sel$:
+	xor	a
+	ld	(scloll_sv),a
+	ld	(allow_cnt),a
+	ld	(allow_sv_fight),a
+
+;	ld	a,1
+	inc	a
+	ld	(gold_req),a
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win
+
+	SET_WIN_MOD URU_KAU_WIN
+	call	step_prn_win
+
+;	ld	a,(work_stack)
+;	ld	h,a
+;	ld	a,(work_stack+1)
+;	ld	l,a
+
+	ld	hl,work_stack
+	ld	a,(hli)
+	ld	l,(hl)
+	ld	h,a
+
+	ld	a,(push_btn)
+	cp	BT_B
+	jp	z,shopping_cancel$
+
+	ld	a,(func_ret)
+;	cp      0
+	and	a
+	jp	z,item_kau$			; Item Kau
+
+;	cp	1
+	dec	a
+	jp	z,item_uru$			; Item Uru
+
+;	cp	2
+	dec	a
+	jp	z,shopping_cancel$
+
+
+;************
+;* Item Uru *
+;************
+item_uru$:
+	xor	a
+	ld	(gold_req),a
+
+	ld	a,ITEM_SEAL
+	ld	(set_data_flg),a
+	ld	hl,set_item_param
+	ld	b,0eh
+	call	bank_push_call		; farcall  0E:set_item_param()
+
+	ld	a,(my_item_tbl)
+	and	a
+	jp	z,no_haveitem$		; nanimo moltutenaiyo!!!!!!!!!!
+
+	ld	hl,pf_b_msg1$ 	 	; dore wo utte itadakemasuka?
+	call	put_win_msg		
+
+	call	push_vram
+
+uru_loop1$:
+	call	pop_vram
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win
+
+	ld	hl,my_item_tbl			; temochi no item
+	ld	a,l
+	ld	(item_list_adrs),a
+	ld	a,h
+	ld	(item_list_adrs + 1),a
+	xor	a
+	ld	(gold_req),a			; do not put gold
+	ld	(allow_cnt),a
+	ld	a,3
+	ld	(mons_or_item),a
+	call	shop_window
+	jp	c,back_call$		; Shop Window hyouji cyuu ni Cancel
+
+	call	check_item2
+	ld	a,(check_flg)
+	and	a
+	jr	nz,urenai$		; item is important!
+
+	ld	a,(sel_item_no)
+	call	chk_hidenmachine
+	jr	c,urenai$		; item is important!
+
+	ld	a,2
+	ld	(mons_or_item),a
+	ld	(work3),a
+	call	plural			; kosuu to kane hyouji
+;	cp	0ffh			
+	inc	a
+	jr	z,uru_loop1$		; cancel by "B" button
+
+	ld	hl,pf_b_msg2$ 		; soredesitara oo yen de hikitorimasu   
+	E_POS	1,14
+	call	put_win_msg  
+
+	S_POS	14,7
+	E_POS	15,8
+	SET_WIN_MOD YES_NO_WIN
+	call	step_prn_win
+	ld	a,(push_btn)
+	cp	BT_B
+	jr	z,uru_loop1$ 		; select 'no' -> soudesuka
+
+	ld	a,(func_ret)
+;	cp	1
+	dec	a
+	jr	z,uru_loop1$
+
+	ld	a,(shop_flg)
+	and	a
+	jr	nz,sk1$
+
+;	ld	a,1
+	inc	a
+	ld	(shop_flg),a
+sk1$:
+	call	buy_item		; item uri + okane tasaresu
+
+	ld	hl,my_item_tbl
+	call	sub_item		; item heru
+	
+back_uru$:
+;	call	pop_vram
+;	SET_WIN_MOD KANE_WIN
+;	call	step_prn_win
+;	jp	item_uru$
+	jp	uru_loop1$
+
+
+urenai$: 
+	ld	hl,pf_bab_msg2$    ; hikitorenai
+	call	put_win_msg
+	jp	back_call$
+
+no_haveitem$:
+	ld	hl,pf_bab_msg1$
+	call	put_win_msg
+ ifn	ASSEMBLE__ENGLISH
+	call	push_vram		; âΩÇ‡ÉAÉCÉeÉÄÇéùÇ¡ÇƒÇ¢Ç»Ç¢èÛë‘Ç≈Ç®ìXÇ≈îÑÇÈÉRÉ}ÉìÉhÇ
+ endif					; ëIÇ‘Ç∆âÊñ Ç™âªÇØÇÈÉoÉOÇÃèCê≥ÅB
+	jp	back_call$		; back_call() ì‡Ç≈ pop_vram() ÇåƒÇ—èoÇµÇƒÇ¢ÇÈ
+
+;************
+;* Item kau *
+;************
+item_kau$:
+	ld	a,1
+	ld	(gold_req),a
+	
+	ld	a,ITEM_BUY		; item kau
+	ld	(set_data_flg),a
+	ld	hl,set_item_param
+	ld	b,0eh
+	call	bank_push_call		; farcall  0E:set_item_param()
+
+
+	ld	hl,pf_s_msg1$ 		; kau tokino saisyono kudari
+	call	put_win_msg
+
+	call	push_vram
+kau_loop1$:
+	call	pop_vram
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win
+
+; hekiheki
+	ld	hl,shop_item_tbl	; sale item
+	ld	a,l
+	ld	(item_list_adrs),a
+	ld	a,h
+	ld	(item_list_adrs + 1),a
+	xor	a
+	ld	(allow_cnt),a
+	inc	a
+	ld	(gold_req),a			; 1 = print gold
+	inc	a
+	ld	(mons_or_item),a
+	call	shop_window
+	jr	c,back_call$		; Shop Window hyouji cyuu ni Cancel
+; hekiheki
+
+;	ld	a,(push_btn)
+;	cp	BT_B
+;	jp	z,kau_yameru$      
+
+	ld	a,99
+	ld	(take_item_kosuu),a		; 99 ko made kaeru
+	xor	a
+	ld	(work3),a
+	call	plural				; kosuu to kane hyouji
+;	cp	0ffh			
+	inc	a
+	jr	z,kau_loop1$			; cancel by "B" button
+
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+	call	get_item_name
+	call	str_cpy
+	
+	ld	hl,pf_s_msg2$  	; okaiage
+	call	put_win_msg
+
+	S_POS	14,7
+	E_POS	15,8
+	SET_WIN_MOD YES_NO_WIN
+	call	step_prn_win
+	ld	a,(push_btn)
+	cp	BT_B
+	jp	z,kau_loop1$	
+
+	ld	a,(func_ret)
+	dec	a 
+	jr	z,kau_loop1$	
+
+	call	chk_pey_dummy$
+	jr	c,kane_tarin$		; kane ga tarinai
+	
+	ld	hl,my_item_tbl		; My item Table Address
+	call	add_item		; item tuika
+	jr	nc,motisugi$		; motenai
+
+	call	chk_pey
+	
+	ld	a,(shop_flg)
+	and	a
+	jr	nz,sk2$
+	ld	a,1
+	ld	(shop_flg),a
+sk2$:
+	ld	a,muschikin
+	call	se_play
+	call	se_wait
+
+	ld	hl,pf_s_msg3$
+	call	put_win_msg
+
+;	ld	hl,my_item_tbl		; My item Table Address
+;	call	add_item		; item tuika
+
+back_kau$:
+;	call	pop_vram
+;	SET_WIN_MOD KANE_WIN
+;	call	step_prn_win
+;	jp	item_kau$
+	jp	kau_loop1$
+
+back_call$:
+	call	pop_vram
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win
+	ld	hl,pf_cont_msg$		; hokani youji ha ?   
+	call	put_win_msg
+	jp	shop_sel$
+
+chk_pey_dummy$:
+	ld	de,my_gold		; temochi no okane
+	ld	hl,divwk1
+	ld	c,3			; 3byte hikaku
+	jp	cmp_byt
+
+;***********************************
+;* Item Shop Message Print Process *
+;***********************************
+kane_tarin$:
+	ld	hl,pf_sab_msg1$  	; tarinai
+	call	put_win_msg
+	jr	back_call$
+
+motisugi$:
+	ld	hl,pf_sab_msg2$  	; Take Max 6 Item
+	call	put_win_msg
+	jr	back_call$
+
+shopping_cancel$:			; -- Shopping Cancel Message
+uru_yameru$:
+kau_yameru$:
+	ld	hl,pf_fin_msg$   
+	call	put_win_msg
+
+	ld	a,1
+	ld	(oam_flg),a
+
+	call	actor_blanch
+
+;	=====================		;ÅiÉoÉOèCê≥ÅIÅjpop af ÇÉRÉÅÉìÉgÉAÉEÉgÇµÅA
+					; ld a,(ef_char_x) Çë}ì¸Ç∑ÇÈ <= ñ¢égópÇæÇ¡ÇΩÇíÇÅÇçÇégóp
+;;;	pop	af			; ÉVÉáÉbÉvÇ≈ìπãÔÇÇΩÇ≠Ç≥ÇÒîÑÇ¡ÇƒÇµÇ‹Ç§Ç∆ÅAé©ï™ÇÃÇ«Ç§ÇÆ
+					; ÇäJÇ¢ÇΩéûÅAïœÇ»Ç∆Ç±ÇÎÇ…ÉJÅ[É\ÉãÇ™Ç¢Ç≠ÉoÉOÅB
+	ld	a,(ef_char_x)		; ÉQÅ[ÉÄÉtÉäÅ[ÉNêXñ{éÅÇÊÇËÇÃÉÅÅ[Éã('98 8/6 å¥ìcÇ≥ÇÒéÛÇØ)
+;	=====================		; Ç…è]Ç¡ÇƒïœçXÇ∑ÇÈÅi(2159)çsñ⁄Ç™push,popÇÃëŒÇ…Ç»Ç¡ÇƒÇ¢ÇÈÅj
+					;			(3803)çsñ⁄Ç‡ä÷åWÇ†ÇË
+	ld	(scloll_sv),a
+
+	ret
+
+;====================== Message Room ========================
+pf_s_msg1$:			; Shopping Buy
+	extern	pf_s_msg1_4_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_s_msg1_4_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+pf_s_msg2$:			;  ~desune...
+	extern	pf_s_msg2_5_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_s_msg2_5_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+pf_s_msg3$:			;  maidoari
+	extern	pf_s_msg3_6_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_s_msg3_6_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+pf_sab_msg1$:			; kanetarin
+	extern	pf_sab_msg1_7_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_sab_msg1_7_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+pf_sab_msg2$:			; Mochisugi
+	extern	pf_sab_msg2_8_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_sab_msg2_8_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+pf_b_msg1$:
+	extern	pf_b_msg1_9_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_b_msg1_9_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+pf_b_msg2$:
+	extern	pf_b_msg2_10_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_b_msg2_10_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+pf_bab_msg1$:	
+	extern	pf_bab_msg1_11_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_bab_msg1_11_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+pf_bab_msg2$:
+	extern	pf_bab_msg2_12_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_bab_msg2_12_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+pf_fin_msg$:
+	extern	pf_fin_msg_13_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_fin_msg_13_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+pf_cont_msg$:
+	extern	pf_cont_msg_14_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw pf_cont_msg_14_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+;------------------------------ waza Shop ---------------------------
+wazashop_main:
+
+;****************************************
+;   add_waza				*
+;   IN : waza_swap + 4 ... waza number	*
+;  OUT : b = 0 chancel			*
+;****************************************
+add_waza:
+
+;****************************************
+;   add_waza1				*
+;   IN : waza_swap + 4 ... waza number	*
+;        sel_item_pos  ... monster pos	*
+;        sel_item_no   ... monster No   *
+;	 my_or_gein			*
+;  OUT : b = 0  chancel			*
+;****************************************
+add_waza1:
+	call	push_vram
+
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_name
+	call	get_pet_name
+
+	ld	hl,table_data
+	ld	de,dealer_mons_no
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+add_waza2$:
+	ld	hl,my_cap_data + 8		; waza position
+	ld	bc,CAPDATA_LEN
+	ld	a,(sel_item_pos)
+	call	mul_any
+
+	ld	d,h
+	ld	e,l
+	
+	ld	b,4
+loop$:
+	ld	a,(hl)
+	and	a
+	jr	z,add$
+
+	inc	hl
+	dec	b
+	jr	nz,loop$
+
+	push	de
+	call	waza_torikae$		; waza = full
+	pop	de
+	jp	c,waza_houki$		; torikaenai
+
+	push	hl
+	push	de
+	
+	ld	(in_dat),a
+	call	get_waza_name
+
+	ld	hl,add_waza_msg8$		; kireini wasureta
+	call	put_win_msg
+
+	pop	de
+	pop	hl
+
+add$:
+	ld	a,(waza_swap + 4)		; oboeru waza number
+	ld	(hl),a
+
+	ld	bc,21
+	add	hl,bc				; waza point count address
+	push	hl
+	push	de
+
+	dec	a
+	ld	hl,waza_tbl
+	ld	bc,6
+	call	mul_any
+	ld	de,yes_no_map
+	ld	a,0eh
+	call	bank_chg_block_m
+	ld	a,(yes_no_map + 5)
+	
+	pop	de
+	pop	hl
+	ld	(hl),a
+	
+	ld	a,(fighting_flg)
+	and	a
+	jp	z,ret$
+
+	ld	a,(sel_item_pos)
+	ld	b,a
+	ld	a,(allow_sv_fight)		; tatakatteiru monster pos
+	cp	b
+	jp	nz,ret$
+
+	ld	h,d
+	ld	l,e
+	ld	de,mymons_data + 19 		; waza pos
+	ld	bc,4
+	call	block_move
+
+	ld	bc,17
+	add	hl,bc
+	ld	de,mymons_data + 36 		; waza point pos
+	ld	bc,4
+	call	block_move
+
+	jp	ret$
+
+waza_houki$:
+	ld	hl,add_waza_msg5$		; akiramemasuka?
+	call	put_win_msg
+
+	S_POS	14,7				; HL
+	E_POS	15,8				; BC
+	ld	a,YES_NO_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+
+	ld	a,(allow_cnt)
+	and	a
+	jp	nz,add_waza2$			; "No"
+
+houki_shita$:
+	ld	hl,add_waza_msg6$
+	call	put_win_msg
+
+	ld	b,0				; chancel
+	ret
+
+ret$:
+	ld	hl,add_waza_msg2$		; oboeta!
+	call	put_win_msg
+
+	ld	b,1				; add ok
+	ret
+
+
+waza_torikae$:
+	push	hl
+
+	ld	hl,add_waza_msg7$		; hokano waza wo wasuresaseru?
+	call	put_win_msg
+
+	S_POS	14,7				; HL
+	E_POS	15,8				; BC
+	ld	a,YES_NO_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+
+	pop	hl
+	ld	a,(allow_cnt)
+	rra
+	ret	c
+
+	ld	bc,-4
+	add	hl,bc				; waza position
+
+	push	hl
+	ld	de,waza_swap
+	ld	bc,4
+	call	block_move			; set data to 'waza_swap'
+
+	ld	hl,set_str_buf
+	ld	b,0eh
+	call	bank_push_call
+	pop	hl
+
+waza_torikae2$:
+	push	hl
+	ld	hl,add_waza_msg3$		; ÅhÇ«ÇÃ  ÇÌÇ¥Ç    Åh
+	call	put_win_msg			;   ÇÌÇ∑ÇÍÇ≥ÇπÇΩÇ¢ÅH
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS 4,7,19,12			; ÇÌÇ¥ÉEÉBÉìÉhÉE
+	call	put_window			; skill box
+
+	SET_MSG_POS 6,8,waza_name
+
+	ld	a,(us_display_flg)
+	set	PUT_MSG_CR@_BIT,a
+	ld	(us_display_flg),a		; cr@ Ç HL += 20 Ç…Ç∑ÇÈ
+	call	put_msg				; skill & attack pattern list
+	ld	a,(us_display_flg)
+	res	PUT_MSG_CR@_BIT,a		; cr@ Çå≥Ç…ñﬂÇ∑ (HL += 40)
+	ld	(us_display_flg),a
+
+	ld	hl,allow_pos
+	ld	a,8				; allow position as Y
+	ld	(hli),a
+	ld	a,5				; allow position as X
+	ld	(hli),a
+ else
+	SET_WIN_POS 10,8,19,17
+	call	put_window			; skill box
+
+	SET_MSG_POS 12,10,waza_name
+	call	put_msg				; skill & attack pattern list
+
+	ld	hl,allow_pos
+	ld	a,10				; allow position as Y
+	ld	(hli),a
+	ld	a,11				; allow position as X
+	ld	(hli),a
+ endif
+	xor	a
+	ld	(hli),a				; allow_cnt
+	inc	hl
+	ld	a,(para_work)
+	ld	(hli),a				; allow_max
+	ld	a,BT_A + BT_B
+	ld	(hli),a				; allow_msk
+	ld	(hl),0				; allow_old
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl, us_display_flg
+	set	CURSOR_Y_INTERVAL_BIT,(hl)	; Çxï˚å¸à⁄ìÆä‘äuÇÇPÉLÉÉÉâñàÇ…Ç∑ÇÈ
+	call	allow
+	ld	hl, us_display_flg
+	res	CURSOR_Y_INTERVAL_BIT,(hl)	; Çxï˚å¸à⁄ìÆä‘äuÇå≥Ç…ñﬂÇ∑ÅiÇQÉLÉÉÉâñàÅj
+ else
+	call	allow
+ endif
+	push	af
+	call	pop_vram
+	pop	af
+
+	pop	hl
+
+	bit	1,a
+	jr	nz,torikaenai$			; cancel jump
+
+	push	hl
+	ld	a,(allow_cnt)
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hl)
+	push	af			; af -> de
+	push	bc
+	call	chk_hidenwaza
+	pop	bc
+	pop	de			; af -> de
+	ld	a,d
+
+	jr	c,hidendayo$
+	pop	hl
+	add	hl,bc
+	
+	and	a			; non cy = torikaeru
+
+	ret
+
+hidendayo$:
+	ld	hl,hidendayo_msg$
+	call	put_win_msg
+	pop	hl
+	jr	waza_torikae2$
+
+torikaenai$:
+	scf				; cy = torikaenai
+
+	ret
+
+
+add_waza_msg2$:
+	extern	add_waza_msg2_15_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw add_waza_msg2_15_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db	FANFARE
+	db	WAIT
+	db	EOM
+
+add_waza_msg3$:
+	extern	add_waza_msg3_16_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw add_waza_msg3_16_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+add_waza_msg5$:
+	extern	add_waza_msg5_17_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw add_waza_msg5_17_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+add_waza_msg6$:
+	extern	add_waza_msg6_18_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw add_waza_msg6_18_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+add_waza_msg7$:
+	extern	add_waza_msg7_19_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw add_waza_msg7_19_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+add_waza_msg8$:
+	extern	add_waza_msg8_20_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw add_waza_msg8_20_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db	E_WAIT
+	db	CALL_MSG
+
+	ld	a,muskon
+	call	se_play
+	
+	ld	hl,add_waza_msg9$
+	ret
+
+add_waza_msg9$:
+	extern	add_waza_msg9_21_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw add_waza_msg9_21_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db	E_WAIT
+	extern	add_waza_msg9_22_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw add_waza_msg9_22_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+hidendayo_msg$:
+	extern	hidendayo_msg_23_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw hidendayo_msg_23_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+;------------------------------;
+; pocket monster center system ;
+;------------------------------;
+hotel_main:	
+	call	push_vram
+
+;	ld	hl,obs_system
+;	set	6,(hl)
+
+	ld	hl,hotel_msg0$			; welcome to this center
+	call	put_win_msg
+
+	ld	hl,obs_player
+	bit	2,(hl)
+	set	1,(hl)				; for vs dealer battle
+	set	2,(hl)				; experience of using this
+	jr	nz,exp$
+
+	ld	hl,hotel_msg1$			; welcome to this center
+	call	put_win_msg
+
+exp$:
+	call	leave
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no_stay$
+
+	call	pmc_checker
+
+	call	pop_vram
+
+	ld	hl,hotel_msg2$ 
+	call	put_win_msg
+
+	ld	a,18h
+	ld	(actor_table + 10h + 2),a
+
+	call	put_wait
+
+	ld	a,B_KAIHUKU
+	call	bank2bank
+
+	ld	b,1ch
+	ld	hl,hotel_effect
+	call	bank_push_call
+
+	xor	a
+	ld	(fade_play_fg),a
+
+	ld	a,(music_bank_flg_back)		; Bank-Load / Save "ctrl_effect"
+	ld	(music_bank_flg),a
+
+	ld	a,(map_music)
+	ld	(now_music),a
+	ld	(music_flag),a			; 0:SE / !0:Music
+	call	play
+
+	ld	hl,hotel_msg3$ 
+	call	put_win_msg
+
+	ld	a,14h
+	ld	(actor_table + 10h + 2),a
+
+	ld	c,a
+	call	wait_vb_s
+
+	jr	exit_hotel$
+
+
+no_stay$:
+	call	pop_vram
+
+exit_hotel$:
+	ld	hl,hotel_msg4$   
+	call	put_win_msg
+
+;	ld	hl,obs_system
+;	res	6,(hl)
+
+	jp	actor_blanch
+
+
+
+hotel_msg0$:
+	extern	hotel_msg0_24_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw hotel_msg0_24_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+hotel_msg1$:
+	db	E_WAIT
+	extern	hotel_msg1_25_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw hotel_msg1_25_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+hotel_msg2$: 
+	extern	hotel_msg2_26_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw hotel_msg2_26_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+hotel_msg3$: 
+	extern	hotel_msg3_27_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw hotel_msg3_27_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+hotel_msg4$:
+	db	E_WAIT
+	extern	hotel_msg4_28_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw hotel_msg4_28_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+;-------------------------------;
+; check & save for pmc map data ;
+;-------------------------------;
+pmc_checker:
+	push	hl
+
+	ld	hl,pmc_no_save$
+	ld	a,(mapno)
+	ld	b,a
+
+lp$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,save$
+
+	cp	b
+	jr	nz,lp$
+
+	jr	rts$
+
+
+save$:
+	ld	a,(mapno_stack)
+	ld	(ev_something + 1),a		; place of last recover status
+
+rts$:
+	pop	hl
+
+	ret
+
+
+pmc_no_save$:
+;	db	R4R1F1
+;	db	R10R1F1
+	db	D12R1F7
+	db	D12R1F8
+	db	D12R1F9
+	db	0ffh
+
+
+
+
+sys_init:					; ÉÅÉjÉÖÅ[ÉEÉBÉìÉhÉE
+	xor	a
+	ld	(mons_or_item),a
+
+	ld	a,(win_cancel)
+	bit	0,a
+	jr	nz,no_window$
+
+	ld	a,(work1)			; message number
+	and	a
+	jr	nz,talk_window$
+
+	ld	a,(ev_t1_3)
+	bit	5,a
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS 10,0,19,15			; ÉÅÉjÉÖÅ[ÉEÉCÉìÉhÉEògÇÃï\é¶à íuÅiÇ∏Ç©ÇÒóLÇËÅj
+	jr	nz,system_window$
+	SET_WIN_POS 10,0,19,13			; ÉÅÉjÉÖÅ[ÉEÉCÉìÉhÉEògÇÃï\é¶à íuÅiÇ∏Ç©ÇÒñ≥ÇµÅj
+	jr	system_window$
+ else
+	SET_WIN_POS 12,0,19,15			; system menu window
+	jr	nz,system_window$
+	SET_WIN_POS 12,0,19,13			; system menu window
+	jr	system_window$
+ endif
+
+talk_window$:
+	SET_WIN_POS 0,12,19,17			; talking window
+
+system_window$:
+	call	put_window
+
+no_window$:
+	ld	hl,talking_flg
+	set	0,(hl)				; mode of talking to other
+
+	ld	hl,obs_event + 0
+	bit	4,(hl)
+	res	4,(hl)
+	jr	nz,hook$
+
+	call	actor_blanch
+
+hook$:
+	ld	hl,actor_table + 010h + 09h	; site code area
+
+	ld	c,00fh				; actor_table element count
+	ld	de,010h				; actor_table offset
+
+site_set_loop$:
+	ld	a,(hl)				; site value
+
+	inc	h				; actor_table + 100h
+	ld	(hl),a				; set site value
+
+	dec	h				; actor_table + 000h
+	add	hl,de
+
+	dec	c
+	jr	nz,site_set_loop$
+
+	ld	hl,actor_table + 2
+	ld	de,10h
+	ld	c,e
+stop_loop$:
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,stop_next$
+
+	and	0fch
+	ld	(hl),a
+	
+stop_next$:
+	add	hl,de
+	dec	c
+	jr	nz,stop_loop$
+
+	ld	b,09ch				; BG2 address as upper
+	call	put_all
+
+	xor	a
+	ld	(window_y),a
+
+	call	set_kana
+
+	ld	a,1
+	ld	(all_put_req),a
+
+	ret
+
+
+
+personal_init:					; (Ç∏Ç©ÇÒ)
+	ld	a,(ev_t1_3)			; É|ÉPÉÇÉì
+	bit	5,a				; Ç«Ç§ÇÆ
+ ifn	ASSEMBLE__ENGLISH			; ÉAÉCÉEÉGÉIÇ©Ç´Ç≠ÇØÇ±
+	SET_WIN_POS 10,0,19,15			; ÉåÉ|Å[Ég
+	jr	nz,waku$			; ÇπÇ¡ÇƒÇ¢
+	SET_WIN_POS 10,0,19,13			; Ç∆Ç∂ÇÈ
+ else
+	SET_WIN_POS 12,0,19,15			; ÉÅÉjÉÖÅ[ÉEÉCÉìÉhÉEògÇÃï\é¶à íuÅiÇ∏Ç©ÇÒóLÇËÅj
+	jr	nz,waku$
+	SET_WIN_POS 12,0,19,13			; ÉÅÉjÉÖÅ[ÉEÉCÉìÉhÉEògÇÃï\é¶à íuÅiÇ∏Ç©ÇÒñ≥ÇµÅj
+ endif
+waku$:
+	call	put_window
+
+	ld	a,BT_A + BT_B + BT_ST + BT_U + BT_D
+	ld	(allow_msk),a
+	ld	a,2				; allow locate Y
+	ld	(allow_pos + 0),a
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,11				; allow locate X  Å£ÉJÅ[É\Éãï\é¶à íu  S_POS(11,2)
+ else
+	ld	a,13				; allow locate X  Å£ÉJÅ[É\Éãï\é¶à íu  S_POS(13,2)
+ endif
+	ld	(allow_pos + 1),a
+
+	ld	a,(allow_sv_sys)
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+
+	xor	a
+	ld	(scloll_sw),a
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl,2 * 20 + 12 + dmy_vram	; ÉÅÉjÉÖÅ[çÄñ⁄ï\é¶à íu  S_POS(12,2)
+ else
+	ld	hl,2 * 20 + 14 + dmy_vram	; ÉÅÉjÉÖÅ[çÄñ⁄ï\é¶à íu  S_POS(14,2)
+ endif
+	ld	a,(ev_t1_3)
+	bit	5,a
+	ld	a,6
+	jr	z,no_zukan$
+
+	ld	de,element1$
+	call	put_msg_next
+	ld	a,7
+no_zukan$:
+	ld	(allow_max),a
+
+	ld	de,element1_0$
+	call	put_msg_next
+
+	ld	de,element2$
+	call	put_msg_next
+
+	ld	de,my_name
+	call	put_msg_next
+
+	ld	a,(obs_player)
+	bit	6,a
+	ld	de,element3$
+	jr	z,no_term$
+
+	ld	de,element4$
+
+no_term$:
+	call	put_msg_next
+
+	ld	de,element6$
+	call	put_msg_next
+
+	ld	de,element5$
+	call	put_msg
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	ret
+
+
+
+element1$:
+  ifn	pm_jmsg
+	db	zu_,ka_,n_
+	db	EOM
+  else
+	db	usf_p,usf_o,usf_k,acc_e_,usf_d,usf_e,usf_x
+	db	EOM
+  endif
+
+
+element1_0$:
+  ifn	pm_jmsg
+	db	poke@
+	db	EOM
+  else
+	db	usf_p,usf_o,usf_k,acc_e_,usf_m,usf_o,usf_n
+	db	EOM
+  endif
+
+
+element2$:
+  ifn	pm_jmsg
+	db	do_,u_,gu_
+	db	EOM
+  else
+	db	usf_i,usf_t,usf_e,usf_m
+	db	EOM
+  endif
+
+
+element3$:
+  ifn	pm_jmsg
+	db	re__,po__,bou@,to__
+	db	EOM
+  else
+	db	usf_s,usf_a,usf_v,usf_e
+	db	EOM
+  endif
+
+
+element4$:
+  ifn	pm_jmsg
+;	db	mo_,do_,ru_
+	db	ri__,se__,ttu__,to__
+	db	EOM
+  else
+	db	usf_r,usf_e,usf_s,usf_e,usf_t
+	db	EOM
+  endif
+
+
+element5$:
+  ifn	pm_jmsg
+	db	to_,zi_,ru_
+	db	EOM
+  else
+	db	usf_e,usf_x,usf_i,usf_t
+	db	EOM
+  endif
+
+element6$:
+  ifn	pm_jmsg
+	db	se_,ttu_,te_,i_
+	db	EOM
+  else
+	db	usf_o,usf_p,usf_t,usf_i,usf_o,usf_n
+	db	EOM
+  endif
+
+
+put_msg_next:
+	push	hl
+
+	call	put_msg
+
+	pop	hl
+
+	ld	de,40
+	add	hl,de
+
+	ret
+
+
+;====================================================================
+
+termgirl:
+	ld	hl,youkoso_msg$
+	call	put_win_msg
+
+	ld	a,(ev_t1_3)
+	bit	5,a
+	jp	nz,pass0$		; zukan motteru
+
+	ld	c,60
+	call	wait_vb_s
+
+	ld	hl,junbicyu_msg$
+	call	put_win_msg
+
+	jp	exit$
+	
+pass0$:
+	ld	a,1
+	ld	(allow_ret_flg),a
+	ld	a,90
+	ld	(send_send_cnt),a
+loop1$:
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	z,term$
+	cp	OYA
+	jr	z,term$
+
+	ld	a,0ffh
+	ld	(sio_oya_ko),a
+
+	ld	a,KO
+	ld	(SB),a			; serial move data(8Bit Shift Reg.) Set
+
+	xor	a
+	ld	(RD),a
+	ld	a,080h			; SIO Control Bit 7 Set
+	ld	(SC),a			; Data Move Start          
+
+	ld	a,(send_send_cnt)
+	dec	a
+	ld	(send_send_cnt),a
+	jr	z,annai$
+
+	ld	a,OYA			; My Game Boy
+	ld	(SB),a
+
+	ld	a,081h
+	ld	(SC),a
+
+z40$:
+	call	wait_vb
+
+	jr	loop1$
+
+
+term$:
+	call	send_dmy
+	call	wait_vb
+	call	send_dmy
+
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,save_ok_msg$
+	call	put_win_msg
+
+	xor	a
+	ld	(allow_ret_flg),a
+
+	call	yes_no
+
+	ld	a,1
+	ld	(allow_ret_flg),a
+
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,ng$
+
+	ld	hl,save_tuusin_data
+	ld	b,01ch
+	call	bank_push_call
+
+	call	se_wait
+	ld	a,mussave
+	call	se_play
+
+	ld	hl,omachi_msg$
+	call	put_win_msg
+
+	ld	hl,send_send_cnt
+	ld	a,3
+;	ld	a,2
+	ld	(hli),a
+	xor	a
+	ld	(hl),a
+	ld	(sio_flg),a
+	ld	(send_buf),a
+
+	call	send_send_buf2		; ÇSÉrÉbÉgÉfÅ[É^ÇÃëóéÛêM(send_buf[0],read_buf[0])ÇçsÇ§
+
+	ld	hl,send_send_cnt
+	ld	a,(hli)
+	inc	a
+	jr	nz,jump_term$
+
+	ld	a,(hl)
+	inc	a
+	jr	nz,jump_term$
+	
+	ld	b,10
+loop2$:
+	call	wait_vb
+	call	send_dmy
+	dec	b
+	jr	nz,loop2$
+	
+	call	okuri_naoshi
+
+	ld	hl,konai_msg$
+	call	put_win_msg
+	jr	exit$
+
+annai$:
+	ld	hl,annai_msg$
+	call	put_win_msg
+	jr	exit$
+
+ng$:
+	call	okuri_naoshi
+
+	ld	hl,save_ng_msg$
+	call	put_win_msg
+
+exit$:
+	xor	a
+	ld	hl,send_send_cnt
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,obs_player
+	res	6,(hl)				; check terminal mode
+
+	xor	a
+	ld	(allow_ret_flg),a
+	ret					; talk_99 he iku
+
+
+jump_term$:
+	xor	a
+	ld	(hld),a
+	ld	(hl),a
+;	inc	a
+;	ld	(allow_ret_flg),a
+
+	ld	hl,terminal
+	ld	b,01h
+	jp	bank_push_call
+
+	
+annai_msg$:
+	extern	annai_msg_29_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw annai_msg_29_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+youkoso_msg$:
+	extern	youkoso_msg_30_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw youkoso_msg_30_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+save_ok_msg$:
+	extern	save_ok_msg_31_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw save_ok_msg_31_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+omachi_msg$:
+	extern	omachi_msg_32_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw omachi_msg_32_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db	E_WAIT
+	db	EOM
+
+konai_msg$:
+	extern	konai_msg_33_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw konai_msg_33_TALKMAP	; mvmsgí«â¡
+	db 028h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+save_ng_msg$:
+	extern	save_ng_msg_34_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw save_ng_msg_34_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+junbicyu_msg$:
+	extern	junbicyu_msg_35_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw junbicyu_msg_35_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+okuri_naoshi:
+	call	put_wait
+
+	ld	a,0ffh
+	ld	(sio_oya_ko),a
+	
+	ld	a,KO
+	ld	(SB),a
+	xor	a
+	ld	(RD),a
+	ld	a,080h
+	ld	(SC),a
+	ret
+
+
+bank3	group	3
+
+	public	KaiRiki
+KaiRiki:
+	ld	hl,ev_special + 0
+	set	0,(hl)
+
+	ld	hl,msg_kairiki1$
+	call	put_win_msg
+
+	ld	hl,msg_kairiki2$
+	jp	put_win_msg
+
+
+
+msg_kairiki1$:
+	extern	msg_kairiki1_36_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw msg_kairiki1_36_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db	CALL_MSG
+
+	ld	a,(sel_item_no)
+	call	gyaarth_play
+
+	call	put_wait
+
+	jp	msg_return
+
+
+msg_kairiki2$:
+	extern	msg_kairiki2_37_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw msg_kairiki2_37_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+
+NamiNori:
+	ld	hl,ev_special + 0
+	set	1,(hl)
+
+	ld	a,(game_mode + 0)
+	bit	5,a
+	jr	nz,cycling$
+
+;-----------------------------------------------; d16r0104
+	ld	a,(mapno)
+	cp	D16R1F4
+	ret	nz
+
+	ld	a,(ev_d16 + 2)
+	and	00000011b
+	cp	00000011b			; d16r0103 -> d16r0104
+	ret	z
+
+	ld	hl,NoNamiNori$
+	call	CheckAssignPos
+	ret	nc
+;-----------------------------------------------;
+
+z1$:
+	ld	hl,ev_special + 0
+	res	1,(hl)
+
+	ld	hl,NonCommand$
+	jp	put_win_msg
+
+cycling$:
+	ld	hl,ev_special + 0
+	res	1,(hl)
+
+	ld	hl,NonCommand2$
+	jp	put_win_msg
+
+	
+
+NoNamiNori$:
+	db	00bh,007h
+	db	0ffh
+
+
+NonCommand$:
+	extern	NonCommand_38_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw NonCommand_38_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+NonCommand2$:
+	extern	NonCommand2_39_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw NonCommand2_39_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+add_item_main:
+	ld	a,(item_kosuu)
+	push	af
+
+	push	bc
+	push	de
+	push	hl
+	push	hl
+
+	ld	d,STOCK_DATA_MAX
+	ld	a,< my_item_tbl
+	cp	l
+	jr	nz,jump1$
+
+	ld	a,> my_item_tbl
+	cp	h
+	jr	nz,jump1$
+
+	ld	d,ITEM_MAX
+
+jump1$:
+	ld	a,(hl)
+	sub	d
+	ld	d,a
+
+
+	ld	a,(hli)
+	and	a
+	jr	z,new_item$
+
+seek_loop$:
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(sel_item_no)
+	cp	b
+	jp	z,tuika$
+
+	inc	hl
+	ld	a,(hl)	
+	cp	0ffh
+	jr	nz,seek_loop$
+
+new_item$:
+	pop	hl
+
+;	ld	a,(hl)
+;	and	a			; Now take item nothing ?
+;	jr	z,new_item1$
+
+	ld	a,d
+	and	a			; check item max
+	jr	z,ret2$			; NC
+	
+;new_item1$:
+	inc	(hl)			; item number puls
+	ld	a,(hl)
+	add	a,a			; *2
+	dec	a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(sel_item_no)
+	ld	(hli),a
+	ld	a,(item_kosuu)
+	ld	(hli),a
+	ld	(hl),0ffh		; table data end set
+
+	jp	ret1$
+
+
+tuika$:
+	ld	a,(item_kosuu)
+	ld	b,a
+	ld	a,(hl)
+	add	a,b
+	cp	100
+	jp	c,tuika1$
+
+	sub	99
+	ld	(item_kosuu),a
+
+	ld	a,d
+	and	a
+	jr	z,yappa_dame$
+
+	ld	a,99
+	ld	(hli),a
+
+	jp	seek_loop$
+
+yappa_dame$:
+	pop	hl
+	and	a			; NC
+	jr	ret2$
+
+tuika1$:
+	ld	(hl),a
+	pop	hl
+
+ret1$:
+	scf
+
+ret2$:
+	pop	hl
+	pop	de
+	pop	bc
+	pop	bc
+	ld	a,b
+	ld	(item_kosuu),a
+
+;rts$:
+	ret
+
+
+
+sub_item_main:
+	push	hl
+	inc	hl
+	ld	a,(sel_item_pos)		; select item position
+	sla	a				; *2
+	add	a,l				; address compute
+	ld	l,a
+	jr	nc,jp1$				; if non carry then '1$'
+
+	inc	h				; H reg ++
+
+jp1$:
+	inc	hl
+	ld	a,(item_kosuu)			; suteru kosuu
+	ld	e,a
+	ld	a,(hl)				; a number of one kind item
+	sub	e	
+	ld	(hld),a
+	ld	(take_item_kosuu),a		; nokotta kosuu
+	and	a
+	jr	nz,ret2$
+	
+	ld	e,l				; move item address
+	ld	d,h
+	inc	de
+	inc	de				; next address
+
+loop1$:
+	ld	a,(de)				; remove item
+	inc	de
+	ld	(hli),a
+	cp	0ffh				; table end mark check 
+	jr	nz,loop1$
+
+ret1$:
+	xor	a
+	ld	(scloll_sv),a
+	ld	(allow_cnt),a
+	ld	(allow_sv_item),a
+;	=====================		;ÅiÉoÉOèCê≥ÅIÅjld (ef_char_x),a Çë}ì¸Ç∑ÇÈ
+					; ÉVÉáÉbÉvÇ≈ìπãÔÇÇΩÇ≠Ç≥ÇÒîÑÇ¡ÇƒÇµÇ‹Ç§Ç∆ÅAé©ï™ÇÃÇ«Ç§ÇÆ
+	ld	(ef_char_x),a		; ÇäJÇ¢ÇΩéûÅAïœÇ»Ç∆Ç±ÇÎÇ…ÉJÅ[É\ÉãÇ™Ç¢Ç≠ÉoÉOÅB
+					; ÉQÅ[ÉÄÉtÉäÅ[ÉNêXñ{éÅÇÊÇËÇÃÉÅÅ[Éã('98 8/6 å¥ìcÇ≥ÇÒéÛÇØ)
+;	=====================		; Ç…è]Ç¡ÇƒïœçXÇ∑ÇÈÅi(2159)(2468)çsñ⁄Ç‡ä÷åWÇ†ÇËÅj
+
+	pop	hl
+	ld	a,(hl)				; ITEM TABLE NUMBER LOAD  
+	dec	a				; item total number - 1
+	ld	(hl),a				; 
+
+	ld	(tbl_max),a
+	cp	2
+	jr	c,rts$
+
+	ld	(allow_max),a
+
+	jr	rts$
+
+
+ret2$:
+	pop	hl
+
+rts$:
+	ret
+
+
+
+
+bank4	group	4
+
+
+talking_actor:
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,8
+	ld	l,a
+	ld	a,07fh
+	ld	(hl),a
+
+	dec	h
+	ld	a,(actlow)
+	add	a,9
+	ld	l,a
+	ld	a,(hld)
+	ld	b,a
+
+	xor	a
+	ld	(hld),a
+	ld	(hl),a
+
+	ld	a,(actlow)
+	add	a,2
+	ld	l,a
+	ld	a,(hl)
+	or	b
+	ld	(hld),a
+
+	ld	a,2
+	ld	(hl),a
+
+	ret
+
+
+
+
+
+guide_book:
+	ld	a,B_ZUKAN
+	call	bank2bank
+
+	call	pop_vram_m
+
+	call	put_wait
+	call	color_reset
+	call	actor_blanch
+
+	jp	watashi1
+
+
+
+;==================================;
+; confer capsule status(monster's) ;
+;==================================;
+act_capsule:
+	ld	a,(my_cap_tbl)
+	and	a
+	jp	z,watashi1
+
+	xor	a
+	ld	(select_allow),a
+	ld	(ef_size),a			; no sub message
+	ld	(oam_flg),a
+
+	call	cap_list			; capsule list display 
+
+	jr	act_cap_select
+
+
+act_capsule_0:
+	xor	a
+	ld	(select_allow),a
+	ld	(ef_size),a			; no sub message
+	call	cap_list2			; capsule list display 
+
+act_cap_select:
+	jr	nc,cap_jump$   
+
+ret_watashi1$:
+	call	pal_off_put_wait
+	call	set_objdata
+
+	call	color_reset
+
+	jp	watashi1
+
+
+cap_jump$:   
+	call	push_vram
+
+	ld	a,STR_ESC_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+
+	ld	hl,usr_buf
+	ld	bc,2*100h + 12
+	ld	e,5
+
+cap_loop1$:
+	dec	e
+	jr	z,cap_pass1$
+	ld	a,(hli)
+	and	a
+	jr	z,cap_pass1$
+
+	inc	b
+	dec	c
+	dec	c
+
+	jr	cap_loop1$
+
+
+cap_pass1$:
+	ld	hl,allow_pos
+
+	ld	a,c
+	ld	(hli),a				; Y pos
+
+ ifn  pm_jmsg
+	ld	a,12
+ else
+	ld	a,(cursor_init_xpos)		; ÅiéQè∆ "WINDOW.DMG" str_esc_window:Åj
+ endif
+	ld	(hli),a				; X pos
+
+	xor	a
+	ld	(hli),a				; allow_cnt
+
+	inc	hl
+	ld	a,b
+	ld	(hli),a				; allow_max
+
+	ld	a,BT_A + BT_B
+	ld	(hli),a				; allow_msk
+
+	xor	a
+	ld	(hl),a				; allow_old
+
+	call	allow
+
+;	call	white_allow
+	push	af
+	call	pop_vram
+
+;	call	list_allow_cls
+	pop	af
+
+	bit	1,a
+	jp	nz,act_capsule_0			; cancel
+
+	ld	a,(allow_max)			;by tetsu
+	ld	b,a
+	ld	a,(allow_cnt)
+	cp	b
+	jp	z,ret_watashi1$		; cancel
+
+	dec	b
+	cp	b
+	jr	z,cap_narabikae$
+
+	dec	b
+	cp	b
+	jp	z,tuyosa$
+	
+	ld	c,a
+	ld	b,0
+	ld	hl,usr_buf
+	add	hl,bc
+
+	jp	special_command$
+
+
+cap_narabikae$:
+	ld	a,(my_cap_tbl)
+	cp	2
+	jp	c,act_capsule
+	
+	call	change_mons_pos_0
+
+;	call	pop_vram
+
+	ld	a,4
+	ld	(ef_size),a		; doko ni idou shimasuka ?
+	call	cap_list2
+
+	jp	act_cap_select
+
+
+
+;*****************************************
+;* Look the capsule monster's status	*; Capsule *
+;*****************************************
+tuyosa$:
+	call	oam_clr
+	xor	a
+	ld	(my_or_gein),a
+	ld	a,B_MONS_CARD
+	call	bank2bank
+	ld	a,B_CHG_SKILL
+	call	bank2bank
+	call	map_rewrite
+
+	jp	act_capsule
+
+
+;*****************************************
+;* 	special_command			 ; 
+;*****************************************
+special_command$:
+	push	hl
+
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_name
+	call	get_pet_name
+
+	pop	hl
+
+	ld	a,(hl)				; special command No
+	dec	a
+	add	a,a
+	ld	b,0
+	ld	c,a
+	ld	hl,sp_command_tbl$
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	a,(my_badge)
+	jp	(hl)
+
+
+sp_command_tbl$:
+	dw	iaigiri$
+	dw	wing$
+	dw	megafire$
+	dw	naminori$
+	dw	kairiki$
+	dw	solarbeam$
+	dw	anawohoru$
+	dw	teleport$
+	dw	tamagoumi$
+
+
+wing$:
+	bit	2,a
+	jp	z,badge_ng$
+
+	call	maptype_check
+	jr	z,wing_invoke$
+	
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_name
+	call	get_pet_name
+
+	ld	hl,sorawotobu_ng$
+	call	put_win_msg
+
+	jp	act_capsule_0
+
+
+wing_invoke$:
+	call	wing_ticket
+
+	ld	a,(game_mode)
+	bit	3,a
+	jp	nz,command_use$
+
+	call	set_kana
+
+	ld	hl,obs_player
+	set	1,(hl)
+
+	jp	act_capsule
+
+
+
+iaigiri$:
+	bit	1,a
+	jp	z,badge_ng$
+
+;	extern	iai_check
+;	ld	hl,iai_check
+;	ld	b,3
+;	call	bank_push_call
+
+	ld	a,B_SPC_IAI
+	call	bank2bank
+
+	ld	a,(work_event)
+	and	a
+	jp	z,act_capsule_0
+
+;	call	pal_off_put_wait
+;	call	set_objdata
+;	call	color_reset
+;
+;	ld	a,B_SPC_IAI
+;	call	bank2bank
+
+	jp	talk_200
+
+
+megafire$:
+;	jp	act_capsule_0		;delete by tama 960918
+
+
+naminori$:
+	bit	4,a
+	jp	z,badge_ng$
+
+	ld	b,3
+	ld	hl,NamiNori
+	call	bank_push_call
+
+	ld	hl,ev_special + 0
+	bit	1,(hl)
+	res	1,(hl)
+	jp	z,act_capsule_0
+
+	ld	a,7
+	ld	(sel_item_no),a
+	ld	(junior_name),a		;  not zero = call from special command
+
+	call	use_item2
+	ld	a,(work_event)
+	and	a
+	jp	z,act_capsule_0
+
+	call	pal_off_put_wait
+
+	jp	command_use$
+
+
+kairiki$:
+	bit	3,a
+	jp	z,badge_ng$
+
+	ld	a,91				; "KaiRiki"
+	call	bank2bank
+
+	call	pal_off_put_wait
+
+	jp	command_use$
+
+
+solarbeam$:
+	bit	0,a
+	jp	z,badge_ng$
+
+	xor	a
+	ld	(base_color),a
+;	ld	(dendou_no + 1),a
+	ld	hl,flash_msg$
+	call	put_win_msg
+	call	pal_off_put_wait
+	jp	command_use$
+	
+flash_msg$:
+	extern	flash_msg_40_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw flash_msg_40_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+anawohoru$:
+;	ld	hl,obs_player
+;	set	1,(hl)
+;	res	4,(hl)
+
+	ld	a,29
+	ld	(sel_item_no),a
+	ld	(junior_name),a
+	call	use_item2
+
+	ld	a,(work_event)
+	and	a
+	jp	z,act_capsule_0
+	call	pal_off_put_wait
+	jp	command_use$
+
+
+teleport$:
+	call	maptype_check
+	jr	z,teleport_ok$
+
+no_good$:
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_name
+	call	get_pet_name
+
+	ld	hl,warp_enable$
+	call	put_win_msg
+
+	jp	act_capsule_0
+
+
+teleport_ok$:
+	ld	hl,warp_info$
+	call	put_win_msg
+
+	ld	hl,game_mode
+	set	3,(hl)				; warp invoke request
+	set	6,(hl)				; to last used pmc
+
+	ld	hl,obs_player
+	set	1,(hl)
+	res	4,(hl)
+
+	ld	c,60
+	call	wait_vb_s
+
+	call	pal_off_put_wait
+	jp	command_use$
+
+
+warp_info$:
+	extern	warp_info_41_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw warp_info_41_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+warp_enable$:
+	extern	warp_enable_42_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw warp_enable_42_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+sorawotobu_ng$:
+	extern	sorawotobu_ng_43_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw sorawotobu_ng_43_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+tamagoumi$:
+	ld	hl,my_cap_data + 34	; maxHP pos (high)
+	ld	a,(sel_item_pos)	; monster pos
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+	
+	ld	a,(hli)
+	ld	(calc_work0),a
+	ld	a,(hl)
+	ld	(calc_work1),a
+	ld	a,5
+	ld	(calc_work4),a
+	ld	b,2			; 2byte
+	call	div_direct		; max HP / 5
+
+	ld	bc,-33
+	add	hl,bc			; nowHP pos (low)
+
+	ld	a,(hld)
+	ld	b,a
+	ld	a,(calc_work3)		; maxHP / 5
+	sub	b
+	ld	b,(hl)	
+	ld	a,(calc_work2)		; osoraku 0
+	sbc	a,b
+	jp	nc,hp_tarin$		; ÇgÇoÇ™ë´ÇËÇ»Ç¢èÍçá
+
+	ld	a,(allow_sv_mons)	
+	push	af
+
+	ld	a,20
+	ld	(sel_item_no),a
+	ld	(junior_name),a		;  not zero = call from special command
+	call	use_item2
+
+	pop	af
+	ld	(allow_sv_mons),a
+
+	jp	act_capsule_0
+
+
+hp_tarin$:
+	ld	hl,hp_tarin_msg$	;ÅhÇΩÇ¢ÇËÇÂÇ≠Ç™ ÇΩÇËÇ‹ÇπÇÒÅIÅhÅiÉ^É}ÉSÇ§Ç›ãZÇégÇ¡ÇΩéûìôÅj
+	call	put_win_msg
+
+	jp	act_capsule_0
+
+
+hp_tarin_msg$:
+	extern	hp_tarin_msg_44_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw hp_tarin_msg_44_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+	
+
+command_use$:
+	call	set_objdata
+
+	jp	talk_200
+
+
+badge_ng$:
+	ld	hl,badge_ng_msg$
+	call	put_win_msg
+	jp	act_capsule_0
+
+badge_ng_msg$:
+	extern	badge_ng_msg_45_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw badge_ng_msg_45_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+;	db	D_MSG
+;	db	ma_,da_,spc@,so_,no_,wa_,za_,wo_,home@
+;	db	tu_,ka_,u_,ko_,to_,ga_,spc@,de_,ki_,ma_,se_,n_,gyoe@
+;	db	EOMwaiteom
+
+
+list_allow_cls:
+	ld	hl,dmy_vram + 20 ; allow clear
+	ld	bc,40
+	ld	a,6
+allowcls_loop$:
+	ld	(hl),spc@
+	add	hl,bc
+	dec	a
+	jr	nz,allowcls_loop$
+	ret
+
+
+;*****************************************
+;* Look the dealer taking some items	* ; Dougu*
+;*****************************************
+act_item_0:
+	call	pop_vram_s
+	call	color_rewrite
+
+act_item:
+	ld	a,(tuushin_flg)
+	dec	a
+	jr	nz,pass1$
+
+	ld	hl,ng_msg$
+	call	put_win_msg
+	jr	to_watashi1$
+
+pass1$:
+	ld	bc,my_item_tbl
+	ld	hl,item_list_adrs
+	ld	a,c
+	ld	(hli),a
+	ld	(hl),b
+
+	xor	a
+	ld	(gold_req),a			; do not put gold
+	ld	a,3
+	ld	(mons_or_item),a
+
+	ld	a,(allow_sv_item)
+	ld	(allow_cnt),a
+	call	shop_window
+
+	ld	a,(allow_cnt)
+	ld	(allow_sv_item),a
+
+	jr	nc,jump_item$  
+
+to_watashi1$:
+	call	pop_vram_m
+	call	set_serifu
+	call	actor_blanch
+
+	jp	watashi1
+
+
+jump_item$:   
+	ld	a,spc@
+	ld	(20*4 + 5 + dmy_vram),a
+	ld	(20*6 + 5 + dmy_vram),a
+	ld	(20*8 + 5 + dmy_vram),a
+	ld	(20*10 + 5 + dmy_vram),a
+
+	call	white_allow			; item select
+
+	xor	a
+	ld	(select_allow),a
+
+	ld	a,(sel_item_no)
+
+	cp	6				; item = jitensya
+	jp	z,ride_item$
+
+;	cp	7				; item = raplus  
+;	jp	z,ride_item$
+
+	
+	SET_WIN_MOD USE_SPLIT_WIN
+	call	step_prn_win
+
+	ld	hl,allow_pos
+	ld	a,11
+	ld	(hli),a				; Y pos
+
+  ifn	pm_jmsg
+	ld	a,15
+  else
+	ld	a,14
+  endif
+	ld	(hli),a				; X pos
+
+	xor	a
+	ld	(hli),a				; allow_cnt
+
+	inc	hl
+	inc	a
+	ld	(hli),a				; allow_max
+
+	ld	a,BT_A + BT_B
+	ld	(hli),a				; allow_msk
+	xor	a
+	ld	(hl),a				; allow_old
+
+	call	allow
+	call	white_allow
+	bit	1,a
+	jr	z,ride_item$
+
+	jp	act_item_0    
+
+
+ride_item$:
+	ld	a,(sel_item_no)	
+	ld	(in_dat),a
+	call	get_item_name
+	call	str_cpy
+	
+	ld	a,(sel_item_no)
+	cp	6				; item = jitensya
+	jr	nz,oth$
+
+	ld	a,(game_mode + 0)
+	bit	5,a
+	jr	z,use1$
+
+	ld	hl,NoCancelBicycle
+	call	put_win_msg
+
+	jp	act_item_0    
+
+
+oth$:
+;	ld	hl,nowait_ret_tbl
+;	ld	de,1
+;	call	table_search
+;	jr	c,use1$
+
+z1th$:
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,suteitem$
+
+;	xor	a
+	ld	(junior_name),a			;  zero = call from normal
+
+	ld	a,(sel_item_no)
+;	cp	201
+	cp	196
+	jr	nc,use2$
+
+	ld	hl,nowait_ret_tbl
+	ld	de,1
+	call	table_search
+	jr	c,use1$
+
+	ld	a,(sel_item_no)
+	ld	hl,caplistput_tbl
+	ld	de,1
+	call	table_search
+	jr	c,use2$
+
+	call	use_item2
+	jp	act_item_0    
+
+use1$:
+	xor	a
+	ld	(junior_name),a			;  zero = call from normal
+	call	use_item2			; "use_item" bank control call
+
+	ld	a,(work_event)
+	and	a
+	jp	z,act_item_0    
+	jp	serifu_talk_100
+
+use2$:
+	ld	a,(oam_flg)
+	push	af
+	call	use_item2
+	ld	a,(work_event)
+	cp	2
+	jp	z,no_use$    
+
+	call	pal_off_put_wait
+	call	set_objdata
+	pop	af
+	ld	(oam_flg),a
+	jp	act_item
+
+no_use$:
+	pop	af
+	ld	(oam_flg),a
+	jp	act_item_0
+	
+suteitem$: 
+	call	check_item2
+	ld	a,(check_flg)
+	and	a
+	jr	nz,suteitem1$
+
+	ld	a,(sel_item_no)
+	call	chk_hidenmachine
+	jr	c,suteitem1$
+
+	call	plural
+;	cp	0ffh			
+	inc	a
+	jr	z,suteitem2$		; cancel by B button
+
+suteitem1$: 
+	ld	hl,my_item_tbl
+	call	split_item2		; lost
+
+suteitem2$: 
+	jp	act_item_0     
+
+ng_msg$:
+	extern	ng_msg_46_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw ng_msg_46_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+NoCancelBicycle:
+	extern	NoCancelBicycle_47_TALKMAP
+	db I_MSG2	; mvmsgí«â¡
+	dw NoCancelBicycle_47_TALKMAP	; mvmsgí«â¡
+	db 029h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+;=============================================================;
+; CAP_LIST PUT ITEM KIND TABLE 			              ;
+;=============================================================;
+caplistput_tbl:
+	db	10,11,12,13,14,15,16,17,18,19,20,32,33,34,35,36,37,38,39,40
+	db	47,52,53,54,60,61,62,65,66,67,68,79,80,81,82,83
+	db	0ffh
+
+;=============================================================;
+; NO WAIT RETURN ITEM KIND TABLE 			      ;
+;=============================================================;
+nowait_ret_tbl:
+	db	29				; item = himo  
+	db	71				; item = dauzing
+	db	73				; item = fue
+	db	76				; item = borono sao  
+	db	77				; item = ii sao  
+	db	78				; item = ii sao  
+	db	0ffh
+
+;===================================================================;
+; for name, lots obtained monsters, taking money, badge & play time ;
+;===================================================================;
+act_status:
+	call	pal_off
+	call	dvram_cls
+	call	actor_blanch
+
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+
+	call	status_put
+
+	ld	a,B_BADGE_PUT
+	call	bank2bank			; badge picture display
+	ld	b,COL_STATUS
+	call	color_set
+
+	call	palset
+	call	cont_abwait
+
+	call	pal_off
+	call	set_kana
+	call	pop_vram_m
+	call	color_rewrite
+	call	map_rewrite
+	call	color_reset
+
+	pop	af
+	ld	(wave_flg),a
+
+	jp	watashi1
+
+
+status_put:
+	ld	de,hero_size1
+	ld	bc,0401h
+	ld	a,59				; PICTURE_READY
+	call	bank2bank
+
+	call	lcdc_stop
+
+	S_POS	0,2
+	ld	a,spc@
+	call	tatewaku_set			; S_POS(0,2)Å`(0,9) = spc@
+	S_POS	1,2
+	call	tatewaku_set			; S_POS(1,2)Å`(1,9) = spc@
+
+	ld	hl,09070h
+	ld	de,09000h			; ChrNo.7Å`34 -> ChrNo.0Å`27 Ç÷à⁄ìÆÇ∑ÇÈ
+	ld	bc,28*16
+	call	block_move
+
+	ld	hl,statuswaku_dat
+	ld	de,09770h
+	ld	bc,8*16
+;	ld	a,0bh
+;	call	chrset
+	push	bc
+	call	bankb_chrset$
+
+	ld	hl,msgleader_dat		; ¿πº∂Ω–œ¡Ω¥ÿ∂∑Æ≥≈¬“∂¬◊---Œﬂπ”› ﬁØºﬁÅ
+
+
+
+
+
+	ld	de,09600h
+	ld	bc,23*16
+;	ld	a,0bh
+;	call	chrset
+	call	bankb_chrset$
+
+	pop	bc
+	ld	hl,msg_number_dat		; 12345678Åi8ÇÃÉLÉÉÉâÉNÉ^Ç≈ÅhÅâÅhÇÕè„èëÇ´Ç≥ÇÍÇÈÅj
+ ifn  pm_jmsg
+	ld	de,68h*16 + 08800h
+ else					; âpåÍî≈ÇÕÉvÉåÉCÉÑÅ[ñºÇ…ÅâÉLÉÉÉâÇégópâ¬Ç…Ç∑ÇÈà◊Ç…
+	ld	de,58h*16 + 08800h	; á@Å`áGÇÃÉLÉÉÉâÉNÉ^ÇÕ $D8Å`$DF Ç…ïœçXÇ∑ÇÈ
+ endif					;	éQè∆ "WORLDMAP.DMG" badge_put()
+;	ld	bc,8*16
+;	ld	a,0bh
+;	call	chrset
+	call	bankb_chrset$
+
+	ld	hl,badge_dat			; äÁÇ∆É|ÉPÉÇÉìÉoÉbÉWÇÃÉLÉÉÉâÉNÉ^
+	ld	de,09200h
+	ld	bc,64*16
+	ld	a,3
+	call	chrset
+
+	ld	hl,fnt_serifu
+	ld	de,13*16
+	add	hl,de				; fnt_serifu[13*16] == ':'
+ ifn  pm_jmsg
+	ld	de,74h*16 + 08800h
+ else
+	ld	de,56h*16 + 08800h		; âpåÍî≈ÇÕÉvÉåÉCÉÑÅ[ñºÇ… ÅCÉLÉÉÉâÇégópâ¬Ç…Ç∑ÇÈà◊Ç…
+ endif						; ÅFÇÃÉLÉÉÉâÉNÉ^ÇÕ $D6 Ç…ïœçXÇ∑ÇÈ
+	ld	bc,16
+	ld	a,4
+	push	bc
+	call	chrset
+	pop	bc
+
+	ld	hl,8*16 + statuswaku_dat	; ògÇÃÉLÉÉÉâÉNÉ^ÇÅhÅäÅhÇÃÇ∆Ç±ÇÎÇ…è„èëÇ´Ç∑ÇÈ
+ ifn  pm_jmsg
+	ld	de,75h*16 + 08800h
+ else					; âpåÍî≈ÇÕÉvÉåÉCÉÑÅ[ñºÇ…ÅäÉLÉÉÉâÇégópâ¬Ç…Ç∑ÇÈà◊Ç…
+	ld	de,57h*16 + 08800h	; ògÇÃÉLÉÉÉâÉNÉ^ÇÕ $D7 Ç…ïœçXÇ∑ÇÈ
+ endif					;
+;	ld	bc,16
+;	ld	a,0bh
+;	call	chrset
+	call	bankb_chrset$
+
+	call	lcdc_on
+
+	ld	hl,usr_buf
+	ld	a,19
+	ld	(hli),a
+	dec	a
+	ld	(hli),a
+	ld	(hl),1
+	S_POS	0,0
+	call	waku_set
+
+	ld	hl,usr_buf
+	ld	a,17
+	ld	(hli),a
+	dec	a
+	ld	(hli),a
+	ld	(hl),3
+	S_POS	1,10
+	call	waku_set
+	
+	S_POS	0,10
+ ifn  pm_jmsg
+	ld	a,mesu@
+ else					; âpåÍî≈ÇÕÉvÉåÉCÉÑÅ[ñºÇ…ÅäÉLÉÉÉâÇégópâ¬Ç…Ç∑ÇÈà◊Ç…
+	ld	a,$D7			; ògÇÃÉLÉÉÉâÉNÉ^ÇÕ $D7 Ç…ïœçXÇ∑ÇÈ
+ endif
+	call	tatewaku_set
+	S_POS	19,10
+	call	tatewaku_set
+
+	S_POS	6,9
+	ld	de,msg_leader$			; ÅhÅúÉ|ÉPÉÇÉìÉoÉbÉWÅúÅhÇï\é¶
+	call	put_msg				; guide book string
+
+	S_POS	2,2
+	ld	de,msg_status$			; ÅhÇ»Ç‹Ç¶Å^  Ç®Ç±Ç∏Ç©Ç¢Å^  ÉvÉåÉCÇ∂Ç©ÇÒÅ^ÅhÇï\é¶
+	call	put_msg				; guide book string
+
+  ifn	pm_jmsg
+	S_POS	6,2
+  else
+	S_POS	7,2
+  endif
+	ld	de,my_name
+	call	put_msg				; name string
+
+	S_POS	8,4
+	ld	de,my_gold
+  ifn	pm_jmsg
+	ld	c,0c3h
+  else
+	ld	c,0e3h
+  endif
+	call	put_bcd				; money
+  ifn	pm_jmsg
+	ld	(hl),yen@			; unit
+  endif
+
+	S_POS	9,6
+	ld	de,play_time_h + 0
+	ld	bc,4103h 			; 1 byte length, 2 column
+	call	put_dec
+
+ ifn  pm_jmsg
+	ld	(hl),OO__				; ':'
+ else
+	ld	(hl),0D6h			; âpåÍî≈ÇÕÉvÉåÉCÉÑÅ[ñºÇ… ÅCÉLÉÉÉâÇégópâ¬Ç…Ç∑ÇÈà◊Ç…
+ endif						; ÅFÇÃÉLÉÉÉâÉNÉ^ÇÕ $D6 Ç…ïœçXÇ∑ÇÈ
+	inc	hl
+
+	ld	de,play_time_m
+	ld	bc,8102h			; 1 byte length, 2 column
+	jp	put_dec
+
+
+bankb_chrset$:
+	ld	a,0bh
+	jp	chrset
+
+msg_status$:
+  ifn	pm_jmsg
+	db	na_,ma_,e_,sura@,cr@
+	db	o_,ko_,du_,ka_,i_,sura@,cr@
+	db	pu__,re__,i__,zi_,ka_,n_,sura@
+	db	EOM
+  else
+	db	usf_n,usf_a,usf_m,usf_e,sura@,cr@
+	db	usf_m,usf_o,usf_n,usf_e,usf_y,sura@,cr@
+	db	usf_t,usf_i,usf_m,usf_e,sura@
+	db	EOM
+  endif
+
+msg_leader$:
+ ifn	pm_jmsg
+	db	76h,70h,71h,72h,73h,74h,75h,76h		; ÅhÅúÉ|ÉPÉÇÉìÉoÉbÉWÅúÅh
+	db	EOM
+ else
+	db	76h,usf_b,usf_a,usf_d,usf_g,usf_e,usf_s,76h	; ÅúBADGESÅú
+	db	EOM
+ endif
+
+
+waku_set:
+	ld	a,waku0@
+	ld	de,waku1@ * 100h + waku2@
+	call	waku_put1$
+	call	kaigyou$
+	
+	ld	a,(usr_buf) 
+	ld	e,a
+	ld	d,0
+	ld	c,6
+loop$:
+	ld	(hl),waku3@
+	add	hl,de
+	ld	(hl),OO_
+	call	kaigyou$
+
+	dec	c
+	jr	nz,loop$
+	
+	ld	a,waku5@
+	ld	de,EE_ * 100h + waku7@
+;	call	waku_put1$
+;	ret
+
+waku_put1$:
+	ld	(hli),a
+	ld	a,(usr_buf + 1)
+	ld	c,a
+	ld	a,d
+loop1$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop1$
+
+	ld	a,e
+	ld	(hl),a
+	ret
+
+kaigyou$:
+	ld	a,(usr_buf + 2)
+loop2$:
+	inc	hl
+	dec	a
+	jr	nz,loop2$
+	ret
+
+tatewaku_set:
+	ld	de,20
+	ld	c,8
+loop$:
+	ld	(hl),a
+	add	hl,de
+	dec	c
+	jr	nz,loop$
+	ret
+	
+
+
+;****************************************
+;	act_save			*
+;****************************************
+act_save:
+	ld	a,(obs_player)
+	bit	6,a				; check terminal mode
+	jp	nz,reset
+;	jr	nz,pass1$
+
+	ld	a,B_SAVE_DATA
+	call	bank2bank
+
+	call	pop_vram_m
+
+	jp	talk_100
+
+
+;****************************************
+;	act_config			*
+;****************************************
+act_config:
+	xor	a
+	ld	(all_put_req),a
+	call	dvram_cls
+	call	actor_blanch
+	ld	hl,config	 		; config (bank1)
+	ld	b,1
+	call	bank_push_call
+	call	pop_vram_m
+	call	set_serifu
+	call	actor_blanch
+
+	jp	watashi1
+
+
+;************************
+;  change_mons_pos	*
+;************************
+	extern	cap_list_sub4
+change_mons_pos:
+;	ld	a,(my_cap_tbl)
+;	cp	2
+;	ret	c
+
+	call	change_mons_pos_0
+
+	ld	a,(usr_buf)
+	call	cls$
+	ld	a,(allow_cnt)
+	call	cls$
+
+	jp	cap_list_sub4
+
+cls$:
+	push	af
+	ld	hl,dmy_vram ; data_clear
+	ld	bc,40
+	call	mul_any
+	
+	ld	c,40
+	ld	a,spc@
+loop$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+
+	pop	af
+	ld	hl,oam_buf		; chr_clear 
+	ld	bc,16
+	call	mul_any
+	
+	ld	de,4
+	ld	c,e
+loop1$:
+	ld	(hl),0a0h
+	add	hl,de
+	dec	c
+	jr	nz,loop1$
+
+	call	se_wait
+	ld	a,muskon
+	jp	play
+
+	
+change_mons_pos_0:
+	ld	a,(select_allow)
+	and	a
+	jr	nz,change$
+
+	ld	a,(sel_item_pos)
+	inc	a
+	ld	(select_allow),a
+
+	ret
+
+change$:
+	xor	a
+	ld	(ef_size),a			; no sub message
+	ld	a,(select_allow)
+	dec	a
+	ld	b,a
+	ld	a,(allow_cnt)
+	ld	(usr_buf),a
+	cp	b
+	jr	nz,next1$
+	xor	a
+	ld	(select_allow),a
+	ld	(ef_size),a			; no sub message
+	ret
+
+;	ret	z
+	
+next1$:
+	ld	a,b
+	ld	(select_allow),a
+
+	push	hl
+	push	de
+
+	ld	hl,my_cap_tbl + 1
+	ld	d,h
+	ld	e,l
+
+	ld	a,(allow_cnt)
+	add	a,l
+	ld	l,a
+	jr	nc,pass1$
+
+	inc	h
+pass1$:
+	ld	a,(select_allow)
+	add	a,e
+	ld	e,a
+	jr	nc,pass2$
+
+	inc	d
+pass2$:
+	ld	a,(hl)
+	ld	(calc_work0),a
+	ld	a,(de)
+	ld	(hl),a
+	ld	a,(calc_work0)
+	ld	(de),a
+
+;--------------------------------------- data change
+	ld	hl,my_cap_data
+	ld	bc,CAPDATA_LEN
+	ld	a,(allow_cnt)
+	call	mul_any
+	
+	push	hl			; hl -> de
+
+	ld	de,work_anime_buf
+	ld	bc,CAPDATA_LEN
+	call	block_move	
+
+	ld	hl,my_cap_data
+	ld	bc,CAPDATA_LEN
+	ld	a,(select_allow)
+	call	mul_any
+
+	pop	de			; hl -> de
+
+	push	hl			; hl -> de
+
+	ld	bc,CAPDATA_LEN
+	call	block_move
+
+	pop	de			; hl -> de
+
+	ld	hl,work_anime_buf
+	ld	bc,CAPDATA_LEN
+	call	block_move
+
+;--------------------------------------- oya change
+	ld	hl,my_cap_oya
+	ld	a,(allow_cnt)
+	call	mul_6
+	
+	push	hl			; hl -> de
+
+	ld	de,work_anime_buf
+	ld	bc,MONS_NAME_LEN
+	call	block_move	
+
+	ld	hl,my_cap_oya
+	ld	a,(select_allow)
+	call	mul_6
+
+	pop	de			; hl -> de
+
+	push	hl			; hl -> de
+
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	pop	de			; hl -> de
+
+	ld	hl,work_anime_buf
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+;--------------------------------------- name change
+	ld	hl,my_cap_name
+	ld	a,(allow_cnt)
+	call	mul_6
+	
+	push	hl			; hl -> de
+
+	ld	de,work_anime_buf
+	ld	bc,MONS_NAME_LEN
+	call	block_move	
+
+	ld	hl,my_cap_name
+	ld	a,(select_allow)
+	call	mul_6
+
+	pop	de			; hl -> de
+
+	push	hl			; hl -> de
+
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	pop	de			; hl -> de
+
+	ld	hl,work_anime_buf
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+;--------------------------------------- fighting chuu ha allow_sv_fight mo miru
+pass4$:
+	ld	a,(select_allow)
+	ld	(usr_buf),a
+	xor	a
+	ld	(select_allow),a
+	ld	(ef_size),a			; no sub message
+
+	pop	de
+	pop	hl
+
+	ret
+
+;****************************************
+; check_waza_flg			*
+; IN  : sel_item_no			*
+;       waza_swap + 4  =  waza number 	*
+; OUT : c = 0 syutokudekinai 1 dekiru 	*
+;****************************************
+check_waza_flg:
+	ld	a,(sel_item_no)
+	ld	(tbl_pos),a
+	call	get_monsadr			; mons_tbl -> mons_data
+
+	ld	hl,mons_data + 20		; waza flg address
+	push	hl
+	
+	ld	a,(waza_swap + 4)		; waza number
+	ld	b,a
+	ld	c,0
+	ld	hl,hidensyo_tbl
+loop$:
+	ld	a,(hli)
+	cp	b
+	jr	z,get$
+	
+	inc	c
+	jr	loop$
+
+get$:
+	pop	hl
+	ld	b,2				; bit check
+	ld	a,B_BIT_CONTROL
+	jp	bank2bank
+
+;********************************
+;  get_hiden_no			*
+;  IN  :  in_dat 		*
+;  OUT :  in_dat 		*
+;********************************
+get_hiden_no:
+	ld	a,(in_dat)
+	dec	a
+	ld	hl,hidensyo_tbl
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	ld	a,(hl)
+	ld	(in_dat),a
+	ret
+
+hidensyo_tbl:
+	db	005,013,014,018,025,092,032,034,036,038
+	db	061,055,058,059,063,006,066,068,069,099
+	db	072,076,082,085,087,089,090,091,094,100
+	db	102,104,115,117,118,120,121,126,129,130
+	db	135,138,143,156,086,149,153,157,161,164
+	db	015,019,057,070,148
+
+
+bankb	group	11
+
+	public	msgleader_dat
+statuswaku_dat:
+	include	..\effdata\statwaku.dat
+
+msgleader_dat:
+	include	..\effdata\statname.dat
+
+msg_number_dat:
+	include	..\effdata\statno.dat
+
+

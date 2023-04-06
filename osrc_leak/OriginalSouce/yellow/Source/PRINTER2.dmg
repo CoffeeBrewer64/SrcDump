@@ -1,0 +1,3579 @@
+;===============================================================
+;
+;	POCKET PRINTER USE
+;			1998 Tetsu
+;
+;===============================================================
+	include	common.def
+	include	group.def
+	include macro.h
+	include printer.h
+	include fntequ.def
+	include sgb_col.def
+	include banktool.def
+	include pm_debug.def
+
+
+bank3a	group	G_BANK3a
+
+	public	PrintOut
+
+	public	ZukanPrintOut
+	public	NaminoriPrintOut
+	public	BoxPrintOut
+	public	StatusPrintOut
+	public	ZukanComplete
+
+	public	Z_CompleteMapMake1
+	public	NaminoriMapMake
+
+	extern	PrintOutInit
+ ifn	ASSEMBLE__ENGLISH
+	extern	PrintOutInit_Line
+ endif
+	extern	PrintOutMain
+
+	extern	wait_vb
+	extern	chrmove
+	extern	RecoverRamMap
+	extern	cont_repeat
+	extern	put_window
+	extern	put_msg
+	extern	put_win_msg
+	extern	ZukanDataSet
+ ifn	ASSEMBLE__ENGLISH
+	extern	Print_ZukanCommentSet
+ endif
+	extern	get_monsadr
+	extern	prt_mons_chr
+	extern	MokujiFirstWindowSet
+	extern	MokujiSecondWindowSet
+	extern	bank_push_call
+	extern	dvram_cls
+	extern	memset
+	extern	block_move
+	extern	pal_off_put_wait
+	extern	palset
+	extern	put_wait
+	extern	push_vram
+	extern	pop_vram
+	extern	get_mons_name
+	extern	mul_any
+	extern	block_cls
+	extern	color_set
+	extern	put_dec
+	extern	set_gauge
+	extern	fontmove 
+	extern	set_monsdata_dmy
+	extern	bank2bank
+	extern	cont_abwait
+	extern	put_level
+	extern	get_waza_name
+	extern	BGMplay
+	extern	MusicStop
+	extern	musprinter4
+	extern	set_now_music
+	extern	wait_vb_s
+
+;===============================================================
+;
+;
+;	PRINT OUT 
+;
+;
+;===============================================================
+;===============================================================
+;	PRINT_OUT CALL
+;===============================================================
+;---------------------------------------------------------------
+;	Zukan PrintOut
+;---------------------------------------------------------------
+ZukanPrintOut:
+ ifn  ASSEMBLE__ENGLISH 
+	ld	a,(oam_flg)		;不具合！）ホシデン製プリンタで図鑑をプリントする際
+	push	af			;プリンターエラー０２が発生し正常に印刷されない症状
+	xor	a			;が発生することがある。
+	ld	(oam_flg),a		;対策）Ｖブランク中の処理を軽くする為に (oam_flg)を
+					;off にし、ＯＢＪの処理を停止する('99 2/9 原田氏メール参照)
+					; ZukanPrintOut:,BoxPrintOut: を修正
+					; NaminoriPrintOut:,StatusPrintOut:,ZukanComplete:
+					; はコール前に (oam_flg)==FFになっている
+ else
+	xor	a
+ endif
+	ld	(DA_BUF),a		;プリント中断フラグ（１＝中断）
+
+	call	BGMset			; プリントモード用ＢＧＭスタート
+	ld	a,(IE)
+	push	af
+	xor	a			;
+	ld	(IFL),a			; IF = 0 ( IE をセットする前に 0で初期化する )
+	ld	a,00001001b		; SIO, V-BLANK 割込み許可
+	ld	(IE),a			;
+
+	xor	a			;
+	ld	(all_put_req),a		; all_put_req = 0
+
+  ifn	ASSEMBLE__ENGLISH
+	call	ZukanPrintMake1		; ポケモンの絵、名、身長、体重を表示 (説明文は含まない)
+	call	PrintOutInit_Line	; プリント用バッファの初期化 ( A= ライン数指定)
+
+	ld	a,(PRT_work4)		; ポケモンをつかまえていない場合は
+	and	a			; 続く説明文のプリントはない
+	jr	z, _10$
+	ld	a,10h			; フィード数  印字前１、印字後０
+	jr	_20$
+_10$:	ld	a,13h			; フィード数  印字前１、印字後３
+_20$:
+  else
+	ld	hl,ZukanDataSet		; ポケモン名、身長、体重、説明文を表示
+	ld	b,10h
+	call	bank_push_call
+
+	call	get_monsadr		; ポケモンの絵を表示
+	S_POS	1,1			;
+	call	prt_mons_chr		;
+
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,13h			; フィード数  印字前１、印字後３
+  endif
+	ld	(PRT_FeedCounter),a	; フィード数
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+
+	call	dvram_cls		; dmy_vram[] = spc@ クリア
+	ld	hl,MokujiFirstWindowSet ; 図鑑もくじレイアウトの表示
+	ld	b,10h			;
+	call	bank_push_call
+	ld	hl,MokujiSecondWindowSet ;もくじ内ポケモン名の表示
+	ld	b,10h			;
+	call	bank_push_call
+	ld	a,1			; all_put_req = 1
+	ld	(all_put_req),a		;
+
+  ifn	ASSEMBLE__ENGLISH
+	call	PrintOut$		; プリントアウトする
+	jr	c,exit$			; 中断した場合 -> exit$
+
+	ld	a,(PRT_work4)		; ポケモンをつかまえていない場合は
+	and	a			; 説明文プリント処理はしない
+	jr	z,exit$			;
+	
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+	ld	c,12			; １２フレーム待ち
+	call	wait_vb_s		;
+
+	call	push_vram		; dmy_vram[] を dmy_map[] にコピーする
+	xor	a			; all_put_req = 0
+	ld	(all_put_req),a		;
+	call	ZukanPrintMake2		;
+	ld	a, 7			; ７ライン
+	call	PrintOutInit_Line	; プリント用バッファの初期化 ( A= ライン数指定)
+	ld	a, 03h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前０、印字後３
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	pop_vram		; dmy_map[] から dmy_vram[] に データを戻す
+	ld	a,1			; all_put_req = 1
+	ld	(all_put_req),a		;
+  endif
+
+	call	PrintOut$		; プリントアウトする
+exit$:
+	xor	a
+	ld	(ext_system+0),a	;
+	ld	(ext_system+1),a	; ext_system[]w = 0
+
+	xor	a			;
+	ld	(IFL),a			;
+	pop	af			; 割込み許可を元に戻す
+	ld	(IE),a			; 
+
+	call	RecoverRamMap		; ram_map[] にマップデータをセットし直す
+	call	BGMrecover		; ＢＧＭを元に戻す
+
+ ifn  ASSEMBLE__ENGLISH
+	pop	af			; ホシデン製プリンタ不具合対策
+	ld	(oam_flg),a		; ＯＢＪの処理を再開する
+ endif
+	ret
+
+PrintOut$:
+	call	joy_clear		; キー入力バッファを初期化
+PrintLoop$:				; while (1){
+	call	cont_repeat			; キー入力
+
+	call	BreakCheck			; 中断（Ｂボタン）チェック
+	jr	c,print_exit$
+
+	ld	a,(SeqNo)			;
+	bit	7,a				; if (SeqNo.<7>)
+	jr	nz,print_ret$			;	break
+
+	call	PrintOutMain			; プリントアウト処理
+
+	call	PrinterStatusCheck		; エラーチェック
+	call	PrinterMSGPut			; エラーメッセージを表示
+	call	wait_vb				; １フレーム待ち
+	jr	PrintLoop$		; }
+print_ret$:
+	and	a			; <C> = 0
+	ret
+print_exit$:
+	scf				; <C> = 1
+	ret
+
+
+ZukanPrintMake1:
+	ld	hl,ZukanDataSet		; ポケモンの絵、名、身長、体重 etc.
+	ld	b,10h			; を表示 (説明文は含まない)
+	call	bank_push_call		; return HL= msg addr <C>= msg on,off
+	ld	a,l			;
+	ld	(PRT_work0),a		;
+	ld	a,h			; PRT_work0,1 = HL
+	ld	(PRT_work1),a		;
+	ld	a, 0
+	rla				; PRT_work4 = <C>
+	ld	(PRT_work4),a		;
+
+	and	a
+	jr	z, _10$
+	ld	a, 5			; ５ライン分のみプリント（ポケモンをつかまえていた場合）
+	jr	_20$
+_10$:	ld	a, 9			; 一画面(９ライン)プリント（ポケモンをつかまえていない場合）
+_20$:	ret
+
+
+ZukanPrintMake2:
+	call	dvram_cls			; dmy_vram[] = spc@ クリア
+
+	ld	hl,Print_ZukanCommentSet
+	ld	b,10h
+	call	bank_push_call
+
+	ret
+
+;---------------------------------------------------------------
+;	Naminori PrintOut
+;---------------------------------------------------------------
+NaminoriPrintOut:
+	xor	a
+	ld	(DA_BUF),a		;プリント中断フラグ（１＝中断）
+
+	call	BGMset			; プリントモード用ＢＧＭスタート
+	call	NaminoriMapMake		; ベストスコア画面データを作成
+
+	ld	a,(IE)
+	push	af
+	xor	a			;
+	ld	(IFL),a			;
+	ld	a,00001001b		; SIO, V-BLANK 割込み許可
+	ld	(IE),a			;
+
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,13h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前１、印字後３
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	joy_clear		; キー入力バッファを初期化
+main_loop$:				; while (1){
+	call	cont_repeat			; キー入力
+
+	call	BreakCheck			; 中断（Ｂボタン）チェック
+	jr	c,exit$
+
+	ld	a,(SeqNo)			;
+	bit	7,a				; if (SeqNo.<7>)
+	jr	nz,exit$			;	break
+
+	call	PrintOutMain			; プリントアウト処理
+
+	call	PrinterStatusCheck		; エラーチェック
+	call	PrinterMSGPut			; エラーメッセージを表示
+	call	wait_vb				; １フレーム待ち
+	jr	main_loop$		; }
+exit$:
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+	call	DmyVramLoad		; PRTOUT_DmyVram[] から dmy_vram[] にデータを戻す
+
+	xor	a			;
+	ld	(IFL),a			;
+	pop	af			; 割込み許可を元に戻す
+	ld	(IE),a			; 
+
+	call	RecoverRamMap		; ram_map[] にマップデータをセットし直す
+	call	BGMrecover		; ＢＧＭを元に戻す
+	ret
+
+;---------------------------------------------------------------
+;	ZukanComplete&PrintOut
+;---------------------------------------------------------------
+ZukanComplete:
+	xor	a
+	ld	(DA_BUF),a		;プリント中断フラグ（１＝中断）
+
+	call	BGMset			; プリントモード用ＢＧＭスタート
+	call	Z_CompleteMapMake1	; 表彰状画面（上半分）を表示
+
+	ld	a,(IE)
+	push	af
+	xor	a			;
+	ld	(IFL),a			;
+	ld	a,00001001b		; SIO, V-BLANK 割込み許可
+	ld	(IE),a			;
+
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,10h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前１、印字後０
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	PrintOut$		; プリントアウトする
+	jr	c,exit$			; 中断した場合 -> exit$
+
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+	ld	c,12			; １２フレーム待ち
+	call	wait_vb_s		;
+
+	call	push_vram		; dmy_vram[] を dmy_map[] にコピーする
+	xor	a
+	ld	(all_put_req),a		; all_put_req = 0
+	call	Z_CompleteMapMake2	; 表彰状画面（下半分）を表示
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,03h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前０、印字後３
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	pop_vram		; dmy_map[] から dmy_vram[] に データを戻す
+	call	PrintOut$		; プリントアウトする
+exit$:
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+	call	DmyVramLoad		; PRTOUT_DmyVram[] から dmy_vram[] にデータを戻す
+
+	xor	a			;
+	ld	(IFL),a			;
+	pop	af			; 割込み許可を元に戻す
+	ld	(IE),a			; 
+
+	call	RecoverRamMap		; ram_map[] にマップデータをセットし直す
+	call	BGMrecover		; ＢＧＭを元に戻す
+	ret
+
+PrintOut$:
+	call	joy_clear		; キー入力バッファを初期化
+PrintLoop$:				; while (1){
+	call	cont_repeat			; キー入力
+
+	call	BreakCheck			; 中断（Ｂボタン）チェック
+	jr	c,print_exit$
+
+	ld	a,(SeqNo)			;
+	bit	7,a				; if (SeqNo.<7>)
+	jr	nz,print_ret$			;	break
+
+	call	PrintOutMain			; プリントアウト処理
+
+	call	PrinterStatusCheck		; エラーチェック
+	call	PrinterMSGPut2			; エラーメッセージを表示
+	call	wait_vb				; １フレーム待ち
+	jr	PrintLoop$		; }
+print_ret$:
+	and	a			; <C> = 0
+	ret
+print_exit$:
+	scf				; <C> = 1
+	ret
+
+;---------------------------------------------------------------
+;	Box PrintOut
+;---------------------------------------------------------------
+BoxPrintOut:
+	ld	a,(my_mons_tbl+0)	;
+	and	a			; if (my_mons_tbl[0] == 0)
+	jp	z,No_monster$		;	return ”ポケモンが はいっていません！”
+
+ ifn  ASSEMBLE__ENGLISH 
+	ld	a,(oam_flg)		;不具合！）ホシデン製プリンタで図鑑をプリントする際
+	push	af			;プリンターエラー０２が発生し正常に印刷されない症状
+	xor	a			;が発生することがある。
+	ld	(oam_flg),a		;対策）Ｖブランク中の処理を軽くする為に (oam_flg)を
+					;off にし、ＯＢＪの処理を停止する('99 2/9 原田氏メール参照)
+					; ZukanPrintOut:,BoxPrintOut: を修正
+					; NaminoriPrintOut:,StatusPrintOut:,ZukanComplete:
+					; はコール前に (oam_flg)==FFになっている
+ else
+	xor	a
+ endif
+	ld	(DA_BUF),a		;プリント中断フラグ（１＝中断）
+
+	call	BGMset			; プリントモード用ＢＧＭスタート
+	ld	a,(IE)
+	push	af
+	xor	a			;
+	ld	(IFL),a			;
+	ld	a,00001001b		; SIO, V-BLANK 割込み許可
+	ld	(IE),a			;
+
+	call	push_vram		; dmy_vram[] を dmy_map[] にコピーする
+
+	xor	a			; all_put_req = 0
+	ld	(all_put_req),a		;
+	call	BoxMapMake1		; ポケモンリスト画面１枚目を表示
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,10h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前１、印字後０
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	pop_vram		; dmy_map[] から dmy_vram[] に データを戻す
+	call	PrintOut$		; プリントアウトする
+	jr	c,exit$			; 中断した場合 -> exit$
+
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+	ld	c,12			; １２フレーム待ち
+	call	wait_vb_s		;
+
+	xor	a			; all_put_req = 0
+	ld	(all_put_req),a		;
+	call	BoxMapMake2		; ポケモンリスト画面２枚目を表示
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,00h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前０、印字後０
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	pop_vram		; dmy_map[] から dmy_vram[] に データを戻す
+	call	PrintOut$		; プリントアウトする
+	jr	c,exit$			; 中断した場合 -> exit$
+
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+	ld	c,12			; １２フレーム待ち
+	call	wait_vb_s		;
+
+	xor	a			; all_put_req = 0
+	ld	(all_put_req),a		;
+	call	BoxMapMake3		; ポケモンリスト画面３枚目を表示
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,00h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前０、印字後０
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	pop_vram		; dmy_map[] から dmy_vram[] に データを戻す
+	call	PrintOut$		; プリントアウトする
+	jr	c,exit$			; 中断した場合 -> exit$
+
+	xor	a
+	ld	(ext_system+0),a	;  ext_system[]w = 0
+	ld	(ext_system+1),a	;
+	ld	c,12			;  １２フレーム待ち
+	call	wait_vb_s		;
+
+	xor	a			; all_put_req = 0
+	ld	(all_put_req),a		;
+	call	BoxMapMake4		; ポケモンリスト画面４枚目を表示
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,03h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前０、印字後３
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	pop_vram		; dmy_map[] から dmy_vram[] に データを戻す
+	call	PrintOut$		; プリントアウトする
+exit$:
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+
+	xor	a			;
+	ld	(IFL),a			;
+	pop	af			; 割込み許可を元に戻す
+	ld	(IE),a			;
+
+	call	RecoverRamMap		; ram_map[] にマップデータをセットし直す
+	call	BGMrecover		; ＢＧＭを元に戻す
+
+ ifn  ASSEMBLE__ENGLISH
+	pop	af			; ホシデン製プリンタ不具合対策
+	ld	(oam_flg),a		; ＯＢＪの処理を再開する
+ endif
+	ret
+No_monster$:
+	ld	hl,MSG$			;”ポケモンが はいっていません！”
+	call	put_win_msg
+	ret
+
+PrintOut$:
+	call	joy_clear		; キー入力バッファを初期化
+PrintLoop$:				; while (1){
+	call	cont_repeat			; キー入力
+
+	call	BreakCheck			; 中断（Ｂボタン）チェック
+	jr	c,print_exit$
+
+	ld	a,(SeqNo)			;
+	bit	7,a				; if (SeqNo.<7>)
+	jr	nz,print_ret$			;	break
+
+	call	PrintOutMain			; プリントアウト処理
+
+	call	PrinterStatusCheck		; エラーチェック
+	call	PrinterMSGPut			; エラーメッセージを表示
+	call	wait_vb				; １フレーム待ち
+	jr	PrintLoop$		; }
+print_ret$:
+	and	a			; <C> = 0
+	ret
+print_exit$:
+	scf				; <C> = 1
+	ret
+
+MSG$:
+	extern	MSG_0_PRINTER2
+	db I_MSG2	; mvmsg追加
+	dw MSG_0_PRINTER2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+;---------------------------------------------------------------
+;	Status PrintOut
+;---------------------------------------------------------------
+StatusPrintOut:
+	xor	a
+	ld	(DA_BUF),a		;プリント中断フラグ（１＝中断）
+
+	call	BGMset			; プリントモード用ＢＧＭスタート
+	call	StatusMapMake
+
+	ld	a,(IE)
+	push	af
+	xor	a			;
+	ld	(IFL),a			;
+	ld	a,00001001b		; SIO, V-BLANK 割込み許可
+	ld	(IE),a			;
+
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,13h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前１、印字後３
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	joy_clear		; キー入力バッファを初期化
+main_loop$:				; while (1){
+	call	cont_repeat			; キー入力
+
+	call	BreakCheck			; 中断（Ｂボタン）チェック
+	jr	c,exit$
+
+	ld	a,(SeqNo)			;
+	bit	7,a				; if (SeqNo.<7>)
+	jr	nz,exit$			;	break
+
+	call	PrintOutMain			; プリントアウト処理
+
+	call	PrinterStatusCheck		; エラーチェック
+	call	PrinterMSGPut			; エラーメッセージを表示
+	call	wait_vb				; １フレーム待ち
+	jr	main_loop$		; }
+exit$:
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+	call	DmyVramLoad		; PRTOUT_DmyVram[] から dmy_vram[] にデータを戻す
+
+	xor	a			;
+	ld	(IFL),a			;
+	pop	af			; 割込み許可を元に戻す
+	ld	(IE),a			; 
+
+	call	RecoverRamMap		; ram_map[] にマップデータをセットし直す
+	call	BGMrecover		; ＢＧＭを元に戻す
+	ret
+
+;---------------------------------------------------------------
+;	Normal PrintOut
+;---------------------------------------------------------------
+PrintOut:
+	push	af
+	push	bc
+	push	de
+	push	hl
+
+	call	MusicStop		; ＢＧＭストップ
+
+	ld	a,(IE)
+	push	af
+	xor	a			;
+	ld	(IFL),a			;
+	ld	a,00001001b		; SIO, V-BLANK 割込み許可
+	ld	(IE),a			;
+
+	call	PrintOutInit		; プリント用バッファの初期化
+	ld	a,13h
+	ld	(PRT_FeedCounter),a	; フィード数  印字前１、印字後３
+	ld	a,1
+	ld	(all_put_req),a		; all_put_req = 1
+	call	DmyVramSave		; dmy_vram[] を PRTOUT_DmyVram[] にコピーする
+	call	PrinterStatusInit2
+main_loop$:				; while (1){
+	ld	a,(SeqNo)			;
+	bit	7,a				; if (SeqNo.<7>)
+	jr	nz,exit$			;	break
+
+	call	PrintOutMain2
+
+	call	PrinterStatusPut2
+	call	wait_vb				; １フレーム待ち
+	jr	main_loop$		; }
+exit$:
+	xor	a
+	ld	(ext_system+0),a	; ext_system[]w = 0
+	ld	(ext_system+1),a	;
+
+	ld	hl,4*32+oam_buf		;
+	ld	bc,4*8			;
+	xor	a			;
+	call	memset			; memset(&oam_buf[4*32], 0, 4*8)
+
+	xor	a			;
+	ld	(IFL),a			;
+	pop	af			; 割込み許可を元に戻す
+	ld	(IE),a			;
+
+	pop	hl
+	pop	de
+	pop	bc
+	pop	af
+	ret
+
+;===============================================================
+;	SUB
+;===============================================================
+BreakCheck:
+	ld	a,(joy_status)		; if (!(joy_status & BT_B)){
+	and	BT_B			;
+	jr	nz,break$		;
+	and	a			;	return  <c> = 0
+	ret				; }
+break$:
+	ld	a,(SeqNo)
+	extern	PO_EndCheckNo
+	cp	PO_EndCheckNo		; if (SeqNo == PO_EndCheckNo){
+	jr	nz,exit$
+wait$:
+	ld	a,(ext_system+1)		;In Packet Trans?  （パケット転送中？）
+	and	a				; while(ext_system+1);
+	jr	nz,wait$			;
+
+	extern	PSIO_BREAKNo			; "PRINTER.DMG"  SeqTable$:
+	ld	a,PSIO_BREAKNo
+	ld	(ext_system+1),a		; (ext_system+1) = PSIO_BREAKNo
+	ld	a,PREAMBLE_1			; プリアンブルデータ＄８８を送信
+	ld	(SB),a				;
+	ld	a,00000001b			;
+	ld	(SC),a				;
+	ld	a,10000001b			;
+	ld	(SC),a				;
+
+commandwait$:
+	ld	a,(ext_system+1)		;In Packet Trans?  （パケット転送中？）
+	and	a				; while(ext_system+1);
+	jr	nz,commandwait$			;
+exit$:						; }
+	ld	a,1
+	ld	(DA_BUF),a		;プリント中断フラグ（１＝中断）
+	scf				;
+	ret				; return  <c> = 1
+
+DmyVramSave:
+	ld	hl,dmy_vram		; dmy_vram[] を保存する
+	ld	de,PRTOUT_DmyVram	; for (i=0 ; i<20*18 ; i++)
+	ld	bc,20*18		;   PRTOUT_DmyVram[i] = dmy_vram[i]
+	call	block_move
+	ret
+
+DmyVramLoad:
+	ld	hl,PRTOUT_DmyVram	; dmy_vram[] を復帰する
+	ld	de,dmy_vram		; for (i=0 ; i<20*18 ; i++)
+	ld	bc,20*18		;   dmy_vram[i] = PRTOUT_DmyVram[i]
+	call	block_move
+	ret
+
+joy_clear:
+	xor	a
+	ld	(joy_data),a
+	ld	(joy_off),a
+	ld	(joy_on),a
+	ld	(joy_status),a
+	ld	(joy_repeat),a
+	ld	(joy_abrepeat),a
+	ret
+
+BGMset:
+	call	FadeOut
+	ld	a,(music_bank_flg)
+	ld	(music_bank_flg_back),a		; Bank-Save / Load "talkmap.src"
+
+	ld	a,MUSIC_BANK4_NO		; Music Bank 1
+	ld	(music_bank_flg),a
+	ld	a,musprinter4
+	ld	(music_flag),a			; 0:SE / !0:Music
+	call	BGMplay
+	ret
+
+BGMrecover:
+	call	FadeOut
+	call	set_now_music
+	ret
+
+FadeOut:
+	ld	a,04h				; Fadeout Speed
+	ld	(fade_play_fg),a
+	call	MusicStop
+loop$:
+	ld	a,(fade_play_fg)
+	and	a
+	jr	nz,loop$
+	ret
+
+;===============================================================
+;	PRINTER_STATUS MSG PUT
+;===============================================================
+	public	PrinterStatusCheck
+PrinterStatusCheck:
+ ifn  ASSEMBLE__ENGLISH
+	ld	a,(PrinterStatus+0)
+	cp	081h					; ポケットプリンタの場合 -> pass$:
+	jr	z,pass$					; 
+
+	ld	a,(PrinterStatus+1)			; 本来、Error No.2 は ２バイト FFFF を判定するべき
+	cp	0ffh					; なのだが下位バイトのみの判定としている
+	jr	z,NoPrinter$				; $81 と $FFFFの場合とで別々のメッセージ表示を持た
+							; せるとプリンタ以外の機器（ゲームボーイ等）が接続
+							; されている場合（特にプログラム等が走っている場合）
+							; 不定値が返ってきて、エラー表示が目まぐるしく変化
+							; する現象が起こるので、これを見かけ上防ぐ為の凌ぎ策
+
+	xor	a					; 図鑑をプリントするときに絵や身長体重データを表示後、
+	jr	set$					; 説明文データを転送する前に  !81 $$ !FF  コードが返
+							; ってくるようで、この場合は エラーメッセージを出さな
+							; いようにした
+ else
+	ld	a,(PrinterStatus+0)			; if (PrinterStatus == 0xFFFF){
+	cp	0ffh					;	PrinterStatusMSGNo =
+	jr	nz,pass$				;		PrintError2MSGNo
+	ld	a,(PrinterStatus+1)			;	return
+	cp	0ffh					; }
+	jr	z,NoPrinter$				;
+ endif
+pass$:
+	ld	a,(PrinterStatus+1)			; どのエラービットも立っていない場合
+	and	11100000b				;	return
+	ret	z					;
+
+	bit	7,a					; 電池切れビットの場合
+	jr	nz,low_bat$				;	PrintError1MSGNo
+	bit	6,a					; その他のエラーの場合
+	jr	nz,error2$				;	PrintError3MSGNo
+error1$:						; 紙詰まりの場合
+	ld	a,PrintError3MSGNo			;	PrintError4MSGNo
+	jr	set$
+error2$:
+	ld	a,PrintError4MSGNo
+	jr	set$
+low_bat$:
+	ld	a,PrintError1MSGNo
+	jr	set$
+NoPrinter$:						; 接続されていない場合
+	ld	a,PrintError2MSGNo			;	PrintError2MSGNo
+set$:
+	ld	(PrinterStatusMSGNo),a
+	ret
+
+ ifn  pm_jmsg
+ else
+PrinterMSGPut2:						; プリンタのメッセージを表示
+ endif
+PrinterMSGPut:						; プリンタメッセージを表示
+	ld	a,(PrinterStatusMSGNo)			;
+	and	a					; if (PrinterStarusMSGNo == 0)
+	ret	z					;	return
+	
+	push	af
+	xor	a					; all_put_req = 0
+	ld	(all_put_req),a				;
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	0,5
+	ld	bc,0a12h
+ else
+	S_POS	2,5
+	ld	bc,0a0eh
+ endif
+	call	put_window
+	pop	af
+
+ ifn	ASSEMBLE__ENGLISH
+PrinterMSGPut_00:
+ endif
+	ld	e,a
+	ld	d,00h
+	ld	hl,MSGtable
+	add	hl,de
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)					; DE = MSGtable[A*2]
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	1,7
+ else
+	S_POS	4,7
+ endif
+	call	put_msg
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	2,15
+ else
+	S_POS	4,15
+ endif
+	ld	de,BreakMsg				;”ビーボタンで ちゅうし” 
+	call	put_msg
+
+	ld	a,1					;
+	ld	(all_put_req),a				; all_put_req = 1
+
+	xor	a					;
+	ld	(PrinterStatusMSGNo),a			; PrinterStatusMSGNo = 0
+	ret
+
+ ifn  pm_jmsg
+PrinterMSGPut2:						; プリンタのメッセージを表示
+	ld	a,(PrinterStatusMSGNo)			;
+	and	a					; if (PrinterStatusMSGNo == 0)
+	ret	z					;	return
+	
+	push	af
+	xor	a					; all_put_req = 0
+	ld	(all_put_req),a				;
+  ifn	ASSEMBLE__ENGLISH
+	S_POS	0,4
+	ld	bc,0e14h
+  else
+	S_POS	2,4
+	ld	bc,0d10h
+  endif
+	call	block_cls
+	pop	af
+
+  ifn	ASSEMBLE__ENGLISH
+	jr	PrinterMSGPut_00
+  else
+
+	ld	e,a
+	ld	d,00h
+	ld	hl,MSGtable
+	add	hl,de
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)					; DE = MSGtable[A*2]
+	S_POS	4,7
+	call	put_msg
+
+	S_POS	4,15
+	ld	de,BreakMsg				;”ビーボタンで ちゅうし” 
+	call	put_msg
+
+	ld	a,1
+	ld	(all_put_req),a				; all_put_req = 1
+
+	xor	a
+	ld	(PrinterStatusMSGNo),a			; PrinterStatusMSGNo = 0
+	ret
+  endif
+ else
+ endif
+
+BreakMsg:
+  ifn	pm_jmsg
+	db	bi__,bou@,bo__,ta__,n__,de_,spc@,ti_,yyu_,u_,si_	; ビーボタンで ちゅうし
+	db	EOM
+  else
+	db	usf_p,usf_r_,usf_e_,usf_s_,usf_s_,spc@,usf_b,spc@
+	db	usf_t_,usf_o_,spc@,usf_c,usf_a_,usf_n_,usf_c_,usf_e_,usf_l_
+	db	EOM
+  endif
+
+MSGtable:
+	ef_initndw
+	ef_inc_ndw	dummyMSG				; EOM のみ
+	ef_ndw_g	ConnectCheckMSG,ConnectCheckMSGNo	; せつぞくかくにん ちゅう
+	ef_ndw_g	DataTransMSG,DataTransMSGNo		; データてんそう ちゅう
+	ef_ndw_g	PrintOutMSG,PrintOutMSGNo		; プリントアウト ちゅう
+	ef_ndw_g	PrintError1MSG,PrintError1MSGNo		; プリントエラー エラー１ 
+	ef_ndw_g	PrintError2MSG,PrintError2MSGNo		; プリントエラー エラー２
+	ef_ndw_g	PrintError3MSG,PrintError3MSGNo		; プリントエラー エラー３
+	ef_ndw_g	PrintError4MSG,PrintError4MSGNo		; プリントエラー エラー４
+	ef_ndw_g	PrintError5MSG,PrintError5MSGNo		; プリントエラー エラー５
+
+dummyMSG:
+	db	EOM
+ConnectCheckMSG:
+  ifn	pm_jmsg
+	db	cr@
+	db	se_,tu_,zo_,ku_,ka_,ku_,ni_,n_,spc@,ti_,yyu_,u_		; せつぞくかくにん ちゅう
+	db	EOM
+  else
+	db	cr@
+	db	spc@
+	db	usf_c,usf_h,usf_e,usf_c,usf_k,usf_i,usf_n,usf_g,spc@,usf_l,usf_i,usf_n,usf_k,kten@,kten@,kten@
+	db	EOM
+  endif
+
+DataTransMSG:
+  ifn	pm_jmsg
+	db	cr@
+	db	de__,bou@,ta__,te_,n_,so_,u_,spc@,ti_,yyu_,u_		; データてんそう ちゅう
+	db	EOM
+  else
+	db	cr@
+	db	spc@,spc@
+	db	usf_t,usf_r,usf_a,usf_n,usf_s,usf_m,usf_i,usf_t,usf_t,usf_i,usf_n,usf_g,kten@,kten@,kten@
+	db	EOM
+  endif
+
+PrintOutMSG:
+  ifn	pm_jmsg
+	db	cr@
+	db	pu__,ri__,n__,to__,a__,u__,to__,spc@,ti_,yyu_,u_	; プリントアウト ちゅう
+	db	EOM
+  else
+	db	cr@
+	db	spc@,spc@,spc@,spc@
+	db	usf_p,usf_r,usf_i,usf_n,usf_t,usf_i,usf_n,usf_g,kten@,kten@,kten@
+	db	EOM
+  endif
+
+PrintError1MSG:
+  ifn	pm_jmsg
+	db	pu__,ri__,n__,to__,e__,ra__,bou@,spc@,e__,ra__,bou@,n1@
+	db	cr@
+	db	cr@
+	db	po__,ke__,ttu__,to__,pu__,ri__,n__,ta__,spc@,no_
+	db	cr@
+	db	se_,tu_,me_,i_,si_,yyo_,wo_,spc@,yo_,n_,de_,ne_
+	db	EOM
+  else
+	db	spc@
+	db	usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,spc@,usf_e,usf_r_,usf_r_,usf_o_,usf_r_,spc@,n1@
+	db	cr@
+	db	cr@
+	db	usf_c,usf_h_,usf_e_,usf_c_,usf_k_,spc@,usf_t_,usf_h_,usf_e_,spc@,usf_g,usf_a_,usf_m_,usf_e_,spc@,usf_b,usf_o_,usf_y_
+	db	cr@
+	db	usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,spc@,usf_m,usf_a_,usf_n_,usf_u_,usf_a_,usf_l_,kten@
+	db	EOM
+  endif
+
+PrintError2MSG:
+  ifn	pm_jmsg
+	db	pu__,ri__,n__,to__,e__,ra__,bou@,spc@,e__,ra__,bou@,n2@
+	db	cr@
+	db	cr@
+	db	po__,ke__,ttu__,to__,pu__,ri__,n__,ta__,spc@,no_
+	db	cr@
+	db	se_,tu_,me_,i_,si_,yyo_,wo_,spc@,yo_,n_,de_,ne_
+	db	EOM
+  else
+	db	spc@
+	db	usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,spc@,usf_e,usf_r_,usf_r_,usf_o_,usf_r_,spc@,n2@
+	db	cr@
+	db	cr@
+	db	usf_c,usf_h_,usf_e_,usf_c_,usf_k_,spc@,usf_t_,usf_h_,usf_e_,spc@,usf_g,usf_a_,usf_m_,usf_e_,spc@,usf_b,usf_o_,usf_y_
+	db	cr@
+	db	usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,spc@,usf_m,usf_a_,usf_n_,usf_u_,usf_a_,usf_l_,kten@
+	db	EOM
+  endif
+
+PrintError3MSG:
+  ifn	pm_jmsg
+	db	pu__,ri__,n__,to__,e__,ra__,bou@,spc@,e__,ra__,bou@,n3@
+	db	cr@
+	db	cr@
+	db	po__,ke__,ttu__,to__,pu__,ri__,n__,ta__,spc@,no_
+	db	cr@
+	db	se_,tu_,me_,i_,si_,yyo_,wo_,spc@,yo_,n_,de_,ne_
+	db	EOM
+  else
+	db	spc@
+	db	usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,spc@,usf_e,usf_r_,usf_r_,usf_o_,usf_r_,spc@,n3@
+	db	cr@
+	db	cr@
+	db	usf_c,usf_h_,usf_e_,usf_c_,usf_k_,spc@,usf_t_,usf_h_,usf_e_,spc@,usf_g,usf_a_,usf_m_,usf_e_,spc@,usf_b,usf_o_,usf_y_
+	db	cr@
+	db	usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,spc@,usf_m,usf_a_,usf_n_,usf_u_,usf_a_,usf_l_,kten@
+	db	EOM
+  endif
+
+PrintError4MSG:
+  ifn	pm_jmsg
+	db	pu__,ri__,n__,to__,e__,ra__,bou@,spc@,e__,ra__,bou@,n4@
+	db	cr@
+	db	cr@
+	db	po__,ke__,ttu__,to__,pu__,ri__,n__,ta__,spc@,no_
+	db	cr@
+	db	se_,tu_,me_,i_,si_,yyo_,wo_,spc@,yo_,n_,de_,ne_
+	db	EOM
+  else
+	db	spc@
+	db	usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,spc@,usf_e,usf_r_,usf_r_,usf_o_,usf_r_,spc@,n4@
+	db	cr@
+	db	cr@
+	db	usf_c,usf_h_,usf_e_,usf_c_,usf_k_,spc@,usf_t_,usf_h_,usf_e_,spc@,usf_g,usf_a_,usf_m_,usf_e_,spc@,usf_b,usf_o_,usf_y_
+	db	cr@
+	db	usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,spc@,usf_m,usf_a_,usf_n_,usf_u_,usf_a_,usf_l_,kten@
+	db	EOM
+  endif
+
+PrintError5MSG:
+  ifn	pm_jmsg
+	db	ko_,re_,ha_
+	db	cr@
+	db	po__,ke__,ttu__,to__,pu__,ri__,n__,ta__,de_,ha_
+	db	cr@
+	db	a_,ri_,ma_,se_,n_,gyoe@
+	db	EOM
+  else
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@,usf_i_,usf_s_,spc@,usf_n_,usf_o_,usf_t_,spc@,usf_t_,usf_h_,usf_e_
+	db	cr@
+	db	usf_g,usf_a_,usf_m_,usf_e_,spc@,usf_b,usf_o_,usf_y_,spc@,usf_p,usf_r_,usf_i_,usf_n_,usf_t_,usf_e_,usf_r_,gyoe@
+	db	EOM
+  endif
+
+
+;===============================================================
+;	NAMINORI MAP MAKE
+;===============================================================
+NaminoriMapMake:
+	call	pal_off_put_wait
+	call	dvram_cls
+
+	ld	de,NamiMapCGXdata
+	ld	hl,9000h
+	ld	bc,G_BANK3a*100h+60h
+	call	chrmove
+
+	S_POS	0,0
+	call	YokoLineSet$
+	S_POS	0,17
+	call	YokoLineSet$
+	S_POS	0,0
+	call	TateLineSet$
+	S_POS	19,0
+	call	TateLineSet$
+
+	ld	a,004h
+	S_POS	0,0
+	ld	(hl),a
+	S_POS	0,17
+	ld	(hl),a
+	S_POS	19,0
+	ld	(hl),a
+	S_POS	19,17
+	ld	(hl),a
+
+	ld	de,Data1$
+	S_POS	10,8
+	ld	bc,0308h
+	call	BlockSet
+
+	ld	de,Data2$
+	S_POS	2,11
+	ld	bc,0610h
+	call	BlockSet
+
+	ld	de,Msg$
+ ifn  ASSEMBLE__ENGLISH
+	S_POS	3,2
+ else
+	S_POS	4,2
+ endif
+	call	put_msg
+
+	ld	de,Msg2$
+	S_POS	9,4
+	call	put_msg
+
+	ld	de,Msg3$
+	S_POS	12,6
+	call	put_msg
+
+	ld	de,my_name
+ ifn  ASSEMBLE__ENGLISH
+	ld	hl, my_name			; 's Hi-SCORE に合わせる為、右詰表示に変更する
+	ld	bc, 0				;
+_10$:	ld	a,(hli)
+	inc	c
+	cp	EOM
+	jr	nz, _10$
+
+	ld	a, PLAYER_NAME_LEN
+	sub	c
+	jr	nc, _20$
+	xor	a				; 文字数オーバーの場合（名前データが異常）
+_20$:	ld	c,a
+
+	S_POS	2,4
+	add	hl,bc
+ else
+	S_POS	3,4
+ endif
+	call	put_msg
+
+	call	TimerPut
+
+	ld	b,8
+	call	color_set
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	call	palset
+	ret
+
+YokoLineSet$:
+	ld	c,10
+x_loop$:
+	ld	(hl),000h
+	inc	hl
+	ld	(hl),001h
+	inc	hl
+	dec	c
+	jr	nz,x_loop$
+	ret
+TateLineSet$:
+	ld	c,9
+	ld	de,20
+y_loop$:
+	ld	(hl),002h
+	add	hl,de
+	ld	(hl),003h
+	add	hl,de
+	dec	c
+	jr	nz,y_loop$
+	ret
+Data1$:
+	db	07Fh,07Fh,010h,011h,012h,013h,014h,015h		
+	db	00Fh,03Ch,03Dh,03Eh,020h,021h,030h,031h		
+	db	04Ch,04Dh,04Eh,050h,034h,01Ah,051h,02Dh		
+
+Data2$:
+	db	07Fh,07Fh,07Fh,07Fh,07Fh,07Fh,016h,017h
+	db	018h,019h,07Fh,01Bh,01Ch,01Dh,01Eh,01Fh
+
+	db	07Fh,07Fh,022h,023h,024h,025h,026h,027h
+	db	028h,029h,02Ah,02Bh,02Ch,07Fh,02Eh,02Fh
+
+	db	07Fh,07Fh,032h,033h,033h,035h,036h,037h
+	db	038h,039h,03Ah,03Bh,07Fh,07Fh,07Fh,03Fh
+
+	db	040h,041h,042h,043h,044h,045h,046h,047h
+	db	048h,049h,04Ah,04Bh,040h,040h,040h,04Fh
+
+	db	052h,052h,052h,053h,054h,055h,056h,057h
+	db	058h,059h,05Ah,05Bh,05Ch,05Dh,05Dh,05Eh
+
+	db	07Fh,07Fh,07Fh,005h,006h,007h,008h,009h
+	db	00Ah,00Bh,00Ch,00Dh,00Eh,07Fh,07Fh,07Fh
+
+Msg$:
+  ifn  pm_jmsg
+	db	pi__,ka__,ti__,yyu__,u__,no_		; ピカチュウのサマービーチ
+	db	sa__,ma__,bou@,bi__,bou@,ti__
+	db	EOM
+  else
+	db	usf_p,usf_i_,usf_k_,usf_a_,usf_c_,usf_h_,usf_u_,apt_s_,spc@,usf_b,usf_e_,usf_a_,usf_c_,usf_h_
+	db	EOM
+  endif
+Msg2$:
+  ifn  pm_jmsg
+	db	no_,be__,su__,to__,su__,ko__,a__	; のベストスコア
+	db	EOM
+  else
+	db	apt_s_,spc@,usf_h,usf_i_,bou@,usf_s,usf_c_,usf_o_,usf_r_,usf_e_
+	db	EOM
+  endif
+Msg3$:
+  ifn  pm_jmsg
+	db	po__,i__,n__,to__			; ポイント
+	db	EOM
+  else
+	db	usf_p,usf_o_,usf_i_,usf_n_,usf_t_,usf_s_
+	db	EOM
+  endif
+
+
+BlockSet:
+	push	bc
+	push	hl
+loop$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+
+	pop	hl
+	ld	bc,20
+	add	hl,bc
+	pop	bc
+	dec	b
+	jr	nz,BlockSet
+	ret
+	
+TimerPut:
+	ld	de,high_score+1
+	S_POS	7,6
+	ld	a,(de)
+	call	set$
+
+	ld	a,(de)
+set$:
+	ld	c,a
+	swap	a
+	and	00001111b
+	add	a,n0@
+	ld	(hli),a
+	ld	a,c
+	and	00001111b
+	add	a,n0@
+	ld	(hli),a
+	dec	de
+	ret
+
+NamiMapCGXdata:
+	db	000h,000h,0FFh,000h,0F8h,000h,0E0h,000h	; 0
+	db	000h,007h,000h,01Fh,000h,0FFh,000h,000h
+	db	000h,000h,0FFh,000h,01Fh,000h,007h,000h	; 1
+	db	000h,0E0h,000h,0F8h,000h,0FFh,000h,000h
+	db	070h,002h,070h,002h,070h,002h,060h,006h	; 2
+	db	060h,006h,040h,00Eh,040h,00Eh,040h,00Eh
+	db	040h,00Eh,040h,00Eh,040h,00Eh,060h,006h	; 3
+	db	060h,006h,070h,002h,070h,002h,070h,002h
+	db	000h,000h,000h,07Eh,018h,066h,03Ch,042h	; 4
+	db	03Ch,042h,018h,066h,000h,07Eh,000h,000h
+ ifn  pm_jmsg
+	db	000h,000h,000h,000h,000h,0F1h,000h,0DBh	; 5	; POCKET MONSTERS
+	db	000h,0DBh,000h,0F3h,000h,0C3h,000h,0C1h
+	db	000h,000h,000h,000h,000h,0C7h,000h,06Ch	; 6
+	db	000h,06Ch,000h,06Ch,000h,06Ch,000h,0C7h
+	db	000h,000h,000h,000h,000h,06Bh,000h,06Bh	; 7
+	db	000h,073h,000h,073h,000h,06Bh,000h,06Bh
+	db	000h,000h,000h,000h,000h,0DEh,000h,00Ch	; 8
+	db	000h,0CCh,000h,00Ch,000h,00Ch,000h,0CCh
+	db	000h,000h,000h,000h,000h,020h,000h,031h	; 9
+	db	000h,03Bh,000h,03Fh,000h,035h,000h,031h
+	db	000h,000h,000h,000h,000h,09Ch,000h,0B6h	; a
+	db	000h,0B6h,000h,0B6h,000h,0B6h,000h,09Ch
+	db	000h,000h,000h,000h,000h,08Ch,000h,0CDh	; b
+	db	000h,0EDh,000h,0DCh,000h,0CCh,000h,0C5h
+	db	000h,000h,000h,000h,000h,0EFh,000h,086h	; c
+	db	000h,0C6h,000h,0E6h,000h,066h,000h,0C6h
+	db	000h,000h,000h,000h,000h,07Bh,000h,063h	; d
+	db	000h,07Bh,000h,063h,000h,063h,000h,07Bh
+	db	000h,000h,000h,000h,000h,08Eh,000h,058h	; e
+	db	000h,05Ch,000h,08Eh,000h,046h,000h,05Ch
+ else
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+
+	db	000h,000h,000h,000h,000h,01Eh,000h,01Bh		; P
+	db	000h,01Bh,000h,01Eh,000h,018h,000h,018h
+	db	000h,000h,000h,000h,000h,039h,000h,06Dh		; O
+	db	000h,06Dh,000h,06Dh,000h,06Dh,000h,039h
+	db	000h,003h,000h,007h,000h,0A8h,000h,0A6h		; Ke'
+	db	000h,0C9h,000h,0CAh,000h,0ACh,000h,0A7h
+	db	000h,080h,000h,000h,000h,041h,000h,063h		; M
+	db	000h,077h,000h,07Fh,000h,06Bh,000h,063h
+	db	000h,000h,000h,000h,000h,039h,000h,06Dh		; O
+	db	000h,06Dh,000h,06Dh,000h,06Dh,000h,039h
+	db	000h,000h,000h,000h,000h,018h,000h,098h		; N
+	db	000h,0D8h,000h,0B8h,000h,098h,000h,088h
+
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+ endif
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; f
+	db	000h,000h,001h,001h,003h,003h,005h,005h
+	db	000h,000h,000h,000h,001h,001h,017h,017h	;10
+	db	03Fh,03Fh,0FFh,0FFh,03Fh,03Fh,0FFh,0FFh
+	db	001h,001h,037h,037h,0BFh,0BFh,0FFh,0FFh	;11
+	db	0FFh,0FFh,0FFh,0FFh,0FEh,0FEh,0EFh,0EFh
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh	;12
+	db	0FFh,0FFh,0EBh,0EBh,0CFh,0CFh,03Fh,03Fh
+	db	0F9h,0F9h,0FCh,0FCh,0FEh,0FEh,0FFh,0FFh	;13
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	0FFh,0FFh,0FEh,0FEh,0F8h,0F8h,0E0h,0E0h	;14
+	db	0E3h,0E3h,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	0C0h,0C0h,000h,000h,00Ch,00Ch,0DFh,0DFh	;15
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;16
+	db	000h,000h,000h,000h,000h,000h,001h,001h
+	db	00Ch,00Ch,012h,012h,021h,02Dh,040h,05Eh	;17
+	db	040h,05Eh,080h,0BFh,080h,0BFh,000h,07Fh
+	db	000h,000h,000h,000h,000h,000h,080h,080h	;18
+	db	080h,080h,040h,040h,040h,040h,020h,0A0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;19
+	db	038h,038h,078h,078h,0F8h,0F8h,0C8h,0C8h
+	db	071h,071h,0B1h,0B1h,0E0h,0E0h,0C0h,0C0h	;1a
+	db	0E0h,0E0h,0F0h,0F0h,070h,070h,0A0h,0A0h
+	db	005h,005h,003h,003h,003h,003h,002h,002h	;1b
+	db	002h,002h,001h,001h,001h,001h,001h,001h
+	db	0FDh,0FDh,0FEh,0FEh,0FFh,0FFh,0FFh,0FFh	;1c
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FEh,0FEh
+	db	0E0h,0E0h,0E0h,0E0h,040h,040h,000h,000h	;1d
+	db	080h,080h,0C0h,0C0h,0C0h,0C0h,0C0h,0C0h
+	db	01Fh,01Fh,01Fh,01Fh,00Fh,00Fh,00Fh,00Fh	;1e
+	db	00Fh,00Fh,007h,007h,007h,007h,007h,007h
+	db	0F8h,0F8h,0F8h,0F8h,0FCh,0FCh,0FCh,0FCh	;1f
+	db	0FCh,0FCh,0FEh,0FEh,0FEh,0FEh,0FEh,0FEh
+	db	07Fh,07Fh,0FFh,0FFh,0BFh,0BFh,07Fh,07Fh	;20
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0DFh,0DFh	;21
+	db	0EFh,0EFh,0F7h,0F7h,0C3h,0C3h,0E3h,0E3h
+	db	000h,000h,000h,000h,000h,000h,001h,001h	;22
+	db	001h,002h,003h,004h,007h,008h,01Fh,010h
+	db	000h,007h,01Fh,038h,07Fh,0C0h,0FFh,000h	;23
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,0E0h,0F8h,01Ch,0FEh,003h,0FFh,000h	;24
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,000h,000h,000h,000h,000h,080h,080h	;25
+	db	080h,040h,0C0h,020h,0E0h,010h,0F8h,008h
+	db	001h,001h,001h,001h,001h,001h,002h,002h	;26
+	db	002h,002h,002h,002h,002h,002h,004h,005h
+	db	000h,07Fh,000h,07Fh,000h,07Fh,00Eh,0F1h	;27
+	db	01Fh,0E0h,01Fh,0E0h,00Eh,0F1h,000h,0FFh
+	db	021h,0A1h,022h,0A2h,022h,0A2h,014h,0D4h	;28
+	db	014h,0D4h,019h,0D8h,013h,0D0h,017h,0F0h
+	db	018h,008h,078h,008h,070h,010h,0F0h,010h	;29
+	db	0FFh,01Fh,0F0h,000h,0FCh,000h,0FFh,000h
+	db	003h,003h,00Fh,00Fh,033h,033h,0C7h,0C3h	;2a
+	db	01Eh,002h,03Ch,004h,0F8h,018h,0F0h,010h
+	db	0C1h,0C1h,0C1h,0C1h,080h,080h,000h,000h	;2b
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FEh,0FEh,0FFh,0FFh,0BBh,0BBh,03Ah,03Ah	;2c
+	db	018h,018h,010h,010h,000h,000h,000h,000h
+	db	080h,080h,0C0h,0C0h,0C0h,0C0h,0E0h,0E0h	;2d
+	db	0E0h,0E0h,0F0h,0F0h,0F0h,0F0h,0F8h,0F8h
+	db	003h,003h,003h,003h,003h,003h,003h,003h	;2e
+	db	001h,001h,001h,001h,001h,001h,001h,001h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh	;2f
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	0FFh,0FFh,0F9h,0F9h,0FCh,0FCh,0FEh,0FEh	;30
+	db	0FEh,0FEh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	0FFh,0FFh,0BFh,0BFh,0DDh,0DDh,04Eh,04Eh	;31
+	db	00Eh,00Eh,006h,006h,006h,006h,080h,080h
+	db	01Fh,020h,03Fh,020h,01Fh,060h,07Fh,040h	;32
+	db	07Fh,040h,0FFh,080h,0FFh,080h,0FFh,080h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;33
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh	;34
+	db	0FFh,0FFh,0FEh,0FEh,0FFh,0FFh,0FFh,0FFh
+	db	0F8h,004h,0FCh,004h,0FCh,002h,0FEh,002h	;35
+	db	0FEh,002h,0FFh,001h,0FFh,001h,0FFh,001h
+	db	004h,005h,004h,005h,004h,005h,004h,005h	;36
+	db	004h,005h,004h,005h,004h,005h,004h,005h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;37
+	db	000h,0FFh,001h,0FFh,002h,0FEh,002h,0FEh
+	db	027h,0E0h,027h,0E0h,04Fh,0C0h,04Fh,0C0h	;38
+	db	05Fh,0C0h,0FFh,0E0h,01Fh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;39
+	db	0FFh,000h,0FFh,007h,0FFh,03Fh,0FFh,07Fh
+	db	0E0h,020h,0E0h,020h,0E0h,020h,0F0h,010h	;3a
+	db	0F1h,011h,0FAh,0FAh,0FBh,0FAh,0FFh,0FCh
+	db	030h,030h,048h,048h,0B6h,086h,0FFh,081h	;3b
+	db	07Fh,001h,0FEh,002h,0FCh,00Ch,0F0h,010h
+	db	003h,003h,01Fh,01Fh,00Fh,00Fh,03Fh,03Fh	;3c
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh	;3d
+	db	0EEh,0EEh,0EEh,0EEh,0EEh,0EEh,0FEh,0FEh
+	db	0FEh,0FEh,0FEh,0FEh,0FDh,0FDh,0EDh,0EDh	;3e
+	db	0E8h,0E8h,0E1h,0E1h,0E1h,0E1h,0E0h,0E0h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh	;3f
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	0FFh,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;40
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	0FFh,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;41
+	db	000h,0FFh,0C2h,03Dh,000h,0FFh,000h,0FFh
+	db	0FFh,0FFh,038h,0C0h,000h,0FFh,000h,0FFh	;42
+	db	048h,087h,000h,0FFh,000h,0FFh,004h,0F8h
+	db	0FFh,0FFh,000h,000h,00Eh,0F0h,060h,080h	;43
+	db	003h,0FCh,000h,0FFh,000h,0FFh,040h,03Fh
+	db	0FFh,0FFh,000h,000h,000h,000h,000h,000h	;44
+	db	000h,000h,001h,0FEh,018h,0E0h,000h,0FFh
+	db	0FFh,0FFh,001h,000h,000h,000h,000h,000h	;45
+	db	01Ch,003h,080h,000h,006h,001h,000h,0FFh
+	db	0FCh,0FDh,084h,07Dh,074h,00Dh,00Ch,005h	;46
+	db	002h,0FEh,006h,002h,002h,0FEh,002h,0FEh
+	db	001h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;47
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	0FFh,000h,0FFh,0E0h,05Fh,0C0h,05Fh,0C0h	;48
+	db	04Fh,0C0h,04Fh,0C0h,02Fh,0E0h,027h,0E0h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,01Fh	;49
+	db	0FFh,07Fh,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,008h,0FFh,006h,0FDh,007h,0FFh,0FFh	;4a
+	db	0FFh,0FCh,0FFh,006h,0FFh,00Ch,0FFh,003h
+	db	0FFh,03Fh,0F8h,00Fh,0FCh,087h,0F8h,01Fh	;4b
+	db	0E0h,03Fh,0C0h,0FFh,080h,0FFh,000h,0FFh
+	db	00Fh,00Fh,01Fh,01Fh,017h,017h,00Fh,00Fh	;4c
+	db	01Dh,01Dh,019h,019h,003h,003h,003h,003h
+	db	0FFh,0FFh,0FFh,0FFh,0F7h,0F7h,0F6h,0F6h	;4d
+	db	0F6h,0F6h,0A6h,0A6h,064h,064h,040h,040h
+	db	0F7h,0F7h,0F7h,0F7h,0F7h,0F7h,0F4h,0F4h	;4e
+	db	0A0h,0A0h,000h,000h,000h,000h,000h,000h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,07Fh,0FFh	;4f
+	db	07Fh,0FFh,07Fh,0FFh,07Fh,0FFh,07Fh,0FFh
+	db	043h,043h,001h,001h,003h,003h,003h,003h	;50
+	db	001h,001h,003h,003h,007h,007h,007h,007h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh	;51
+	db	07Fh,07Fh,07Fh,07Fh,03Fh,03Fh,03Fh,03Fh
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;52
+	db	000h,0FFh,000h,0FFh,0FFh,0FFh,000h,000h
+	db	009h,0F0h,000h,0FFh,000h,0FFh,000h,0FFh	;53
+	db	000h,0FFh,0FFh,0FFh,000h,000h,000h,000h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;54
+	db	000h,0FFh,0FFh,0FFh,000h,000h,000h,000h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;55
+	db	03Fh,0FFh,0C0h,0C0h,000h,000h,000h,000h
+	db	001h,0FFh,001h,0FFh,001h,0FFh,007h,0FFh	;56
+	db	0F8h,0F8h,000h,000h,000h,022h,000h,000h
+	db	000h,07Fh,000h,07Fh,003h,07Fh,0FCh,0FCh	;57
+	db	000h,000h,000h,000h,000h,022h,000h,000h
+	db	027h,0E0h,013h,0F3h,0FCh,0FCh,000h,000h	;58
+	db	000h,008h,000h,000h,000h,022h,000h,000h
+	db	0FFh,000h,0FFh,0FFh,03Fh,03Fh,003h,003h	;59
+	db	000h,008h,000h,000h,000h,022h,000h,000h
+	db	0FDh,007h,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh	;5a
+	db	07Fh,07Fh,00Fh,00Fh,001h,001h,000h,000h
+	db	0FFh,0FFh,0C0h,0C0h,0E0h,0E0h,0F8h,0F8h	;5b
+	db	0FEh,0FEh,0FFh,0FFh,0FFh,0FFh,03Fh,03Fh
+	db	0F0h,0FFh,00Fh,00Fh,000h,000h,000h,000h	;5c
+	db	000h,008h,080h,080h,0E0h,0E2h,0F8h,0F8h
+	db	000h,0FFh,0FFh,0FFh,000h,000h,000h,000h	;5d
+	db	000h,008h,000h,000h,000h,022h,000h,000h
+	db	07Fh,0FFh,0FFh,0FFh,07Fh,07Fh,07Fh,07Fh	;5e
+	db	07Fh,07Fh,07Fh,07Fh,07Fh,07Fh,07Fh,07Fh
+	db	000h,000h,000h,000h,018h,018h,018h,018h	;5f
+	db	000h,000h,000h,000h,018h,018h,018h,018h
+
+
+
+;===============================================================
+;	BOX MAP MAKE
+;===============================================================
+BoxMapMake1:
+	xor	a				;
+	ld	(usr_buf+0),a			; usr_buf[0] = 0
+
+	call	dvram_cls			; dmy_vram[] = spc@ クリア
+	call	MonsListInit			; －－－－－ ／ －－－－－ を表示する
+	S_POS	0,0
+	ld	bc,20*11
+	ld	a,spc@				; S_POS(0,0)～S_POS(19,10)を spc@ クリア
+	call	memset
+
+	call	WindowCenterPut			; 画面両端に縦枠を表示 (左:waku3@ ,右:waku4@)
+	call	WindowTopPut			; 画面上に横枠を表示 (waku0@,waku1@,...,waku2@)
+
+ ifn  pm_jmsg
+	S_POS	5,4
+ else
+	S_POS	4,4
+ endif
+	ld	de,MSG1$			;”ポケモンリスト”
+	call	put_msg
+
+ ifn  pm_jmsg
+	S_POS	8,6
+ else
+	S_POS	7,6
+ endif
+	ld	de,MSG2$			;”ボックス”
+	call	put_msg
+
+ ifn  pm_jmsg
+	S_POS	13,6
+ else
+	S_POS	11,6
+ endif
+	ld	a,(pm_box_no)			; ボックス番号
+	and	7fh
+ ifn	ASSEMBLE__ENGLISH
+	cp	10 -1
+	jr	c, _10$
+	sub	10 -1				; if ( 9<=(pm_box_no)<=15 )
+	ld	(hl),n1@			; S_POS(13,6) = '1'
+	inc	hl
+	add	a,n0@
+	jr	_20$
+_10$:	add	a,n1@
+_20$:
+ else
+	add	a,n1@
+ endif
+	ld	(hl),a
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	4,9
+	ld	de,my_mons_tbl+1
+	ld	c,3				; ３匹分
+ else
+	S_POS	4,11
+	ld	de,my_mons_tbl+1
+	ld	c,4				; ４匹分
+ endif
+	call	MonsNamePut			; ポケモン名＆ニックネームを表示
+	ret
+
+ ifn  pm_jmsg
+MSG1$:
+	db	poke@,ri__,su__,to__		; ポケモンリスト
+	db	EOM
+MSG2$:
+	db	bo__,ttu__,ku__,su__		; ボックス
+	db	EOM
+ else
+MSG1$:
+	db	usf_p,usf_o,usf_k,acc_e_,usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_i,usf_s,usf_t
+	db	EOM
+MSG2$:
+	db	usf_b,usf_o,usf_x
+	db	EOM
+ endif
+
+BoxMapMake2:
+	call	dvram_cls			; dmy_vram[] = spc@ クリア
+	call	MonsListInit			; －－－－－ ／ －－－－－ を表示する
+	call	WindowCenterPut			; 画面両端に縦枠を表示 (左:waku3@ ,右:waku4@)
+
+	ld	a,(my_mons_tbl+0)
+ ifn	ASSEMBLE__ENGLISH
+	cp	4				; ボックス内ポケモン数が３匹以下の場合
+	ret	c				;	return
+
+	S_POS	4,0
+	ld	de,my_mons_tbl+4
+	ld	c,6				; ６匹分
+ else
+	cp	5				; ボックス内ポケモン数が４匹以下の場合
+	ret	c				;	return
+
+	S_POS	4,1
+	ld	de,my_mons_tbl+5
+	ld	c,9				; ９匹分
+ endif
+	call	MonsNamePut			; ポケモン名＆ニックネームを表示
+	ret
+
+BoxMapMake3:
+	call	dvram_cls			; dmy_vram[] = spc@ クリア
+	call	MonsListInit			; －－－－－ ／ －－－－－ を表示する
+	call	WindowCenterPut			; 画面両端に縦枠を表示 (左:waku3@ ,右:waku4@)
+
+	ld	a,(my_mons_tbl+0)
+ ifn	ASSEMBLE__ENGLISH
+	cp	10				; ボックス内ポケモン数が９匹以下の場合
+	ret	c				;	return
+
+	S_POS	4,0
+	ld	de,my_mons_tbl+10
+	ld	c,6				; ６匹分
+ else
+	cp	14				; ボックス内ポケモン数が１３匹以下の場合
+	ret	c				;	return
+
+	S_POS	4,1
+	ld	de,my_mons_tbl+14
+	ld	c,9				; ９匹分
+ endif
+	call	MonsNamePut			; ポケモン名＆ニックネームを表示
+	ret
+
+BoxMapMake4:
+	call	dvram_cls			; dmy_vram[] = spc@ クリア
+	call	MonsListInit			; －－－－－ ／ －－－－－ を表示する
+	call	WindowCenterPut			; 画面両端に縦枠を表示 (左:waku3@ ,右:waku4@)
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	0,15
+	call	WindowUnderPut_SPOS		; S_POS(0,15)に横枠を表示 (waku5@,waku6@,...,waku7@)
+	S_POS	0,16
+	ld	bc,20*2
+	ld	a,spc@				; S_POS(0,16)～S_POS(19,17)を spc@ クリア
+	call	memset
+ else
+	call	WindowUnderPut			; 画面下に横枠を表示 (waku5@,waku6@,...,waku7@)
+ endif
+	ld	a,(my_mons_tbl+0)
+ ifn	ASSEMBLE__ENGLISH
+	cp	16				; ボックス内ポケモン数が１５匹以下の場合
+	ret	c				;	return
+
+	S_POS	4,0
+	ld	de,my_mons_tbl+16
+	ld	c,5				; ５匹分を表示
+ else
+	cp	23				; ボックス内ポケモン数が２２匹以下の場合
+	ret	c				;	return
+
+	S_POS	4,1
+	ld	de,my_mons_tbl+23
+	ld	c,8				; ８匹分
+ endif
+	call	MonsNamePut			; ポケモン名＆ニックネームを表示
+	ret
+
+
+MonsNamePut:				; ポケモン名を表示 （例）”コラッタ ／チュウきち”
+loop$:
+	ld	a,c			;	
+	and	a			; if (C-- == 0)	
+	jr	z,next$			;	return
+	dec	c			; 
+	
+	ld	a,(de)			;
+	cp	0ffh			; if ((DE) == 0xFF)
+	jr	z,next$			;	return
+	
+	ld	(in_dat),a
+	push	bc
+	push	hl
+	push	de
+
+	push	hl
+	ld	bc,12
+	ld	a,spc@
+	call	memset			; memset(HL, spc@, 12)
+	pop	hl
+ ifn	ASSEMBLE__ENGLISH
+	push	hl
+	ld	de,20
+	add	hl,de
+	ld	bc,12
+	ld	a,spc@
+	call	memset			; memset(HL+20, spc@, 12) 一行下の１２文字分もクリアする
+	pop	hl
+ endif
+	push	hl
+	call	get_mons_name		;
+	pop	hl			; S_POS(HL)  ポケモン名を表示
+	call	put_msg			;
+
+	push	hl
+	ld	hl,my_mons_name
+	ld	bc,MONS_NAME_LEN
+	ld	a,(usr_buf+0)
+	call	mul_any
+	ld	e,l
+	ld	d,h
+	pop	hl
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, 21			; 一行下の１キャラ分右から " ----------" を表示する
+	add	hl,bc			;
+	ld	(hl),spc@		; S_POS(HL+MONS_NAME_LEN)  ' ' を表示
+ else
+	ld	bc,MONS_NAME_LEN	;
+	add	hl,bc			;
+	ld	(hl),sura@		; S_POS(HL+MONS_NAME_LEN)  '/' を表示
+ endif
+	inc	hl			; S_POS(HL+MONS_NAME_LEN+1)  ポケモンニックネームを表示
+	call	put_msg
+
+	ld	hl,usr_buf+0		;
+	inc	(hl)			; 次のポケモンへ
+
+	pop	de
+	pop	hl			;
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,60			; ３行毎に表示する
+ else
+	ld	bc,40			; ２行毎に表示する
+ endif
+	add	hl,bc
+	pop	bc
+	inc	de			; DE++
+	jr	loop$
+next$:
+	ret
+
+WindowTopPut:				; 画面上に横枠を表示 (waku0@,waku1@,...,waku2@)
+	S_POS	0,0
+	ld	a,waku0@
+	ld	(hli),a
+	ld	a,waku1@
+	ld	c,18
+loop$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+
+	ld	a,waku2@
+	ld	(hl),a
+	ret
+
+WindowCenterPut:			; 画面両端に縦枠を表示 (左:waku3@ ,右:waku4@)
+	S_POS	0,0
+	ld	de,19
+	ld	c,18
+loop$:
+	ld	a,waku3@
+	ld	(hl),a
+	add	hl,de
+	ld	a,waku4@
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+	ret
+
+WindowUnderPut:				; 画面下に横枠を表示 (waku5@,waku6@,...,waku7@)
+	S_POS	0,17
+ ifn	ASSEMBLE__ENGLISH
+WindowUnderPut_SPOS:
+ endif
+	ld	a,waku5@
+	ld	(hli),a
+	ld	a,waku6@
+	ld	c,18
+loop$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+
+	ld	a,waku7@
+	ld	(hl),a
+	ret
+
+MonsListInit:				
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	4,0			; S_POS(4,0)～S_POS(4,16)  まで	
+	ld	c,6			; －－－－－－－－－－ を表示する（計６ライン）
+	call	loop$
+
+;	S_POS	5,1			; S_POS(5,1)～S_POS(5,17)  まで
+;	ld	c,6			;	'／'を表示する（計６個）
+;	ld	de,60			;
+;loop2$:	ld	(hl),sura@	;
+;	add	hl,de			;
+;	dec	c			;
+;	jr	nz,loop2$		;
+
+	S_POS	6,1			; S_POS(6,1)～S_POS(6,17)  まで	
+	ld	c,6			; －－－－－－－－－－ を表示する（計６ライン）
+ else
+	S_POS	4,1			; S_POS(4,1)～S_POS(4,17)  まで
+	ld	c,9			; －－－－－ ／ －－－－－ を表示する（計９ライン）
+ endif
+loop$:
+	push	bc
+	push	hl
+
+	ld	de,MSG$			;”－－－－－ ／ －－－－－”
+	call	put_msg
+
+	pop	hl
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,60			; ３行毎に表示
+ else
+	ld	bc,40			; ２行毎に表示
+ endif
+	add	hl,bc
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	ret
+MSG$:
+ ifn	ASSEMBLE__ENGLISH
+	db	bou@,bou@,bou@,bou@,bou@,bou@,bou@,bou@,bou@,bou@	; －－－－－－－－－－
+	db	EOM
+ else
+	db	bou@,bou@,bou@,bou@,bou@,spc@		; －－－－－ ／ －－－－－
+	db	sura@,bou@,bou@,bou@,bou@,bou@
+	db	EOM
+ endif
+
+;===============================================================
+;	ZUKAN_CONPLETE MAP MAKE
+;===============================================================
+Z_CompleteMapMake1:
+	call	pal_off_put_wait
+	call	dvram_cls
+
+	ld	de,Z_CompMapCGXdata
+	ld	hl,9000h
+	ld	bc,G_BANK3a*100h+7fh
+	call	chrmove
+
+	S_POS	0,0
+	call	Z_CompYokoLineSet
+	S_POS	0,0
+	call	Z_CompTateLineSet
+	S_POS	19,0
+	call	Z_CompTateLineSet
+
+	ld	a,000h
+	S_POS	0,0
+	ld	(hl),a
+	S_POS	19,0
+	ld	(hl),a
+
+ ifn  pm_jmsg
+	ld	de,Data$		;”＝＝＝＝＝＝”
+	S_POS	6,1			;”しょうじょう”を表示
+	ld	bc,0308h		;”＝＝＝＝＝＝”
+	call	BlockSet
+
+	ld	de,Msg1$		;”プレイヤー”を表示
+	S_POS	3,5
+	call	put_msg
+
+	ld	de,Msg2$		;”さま”を表示
+	S_POS	15,5
+	call	put_msg
+
+	ld	de,my_name
+	S_POS	9,5
+	call	put_msg
+
+	ld	de,Msg3$		;”あなたは ポケモンずかんを・・・”
+	S_POS	2,8
+	call	put_msg
+
+	ld	de,Msg4$		;”ゲームフリーク”
+	S_POS	11,16
+	call	put_msg
+ else
+	ld	de,Data$		;"●Diploma●"
+	S_POS	5,2
+	call	put_msg
+
+	ld	de,Msg1$		;"Player"
+	S_POS	3,4
+	call	put_msg
+
+	ld	de,my_name		; プレイヤー名
+	S_POS	10,4
+	call	put_msg
+
+	ld	de,Msg3$		;"Congrats! This ..."
+	S_POS	2,6
+	call	put_msg
+
+	ld	de,Msg4$		;"GAME FREAK"
+	S_POS	9,16
+	call	put_msg
+ endif
+
+	ld	b,COL_START
+	call	color_set
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	call	palset
+	ret
+ 
+ ifn	pm_jmsg
+Data$:
+	db	011h,011h,011h,011h,011h,011h,011h,011h	; ＝＝＝＝＝＝
+	db	010h,07Fh,014h,015h,012h,013h,014h,015h ; しょうじょう
+	db	016h,017h,018h,019h,016h,017h,018h,019h	; ＝＝＝＝＝＝
+Msg1$:
+	db	pu__,re__,i__,ya__,bou@			; プレイヤー
+	db	EOM
+Msg2$:
+	db	sa_,ma_					; さま
+	db	EOM
+Msg3$:
+	db	a_,na_,ta_,ha_,spc@,poke@,zu_,ka_,n_,wo_  ; あなたは ポケモン・・・
+	db	cr@
+	db	mi_,go_,to_,spc@,ka_,n_,se_,i_,spc@
+	db	sa_,se_,ma_,si_,ta_,gyoe@
+	db	cr@
+	db	so_,no_,spc@,i_,da_,i_,na_,spc@
+	db	ko_,u_,se_,ki_,wo_
+	db	cr@
+	db	si_,yyo_,u_,me_,i_,spc@,si_,ma_,su_
+	db	EOM
+Msg4$:
+	db	ge__,bou@,mu__,hu__,ri__,bou@,ku__	; ゲームフリーク
+	db	EOM
+ else
+Data$:
+	db	010h,usf_d,usf_i_,usf_p_,usf_l_,usf_o_,usf_m_,usf_a_,010h
+	db	EOM
+Msg1$:
+	db	usf_p,usf_l_,usf_a_,usf_y_,usf_e_,usf_r_
+	db	EOM
+;;Msg2$:
+;;	db	EOM
+Msg3$:
+	db	usf_c,usf_o_,usf_n_,usf_g_,usf_r_,usf_a_,usf_t_,usf_s_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_i_,usf_s_,cr@
+	db	usf_d_,usf_i_,usf_p_,usf_l_,usf_o_,usf_m_,usf_a_,spc@
+	db	usf_c_,usf_e_,usf_r_,usf_t_,usf_i_,usf_f_,usf_i_,usf_e_,usf_s_,cr@
+	db	usf_t_,usf_h_,usf_a_,usf_t_,spc@,usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,cr@
+	db	usf_c_,usf_o_,usf_m_,usf_p_,usf_l_,usf_e_,usf_t_,usf_e_,usf_d_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,cr@
+	db	poke@,usf_d,usf_e,usf_x,kten@
+	db	EOM
+Msg4$:
+	db	usf_g,usf_a,usf_m,usf_e,spc@,usf_f,usf_r,usf_e,usf_a,usf_k	; GAME FREAK
+	db	EOM
+ endif
+
+
+Z_CompleteMapMake2:
+	call	dvram_cls
+
+	S_POS	0,17
+	call	Z_CompYokoLineSet
+	S_POS	0,0
+	call	Z_CompTateLineSet
+	S_POS	19,0
+	call	Z_CompTateLineSet
+
+	ld	a,000h
+	S_POS	0,17
+	ld	(hl),a
+	S_POS	19,17
+	ld	(hl),a
+
+	ld	de,Data1$			; カップを持ったピカチュウの絵
+	S_POS	6,2
+	ld	bc,0a0ch
+	call	BlockSet
+
+	ld	de,Data2$			;"CONGRATULATIONS!"
+	S_POS	5,13
+	ld	bc,010bh
+	call	BlockSet
+
+	ld	de,Msg$				;”プレイじかん”
+ ifn  pm_jmsg
+	S_POS	3,15
+	call	put_msg
+	S_POS	11,15
+ else
+	S_POS	2,15
+	call	put_msg
+	S_POS	12,15
+ endif
+	ld	de,play_time_h + 0
+	ld	bc,4103h
+	call	put_dec
+
+ ifn  pm_jmsg
+	ld	(hl),07Eh			; ':'
+ else
+	ld	(hl),016h			; ':'
+ endif
+	inc	hl
+
+	ld	de,play_time_m
+	ld	bc,8102h
+	call	put_dec
+
+	ld	a,(in_dat)			;ZukanCounter
+	cp	151
+	ret	nz
+	
+	ld	de,Data3$			; ミュウの絵
+	S_POS	2,0
+	ld	bc,0405h
+	call	BlockSet
+	ret
+
+Data1$:
+	db	07Fh,07Fh,07Fh,01Ah,01Bh,07Fh	; カップを持ったピカチュウの絵
+	db	07Fh,07Fh,07Fh,07Fh,07Fh,07Fh
+
+	db	07Fh,07Fh,07Fh,01Ch,01Dh,01Eh
+	db	01Fh,020h,07Fh,021h,022h,023h
+
+	db	07Fh,024h,025h,026h,027h,028h
+	db	029h,02Ah,02Bh,02Ch,02Dh,02Eh
+
+	db	02Fh,030h,031h,032h,033h,034h
+	db	035h,036h,037h,038h,039h,03Ah
+
+	db	03Bh,03Ch,07Fh,03Dh,03Eh,03Fh
+	db	040h,041h,042h,043h,029h,044h
+
+	db	045h,046h,047h,048h,049h,04Ah
+	db	04Bh,029h,029h,04Ch,04Dh,04Eh
+
+	db	04Fh,050h,051h,052h,053h,054h
+	db	055h,056h,057h,058h,059h,07Fh
+
+	db	07Fh,07Fh,05Ah,05Bh,05Ch,05Dh
+	db	05Eh,05Fh,060h,061h,062h,07Fh
+
+	db	07Fh,07Fh,07Fh,063h,064h,065h
+	db	066h,067h,068h,07Fh,07Fh,07Fh
+
+	db	07Fh,07Fh,07Fh,069h,06Ah,06Bh
+	db	06Ch,06Dh,06Eh,07Fh,07Fh,07Fh
+
+Data2$:
+	db	005h,006h,007h,008h,009h	; CONGRATULATIONS!
+	db	00Ah,00Bh,00Ch,00Dh,00Eh
+	db	00Fh
+
+Data3$:
+ ifn  pm_jmsg
+	db	070h,071h,07Fh,072h,07Fh	; ミュウの絵
+	db	073h,074h,075h,076h,077h
+	db	07Fh,078h,079h,07Ah,07Bh
+	db	07Fh,07Fh,07Ch,07Dh,07Fh
+ else
+	db	070h,071h,07Fh,072h,07Fh	; ミュウの絵
+	db	073h,074h,075h,076h,077h
+	db	07Fh,078h,011h,012h,013h
+	db	07Fh,07Fh,014h,015h,07Fh
+ endif
+
+Msg$:
+ ifn  pm_jmsg
+	db	pu__,re__,i__,zi_,ka_,n_	; プレイじかん
+	db	EOM
+ else
+	db	usf_p,usf_l,usf_a,usf_y,spc@,usf_t,usf_i,usf_m,usf_e	; PLAY TIME
+	db	EOM
+ endif
+
+Z_CompYokoLineSet:
+	ld	c,10
+x_loop$:
+	ld	(hl),002h
+	inc	hl
+	ld	(hl),001h
+	inc	hl
+	dec	c
+	jr	nz,x_loop$
+	ret
+
+Z_CompTateLineSet:
+	ld	c,9
+	ld	de,20
+y_loop$:
+	ld	(hl),004h
+	add	hl,de
+	ld	(hl),003h
+	add	hl,de
+	dec	c
+	jr	nz,y_loop$
+	ret
+
+Z_CompMapCGXdata:
+	db	000h,0FFh,000h,0FFh,000h,0C3h,000h,0DBh	; 0
+	db	000h,0DBh,000h,0C3h,000h,0FFh,000h,0FFh
+	db	000h,03Fh,0C0h,03Fh,0C0h,030h,000h,0F7h	; 1
+	db	000h,0F7h,001h,006h,001h,0FEh,000h,0FEh
+	db	000h,0FEh,000h,0FEh,000h,006h,000h,0F7h	; 2
+	db	000h,0F7h,0C0h,030h,0C0h,03Fh,040h,03Fh
+	db	000h,01Bh,000h,0FBh,000h,0FBh,000h,0C3h	; 3
+	db	000h,0DFh,000h,0DFh,007h,0D8h,006h,0D8h
+	db	006h,0D8h,000h,0DFh,000h,0DFh,000h,0C3h	; 4
+	db	000h,0FBh,000h,0FBh,060h,01Bh,060h,01Bh
+	db	000h,0FFh,000h,0E3h,000h,0C9h,000h,0CFh	; 5
+	db	000h,0CFh,000h,0C9h,000h,0E3h,000h,0FFh
+	db	000h,0FFh,000h,08Dh,000h,024h,000h,024h	; 6
+	db	000h,024h,000h,024h,000h,08Ch,000h,0FFh
+	db	000h,0FFh,000h,098h,000h,091h,000h,012h	; 7
+	db	000h,093h,000h,091h,000h,0D8h,000h,0FFh
+	db	000h,0FFh,000h,043h,000h,0C9h,000h,049h	; 8
+	db	000h,043h,000h,043h,000h,049h,000h,0FFh
+	db	000h,0FFh,000h,0D8h,000h,08Ch,000h,024h	; 9
+	db	000h,024h,000h,004h,000h,024h,000h,0FFh
+	db	000h,0FFh,000h,049h,000h,0C9h,000h,0C9h	; a
+	db	000h,0C9h,000h,0C9h,000h,0E3h,000h,0FFh
+	db	000h,0FFh,000h,03Eh,000h,03Ch,000h,039h	; b
+	db	000h,039h,000h,038h,000h,009h,000h,0FFh
+	db	000h,0FFh,000h,0C2h,000h,066h,000h,026h	; c
+	db	000h,026h,000h,026h,000h,026h,000h,0FFh
+	db	000h,0FFh,000h,063h,000h,049h,000h,049h	; d
+	db	000h,049h,000h,049h,000h,063h,000h,0FFh
+	db	000h,0FFh,000h,066h,000h,024h,000h,006h	; e
+	db	000h,027h,000h,024h,000h,036h,000h,0FFh
+	db	000h,0FFh,000h,033h,000h,0F3h,000h,033h	; f
+	db	000h,093h,000h,09Fh,000h,033h,000h,0FFh
+ ifn  pm_jmsg
+	db	000h,000h,000h,000h,030h,030h,030h,030h	;10	; しょうじょう
+	db	030h,030h,030h,030h,030h,030h,030h,030h		; ‘し’の上半分
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;11
+	db	000h,000h,000h,000h,000h,0AAh,000h,055h
+	db	000h,000h,000h,000h,033h,033h,033h,033h	;12
+	db	033h,033h,030h,030h,030h,030h,030h,030h
+	db	000h,000h,000h,000h,060h,060h,060h,060h	;13
+	db	060h,060h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,0C0h,0C0h	;14
+	db	0C1h,0C1h,0F1h,0F1h,0F0h,0F0h,0C0h,0C0h
+	db	000h,000h,0F8h,0F8h,0F8h,0F8h,000h,000h	;15
+	db	0F8h,0F8h,0FCh,0FCh,00Ch,00Ch,00Ch,00Ch
+	db	030h,030h,030h,030h,039h,039h,01Fh,01Fh	;16
+	db	00Fh,00Fh,000h,000h,000h,055h,000h,0AAh
+ else
+	db	000h,000h,000h,000h,038h,000h,07Ch,000h		; ●
+	db	07Ch,000h,07Ch,000h,038h,000h,000h,000h		;
+	db	020h,020h,010h,010h,01Fh,00Fh,03Ch,000h	;79 ; ミュウのしっぽと足
+	db	03Fh,00Fh,07Eh,006h,0B5h,0B5h,01Ah,01Ah
+	db	000h,000h,000h,000h,080h,080h,060h,060h	;7a
+	db	098h,098h,067h,067h,098h,098h,067h,0E7h
+	db	014h,014h,014h,014h,014h,014h,028h,028h	;7b
+	db	068h,068h,090h,090h,060h,060h,080h,080h
+	db	08Ah,0BAh,085h,0B5h,042h,042h,022h,022h	;7c
+	db	021h,027h,011h,01Fh,009h,00Fh,006h,006h
+	db	010h,0D0h,008h,008h,084h,08Ch,042h,05Eh	;7d
+	db	022h,03Eh,01Ch,01Ch,000h,000h,000h,000h
+	db	000h,000h,000h,000h,010h,010h,000h,000h	;7e ; ':'
+	db	000h,000h,010h,010h,000h,000h,000h,000h
+ endif
+	db	0C3h,0C3h,0C7h,0C7h,0C6h,0C6h,087h,087h	;17
+	db	003h,003h,000h,000h,000h,055h,000h,0AAh
+	db	0C0h,0C0h,0F0h,0F0h,070h,070h,0C0h,0C0h	;18
+	db	080h,080h,000h,000h,000h,055h,000h,0AAh
+	db	00Ch,00Ch,00Ch,00Ch,01Ch,01Ch,0F8h,0F8h	;19
+	db	0F0h,0F0h,000h,000h,000h,055h,000h,0AAh
+	db	000h,000h,00Ch,00Ch,00Fh,00Fh,00Fh,00Fh	;1a
+	db	00Fh,00Fh,00Fh,00Fh,007h,007h,007h,007h
+	db	000h,000h,000h,000h,000h,000h,0C0h,0C0h	;1b
+	db	0E0h,0E0h,0F8h,0F8h,0FCh,0FCh,0FEh,0C7h
+	db	007h,007h,003h,003h,003h,003h,003h,003h	;1c
+	db	001h,001h,07Dh,07Dh,0FEh,0FEh,0C3h,0C3h
+	db	0FFh,0C3h,0FFh,0C0h,0FFh,080h,0FFh,080h	;1d
+	db	0FFh,080h,0FFh,080h,0FFh,080h,0FFh,0C0h
+	db	000h,080h,0C0h,0C0h,0E0h,060h,0F0h,030h	;1e
+	db	0F8h,018h,0FCh,00Ch,0FFh,007h,0FFh,007h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1f
+	db	000h,000h,0FEh,0FEh,0FFh,0FFh,07Eh,081h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;20
+	db	000h,000h,000h,000h,0F0h,0F0h,0FEh,0FEh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;21
+	db	000h,000h,000h,000h,01Fh,01Fh,0FEh,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;22
+	db	000h,000h,0FFh,0FFh,0FFh,0FFh,0FFh,00Fh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;23
+	db	000h,000h,0E0h,0E0h,0F0h,0F0h,0F0h,0F0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;24
+	db	000h,000h,000h,000h,001h,001h,007h,007h
+	db	001h,001h,001h,001h,003h,003h,00Fh,00Fh	;25
+	db	03Fh,03Fh,0F2h,0F2h,0C2h,0C2h,001h,001h
+	db	081h,081h,080h,080h,000h,000h,000h,030h	;26
+	db	018h,078h,01Ch,07Ch,004h,064h,0F2h,086h
+	db	0FFh,0C0h,0FFh,0E0h,0FFh,0F0h,07Eh,079h	;27
+	db	07Fh,07Ah,03Fh,03Ch,03Fh,03Ch,02Fh,028h
+	db	0EFh,018h,0FFh,000h,0FFh,000h,0FFh,000h	;28
+	db	0FFh,000h,0FFh,01Ch,0E7h,026h,0E7h,066h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;29
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0F7h,00Fh,0FFh,001h,0FFh,000h,0FFh,000h	;2a
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	09Fh,09Fh,0FDh,0FEh,0FFh,060h,0FFh,000h	;2b
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0DFh,0E0h,0FFh,000h,0FFh,000h,0FFh,000h	;2c
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,003h
+	db	0FFh,01Fh,0FFh,01Fh,0FFh,03Fh,0FFh,03Fh	;2d
+	db	0FCh,07Ch,0F8h,078h,0F3h,0F3h,0C7h,0C7h
+	db	0E0h,0E0h,0C0h,0C0h,080h,080h,000h,000h	;2e
+	db	000h,000h,000h,000h,000h,000h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;2f
+	db	000h,000h,000h,000h,001h,001h,001h,001h
+	db	00Eh,00Eh,018h,018h,030h,030h,060h,060h	;30
+	db	060h,060h,0C0h,0C0h,080h,080h,080h,0A0h
+	db	003h,000h,000h,000h,000h,000h,000h,000h	;31
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0E2h,002h,0F2h,002h,07Ah,002h,03Eh,002h	;32
+	db	01Eh,002h,00Eh,002h,006h,002h,006h,002h
+	db	027h,024h,023h,022h,021h,021h,021h,021h	;33
+	db	030h,030h,04Ch,04Ch,082h,082h,082h,082h
+	db	0FFh,07Eh,0FFh,07Ch,0FFh,038h,07Fh,080h	;34
+	db	0FFh,080h,0BFh,0C0h,07Fh,044h,05Fh,063h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,060h	;35
+	db	0FFh,000h,0FFh,000h,0FFh,060h,0FFh,0F0h
+	db	0FFh,00Fh,0F3h,013h,0F3h,013h,0FFh,01Fh	;36
+	db	0FFh,01Fh,0FFh,00Fh,0FFh,000h,0FFh,001h
+	db	0FFh,000h,0FFh,080h,0FFh,081h,0FFh,080h	;37
+	db	0FFh,080h,0FFh,000h,0FFh,000h,0FFh,0C0h
+	db	0FFh,00Fh,0FCh,03Ch,0F0h,0F0h,0C0h,0E0h	;38
+	db	0C0h,0C0h,0C0h,0C0h,0C1h,0C1h,0C3h,0C3h
+	db	00Fh,00Ch,01Fh,018h,03Fh,030h,07Fh,060h	;39
+	db	07Fh,0E0h,0FFh,0C0h,0FFh,080h,0FFh,000h
+	db	0C0h,0C0h,0C0h,0C0h,0E0h,060h,0E0h,060h	;3a
+	db	0F0h,030h,0F0h,030h,0F8h,018h,0F8h,018h
+	db	003h,003h,003h,003h,006h,006h,006h,006h	;3b
+	db	006h,006h,00Ch,00Ch,00Ch,00Ch,00Ch,00Ch
+	db	000h,060h,000h,070h,080h,070h,0C0h,038h	;3c
+	db	0E0h,01Ch,0F0h,00Ch,0F8h,006h,0FEh,001h
+	db	002h,002h,002h,002h,001h,001h,001h,001h	;3d
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	042h,042h,022h,062h,022h,022h,002h,002h	;3e
+	db	00Ch,08Ch,018h,070h,078h,000h,030h,000h
+	db	03Fh,020h,03Fh,020h,03Fh,020h,02Fh,030h	;3f
+	db	01Fh,010h,01Fh,010h,01Fh,010h,01Fh,010h
+	db	0FFh,0F8h,0E7h,0FFh,0C7h,0FEh,083h,07Eh	;40
+	db	087h,07Ch,087h,07Ch,0CFh,078h,0FFh,030h
+	db	0FEh,083h,0FCh,007h,0FCh,007h,0FCh,007h	;41
+	db	0FEh,003h,0FFh,001h,0FFh,000h,0FFh,000h
+	db	03Fh,0E0h,01Fh,0F0h,01Fh,0F0h,01Fh,0F0h	;42
+	db	03Fh,0E0h,0FFh,0C0h,0FFh,000h,0FFh,000h
+	db	0E3h,066h,0E7h,066h,0EFh,06Ch,0FFh,078h	;43
+	db	0FFh,070h,0FFh,060h,0FFh,060h,0FFh,040h
+	db	0FCh,00Ch,0FCh,00Ch,0FEh,006h,0FEh,006h	;44
+	db	0FFh,003h,0FFh,003h,0FEh,006h,0FCh,00Ch
+	db	00Ch,00Ch,00Ch,00Ch,00Ch,00Ch,00Ch,00Ch	;45
+	db	006h,006h,006h,006h,006h,006h,003h,003h
+	db	0EFh,01Ch,0FFh,023h,0CDh,043h,0CFh,04Fh	;46
+	db	0D3h,052h,083h,051h,0E3h,031h,0D6h,029h
+	db	080h,040h,0C0h,030h,0E0h,09Eh,0F8h,047h	;47
+	db	0FCh,023h,0DFh,020h,0FFh,010h,0FFh,010h
+	db	000h,000h,000h,000h,000h,000h,000h,080h	;48
+	db	000h,0E1h,001h,0FEh,0C1h,03Eh,0F3h,00Ch
+	db	000h,000h,000h,00Fh,000h,030h,000h,0C0h	;49
+	db	000h,000h,000h,000h,0C0h,000h,0F8h,007h
+	db	01Fh,010h,01Fh,010h,03Fh,0A0h,03Fh,060h	;4a
+	db	03Bh,067h,07Fh,07Ch,07Fh,060h,0FFh,080h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,07Fh,0F8h	;4b
+	db	0FFh,080h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,040h,0FFh,040h,07Fh,0C0h,0BFh,0C0h	;4c
+	db	0FFh,080h,0FFh,080h,0FFh,080h,0FFh,080h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,003h	;4d
+	db	0FFh,007h,0FCh,00Ch,0F8h,038h,0F0h,070h
+	db	0F8h,038h,0F0h,070h,0C0h,0C0h,080h,080h	;4e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	003h,003h,001h,001h,000h,000h,000h,000h	;4f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	07Fh,01Eh,0B7h,08Ch,0DDh,0C3h,067h,060h	;50
+	db	031h,038h,01Ch,01Eh,007h,007h,001h,001h
+	db	0FFh,010h,0FFh,020h,0FFh,0C0h,0FFh,000h	;51
+	db	0FFh,000h,07Fh,000h,00Fh,080h,0E0h,0F0h
+	db	0FBh,004h,0F7h,008h,0F7h,008h,0F7h,008h	;52
+	db	0F7h,008h,0FDh,04Eh,0FEh,0B6h,0FFh,095h
+	db	0F0h,00Fh,0E0h,01Fh,0C0h,03Eh,0C0h,03Ch	;53
+	db	0C0h,039h,031h,03Ah,0F3h,0F4h,0F2h,015h
+	db	0FFh,0C0h,07Fh,0C0h,0FFh,083h,03Ch,0ECh	;54
+	db	0D0h,030h,080h,040h,000h,080h,000h,001h
+	db	0FFh,000h,0FFh,07Ch,083h,083h,000h,000h	;55
+	db	000h,007h,007h,03Fh,038h,0FFh,0C0h,0FFh
+	db	0FFh,000h,0FFh,000h,0FFh,0E0h,07Fh,040h	;56
+	db	03Fh,0E0h,09Fh,0F0h,0CFh,0F8h,0EFh,0F8h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,001h	;57
+	db	0FFh,001h,0FFh,001h,0FFh,001h,0FFh,001h
+	db	0FFh,080h,0FFh,080h,0FFh,0C0h,0FFh,0F0h	;58
+	db	0BFh,0B8h,09Fh,09Ch,0BFh,0B8h,0FFh,0F0h
+	db	0C0h,0E0h,0E0h,060h,0E0h,060h,0F0h,030h	;59
+	db	0F8h,018h,0F8h,018h,0FCh,00Ch,0FCh,00Ch
+	db	07Fh,07Fh,00Fh,00Fh,000h,000h,000h,000h	;5a
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FFh,001h,0FFh,082h,0FFh,0FCh,07Fh,078h	;5b
+	db	01Fh,018h,03Fh,030h,03Fh,030h,03Fh,030h
+	db	0FEh,00Dh,0FEh,003h,0FEh,002h,0FCh,004h	;5c
+	db	0FCh,004h,0F4h,00Ch,0F8h,008h,0F8h,008h
+	db	001h,003h,002h,007h,004h,00Fh,008h,01Fh	;5d
+	db	010h,03Fh,020h,07Fh,020h,07Fh,040h,0FFh
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;5e
+	db	000h,0FFh,000h,0FFh,001h,0FFh,001h,0FFh
+	db	06Fh,0F8h,077h,0FCh,077h,0FCh,077h,0FCh	;5f
+	db	0F7h,0FCh,0EFh,0F8h,0EFh,0F8h,0EFh,0F8h
+	db	0FFh,001h,0FFh,001h,0FFh,001h,0FFh,001h	;60
+	db	0FFh,001h,0FFh,001h,0FFh,003h,0FFh,003h
+	db	0FFh,0C0h,037h,0C8h,023h,0DFh,00Fh,0FFh	;61
+	db	00Ch,0FCh,03Ch,0FCh,0FCh,0FCh,0C0h,0C0h
+	db	0F8h,038h,0F0h,0F0h,0C0h,0C0h,000h,000h	;62
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	03Fh,030h,03Fh,030h,01Fh,018h,01Fh,018h	;63
+	db	00Fh,00Ch,007h,006h,003h,003h,001h,001h
+	db	0F8h,008h,0F8h,008h,0F8h,009h,0F4h,00Dh	;64
+	db	0FCh,005h,0FCh,005h,0FEh,08Eh,0FEh,0C6h
+	db	040h,0FFh,040h,0FFh,080h,0FFh,080h,0FFh	;65
+	db	080h,0FFh,0E1h,0FFh,07Fh,0FFh,07Fh,0FFh
+	db	003h,0FFh,007h,0FFh,00Fh,0FFh,01Fh,0FFh	;66
+	db	07Eh,0FFh,0FDh,0FFh,0FBh,0FFh,0E7h,0FFh
+	db	0DFh,0F0h,0DFh,0F0h,0BFh,0E0h,07Fh,0C0h	;67
+	db	0FFh,080h,0FFh,000h,0FFh,0C0h,0FFh,0F8h
+	db	0FFh,003h,0FEh,006h,0FEh,006h,0FCh,00Ch	;68
+	db	0F8h,018h,0F0h,070h,0E0h,0E0h,0E0h,060h
+	db	007h,007h,00Fh,00Eh,01Fh,019h,01Fh,01Fh	;69
+	db	007h,007h,001h,001h,000h,000h,000h,000h
+	db	0FFh,083h,0FFh,003h,0FFh,08Fh,0FCh,03Ch	;6a
+	db	0F0h,0F0h,0C0h,0C0h,000h,000h,000h,000h
+	db	03Fh,0FFh,0E0h,0FFh,07Fh,07Fh,01Fh,01Fh	;6b
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	01Eh,0FEh,0F8h,0F8h,0E0h,0E0h,000h,000h	;6c
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	07Fh,060h,07Fh,060h,03Fh,033h,03Fh,039h	;6d
+	db	01Fh,01Fh,007h,007h,000h,000h,000h,000h
+	db	0E0h,060h,0F0h,030h,0F8h,018h,0FCh,02Ch	;6e
+	db	0FCh,0FCh,0F0h,0F0h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;6f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,01Fh,01Fh,028h,028h	;70
+	db	020h,030h,020h,020h,020h,021h,020h,021h
+	db	030h,030h,0C8h,0C8h,008h,008h,00Ch,004h	;71
+	db	002h,002h,002h,002h,022h,062h,071h,071h
+	db	060h,070h,0D0h,090h,0C8h,088h,0C4h,084h	;72
+	db	0C4h,084h,0E2h,082h,072h,042h,07Dh,041h
+	db	000h,020h,000h,030h,010h,010h,008h,008h	;73
+	db	004h,004h,004h,004h,003h,003h,000h,000h
+	db	0B1h,0B1h,031h,0B1h,082h,062h,08Ch,004h	;74
+	db	02Ch,034h,07Eh,062h,0B1h,0A1h,040h,040h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;75
+	db	000h,000h,000h,000h,000h,000h,0C0h,0C0h
+	db	03Ch,020h,01Eh,010h,00Fh,00Ch,003h,003h	;76
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	080h,080h,080h,080h,040h,040h,0A0h,0A0h	;77
+	db	050h,050h,050h,050h,028h,028h,028h,028h
+	db	040h,040h,090h,090h,0A8h,0A8h,048h,048h	;78
+	db	008h,008h,004h,004h,004h,004h,003h,003h
+
+ ifn  pm_jmsg	; 以下は“しょうじょう”キャラクタ領域に移動した。
+	db	020h,020h,010h,010h,01Fh,00Fh,03Ch,000h	;79 ; ミュウのしっぽと足
+	db	03Fh,00Fh,07Eh,006h,0B5h,0B5h,01Ah,01Ah
+	db	000h,000h,000h,000h,080h,080h,060h,060h	;7a
+	db	098h,098h,067h,067h,098h,098h,067h,0E7h
+	db	014h,014h,014h,014h,014h,014h,028h,028h	;7b
+	db	068h,068h,090h,090h,060h,060h,080h,080h
+	db	08Ah,0BAh,085h,0B5h,042h,042h,022h,022h	;7c
+	db	021h,027h,011h,01Fh,009h,00Fh,006h,006h
+	db	010h,0D0h,008h,008h,084h,08Ch,042h,05Eh	;7d
+	db	022h,03Eh,01Ch,01Ch,000h,000h,000h,000h
+	db	000h,000h,000h,000h,010h,010h,000h,000h	;7e ; ':'
+	db	000h,000h,010h,010h,000h,000h,000h,000h
+ else
+	; 枠のキャラクタ（プリントアウトウィンドウ用）
+	DEFB	$00,$00,$18,$18,$2D,$2D,$7E,$7E,$42,$42,$25,$25,$1A,$1A,$14,$14
+	DEFB	$00,$00,$00,$00,$FF,$FF,$00,$00,$FF,$FF,$FF,$FF,$00,$00,$00,$00
+	DEFB	$00,$00,$18,$18,$AC,$AC,$7E,$7E,$42,$42,$A4,$A4,$58,$58,$28,$28
+	DEFB	$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28
+	DEFB	$14,$14,$1A,$1A,$2D,$2D,$7E,$7E,$42,$42,$25,$25,$18,$18,$00,$00
+	DEFB	$28,$28,$58,$58,$AC,$AC,$7E,$7E,$42,$42,$A4,$A4,$18,$18,$00,$00
+ endif
+
+;===============================================================
+;	STATUS MAP MAKE
+;===============================================================
+StatusMapMake:
+	call	pal_off_put_wait	; (BGP),(OBP0),(OBP1) = 0  , ３フレーム待ち
+	call	dvram_cls		; dmy_vram[] = spc@ クリア 
+	call	set_gauge		; ＨＰゲージバーのキャラクタをロード
+
+	ld	de,HP_Mark		; BGchrNo.72 に "HP" キャラクタをロード
+	ld	hl,r@*10h+09000h	;
+	ld	bc,G_BANK3a*100h+1	;
+	call	fontmove 
+	ld	de,Level_Mark		; BGchrNo.6E に "Lv" キャラクタをロード
+	ld	hl,o@*10h+09000h	;
+	ld	bc,G_BANK3a*100h+1	;
+	call	fontmove 
+
+	xor	a			;
+	ld	(all_put_req),a		; all_put_req = 0
+
+	xor	a
+	ld	(my_or_gein),a
+	call	set_monsdata_dmy
+
+	SET_WIN_POS	0,0,19,17
+	call	put_window
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS	0,12,19,17
+ else
+	SET_WIN_POS	10,8,19,17
+ endif
+	call	put_window
+
+ ifn	ASSEMBLE__ENGLISH
+ 	S_POS	3,10
+	call	put_level
+	S_POS	2,10
+	ld	a, o@
+	ld	(hli),a			; S_POS(2,10) = "Lv"
+	ld	(hl),spc@		; S_POS(3,10)の位置の"Lv"を消す
+ else
+ 	S_POS	10,4			; レベルの表示  "Lv100"
+	call	put_level		;
+ endif
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	2,11
+	ld	(hl),r@
+	S_POS	4,11
+ else
+	S_POS	15,4			; MAX HPの表示  "HP999"
+	ld	(hl),r@			;
+	inc	hl			;
+ endif
+	ld	de,monsdata_dmy + 34	;Life MAX
+	ld	bc,00203h		;
+	call	put_dec			;
+	
+	ld	a,(mons_data)
+	ld	(in_dat),a
+	ld	(tbl_pos),a
+	
+	ld	hl,my_cap_name
+	call	get_address$
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	8,2			; ポケモンニックネームを表示
+	call	put_msg
+	call	get_mons_name
+
+	S_POS	9,3			; ポケモン名を表示
+	call	put_msg
+ else
+	S_POS	8,2			; ポケモンニックネームを表示
+	call	put_msg
+
+	S_POS	13,2			;
+	ld	(hl),sura@		; ‘／’
+
+	call	get_mons_name
+	S_POS	14,2			; ポケモン名を表示
+	call	put_msg
+ endif
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+
+	S_POS	2,8			; ポケモン番号を表示 "No.001"
+	ld	(hl),No@		;
+	inc	hl			;
+	ld	(hl),dot@		;
+	inc	hl			;
+	ld	de,in_dat		;
+	ld	bc,8103h		;
+	call	put_dec			;
+	
+ ifn	ASSEMBLE__ENGLISH
+	SET_MSG_POS 8,4,mc_ms1$
+ else
+	SET_MSG_POS 10,6,mc_ms1$	;“おや／”を表示
+ endif
+	call	put_msg
+	ld	hl,my_cap_oya
+	call	get_address$
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	9,5
+ else
+	S_POS	14,6			; おや名を表示
+ endif
+	call	put_msg
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_MSG_POS 9,6,mc_ms2$
+	call	put_msg
+	S_POS	13,6
+ else
+	SET_MSG_POS 10,7,mc_ms2$	;”IDNo／”を表示
+	call	put_msg
+	S_POS	14,7
+ endif
+	ld	de,monsdata_dmy + 12
+	ld	bc,08205h
+	call	put_dec
+ 
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	9,8
+	ld	de,mc_ms3$
+	ld	a,(us_display_flg)
+	set	PUT_MSG_CR@_BIT,a
+	ld	(us_display_flg),a		; cr@ を HL += 20 にする
+	call	put_msg
+	ld	a,(us_display_flg)
+	res	PUT_MSG_CR@_BIT,a		; cr@ を元に戻す (HL += 40)
+	ld	(us_display_flg),a
+ else
+	S_POS	1,10			;“こうげき、ぼうぎょ、すばやさ、とくしゅ”の表示
+	ld	de,mc_ms3$		;
+	call	put_msg			; Strings for Left_Window
+ endif
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	16,8
+ else
+	S_POS	6,10			; 値の表示（攻撃、防御、すばやさ、特殊）
+ endif
+	ld	de,monsdata_dmy + 36
+	ld	a,4
+status_put_loop$:
+	push	af
+	push	de
+	push	hl
+
+	ld	bc,00203h
+	call	put_dec			;Print Monster Status
+
+	pop	hl
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,20
+ else
+	ld	bc,40
+ endif
+	add	hl,bc
+	pop	de
+	inc	de
+	inc	de
+	pop	af
+	dec	a
+	jr	nz,status_put_loop$
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	1,13			; わざ名の表示
+	ld	a,(monsdata_dmy+8)	;
+	call	WazaNameGet$		;
+	S_POS	1,14			;
+	ld	a,(monsdata_dmy+9)	;
+	call	WazaNameGet$		;
+	S_POS	1,15			;
+	ld	a,(monsdata_dmy+10)	;
+	call	WazaNameGet$		;
+	S_POS	1,16			;
+	ld	a,(monsdata_dmy+11)	;
+	call	WazaNameGet$		;
+ else
+	S_POS	11,10			; わざ名の表示
+	ld	a,(monsdata_dmy+8)	;
+	call	WazaNameGet$		;
+	S_POS	11,12			;
+	ld	a,(monsdata_dmy+9)	;
+	call	WazaNameGet$		;
+	S_POS	11,14			;
+	ld	a,(monsdata_dmy+10)	;
+	call	WazaNameGet$		;
+	S_POS	11,16			;
+	ld	a,(monsdata_dmy+11)	;
+	call	WazaNameGet$		;
+ endif
+	ld	b,COL_ZUKAN			;COL_CARD -> COL_ZUKANに変更。バグ修正（村川）
+	call	color_set
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	call	palset
+
+	S_POS	1,1			; ポケモンの絵を表示
+	call	prt_mons_chr		;
+	ret
+
+get_address$:
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, MONS_NAME_LEN
+ else
+	ld	bc,6
+ endif
+	ld	a,(sel_item_pos)
+	call	mul_any
+	ld	e,l
+	ld	d,h
+	ret
+
+WazaNameGet$:
+	and	a
+	jr	z,non_data$
+	ld	(in_dat),a
+	call	get_waza_name
+	jr	waza_put$
+non_data$:
+	ld	de,NonDataMSG$
+waza_put$:
+	call	put_msg
+	ret
+
+ ifn  pm_jmsg
+mc_ms1$:
+	db	o_,ya_,sura@		; おや／
+	db	EOM
+mc_ms2$:
+	db	id@,No@,sura@		; IDNo／
+	db	EOM
+mc_ms3$:
+	db	ko_,u_,ge_,ki_,cr@	; こうげき
+	db	bo_,u_,gi_,yyo_,cr@	; ぼうぎょ
+	db	su_,ba_,ya_,sa_,cr@	; すばやさ
+	db	to_,ku_,si_,yyu_	; とくしゅ
+	db	EOM
+NonDataMSG$
+	db	bou@,bou@,bou@,bou@,bou@,bou@,bou@	; －－－－－－－
+  ifn	ASSEMBLE__ENGLISH
+	db	bou@,bou@,bou@,bou@,bou@,bou@,bou@	; －－－－－－－
+  endif
+	db	EOM
+ else
+
+mc_ms1$:
+	db	usf_o,usf_t,sura@	; ＯＴ／
+	db	EOM
+mc_ms2$:
+	db	id@,No@,sura@		; IDNo／
+	db	EOM
+mc_ms3$:
+	db	usf_a,usf_t,usf_t,usf_a,usf_c,usf_k,cr@		; ATTACK
+	db	usf_d,usf_e,usf_f,usf_e,usf_n,usf_s,usf_e,cr@	; DEFENSE
+	db	usf_s,usf_p,usf_e,usf_e,usf_d,cr@		; SPEED
+	db	usf_s,usf_p,usf_e,usf_c,usf_i,usf_a,usf_l	; SPECIAL
+	db	EOM
+NonDataMSG$
+	db	bou@,bou@,bou@,bou@,bou@,bou@,bou@	; －－－－－－－
+  ifn	ASSEMBLE__ENGLISH
+	db	bou@,bou@,bou@,bou@,bou@,bou@,bou@	; －－－－－－－
+  endif
+	db	EOM
+ endif
+
+
+HP_Mark:
+	db	000h,000h,000h,0AEh,0AAh,0EEh,0A8h,0A8h
+Level_Mark:
+	db	000h,000h,000h,080h,08Ah,08Ah,08Ah,0E4h
+
+
+
+
+
+
+
+;-----------FOR DEBUG------------------------------------------
+;===============================================================
+;	PRINTER_STATUS
+;===============================================================
+PrinterStatusInit2:
+	ld	hl,8fe0h
+	ld	de,data$
+	ld	bc,G_BANK3a*100h+2
+	call	chrmove
+
+	ld	hl,4*32+oam_buf
+	ld	a,08h
+	ld	c,8
+loop$:
+	ld	(hl),10h
+	inc	hl
+	ld	(hl),a
+	inc	hl
+	ld	(hl),0feh
+	inc	hl
+	ld	(hl),00h
+	inc	hl
+	
+	add	a,8
+	
+	dec	c
+	jr	nz,loop$
+
+	ret
+
+data$:
+	db	000h,000h,03Ch,03Ch,066h,066h,066h,066h
+	db	066h,066h,066h,066h,03Ch,03Ch,000h,000h
+	db	000h,000h,018h,018h,038h,038h,018h,018h
+	db	018h,018h,018h,018h,018h,018h,000h,000h
+
+PrinterStatusPut2:
+	ld	hl,4*32+oam_buf+2
+	ld	de,004h
+	ld	a,(PrinterStatus+1)
+	ld	c,8
+loop$:
+	sla	a
+	jr	c,num1put$
+num0put$:
+	ld	(hl),0feh
+	jr	next$
+num1put$:
+	ld	(hl),0ffh
+next$:
+	add	hl,de
+
+	dec	c
+	jr	nz,loop$
+end$:
+	ret
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;===============================================================
+;
+;	MAIN
+;
+;===============================================================
+	public	PrintOutMain2
+PrintOutMain2:
+	ld	a,(SeqNo)
+	ld	e,a
+	ld	d,00h
+	ld	hl,SeqTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)				; jp	SeqTable$[SeqNo*2]
+SeqTable$:
+	ef_initndw
+
+	ef_ndw		PO_Initialize,PRTOUT_ConnectCheckNo		; 初期化・接続パケットを送信
+	ef_inc_ndw	PO_ConnectCheck					; 接続チェック
+	ef_inc_ndw	PO_Wait100ms					; １００ｍｓ待ち
+
+	ef_ndw		PO_PrintDataTrans,PRTOUT_PrintDataTransNo	; 横２０×縦２キャラ分データパケットを送信
+	ef_inc_ndw	PO_NextCheck					; エラーチェック		
+	ef_inc_ndw	PO_DataTransWait100ms				; １００ｍｓ待ち
+
+	ef_ndw		PO_PrintDataTransEND,PRTOUT_PrintDataTransENDNo	; データエンドパケットを送信
+	ef_inc_ndw	PO_NextCheck					; エラーチェック
+	ef_inc_ndw	PO_Wait100ms					; １００ｍｓ待ち
+
+	ef_ndw		PO_PrintInstruct,PRTOUT_PrintInstructNo		; 印字指示パケットを送信
+	ef_inc_ndw	PO_NextCheck					; エラーチェック
+	ef_inc_ndw	PO_Wait100ms					; １００ｍｓ待ち
+
+	ef_inc_ndw	PO_EndCheck					; エラーチェック
+	ef_ndw		PO_END,PRTOUT_ENDNo				; 終了処理  SeqNo.<7> = 1
+
+	ef_ndw		PO_Retry,PRTOUT_Retry2No			; SeqNo++
+	ef_inc_ndw	PO_Wait100ms					; １００ｍｓ待ち
+	ef_inc_ndw	PO_Loop						; SeqNo = 0
+
+	ef_ndw		PO_Error,PRTOUT_Error2No			; SeqNo++ , エラーチェック
+	ef_inc_ndw	PO_ErrorWait					; エラーチェック
+
+SeqNoInc:					;
+	ld	hl,SeqNo			; SeqNo++
+	inc	(hl)				;
+	ret					;
+
+
+SeqNoDec:					;
+	ld	hl,SeqNo			; SeqNo--
+	dec	(hl)				;
+	ret					;
+
+PO_END:
+	xor	a				;
+	ld	(PrinterStatus+1),a		; PrinterStatus[1] = 0
+	ld	hl,SeqNo			;
+	set	7,(hl)				; SeqNo.<7> = 1
+	ret
+
+PO_Retry:
+	call	SeqNoInc			; SeqNo++
+	ret					;
+
+PO_Loop:
+	xor	a				;
+	ld	(SeqNo),a			; SeqNo = 0
+	ret					;
+
+
+PO_Initialize:
+	call	ClearBuffer			; バッファを０クリアー
+
+	ld	hl,InitializeHeader		; 初期化パケットのヘッダ部をセット
+	call	HeaderSet			;
+
+	xor	a
+	ld	(PSIO_TransDataCounter+0),a	;
+	ld	(PSIO_TransDataCounter+1),a	; データバイト数 = 0
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(TransMaxLine)
+ else
+	ld	a,9				; (TransCounter) = 9 （転送データ１画面分のライン数)
+ endif
+	ld	(TransCounter),a		;DATA Lots(Use Next Sequence)
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+
+	ld	a,ConnectCheckMSGNo		; ”せつぞくかくにん ちゅう”
+	ld	(PrinterStatusMSGNo),a
+	ret
+
+	public	PO_PrintDataTrans
+PO_PrintDataTrans:
+	call	ClearBuffer			; バッファを０クリアー
+
+	ld	hl,TransCounter			;
+	ld	a,(hl)				; if (TransCounter == 0)
+	and	a				;   goto  PO_PrintDataTransEnd
+	jr	z,PO_PrintDataTransEnd		;
+
+	ld	hl,DataTransHeader		; データパケットのヘッダ部をセット
+	call	HeaderSet			;
+
+	call	MakeData			; 横２０×縦２キャラ分（２８０Ｈバイト）
+						; の転送データを作成する
+	ld	a,80h				;
+	ld	(PSIO_TransDataCounter+0),a	; データバイト数 = 0x280
+	ld	a,02h				;
+	ld	(PSIO_TransDataCounter+1),a	;
+	call	SumCheckCalc			; サムチェックの計算
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+
+	ld	a,DataTransMSGNo		; ”データてんそう ちゅう”
+	ld	(PrinterStatusMSGNo),a
+	ret
+
+PO_PrintDataTransEnd:
+	ld	a,PRTOUT_PrintDataTransENDNo	; SeqNo = PRTOUT_PrintDataTransENDNo
+	ld	(SeqNo),a			;
+
+	ld	hl,DataEndHeader		; データエンドパケットのヘッダ部をセット
+	call	HeaderSet
+
+	xor	a
+	ld	(PSIO_TransDataCounter+0),a	; データバイト数 = 0
+	ld	(PSIO_TransDataCounter+1),a	;
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+	ret
+
+PO_PrintInstruct:
+	call	ClearBuffer			; バッファを０クリアー
+
+	ld	hl,PrintOutHeader		; 印字指示パケットのヘッダ部をセット
+	call	HeaderSet			;
+
+	call	MakePrintData			; 印字指示データの作成
+	ld	a,04h				;（枚数、フィード数、パレット、印字濃度）
+	ld	(PSIO_TransDataCounter+0),a	;
+	ld	a,00h				; データバイト数 = 4
+	ld	(PSIO_TransDataCounter+1),a	;
+	call	SumCheckCalc			; サムチェックの計算
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+
+	ld	a,PrintOutMSGNo			;”プリントアウト ちゅう”
+	ld	(PrinterStatusMSGNo),a
+	ret
+
+PO_Wait100ms:					; １００ｍｓ待ち
+	ld	hl,WaitCount			; if (WaitCount < 6)
+	inc	(hl)				;    return
+	ld	a,(hl)				; else {
+	cp	6				;    WaitCount = 0
+	ret	c				;
+	xor	a				;    SeqNo++
+	ld	(hl),a				; }
+	call	SeqNoInc			; 
+	ret					;
+
+PO_DataTransWait100ms:
+	ld	hl,WaitCount
+	inc	(hl)
+	ld	a,(hl)
+	cp	6				; if (WaitCount < 6)
+	ret	c				;    return
+	xor	a				; else {
+	ld	(hl),a				;    WaitCount = 0
+						;
+	ld	hl,TransCounter			;    TransCounter--
+	dec	(hl)
+
+	call	SeqNoDec			;    SeqNo--
+	call	SeqNoDec			;    SeqNo--
+	ret					; }
+
+PO_ConnectCheck:
+	call	TransInCheck			; if(パケット転送中)
+	ret	c				; 	return
+						;
+	ld	a,(PrinterStatus+0)		;
+	cp	0ffh				; if (PrinterStatus == 0xFFFF){
+	jr	nz,pass$			;	SeqNo = PRTOUT_Retry2No
+	ld	a,(PrinterStatus+1)		;	return
+	cp	0ffh				; }
+	jr	z,connect_error$		;
+pass$:						;
+	ld	a,(PrinterStatus+0)		; if (PrinterStatus != 0x8100){
+	cp	081h				;	SeqNo = PRTOUT_Retry2No
+	jr	nz,connect_error$		;	return
+	ld	a,(PrinterStatus+1)		; }
+	cp	000h				;
+	jr	nz,connect_error$		;
+						;
+	ld	hl,ext_system+0			; Connect_Flag
+	set	1,(hl)				; ext_system.<1> = 1
+						;
+	call	SeqNoInc			; SeqNo++
+	ret					; return
+connect_error$:					;
+	ld	a,PRTOUT_Retry2No		;
+	ld	(SeqNo),a			;
+	ret					;
+
+	public	PO_NextCheck
+PO_NextCheck:
+	call	TransInCheck			; if (パケット転送中)
+	ret	c				;	return
+						;
+	ld	a,(PrinterStatus+1)		; どれかのエラービットが立って
+	and	11110000b			; いる場合
+	jr	nz,Error$			;	SeqNo = PRTOUT_Error2No
+						;
+	ld	a,(PrinterStatus+1)		; サムチェックエラーの場合
+	and	00000001b			;	SeqNo--
+	jr	nz,retry$			;
+						; 正常の場合
+	call	SeqNoInc			;	SeqNo++
+	ret					;
+retry$:						;
+	call	SeqNoDec			;
+	ret					;
+Error$:						;
+	ld	a,PRTOUT_Error2No		;
+	ld	(SeqNo),a			;
+	ret					;
+	
+PO_EndCheck:
+	call	TransInCheck			; if (パケット転送中)
+	ret	c				;	return
+						;
+	ld	a,(PrinterStatus+1)		; どれかのエラービットが立って
+	and	11110011b			; いる場合
+	ret	nz				;	return
+						;
+	call	SeqNoInc			; 正常の場合
+	ret					;	SeqNo++
+
+PO_Error:
+	call	SeqNoInc			; SeqNo++
+PO_ErrorWait:					;
+	ld	a,(ext_system+1)		; if (パケット転送中)	;In Trans
+	and	a				;	return
+	ret	nz				;
+						;
+	ld	a,(PrinterStatus+1)		; どれかのエラービットが立って
+	and	11110000b			; いる場合
+	ret	nz				;	return
+						;
+	xor	a				; 正常の場合
+	ld	(SeqNo),a			;	SeqNo = 0
+	ret
+
+;===============================================================
+;
+;	SUB
+;
+;===============================================================
+TransInCheck:
+	ld	a,(ext_system+1)		; パケット転送中？  ;In Trans
+	and	a				;   return <C> = (ext_system+1) ? 1 : 0
+	jr	nz,In_Trans$			;
+	and	a				;
+	ret					;
+In_Trans$:					;
+	scf					;
+	ret					;
+
+PO_TransStart:
+	ld	a,(ext_system+1)		; while(パケット転送中)
+	and	a				; 	;
+	jr	nz,PO_TransStart		;
+
+	ld	a,1
+	ld	(ext_system+1),a		; (ext_system+1) = 1
+
+	xor	a
+	ld	(PSIO_TransDataPointer+0),a
+	ld	(PSIO_TransDataPointer+1),a	; PSIO_TransDataPointer = 0x0000
+
+	ld	a,PREAMBLE_1			; プリアンブルデータ＄８８を送信
+	ld	(SB),a				;
+	ld	a,00000001b			;
+	ld	(SC),a				;
+	ld	a,10000001b			;
+	ld	(SC),a				;
+	ret
+
+HeaderSet:
+	ld	a,(hli)				; for (i=0 ; i<4; i++)
+	ld	(HeaderBuffer+0),a		;   HeaderBuffer[i] = *HL++;
+	ld	a,(hli)
+	ld	(HeaderBuffer+1),a
+	ld	a,(hli)
+	ld	(HeaderBuffer+2),a
+	ld	a,(hli)
+	ld	(HeaderBuffer+3),a
+
+	ld	a,(hli)				; for (i=0 ; i<2; i++)
+	ld	(CheckSumBuffer+0),a		;   CheckSumBuffer[i] = *HL++;
+	ld	a,(hl)
+	ld	(CheckSumBuffer+1),a
+	ret
+
+ClearBuffer:
+	xor	a
+	ld	hl,HeaderBuffer			; for (i=0 ; i<4 ; i++)
+	ld	(hli),a				;   HeaderBuffer[i] = 0
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,CheckSumBuffer		; for (i=0 ; i<2 ; i++)
+	ld	(hli),a				;   CheckSumBuffer[i] = 0
+	ld	(hl),a
+
+	xor	a
+	ld	(PSIO_TransDataCounter+0),a	; PSIO_TransDataCounter[]w = 0
+	ld	(PSIO_TransDataCounter+1),a
+
+	ld	hl,TransDataBuffer
+	ld	bc,280h
+	call	MemSet				; memset(TransDataBuffer, 0, 0x280)
+	ret
+	
+SumCheckCalc:					; サムチェックの計算
+	ld	hl,00h				; HL = 0
+
+	ld	bc,004h				; for (BC=4 ; BC ; BC--)
+	ld	de,HeaderBuffer			;   HL += *(HeaderBuffer)++
+	call	calc$
+
+	ld	a,(PSIO_TransDataCounter+0)	; for (BC = PSIO_TransDataCounter[]w ; BC ; BC--)
+	ld	c,a				;   HL += *(TransDataBuffer)++
+	ld	a,(PSIO_TransDataCounter+1)
+	ld	b,a
+
+	ld	de,TransDataBuffer
+	call	calc$
+
+	ld	a,l				; CheckSumBuffer[]w = HL
+	ld	(CheckSumBuffer+0),a		;
+	ld	a,h
+	ld	(CheckSumBuffer+1),a
+	ret
+calc$:						; for ( ; BC ; BC--)
+	ld	a,(de)				;   HL += *DE++
+	inc	de				;
+	add	a,l
+	jr	nc,pass$
+	inc	h
+pass$:
+	ld	l,a
+
+	dec	bc
+	ld	a,c
+	or	b
+	jr	nz,calc$
+	ret
+
+MakePrintData:
+	ld	a,1			;枚数
+	ld	(TransDataBuffer+0),a	; TransDataBuffer[0] = 1
+	ld	a,(PRT_FeedCounter)	;フィード数
+	ld	(TransDataBuffer+1),a	; TransDataBuffer[1] = PRT_FeedCounter
+	ld	a,11100100b		;パレット値
+	ld	(TransDataBuffer+2),a	; TransDataBuffer[2] = $E4
+	ld	a,(PRT_Contrast)	;印字濃度
+	ld	(TransDataBuffer+3),a	; TransDataBuffer[3] =PRT_Contrast
+	ret
+
+
+
+
+MakeData:	; 横２０×縦２キャラ分（２８０Ｈバイト）の転送データを作成する
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(TransCounter)
+	ld	b,a
+	ld	a,(TransMaxLine)		; Y POS 算出
+	sub	b				; A = TransMaxLine - TransCounter
+ else
+	ld	a,(TransCounter)
+	xor	11111111b
+	add	a,9+1				;Y_Pos Calc
+ endif						; A = 9 - TransCounter  (9:=一画面９ライン)
+	ld	hl,PRTOUT_DmyVram
+	ld	de,20*2
+loop_y$:					; HL = PRTOUT_DmyVram[]
+	and	a				; for ( ; A ; A--)
+	jr	z,next$				;    HL += 40
+	add	hl,de				;
+	dec	a				;
+	jr	loop_y$				;
+next$:
+	ld	e,l				;
+	ld	d,h				; DE = &PRTOUT_DmyVram[40*A]
+
+	ld	hl,TransDataBuffer		; HL = &TransDataBuffer[0]
+	ld	c,20*2				; 転送個数：横２０×縦２キャラ分
+set_loop$:
+	ld	a,(de)				;
+	inc	de				; a = *(DE)++
+
+	push	bc
+	push	de
+	push	hl
+;	=================  BG ChrNo. から ＶＲＡＭのアドレスを求める 
+	swap	a			; BG ChrNo.と ＶＲＡＭアドレスは
+	ld	d,a			; ChrNo.80~FFh : $8800~8FFF
+	and	11110000b		; ChrNo.00~7Fh : $9000~97FF に対応する
+	ld	e,a			; e == (DE)下位４ビット
+	ld	a,d
+	and	00001111b
+	ld	d,a			; d == (DE)上位４ビット
+	and	00001000b
+	ld	a,d
+	jr	nz,set2$
+set1$:
+	or	10010000b			;ChrNo. 000h~07Fh = 09xxxh
+	jr	set$
+set2$:
+	or	10000000b			;ChrNo. 080h~0FFh = 08xxxh
+set$:
+	ld	d,a			; DE = VRAMｱﾄﾞﾚｽ(BG ChrNo.)
+;	=================
+	ld	bc,G_BANK3a*100h+001h		; B:バンク , C:キャラクタ個数
+	call	chrmove				; HL:転送先 , DE:転送元
+
+	pop	hl				;
+	ld	de,10h				; HL += 16  (16 byte/chr)
+	add	hl,de				;
+	pop	de
+	pop	bc
+	dec	c
+	jr	nz,set_loop$
+
+	call	OAMcompose
+	ret
+	
+
+
+
+PRTOUT_OAMwork		equ	ram_map+1300-20h
+PRTOUT_OAMwork2		equ	10h+PRTOUT_OAMwork
+
+	public	OAMcompose
+OAMcompose:
+	ld	hl,PRTOUT_OAMwork
+	ld	bc,20h
+	xor	a
+	call	memset
+
+	ld	hl,oam_buf
+	ld	c,40
+main_loop1$
+	push	bc
+	push	hl
+
+	call	OBJPosCheck1
+	jr	nc,next1$
+	
+	call	OBJCGXget
+
+	call	ATTRConvert
+	call	PalConvert
+
+	call	BufferCompose1
+next1$:
+	pop	hl
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl
+	pop	bc
+	dec	c
+	jr	nz,main_loop1$
+	ret
+	
+OBJPosCheck1:
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(TransCounter)
+	ld	b,a
+	ld	a,(TransMaxLine)		; Y POS 算出
+	sub	b				; A = TransMaxLine - TransCounter
+ else
+	ld	a,(TransCounter)
+	xor	11111111b
+	add	a,9+1				;Y_Pos Calc
+ endif						; A = 9 - TransCounter  (9:=一画面９ライン)
+	ld	c,a
+
+	ld	b,10h
+loop_y$:
+	ld	a,c
+	and	a
+	jr	z,next$
+	ld	a,b
+	add	a,10h
+	ld	b,a
+	dec	c
+	jr	loop_y$
+next$:
+	ld	a,b
+	ld	e,a
+	add	a,10h
+	ld	d,a
+	
+	ld	a,(hl)
+	cp	e
+	jr	c,no_frame$
+	cp	d
+	jr	nc,no_frame$
+	scf
+	ret
+no_frame$:
+	and	a
+	ret
+
+OBJCGXget:
+	push	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	swap	a
+	ld	d,a
+	and	11110000b
+	ld	e,a
+	ld	a,d
+	and	00001111b
+	or	10000000b			;ChrNo. 000h~0FFh = 08xxxh
+	ld	d,a
+
+	ld	hl,PRTOUT_OAMwork
+	ld	bc,G_BANK3a*100h+001h
+	call	chrmove
+	pop	hl
+	ret
+
+ATTRConvert:
+	push	hl
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	call	ConvCheck$
+	pop	hl
+	ret
+ConvCheck$:
+	and	01100000b
+	swap	a
+	ld	e,a
+	ld	d,00h
+	ld	hl,ConvTable$
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+ConvTable$:
+	dw	NoConv$
+	dw	HConv$
+	dw	VConv$
+	dw	HVConv$
+NoConv$:
+	ret
+HConv$:
+	call	HcovMain$
+	ret
+VConv$:
+	call	VcovMain$
+	ret
+HVConv$:
+	call	HcovMain$
+	call	VcovMain$
+	ret
+HcovMain$:
+	ld	hl,PRTOUT_OAMwork
+	ld	c,10h
+Hloop$:
+	ld	d,(hl)
+	ld	a,00h
+	ld	b,08h
+Hshift$:
+	sla	d
+	rr	a
+	dec	b
+	jr	nz,Hshift$
+	ld	(hli),a
+	dec	c
+	jr	nz,Hloop$
+	ret
+VcovMain$:
+	ld	hl,PRTOUT_OAMwork
+	ld	de,PRTOUT_OAMwork+14
+	ld	c,4
+Vloop$:
+	ld	b,(hl)
+	ld	a,(de)
+	ld	(hli),a
+	ld	a,b
+	ld	(de),a
+	inc	de
+	ld	b,(hl)
+	ld	a,(de)
+	ld	(hli),a
+	ld	a,b
+	ld	(de),a
+	dec	de
+	dec	de
+	dec	de
+
+	dec	c
+	jr	nz,Vloop$
+	ret
+
+PalConvert:
+	push	hl
+	ld	hl,PRTOUT_OAMwork
+	ld	de,PRTOUT_OAMwork2
+	ld	a,008h
+loop$:
+	push	af
+
+	ld	bc,00h
+	ld	a,008h
+loop1$:
+	push	af
+	xor	a
+	rlc	(hl)
+	rl	a
+	inc	hl
+	rlc	(hl)
+	rl	a
+	dec	hl
+
+	push	hl
+	push	de
+	call	PalConvMain$
+	pop	de
+	pop	hl
+
+	pop	af
+	dec	a
+	jr	nz,loop1$
+
+	inc	hl
+	inc	hl
+	ld	a,b
+	ld	(de),a
+	inc	de
+	ld	a,c
+	ld	(de),a
+	inc	de
+
+	pop	af
+	dec	a
+	jr	nz,loop$
+	pop	hl
+	ret
+PalConvMain$:
+	call	OBPCheck$
+	call	OBPConv$
+	ret
+OBPCheck$:
+	ld	e,a
+	ld	d,00h
+	ld	hl,table1$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+table1$:
+	dw	CheckPal00$
+	dw	CheckPal10$
+	dw	CheckPal01$
+	dw	CheckPal11$
+CheckPal00$:
+	ld	a,(OBP0)
+	and	00000011b
+	ret
+CheckPal01$:
+	ld	a,(OBP0)
+	and	00001100b
+	srl	a
+	srl	a
+	ret
+CheckPal10$:
+	ld	a,(OBP0)
+	and	00110000b
+	swap	a
+	ret
+CheckPal11$:
+	ld	a,(OBP0)
+	and	11000000b
+	rlca
+	rlca
+	ret
+OBPConv$:
+	ld	e,a
+	ld	d,00h
+	ld	hl,table2$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+table2$:
+	dw	SetPal00$
+	dw	SetPal01$
+	dw	SetPal10$
+	dw	SetPal11$
+SetPal00$:
+	sla	b
+	sla	c
+	ret
+SetPal01$:
+	scf
+	rl	b
+	sla	c
+	ret
+SetPal10$:
+	sla	b
+	scf
+	rl	c
+	ret
+SetPal11$:
+	scf
+	rl	b
+	scf
+	rl	c
+	ret
+	
+BufferCompose1:
+	push	hl
+	ld	a,(hli)
+	ld	c,(hl)
+	and	00001000b
+	jr	nz,Line2$
+Line1$:
+	ld	hl,TransDataBuffer+000h
+	jr	set$
+Line2$:
+	ld	hl,TransDataBuffer+140h
+set$
+	ld	b,00h
+	ld	a,c
+	and	11111000b
+	sub	8
+	ld	c,a
+	sla	c
+	rl	b
+	add	hl,bc
+	ld	e,l
+	ld	d,h
+
+	ld	hl,PRTOUT_OAMwork2
+	ld	c,8
+set_loop$:
+	call	MaskGet$
+
+	ld	a,(de)
+	and	b
+	or	(hl)
+	ld	(de),a
+
+	inc	hl
+	inc	de
+
+	ld	a,(de)
+	and	b
+	or	(hl)
+	ld	(de),a
+
+	inc	hl
+	inc	de
+	dec	c
+	jr	nz,set_loop$
+	pop	hl
+	ret
+MaskGet$:
+	push	hl
+	push	de
+
+	ld	de,-10h
+	add	hl,de
+	ld	a,(hli)
+	or	(hl)
+	xor	11111111b
+	ld	b,a
+
+	pop	de
+	pop	hl
+	ret
+
+
+	
+	
+
+;----------TEST----------------------------------------
+	
+
+	
+
+;===============================================================
+;
+;	DATA
+;
+;===============================================================
+InitializeHeader:
+	db	001h,000h,000h,000h,001h,000h
+PrintOutHeader:
+	db	002h,000h,004h,000h,000h,000h
+DataTransHeader:
+	db	004h,000h,080h,002h,000h,000h
+DataEndHeader:
+	db	004h,000h,000h,000h,004h,000h
+BreakHeader:
+	db	008h,000h,000h,000h,008h,000h
+NULLHeader:
+	db	00Fh,000h,000h,000h,00Fh,000h
+
+
+
+;-----------FOR DEBUG------------------------------------------
+	
+
+	
+
+
+

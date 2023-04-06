@@ -1,0 +1,941 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	dealer.def
+	include	macro.h
+	include	group.def
+
+
+bank14	group	G_BANK14
+
+
+	public	d10_room1_6f
+
+	extern	table_jump
+	extern	bank_push_call
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stopping
+	extern	capsule_item
+	extern	acttbl_h_adrs
+	extern	acttbl_l_adrs
+	extern	SetActorSite
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+	extern	CheckAssignPos
+	extern	musraibaru
+	extern	direct_play
+	extern	put_wait
+
+	extern	D10R1F6msg9
+	extern	MusicStop
+
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+HITOKAGE		equ	176
+ZENIGAME		equ	177
+FUSIGIDANE		equ	153
+
+
+seq_d10r1f6	equ	seq_ctrl_buf + 58h
+
+
+d10_room1_6f:
+ysiz	=	9
+xsiz	=	13
+	db	BUILDING_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	silf_4f			; map data adrs
+	dw	msg_d10r1f6		; message tbl adrs
+	dw	ev_d10r1f6		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d10r1f6
+
+
+ev_d10r1f6:
+	call	init$
+
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d10r1f6_tbl
+	ld	a,(seq_d10r1f6)
+	call	battle_sequence
+	ld	(seq_d10r1f6),a
+
+	ret
+
+
+init$:
+	ld	hl,ptn_data
+	bit	5,(hl)
+	res	5,(hl)
+	ret	z
+
+	ld	hl,where
+	call	check_where
+	call	each_map_door
+
+	ld	a,(ev_d10 + 11)
+	bit	4,a
+	jr	nz,next_door1$
+
+	push	af
+
+	ld	a,054h + 000h
+	ld	(el_c),a
+	ld	bc,3 * 256 + 5
+	ld	a,B_BGCELL_CHANGE
+	call	bank2bank
+
+	pop	af
+
+next_door1$:
+	bit	5,a
+	jr	nz,next_door2$
+
+	push	af
+
+	ld	a,054h + 000h
+	ld	(el_c),a
+	ld	bc,2 * 256 + 10
+	ld	a,B_BGCELL_CHANGE
+	call	bank2bank
+
+	pop	af
+
+next_door2$:
+	bit	6,a
+	ret	nz
+
+	ld	a,054h + 000h
+	ld	(el_c),a
+	ld	bc,6 * 256 + 10
+	ld	a,B_BGCELL_CHANGE
+	jp	bank2bank
+
+
+where:
+	db	3,5				; door-1
+	db	2,10				; door-2
+	db	6,10				; door-3
+	db	0ffh
+
+
+check_where:
+	push	hl
+
+	ld	hl,checker_flag + 0
+	ld	a,(hli)
+	ld	b,a				; mapscloll_y
+	ld	a,(hl)
+	ld	c,a				; mapscloll_x
+
+	xor	a
+	ld	(DA_BUF + 5),a
+
+	pop	hl
+
+lp$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,exit$
+
+	push	hl
+
+	ld	hl,DA_BUF + 5			; 1-origin value(result)
+	inc	(hl)
+
+	pop	hl
+
+	cp	b
+	jr	z,ok$
+
+	inc	hl
+
+	jr	lp$
+
+
+ok$:
+	ld	a,(hli)
+	cp	c
+	jr	nz,lp$
+
+	ld	hl,checker_flag + 0
+	xor	a
+	ld	(hli),a
+	ld	(hl),a
+
+	ret
+
+
+exit$:
+	xor	a
+	ld	(DA_BUF + 5),a
+
+	ret
+
+
+each_map_door:
+	ld	hl,ev_d10 + 11
+
+	ld	a,(DA_BUF + 5)
+	and	a
+	ret	z
+
+	cp	1
+	jr	nz,d2$
+
+	set	4,(hl)
+
+	ret
+
+
+d2$:
+	cp	2
+	jr	nz,d3$
+
+	set	5,(hl)
+
+	ret
+
+
+d3$:
+	set	6,(hl)
+
+	ret
+
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+
+next_seq:
+	ld	(seq_d10r1f6),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+
+d10r1f6_tbl:
+	initndw	battle_blanch,seq_battle_blanch
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+	ndw	NearStep,SeqNearStep
+	ndw	VsAfter,SeqVsAfter
+	ndw	AwayStep,SeqAwayStep
+
+
+battle_blanch:
+	ld	a,(ev_d10 + 10)
+	bit	0,a
+	jp	nz,battle_main
+
+	ld	hl,cross$
+	call	CheckAssignPos
+	jp	nc,battle_main
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,4
+	ld	(watashi_muki),a
+
+	call	MusicStop
+
+no_bank_change$:
+	ld	c,MUSIC_BANK1_NO
+	ld	a,musraibaru
+	call	direct_play
+
+  ifn	0
+	ld	a,(usr_buf + 0)
+	ld	(event_check),a
+	cp	1
+	jr	nz,ex$
+
+	ld	a,MsgRival
+	ld	(work1),a
+	ld	a,04h
+	ld	(work0),a
+	call	acttbl_l_adrs
+	push	hl
+	ld	(hl),08ch			; renewal y-position
+	inc	hl
+	inc	hl
+	ld	(hl),030h			; renewal x-position
+	pop	hl
+	inc	h
+	ld	(hl),006h + 004h		; renewal ram_map-y
+	inc	hl
+	ld	(hl),003h + 004h		; renewal ram_map-x
+
+ex$:
+	call	actor_blanch
+  endif
+	ld	a,MsgRival
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,MsgRival
+	ld	(work1),a
+	call	obj_stopping
+
+	ld	de,near_step$
+
+	ld	a,(usr_buf + 0)
+	ld	(event_check),a
+	cp	1
+	jr	z,ex$
+
+	inc	de
+
+ex$:
+	ld	a,MsgRival
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,SeqNearStep
+	jp	next_seq
+
+
+
+cross$:
+	db	002h,003h
+	db	003h,003h
+	db	0ffh
+
+
+near_step$:
+	db	040h
+	db	040h
+	db	040h
+	db	040h
+	db	0ffh
+
+
+NearStep:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,MsgRivalStep
+	ld	(work1),a
+	call	talk_map
+
+	call	put_wait
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg11_win			; hero lose
+	ld	de,msg11_lose			; hero win
+	call	set_battle_msg
+
+	ld	a,d_rival2
+	ld	(event_fight_no),a
+
+	ld	a,(rival_monster)
+	add	a,04h
+	ld	(take_mons_ptn),a		; rival pattern = 5,6,7
+
+	ld	a,SeqVsAfter
+	call	next_seq
+
+	ret
+
+
+VsAfter:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	hl,ev_d10 + 10
+	set	0,(hl)				; hero win
+
+	ld	a,4
+	ld	(watashi_muki),a
+
+	ld	a,MsgRival
+	ld	(work1),a
+	ld	a,004h
+	ld	(work2),a
+	call	SetActorSite
+
+	ld	a,MsgRivalAfter
+	ld	(work1),a
+	call	talk_map
+
+	call	MusicStop
+
+	ld	b,2
+	extern	set_rival_leave_music
+	ld	hl,set_rival_leave_music
+	call	bank_push_call
+
+	ld	de,away_step_oth$
+	ld	a,(event_check)
+	cp	1
+	jr	nz,oth$
+
+	ld	de,away_step$
+
+oth$:
+	ld	a,MsgRival
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,SeqAwayStep
+	jp	next_seq
+
+
+away_step$:
+  ifn	0
+	db	000h
+	db	000h
+	db	000h
+	db	000h
+	db	0ffh
+  else
+	db	0c0h
+	db	0c0h
+	db	0ffh
+  endif
+
+
+away_step_oth$:
+	db	080h
+	db	040h
+	db	040h
+	db	0c0h
+	db	0c0h
+	db	0c0h
+	db	000h
+	db	0ffh
+
+
+AwayStep:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,D10R1F6msg9
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	extern	set_now_music
+	call	set_now_music
+
+	xor	a
+	ld	(cancel_key),a
+
+	jp	next_seq
+
+
+
+msg_d10r1f6:
+	msgndw	msg1,msg_otousan		; no father
+	ndw	msg2,msg_shainm1
+	ndw	msg3,msg_shainm2
+	ndw	msg4,msg_shainw
+	ndw	msg5,msg_member1
+	ndw	msg6,msg_sylph_w
+	ndw	msg7,msg_member2
+	ndw	msg9,msg_member3
+	ndw	msg11,MsgRival			; battle-ready
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	capsule_item,msg_capsule3
+
+	ndw	msg11_1,MsgRivalStep		; battle-in
+	ndw	msg11_win,MsgRivalWin		; battle-win
+	ndw	msg11_after,MsgRivalAfter	; battle-after
+
+
+
+dealer_talk:
+d_talk1:
+	db	msg_member1,020h
+	dw	ev_d10 + 10
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+d_talk2:
+	db	msg_sylph_w,030h
+	dw	ev_d10 + 10
+	dw	msg6_0
+	dw	msg6_after
+	dw	msg6_win
+	dw	msg6_win
+
+d_talk3:
+	db	msg_member2,030h
+	dw	ev_d10 + 10
+	dw	msg7_0
+	dw	msg7_after
+	dw	msg7_win
+	dw	msg7_win
+
+d_talk5:
+	db	msg_member3,040h
+	dw	ev_d10 + 10
+	dw	msg9_0
+	dw	msg9_after
+	dw	msg9_win
+	dw	msg9_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(obs_player)
+	bit	0,a
+	jr	z,non$
+
+	ld	a,(ev_d10 + 19)
+	bit	7,a
+	jr	nz,win$
+
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+non$:
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+  ifn	0
+	ld	a,(my_cap_tbl + 0)
+	cp	CAP_MAX
+	jr	nz,empty$
+
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+	jr	rts$
+
+
+empty$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	xor	a
+	ld	(my_or_gein),a			; hero taken mode
+	ld	a,19
+	ld	(sel_item_no),a 
+	ld	a,15				; monster level
+	ld	(mons_level),a
+	call	add_capsule_new
+  else
+	ld	bc,19 * 256 + 15
+	extern	take_monster
+	call	take_monster
+	jr	nc,rts$
+
+	ld	a,(ctrl_move_val)
+	and	a
+	call	z,cont_abwait
+
+	call	init_for_talkmap
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+  endif
+
+	ld	hl,obs_player
+	set	0,(hl)
+
+	jr	rts$
+
+
+win$:
+	ld	hl,msg1_4$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+  ifn	0		;mvmsg追加
+  endif		;mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+  ifn	0
+msg1_3$:
+	db	D_MSG
+	db	a_,tenten2@,spc@,mo_,u_,spc@,mo_,te_,na_,i_,zo_
+	db	EOMeom
+  endif
+
+
+msg1_4$:
+	extern	msg1_4_3_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_3_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,(ev_d10 + 19)
+	bit	7,a
+	jr	nz,win$
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+win$:
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_4_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_4_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_5_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_5_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	a,(ev_d10 + 19)
+	bit	7,a
+	jr	nz,win$
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+win$:
+	ld	hl,msg3_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_6_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_6_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_1$:
+	extern	msg3_1_7_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_7_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	a,(ev_d10 + 19)
+	bit	7,a
+	jr	nz,win$
+
+	ld	hl,msg4_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+win$:
+	ld	hl,msg4_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg4_0$:
+	extern	msg4_0_8_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_8_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_1$:
+	extern	msg4_1_9_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg4_1_9_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg5_0:
+	extern	msg5_0_10_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_10_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_11_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_11_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_12_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_12_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg6:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg6_0:
+	extern	msg6_0_13_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg6_0_13_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_win:
+	extern	msg6_win_14_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg6_win_14_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_after:
+	extern	msg6_after_15_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg6_after_15_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg7:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg7_0:
+	extern	msg7_0_16_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg7_0_16_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_win:
+	extern	msg7_win_17_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg7_win_17_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_after:
+	extern	msg7_after_18_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg7_after_18_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg9:
+	db	CALL_MSG
+
+	ld	hl,d_talk5
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg9_0:
+	extern	msg9_0_19_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg9_0_19_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_win:
+	extern	msg9_win_20_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg9_win_20_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_after:
+	extern	msg9_after_21_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg9_after_21_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg11:
+	db	CALL_MSG
+
+	ld	hl,msg11_0
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg11_0:
+	extern	msg11_0_22_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg11_0_22_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg11_1:
+	extern	msg11_1_23_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg11_1_23_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg11_win:
+	extern	msg11_win_24_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg11_win_24_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg11_lose:
+	extern	msg11_lose_25_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg11_lose_25_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg11_after:
+	extern	msg11_after_26_D10R0106
+	db I_MSG2	; mvmsg追加
+	dw msg11_after_26_D10R0106	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d10r1f6:
+	include	..\sxy\d10r0106.sxy
+
+silf_4f:
+	include	..\mapdata\silf_4f.map
+

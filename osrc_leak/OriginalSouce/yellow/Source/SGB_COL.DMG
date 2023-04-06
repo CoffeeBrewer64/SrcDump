@@ -1,0 +1,2765 @@
+;=======================================================================;
+;=======================================================================;
+;									;
+;			 Super Game Boy Color				;
+;									;
+;=======================================================================;
+;=======================================================================;
+
+	include		common.def
+	include		banktool.def
+	include		sgb_col.def
+	include		maptype.def
+	include		pm_debug.def
+	include		group.def
+
+bank1c	group	28
+	public	sgb_color
+	public	sgb_check
+	public	sgb_set
+	public	listcol_ready
+	public	OpeningColorTrans
+	public	PikaWindowColorTrans
+
+	extern	block_move
+	extern	rnd
+	extern	lcdc_stop
+	extern	chrarea_clr
+	extern	ready2ready
+	extern	bank2bank
+	extern	div_direct
+	extern	mul_any
+	extern	bank_push_call
+	extern	put_wait
+
+	extern	fadeplay
+	extern	bank_change
+	extern	check_pinchi_sound
+	extern	bmusic
+
+;=======================================================;
+;	COLOR_SET FOR BG 				;
+;	    IN -> B_reg = Color_table position    	;
+;=======================================================;
+sgb_color:
+	call	ready2ready
+	ld	a,b
+	cp	0ffh
+
+	jr	nz,no_return$	
+	ld	a,(sgbatr_buf)
+no_return$:
+	cp	COL_CAPLIST2
+	jp	z,caplist_color
+
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+	ld	de,color_tbl$
+	add	hl,de
+	ld	a,(hli)	
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,color_change
+	push	de
+	jp	(hl)
+	
+fight1$:
+	ld	hl,fight1_pal
+	ld	de,fight_blk
+	ret
+
+fight2$:
+	ld	hl,normal_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+
+	ld	hl,mymons_data + 11
+	ld	a,(hl)
+	and	a
+	jr	z,pass1$		; 主人公が画面に出ている
+
+	ld	hl,my_cap_data
+	ld	a,(allow_sv_fight)
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+pass1$:
+	call	monscol_get_0
+	ld	b,a
+	
+;	ld	a,(enemy_cond5)		; by sige 98/05/27
+	ld	hl,enemy_no
+	call	monscol_get_0
+	ld	c,a
+	
+	ld	hl,sgb_work + 1
+	ld	a,(sgbcol_buf)
+	add	a,31
+	ld	(hli),a
+	inc	hl
+	ld	a,(sgbcol_buf + 1)
+	add	a,31
+	ld	(hli),a
+	inc	hl
+
+	ld	a,b
+	ld	(hli),a
+	inc	hl
+	ld	a,c
+	ld	(hl),a
+
+	ld	hl,sgb_work
+	ld	de,fight_blk
+	ld	a,COL_FIGHT2
+	ld	(sgbatr_buf),a
+	ret
+
+worldmap$:
+	ld	hl,w_map_pal
+	ld	de,pal_cls
+	ret
+
+card$:
+	ld	hl,normal_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+
+	ld	a,(sel_item_no)
+	cp	191
+	jr	c,z4$
+	ld	a,1
+z4$:
+	call	monscol_get
+	push	af
+	ld	hl,sgb_work + 1
+	ld	a,(sgbcol_buf + 8)
+	add	a,31
+	ld	(hli),a
+	inc	hl
+	pop	af
+
+	ld	(hl),a
+	ld	hl,sgb_work
+	ld	de,card_blk
+	ret
+
+cap_list1$:
+	ld	hl,caplist_pal
+	ld	de,sgb_work + 1
+	ret
+
+zukan$:
+	ld	hl,zukan_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+
+	ld	a,(sel_item_no)
+	call	monscol_get
+	ld	hl,sgb_work + 3	
+	ld	(hl),a
+	ld	hl,sgb_work
+	ld	de,zukan_blk
+	ret
+
+slot$:
+	ld	hl,slot_pal
+	ld	de,slot_blk
+	ret
+
+opning$:
+	ld	hl,opning_pal
+	ld	de,opning_blk
+	ret
+
+game_start$:
+	ld	hl,start_pal
+	ld	de,pal_cls
+	ret
+
+op_demo$:
+	ld	hl,demo_pal
+	ld	de,demo_blk
+	ret
+
+op_title$:
+	ld	hl,gamefreak_pal
+	ld	de,gamefreak_blk
+	ld	a,COL_START
+	ld	(sgbatr_buf),a
+	ret
+
+town$:
+	ld	hl,normal_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+
+	ld	a,(map_type)
+	cp	TOWER_TYPE
+	jr	z,tower$
+	cp	DOUKUTU_TYPE
+	jr	z,doukutu$
+
+	ld	a,(mapno)
+	cp	025h
+	jr	c,z2$
+	cp	226
+	jr	c,normal$
+	cp	229
+	jr	c,doukutu$
+	cp	245
+	jr	z,kanna$
+	cp	246
+	jr	z,shiba$
+	cp	239
+	jr	z,tuushin$
+	cp	240
+	jr	z,tuushin$
+normal$:
+	ld	a,(mapno_stack)
+z2$:
+;	cp	6
+;	jr	z,tamamushi$
+	cp	0bh
+	jr	c,z3$
+	ld	a,0ffh
+z3$:
+	inc	a
+	ld	hl,sgb_work + 1
+	ld	(hld),a
+	
+	ld	de,pal_cls
+t_ret$:
+	ld	a,COL_TOWN
+	ld	(sgbatr_buf),a
+	ret
+
+tower$:
+	ld	a,24
+	jr	z3$
+doukutu$:
+shiba$:
+	ld	a,34
+	jr	z3$
+kanna$:
+	xor	a
+	jr	z3$
+tuushin$:
+	ld	a,25-1
+	jr	z3$
+
+tamamushi$:
+;	ld	hl,gamefreak_pal
+;	ld	de,tamamushi_blk
+;	jr	t_ret$
+
+shinka$:
+	push	bc
+	ld	hl,normal_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+	pop	bc
+
+	ld	a,c
+	and	a
+	ld	a,30
+	jr	nz,changing$
+
+	ld	a,(sgbcol_buf)
+	call	monscol_get
+changing$:
+	ld	(sgb_work + 1),a
+	
+	ld	hl,sgb_work
+	ld	de,pal_cls
+	ret
+
+badge_color$:
+	ld	hl,badge_blk
+	ld	de,anime_buf
+	ld	bc,64
+	call	block_move
+
+	ld	de,badgecount$
+	ld	hl,anime_buf + 2
+	ld	a,(my_badge)
+	ld	c,8
+loop$:
+	srl	a
+	push	af
+	jr	c,have$
+
+	push	bc
+	ld	a,(de)
+	ld	c,a
+	xor	a
+loop1$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop1$
+	pop	bc
+	jr	next$
+
+have$:	
+	ld	a,(de)
+loop2$:
+	inc	hl
+	dec	a
+	jr	nz,loop2$
+
+next$:
+	pop	af
+	inc	de
+	dec	c
+	jr	nz,loop$
+	
+	ld	hl,status_pal
+	ld	de,anime_buf
+	ret
+
+namipika$:
+	ld	hl,namipika_pal
+	ld	de,pal_cls
+	ret
+
+ ifn  ASSEMBLE__ENGLISH
+namipika_title$:	; 新規に追加 (Pikachu's Beach タイトル用)
+	ld	hl,namipika_title_pal
+	ld	de,namipika_title_blk
+	ret
+ endif
+	
+color_tbl$:
+	dw	fight1$
+	dw	fight2$
+	dw	worldmap$
+	dw	card$
+	dw	zukan$
+	dw	slot$
+	dw	opning$
+	dw	op_demo$
+	dw	game_start$
+	dw	town$
+	dw	cap_list1$
+	dw	shinka$
+	dw	op_title$
+	dw	badge_color$
+	dw	namipika$
+ ifn  ASSEMBLE__ENGLISH
+	dw	namipika_title$	; 新規に追加 (Pikachu's Beach タイトル用)
+ endif
+
+badgecount$:
+	db	6,6,6,18,6,6,6,6
+
+;=======================================================;
+;	MONSTER_COLOR GET FROM MONCOLOR_TABLE           ;
+;	        IN  -> Areg = monster   no.             ;
+;	        OUT -> Areg = color_pal no.             ;
+;=======================================================;
+monscol_get_0:
+;	bit	3,a		; by sige 98/05/27
+;	ld	a,25		;
+;	ret	nz		;
+
+	ld	a,(hl)
+monscol_get:
+	ld	(in_dat),a
+	and	a
+	jr	z,mymonscol_get
+	push	bc
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	pop	bc
+	ld	a,(in_dat)
+mymonscol_get:
+	ld	e,a
+	ld	d,0
+	ld	hl,monscolor_tbl
+	add	hl,de
+	
+	ld	a,(hl)
+	ret
+
+;=======================================================;
+;	OPENING COLOR TRANS				;
+;=======================================================;
+OpeningColorTrans:
+	ld	a,e
+	and	a
+	jr	nz,blue$
+red$:
+	ld	hl,start_pal
+	ld	a,(cgb_flg)
+	and	a
+	jp	z,syscom_trans2
+	jp	change_cgbpal
+blue$:
+	ld	hl,namipika_pal
+	ld	a,(cgb_flg)
+	and	a
+	jp	z,syscom_trans2
+	call	change_cgbpal
+	
+	; GF石原さんの要望によりオープニングアニメ時
+	; のピカチュウのホッペを赤くする。（村川）
+	ld	hl,start_pal
+	inc	hl					; SGBｺﾏﾝﾄﾞ･ｽｷｯﾌﾟ
+	ld	a,(hli)				; a = color palette No.(0～38)なので下位ﾊﾞｲﾄだけで足りる。
+	call	set_pal_pointer
+	ld	a,e					; de = source palette 先頭アドレス
+	ld	(cpalette + 2),a
+	ld	a,d
+	ld	(cpalette + 3),a
+	xor	a
+	call	extract			; BGPの内容に応じてパレットデータを生成する。
+	ld	a,1
+	call	cgb_bg_palset
+	ret
+
+;=======================================================;
+;	PIKA WINDOW COLOR TRANS				;
+;=======================================================;
+PikaWindowColorTrans:
+	ld	hl,normal_pal
+	ld	de,sgb_work+00h
+	ld	bc,10h
+	call	block_move
+
+	call	towncol_get$
+	ld	hl,sgb_work+01h
+	ld	(hl),a
+	
+;	ld	a,25
+;	call	mymonscol_get
+	ld	hl,sgb_work+03h	
+	ld	a,38
+	ld	(hl),a
+
+	ld	hl,sgb_work+00h
+	ld	a,(cgb_flg)
+	and	a
+	jr	nz,p_w_c_t_0$
+	call	syscom_trans2
+	jr	p_w_c_t_1$
+p_w_c_t_0$:
+	call	change_cgbpal
+p_w_c_t_1$:
+
+	ld	hl,pal_cls
+	ld	de,sgb_work+00h
+	ld	bc,10h
+	call	block_move
+
+	ld	hl,sgb_work+03h
+	ld	a,00000101b
+	ld	(hli),a
+	ld	a,7
+	ld	(hli),a
+	ld	a,6
+	ld	(hli),a
+	ld	a,11
+	ld	(hli),a
+	ld	a,10
+	ld	(hl),a
+
+	ld	hl,sgb_work+00h
+	ld	a,(cgb_flg)
+	and	a
+	jr	nz,p_w_c_t2$
+	call	syscom_trans2
+	jr	p_w_c_t3$
+p_w_c_t2$:
+	call	change_cgbpal
+p_w_c_t3$:
+	ret
+
+towncol_get$:
+	ld	a,(map_type)
+	cp	TOWER_TYPE
+	jr	z,tower$
+	cp	DOUKUTU_TYPE
+	jr	z,doukutu$
+
+	ld	a,(mapno)
+	cp	025h
+	jr	c,z2$
+	cp	226
+	jr	c,normal$
+	cp	229
+	jr	c,doukutu$
+	cp	245
+	jr	z,kanna$
+	cp	246
+	jr	z,shiba$
+	cp	239
+	jr	z,tuushin$
+	cp	240
+	jr	z,tuushin$
+normal$:
+	ld	a,(mapno_stack)
+z2$:
+	cp	0bh
+	jr	c,z3$
+	ld	a,0ffh
+z3$:
+	inc	a
+	ret
+
+tower$:
+	ld	a,24
+	jr	z3$
+doukutu$:
+shiba$:
+	ld	a,34
+	jr	z3$
+kanna$:
+	xor	a
+	jr	z3$
+tuushin$:
+	ld	a,25-1
+	jr	z3$
+
+
+;=======================================================;
+;	CAP_LIST COLOR_CHANGE				;
+;=======================================================;
+listcol_ready:
+	ld	hl,caplist_blk
+	ld	de,sgb_work + 1
+	ld	bc,48
+	jp	block_move
+
+
+caplist_color:
+	ld	hl,sgbcol_buf + 2
+	ld	a,(sgb_work)
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	ld	e,l
+	ld	d,h
+
+	ld	a,(de)
+	and	a
+	ld	e,00000101b
+	jr	z,next$
+	dec	a
+	ld	e,00001010b
+	jr	z,next$
+	ld	e,00001111b
+next$:	
+	push	de
+	ld	hl,sgb_work + 10
+	ld	bc,6
+	ld	a,(sgb_work)
+	call	mul_any
+	pop	de
+
+	ld	(hl),e
+	ret
+	
+
+;=======================================================;
+;	SYSTEM_COMMAND TRANSFER				;
+;		IN -> 	HL = syscom_address		;
+;							;
+;=======================================================;
+syscom_trans:
+syscom_trans2:
+	ld	a,1
+	ld	(key_status),a
+	
+	call	syscom_trans3
+	
+	xor	a
+	ld	(key_status),a
+	ret
+
+syscom_trans3:
+	ld	a,(hl)
+	and	7		; packet_count
+	ret	z
+	ld	b,a
+loop_top$:
+	push	bc
+	xor	a		; reset/1_packet
+	ld	(P1),a
+
+	ld	a,30h		; port_reset
+	ld	(P1),a
+	ld	b,10h		; 16 byte
+loop1$:
+	ld	e,8		; 8 bit
+	ld	a,(hli)
+	ld	d,a
+loop$:
+	bit	0,d		; 0->Z, 1->NZ
+	ld	a,10h		; 1_trans
+	jr	nz,z1$
+	ld	a,20h		; 0_trans
+z1$:
+	ld	(P1),a
+	ld	a,30h		; port_reset
+	ld	(P1),a
+	rr	d
+	dec	e
+	jr	nz,loop$
+	dec	b
+	jr	nz,loop1$
+	
+	ld	a,20h		; 0_trans for 129th_bit
+	ld	(P1),a
+	ld	a,30h		; port_reset
+	ld	(P1),a
+
+	call	wait_60		; wait for 1packet_transfer
+	pop	bc
+	dec	b
+	ret	z
+
+	jr	loop_top$
+
+;=======================================================;
+;	CHECK_MACHINE & INTIALIZE        		;
+;		OUT -> 	GAMEBOY       -> sgb_flg = 0    ;
+;		       	SUPER_GAMEBOY -> sgb_flg = 1    ;
+;=======================================================;
+sgb_check:
+	xor	a
+	ld	(sgb_flg),a
+	call	sgbcheck_sub
+	
+  ifn	pm_cgb
+	jr	c,s_chk_1$	; 俺はＳＧＢだ！
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,s_chk_0$	;私はただのＧＢです。
+	ld	a,1			;俺はＣＧＢだ！！
+	ld	(sgb_flg),a
+s_chk_0$:
+	ret				; cgb_flg != 0 の場合、SGB関連の初期化はしない。
+s_chk_1$:
+  else
+	ret	nc
+  endif
+
+	ld	a,1
+	ld	(sgb_flg),a
+
+ ifn	ASSEMBLE__ENGLISH
+	DI				;（注意！）ＳＧＢ初期化チェックでエラーが発生するので
+	call	sgb_init		;  初期化中は割り込みがかからないようにしておく
+	EI				;
+ else
+	call	sgb_init
+ endif
+
+	ld	a,1
+	ld	(sgb_work),a		
+	ld	de,bgchr_trn		; picture_flame set	
+	ld	hl,picf_chr		;     |
+	call	sgb_set	    		;     |
+					;     |
+	xor	a			;     |
+	ld	(sgb_work),a		;     |
+	ld	de,pct_trns		;     |
+	ld	hl,picture_flame	;     |
+	call	sgb_set	 		;     |/
+
+	xor	a
+	ld	(sgb_work),a
+	ld	de,pal_trans		; system_pallet set
+	ld	hl,syscol
+	call	sgb_set
+
+	call	chrarea_clr
+	ld	hl,mask_off
+	jp	syscom_trans
+
+
+sgb_init:
+	ld	hl,init_tbl$
+	ld	c,9
+loop$:
+	push	bc
+	ld	a,(hli)
+	push	hl
+	ld	h,(hl)
+	ld	l,a
+
+	call	syscom_trans
+	pop	hl
+	inc	hl
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	ret
+
+init_tbl$:
+	dw	mask_on
+	dw	init1		; initialize
+	dw	init2		;     |
+	dw	init3		;     |
+	dw	init4		;     |
+	dw	init5		;     |
+	dw	init6		;     |
+	dw	init7		;     |
+	dw	init8		;     |
+
+
+;=======================================================;
+;	CHECK_MACHINE         				;
+;		OUT -> 	GAMEBOY       -> C_flg = 0      ;
+;		       	SUPER_GAMEBOY -> C_flg = 1      ;
+;=======================================================;
+sgbcheck_sub:
+	ld	hl,req_2play
+	call	syscom_trans
+	call	wait_60		; wait for 1packet_transfer
+
+	ld	a,(P1)
+	and	3
+	cp	3
+	jr	nz,sgb_use$
+
+	ld	a,20h
+	ld	(P1),a
+	ld	a,(P1)
+	ld	a,(P1)
+	call	wait_60
+	call	wait_60
+	ld	a,30h
+	ld	(P1),a
+	call	wait_60
+	call	wait_60
+	ld	a,10h
+	ld	(P1),a
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	call	wait_60
+	call	wait_60
+	ld	a,30h
+	ld	(P1),a
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	call	wait_60
+	call	wait_60
+
+	ld	a,(P1)
+	and	3
+	cp	3
+	jr	nz,sgb_use$
+
+dmg_use$:
+	call	req1
+;	ld	hl,req_1play
+;	call	syscom_trans
+;	call	wait_60
+	and	a
+	ret
+
+sgb_use$:
+	call	req1
+;	ld	hl,req_1play
+;	call	syscom_trans
+;	call	wait_60
+	scf
+	ret
+
+req1:
+	ld	hl,req_1play
+	call	syscom_trans
+	jp	wait_60
+
+
+;=================================================;
+;  TRANSFER  USE  VRAM                            ;
+;  IN  ->  HL = TRANS_DATA ADDRESS                ;
+;          DE = SYSTEM_COMMAND ADDRESS            ;
+;=================================================;
+sgb_set:
+	di
+	push	de
+	call	lcdc_stop
+
+	ld	a,0e4h
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	set_bgp
+  endif
+
+	ld	de,8800h
+
+	ld	a,(sgb_work)
+	and	a
+	jr	z,z1$
+	call	picf_chrset	;picture_f only
+	jr	z2$
+z1$:
+	ld	bc,1000h	;normal_trans
+	call	block_move
+z2$:
+	ld	hl,9800h
+	ld	de,12
+	ld	a,80h
+	ld	c,13
+loop$:
+	ld	b,20
+loop1$:
+	ld	(hli),a
+	inc	a
+	dec	b
+	jr	nz,loop1$
+	add	hl,de
+	dec	c
+	jr	nz,loop$
+
+	ld	a,0e3h		; BG ON,OBJ ON,8*8,WINDOW OFF
+	ld	(LCDC),a
+
+	pop	hl		; POP DE , HL = DE
+	call	syscom_trans
+
+	xor	a
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	set_bgp
+  endif
+
+	ei
+	ret
+
+;=================================================;
+;   60msec WAIT                                   ;
+;=================================================;
+wait_60:
+	ld	de,7000
+loop$:
+	nop			;1
+	nop			;1
+	nop			;1
+	dec	de		;2
+	ld	a,d		;1
+	or	e		;1
+	jr	nz,loop$	;3
+	ret
+
+
+;=================================================;
+;   COLOR_CHANGE                                  ;
+;          IN  HL = pal address                   ;
+;              DE = atr address                   ;
+;=================================================;
+	public	color_change
+color_change:
+  ifn	pm_cgb
+	; 3Apr,1998 村川追加ここから
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,c_c_0$
+	push	de
+	call	change_cgbpal	; CGB BGカラーパレット変更
+	pop	hl
+	call	change_cgbpal	; CGB BGアトリビュート変更
+	ld	a,(LCDC)
+	and	080h
+	ret	z
+	call	put_wait		; ３フレーム待ち
+	ret
+c_c_0$:
+	; 3Apr,1998 村川追加ここまで
+  endif
+
+	push	de
+	call	syscom_trans2
+	pop	hl
+	jp	syscom_trans2
+
+
+;=================================================;
+;   change_cgbpal                                 ;
+;          argument  HL = sgb command stream      ;
+;          destroy   A,C,DE,HL                    ;
+;=================================================;
+	public	change_cgbpal
+change_cgbpal:
+	ld	a,(hl)
+	and	0f8h
+	cp	020h
+	jp	z,change_cgbattr
+	inc	hl
+	
+	; ソースパレット（#0～#3）先頭アドレスの計算
+	ld	a,(hli)				; a = color palette No.(0～38)なので下位ﾊﾞｲﾄだけで足りる。
+	inc	hl					; color palette No.は2bytesなので上位ﾊﾞｲﾄをスキップする。
+	push	hl
+	call	set_pal_pointer
+	ld	a,e					; de = source palette 先頭アドレス
+	ld	(cpalette),a
+	ld	a,d
+	ld	(cpalette + 1),a
+	xor	a
+	call	extract			; BGPの内容に応じてパレットデータを生成する。
+	ld	a,0
+	call	cgb_bg_palset
+	ld	a,1
+	call	extract			; OBP0の内容に応じてパレットデータを生成する。
+	ld	a,0
+	call	cgb_obj_palset
+	ld	a,2
+	call	extract			; OBP1の内容に応じてパレットデータを生成する。
+	ld	a,4
+	call	cgb_obj_palset
+	pop	hl
+	
+	ld	a,(hli)
+	inc	hl
+	push	hl
+	call	set_pal_pointer
+	ld	a,e
+	ld	(cpalette + 2),a
+	ld	a,d
+	ld	(cpalette + 3),a
+	xor	a
+	call	extract
+	ld	a,1
+	call	cgb_bg_palset
+	ld	a,1
+	call	extract
+	ld	a,1
+	call	cgb_obj_palset
+	ld	a,2
+	call	extract
+	ld	a,5
+	call	cgb_obj_palset
+	pop	hl
+	
+	ld	a,(hli)
+	inc	hl
+	push	hl
+	call	set_pal_pointer
+	ld	a,e
+	ld	(cpalette + 4),a
+	ld	a,d
+	ld	(cpalette + 5),a
+	xor	a
+	call	extract
+	ld	a,2
+	call	cgb_bg_palset
+	ld	a,1
+	call	extract
+	ld	a,2
+	call	cgb_obj_palset
+	ld	a,2
+	call	extract
+	ld	a,6
+	call	cgb_obj_palset
+	pop	hl
+	
+	ld	a,(hli)
+	inc	hl
+	call	set_pal_pointer
+	ld	a,e
+	ld	(cpalette + 6),a
+	ld	a,d
+	ld	(cpalette + 7),a
+	xor	a
+	call	extract
+	ld	a,3
+	call	cgb_bg_palset
+	ld	a,1
+	call	extract
+	ld	a,3
+	call	cgb_obj_palset
+	ld	a,2
+	call	extract
+	ld	a,7
+	call	cgb_obj_palset
+	
+	ret
+
+
+;==================================================;
+;   set_pal_pointer                                ;
+;          argument  A = ポケモン palette #        ;
+;          out       DE = ポケモン palette address ;
+;==================================================;
+set_pal_pointer:
+	push	hl
+	ld	l,a
+	xor	a
+	ld	h,a
+	add	hl,hl			; source palette address = syscol + 8 * color palette No.
+	add	hl,hl
+	add	hl,hl
+	ld	de,cgbsyscol
+	add	hl,de
+	ld	a,l
+	ld	e,a
+	ld	a,h
+	ld	d,a
+	pop	hl
+	ret
+
+
+;==================================================;
+;   extract                                        ;
+;          argument  DE = ポケモン palette address ;
+;                    A  = 0:BGP  1:OBP0  2:OBP1    ;
+;          out       ccolor[4*2]:パレット・データ  ;
+;          destroy   A,B,HL                        ;
+;==================================================;
+extract:
+	and	a
+	jr	nz,extract_0$
+	ld	a,(BGP)
+	ld	(pal_back + 0),a	;今回のBGP値を保存しておく。
+	jr	extract_2$
+extract_0$
+	dec	a
+	jr	nz,extract_1$
+	ld	a,(OBP0)
+	ld	(pal_back + 1),a	;今回のOBP0値を保存しておく。
+	jr	extract_2$
+extract_1$
+	ld	a,(OBP1)
+	ld	(pal_back + 2),a	;今回のOBP1値を保存しておく。
+extract_2$:
+	ld	b,a
+	and	03h
+	call	set_col_pointer
+	ld	a,(hli)
+	ld	(ccolor),a
+	ld	a,(hl)
+	ld	(ccolor + 1),a
+
+	ld	a,b
+	rrca
+	rrca
+	ld	b,a
+	and	03h
+	call	set_col_pointer
+	ld	a,(hli)
+	ld	(ccolor + 2),a
+	ld	a,(hl)
+	ld	(ccolor + 3),a
+
+	ld	a,b
+	rrca
+	rrca
+	ld	b,a
+	and	03h
+	call	set_col_pointer
+	ld	a,(hli)
+	ld	(ccolor + 4),a
+	ld	a,(hl)
+	ld	(ccolor + 5),a
+
+	ld	a,b
+	rrca
+	rrca
+	ld	b,a
+	and	03h
+	call	set_col_pointer
+	ld	a,(hli)
+	ld	(ccolor + 6),a
+	ld	a,(hl)
+	ld	(ccolor + 7),a
+	ret
+
+
+;==================================================;
+;   set_col_pointer                                ;
+;          argument  DE = ポケモン palette address ;
+;                    A  = ピクセルパターン         ;
+;          out       HL = palette data address     ;
+;==================================================;
+set_col_pointer:
+	add	a,a
+	ld	l,a
+	xor	a
+	ld	h,a
+	add	hl,de	;hl = source palette data address
+	ret
+
+
+;=================================================;
+;   cgb_bg_palset                                 ;
+;          argument  ccolor[4*2]:パレット・データ ;
+;                    A  = dest. palette #         ;
+;          destroy   A,HL                         ;
+;=================================================;
+cgb_bg_palset:
+	push	de
+	
+	add	a,a
+	add	a,a
+	add	a,a
+	or	080h
+	ld	(BCPS),a
+	ld	de,BCPD
+	ld	hl,ccolor
+	
+	ld	b,02h
+	ld	a,(LCDC)
+	and	080h
+	jr	nz,c_b_p_0$
+	call	palset_sub_2
+	call	palset_sub_2
+	call	palset_sub_2
+	call	palset_sub_2
+	jr	c_b_p_end
+	
+c_b_p_0$:
+	call	palset_sub_0
+	call	palset_sub_0
+	call	palset_sub_0
+	call	palset_sub_0
+	
+c_b_p_end:
+	pop	de
+	ret
+
+
+;============================================================;
+;   cgb_bg_palset_to_buf                                     ;
+;          argument  ccolor[4*2]:１パレット（４色）分のデータ;
+;                    A  = dest. palette # (0～７)            ;
+;          destroy   A,C,HL                                  ;
+;                                                            ;
+; ccolor中の１パレット分のデータをcolor_bufへ転送する。      ;
+;============================================================;
+cgb_bg_palset_to_buf:
+	push	de
+	add	a,a
+	add	a,a
+	add	a,a
+	ld	l,a
+	xor	a
+	ld	h,a
+	ld	de,color_buf
+	add	hl,de
+	ld	de,ccolor
+	
+	ld	c,8
+c_b_p_t_b_0$:
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	dec	c
+	jr	nz,c_b_p_t_b_0$
+	pop	de
+	ret
+
+
+;==========================================================;
+;   cgb_bg_palset_at_vb                                    ;
+;          argument  color_buf[4*4*2]:４パレット分のデータ ;
+;          destroy   A,C,HL                                ;
+;                                                          ;
+; color_buf中の４パレット分のデータをVblank中に            ;
+; 一気に転送する。                                         ;
+;==========================================================;
+cgb_bg_palset_at_vb:
+	ld	a,(LCDC)
+	and	080h
+	jr	z,c_b_p_a_v_2$
+c_b_p_a_v_0$:
+	di
+c_b_p_a_v_1$:
+	ld	a,(LY)
+	cp	144
+	jr	c,c_b_p_a_v_1$
+c_b_p_a_v_2$:
+	call	cgb_bg_palset_at_vb_sub
+	ei
+	ret
+
+
+cgb_bg_palset_at_vb_sub:
+	xor	a
+	or	080h
+	ld	(BCPS),a
+	ld	de,BCPD
+	ld	hl,color_buf
+	ld	c,32
+c_b_p_a_v_s_1$:
+	ld	a,(hli)
+	ld	(de),a
+	dec	c
+	jr	nz,c_b_p_a_v_s_1$
+	ret
+
+
+
+
+;=================================================;
+;   cgb_obj_palset                                ;
+;          argument  ccolor[4*2]:パレット・データ ;
+;                    A  = dest. palette #         ;
+;          destroy   A,HL                         ;
+;=================================================;
+	public	cgb_obj_palset
+cgb_obj_palset:
+	push	de
+	
+	add	a,a
+	add	a,a
+	add	a,a
+	or	080h
+	ld	(OCPS),a
+	ld	de,OCPD
+	ld	hl,ccolor
+	
+	ld	b,02h
+	ld	a,(LCDC)
+	and	080h
+	jr	nz,c_o_p_0$
+	call	palset_sub_2
+	call	palset_sub_2
+	call	palset_sub_2
+	call	palset_sub_2
+	jr	c_o_p_end
+	
+c_o_p_0$:
+	call	palset_sub_0
+	call	palset_sub_0
+	call	palset_sub_0
+	call	palset_sub_0
+	
+c_o_p_end:
+	pop	de
+	ret
+
+
+palset_sub_0:
+	ld	a,(STAT)			;(2)
+	and	b					;(1)
+	jr	z,palset_sub_0		;(3/2)
+palset_sub_1:
+	ld	a,(STAT)			;(2)
+	and	b					;(1)
+	jr	nz,palset_sub_1		;(3/2)
+palset_sub_2:
+	ld	a,(hli)				;(2)
+	ld	(de),a				;(2)
+	ld	a,(hli)				;(2)
+	ld	(de),a				;(2)
+	ret
+	
+	
+;=================================================;
+;   change_cgb_bgp                                ;
+;          destroy   A,B,HL                       ;
+;=================================================;
+bank0	group	G_BANK0
+	public	change_cgb_bgp
+change_cgb_bgp:
+	push	af
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,c_c_b_1$
+	
+	push	bc
+	push	de
+	push	hl
+	
+	ld	a,(BGP)
+	ld	b,a
+	ld	a,(pal_back + 0)
+	cp	b
+	jr	z,c_c_b_0$
+	
+	ld	b,G_BANK1c
+	ld	hl,set_bgp_0
+	call	bank_push_call
+	
+c_c_b_0$:
+	pop	hl
+	pop	de
+	pop	bc
+	
+c_c_b_1$:
+	pop	af
+	ret
+
+
+;=================================================;
+;   change_cgb_obp0                               ;
+;          destroy   A,B,HL                       ;
+;=================================================;
+bank0	group	G_BANK0
+	public	change_cgb_obp0
+change_cgb_obp0:
+	push	af
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,c_c_o0_1$
+	
+	push	bc
+	push	de
+	push	hl
+	
+	ld	a,(OBP0)
+	ld	b,a
+	ld	a,(pal_back + 1)
+	cp	b
+	jr	z,c_c_o0_0$
+	
+	ld	b,G_BANK1c
+	ld	hl,set_obp_0
+	ld	c,1
+	call	bank_push_call
+	
+c_c_o0_0$:
+	pop	hl
+	pop	de
+	pop	bc
+	
+c_c_o0_1$:
+	pop	af
+	ret
+
+
+;=================================================;
+;   change_cgb_obp1                               ;
+;          destroy   A,B,HL                       ;
+;=================================================;
+bank0	group	G_BANK0
+	public	change_cgb_obp1
+change_cgb_obp1:
+	push	af
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,c_c_o1_1$
+	
+	push	bc
+	push	de
+	push	hl
+	
+	ld	a,(OBP1)
+	ld	b,a
+	ld	a,(pal_back + 2)
+	cp	b
+	jr	z,c_c_o1_0$
+	
+	ld	b,G_BANK1c
+	ld	hl,set_obp_0
+	ld	c,2
+	call	bank_push_call
+	
+c_c_o1_0$:
+	pop	hl
+	pop	de
+	pop	bc
+	
+c_c_o1_1$:
+	pop	af
+	ret
+
+
+bank0	group	G_BANK0
+check_sound:
+	ld	a,(rombankno)
+	push	af
+	call	fadeplay				; サウンドテスト
+	ld	a,G_MUSIC2
+	call	bank_change
+	call	check_pinchi_sound		; "play.src" Included
+	ld	a,G_MUSIC1
+	call	bank_change
+	call    bmusic
+	pop	af
+	call	bank_change
+	ret
+
+
+bank1c	group	G_BANK1c
+
+;=================================================;
+;   set_bgp_0                                     ;
+;=================================================;
+	public	set_bgp_0
+set_bgp:
+	ld	a,(cgb_flg)
+	and	a
+	ret	z
+
+set_bgp_0:
+	ld	a,(cpalette)
+	ld	e,a
+	ld	a,(cpalette + 1),a
+	ld	d,a
+	xor	a
+	call	extract			; BGPの内容に応じてパレットデータを生成する。
+	ld	a,0
+	call	cgb_bg_palset_to_buf
+
+	ld	a,(cpalette + 2)
+	ld	e,a
+	ld	a,(cpalette + 3),a
+	ld	d,a
+	xor	a
+	call	extract			; BGPの内容に応じてパレットデータを生成する。
+	ld	a,1
+	call	cgb_bg_palset_to_buf
+
+	ld	a,(cpalette + 4)
+	ld	e,a
+	ld	a,(cpalette + 5),a
+	ld	d,a
+	xor	a
+	call	extract			; BGPの内容に応じてパレットデータを生成する。
+	ld	a,2
+	call	cgb_bg_palset_to_buf
+
+	ld	a,(cpalette + 6)
+	ld	e,a
+	ld	a,(cpalette + 7),a
+	ld	d,a
+	xor	a
+	call	extract			; BGPの内容に応じてパレットデータを生成する。
+	ld	a,3
+	call	cgb_bg_palset_to_buf
+	
+	call	cgb_bg_palset_at_vb
+	
+	ret
+
+
+;=================================================;
+;   set_obp_0                                     ;
+;          argument  C  = 1:OBP0   2:OBP1         ;
+;=================================================;
+set_obp_0:
+	ld	a,(cpalette)
+	ld	e,a
+	ld	a,(cpalette + 1),a
+	ld	d,a
+	ld	a,c
+	call	extract			; OBP0/1の内容に応じてパレットデータを生成する。
+	ld	a,c
+	dec	a
+	rlca
+	rlca
+	call	cgb_obj_palset
+
+	ld	a,(cpalette + 2)
+	ld	e,a
+	ld	a,(cpalette + 3),a
+	ld	d,a
+	ld	a,c
+	call	extract			; OBP0/1の内容に応じてパレットデータを生成する。
+	ld	a,c
+	dec	a
+	rlca
+	rlca
+	inc	a
+	call	cgb_obj_palset
+
+	ld	a,(cpalette + 4)
+	ld	e,a
+	ld	a,(cpalette + 5),a
+	ld	d,a
+	ld	a,c
+	call	extract			; OBP0/1の内容に応じてパレットデータを生成する。
+	ld	a,c
+	dec	a
+	rlca
+	rlca
+	add	a,2
+	call	cgb_obj_palset
+
+	ld	a,(cpalette + 6)
+	ld	e,a
+	ld	a,(cpalette + 7),a
+	ld	d,a
+	ld	a,c
+	call	extract			; OBP0/1の内容に応じてパレットデータを生成する。
+	ld	a,c
+	dec	a
+	rlca
+	rlca
+	add	a,3
+	call	cgb_obj_palset
+	
+	ret
+
+
+;=================================================;
+;   change_cgbattr                                ;
+;          argument  HL = attr address            ;
+;          destroy   A,C,DE,HL                    ;
+;=================================================;
+	public	change_cgbattr
+change_cgbattr:
+	push	hl
+	pop	de
+	ld	hl,sgb_attr_tbl$
+	ld	a,(hli)
+	ld	c,a
+c_c_loop$:
+	ld	a,e
+c_c_0$:
+	cp	(hl)
+	jr	z,c_c_1$
+	inc	hl
+	inc	hl
+	dec	c
+	jr	nz,c_c_0$
+	ret
+	
+c_c_1$:
+	inc	hl
+	ld	a,d
+c_c_2$:
+	cp	(hl)
+	jr	z,c_c_3$
+	inc	hl
+	dec	c
+	jr	nz,c_c_loop$
+	ret
+	
+c_c_3$:
+	ld	b,G_BANK2f
+	ld	hl,change_cgbattr_0
+	call	bank_push_call
+	ret
+
+
+sgb_attr_tbl$:
+	db	12			;このテーブルのエレメント数
+	dw	pal_cls				;(12)
+	dw	fight_blk			;(11)
+	dw	card_blk			;(10)
+	dw	zukan_blk			;( 9)
+	dw	slot_blk			;( 8)
+	dw	opning_blk			;( 7)
+	dw	demo_blk			;( 6)
+	dw	sgb_work + 1		;( 5)caplist_blk
+	dw	anime_buf			;( 4)badge_blk
+	dw	gamefreak_blk		;( 3)
+	dw	sgb_work			;( 2)pika_win_blk
+	dw	namipika_title_blk	;( 1)
+
+bank2f	group	G_BANK2f
+	public	change_cgbattr_0
+change_cgbattr_0:
+	ld	hl,cgb_attr_tbl$
+	ld	a,c
+	push	af				;attribute No.を保存
+	dec	a
+	add	a,a
+	ld	e,a
+	xor	a
+	ld	d,a
+	add	hl,de
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hl)
+	ld	h,a
+	ld	a,e
+	ld	l,a
+	
+	di
+	ld	a,1
+	ld	(VBK),a
+	
+	push	hl
+	ld	a,(hl)
+	ld	c,a				;c = 汎用ＤＭＡ転送バイト数
+	ld	de,16			;境界合わせのためのダミーデータをスキップ
+	add	hl,de			;hl = 転送元先頭アドレス
+	ld	a,h
+	ld	(HDMA1),a
+	ld	a,l
+	ld	(HDMA2),a
+	ld	de,CHAR_BACK1
+	ld	a,d
+	ld	(HDMA3),a
+	ld	a,e
+	ld	(HDMA4),a
+	ld	a,(LCDC)
+	and	080h
+	jr	z,c_c_0_2$
+c_c_0_0$:
+	ld	a,(LY)
+	cp	144
+	jr	nz,c_c_0_0$
+c_c_0_1$
+	ld	a,(STAT)
+	and	02h
+	jr	nz,c_c_0_1$
+c_c_0_2$:
+	ld	a,c
+	ld	(HDMA5),a
+	
+	call	check_sound				; サウンドテスト
+	
+	
+	pop	hl
+	ld	a,(hli)
+	ld	c,a				;c = 汎用ＤＭＡ転送バイト数
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	add	hl,de
+	ld	a,h
+	ld	(HDMA1),a
+	ld	a,l
+	ld	(HDMA2),a
+	ld	de,CHAR_BACK2
+	ld	a,d
+	ld	(HDMA3),a
+	ld	a,e
+	ld	(HDMA4),a
+	ld	a,(LCDC)
+	and	080h
+	jr	z,c_c_0_5$
+c_c_0_3$:
+	ld	a,(LY)
+	cp	144
+	jr	nz,c_c_0_3$
+c_c_0_4$:
+	ld	a,(STAT)
+	and	02h
+	jr	nz,c_c_0_4$
+c_c_0_5$:
+	ld	a,c
+	ld	(HDMA5),a
+	
+	pop	af			;attribute No.を復元
+	dec	a
+	dec	a
+	dec	a
+	dec	a
+	jr	nz,c_c_0_6$
+	call	cgb_badge_atr_set
+	jr	c_c_0_7$
+c_c_0_6$:
+	dec	a
+	call	z,cgb_caplist_atr_set
+	
+c_c_0_7$:
+	call	check_sound				; サウンドテスト
+	
+	ld	a,(IFL)
+	res	0,a
+	ld	(IFL),a
+	xor	a
+	ld	(VBK),a
+	ei
+	
+	ret
+
+
+cgb_attr_tbl$:
+	dw	cgb_namipika_title_blk
+	dw	cgb_pika_win_blk
+	dw	cgb_gamefreak_blk
+	dw	cgb_badge_blk
+	dw	cgb_caplist_blk
+	dw	cgb_demo_blk
+	dw	cgb_opning_blk
+	dw	cgb_slot_blk
+	dw	cgb_zukan_blk
+	dw	cgb_card_blk
+	dw	cgb_fight_blk
+	dw	cgb_pal_cls
+
+	dw	cgb_fight_sp_blk	;shake effect用
+
+
+	public	cgb_badge_atr_set
+cgb_badge_atr_set:
+	ld	hl,32 * 12 + 3 + CHAR_BACK2
+	ld	de,6 * 0 + anime_buf + 2
+	ld	a,(de)
+	and	a
+	call	z,cgb_badge_atr_clear
+	
+	ld	hl,32 * 12 + 7 + CHAR_BACK2
+	ld	de,6 * 1 + anime_buf + 2
+	ld	a,(de)
+	and	a
+	call	z,cgb_badge_atr_clear
+	
+	ld	hl,32 * 12 + 11 + CHAR_BACK2
+	ld	de,6 * 2 + anime_buf + 2
+	ld	a,(de)
+	and	a
+	call	z,cgb_badge_atr_clear
+	
+	ld	hl,32 * 12 + 15 + CHAR_BACK2
+	ld	de,6 * 3 + anime_buf + 2
+	ld	a,(de)
+	and	a
+	call	z,cgb_badge_atr_clear
+	
+	ld	hl,32 * 15 + 3 + CHAR_BACK2
+	ld	de,6 * 6 + anime_buf + 2
+	ld	a,(de)
+	and	a
+	call	z,cgb_badge_atr_clear
+	
+	ld	hl,32 * 15 + 7 + CHAR_BACK2
+	ld	de,6 * 7 + anime_buf + 2
+	ld	a,(de)
+	and	a
+	call	z,cgb_badge_atr_clear
+	
+	ld	hl,32 * 15 + 11 + CHAR_BACK2
+	ld	de,6 * 8 + anime_buf + 2
+	ld	a,(de)
+	and	a
+	call	z,cgb_badge_atr_clear
+	
+	ld	hl,32 * 15 + 15 + CHAR_BACK2
+	ld	de,6 * 9 + anime_buf + 2
+	ld	a,(de)
+	and	a
+	call	z,cgb_badge_atr_clear
+	ret
+
+cgb_badge_atr_clear:
+	push	hl
+	xor	a
+	ld	(hli),a
+	ld	(hl),a
+	ld	bc,31
+	add	hl,bc
+	ld	(hli),a
+	ld	(hl),a
+	pop	hl
+	ret
+
+
+cgb_caplist_atr_set:
+	ld	hl,CHAR_BACK2 + 37
+	ld	de,sgb_work + 10
+	ld	c,6
+	
+c_c_a_s_0$:
+	push	bc
+	push	hl
+	ld	a,(de)
+	and	03h
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	
+	pop	hl
+	ld	bc,64
+	add	hl,bc
+	push	hl
+	push	de
+	pop	hl
+	ld	bc,6
+	add	hl,bc
+	push	hl
+	pop	de
+	pop	hl
+	
+	pop	bc
+	dec	c
+	jr	nz,c_c_a_s_0$
+	ret
+
+
+
+	org	5000h
+	public	cgb_namipika_title_blk
+cgb_namipika_title_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_namipika_title_blk_1 - cgb_namipika_title_blk_0
+cgb_namipika_title_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;データ境界合わせのためのダミー
+cgb_namipika_title_blk_1:
+	db	0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+	
+	
+	public	cgb_pika_win_blk
+cgb_pika_win_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_pika_win_blk_1 - cgb_pika_win_blk_0
+cgb_pika_win_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;データ境界合わせのためのダミー
+cgb_pika_win_blk_1:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+
+	public	cgb_gamefreak_blk
+cgb_gamefreak_blk:
+	db	32 * 18 / 16 - 1				;DMA転送データ数
+	dw	cgb_gamefreak_blk_1 - cgb_gamefreak_blk_0
+cgb_gamefreak_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;データ境界合わせのためのダミー
+cgb_gamefreak_blk_1:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,1,1,1,2,2,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,1,1,1,2,2,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,1,1,1,2,2,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+
+	public	cgb_badge_blk
+cgb_badge_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_badge_blk_1 - cgb_badge_blk_0
+cgb_badge_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+cgb_badge_blk_1:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,1,1,0,0,3,3,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,1,1,0,0,3,3,0,1,1,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,2,2,0,0,3,3,0,0,2,2,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,2,2,0,0,3,3,0,0,2,2,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+	public	cgb_caplist_blk
+cgb_caplist_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_caplist_blk_1 - cgb_caplist_blk_0
+cgb_caplist_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+cgb_caplist_blk_1:
+	db	1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	1,0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+	public	cgb_demo_blk
+cgb_demo_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_demo_blk_1 - cgb_demo_blk_0
+cgb_demo_blk_0
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+cgb_demo_blk_1
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+	public	cgb_opning_blk
+cgb_opning_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_opning_blk_1 - cgb_opning_blk_0
+cgb_opning_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;11
+cgb_opning_blk_1:
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+	public	cgb_slot_blk
+cgb_slot_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_slot_blk_1 - cgb_slot_blk_0
+cgb_slot_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+cgb_slot_blk_1:
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+	public	cgb_zukan_blk
+cgb_zukan_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_zukan_blk_1 - cgb_zukan_blk_0
+cgb_zukan_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+cgb_zukan_blk_1:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+	public	cgb_card_blk
+cgb_card_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_card_blk_1 - cgb_card_blk_0
+cgb_card_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+cgb_card_blk_1:
+	db	0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+	public	cgb_fight_blk
+cgb_fight_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_fight_blk_1 - cgb_fight_blk_0
+cgb_fight_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+cgb_fight_blk_1:
+	db	0,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	2,2,2,2,2,2,2,2,2,0,0,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	2,2,2,2,2,2,2,2,2,0,0,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	2,2,2,2,2,2,2,2,2,0,0,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+	public	cgb_pal_cls
+cgb_pal_cls:
+	db	32 * 32 / 16 - 1
+	dw	cgb_pal_cls_1 - cgb_pal_cls_0
+cgb_pal_cls_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+cgb_pal_cls_1:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;12
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;13
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;14
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;15
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;16
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;17
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;18
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;19
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;1a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;1b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;1c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;1d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;1e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;1f
+
+	public	cgb_fight_sp_blk
+cgb_fight_sp_blk:
+	db	32 * 18 / 16 - 1
+	dw	cgb_fight_sp_blk_1 - cgb_fight_sp_blk_0
+cgb_fight_sp_blk_0:
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0	;ダミー
+	db	0,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	0,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	0,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	0,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	2,2,2,2,2,2,2,2,2,0,0,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	2,2,2,2,2,2,2,2,2,0,0,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	2,2,2,2,2,2,2,2,2,0,0,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;11
+cgb_fight_sp_blk_1:
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;00
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;01
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;02
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;03
+	db	2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;04
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;05
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;06
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;07
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;08
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;09
+	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0	;0a
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0c
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0d
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0e
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;0f
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;10
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;11
+
+
+bank1c	group	G_BANK1c
+;=================================================;
+;   CHARACTOR SET  FOR PICTURE_FLAME              ;
+;          IN  -> HL = data address(for GB)       ;
+;                 DE = data set address           ;
+;          OUT -> chr_set(for SFC) to DE          ;
+;=================================================;
+picf_chrset:
+	ld	b,80h
+loop$:
+	ld	c,16
+loop1$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,loop1$
+
+	ld	c,16
+	xor	a
+loop2$:
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,loop2$
+
+	dec	b
+	jr	nz,loop$
+	ret
+
+;-------system_command-----------------------------------
+pal_cls:				
+	db	ATTR_BLK1
+	db	1		;data_lots
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	0,0		;start_pos X,Y
+	db	13h,11h		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0
+
+fight_blk:				
+	db	ATTR_BLK2
+	db	5		;data_lots
+	db	111b		;cont_code
+	db	00001010b	;pal_set
+	db	0,0ch		;start_pos X,Y
+	db	13h,11h		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000101b	;pal_set
+	db	1,0		;start_pos X,Y
+	db	0ah,3		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+ ifn	ASSEMBLE__ENGLISH
+	db	0ah,7		;start_pos X,Y
+ else
+	db	0ah,8		;start_pos X,Y
+ endif
+	db	13h,0ah		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001010b	;pal_set
+	db	0,4		;start_pos X,Y
+	db	8,0bh		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001111b	;pal_set
+	db	0bh,0		;start_pos X,Y
+ ifn	ASSEMBLE__ENGLISH
+	db	13h,6		;end_pos   X,Y
+ else
+	db	13h,7		;end_pos   X,Y
+ endif
+
+card_blk:				
+	db	ATTR_BLK1
+	db	1		;data_lots
+	db	111b		;cont_code
+	db	00000101b	;pal_set
+	db	1,0		;start_pos X,Y
+	db	7,6		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0
+
+zukan_blk:				
+	db	ATTR_BLK1
+	db	1		;data_lots
+	db	111b		;cont_code
+	db	00000101b	;pal_set
+	db	1,1		;start_pos X,Y
+	db	8,8		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0
+
+slot_blk:				
+	db	ATTR_BLK2
+	db	5		;data_lots
+	db	011b		;cont_code
+	db	00000101b	;pal_set
+	db	0,0		;start_pos X,Y
+	db	13h,0bh		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001010b	;pal_set
+	db	0,4		;start_pos X,Y
+	db	13h,9		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001111b	;pal_set
+	db	0,6		;start_pos X,Y
+	db	13h,7		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	4,4		;start_pos X,Y
+	db	0fh,9		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	0,0ch		;start_pos X,Y
+	db	013h,11h	;end_pos   X,Y
+
+opning_blk:				
+	db	ATTR_BLK2
+	db	3		;data_lots
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	0,0		;start_pos X,Y
+	db	19,7		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001010b	;pal_set
+	db	0,8		;start_pos X,Y
+	db	19,17		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00000000b	;pal_set
+	db	09,8		;start_pos X,Y
+	db	10,8		;end_pos   X,Y
+	db	0,0,0,0,0,0
+	db	0,0,0,0,0,0
+
+demo_blk:				
+	db	ATTR_BLK2
+	db	3		;data_lots
+	db	011b		;cont_code
+	db	00000101b	;pal_set
+	db	0,0		;start_pos X,Y
+	db	13h,3		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	0,4		;start_pos X,Y
+	db	13h,0dh		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000101b	;pal_set
+	db	00h,0eh		;start_pos X,Y
+	db	13h,11h		;end_pos   X,Y
+	db	0,0,0,0,0,0
+	db	0,0,0,0,0,0
+
+caplist_blk:				
+ ifn	ASSEMBLE__ENGLISH
+	db	ATTR_BLK3
+	db	7		;data_lots
+	db	110b		;cont_code
+	db	00010000b	;pal_set
+	db	1,0		;start_pos X,Y
+	db	2,12		;end_pos   X,Y
+	db	010b		;cont_code	;monster1
+	db	00000000b	;pal_set
+	db	 5,1		;start_pos X,Y
+	db	11,1		;end_pos   X,Y
+	db	010b		;cont_code	;monster2
+	db	00000000b	;pal_set
+	db	 5,3		;start_pos X,Y
+	db	11,3		;end_pos   X,Y
+	db	010b		;cont_code	;monster3
+	db	00000000b	;pal_set
+	db	 5,5		;start_pos X,Y
+	db	11,5		;end_pos   X,Y
+	db	010b		;cont_code	;monster4
+	db	00000000b	;pal_set
+	db	 5,7		;start_pos X,Y
+	db	11,7		;end_pos   X,Y
+	db	010b		;cont_code	;monster5
+	db	00000000b	;pal_set
+	db	 5,9		;start_pos X,Y
+	db	11,9		;end_pos   X,Y
+	db	010b		;cont_code	;monster6
+	db	00000000b	;pal_set
+	db	 5,11		;start_pos X,Y
+	db	11,11		;end_pos   X,Y
+	db	0,0,0,0
+ else
+	db	ATTR_BLK3
+	db	7		;data_lots
+	db	110b		;cont_code
+	db	00010000b	;pal_set
+	db	1,0		;start_pos X,Y
+	db	2,12		;end_pos   X,Y
+	db	010b		;cont_code	;monster1
+	db	00000000b	;pal_set
+	db	12,0		;start_pos X,Y
+	db	18,1		;end_pos   X,Y
+	db	010b		;cont_code	;monster2
+	db	00000000b	;pal_set
+	db	12,2		;start_pos X,Y
+	db	18,3		;end_pos   X,Y
+	db	010b		;cont_code	;monster3
+	db	00000000b	;pal_set
+	db	12,4		;start_pos X,Y
+	db	18,5		;end_pos   X,Y
+	db	010b		;cont_code	;monster4
+	db	00000000b	;pal_set
+	db	12,6		;start_pos X,Y
+	db	18,7		;end_pos   X,Y
+	db	010b		;cont_code	;monster5
+	db	00000000b	;pal_set
+	db	12,8		;start_pos X,Y
+	db	18,9		;end_pos   X,Y
+	db	010b		;cont_code	;monster6
+	db	00000000b	;pal_set
+	db	12,10		;start_pos X,Y
+	db	18,11		;end_pos   X,Y
+	db	0,0,0,0
+ endif
+
+badge_blk:				
+	db	ATTR_BLK4
+	db	10		;data_lots
+	db	010b		;cont_code
+	db	00000000b	;pal_set
+	db	3,12		;start_pos X,Y
+	db	4,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00000101b	;pal_set
+	db	7,12		;start_pos X,Y
+	db	8,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001111b	;pal_set
+	db	11,12		;start_pos X,Y
+	db	12,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001010b	;pal_set
+	db	16,11		;start_pos X,Y
+	db	17,12		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00000101b	;pal_set
+	db	14,13		;start_pos X,Y
+;	db	15,14		;end_pos   X,Y
+	db	15,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001111b	;pal_set
+	db	16,13		;start_pos X,Y
+;	db	17,14		;end_pos   X,Y
+	db	17,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001010b	;pal_set
+	db	3,15		;start_pos X,Y
+	db	4,16		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001111b	;pal_set
+	db	7,15		;start_pos X,Y
+	db	8,16		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001010b	;pal_set
+	db	11,15		;start_pos X,Y
+	db	12,16		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00000101b	;pal_set
+	db	15,15		;start_pos X,Y
+	db	16,16		;end_pos   X,Y
+	db	0,0
+
+gamefreak_blk:
+	db	ATTR_BLK2
+	db	3		;data_lots
+	db	111b		;cont_code
+	db	00000101b	;pal_set
+	db	5,11		;start_pos X,Y
+	db	7,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001010b	;pal_set
+	db	8,11		;start_pos X,Y
+	db	9,13		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001111b	;pal_set
+	db	12,11		;start_pos X,Y
+	db	14,13		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0,0,0,0,0
+
+ ifn  ASSEMBLE__ENGLISH
+namipika_title_blk:	; 新規に追加 (Pikachu's Beach タイトル用)
+	db	ATTR_BLK1
+	db	1		;data_lots
+	db	0111b		;cont_code
+	db	00000101b	;pal_set
+	db	4,0		;start_pos X,Y
+	db	15,5		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0
+ endif
+	
+tamamushi_blk:
+;	db	ATTR_BLK2
+;	db	3		;data_lots
+;	db	111b		;cont_code
+;	db	00000101b	;pal_set
+;	db	5,0		;start_pos X,Y
+;	db	9,17		;end_pos   X,Y
+;	db	011b		;cont_code
+;	db	00001010b	;pal_set
+;	db	10,0		;start_pos X,Y
+;	db	14,17		;end_pos   X,Y
+;	db	011b		;cont_code
+;	db	00001111b	;pal_set
+;	db	15,0		;start_pos X,Y
+;	db	19,17		;end_pos   X,Y
+
+normal_pal:
+	db	PAL_SET
+	dw	0,0,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+caplist_pal:
+	db	PAL_SET
+	dw	16,31,32,33
+	db	00000000b
+	db	0,0,0,0,0,0
+
+fight1_pal:
+	db	PAL_SET
+	dw	30,30,30,30
+	db	00000000b
+	db	0,0,0,0,0,0
+
+w_map_pal:
+	db	PAL_SET
+	dw	12,0,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+zukan_pal:
+	db	PAL_SET
+	dw	21,0,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+slot_pal:
+	db	PAL_SET
+	dw	26,27,28,29
+	db	00000000b
+	db	0,0,0,0,0,0
+
+opning_pal:
+	db	PAL_SET
+	dw	14,13,16,20
+	db	00000000b
+	db	0,0,0,0,0,0
+
+status_pal:				
+	db	PAL_SET
+	dw	16,34,18,24
+	db	00000000b
+	db	0,0,0,0,0,0
+
+start_pal:				
+	db	PAL_SET
+	dw	16,0,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+demo_pal:				
+	db	PAL_SET
+	dw	20,30,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+gamefreak_pal:
+	db	PAL_SET
+	dw	36,18,2,17
+	db	00000000b
+	db	0,0,0,0,0,0
+
+namipika_pal:
+	db	PAL_SET
+	dw	37,37,37,37
+	db	00000000b
+	db	0,0,0,0,0,0
+
+ ifn  ASSEMBLE__ENGLISH
+namipika_title_pal:	; 新規に追加 (Pikachu's Beach タイトル用)
+	db	PAL_SET
+	dw	37,39,37,37
+	db	00000000b
+	db	0,0,0,0,0,0
+ endif
+
+pal_trans:				
+	db	PAL_TRN
+	db	00h,00h,00h,00h,00h,00h,00h
+	db	00h,00h,00h,00h,00h,00h,00h,00h
+
+req_1play:
+	db	MLT_REQ
+	db	00b		;req_mode
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+req_2play:
+	db	MLT_REQ
+	db	01b		;req_mode
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+bgchr_trn:			
+	db	CHR_TRN
+	db	00b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+pct_trns:				
+	db	PCT_TRN
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+mask_on:				
+	db	MASK_EN
+	db	01b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+mask_off:
+	db	MASK_EN
+	db	00b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+init1:
+	db	DATA_SND
+	dw	085dh		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	08Ch,0D0h,0F4h,060h,000h
+	db	000h,000h,000h,000h,000h,000h
+init2:
+	db	DATA_SND
+	dw	0852h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	0A9h,0E7h,09Fh,001h,0C0h
+	db	07Eh,0E8h,0E8h,0E8h,0E8h,0E0h
+init3:
+	db	DATA_SND
+	dw	0847h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	0C4h,0D0h,016h,0A5h,0CBh
+	db	0C9h,005h,0D0h,010h,0A2h,028h
+init4:
+	db	DATA_SND
+	dw	083ch		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	0F0h,012h,0A5h,0C9h,0C9h
+	db	0C8h,0D0h,01Ch,0A5h,0CAh,0C9h
+init5:
+	db	DATA_SND
+	dw	0831h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	00Ch,0A5h,0CAh,0C9h,07Eh
+	db	0D0h,006h,0A5h,0CBh,0C9h,07Eh
+init6:
+	db	DATA_SND
+	dw	0826h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	039h,0CDh,048h,00Ch,0D0h
+	db	034h,0A5h,0C9h,0C9h,080h,0D0h
+init7:
+	db	DATA_SND
+	dw	081bh		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	0EAh,0EAh,0EAh,0EAh,0EAh
+	db	0A9h,001h,0CDh,04Fh,00Ch,0D0h
+init8:
+	db	DATA_SND
+	dw	0810h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	04Ch,020h,008h,0EAh,0EAh
+	db	0EAh,0EAh,0EAh,060h,0EAh,0EAh
+
+monscolor_tbl:
+	db	16
+	db	22,22,22,18,18,18,19,19,19,22,22,19,24,24,24 ;  15
+	db	21,21,21,25,25,21,21,20,20,24,24,21,21,17,17 ;  30
+	db	17,20,20,20,23,23,18,24,23,23,17,17,22,18,18 ;  45
+	db	18,18,20,20,21,21,24,24,24,19,21,21,21,18,17 ;  60
+	db	17,17,24,24,24,25,25,25,22,22,22,19,19,25,25 ;  75
+	db	25,18,18,23,23,25,25,21,21,21,17,17,20,20,25 ;  90
+	db	25,20,20,20,25,24,24,18,18,24,24,23,22,25,25 ; 105
+	db	21,21,23,20,20,25,25,23,17,21,19,19,18,18,18 ; 120
+	db	25,23,22,16,24,18,21,25,18,17,19,25,25,19,24 ; 135
+	db	18,25,17,17,21,21,25,23,17,24,18,25,17,21,16 ; 150
+	db	16
+
+syscol:
+	dw	07BFFh,04F57h,07F77h,018C6h,07BFFh,07F7Ch,07F77h,018C6h	;0
+	dw	07BFFh,057FAh,07F77h,018C6h,07BFFh,05AF7h,07F77h,018C6h	;20
+	dw	07BFFh,07EF6h,07F77h,018C6h,07BFFh,076FBh,07F77h,018C6h	;40
+	dw	07BFFh,0433Fh,07F77h,018C6h,07BFFh,05BF6h,07F77h,018C6h	;60
+	dw	07BFFh,06B5Fh,07F77h,018C6h,07BFFh,039FFh,07F77h,018C6h	;80
+	dw	07BFFh,06631h,07F77h,018C6h,07BFFh,04FFFh,07F77h,018C6h	;a0
+
+	dw	07BFFh,07f54h,02af1h,0843h	;worldmap 12
+	dw	07BFFh,047deh,01015h,01015h	;op_title 13~14
+  ifn	pm_jtitle
+	dw	07BFFh,047deh,03209h,025d5h	; changed for blue version
+  else
+	dw	07bffh,047deh,06252h,040e7h	;US_yellow title 追加（村川）
+  endif
+	dw	07BFFh,07a98h,07a8bh,0843h
+
+	dw	07BFFh,05BDFh,0421Bh,018C6h,07BFFh,07ED5h,05149h,018C6h	;0
+	dw	07BFFh,02F1Fh,0193Ah,018C6h,07BFFh,07F9Ah,07307h,018C6h	;20
+	dw	07BFFh,07ADBh,05DF6h,018C6h,07BFFh,04AFAh,029D2h,018C6h	;40
+	dw	07BFFh,04B98h,03EADh,018C6h,07BFFh,06B1Fh,0565Fh,018C6h	;60
+	dw	07BFFh,04FFFh,026FCh,018C6h,07BFFh,04B39h,03A10h,018C6h	;80
+
+	dw	07BFFh,07ADBh,0193Ah,018C6h,07BFFh,06AFFh,023BDh,018C6h	;0
+	dw	07BFFh,053F7h,023BDh,018C6h,07BFFh,07FB7h,023BDh,018C6h	;20
+	dw	07BFFh,018C6h,018C6h,018C6h,07BFFh,04FFFh,002A0h,018C6h	;40
+	dw	07BFFh,04FFFh,026FCh,018C6h,07BFFh,04FFFh,0193Ah,018C6h	;60
+	dw	07BFFh,02DF4h,052B6h,018C6h,07BFFh,02DF4h,052B6h,018C6h	;80
+	dw	07BFFh,03B1Ch,02E94h,018C6h
+;	public	syscol_37
+;syscol_37:
+	dw	07BFFh,05BDFh,07F77h,018C6h	; 白、薄黄、水色、黒 ; namipika_pal: にも使用されている
+	dw	07BFFh,026FCh,029D2h,018C6h
+ ifn  ASSEMBLE__ENGLISH
+;	public	syscol_39
+;syscol_39:
+	dw	07BFFh,04210h,0273Fh,018C6h	; 白、灰、山吹、黒 ; 新規に追加 (Pikachu's Beach タイトル用)
+ endif
+
+  ifn	1
+cgbsyscol:
+	dw	7fffh,13f0h,7eebh,0c63h	;0		(6fffh,13f0h,7ee2h,0c63h)
+	dw	7fffh,7e37h,7eebh,0c63h	;1		(6fffh,7e37h,7ee2h,0c63h)	マサラタウン
+	dw	7fffh,03f3h,7eebh,0c63h	;2		(6fffh,03f3h,7ee2h,0c63h)	トキワシティ
+	dw	7fffh,3e52h,7eebh,0c63h	;3		(6fffh,3e52h,7ee2h,0c63h)
+	dw	7fffh,7d05h,7eebh,0c63h	;4		(6fffh,7d05h,7ee2h,0c63h)
+	dw	7fffh,7c99h,7eebh,0c63h	;5		(6fffh,7c99h,7ee2h,0c63h)
+	dw	7fffh,027fh,7eebh,0c63h	;6		(6fffh,027fh,7ee2h,0c63h)
+	dw	7fffh,17e5h,7eebh,0c63h	;7		(6fffh,17e5h,7ee2h,0c63h)
+	dw	7fffh,3dffh,7eebh,0c63h	;8		(6fffh,3dffh,7ee2h,0c63h)
+	dw	7fffh,211fh,7eebh,0c63h	;9		(6fffh,001fh,7ee2h,0c63h)	グレンタウン
+	dw	7fffh,7d0bh,7eebh,0c63h	;10		(6fffh,7c84h,7ee2h,0c63h)	セキエイ高原
+	dw	7fffh,03ffh,7eebh,0c63h	;11		(6fffh,03ffh,7ee2h,0c63h)
+	dw	7fffh,7ea0h,038ah,0421h	;12
+	dw	7fffh,03ffh,001fh,001fh	;13
+	dw	7fffh,03ffh,64e7h,4400h	;14
+	dw	7fffh,7c2dh,7d20h,0421h	;15
+	dw	7fffh,03ffh,043fh,0c63h	;16
+	dw	7fffh,7e50h,6420h,0c63h	;17		(6fffh,7ca2h,6420h,0c63h)
+	dw	7fffh,023fh,001fh,0c63h	;18
+	dw	7fffh,7f50h,7e20h,0c63h	;19		(6fffh,7f2dh,7ea0h,0c63h)
+	dw	7fffh,7df9h,5813h,0c63h	;20		(6fffh,7c39h,5813h,0c63h)
+	dw	7fffh,2a5dh,1531h,0c63h	;21		(6fffh,061fh,04f3h,0c63h)
+	dw	7fffh,2ff1h,1ac1h,0c63h	;22		(6fffh,03f1h,1b00h,0c63h)
+	dw	7fffh,49ffh,181fh,0c63h	;23		(6fffh,44bfh,181fh,0c63h)
+	dw	7fffh,03ffh,01dch,0c63h	;24		(6fffh,03ffh,025fh,0c63h)
+	dw	7fffh,2af4h,156bh,0c63h	;25		(6fffh,0739h,156bh,0c63h)
+	dw	7fffh,7c39h,001fh,0c63h	;26		スロット
+	dw	7fffh,4c9fh,03ffh,0c63h	;27		スロット
+	dw	7fffh,03e8h,03ffh,0c63h	;28		スロット
+	dw	7fffh,7fe0h,03ffh,0c63h	;29		スロット
+	dw	7fffh,0c63h,0c63h,0c63h	;30
+	dw	7fffh,03ffh,03e0h,0c63h	;31
+	dw	7fffh,03ffh,025fh,0c63h	;32
+	dw	7fffh,03ffh,001fh,0c63h	;33
+	dw	7fffh,0117h,2dd1h,0c63h	;34
+	dw	7fffh,0117h,2dd1h,0c63h	;35
+	dw	7fffh,027fh,0273h,0c63h	;36
+	dw	7fffh,03ffh,7eebh,0c63h	;37		(6fffh,03ffh,7ee2h,0c63h)
+	dw	7fffh,025fh,04f3h,0c63h	;38
+	dw	7fffh,2529h,02bfh,0c63h	;39
+  endif
+
+
+picture_flame:
+	include		..\effdata\pf_y_map.dat
+	
+picf_chr:
+	include		..\effdata\pf_y_cgx.dat
+
+
+
+

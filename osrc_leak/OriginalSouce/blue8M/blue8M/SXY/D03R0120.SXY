@@ -1,0 +1,27 @@
+; Fri Mar 17 13:15:10 1995
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	002h
+	db	005h,002h,000h,D3R1F4
+	db	005h,003h,000h,D3R1F4
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	NIICHYAN
+	db	004h+4,000h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	001h
+	db	CAPSULE
+	db	001h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h+080h			; capsule type
+	db	025h				; item number
+ram_map_tbl$:
+	dw	008h * 003h + 002h + ram_map
+	db	005h,002h
+	dw	008h * 003h + 002h + ram_map
+	db	005h,003h

@@ -1,0 +1,70 @@
+	include	pm_debug.def
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t8_room1
+
+
+	extern	item_town_8J
+
+
+SHOP_TYPE	equ	2
+EXIT		=	0ffh
+
+
+t8_room1:
+ysiz	=	4
+xsiz	=	4
+	db	SHOP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	shop			; map data adrs
+	dw	msg_t8r1f1  		; message tbl adrs
+	dw	ev_t8r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t8r1f1
+
+
+ev_t8r1f1:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t8r1f1:
+	dw	item_town_8J
+	dw	msg2$
+	dw	msg3$
+
+
+msg2$:
+	extern	msg2_0_T08R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T08R0101	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_1_T08R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T08R0101	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t8r1f1:
+	include	..\sxy\t08r0101.sxy
+
+
+shop:
+	include	..\mapdata\shop_y.map
+
+
+
+

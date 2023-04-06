@@ -1,0 +1,5510 @@
+	include		pm_debug.def
+	include		common.def
+	include		anime.def
+	include	 	fntequ.def
+	include	 	banktool.def
+	include		map.def
+	include		dealer.def
+	include		macro.h
+	include		group.def
+
+
+;--------;
+; Bank 0 ;
+;--------;
+	public	init_hero_anime
+	public	look_guide
+	public	SetActorSite
+	public	SetActorSite2
+	public	GetMoveStatus
+	public	GetAnimeStatus
+	public	CheckAssignPos
+	public	CheckActorPos
+	public	CheckPosition
+	public	acttbl_l_adrs
+	public	acttbl_h_adrs
+	public	obj_stepping
+	public	obj_stopping
+	public	get_dealer_name
+	public	get_dealer_data 
+	public	push_bank
+	public	pop_bank
+	public	yes_no
+	public	ex_yes_no
+	public	leave
+	public	i_see
+	public	abs_ab
+	public	ex_div
+	public	set_kana
+	public	set_serifu
+	public	set_gauge
+	public	get_img_direct
+	public	se_play
+	public	se_wait
+	public	put_dec
+	public	cmp_byt
+	public	set_oam_buf16
+	public	add_capsule
+	public	add_capsule_new
+	public	add_capsule_new2
+	public	sub_capsule
+	public	okuri_chk
+	public	rnd
+	public	cont_abwait
+	public	cont_abwait_pi
+	public	cont_repeat
+	public	str_cpy
+	public	strcpy
+	public	get_gold
+	public	get_table
+	public	mul_direct
+	public	div_direct
+	public	mul_6
+	public	mul_any
+	public	allow
+	public	allow2
+	public	allow_1
+	public	white_allow
+	public	cls_allow
+	public	put_win_msg
+	public	put_nowin_msg
+	public	init_for_talkmap
+	public	init_for_talk2
+;	public	wait_msg
+	public	wait_vb_s
+	public	push_vram
+	public	pop_vram
+	public	push_vram_m
+	public	pop_vram_m
+	public	pop_vram_s
+;	public	memset
+	public	get_status
+	public	set_status_all
+	public	table_jump
+	public	check_money
+	public	check_coin
+	public	palset
+	public	pal_off
+	public	table_search
+	public	table_search1
+	public	color_set
+	public	color_rewrite
+	public	hp_color_chk
+	public	put_wait
+	public	pal_off_put_wait
+	public	set_objdata
+	public	set_objdata_main
+	public	take_item
+	public	take_monster
+
+
+;--------;
+; Bank 1 ;
+;--------;
+
+
+;--------;
+; Bank 3 ;
+;--------;
+	public	add_capsule2
+	public	add_capsule_sub
+	public	add_capsule2_sub
+	public	bit_control
+	public	bit_control2
+	public	kaihuku
+	public	mons_picture
+	public	put_mons_map
+	public	bcd_div_bc
+	public	bcd_div
+	public	bcd_div_sub
+	public	bcd_add
+	public	bcd_sub
+	public	bcd_sub_sub
+	public	bcd_to_dec
+;	public	get_name_adrs
+	public	event_initialize
+	public	mk_anime
+	public	mk_trace_cmd
+	public	offset_adrs
+	public	etc_offset_adrs
+	public	item_take_chk
+	public	change_command
+;	public	save_my_data
+;	public	save_my_data_0
+	public	put_graph_incdec
+	public	graph_ber_calc
+	public	take_pos
+	public	waza_point_set0
+
+
+	extern	bank_change
+
+	extern	lcdc_on
+	extern	lcdc_stop
+	extern	set_jiki
+	extern	set_objects
+	extern	oam_clr
+	
+	extern	vanish_setup
+	extern	cont
+	extern	wait_vb
+	extern	block_move
+	extern	bank_chg_block_m
+	extern	get_monsadr
+	extern	actor_blanch
+	extern	put_msg
+	extern	put_msg_s
+	extern	dvram_cls
+	extern	block_cls
+	extern	put_monschr
+	extern	sub_item
+	extern	uncompress
+	extern	step_prn_win
+	extern	get_level
+	extern	level_to_exp
+	extern	set_monsdata_dmy
+	extern	map_rewrite
+	extern	put_graph
+	extern	get_mons_name
+	extern	hero_size1
+	extern	waza_tbl
+	extern	point_up_add
+
+;	extern	play
+	extern	muspi
+	extern  muspi2
+
+	extern	item_name_tbl
+	extern	waza_name_tbl
+	extern	mons_name_tbl
+	extern	dealer_name_tbl
+	extern	badge_tbl
+	extern	rank_tbl
+;;	extern	revers_anime_buf
+
+	extern	fnt_kana
+	extern	fnt_serifu
+	extern	fnt_gauge
+	extern	fontset 
+	extern	fontmove
+	extern	chrset 
+	extern	chrmove 
+
+	extern	shop_window
+	extern	bank_push_call
+	extern	bank2bank
+	extern	ready2ready
+	extern	plural
+	extern	split_item2
+	extern	add_item
+	extern	put_window
+	extern	gyaarth_play
+	extern	mons_card
+	extern	get_item_name
+	extern	get_hiden_name
+	extern	w_map_effect
+	extern	allow_effect
+;;	extern	sub_cap_azuke
+
+	extern	rocket1
+	extern	rocket2
+
+	extern	memset
+
+	extern	BGMplay
+	extern	SEplay
+	extern	MusicStop
+
+	extern	change_cgb_bgp
+	extern	change_cgb_obp0
+	extern	change_cgb_obp1
+
+bank0	group	G_BANK0
+
+
+ACTOR_NEXT_ADRS		equ	actor_table + 0100h
+
+init_hero_anime:
+	xor	a
+	ld	(auto_move_msk),a
+	ld	(actor_table + 106h),a
+
+	ld	hl,obs_system
+	set	7,(hl)				; hero's animetion mode on
+
+	ret
+
+
+
+	public	check_pack
+check_pack:
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+	ld	a,b
+	and	a
+
+	ret
+
+
+;----------------------------------------------------------;
+;	PIKATYU_CHECK					   ;
+;	obs_pikachu : bit7 0=PikaOff 1=PikaON		   ;
+;		    : bit6 0=NAMIPikaOff 1=NAMIPikaON	   ;
+;----------------------------------------------------------;
+	public	PikatyuCheck
+
+PIKATYU_NO		equ	84
+WAZA_NAMINORI_NO	equ	57
+
+PikatyuCheck:
+	ld	a,(obs_pikachu)
+	and	00111111b
+	ld	(obs_pikachu),a
+
+	ld	hl,my_cap_data+0	;MonNo Pos
+	ld	c,6
+	ld	b,WAZA_NAMINORI_NO
+check_loop$:	
+	ld	a,(hl)
+	cp	PIKATYU_NO
+	jr	nz,next$
+
+	push	hl
+	ld	de,08h
+	add	hl,de
+
+	ld	a,(hli)
+	cp	b
+	jr	z,waza_on$
+	ld	a,(hli)
+	cp	b
+	jr	z,waza_on$
+	ld	a,(hli)
+	cp	b
+	jr	z,waza_on$
+	ld	a,(hli)
+	cp	b
+	jr	nz,pass$
+waza_on$:
+	ld	a,(obs_pikachu)
+	set	6,a
+	ld	(obs_pikachu),a
+pass$:
+	pop	hl
+next$:
+	ld	de,CAPDATA_LEN
+	add	hl,de
+	dec	c
+	jr	nz,check_loop$
+
+	call	OnlyPikaCheck
+
+	ret
+
+
+OnlyPikaCheck;
+	push	hl
+	push	bc
+	extern	special_pika_chk
+	ld	hl,special_pika_chk
+	ld	b,G_BANK3f
+	call	bank_push_call
+	pop	bc
+	pop	hl
+	ret	nc
+
+	ld	a,(obs_pikachu)
+	set	7,a
+	ld	(obs_pikachu),a
+	ret
+
+;----------------------------------------------------------;
+; looking pocket monsters guide book, setting status after ;
+; <<in>>						   ;
+; a-regs	programable number of monster		   ;
+;----------------------------------------------------------;
+look_guide:
+	ld	(in_dat),a
+
+	ld	b,001h
+	ld	hl,LookGuide
+	jp	bank_push_call
+
+
+;---------------------------------------------------------------;
+;	setting site code for target actor on the screen	;
+; <<in>>							;
+;	work1							;
+;		actor number ( 000h -- 00fh )			;
+;	work2							;
+;		site code ( 000h, 004h, 008h, 00ch )		;
+;---------------------------------------------------------------;
+SetActorSite:
+	call	SetActorSite2
+	ld	c,6
+	jp	wait_vb_s
+
+SetActorSite2:
+	ld	a,09h
+	ld	(work0),a
+	call	acttbl_l_adrs
+	ld	a,(work2)
+	ld	(hl),a
+
+	ret
+
+
+	public	acttbl2set
+
+acttbl2set:
+	ld	de,-7
+	add	hl,de
+	ld	(hl),a
+
+	ret
+
+  ifn	YELLOW_VERSION
+;========================================
+; In	: work1		actor number
+;	: work2		actor site code
+;========================================
+	public	ActPatSet
+
+ActPatSet:
+	ld	a,(work1)
+	swap	a
+	add	a,0eh
+	ld	l,a
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	c,(hl)			; +10e: chr number area
+	dec	c
+	swap	c
+	ld	a,(work2)
+	add	a,c
+	ld	c,a
+
+	ld	a,(work1)
+	swap	a
+	add	a,02h
+	ld	l,a
+	dec	h			; > actor_table
+	ld	(hl),c			; +002: actor pattern
+	ret
+	
+  endif
+
+;---------------------------------------------------------------;
+;	check positions of all assigned in table structure	;
+; <<form>>							;
+;	db	mapscloll_y,mapscloll_x				;
+;	db	0ffh				; end mark	;
+; <<in>>					     		;
+; (Calling to CheckAssignPos)					;
+;	hl-regs							;
+;		table top address				;
+; (Calling to CheckPosition)					;
+;	bc-regs							;
+;		mapscloll_y, mapscloll_x value			;
+; <<out>>							;
+;	(usr_buf + 0)						;
+;		apply counter(1-origin)				;
+;	carry-flag						;
+;		set	:apply the checking position		;
+;		reset	:non					;
+;---------------------------------------------------------------;
+CheckAssignPos:
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	a,(mapscloll_x)
+	ld	c,a
+
+CheckPosition:
+	xor	a
+	ld	(usr_buf + 0),a
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh				; check table end
+	jr	z,end$
+
+	push	hl
+	ld	hl,usr_buf + 0
+	inc	(hl)
+	pop	hl
+
+	cp	b				; check appling y-position
+	jr	z,next$
+
+	inc	hl
+
+	jr	loop$
+
+
+next$:
+	ld	a,(hli)
+	cp	c				; check appling x-position
+	jr	nz,loop$
+
+apply$:
+	scf
+
+	ret
+
+
+end$:
+	and	a
+
+	ret
+
+
+;---------------------------------------------------------------;
+;	check positions of all assigned in table structure	;
+;		for other actors...........................	;
+; <<form>>							;
+;	db	global_y,global_x				;
+;	db	0ffh				; end mark	;
+;								;
+;		global_y : pickup code in ce2 assigned		;
+;		global_x : pickup code in ce2 assigned		;
+; <<in>>					     		;
+;	work1							;
+;		target actor number(001h --- 00fh)		;
+;	hl-regs							;
+;		table top address				;
+; <<out>>							;
+;	carry-flag						;
+;		set	:apply the checking position		;
+;		reset	:non					;
+;	(usr_buf + 0)						;
+;		apply counter(1-origin)				;
+;---------------------------------------------------------------;
+CheckActorPos:
+	push	hl
+
+	ld	hl,actor_table + 0104h
+	ld	a,(work1)
+	swap	a
+	ld	d,0
+	ld	e,a
+	add	hl,de
+	ld	a,(hli)
+	sub	004h
+	ld	b,a
+	ld	a,(hl)
+	sub	004h
+	ld	c,a
+
+	pop	hl
+
+	jp	CheckPosition
+
+
+;--------------------------------------------------;
+; get address of "actor_table" as offset value add ;
+; <<in>>					   ;
+;	work0		offset value		   ;
+;	work1		actor number(00-0f)	   ;
+;--------------------------------------------------;
+acttbl_l_adrs:
+	ld	h,> actor_table
+
+	jr	acttbl_adrs
+
+
+acttbl_h_adrs:
+	ld	h,> ACTOR_NEXT_ADRS
+
+acttbl_adrs:
+	ld	a,(work0)
+	ld	b,a
+	ld	a,(work1)
+	swap	a				; * 010h
+	add	a,b
+	ld	l,a
+
+	ret
+
+
+;=====================================================;
+; making animetion command by trace animetion command ;
+; << in >>					      ;
+;	de-regs		ex-command table	      ;
+;	hl-regs		output address		      ;
+; << out >>					      ;
+;	a-regs		animetion command counts      ;
+;=====================================================;
+mk_trace_cmd:
+	xor	a
+	ld	(work_anime_buf + 59),a
+
+loop$:
+	ld	a,(de)
+	cp	A_E
+	jr	z,end$
+
+	ld	(work0),a			; command code
+	inc	de
+	ld	a,(de)				; commad lots
+	ld	b,0
+	ld	c,a
+	ld	a,(work_anime_buf + 59)
+	add	a,c
+	ld	(work_anime_buf + 59),a
+	ld	a,(work0)
+	call	memset
+
+	inc	de
+
+	jr	loop$
+
+
+end$:
+	ld	a,A_E
+	ld	(hl),a
+
+	ld	a,(work_anime_buf + 59)
+	inc	a				; anime command count value
+
+	ret
+
+
+;------------------------------------------------;
+; change to auto-animetion step mode 		 ;
+; << in >>				         ;
+;	(work1)		actor number(01h -- 0fh) ;
+;	(work2)		attribute code		 ;
+;------------------------------------------------;
+obj_stepping:
+	push	hl
+
+	call	GetAnimeStatus
+	ld	(hl),0feh			; auto-animetion step
+
+	call	GetMoveStatus
+	ld	a,(work2)			; attribute code
+	ld	(hl),a
+
+	pop	hl
+
+	ret
+
+
+obj_stopping:
+	push	hl
+
+	call	GetAnimeStatus
+	ld	(hl),0ffh			; auto-animetion step
+
+	call	GetMoveStatus
+	ld	(hl),0ffh			; attribute code
+
+	pop	hl
+
+	ret
+
+
+;------------------------------------------------;
+; << in >>				         ;
+;	(work1)		actor number(01h -- 0fh) ;
+; << out >>				         ;
+;	hl-regs		target address		 ;
+;------------------------------------------------;
+GetAnimeStatus:
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(work1)
+	swap	a				; * 010h
+	add	a,006h
+	ld	l,a
+
+	ret
+
+
+GetMoveStatus:
+	push	de
+
+	ld	hl,hito_tbl
+	ld	a,(work1)
+	dec	a
+	add	a,a				; *2
+	ld	e,a
+	ld	d,0
+	add	hl,de
+
+	pop	de
+
+	ret
+
+
+
+	extern	dealer_tbl
+
+get_dealer_data:
+	call	get_dealer_name
+
+	ld	a,(tuushin_flg)
+	and	a
+	jr	nz,tuushin$
+
+	ld	a,0eh
+	call	push_bank
+
+	ld	a,(dealer_no)
+	dec	a
+	ld	hl,dealer_tbl
+	ld	bc,5
+	call	mul_any
+
+	ld	de,dealer_chr_adr
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hli)
+	ld	(de),a
+
+	ld	de,dealer_gold
+
+set$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hli)
+	ld	(de),a
+	
+	call	rocket_chk	
+
+	jp	pop_bank
+
+
+tuushin$:
+	ld	hl,dealer_chr_adr
+	ld	de,hero_size1
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+
+	ret
+
+
+rocket_chk:	
+	ld	a,(dealer_no)
+	cp	30
+	ret	nz
+
+	ld	a,(take_mons_ptn)
+	cp	42
+	ret	c
+
+	ld	de,rocket1
+	cp	46
+	jr	c,set$
+
+	ld	de,rocket2
+set$:
+	ld	hl,dealer_chr_adr
+	ld	a,e
+	ld	(hli),a
+	ld	(hl),d
+
+	ret
+
+	
+get_dealer_name:
+	ld	b,3dh
+	ld	hl,getdealernm_sub
+	jp	bank_push_call
+
+
+;--------------------;
+; check taking money ;
+;--------------------;
+check_money:
+	ld	de,my_gold + 0
+	ld	hl,divwk1 + 0			; use divwk1 + 0, + 1, + 2
+	ld	c,3
+	jp	cmp_byt				; nc: ok
+
+
+check_coin:
+	ld	de,coin + 0
+	ld	hl,divwk1 + 1			; use divwk1 +1,+ 2
+	ld	c,2
+	jp	cmp_byt				; nc: ok
+
+
+
+
+push_bank:
+	ld	(chg_bank_num),a	; Load Change Bank Number Save  
+
+	ld	a,(rombankno)		; Now Bank Number Load
+	ld	(now_bank_num),a
+
+	ld	a,(chg_bank_num)	; Change Bank Number Load
+	call	bank_change		; Set Change Bank Number
+
+	ret
+
+
+pop_bank:
+	ld	a,(now_bank_num)
+	call	bank_change
+
+	ret
+
+
+
+
+;-------------------------------------------;
+; yes or no selection window for solid form ;
+;-------------------------------------------;
+yes_no:
+	call	push_vram
+
+	call	yes_no_same
+
+	jr	same_r
+
+
+ex_yes_no:
+	ld	a,YES_NO_WIN
+	ld	(disp_win_mode),a
+
+	call	yes_no_same
+
+	jp	step_prn_win
+
+
+yes_no_same:
+	xor	a
+	ld	(itwk0),a
+
+	ld	hl,7*20 + 14 + dmy_vram
+	ld	bc,8 * 256 + 15
+
+	ret
+
+
+;-----------------------;
+; leave or no selection ;
+;-----------------------;
+leave:
+	call	push_vram
+
+	ld	a,6
+	ld	(itwk0),a
+
+  ifn	pm_jmsg
+	ld	hl,6*20 + 13 + dmy_vram
+	ld	bc,8 * 256 + 14
+  else
+	ld	hl,6*20 + 11 + dmy_vram
+	ld	bc,8 * 256 + 12
+  endif
+
+	jr	same_r
+
+
+;-------------------------------------------;
+; see or no selection window for solid form ;
+;-------------------------------------------;
+i_see:
+	call	push_vram
+
+	ld	a,3
+	ld	(itwk0),a
+
+	ld	hl,7*014h + 12 + dmy_vram
+	ld	bc,8 * 0100h + 13
+
+
+
+same_r:
+	ld	a,YES_NO_WIN
+	ld	(disp_win_mode),a
+
+	call	step_prn_win
+
+	jp	pop_vram
+
+
+
+;===============================================;
+;						;
+;	absolute value for "a = |a - b|"	;
+;						;
+;===============================================;
+abs_ab:
+	sub	b
+	ret	nc				; plus value
+
+	cpl
+	add	a,01h
+
+	scf					; minus value
+
+	ret
+
+
+;===============================================;
+;						;
+;	actor animetion set			;
+;						;
+; IN						;
+;	de regs	(broken)			;
+;		animetion command table		;
+;						;
+;	(work1)	 			        ;
+;		actor number as 01h --- 0fh     ;
+;						;
+; OUT						;
+;	HL regs					;
+;		"anime_buf" address		;
+;						;
+;	obs_anime_step				;
+;		animetion step count		;
+;						;
+;===============================================;
+	public	actor_anime_set
+	public	ActorAnimeSet
+
+actor_anime_set:				; stop -> anime set
+	call	obj_stopping
+
+ActorAnimeSet:					; all status -> anime
+	push	hl
+	push	bc
+
+	call	GetAnimeStatus
+	xor	a
+	ld	(hl),a				; animetion mode on
+
+	ld	hl,anime_buf
+	ld	c,000h
+
+loop1$:
+	ld	a,(de)
+	ld	(hli),a
+
+	inc	de
+	inc	c
+
+	cp	A_E
+	jr	nz,loop1$
+
+
+rts$:
+	ld	a,c
+	ld	(obs_anime_step),a
+
+	pop	bc
+
+	ld	hl,obs_system
+	set	0,(hl)				; animetion observe mode on
+
+	pop	hl
+
+	xor	a
+	ld	(auto_move_msk),a
+	ld	(ctrl_move_val),a
+
+	dec	a
+	ld	(cancel_key),a			; cancel of all key status
+	ld	(auto_move_cnt),a
+;	ld	(ctrl_move_cnt),a
+
+	ret
+
+
+;=======================================================;
+;							;
+;	easy division					;
+;	(temp_box1) / (temp_box2) = (temp_box3)		;
+;							;
+;=======================================================;
+ex_div:
+	push	hl
+
+	ld	hl,temp_box3
+	xor	a
+	ld	(hld),a				; temp_box3 
+	ld	a,(hld)				; temp_box2
+	and	a
+	jr	z,div_end$			; bunbo (temp_box2) = zero
+
+	ld	a,(hli)				; temp_box1
+
+loop$:
+	sub	(hl)				; temp_box2
+	jr	c,div_end$
+
+	inc	hl
+	inc	(hl)				; temp_box3
+	dec	hl
+
+	jr	loop$
+
+
+div_end$:
+	pop	hl
+
+	ret	
+
+
+;===============================;
+;				;
+;	set font routines	;
+;				;
+;===============================;
+set_kana:
+	ld	a,(LCDC)
+	bit	7,a
+	jr	nz,move$
+
+	ld	hl,fnt_kana		;font kana data address set
+	ld	de,CHAR_SIG		;dvram address set
+	ld	bc,128*8		;Position Y Counter
+	ld	a,4			;Bank Number
+	jp	fontset
+
+
+move$:
+	ld	de,fnt_kana		;font kana data address set
+	ld	hl,CHAR_SIG		;dvram address set
+	ld	bc,4*256 + 128		;Bank No + Position Y Counter
+	jp	fontmove
+
+
+set_serifu:
+	ld	a,(LCDC)
+	bit	7,a
+	jr	nz,move$
+
+	ld	hl,fnt_serifu
+	ld	de,09600h
+	ld	bc,32*16 
+	ld	a,4
+	jp	chrset 
+
+
+move$:
+	ld	de,fnt_serifu
+	ld	hl,09600h
+	ld	bc,4*256 + 32		; bank 4  32 chara 
+	jp	chrmove 
+
+
+set_gauge:
+	ld	a,(LCDC)
+	bit	7,a
+	jr	nz,move$
+
+	ld	hl,fnt_gauge + 32
+	ld	de,09620h
+	ld	bc,30*16		; 30 chara 
+	ld	a,4
+	jp	chrset 
+
+
+move$:
+	ld	de,fnt_gauge + 32
+	ld	hl,09620h
+	ld	bc,4*256 + 30		; bank 4  30 chara 
+	jp	chrmove 
+
+
+
+;*****************************************
+;* Function	get_img_direct		*
+;* IN	DE	address of image data	*
+;*	A	bank no			*
+;*****************************************
+get_img_direct:
+	ld	hl,comp_data_adrs
+	ld	(hl),e			; image data low address
+	inc	hl			; comp_data_adrs ++
+	ld	(hl),d			; image data high address
+
+	jp	uncompress
+
+
+;*************************************************
+;* Function	push_vram_m, pop_vram_m		*
+;*************************************************
+push_vram_m:				; Copy dmy_vram -> dmy_map2
+	ld	hl,dmy_vram		; 
+	ld	de,dmy_map2		; Size 24 * 20
+	ld	bc,18*20		; 20block * 18block
+	jp	block_move
+
+
+pop_vram_m:				; Copy dmy_map -> dmy_vram
+	call	pop_vram_s
+	ld	a,1
+	ld	(all_put_req),a
+	ret
+
+
+pop_vram_s:
+	xor	a
+	ld	(all_put_req),a
+	ld	hl,dmy_map2		; Size 24 * 20
+	ld	de,dmy_vram		;
+	ld	bc,18*20		; 20 Block * 18 Block
+	jp  	block_move
+	
+
+;*******************************************; Normal Pattarn Screen Push&Pop
+;* Function : push_vram   , pop_vram       *
+;*******************************************
+push_vram:				; Copy dmy_vram -> dmy_map
+	ld	hl,dmy_vram		; Size 20 * 18
+	ld	de,dmy_map		; Size 24 * 20
+	ld	bc,20*18
+	jp	block_move
+
+
+pop_vram:				; Copy dmy_map -> dmy_vram 
+	xor	a
+	ld	(all_put_req),a
+	ld	hl,dmy_map		; Size 24 * 20
+	ld	de,dmy_vram		; Size 20 * 18
+	ld	bc,20*18
+	call	block_move
+	ld	a,1
+	ld	(all_put_req),a
+
+	ret
+
+
+;*************************************************
+;* Function	wait_vb_s  C/60 sec		*
+;* IN	C		wait counter		*
+;*************************************************
+wait_vb_s:
+	call	wait_vb				; vblank wait
+
+	dec	c				; count down 
+	jr	nz,wait_vb_s
+
+	ret
+
+
+
+;*************************************************
+;* Function	se_play				*
+;*************************************************
+se_play:
+	push	af
+
+	call	se_wait
+
+	pop	af
+
+	jp	SEplay
+
+	
+;*************************************************
+;* Function	se_wait				*
+;*************************************************
+se_wait:
+	ld	a,(pinchi_flg)
+	and	080h
+	ret	nz
+
+	push	hl
+
+ret2$:
+	ld	hl,condetion + 4		; condetion + 4
+	xor	a			
+	or	(hl)
+	inc	hl				; condetion + 5
+	or	(hl)
+	inc	hl				; condetion + 6
+	inc	hl				; condetion + 7
+	or	(hl)
+	and	a
+	jr	nz,ret2$
+
+	pop	hl
+
+	ret
+
+
+
+;*****************************************************************
+;* Function	get_table					*
+;*		read the table data setting bank number & etc	*
+;* IN	tbl_pos		the table position of the object data 	*
+;*	tbl_number	searching table asign number		*
+;*	tbl_bank	the memory bank of the searching table	*
+;* OUT	table_data	object data ( 20byte )			*
+;*****************************************************************
+;------------------------------------;
+; for reading the data of each table ;
+;------------------------------------;
+table_list:
+	dw	mons_name_tbl		;1 bank3a(bankeÇ©ÇÁïœçX)Åië∫êÏÅj
+	dw	waza_name_tbl		;2 bank2f(bank4Ç©ÇÁïœçX)Åië∫êÏÅj
+	dw	badge_tbl			;3 bank1
+	dw	item_name_tbl		;4 bank1
+	dw	my_cap_oya			;5 work
+	dw	gein_cap_oya		;6 work
+	dw	dealer_name_tbl		;7 banke
+
+
+get_table:		; table_data[] = get_table((tbl_pos),(tbl_number),(tbl_bank))
+	ld	a,(tbl_pos)
+	ld	(in_dat),a
+;	cp	201
+	cp	196
+	jp	nc,get_hiden_name		; if ((tbl_pos) >= 196)  goto  get_hiden_name
+
+	ld	a,(rombankno)
+	push	af
+	
+	push	hl
+	push 	bc
+	push 	de
+
+	ld	a,(tbl_number)			; which table ?
+	dec	a				;cp 1 mons_name
+	jr	nz,z20$
+
+	call	get_mons_name	;(table_data[0..]=mons_name_tbl[(in_dat)])
+	ld	hl,MONS_NAME_LEN
+	add	hl,de
+	ld	e,l
+	ld	d,h
+
+	jr	z30$
+
+
+z20$:
+	ld	a,(tbl_bank)			; rom bank exchange
+	call	bank_change
+
+	ld	a,(tbl_number)			; which table ?
+	dec	a				; cause 1 origin value
+	add	a,a				; *2
+	ld	d,0
+	ld	e,a
+	jr	nc,z1$
+	inc	d
+z1$:
+	ld	hl,table_list
+	add	hl,de			; HL= &table_list[(tbl_number - 1)*2]
+	ld	a,(hli)
+	ld	(calc_work1),a			; table address (L)
+	ld	a,(hl)
+	ld	(calc_work0),a			; table address (H)
+	ld	a,(calc_work0)
+	ld	h,a
+	ld	a,(calc_work1)
+	ld	l,a
+
+	ld	a,(tbl_pos)			; Table Position set
+	ld	b,a
+	ld	c,0				; counter initialize
+
+eom1$:
+	ld	d,h				; top of just reading data
+	ld	e,l
+
+eom2$:
+	ld	a,(hli)
+	cp	EOM				; check end of mark
+	jr	nz,eom2$
+
+	inc	c
+	ld	a,b				; table position rewrite
+	cp	c				; find ?
+	jr	nz,eom1$
+
+	ld	h,d
+	ld	l,e
+
+	ld	de,table_data
+	ld	bc,TABLE_DATA_DS_SIZE		; table_data[0..] = xxxx_tbl[(tbl_pos)][0..]
+	call	block_move			; set the data
+
+z30$:
+	ld	a,e
+	ld	(item_name_adrs + 0),a
+	ld	a,d
+	ld	(item_name_adrs + 1),a
+
+	pop	de
+	pop	bc
+	pop	hl
+
+	pop	af
+	call	bank_change
+
+	ret
+
+
+;*************************************************
+;* Function	get_gold			*
+;* IN	A		sel_item_no		*
+;*			mons_or_item		*
+;*			item_gold_adrs		*
+;* OUT	DE = work0	BCD data in	 	*
+;*      HL              BCD data address        *
+;* Comment : Item Gold Table Bank 0 -> 1 Move    *
+;*************************************************
+get_gold:	
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,(mons_or_item)
+	cp	1			; waza ?
+	ld	a,1
+	jr	nz,z0$
+
+	ld	a,0fh
+
+z0$:
+	call	bank_change
+
+	ld	hl,item_gold_adrs
+	ld	a,(hli)			; item gold address copy
+	ld	h,(hl)
+	ld	l,a
+
+	ld	a,(sel_item_no)		; Check sel_item_no = 0?
+;	cp	201
+	cp	196
+	jr	nc,hidensyo$	
+
+	ld	bc,3
+
+z1$:
+	add	hl,bc			; gold address 3 Byte Step Up
+	dec	a
+	jr	nz,z1$
+
+	dec	hl
+	ld	a,(hld)
+	ld	(work2),a
+	ld	a,(hld)
+	ld	(work1),a
+	ld	a,(hl)
+	ld	(work0),a
+
+	jr	fin$
+
+
+hidensyo$:
+	ld	a,3dh
+	call	bank_change
+
+	call	get_hiden_gold
+	
+fin$:
+	ld	de,work0
+
+	pop	af
+	call	bank_change
+
+	ret
+
+
+;*************************************************
+;* Function	str_cpy				*
+;* IN	DE		moving data address	* 
+;* OUT	str_buf		buffer			*
+;*************************************************
+str_cpy:
+	ld	hl,str_buf			; 20 byte work area
+
+strcpy:
+
+loop$:
+	ld	a,(de)				; setting data
+	inc	de
+	ld	(hli),a
+
+	cp	EOM				; string end is '@eom'
+	jr	nz,loop$
+
+	ret
+
+
+;*************************************************
+;* Function	cont_repeat			*
+;*************************************************
+cont_repeat:
+	call	cont
+
+	ld	a,(cont_joy_flg)
+	and	a
+	ld	a,(joy_on)
+	jr	z,pass1$
+
+	ld	a,(joy_status)			; 1995.3.13 By Jun
+
+pass1$:
+	ld	(joy_repeat),a 			; push status
+
+	ld	a,(joy_on)			; press status
+	and	a
+	jr	z,no_press$			; no press status
+
+	ld	a,30
+	ld	(vb_count),a			; v-blank time count = 30
+
+	ret
+
+
+no_press$:
+	ld	a,(vb_count)
+	and	a
+	jr	z,vb_count_end$
+
+	xor	a
+	ld	(joy_repeat),a
+
+	ret
+
+
+vb_count_end$:
+	ld	a,(joy_status)
+	and	003h				; A or B button
+	jr	z,z3$
+
+	ld	a,(joy_abrepeat)
+	and	a
+	jr	nz,z3$
+
+	xor	a
+	ld	(joy_repeat),a
+z3$:
+	ld	a,5
+	ld	(vb_count),a
+
+	ret
+
+
+;*************************************************
+;* Function	cont_abwait			*
+;*************************************************
+cont_abwait:
+	ld	a,(work0)
+	push	af
+
+	ld	a,(work1)
+	push	af
+
+	xor	a
+	ld	(work0),a
+
+	ld	a,6
+	ld	(work1),a
+	
+z1$:
+	push	hl
+
+	ld	a,(ef_adr4_l)			;worldmap_flg
+	and	a
+	jr	z,z2$
+
+;	call	w_map_effect
+
+	push	de
+	push	bc
+	ld	hl,w_map_effect
+	ld	b,G_BANK1c
+	call	bank_push_call
+	pop	bc
+	pop	de
+
+z2$:
+	S_POS	18,16
+	call	tenmetsu			; allowd wo tenmetsu
+
+	pop	hl
+
+	call	cont_repeat
+
+	ld	a,B_MAP_CONTACT
+	call	bank2bank
+
+	ld	a,(joy_repeat)
+	and	003h				; case of 'A' or 'B' press
+	jr	z,z1$
+
+	pop	af
+	ld	(work1),a
+
+	pop	af
+	ld	(work0),a
+
+	ret
+
+;*************************************************
+;* Function	cont_abwait_pi			*;Update By Ubu
+;*************************************************
+cont_abwait_pi:
+	ld	a,(tuushin_flg)
+	cp	4
+	jr	z,pass1$
+
+	call	cont_abwait		; wait input button 'A' or 'B'
+
+	call	se_wait
+	ld	a,< muspi			; Common Bank SE
+	jp	SEplay
+
+pass1$:
+	ld	c,65
+	jp	wait_vb_s
+
+
+;****************************************************************
+;*    mul_direct						*	
+;*	   (calc_work1) * (calc_work4)  =>  (calc_work0) 	*
+;*	      3byte          1byte             4byte		*
+;*    in  : calc_work1~3 (3byte)				*
+;*        : calc_work4   (1byte)				*
+;*    out : calc_work0~3 (4byte)				*
+;****************************************************************
+mul_direct:
+	push	hl
+	push	bc
+	ld	hl,Multiply_Direct
+	ld	b,03dh
+	call	bank_push_call
+	pop	bc
+	pop	hl
+	ret
+
+
+;************************************************************************
+;*    div_direct							*	
+;*	   (calc_work0) / (calc_work4) => (calc_work0) ... (calc_work4)	*
+;*	      4byte          1byte           4byte	      1byte	*
+;*    in  : calc_work0~3 (bunshi)					*
+;*        : calc_work4   (bunbo)					*
+;*	  : b = bunshi no byte						*
+;*    out : calc_work0~3 (kotae)					*
+;*    	  : calc_work4   (amari)					*
+;************************************************************************
+div_direct:
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,(rombankno)
+	push	af
+	ld	a,03dh
+	call	bank_change
+
+	call	Division_Direct
+
+	pop	af
+	call	bank_change
+
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+	
+
+;===============================================;
+;						;
+;	Function	okuri_chk		;
+;	IN					;
+;	msg_speed				;
+;		bit-0 = 0	high speed	;
+;	      	bit-0 = 1	slow		;
+;	      	bit-1 = 0 	no message	;
+;	      	bit-1 = 1 	message on	;
+;						;
+;===============================================;
+FAST_PUT	equ	1
+
+okuri_chk:
+	ld	a,(obs_system)
+	bit	6,a
+	ret	nz				; system mode check
+
+	ld	a,(msg_speed)
+	bit	1,a
+	ret	z				; check message just printing
+
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,(msg_speed)
+	bit	0,a
+	jr	z,h_speed$
+
+	ld	a,(my_lvl)			; speed 1 ~ 5 ~ 9
+	and	0fh
+	ld	(vb_count),a
+
+	jr	put_wait$
+
+
+h_speed$:
+	ld	a,FAST_PUT			; fast speed put character
+	ld	(vb_count),a
+
+put_wait$:
+	call	cont
+	ld	a,(joy_status)
+
+	bit	0,a				; slow speed cancel by button-a
+	jr	z,z1$
+
+	jr	fact_wait$
+
+
+z1$:
+	bit	1,a				; slow speed cancel by button-b
+	jr	z,wait_tail$
+
+fact_wait$:
+	call	wait_vb
+
+	jr	wait_cancel$
+
+
+wait_tail$:
+	ld	a,(vb_count)
+	and	a
+	jr	nz,put_wait$
+
+wait_cancel$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+block_move_inc:
+z1$:
+	ld	a,(hli)		; HL register no nakami load & HL ++
+	ld	(de),a
+	inc	de
+
+	ld	a,h
+	cp	b
+	jr	nz,z1$
+
+	ld	a,l
+	cp	c
+	jr	nz,z1$
+
+	ret
+
+
+;*****************************************************************
+;* Function	sub_capsule					*
+;* IN	sel_item_pos		selected list position		*
+;*	cap_or_mons		0 = temoti ( my_cap_tbl )	*
+;*				1 = azuke  ( my_mons_tbl )	*
+;*****************************************************************
+sub_capsule:
+	ld	hl,sub_capsule_sub
+	ld	b,001h
+	jp	bank_push_call
+
+;*****************************************************************
+;* Function	add_capsule_new					 *
+;* IN	sel_item_no		selected monster number		 *
+;*	mons_level		monster level			 *
+;*	my_or_gein		0 = my monster 1 = enemy monster *
+;*				bit 8 on = koukan (not name in)	 *
+;* OUT	Carry...................Add New			 	 *
+;*      Non Carry...............Don't Add New                    *
+;*	my_cap_tbl		set the adding monster's number	 *
+;*	my_cap_oya		set the adding monster's oya	 *
+;*	my_cap_data		set the adding monster's data	 *
+;*****************************************************************
+add_capsule_new:
+	push	hl
+	push	de
+	push	bc
+
+	ld	b,3
+	ld	hl,add_capsule_new2
+	call	bank_push_call
+
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+
+;*****************************************
+;*  set_status_all			*
+;*  in : mons_level			*
+;*       mons_data			*
+;*       hl = keikenchi address - 1	*
+;*  	 ( call from level up )		*
+;*	de = set data address ( status )*
+;*        b = call from			*
+;*	     0 = not level up		*
+;*	     1 = level up 		*
+; c = data kind
+; 1 = HPmax   2 = attack
+; 3 = defence 4 = quick
+; 5 = tokusyu nouryoku
+;*****************************************
+set_status_all:
+	ld	c,0
+
+loop2$:
+	inc	c			; c = data kind
+	call	get_status
+
+	ld	a,(calc_work2)
+	ld	(de),a
+	inc	de
+	ld	a,(calc_work3)
+	ld	(de),a
+	inc	de
+	ld	a,c
+	cp	5
+	jr	nz,loop2$
+
+	ret
+
+
+;*****************************************
+;*   get_status				*
+;*   in : mons_level			*
+;*	 mons_data			*
+;*	hl = keikenchi address - 1	*
+;*  	 ( call from level up )		*
+;*        c = data kind			*
+;*	     1 = HPmax			*
+;*	     2 = attack			*
+;*	     3 = defence		*
+;*	     4 = quick			*
+;*	     5 = tokusyu nouryoku	*
+;*        b = call from			*
+;*	     0 = not level up		*
+;*	     1 = level up 		*
+;*  out : (calc_work2)(calc_work3)	*
+;*****************************************
+get_status:
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,b
+	ld	d,a				; call from
+
+	push	hl				; keikenchi address - 1
+	ld	hl,mons_data
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hl)				; kihon status
+	ld	e,a
+	pop	hl				; keikenchi address - 1
+
+	push	hl				; keikenchi address - 1
+
+	sla	c				; * 2
+
+	ld	a,d
+	and	a
+	jr	z,power_rnd$			; call from add_capsule_new
+
+	add	hl,bc				; b = 0
+						; kakusyu keikenchi position
+
+loop$:
+	xor	a
+	ld	(calc_work1),a
+	ld	(calc_work2),a
+	inc	b
+	ld	a,b
+	cp	0ffh
+	jr	z,power_rnd$	
+
+	ld	(calc_work3),a
+	ld	(calc_work4),a
+	call	mul_direct
+
+	ld	a,(hld)			; keikenchi ( low )
+	ld	d,a
+	ld	a,(calc_work3)
+	sub	d
+	ld	a,(hli)			; keikenchi ( high )
+	ld	d,a
+	ld	a,(calc_work2)
+	sbc	a,d
+	jr	c,loop$	
+		
+power_rnd$:
+	srl	c			; / 2 ( motoni modosu )
+	pop	hl			; keikenchi address - 1
+
+	push	bc
+	ld	bc,11
+	add	hl,bc			; hl = power rnd			
+	pop	bc
+
+	ld	a,c
+	cp	2
+	jr	z,attack$
+	cp	3
+	jr	z,deffence$
+	cp	4
+	jr	z,quick$
+	cp	5
+	jr	z,tokusyu$
+
+hp$:
+	push	bc
+	ld	a,(hl)
+	swap	a
+	and	001h
+	sla	a
+	sla	a
+	sla	a
+	ld	b,a
+	ld	a,(hli)
+	and	001h
+	sla	a
+	sla	a
+	add	a,b
+	ld	b,a
+	ld	a,(hl)
+	swap	a
+	and	001h
+	sla	a
+	add	a,b
+	ld	b,a
+	ld	a,(hl)
+	and	001h
+	add	a,b
+	pop	bc
+	jr	add$
+
+	
+attack$:
+	ld	a,(hl)
+	swap	a
+	and	00fh	
+	jr	add$
+
+deffence$:
+	ld	a,(hl)
+	and	00fh	
+	jr	add$
+
+quick$:
+	inc	hl
+	ld	a,(hl)
+	swap	a
+	and	00fh	
+	jr	add$
+
+tokusyu$:
+	inc	hl
+	ld	a,(hl)
+	and	00fh	
+
+add$:
+	ld	d,0
+	add	a,e
+	ld	e,a
+	jr	nc,pass1$
+
+	inc	d
+pass1$:
+	sla	e
+	rl	d			; de = (kihon status + power rnd) * 2 
+
+	srl	b			
+	srl	b			; b = b / 4
+	ld	a,b
+	add	a,e			; de <- de + b ( = root keikenchi / 4)
+	jr	nc,mul$
+
+	inc	d
+
+mul$:
+	ld	(calc_work3),a
+	ld	a,d
+	ld	(calc_work2),a
+	xor	a
+	ld	(calc_work1),a
+	ld	a,(mons_level)
+	ld	(calc_work4),a
+	call	mul_direct
+
+	ld	a,(calc_work1)
+	ld	(calc_work0),a
+	ld	a,(calc_work2)
+	ld	(calc_work1),a
+	ld	a,(calc_work3)
+	ld	(calc_work2),a
+
+;	pop	bc
+;	push	bc
+;	ld	a,c
+;	cp	1
+;	jr	nz,not_hp$
+;	ld	a,250
+;	jr	div$
+;not_hp$:
+
+	ld	a,100
+;div$:
+	ld	(calc_work4),a
+	ld	a,3
+	ld	b,a				; bunshi = 3byte
+	call	div_direct
+
+;	pop	bc
+;	push	bc
+	ld	a,c
+	cp	1				; 1 = HP
+	ld	a,5
+	jr	nz,z1_1_2$
+
+	ld	a,(mons_level)
+	ld	b,a
+	ld	a,(calc_work3)
+	add	a,b
+	ld	(calc_work3),a
+	jr	nc,z1_1_1$
+
+	ld	a,(calc_work2)
+	inc	a
+	ld	(calc_work2),a
+
+z1_1_1$:
+	ld	a,10
+z1_1_2$:
+	ld	b,a
+	ld	a,(calc_work3)
+	add	a,b
+	ld	(calc_work3),a
+	jr	nc,z1_2$
+
+	ld	a,(calc_work2)
+	inc	a
+	ld	(calc_work2),a
+
+z1_2$:
+	ld	a,(calc_work2)
+	cp	4
+	jr	nc,z1_3$
+
+	cp	3
+	jr	c,z1_4$
+
+	ld	a,(calc_work3)
+	cp	0e8h
+	jr	c,z1_4$
+
+z1_3$:
+	ld	a,003h
+	ld	(calc_work2),a
+	ld	a,0e7h
+	ld	(calc_work3),a			; status = 999
+	
+z1_4$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+;*************************
+;* Call from "play2.src" *
+;*************************
+add_capsule:
+	ld	a,(rombankno)
+	push	af
+	ld	a,3
+	call	bank_change
+
+	call	add_capsule_sub			; bank3
+
+	pop	bc				; because keep carry flag 
+	ld	a,b
+	call	bank_change
+
+	ret
+
+	
+;*************************
+;* Call from  azukarijyo *
+;*************************
+add_capsule2:
+	ld	a,(rombankno)
+	push	af
+	ld	a,3
+	call	bank_change
+
+	call	add_capsule2_sub			; bank3
+
+	pop	bc				; because keep carry flag 
+	ld	a,b
+	call	bank_change
+
+	ret
+
+
+;********************************
+;* hl = hl + a * MONS_NAME_LEN 	*
+;********************************
+mul_6:
+	and	a
+	ret	z			; if a = 0 then return
+
+	ld	bc,MONS_NAME_LEN
+
+z20$:
+	add	hl,bc			; HL = HL + 011h
+	dec	a			; count down
+	jr	nz,z20$
+
+	ret
+
+
+;*************************
+;* HL = HL + A * BC	*
+;*************************
+mul_any:
+	and	a
+	ret	z
+
+z1$:
+	add	hl,bc				; HL = HL + BC
+	dec	a
+	jr	nz,z1$
+
+	ret
+
+
+;*****************************************
+;* compare n byte			*
+;* de - hl -> flg			*
+;* in: c = data byt			*
+;*	DE > HL		non carry	*
+;*	DE = HL		non carry	*
+;*	DE < HL		carry		*
+;*****************************************
+cmp_byt:
+	ld	a,(de)
+	cp	(hl)				; compare
+	ret	nz
+
+	inc	de
+	inc	hl
+	dec	c
+	jr	nz,cmp_byt
+
+	ret
+
+
+;*********************************
+;* ÇQÅ~ÇQÇÃÇnÇaÇiÇ oam_buf Ç…ÉZÉbÉgÇ∑ÇÈ		*
+;*	oam_buf set (16*16)	*
+;*   in: a = oam_buf no		*
+;*	de = data adrs		*
+;*	bc = y,x		*
+;*				*
+;*********************************
+set_oam_buf16:
+	ld	h,> oam_buf
+	swap	a
+	ld	l,a		;	HL= &oam_buf[0,16,32,48,...]
+
+	call	sub1$
+
+	push	bc
+	ld	a,8
+	add	a,c
+	ld	c,a		; x += 8
+	call	sub1$		;		y, x+8, DE[2], DE[3]
+	pop	bc
+
+	ld	a,8
+	add	a,b
+	ld	b,a		; y += 8
+	call	sub1$		;		y+8, x, DE[4], DE[5]
+
+	ld	a,8
+	add	a,c
+	ld	c,a		; x += 8
+sub1$:				;		y+8, x+8, DE[6], DE[7]
+	ld	(hl),b		; y
+	inc	hl
+	ld	(hl),c		; x
+	inc	hl
+	ld	a,(de)
+	inc	de
+	ld	(hli),a		; chr == (DE)++
+	ld	a,(de)
+	inc	de
+	ld	(hli),a		; atr == (DE)++
+
+	ret
+
+
+;*****************************************
+;*					*
+;*	allow system			*
+;*					*
+;*****************************************
+allow:
+	xor	a
+	ld	(ef_adr4_l),a
+allow2:
+	ld	a,(work0)
+	push	af
+	ld	a,(work1)
+	push	af
+	xor	a
+	ld	(work0),a
+	ld	a,6
+	ld	(work1),a
+z0$:
+	xor	a
+	ld	(ef_count2),a
+	call	allow_1
+	call	put_wait
+
+z1$:
+	push	hl
+	ld	a,(ef_adr4_l)		; allow_flg
+	and	a
+	jr	z,z2$
+
+	ld	b,1ch
+	ld	hl,allow_effect
+	call	bank_push_call
+z2$:
+	pop	hl
+	call	cont_repeat
+	ld	a,(joy_repeat)
+	and	a
+	jr	nz,z10$
+
+	push	hl
+	S_POS	18,11
+	call	tenmetsu		; shop window no @allowd no tenmetu
+	pop	hl
+
+	ld	a,(allow_ret_flg)
+	dec	a
+	jr	z,z3$
+
+	jr	z1$
+
+z3$:
+	pop	af
+	ld	(work1),a
+	pop	af
+	ld	(work0),a
+	xor	a
+	ld	(allow_loop_flg),a
+
+	ret
+
+z10$:
+	xor	a
+	ld	(no_key_cnt),a
+
+	ld	a,(joy_repeat)
+	ld	b,a			; Key Data Load reg B
+
+	bit	0,a			; debug by sige 98/06/08
+	jr	nz,z99$			; Ç`É{É^ÉìÇêÊÇ…É`ÉFÉbÉNÇµÇ»Ç¢Ç∆ÅA
+					; É`ÉÉÉ^ÇÈ
+
+	bit	6,a			; Up Key
+	jr	z,z20$
+
+	ld	a,(allow_cnt)		; ue
+	and	a
+	jr	z,z15$
+
+	dec	a
+	ld	(allow_cnt),a
+	jr	z99$
+
+z15$:
+	ld	a,(allow_loop_flg)
+	and	a
+	jr	z,z80$
+
+	ld	a,(allow_max)
+	ld	(allow_cnt),a
+	jr	z99$
+
+z20$:
+	bit	7,a			; Down Key
+	jr	z,z99$
+
+	ld	a,(allow_cnt)		; sita
+	inc	a
+	ld	c,a
+	ld	a,(allow_max)
+	cp	c
+	jr	nc,z30$
+
+	ld	a,(allow_loop_flg)
+	and	a
+	jr	z,z80$
+
+	ld	c,0
+z30$:
+	ld	a,c
+	ld	(allow_cnt),a
+
+z99$:
+	ld	a,(allow_msk)
+	and	b
+	jp	z,z0$
+
+z100$:
+	ld	a,(joy_repeat)
+	and	003h
+	jr	z,z101$
+
+
+	btst	5,obs_event
+	jr	nz,non_pi_allow$
+
+	ld	a,< muspi			; a or b key then pi!
+	call	SEplay
+non_pi_allow$:
+
+z101$:
+	pop	af
+	ld	(work1),a
+	pop	af
+	ld	(work0),a
+
+	xor	a
+	ld	(allow_loop_flg),a
+	ld	a,(joy_repeat)
+
+	ret
+
+z80$:
+	ld	a,(scloll_sw)
+	and	a
+	jr	z,z99$
+
+	jr	z100$
+
+allow_1:
+	ld	a,(allow_pos)
+	and	a
+	jr	z,z15$
+
+	ld	hl,dmy_vram
+;	S_POS	0,0
+	ld	bc,20
+z10$:
+	add	hl,bc			; hl = dmy_vram(allow_pos,0)
+	dec	a
+	jr	nz,z10$
+z15$:
+	ld	a,(allow_pos + 1)
+	ld	b,0
+	ld	c,a
+
+	add	hl,bc			; hl = dmy_vram(allow_pos,x)
+
+	push	hl
+
+	ld	a,(allow_old)		; old allow cls
+	and	a
+	jr	z,z20$
+
+	ld	bc,40
+
+  ifn	ASSEMBLE__ENGLISH
+	push	af
+	ld	a,(us_display_flg)	; if (us_display_flg.bit1 == 1) Çxï˚å¸à⁄ìÆä‘äu 20h(1∑¨◊)ñà
+	bit	CURSOR_Y_INTERVAL_BIT,a	; else	Çxï˚å¸à⁄ìÆä‘äu 40h(2∑¨◊)ñà
+	jr	z, z15_00$
+	ld	bc,20
+z15_00$:
+	pop	af
+  endif
+
+z25$:
+	add	hl,bc			; hl = dmy_vram(allow_old,x)
+	dec	a
+	jr	nz,z25$
+z20$:
+	ld	a,(hl)
+	cp	allow@
+	jr	nz,oldpass1$
+
+	ld	a,(allow_spc)
+	ld	(hl),a
+oldpass1$:
+	pop	hl
+
+	ld	a,(allow_cnt)		; new allow put
+	and	a
+	jr	z,z30$
+
+	ld	bc,40
+	
+  ifn	ASSEMBLE__ENGLISH
+	push	af
+	ld	a,(us_display_flg)	; if (us_display_flg.bit1 == 1) Çxï˚å¸à⁄ìÆä‘äu 20h(1∑¨◊)ñà
+	bit	CURSOR_Y_INTERVAL_BIT,a	; else	Çxï˚å¸à⁄ìÆä‘äu 40h(2∑¨◊)ñà
+	jr	z, z25_00$
+	ld	bc,20
+z25_00$:
+	pop	af
+  endif
+	
+z35$:
+	add	hl,bc			; hl = dmy_vram(allow_cnt,x)
+	dec	a
+	jr	nz,z35$
+z30$:
+	ld	a,(hl)			; save dvram data
+	cp	allow@
+	jr	z,savepass1$
+
+	ld	(allow_spc),a
+
+savepass1$:
+	ld	a,allow@
+	ld	(hl),a
+	ld	a,l
+	ld	(allow_dv_adr),a
+	ld	a,h
+	ld	(allow_dv_adr+1),a
+
+	ld	a,(allow_cnt)
+	ld	(allow_old),a
+
+	ret
+
+
+white_allow:
+	ld	b,a
+	ld	a,(allow_dv_adr)
+	ld	l,a
+	ld	a,(allow_dv_adr + 1)
+	ld	h,a
+	ld	(hl),alloww@
+	ld	a,b
+
+	ret
+
+
+cls_allow:
+	ld	a,(allow_dv_adr)
+	ld	l,a
+	ld	a,(allow_dv_adr+1)
+	ld	h,a
+	ld	(hl),spc@
+
+	ret
+
+
+;****************************************
+;*					*
+;*	allowd wo tenmetsu saseru	*
+;*					*
+;****************************************
+
+tenmetsu:
+	ld	a,(hl)
+	ld	b,a
+	ld	a,allowd@
+	cp	b
+	jr	nz,tenmetsu2$
+
+	ld	a,(work0)
+	dec	a
+	ld	(work0),a
+	ret	nz
+
+	ld	a,(work1)
+	dec	a
+	ld	(work1),a
+	ret	nz
+
+	ld	a,spc@
+	ld	(hl),a
+	ld	a,0ffh
+	ld	(work0),a
+	ld	a,6
+	ld	(work1),a
+	ret
+
+tenmetsu2$:
+	ld	a,(work0)
+	and	a
+	ret	z
+
+	dec	a
+	ld	(work0),a
+	ret	nz
+
+	dec	a
+	ld	(work0),a
+	ld	a,(work1)
+	dec	a
+	ld	(work1),a
+	ret	nz
+
+	ld	a,6
+	ld	(work1),a
+	ld	a,allowd@
+	ld	(hl),a
+
+	ret
+
+;*****************************************
+;*	clear win_cancel,wait_pass_flg	*
+;*****************************************
+init_for_talkmap:
+	xor	a
+
+	jr	init_for_talk3
+
+
+init_for_talk2:
+	ld	a,01h
+
+init_for_talk3:
+	ld	(win_cancel),a
+
+	xor	a
+	ld	(wait_pass_flg),a
+
+	ret
+
+
+
+
+;*****************************************
+;*					*
+;*	put message with window		*
+;*					*
+;*****************************************
+put_win_msg:
+	push	hl
+
+	SET_WIN_MOD MESSAGE_WIN
+ 	call	step_prn_win	
+	call	actor_blanch
+	call	put_wait
+
+	pop	hl
+
+put_nowin_msg:
+	ld	bc,14*20 + 1 + dmy_vram		; Position Y = 14 , X = 1
+	jp	put_msg_s
+
+
+
+
+  ifn	YELLOW_VERSION
+	public	bank_chg_put_win_msg
+
+bank_chg_put_win_msg:
+	ld	a,(rombankno)
+	push	af
+	ld	a,b
+	call	bank_change
+
+	call	put_win_msg
+
+	pop	af
+	call	bank_change
+	ret
+	
+
+  endif
+
+;************************************************
+;*  put_dec		by Sige			*
+;*  in : de = data address top 			*	
+;*     : hl = dvram address top			*
+;*     :  b = byte				*
+;*     :  b(bit7) = zero print			* 
+;*     :   ( 0 = not print 1 = print )		*
+;*     :  b(bit6) = hidariyose			* 
+;*     :   ( 0 = migiyose 1 = hidariyose )	*
+;*     :  c = ketasuu				*
+;************************************************
+put_dec:
+	push	bc
+
+	xor	a
+	ld	(calc_work0),a
+	ld	(calc_work1),a
+	ld	(calc_work2),a
+
+	ld	a,b
+	and	0fh
+	cp	001
+	jr	z,z1$			; 1byte
+
+	cp	002
+	jr	z,z2$			; 2byte
+
+z3$:
+	ld	a,(de)
+	ld	(calc_work1),a
+	inc	de
+	ld	a,(de)
+	ld	(calc_work2),a
+	inc	de
+	ld	a,(de)
+	ld	(calc_work3),a
+	jr	check_keta$
+
+z2$:
+	ld	a,(de)
+	ld	(calc_work2),a
+	inc	de
+	ld	a,(de)
+	ld	(calc_work3),a
+	jr	check_keta$
+
+z1$:
+	ld	a,(de)
+	ld	(calc_work3),a
+
+check_keta$:
+	push	de
+	ld	d,b			; d <- b = flg
+					; d(d6) = hidariyose ( 1 = hidariyose )
+					;      		     ( 0 = migiyose )
+					; d(d7) = zero print ( 1 = print )
+					;      		     ( 0 = not print )
+	ld	a,c
+	ld	b,a			; b <- c = ketasuu
+	xor	a
+	ld	c,a
+	ld	a,b
+	cp	2
+	jr	z,keta2$
+
+	cp	3
+	jr	z,keta3$
+
+	cp	4
+	jr	z,keta4$
+
+	cp	5
+	jr	z,keta5$
+
+	cp	6
+	jr	z,keta6$
+
+keta7$:
+	ld	a,00fh
+	ld	(calc_work4),a
+	ld	a,042h
+	ld	(calc_work5),a
+	ld	a,040h
+	ld	(calc_work6),a
+	call	div$			; 1000000 = 0f4240h de waru
+
+	call	inc_hl$
+keta6$:
+	ld	a,001h
+	ld	(calc_work4),a
+	ld	a,086h
+	ld	(calc_work5),a
+	ld	a,0a0h
+	ld	(calc_work6),a
+	call	div$			; 100000 = 0186a0h de waru
+	
+	call	inc_hl$
+keta5$:
+	xor	a
+	ld	(calc_work4),a
+	ld	a,027h
+	ld	(calc_work5),a
+	ld	a,010h
+	ld	(calc_work6),a
+	call	div$			; 10000 = 002710h de waru
+
+	call	inc_hl$
+keta4$:
+	xor	a
+	ld	(calc_work4),a
+	ld	a,003h
+	ld	(calc_work5),a
+	ld	a,0e8h
+	ld	(calc_work6),a
+	call	div$			; 1000 = 0003e8h de waru	
+
+	call	inc_hl$
+keta3$:
+	xor	a
+	ld	(calc_work4),a
+	xor	a
+	ld	(calc_work5),a
+	ld	a,064h
+	ld	(calc_work6),a
+	call	div$			; 100 = 000064h de waru
+
+	call	inc_hl$
+keta2$:
+	ld	c,0
+	ld	a,(calc_work3)
+z10$:
+	cp	0ah
+	jr	c,z20$
+	sub	0ah
+	inc	c
+	jr	z10$
+z20$:
+	ld	b,a
+	ld	a,(calc_work0)
+	or	c
+	ld	(calc_work0),a
+	jr	nz,z25$
+
+	call	zero_prt_chk$
+	jr	z30$
+z25$:
+	ld	a,n0@
+	add	a,c
+	ld	(hl),a
+z30$:
+	call	inc_hl$
+	ld	a,n0@
+	add	a,b
+	ld	(hli),a
+	pop	de
+	dec	de
+	pop	bc
+
+	ret	
+
+div$:
+	ld	c,0
+z40$:
+	ld	a,(calc_work4)
+	ld	b,a
+	ld	a,(calc_work1)
+	ld	(calc_work7),a
+	cp	b
+	jr	c,ret3$
+
+	sub	b
+	ld	(calc_work1),a
+
+	ld	a,(calc_work5)
+	ld	b,a
+	ld	a,(calc_work2)
+	ld	(calc_work8),a
+	cp	b
+	jr	nc,z50$
+
+	ld	a,(calc_work1)
+	or	0
+	jr	z,ret2$
+	dec	a
+	ld	(calc_work1),a
+	ld	a,(calc_work2)
+z50$:
+	sub	b
+	ld	(calc_work2),a
+
+	ld	a,(calc_work6)
+	ld	b,a
+	ld	a,(calc_work3)
+	ld	(calc_work9),a
+	cp	b
+	jr	nc,z70$
+
+	ld	a,(calc_work2)
+	and	a
+	jr	nz,z60$
+
+	ld	a,(calc_work1)
+	and	a
+	jr	z,ret1$
+	
+	dec	a
+	ld	(calc_work1),a
+	xor	a
+z60$:
+	dec	a
+	ld	(calc_work2),a
+	ld	a,(calc_work3)
+z70$:
+	sub	b
+	ld	(calc_work3),a
+	inc	c
+	jr	z40$	
+
+ret1$:
+	ld	a,(calc_work8)
+	ld	(calc_work2),a
+ret2$:
+	ld	a,(calc_work7)
+	ld	(calc_work1),a
+ret3$:
+	ld	a,(calc_work0)
+	or	c
+	jr	z,zero_prt_chk$
+	ld	a,n0@
+	add	a,c
+	ld	(hl),a
+	ld	(calc_work0),a
+	ret
+
+zero_prt_chk$:
+	bit	7,d
+	ret	z
+
+	ld	(hl),n0@
+	ret
+
+inc_hl$:
+	bit	7,d
+	jr	nz,inc_hl1$		; zero print
+	bit	6,d
+	jr	z,inc_hl1$
+	
+	ld	a,(calc_work0)		; hidariyose
+	and	a
+	ret	z		
+
+inc_hl1$:				; migiyose
+	inc	hl
+
+	ret
+
+
+;===============================================================;
+;								;
+;	calling sequence routine for address table		;
+;								;
+;	IN							;
+;	hl regs							;
+;		define table address				;
+;	a regs							;
+;		sequence number					;
+;								;
+;	Information						;
+;		address table structure have word size element	;
+;								;
+;===============================================================;
+table_jump:
+	push	hl
+	push	de
+	push	bc
+
+	add	a,a
+	ld	d,0
+	ld	e,a
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; object table element address
+
+	ld	de,rts$
+	push	de
+
+	jp	(hl)				; jump address
+
+rts$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+;=============================================================;
+; function : standard search function for data-table
+;      IN  :  A_reg  =  search_no
+;          :  HL     =  table_address
+;          :  DE     =  data length
+;      OUT :  C_flg  =  1 -> Get
+;          :         =  0 -> No here
+;          :  B_reg  =  search_position
+;          :  HL     =  search_address
+;=============================================================;
+table_search:
+	ld	b,0			; counter
+
+table_search1:
+	ld	c,a
+
+loop$:
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,no_here$
+
+	cp	c
+	jr	z,get$
+
+	inc	b
+
+	add	hl,de
+
+	jr	loop$
+
+
+no_here$:
+	and	a
+
+	ret
+
+
+get$:
+	scf
+
+	ret
+
+
+
+
+	public	new_obj_set
+
+new_obj_set:
+	ld	hl,set_objects
+	ld	b,G_BANK5
+	jp	bank_push_call
+
+
+
+
+
+set_objdata:
+	call	oam_clr
+	ld	a,1
+	ld	(oam_flg),a
+
+	call	set_objdata_main
+	call	pop_vram_m
+	call	set_serifu
+	call	color_rewrite
+	jr	put_wait
+
+
+pal_off_put_wait:
+	call	pal_off
+
+
+put_wait:
+	ld	c,3
+	jp	wait_vb_s
+
+
+palset:
+	ld	a,0e4h
+	ld	(BGP),a
+	ld	a,0d0h
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+
+pal_off:
+	xor	a
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+
+color_rewrite:
+	ld	b,0ffh
+
+
+color_set:		; in B = color_tbl no.
+	ld	a,(sgb_flg)
+	and	a
+	ret	z
+
+	ld	a,B_SGB_COLOR
+	jp	bank2bank
+
+
+hp_color_chk:	; in  HL = color_buf address 
+		;     E = graph_length 
+	ld	a,e
+	cp	27
+	ld	d,0
+	jr	nc,exit$
+	cp	10
+	inc	d
+	jr	nc,exit$
+	inc	d
+exit$:
+	ld	(hl),d
+	ret
+
+
+set_objdata_main:
+	ld	hl,talking_flg
+	ld	a,(hl)
+	push	af
+	res	0,(hl)
+	push	hl
+
+	xor	a
+	ld	(map_obj_type),a
+	call	lcdc_stop
+  ifn	YELLOW_VERSION
+	call	new_obj_set
+  else
+	ld	b,5
+	ld	hl,set_objects
+	call	bank_push_call
+  endif
+
+	call	lcdc_on
+	pop	hl
+	pop	af
+	ld	(hl),a
+
+	call	set_jiki
+	call	set_kana
+	jp	actor_blanch
+	
+;---------------------------------------;
+;  	Take Item From Capsule		;
+; ===================================== ;
+;	In = Breg ... Item No     	;
+;            Creg ... Item Kosuu	;
+;	Out= Cy   ... OK		;
+;	     NC   ... NG		;
+;---------------------------------------;
+take_item:
+	ld	a,b
+	ld	(in_dat),a       
+	ld	(sel_item_no),a
+	ld	a,c
+	ld	(item_kosuu),a
+	ld	hl,my_item_tbl
+	call	add_item    
+	ret	nc
+
+	call	get_item_name
+
+	call	str_cpy
+
+	scf
+
+	ret
+
+;---------------------------------------;
+;  	Take Monster From Capsule	;
+; ===================================== ;
+;	In = Areg ... Vanish No     	;
+;	     Breg ... Monster No     	;
+;            Creg ... Monster Lvl	;
+;	Out= Cy   ... OK		;
+;	     NC   ... NG		;
+;---------------------------------------;
+take_monster:
+;	ld	(obs_obj),a			; vanish_no
+	ld	a,b
+	ld	(sel_item_no),a			; monster_no
+	ld	a,c
+	ld	(mons_level),a			; monster_level
+	xor	a
+	ld	(my_or_gein),a			; hero taken mode
+
+	ld	b,G_BANK3d
+	ld	hl,take_monster_0
+	jp	bank_push_call
+
+
+
+
+rnd:
+	push	hl
+	push	de
+	push	bc
+
+	ld	b,03dh
+	ld	hl,rnd_main
+	call	bank_push_call
+	ld	a,(random + 0)
+
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+
+bank3d	group	G_BANK3d
+
+get_hiden_gold:
+	ld	a,(sel_item_no)	
+	sub	201
+	ret	c
+
+	ld	d,a
+	ld	hl,hiden_gold_tbl
+	srl	a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	a,(hl)
+	srl	d
+	jr	nc,pass1$
+	
+	swap	a
+pass1$:
+	and	0f0h
+	ld	(work1),a
+	xor	a
+	ld	(work0),a
+	ld	(work2),a
+	ret
+	
+hiden_gold_tbl:
+	db	032h,021h,034h,024h,034h
+	db	021h,045h,055h,032h,032h
+	db	055h,052h,054h,052h,041h
+	db	021h,012h,042h,025h,024h
+	db	022h,052h,024h,034h,042h
+
+
+Multiply_Direct:
+	ld	a,8
+	ld	b,a
+	xor	a
+	ld	(calc_work0),a
+	ld	(calc_work6),a
+	ld	(calc_work7),a
+	ld	(calc_work8),a
+	ld	(calc_work9),a
+
+loop$:
+	ld	a,(calc_work4)
+	srl	a
+	ld	(calc_work4),a
+	jr	nc,next$
+
+	ld	a,(calc_work9)
+	ld	c,a
+	ld	a,(calc_work3)
+	add	a,c
+	ld	(calc_work9),a
+	ld	a,(calc_work8)
+	ld	c,a
+	ld	a,(calc_work2)
+	adc	a,c
+	ld	(calc_work8),a
+	ld	a,(calc_work7)
+	ld	c,a
+	ld	a,(calc_work1)
+	adc	a,c
+	ld	(calc_work7),a
+	ld	a,(calc_work6)
+	ld	c,a
+	ld	a,(calc_work0)
+	adc	a,c
+	ld	(calc_work6),a
+
+next$:
+	dec	b
+	jr	z,mul_ret$
+
+	ld	a,(calc_work3)
+	sla	a
+	ld	(calc_work3),a
+	ld	a,(calc_work2)
+	rl	a
+	ld	(calc_work2),a
+	ld	a,(calc_work1)
+	rl	a
+	ld	(calc_work1),a
+	ld	a,(calc_work0)
+	rl	a
+	ld	(calc_work0),a
+
+	jr	loop$
+
+
+mul_ret$:
+	ld	a,(calc_work9)
+	ld	(calc_work3),a
+	ld	a,(calc_work8)
+	ld	(calc_work2),a
+	ld	a,(calc_work7)
+	ld	(calc_work1),a
+	ld	a,(calc_work6)
+	ld	(calc_work0),a
+
+	ret
+
+
+Division_Direct:
+;	push	bc
+
+	xor	a
+	ld	(calc_work5),a
+	ld	(calc_work6),a
+	ld	(calc_work7),a
+	ld	(calc_work8),a
+	ld	(calc_work9),a
+	ld	a,9
+	ld	e,a
+
+loop$:
+	ld	a,(calc_work5)
+	ld	c,a
+	ld	a,(calc_work1)
+	sub	c
+	ld	d,a
+	ld	a,(calc_work4)
+	ld	c,a
+	ld	a,(calc_work0)
+	sbc	a,c
+	jr	c,next$
+
+	ld	(calc_work0),a
+	ld	a,d
+	ld	(calc_work1),a
+	ld	a,(calc_work9)
+	inc	a
+	ld	(calc_work9),a
+
+	jr	loop$
+
+
+next$:
+	ld	a,b
+	cp	1
+	jr	z,div_ret$
+
+	ld	a,(calc_work9)
+	sla	a
+	ld	(calc_work9),a
+	ld	a,(calc_work8)
+	rl	a
+	ld	(calc_work8),a
+	ld	a,(calc_work7)
+	rl	a
+	ld	(calc_work7),a
+	ld	a,(calc_work6)
+	rl	a
+	ld	(calc_work6),a
+	dec	e
+	jr	nz,z10$
+
+	ld	a,8
+	ld	e,a	
+	ld	a,(calc_work5)
+	ld	(calc_work4),a
+	xor	a
+	ld	(calc_work5),a		; (4) <- (5) <- 0
+	ld	a,(calc_work1)
+	ld	(calc_work0),a
+	ld	a,(calc_work2)
+	ld	(calc_work1),a
+	ld	a,(calc_work3)
+	ld	(calc_work2),a		; (0) <- (1) <- (2) <- (3)
+
+z10$:
+	ld	a,e
+	cp	1
+	jr	nz,z20$
+
+	dec	b
+
+z20$:
+	ld	a,(calc_work4)
+	srl	a
+	ld	(calc_work4),a
+	ld	a,(calc_work5)
+	rr	a
+	ld	(calc_work5),a
+
+	jr	loop$
+
+
+div_ret$:
+;	pop	bc
+
+;	dec	b
+;	ld	c,b
+;	ld	b,0
+;	ld	hl,calc_work0
+;	add	hl,bc
+;	ld	a,(hl)
+	ld	a,(calc_work1)
+
+	ld	(calc_work4),a
+	ld	a,(calc_work9)
+	ld	(calc_work3),a
+	ld	a,(calc_work8)
+	ld	(calc_work2),a
+	ld	a,(calc_work7)
+	ld	(calc_work1),a
+	ld	a,(calc_work6)
+	ld	(calc_work0),a
+
+	ret
+
+;---------------------------------------;
+;  	Take Monster From Capsule	;
+; ===================================== ;
+;	In = obs_obj ... Vanish No     	;
+;	     sel_item_no ... Monster No	;
+;            mons_level ... Monster Lvl	;
+;	Out= Cy   ... OK		;
+;	     NC   ... NG		;
+;---------------------------------------;
+take_monster_0:
+	call	init_for_talkmap
+	xor	a
+	ld	(ctrl_move_val),a
+
+	ld	a,(my_cap_tbl)
+	cp	CAP_MAX
+	jr	c,ok$
+
+	ld	a,(my_mons_tbl)
+	cp	MONS_MAX
+	jr	nc,full$
+
+	xor	a
+	ld	(enemy_cond5),a
+
+	ld	a,(sel_item_no)
+	ld	(enemy_no),a
+	extern	get_enemy_data
+	ld	hl,get_enemy_data
+	ld	b,0fh
+	call	bank_push_call
+
+	call	call_msg1$
+
+	extern	add_cap_azuke
+	ld	hl,add_cap_azuke
+	ld	b,03h
+	call	bank_push_call
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl,str_buf
+	ld	a,(pm_box_no)
+	and	7fh
+	cp	10 -1
+	jr	c, _10$
+	sub	10 -1				; if ( 9<=(pm_box_no)<=15 )
+	ld	(hl),n1@
+
+;	add	a,n0@
+;	jr	_20$
+;_10$:	ld	(hl),spc@
+;	add	a,n1@
+;_20$:	inc	hl
+;	ld	(hli),a
+;	ld	(hl),EOM			; str_buf[0..2] = {spc@,n?@,EOM} or {n1@,n?@,EOM}
+
+	inc	hl
+	add	a,n0@
+	jr	_20$
+_10$:	add	a,n1@
+_20$:	ld	(hli),a
+	ld	(hl),EOM			; str_buf[0..2] = {n?@,EOM} or {n1@,n?@,EOM}
+
+ else
+	ld	a,(pm_box_no)
+	and	7fh
+	add	a,n1@
+	ld	hl,str_buf
+	ld	(hli),a
+	ld	(hl),EOM
+ endif
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	scf
+	ret
+
+
+full$:
+	ld	hl,msg2$
+	call	put_win_msg
+	and	a
+	ret
+
+ok$:
+	call	call_msg1$
+
+	ld	hl,dummy_window$
+	call	put_win_msg
+
+	call	add_capsule_new
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+	ld	(ctrl_move_val),a
+
+	scf	
+	ret
+
+call_msg1$:
+	ld	a,(sel_item_no)
+	push	af
+	ld	(in_dat),a
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	ld	a,(in_dat)
+	dec	a
+	ld	c,a
+	ld	hl,zukan_flg
+	ld	b,1				; bit on
+	ld	a,B_BIT_CONTROL
+	call	bank2bank			; kaijyuuzukan check
+
+	pop	af
+	ld	(in_dat),a
+	call	get_mons_name
+
+	ld	hl,msg1$
+	jp	put_win_msg
+
+dummy_window$:
+	db	EOM
+
+msg1$:
+	extern	msg1_0_TOOLS
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_0_TOOLS	; mvmsgí«â¡
+	db 02dh	; mvmsgí«â¡
+	db	FANFARE
+	db	EOM
+
+msg1_1$:
+	extern	msg1_1_1_TOOLS
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_1_1_TOOLS	; mvmsgí«â¡
+	db 02dh	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+msg2$:
+	extern	msg2_2_TOOLS
+	db I_MSG2	; mvmsgí«â¡
+	dw msg2_2_TOOLS	; mvmsgí«â¡
+	db 02dh	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+getdealernm_sub:
+	ld	hl,gein_name
+	ld	a,(tuushin_flg)
+	and	a
+	jr	nz,set$
+	
+	ld	hl,rival_name
+	ld	a,(dealer_no)			; Initalize Get_Table call
+
+	cp	d_rival-200			; rival
+	jr	z,set$
+
+	cp	d_rival2-200			; rival
+	jr	z,set$
+
+	cp	d_rival3-200			; rival
+	jr	z,set$
+
+	ld	(tbl_pos),a
+	ld	a,ASGN_DEALER			; 7
+	ld	(tbl_number),a
+	ld	a,0eh
+	ld	(tbl_bank),a
+	call	get_table			; Any Dealer Name Get
+
+	ld	hl,table_data			; dealer name is dealer table
+						; top to 15 Byte Area
+set$:
+	ld	de,dealer_name
+ ifn  ASSEMBLE__ENGLISH
+	ld	bc, DEALER_NAME_LEN
+ else
+	ld	bc,11
+ endif
+	jp	block_move
+
+
+
+rnd_main:
+	ld	a,(DIV)
+	ld	b,a
+	ld	a,(random + 0)
+	adc	a,b
+	ld	(random + 0),a
+
+	ld	a,(DIV)
+	ld	b,a
+	ld	a,(random + 1)
+	sbc	a,b
+	ld	(random + 1),a
+
+	ret
+
+
+
+
+bank1	group	G_BANK1
+;*****************************************************************
+;* Function	sub_capsule_sub					*
+;* IN	sel_item_pos		selected list position		*
+;*	cap_or_mons		0 = temoti ( my_cap_tbl )	*
+;*				1 = azuke  ( my_mons_tbl )	*
+;*****************************************************************
+sub_capsule_sub:
+	ld	hl,my_cap_tbl		; delete my_cap_tbl
+	ld	a,(cap_or_mons)	
+	and	a
+	jr	z,z5$			; 0 = temoti
+
+	ld	hl,my_mons_tbl		; delete my_mons_tbl
+
+z5$:
+	ld	a,(hl)
+	dec	a			; total capsule number down
+	ld	(hli),a
+	ld	a,(sel_item_pos)
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+;	ld	a,(hl)			; sub monster number
+;	ld	b,a
+	ld	e,l
+	ld	d,h
+	inc	de
+
+loop1$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+;	cp	0ffh
+	inc	a
+	jr	nz,loop1$
+
+	ld	hl,my_cap_oya		; delete my_cap_oya
+	ld	d,CAP_MAX -1
+
+	ld	a,(cap_or_mons)	
+	and	a
+	jr	z,z15$			; 0 = temoti
+
+	ld	hl,my_mons_oya		; delete my_mons_oya
+	ld	d,MONS_MAX -1
+
+z15$:
+	ld	a,(sel_item_pos)
+	call	mul_6
+	ld	a,(sel_item_pos)
+;	cp	CAP_MAX - 1
+	cp	d
+	jr	nz,z20$
+
+	ld	(hl),0ffh
+
+	ret
+
+
+z20$:
+	ld	d,h
+	ld	e,l
+	ld	bc,MONS_NAME_LEN	
+	add	hl,bc
+	ld	bc,CAP_MAX*MONS_NAME_LEN + my_cap_oya
+
+	ld	a,(cap_or_mons)	
+	and	a
+	jr	z,z25$			; 0 = temoti
+
+	ld	bc,MONS_MAX*MONS_NAME_LEN + my_mons_oya
+
+z25$:
+	call	block_move_inc
+
+	ld	hl,my_cap_data		; delete my_cap_tbl
+	ld	bc,CAPDATA_LEN
+
+	ld	a,(cap_or_mons)	
+	and	a
+	jr	z,z30$			; 0 = temoti
+
+	ld	hl,my_mons_data		; delete my_mons_tbl
+	ld	bc,MONSDATA_LEN
+
+z30$:
+	ld	a,(sel_item_pos)
+	call	mul_any
+
+	ld	d,h			; de = delete position
+	ld	e,l
+
+	ld	a,(cap_or_mons)	
+	and	a
+	jr	z,z35$			; 0 = temoti
+
+	ld	bc,MONSDATA_LEN
+	add	hl,bc
+	ld	bc,MONS_MAX*MONSDATA_LEN + my_mons_data
+
+	jr	z40$
+
+
+z35$:
+	ld	bc,CAPDATA_LEN
+	add	hl,bc
+	ld	bc,CAP_MAX*CAPDATA_LEN + my_cap_data
+
+z40$:
+	call	block_move_inc
+
+	ld	hl,my_cap_name		; delete my_cap_name
+
+	ld	a,(cap_or_mons)	
+	and	a
+	jr	z,z50$			; 0 = temoti
+
+	ld	hl,my_mons_name		; delete my_mons_name
+
+z50$:
+	ld	bc,MONS_NAME_LEN
+	ld	a,(sel_item_pos)
+	call	mul_any
+
+	ld	d,h			; de = delete position
+	ld	e,l
+
+	ld	bc,MONS_NAME_LEN
+	add	hl,bc
+
+	ld	bc,CAP_MAX * MONS_NAME_LEN + my_cap_name
+
+	ld	a,(cap_or_mons)	
+	and	a
+	jr	z,z60$			; 0 = temoti
+
+	ld	bc,MONS_MAX*MONS_NAME_LEN + my_mons_name
+
+z60$:
+	jp	block_move_inc
+
+
+
+
+
+LookGuide:
+	ld	hl,obs_system
+	set	6,(hl)
+
+	ld	a,B_ZUKAN_PUT
+	call	bank2bank
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	map_rewrite
+
+	ld	c,10
+	call	wait_vb_s
+
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+
+	ld	a,(in_dat)
+	dec	a
+	ld	c,a
+	ld	b,1				; bit check
+	ld	hl,zukan_flg2
+	ld	a,B_BIT_CONTROL
+	call	bank2bank			; kaijyuuzukan check
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ret
+
+
+
+
+
+bank3	group	G_BANK3
+
+
+;********************************
+; call from add_capsule_new	*
+;********************************
+add_capsule_new2:
+	ld	de,my_cap_tbl
+	ld	a,(my_or_gein)
+;	and	a
+	and	0fh
+	jr	z,z0$				; 0 = my
+	ld	de,gein_cap_tbl
+z0$:
+	ld	a,(de)
+	inc	a
+	cp	CAP_MAX + 1			; check the lot of capsules
+	ret	nc
+
+	ld	(de),a
+
+
+;*********************** rear add *********************************
+rear_add$:
+	ld	a,(de)				; lot of capsule
+	ld	(dmy_box4),a			; new list position
+	add	a,e
+	ld	e,a				; get the setting position
+	jr	nc,rear_add1$
+	inc	d
+
+rear_add1$:
+	ld	a,(sel_item_no)
+	ld	(de),a				; set the monster number
+	inc	de
+	ld	a,0ffh
+	ld	(de),a				; set the data end mark
+
+	ld	hl,my_cap_oya
+	ld	a,(my_or_gein)
+;	and	a
+	and	0fh
+	jr	z,rear_add2$				; 0 = my
+
+	ld	hl,gein_cap_oya
+rear_add2$:
+	ld	a,(dmy_box4)			; new position for adding
+	dec	a				; becouse 1 origin
+	call	mul_6
+	ld	d,h
+	ld	e,l				; get the setting area address
+	ld	hl,my_name
+	ld	bc,MONS_NAME_LEN
+	call	block_move			; set the monster name
+
+	ld	a,(my_or_gein)
+	and	a
+	jr	nz,rear_add3$			; 1 = gein
+						; bit 8 = koukan
+
+	ld	hl,my_cap_name
+	ld	a,(dmy_box4)			; new position for adding
+	dec	a				; becouse 1 origin
+	call	mul_6
+
+	ld	a,2
+	ld	(ef_size),a			; monster name in
+	ld	a,B_NAME_IN0
+	call	bank2bank
+	
+rear_add3$:
+	ld	hl,my_cap_data
+	ld	a,(my_or_gein)
+;	and	a
+	and	0fh
+	jr	z,rear_add4$				; 0 = my
+
+	ld	hl,gein_cap_data
+rear_add4$:
+	ld	a,(dmy_box4)
+	dec	a				; because 1 origin
+	ld	bc,CAPDATA_LEN
+	call	mul_any				; get the object address
+	ld	e,l
+	ld	d,h				; my_cap_data (gein_cap_data)
+;	jp	1$
+
+
+;------------------------------
+
+z1$:
+	push	hl				; my_cap_data (gein_cap_data)
+
+	ld	a,(sel_item_no)
+	ld	(tbl_pos),a
+	call	get_monsadr
+
+	ld	hl,mons_data
+	ld	a,(hli)	
+	ld	(de),a				; monster number
+	inc	de
+
+	pop	hl				; my_cap_data (gein_cap_data)
+	push	hl				; my_cap_data (gein_cap_data)
+
+	ld	a,(my_or_gein)
+;	and	a
+	and	0fh
+	ld	a,098h
+	ld	b,088h
+	jr	nz,z4$				; 1 = gein
+
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+	push	de
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	pop	de
+	ld	a,(in_dat)
+	dec	a
+	ld	c,a
+	ld	b,2				; bit check
+	ld	hl,zukan_flg
+	call	bit_control2			; kaijyuuzukan check
+	ld	a,c
+	ld	(junior_name + 1),a
+
+	ld	a,(in_dat)
+	dec	a
+	ld	c,a
+	ld	b,1				; bit on
+	push	bc
+	call	bit_control2			; kaijyuuzukan check
+	pop	bc
+	ld	hl,zukan_flg2
+	call	bit_control2			; kaijyuuzukan check
+
+	pop	hl				; my_cap_data (gein_cap_data)
+	push	hl				; my_cap_data (gein_cap_data)
+
+	ld	a,(fighting_flg)
+	and	a
+	jr	nz,now_life$
+
+	call	rnd
+	ld	b,a
+	call	rnd
+z4$:
+	push	bc
+	ld	bc,27
+	add	hl,bc				; power rnd address
+	pop	bc
+
+	ld	(hli),a
+	ld	(hl),b
+
+	ld	bc,-12
+	add	hl,bc				; HP keikenchi address - 1
+
+	ld	a,MONS_HP
+	ld	c,a
+	xor	a
+	ld	b,a				; b = call from
+						; ( 0 = add_capsule_new )
+	call	get_status
+
+	ld	a,(calc_work2)
+	ld	(de),a
+	inc	de
+	ld	a,(calc_work3)
+	ld	(de),a
+	
+	inc	de
+	xor	a
+	ld	(de),a			; taikaiseiseki
+	inc	de
+	ld	(de),a			; condition
+	inc	de
+
+	jr	z5$
+
+now_life$:				; sentoucyu ni tukamaeta toki ha
+	ld	bc,27
+	add	hl,bc			; power rnd address
+	ld	a,(enemy_data + 23)	; power rnd
+	ld	(hli),a
+	ld	a,(enemy_data + 24)	; power rnd
+	ld	(hl),a
+
+	ld	a,(enemy_data + 12)	; life ha sentoucyuno data wo mottekuru 
+	ld	(de),a
+	inc	de
+	ld	a,(enemy_data + 13)
+	ld	(de),a
+	inc	de
+	xor	a
+	ld	(de),a
+	inc	de
+	ld	a,(enemy_data + 15)	; condition
+	ld	(de),a
+	inc	de
+
+z5$:
+;ability--------------------------------
+
+	ld	hl,mons_data + 6	; type1
+	ld	a,(hli)
+	ld	(de),a			; type1
+	inc	de
+	ld	a,(hli)
+	ld	(de),a			; type2
+	inc	de
+	ld	a,(hli)
+	ld	(de),a			; not use
+
+	ld	a,(sel_item_no)
+	cp	38			; yungeraa
+	jr	nz,yun_pass$
+
+	ld	a,96			; magatta spoon ( for gold ver )
+	ld	(de),a
+yun_pass$:
+
+;skill----------------------------------
+	ld	hl,mons_data + MONS_PAT1
+	ld	a,(hli)
+	inc	de
+	push	de			; push waza address ( DE -> HL )
+	ld	(de),a			; skill1
+
+	ld	a,(hli)
+	inc	de
+	ld	(de),a			; skill2
+
+	ld	a,(hli)
+	inc	de
+	ld	(de),a			; skill3
+
+	ld	a,(hli)
+	inc	de
+	ld	(de),a			; skill4
+
+	push	de
+	dec	de
+	dec	de
+	dec	de
+
+	xor	a
+	ld	(yes_no_map),a		; waza set mode
+
+	ld	a,B_WAZA_SET
+	call	bank2bank
+
+	pop	de
+;gb_id----------------------------------
+	ld	a,(gb_no)
+	inc	de
+	ld	(de),a
+	ld	a,(gb_no + 1)
+	inc	de
+	ld	(de),a			; GameBoy number(ID)
+;exp------------------------------------
+	push	de
+
+	ld	a,(mons_level)
+	ld	d,a
+
+	ld	hl,level_to_exp
+	ld	b,016h
+	call	bank_push_call
+
+	pop	de
+	inc	de
+	ld	a,(calc_work1)
+	ld	(de),a
+	inc	de
+	ld	a,(calc_work2)
+	ld	(de),a
+	inc	de
+	ld	a,(calc_work3)
+	ld	(de),a
+;kakushu keikenchi clear----------------
+	xor	a
+	ld	b,10
+loop$:
+	inc	de
+	ld	(de),a
+	dec	b
+	jr	nz,loop$
+;power rnd---------------------------------- uenohou de sudeni set shiteiru
+	inc	de
+	inc	de
+;waza point-----------------------------
+	pop	hl			; pop waza address ( DE -> HL )
+
+	call	waza_point_set
+
+;level----------------------------------
+	inc	de
+	ld	a,(mons_level)
+	ld	(de),a
+;kakusyu status-------------------------
+	inc	de
+	ld	a,(fighting_flg)
+;	cp	1
+	dec	a
+	jr	nz,z10$
+
+	ld	hl,enemy_data + 26
+	ld	bc,10
+	call	block_move
+	pop	hl
+	jr	ret$
+
+z10$:
+	pop	hl			; my_cap_data (gein_cap_data)
+	ld	bc,16
+	add	hl,bc			; HP keikenchi address -1
+	ld	b,0			; b = call from
+					; ( 0 = not level up )
+	call	set_status_all
+;---------------------------------------
+ret$:
+	scf				; Add New Monster = return By Carry
+
+	ret
+
+;****************************************
+;	waza_point_set			*
+;  IN  : hl = take waza address		*
+;  OUT : de = waza point address	*
+;****************************************
+waza_point_set0:
+	call	ready2ready
+waza_point_set:
+	ld	b,4
+loop1$:
+	ld	a,(hli)
+	and	a
+	jr	z,pass1$
+
+	dec	a
+	push	hl
+	push	de
+	push	bc
+	ld	hl,waza_tbl
+	ld	bc,6
+	call	mul_any
+
+	ld	de,table_data
+	ld	a,0eh
+	call	bank_chg_block_m
+	pop	bc
+	pop	de
+	pop	hl
+
+	ld	a,(table_data + 5)
+pass1$:
+	inc	de
+	ld	(de),a
+	dec	b
+	jr	nz,loop1$
+
+	ret
+
+;**********************************
+;* Call from  add_capsule (play2) *
+;**********************************
+add_capsule_sub:
+	ld	hl,my_cap_tbl		; set my_cap_tbl
+	ld	a,(hl)
+	cp	CAP_MAX
+	scf
+;	jr	nz,add1$
+
+	ret	z
+
+add1$:
+	inc	a
+	ld	(hl),a
+;	add	a,l
+;	ld	l,a
+;	jr	nc,z1$
+;
+;	inc	h
+;z1$:
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(sel_item_no)
+	ld	(hli),a			; number is 1 less
+	ld	(hl),0ffh
+
+	ld	hl,my_cap_data		; set my_cap_data
+	ld	a,(my_cap_tbl)
+	dec	a
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+	ld	e,l
+	ld	d,h
+	ld	hl,monsdata_dmy
+;	ld	bc,CAPDATA_LEN
+	call	block_move
+
+	ld	hl,my_cap_oya			; oya
+	ld	a,(my_cap_tbl)
+	dec	a
+	call	mul_6
+	ld	d,h
+	ld	e,l
+
+	ld	hl,gein_cap_oya		; oya
+	ld	a,(sel_item_pos)
+	call	mul_6
+
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	ld	hl,my_cap_name	
+	ld	a,(my_cap_tbl)
+	dec	a
+	call	mul_6
+	ld	d,h
+	ld	e,l
+
+	ld	hl,gein_cap_name
+	ld	a,(sel_item_pos)
+	call	mul_6
+
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	ld	a,(in_dat)
+	dec	a
+	ld	c,a
+	ld	b,1			; bit on
+	ld	hl,zukan_flg
+	push	bc
+	call	bit_control2			; kaijyuuzukan check
+	pop	bc
+	ld	hl,zukan_flg2
+	call	bit_control2			; kaijyuuzukan check
+
+	and	a
+exit1$:
+	ret
+
+;****************************************
+;* Call from  add_capsule2 (azukarijyo) *
+;****************************************
+add_capsule2_sub:
+
+;-----------------------------rear add--------------------------
+	ld	a,(cap_or_mons)
+	and	a
+	jr	z,z10$			; 0 = temoti ni add from azukarijo
+	cp	2
+	jr	z,z10$			; 2 = temoti ni add from benriya
+	cp	3
+	ld	hl,benri_mons_data	
+	jr	z,z45$			; 3 = benriya ni add 
+
+	ld	hl,my_mons_tbl		; set my_mons_tbl
+	ld	a,(hl)
+	cp	MONS_MAX
+	jr	nz,add1$
+	jr	z20$
+
+z10$:
+	ld	hl,my_cap_tbl		; set my_cap_tbl
+	ld	a,(hl)
+	cp	CAP_MAX
+	jr	nz,add1$
+
+z20$:
+	scf
+	ret
+;	jp	exit1$
+
+add1$:
+	inc	a
+	ld	(hl),a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	
+	ld	a,(cap_or_mons)
+	cp	2
+	ld	a,(benri_mons_data)
+	jr	z,add2$
+
+	ld	a,(sel_item_no)
+add2$:
+	ld	(hli),a			; number is 1 less
+	ld	(hl),0ffh
+
+	ld	a,(cap_or_mons)
+	dec	a
+
+	ld	hl,my_cap_data		; set my_cap_data
+	ld	bc,CAPDATA_LEN
+	ld	a,(my_cap_tbl)
+
+	jr	nz,z40$			; temoti ni add
+
+	ld	hl,my_mons_data		; set my_mons_data
+	ld	bc,MONSDATA_LEN
+	ld	a,(my_mons_tbl)
+
+z40$:
+	dec	a
+	call	mul_any
+
+z45$:
+	push	hl
+	ld	e,l
+	ld	d,h
+
+	ld	a,(cap_or_mons)
+	and	a
+	ld	hl,my_mons_data
+	ld	bc,MONSDATA_LEN
+	jr	z,z50$			; 0 = temoti ni add
+
+	cp	2
+	ld	hl,benri_mons_data
+	jr	z,z55$			; 2 = temoti ni add
+
+	ld	hl,my_cap_data
+	ld	bc,CAPDATA_LEN
+	
+z50$:
+	ld	a,(sel_item_pos)
+	call	mul_any
+
+z55$:
+	push	hl
+	push	de
+	ld	bc,MONSDATA_LEN
+	call	block_move
+	pop	de
+	pop	hl
+
+	ld	a,(cap_or_mons)
+	and	a
+	jr	z,z59$
+	cp	2
+	jr	z,z59$
+	
+	ld	bc,33
+	add	hl,bc
+	ld	a,(hl)			; level
+	inc	de
+	inc	de
+	inc	de
+	ld	(de),a
+	
+z59$:
+	ld	a,(cap_or_mons)
+	cp	3
+	ld	de,benri_mons_oya
+	jr	z,z65$
+
+	dec	a
+	ld	hl,my_cap_oya			; oya
+	ld	a,(my_cap_tbl)
+	jr	nz,z60$				; 0,2 = temoti
+
+	ld	hl,my_mons_oya			; oya
+	ld	a,(my_mons_tbl)
+z60$:
+	dec	a
+	call	mul_6
+	ld	d,h
+	ld	e,l
+
+z65$:
+	ld	hl,my_mons_oya			; oya
+	ld	a,(cap_or_mons)
+	and	a
+	jr	z,z70$				; 0 = temoti
+
+	ld	hl,benri_mons_oya		; oya
+	cp	2
+	jr	z,z75$
+
+	ld	hl,my_cap_oya			; oya
+z70$:
+	ld	a,(sel_item_pos)
+	call	mul_6
+
+z75$:
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	ld	a,(cap_or_mons)
+	cp	3
+	ld	de,benri_mons_name
+	jr	z,z85$
+	
+	dec	a
+	ld	hl,my_cap_name
+	ld	a,(my_cap_tbl)
+	jr	nz,z80$				; 0,2 = temoti
+
+	ld	hl,my_mons_name
+	ld	a,(my_mons_tbl)
+z80$:
+	dec	a
+	call	mul_6
+	ld	d,h
+	ld	e,l
+
+z85$:
+	ld	hl,my_mons_name	
+	ld	a,(cap_or_mons)
+	and	a
+	jr	z,z90$				; 0 = temoti
+
+	ld	hl,benri_mons_name
+	cp	2
+	jr	z,z95$
+
+	ld	hl,my_cap_name
+z90$:
+	ld	a,(sel_item_pos)
+	call	mul_6
+
+z95$:
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	pop	hl
+
+	ld	a,(cap_or_mons)
+	cp	1
+	jr	z,z100$				; 1 = azukarijo ni add
+	cp	3
+	jr	z,z100$				; 3 = benriya ni add
+
+	push	hl
+	srl	a
+	add	a,2
+	ld	(my_or_gein),a			; 2 = my_mons_data
+	call	set_monsdata_dmy		; 3 = benri_mons_data
+
+	ld	b,016h
+	ld	hl,get_level
+	call	bank_push_call
+
+	ld	a,d
+	ld	(mons_level),a
+	pop	hl
+
+	ld	bc,33
+	add	hl,bc				; level address
+	ld	(hli),a
+	ld	d,h
+	ld	e,l				; status address -> de
+	ld	bc,-18
+	add	hl,bc				; keikenchi address - 1
+	ld	b,1
+	call	set_status_all
+
+;	ld	a,(cap_or_mons)
+;	and	a	
+;	jr	z,z100$				; from azukari jo
+
+z100$:
+	and	a
+
+exit1$:
+	ret
+
+;----------------------------------------------------------------
+
+;-------------------------front add-------------------------------
+
+
+;---------------------------------------;
+;	bit_control			;
+;  IN  :  hl = bit save area address	;
+;	   c = bit number ( 0~255 )	;
+;	   b = 0  then bit off		;
+;	   b = 1  then bit on		;
+;	   b = 2  then bit check	;
+; OUT  	   c = 0  then off bit		;
+;---------------------------------------;
+bit_control:
+	call	ready2ready
+
+bit_control2:
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,c
+	ld	d,a
+	and	07h
+	ld	e,a
+	ld	a,d
+	srl	a
+	srl	a
+	srl	a
+	add	a,l
+	ld	l,a
+	jr	nc,z1$
+
+	inc	h
+
+z1$:
+	inc	e
+	ld	d,1
+
+loop$:
+	dec	e
+	jr	z,z2$
+
+	sla	d
+	jr	loop$
+
+z2$:
+	ld	a,b
+	and	a
+	jr	z,bit_off$
+
+	cp	2
+	jr	z,bit_check$
+
+;	ld	a,(hl)
+;	ld	b,a
+	ld	b,(hl)
+	ld	a,d
+	or	b		; bit on
+	ld	(hl),a
+	jr	ret$
+	
+bit_off$:
+;	ld	a,(hl)
+;	ld	b,a
+	ld	b,(hl)
+	ld	a,d
+	xor	0ffh
+	and	b
+	ld	(hl),a
+
+	jr	ret$
+
+
+bit_check$:
+;	ld	a,(hl)
+;	ld	b,a
+	ld	b,(hl)
+	ld	a,d
+	and	b
+
+ret$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ld	c,a
+
+	ret
+
+
+;---------------------------------------;
+;	kaihuku				;
+;---------------------------------------;
+
+kaihuku:
+	ld	hl,my_cap_tbl + 1	; my monster's number
+	ld	de,my_cap_data + 1	; my monster's HP (+2mo)     
+
+kaihuku_s$:
+	ld	a,(hli)			; my_cap_tbl address 1 puls
+	cp	0ffh			
+	jr	z,waza_point_add$	
+	
+kaihuku_normal$:
+	push	hl
+	push	de
+
+	ld	hl,3
+	add	hl,de
+	xor	a
+	ld	(hl),a			; condition clear
+
+	push	de
+	ld	b,4
+loop$:
+	ld	hl,7
+	add	hl,de
+	ld	a,(hl)
+	and	a
+	jr	z,pass1$
+
+	dec	a
+
+	ld	hl,28
+	add	hl,de
+
+	push	hl
+	push	de
+	push	bc
+	ld	hl,waza_tbl
+	ld	bc,6
+	call	mul_any
+	ld	de,table_data
+	ld	a,0eh
+	call	bank_chg_block_m
+	ld	a,(table_data + 5)	; waza point
+	pop	bc
+	pop	de
+	pop	hl
+	
+	inc	de
+	push	bc
+	ld	b,a
+	ld	a,(hl)
+	and	0c0h
+	add	a,b
+	ld	(hl),a
+	pop	bc
+pass1$:
+	dec	b
+	jr	nz,loop$
+
+	pop	de
+
+	ld	hl,33
+	add	hl,de
+
+	ld	a,(hli)			; maxHP -> nowHP
+	ld	(de),a
+	inc	de
+	ld	a,(hl)
+	ld	(de),a
+
+	pop	de			; my_cap_data rewrite
+	pop	hl			; my_cap_tbl  rewrite
+	
+next_table_data$:
+	push	hl
+	ld	bc,CAPDATA_LEN		; CAPDATA_LEN
+	ld	h,d
+	ld	l,e
+	add	hl,bc			; next my_cap_data adrs compute
+	ld	d,h			; 
+	ld	e,l
+	pop	hl
+	jr	kaihuku_s$
+
+waza_point_add$:
+	xor	a
+	ld	(sel_item_pos),a
+	ld	(in_dat),a		; point up add mode
+	ld	a,(my_cap_tbl)
+	ld	b,a
+loop2$:
+	push	bc
+	call	point_up_add
+	pop	bc
+	ld	hl,sel_item_pos
+	inc	(hl)
+	dec	b
+	jr	nz,loop2$
+
+	ret
+
+
+
+
+
+;=======================================================;
+;							;
+;	picture pocket monster into window frame	;
+;							;
+;=======================================================;
+mons_picture:
+
+
+;********************************************************
+; Display monster image on the event map		*
+;							*
+; Function 	put_mons_map				*
+; IN		sel_item_no				*
+; OUT		Carry		don't take		*
+;		NC		take (sel_item_no)	*
+;********************************************************
+put_mons_map:
+
+
+;*****************************************************************
+;* Function	bcd_div_bc					*
+;*		divwk1 / divwk2 => divwk2			*
+;* IN	divwk1							*
+;* 	divwk2							*
+;* OUT	divwk2							*
+;*****************************************************************
+bcd_div_bc:
+
+bcd_div:
+	call	ready2ready
+
+bcd_div_sub:
+	xor	a
+	ld	(divwk3),a			; divwk3 = 00 00 00
+	ld	(divwk3+1),a
+	ld	(divwk3+2),a
+
+	ld	d,1
+z1$:
+	ld	a,(divwk2)
+	and	0f0h
+	jr	nz,z10$
+
+	inc	d
+
+	ld	a,(divwk2)
+	swap	a
+	and	0f0h
+	ld	b,a
+	ld	a,(divwk2+1)
+	swap	a
+	ld	(divwk2+1),a
+	and	00fh
+	or	b
+	ld	(divwk2),a
+	
+	ld	a,(divwk2+1)
+	and	0f0h
+	ld	b,a
+	ld	a,(divwk2+2)
+	swap	a
+	ld	(divwk2+2),a
+	and	00fh
+	or	b
+	ld	(divwk2+1),a
+
+	ld	a,(divwk2+2)
+	and	0f0h
+	ld	(divwk2+2),a
+
+	jr	z1$
+
+z10$:
+	push	de
+	push	de			; 1
+	call	div1$
+	pop	de
+	ld	a,b
+	swap	a
+	and	0f0h
+	ld	(divwk3),a
+
+	dec	d
+	jr	z,z99$
+
+	push	de			; 2
+	call	shift1$
+	call	div1$
+	pop	de
+	ld	a,(divwk3)
+	or	b
+	ld	(divwk3),a
+
+	dec	d
+	jr	z,z99$
+
+	push	de			; 3
+	call	shift1$
+	call	div1$
+	pop	de
+	ld	a,b
+	swap	a
+	and	0f0h
+	ld	(divwk3+1),a
+
+	dec	d
+	jr	z,z99$
+
+	push	de			; 4
+	call	shift1$
+	call	div1$
+	pop	de
+	ld	a,(divwk3+1)
+	or	b
+	ld	(divwk3+1),a
+
+	dec	d
+	jr	z,z99$
+
+	push	de			; 5
+	call	shift1$
+	call	div1$
+	pop	de
+	ld	a,b
+	swap	a
+	and	0f0h
+	ld	(divwk3+2),a
+
+	dec	d
+	jr	z,z99$
+
+	push	de			; 6
+	call	shift1$
+	call	div1$
+	pop	de
+	ld	a,(divwk3+2)
+	or	b
+	ld	(divwk3+2),a
+z99$:
+	ld	a,(divwk3)
+	ld	(divwk2),a
+	ld	a,(divwk3+1)
+	ld	(divwk2+1),a
+	ld	a,(divwk3+2)
+	ld	(divwk2+2),a
+
+	pop	de
+	ld	a,6
+	sub	d
+	and	a
+
+	ret	z
+
+z100$:
+	push	af
+	call	shift1$
+	pop	af
+	dec	a
+	jr	nz,z100$
+
+	ret
+
+shift1$:
+	ld	a,(divwk2+2)
+	swap	a
+	and	00fh
+	ld	b,a
+	ld	a,(divwk2+1)
+	swap	a
+	ld	(divwk2+1),a
+	and	0f0h
+	or	b
+	ld	(divwk2+2),a
+
+	ld	a,(divwk2+1)
+	and	00fh
+	ld	b,a
+	ld	a,(divwk2)
+	swap	a
+	ld	(divwk2),a
+	and	0f0h
+	or	b
+	ld	(divwk2+1),a
+
+	ld	a,(divwk2)
+	and	00fh
+	ld	(divwk2),a
+
+	ret
+
+div1$:
+	ld	bc,00003h
+
+div2$:
+	ld	de,divwk1
+	ld	hl,divwk2
+	push	bc
+	call	cmp_byt
+	pop	bc
+
+	ret	c
+
+	inc	b
+	ld	de,divwk1+2
+	ld	hl,divwk2+2
+	push	bc
+	call	bcd_sub_sub
+	pop	bc
+	jr	div2$
+
+;*************************************************
+;* Adding value of the binary coded decimal	*
+;*	DE = DE + HL				*
+;* In	: DE		backmost address	*
+;*	  HL		backmost address	*
+;*	  C		data size		*
+;* Out	: DE		top address		*
+;*************************************************
+bcd_add:
+	call	ready2ready
+
+	and	a
+	ld	b,c
+
+z1$:
+	ld	a,(de)
+	adc	a,(hl)
+	daa
+	ld	(de),a
+	dec	de
+	dec	hl
+	dec	c
+	jr	nz,z1$
+
+	jr	nc,z2$
+
+	ld	a,099h
+	inc	de
+
+z3$:
+	ld	(de),a
+	inc	de
+	dec	b
+	jr	nz,z3$
+
+z2$:
+	ret
+
+
+;*********************************
+;*				*
+;*	de - hl -> de (bcd)	*
+;*   in: c = data byt		*
+;*				*
+;*********************************
+bcd_sub:
+	call	ready2ready
+
+bcd_sub_sub:
+	and	a
+	ld	b,c
+z1$:
+	ld	a,(de)
+	sbc	a,(hl)
+	daa
+	ld	(de),a
+	dec	de
+	dec	hl
+	dec	c
+	jr	nz,z1$
+
+	jr	nc,z2$
+
+	ld	a,000h
+	inc	de
+z3$:
+	ld	(de),a
+	inc	de
+	dec	b
+	jr	nz,z3$
+	scf
+z2$:
+	ret
+
+;*********************************
+;*	bcd_to_dec		*
+;*	in  : de = bcd data	*
+;*	out : de = dec data	*
+;*********************************
+bcd_to_dec:
+
+
+;===============================================================;
+;								;
+;	event status data initialize for new game playing	;
+;								;
+;===============================================================;
+event_initialize:
+	call	rnd
+	ld	a,(random + 1)
+	ld	(gb_no + 0),a
+	call	rnd
+	ld	a,(random + 0)
+	ld	(gb_no + 1),a			; gameboy id decide
+
+	ld	a,0ffh
+	ld	(ev_something + 3),a
+
+;	ld	a,60
+	ld	a,90				; change 98/5/7
+	ld	(pika_friendly),a		; natsukido
+	ld	a,128
+	ld	(pika_friendly + 1),a		; gokigen
+
+	ld	hl,my_cap_tbl
+	call	set$
+	ld	hl,my_mons_tbl
+	call	set$
+	ld	hl,my_item_tbl
+	call	set$
+	ld	hl,my_stock_item
+	call	set$
+
+	ld	hl,my_gold + 1			; take money \3000
+	ld	a,030h
+	ld	(hld),a
+	xor	a
+	ld	(hli),a
+	inc	hl
+	ld	(hl),a
+
+	ld	(my_or_gein),a
+
+	ld	hl,my_badge
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,coin
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,seq_ctrl_buf			; initialize buffer address
+	ld	bc,200				; padding count
+	call	memset
+
+	jp	vanish_setup
+
+
+set$:
+	xor	a
+	ld	(hli),a
+	dec	a
+	ld	(hl),a
+
+	ret
+
+
+;=======================;
+;    item_take_chk	;
+;  in  : b = item_no    ;
+;  out : b = item kosuu ;
+;=======================;
+item_take_chk:
+	call	ready2ready
+
+	ld	hl,my_item_tbl
+
+search_loop$:
+	inc	hl
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,not_take$
+
+	cp	b
+	jr	nz,search_loop$
+	
+	ld	a,(hl)
+	ld	b,a
+
+	ret
+
+	
+not_take$:
+	ld	b,0
+
+	ret
+
+
+;=======================================================;
+;							;
+;	making of homing device animetion command	;
+;							;
+;	IN						;
+;	calc_work0					;
+;		target y-position (dot abs position)	;
+;	calc_work1					;
+;		target x-position (dot abs position)	;
+;	calc_work8					;
+;		bit-0	address on y-line		;
+;			ON  : to north			;
+;			OFF : to south			;
+;		bit-1	address on x-line		;
+;			ON  : to west(<-)		;
+;			OFF : to east(->)		;
+;							;
+;	OUT						;
+;	work_anime_buf					;
+;		homing device animetion commands	;
+;	calc_work2					;
+;		animetion command lots			;
+;		no count lot "A_E"			;
+;							;
+;=======================================================;
+mk_anime:
+;	xor	a
+;	ld	(calc_work2),a			; buffer pointer
+;	ld	(calc_work3),a			; pointed counter
+;	ld	(calc_work4),a			; approach y-position
+;	ld	(calc_work5),a			; approach x-position
+
+	xor	a
+	ld	hl,calc_work2			; buffer pointer
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,work_anime_buf
+	ld	de,00h				; compare work for y,x-position
+
+mk_loop$:
+	ld	a,(calc_work4)			; y-position(object)
+	ld	b,a
+	ld	a,(calc_work0)			; y-position(target)
+	call	abs_ab
+	ld	d,a				; absolute delta-y
+	and	a
+	jr	nz,z1$
+
+	ld	a,(calc_work3)
+	set	0,a				; y-line on
+	ld	(calc_work3),a
+
+z1$:
+	ld	a,(calc_work5)			; x-position(object)
+	ld	b,a
+	ld	a,(calc_work1)			; x-position(target)
+	call	abs_ab
+	ld	e,a				; absolute delta-x
+	and	a
+	jr	nz,z2$
+
+	ld	a,(calc_work3)
+	set	1,a				; x-line on
+	ld	(calc_work3),a
+
+z2$:
+	ld	a,(calc_work3)
+	cp	3				; x, y pointed check
+	jr	z,mk_end$
+
+	ld	a,e
+	cp	d				; x - y ( same value check )
+	jr	c,y_large$
+
+x_large$:
+	ld	a,(calc_work8)
+	bit	1,a				; x-site address check
+	jr	nz,west_step$
+
+	ld	d,A_R				; east step command
+
+	jr	x_step_up$
+
+
+west_step$:
+	ld	d,A_L				; west step command
+
+x_step_up$:
+	ld	a,(calc_work5)
+	add	a,001h
+	ld	(calc_work5),a
+
+	jr	command_set$
+
+
+y_large$:
+	ld	a,(calc_work8)
+	bit	0,a				; x-site address check
+	jr	nz,south_step$
+
+	ld	d,A_D				; north step command
+
+	jr	y_step_up$
+
+
+south_step$:
+	ld	d,A_U				; south step command
+
+y_step_up$:
+	ld	a,(calc_work4)
+	add	a,001h
+	ld	(calc_work4),a
+
+command_set$:
+	ld	a,d
+	ld	(hli),a				; command set into buffer
+
+	ld	a,(calc_work2)
+	inc	a
+	ld	(calc_work2),a
+
+	jp	mk_loop$
+
+
+mk_end$:
+	ld	(hl),A_E
+
+rts$:
+	ret
+
+
+;=======================================================================;
+;									;
+;	calcurate point address as character unit for target actor	;
+;	IN								;
+;	calc_work0							;
+;		target data offset of same "actlow" value		;
+;	calc_work6							;
+;		point of view as making command				;
+;			000h	from hero to other			;
+;			001h	from other to hero			;
+;	OUT								;
+;	calc_work0							;
+;		point address as offset y-position			;
+;	calc_work1							;
+;		point address as offset x-position			;
+;	calc_work8							;
+;		bit-0	address on y-line				;
+;		bit-1	address on x-line(0:right, 1:left)		;
+;									;
+;=======================================================================;
+offset_adrs:
+	xor	a
+	ld	(calc_work8),a
+
+	ld	a,(actor_table + 04h)		; y-position(hero)
+	ld	d,a
+	ld	a,(actor_table + 06h)		; x-position(hero)
+	ld	e,a
+
+etc_offset_adrs:
+	ld	hl,actor_table
+	ld	a,(calc_work0)
+	add	a,l
+	add	a,004h
+	ld	l,a
+	jr	nc,z1$
+
+	inc	h
+
+z1$:
+	ld	a,d
+	ld	b,a
+	ld	a,(hli)				; y-position(actor)
+	call	abs_ab				; target(y) - object(y)
+	jr	nc,z5$
+
+	bset	0,calc_work8			; north
+
+	jr	z10$
+
+
+z5$:
+	bclr	0,calc_work8			; south
+
+z10$:
+	push	hl
+	ld	hl,temp_box1
+	ld	(hli),a
+	ld	a,10h
+	ld	(hli),a
+	call	ex_div				; ans / 0ah --> temp_box3
+	ld	a,(hl)
+	ld	(calc_work0),a
+	pop	hl
+	
+
+	inc	hl
+
+;	ld	a,e
+;	ld	b,a
+	ld	b,e
+	ld	a,(hl)				; x-position(actor)
+	call	abs_ab				; target(x) - object(x)
+	jr	nc,z15$
+
+	bset	1,calc_work8			; east
+
+	jr	z20$
+
+
+z15$:
+	bclr	1,calc_work8			; west
+
+z20$:
+	ld	(temp_box1),a
+	ld	a,10h
+	ld	(temp_box2),a
+	call	ex_div				; ans / 0ah --> temp_box3
+	ld	a,(temp_box3)
+	ld	(calc_work1),a
+
+	ld	a,(calc_work6)
+	and	a
+;	jr	z,rts$				; point of view check
+	ret	z
+
+	ld	a,(calc_work8)
+	cpl
+	and	003h				; take bit-0, 1
+	ld	(calc_work8),a
+
+rts$:
+	ret
+
+
+;===============================================================;
+;								;
+;	animetion move command convert				;
+;		actor only command --> hero only command	;
+;								;
+;	IN							;
+;	work_anime_buf						;
+;		subject command table buffer			;
+;	calc_work0						;
+;		command lots					;
+;								;
+;	OUT							;
+;	ctrl_move_val						;
+;		converted command table buffer			;
+;	anime_cnt						;
+;		convert command lots				;
+;								;
+;===============================================================;
+change_command:
+	ld	a,(calc_work0)
+	ld	(anime_cnt),a
+	dec	a				; buffer last command point
+
+	ld	de,ctrl_move_val
+	ld	hl,work_anime_buf
+	add	a,l
+	ld	l,a
+	jr	nc,z10$
+
+	inc	h
+
+z10$:
+	ld	a,(hld)
+	call	cmd_change$
+	ld	(de),a
+	inc	de
+
+	ld	a,(calc_work0)
+	dec	a
+	ld	(calc_work0),a
+	jr	nz,z10$
+
+	ret
+
+
+cmd_change$:
+	push	hl
+
+	ld	b,a
+	ld	hl,step_cmd_tbl$
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,rts$
+
+	cp	b
+	jr	z,hit$
+
+	inc	hl
+
+	jr	loop$
+
+
+hit$:
+	ld	a,(hl)				; converted command
+
+rts$:
+	pop	hl
+
+	ret
+
+
+step_cmd_tbl$:
+	db	A_U,W_U
+	db	A_D,W_D
+	db	A_L,W_L
+	db	A_R,W_R
+	db	0ffh
+
+
+;===============================================;
+;						;
+;	take position at around other OBJ	;
+;						;
+;===============================================;
+take_pos:
+	ret
+
+
+;===============================================;
+;  graph_ber_calc  ( HP only )			;
+;  IN   :  bc  =  now HP			;
+;       :  de  =  max HP			;
+;  OUT  :   e  =  graph ber length		;
+;===============================================;
+graph_ber_calc:
+	call	ready2ready
+
+graph_ber_calc1:
+	push	hl
+
+;	xor	a
+;	ld	(calc_work1),a
+;	ld	a,b
+;	ld	(calc_work2),a
+;	ld	a,c
+;	ld	(calc_work3),a
+;	ld	a,48
+;	ld	(calc_work4),a
+	xor	a
+	ld	hl,calc_work1
+	ld	(hli),a
+	ld	a,b
+	ld	(hli),a
+	ld	a,c
+	ld	(hli),a
+	ld	(hl),48
+
+	call	mul_direct		; nowHP * 48
+
+	ld	a,d
+	and	a
+	jr	z,div$
+
+	srl	d
+	rr	e
+	srl	d
+	rr	e			; maxHP = maxHP / 4
+	
+	ld	a,(calc_work2)
+	ld	b,a
+	ld	a,(calc_work3)
+	srl	b
+	rr	a
+	srl	b
+	rr	a			; nowHP*48 = nowHP*48 / 4
+	ld	(calc_work3),a
+	ld	a,b
+	ld	(calc_work2),a
+
+div$:
+	ld	a,e			; maxHP
+	ld	(calc_work4),a
+	ld	b,4			; 4byte
+	call	div_direct		; nowHP*48 / maxHP
+
+	ld	a,(calc_work3)
+	ld	e,a
+
+	pop	hl
+	and	a
+	ret	nz
+
+	ld	e,1			; graph ber not zero
+	ret
+
+;=======================================================;
+;  hp_graph_incdec					;
+;  IN  :  hl  =  dvram address				;
+;      :  yes_no_map + 0 , + 1  = maxHP			; 
+;      :  yes_no_map + 2 , + 3  = startHP		; 
+;      :  yes_no_map + 4 , + 5  = endHP			; 
+;      :  mons_or_item  graph kind			;
+;=======================================================;
+	public	hp_graph_incdec
+put_graph_incdec:
+hp_graph_incdec:
+;	ld	a,(yes_no_map + 2)
+;	ld	c,a
+;	ld	a,(yes_no_map + 3)
+;	ld	b,a
+;	ld	a,(yes_no_map + 4)
+;	ld	e,a
+;	ld	a,(yes_no_map + 5)
+;	ld	d,a
+
+	push	hl
+	ld	hl,yes_no_map + 2
+	ld	a,(hli)
+	ld	c,a
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(hli)
+	ld	e,a
+	ld	d,(hl)
+	pop	hl
+
+
+	push	de
+	push	bc
+	call	cp_de_bc2		; DE - BC
+	ld	a,e
+	ld	(yes_no_map + 21),a
+	ld	a,d
+	ld	(yes_no_map + 20),a
+	pop	bc
+	pop	de
+
+	call	cp_de_bc		; DE - BC
+	ret	z
+	ld	a,0ffh			; HP down
+	jr	c,main$
+	ld	a,1			; HP up
+main$:
+	ld	(yes_no_map + 6),a
+
+	call	ready2ready
+	ld	a,(yes_no_map + 4)
+	ld	e,a
+	ld	a,(yes_no_map + 5)
+	ld	d,a
+
+main_loop$:
+	push	de
+
+	ld	a,(yes_no_map + 2)
+	ld	c,a
+	ld	a,(yes_no_map + 3)
+	ld	b,a
+	call	cp_de_bc
+	jr	z,exit$
+	jr	nc,inc$
+dec$:
+	dec	bc
+	ld	a,c
+	ld	(yes_no_map + 4),a
+	ld	a,b
+	ld	(yes_no_map + 5),a
+
+	call	hp_data_set
+	ld	a,e
+	sub	d
+	jr	next$
+inc$:
+	inc	bc
+	ld	a,c
+	ld	(yes_no_map + 4),a
+	ld	a,b
+	ld	(yes_no_map + 5),a
+
+	call	hp_data_set
+	ld	a,d
+	sub	e
+next$:
+	call	hpcount_put
+	and	a
+	jr	z,next2$
+	
+	call	hp_put
+next2$:
+	ld	a,(yes_no_map + 4)
+	ld	(yes_no_map + 2),a
+	ld	a,(yes_no_map + 5)
+	ld	(yes_no_map + 3),a
+
+	pop	de
+	jr	main_loop$
+
+exit$:
+	pop	de
+	ld	a,e
+	ld	(yes_no_map + 2),a
+	ld	a,d
+	ld	(yes_no_map + 3),a
+	or	e
+	jr	z,zero$
+
+	call	hp_data_set
+	ld	d,e
+zero$:
+	call	hpcount_put
+	ld	a,1
+	call	hp_put
+	jp	put_wait
+
+
+;=======================================================;
+;  hp_put	  					;
+;=======================================================;
+hp_put:
+	push	hl
+loop$:
+	push	af
+	push	de
+	ld	d,6
+	call	put_graph
+
+	ld	c,2
+	call	wait_vb_s
+	pop	de	
+
+	ld	a,(yes_no_map + 6)
+	add	a,e
+	cp	49
+	jr	nc,ret2$
+
+	ld	e,a
+	pop	af
+	dec	a
+	jr	nz,loop$
+
+	pop	hl
+	ret
+
+ret2$:
+	pop	af
+	pop	hl
+	ret
+
+;=======================================================;
+;  CP_DE_BC (DE - BC)					;
+;=======================================================;
+cp_de_bc:
+	ld	a,d
+	sub	b
+	ret	nz
+	
+	ld	a,e
+	sub	c
+	ret
+
+cp_de_bc2:
+	ld	a,d
+	sub	b
+	jr	c,z2$
+	jr	z,z3$
+
+z1$:
+	ld	a,e
+	sub	c
+	ld	e,a
+	ld	a,d
+	sbc	a,b
+	ld	d,a
+	ret
+
+z2$:	
+	ld	a,c
+	sub	e
+	ld	e,a
+	ld	a,b
+	sbc	a,d
+	ld	d,a
+	ret
+
+z3$:
+	ld	a,e
+	sub	c
+	jr	c,z2$
+	jr	nz,z1$
+	ld	de,0
+	ret
+	
+;=======================================================;
+;  hpcount_put  					;
+;=======================================================;
+hpcount_put:
+	push	af
+	push	de
+	ld	a,(mons_or_item)
+	and	a
+	jr	z,exit$
+
+	ld	a,(yes_no_map + 2)
+	ld	(yes_no_map + 8),a
+	ld	a,(yes_no_map + 3)
+	ld	(yes_no_map + 7),a
+
+	push	hl
+	ld	de,21			; ñ_ÉOÉâÉtÇÃâ∫Ç…ÇgÇoÇï\é¶Ç∑ÇÈ
+	
+  ifn	ASSEMBLE__ENGLISH
+	ld	a,(us_display_flg)
+	bit	HP_DSPSTYLE_BIT,a
+	jr	z, _00$
+	ld	de,9			; ñ_ÉOÉâÉtÇÃâEÇ…ÇgÇoÇï\é¶Ç∑ÇÈ
+_00$:
+  endif
+	
+	add	hl,de
+	push	hl
+	ld	a,spc@
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	pop	hl
+	ld	de,yes_no_map + 7
+	ld	bc,2*100h + 3
+	call	put_dec
+	call	wait_vb
+	pop	hl
+exit$:
+	pop	de
+	pop	af
+	ret
+
+;=======================================================;
+;  hp_data_set						;
+; IN   :  yes_no_map + 0 , + 1  = maxHP			; 
+;      :  yes_no_map + 2 , + 3  = startHP		; 
+;      :  yes_no_map + 4 , + 5  = endHP			; 
+; OUT  :  D  = startHP_length				; 
+;      :  E  = endHP_length				; 
+;=======================================================;
+hp_data_set:
+	push	hl			;dvram_address save
+	ld	hl,yes_no_map
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)
+	ld	c,a
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	push	hl
+	push	de
+	call	graph_ber_calc1
+	ld	a,e
+	pop	de
+	pop	bc			;bc <- hl
+
+	push	af
+	call	graph_ber_calc1
+	pop	af
+	ld	d,e			;d = endHP_length
+	ld	e,a			;e = startHP_length
+
+	pop	hl			;dvram_address load
+
+	ret
+
+
+
+
+
+	

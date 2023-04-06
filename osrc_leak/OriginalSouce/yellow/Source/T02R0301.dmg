@@ -1,0 +1,117 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include macro.h
+	include group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t2_room3
+
+
+	extern	minka_b
+	extern	bank_push_call
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t2_room3:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE			; map type
+	db	ysiz,xsiz			; yx size
+	dw	minka_b				; map data adrs
+	dw	msg_t2r3f1			; message tbl adrs
+	dw	event_t2r3f1			; event routine adrs
+	db	0				; map link flg
+	dw	room_str
+
+
+event_t2r3f1:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t2r3f1:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+
+
+msg1$:
+	extern	msg1_0_T02R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T02R0301	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg02
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg3$:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,girl
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+
+room_str:
+	include	..\sxy\t02r0301.sxy
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+girl:
+	ld	hl,girl_1$
+	call	put_win_msg
+
+	ret
+
+
+girl_1$:
+	extern	girl_1_1_T02R0301
+	db I_MSG2	; mvmsg追加
+	dw girl_1_1_T02R0301	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg02:
+	ld	hl,msg02_1$
+	call	put_win_msg
+
+	ret
+
+
+msg02_1$:
+	extern	msg02_1_2_T02R0301
+	db I_MSG2	; mvmsg追加
+	dw msg02_1_2_T02R0301	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+

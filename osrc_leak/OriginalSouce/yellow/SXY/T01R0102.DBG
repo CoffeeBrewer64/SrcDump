@@ -1,0 +1,25 @@
+; 06/08/98		18:22:45
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	005h
+	db	001h,007h,002h,T1R1F1
+	db	002h,007h,003h,D2R1F3
+	db	003h,007h,000h,D9R1F5
+	db	004h,007h,000h,T5R2F7
+	db	005h,007h,003h,D10R1F10
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	000h
+ram_map_tbl$:
+	dw	00ah * 001h + 004h + ram_map
+	db	001h,007h
+	dw	00ah * 002h + 004h + ram_map
+	db	002h,007h
+	dw	00ah * 002h + 004h + ram_map
+	db	003h,007h
+	dw	00ah * 003h + 004h + ram_map
+	db	004h,007h
+	dw	00ah * 003h + 004h + ram_map
+	db	005h,007h

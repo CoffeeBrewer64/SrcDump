@@ -1,0 +1,358 @@
+	include		group.def
+
+bank2	group	G_MUSIC1
+
+	public	Field51
+	public	Field52
+	public	Field53
+	public	Field54
+;----------------------------------------
+Field51:
+;----------------------------------------
+	db	0edh,000h,084h
+	db	0f0h,077h
+	db	0ech,003h
+	db	0eah,06h,034h
+	db	0e8h
+	db	0dch,0b2h
+	db	0e6h,097h
+	db	097h
+	db	097h
+	db	093h
+	db	0dch,0a4h
+	db	0a3h
+loop10$:
+	db	0fdh
+	dw	sub11$
+	db	0dch,0b4h
+	db	0e5h,023h
+; P1-2
+	db	0fdh
+	dw	sub11$
+	db	0dch,0b4h
+	db	0e5h,033h
+; P1-3
+	db	0fdh
+	dw	sub11$
+	db	0dch,0b4h
+	db	0e5h,023h
+	db	0fdh
+	dw	sub11$
+	db	0dch,0a0h
+	db	0e6h,0a3h
+; P1-4
+	db	0fdh
+	dw	sub11$
+	db	0dch,0b4h
+	db	0e5h,023h
+	db	0dch,0d4h
+	db	0e5h,093h
+	db	093h
+	db	093h
+	db	093h
+	db	093h
+	db	093h
+	db	093h
+	db	0dch,0b4h
+	db	0e5h,033h
+; P1-5
+	db	0dch,0d4h
+	db	0e5h,0a3h
+	db	0a3h
+	db	0a3h
+	db	0a3h
+	db	0a3h
+	db	0a3h
+	db	0a3h
+	db	0dch,0b4h
+	db	0e5h,051h
+	db	0dch,0b4h
+	db	0e5h,071h
+; P1-6
+	db	0dch,0b0h
+	db	097h
+	db	0e6h,097h
+; P1-7
+	db	0dch,0b7h
+	db	0e5h,057h
+	db	0dch,04eh
+;				oct 6	f
+	db	0e6h,0a7h
+; P1-8
+	db	0feh,0
+	dw	loop10$
+sub11$:
+	db	0dch,0b2h
+	db	0e6h,093h
+	db	093h
+	db	093h
+	db	093h
+	db	093h
+	db	093h
+	db	093h
+	db	0ffh
+;----------------------------------------
+Field52:
+;----------------------------------------
+	db	0ech,003h
+	db	0eah,08h,025h
+	db	0dch,0c2h
+	db	0e5h,027h
+	db	027h
+	db	027h
+	db	023h
+	db	0dch,05ah
+	db	033h
+loop20$:
+	db	0fdh
+	dw	sub21$
+	db	0dch,0c5h
+	db	093h
+	db	0fdh
+	dw	sub21$
+	db	0dch,0c5h
+	db	0a3h
+; P2-3
+	db	0fdh
+	dw	sub21$
+	db	0dch,0c5h
+	db	093h
+	db	0fdh
+	dw	sub21$
+	db	0dch,0c7h
+	db	013h
+; P2-4
+	db	0fdh
+	dw	sub21$
+	db	0dch,0c5h
+	db	093h
+	db	0fdh
+	dw	sub21$
+	db	0dch,0c5h
+	db	0a3h
+; P2-5
+	db	0fdh
+	dw	sub21$
+	db	0dch,0c5h
+	db	0e4h,001h
+	db	0dch,0c7h
+	db	0e4h,011h
+; P2-6
+	db	027h
+	db	0e5h,027h
+; P2-7
+	db	0e4h,007h
+;				oct 5	c
+	db	0dch,04dh
+	db	0e4h,037h
+; P2-8
+	db	0feh,0
+	dw	loop20$
+sub21$:
+	db	0dch,0c2h
+	db	0e5h,023h
+	db	023h
+	db	023h
+	db	023h
+	db	023h
+	db	023h
+	db	023h
+	db	0ffh
+;----------------------------------------
+Field53:
+;----------------------------------------
+	db	0dch,010h
+	db	0e4h,021h
+	db	0c5h
+	db	021h
+	db	0c5h
+	db	021h
+	db	0c5h
+	db	021h
+	db	0c1h
+	db	033h
+loop30$:
+; P3-1
+	db	0fdh
+	dw	sub31$
+	db	0fdh
+	dw	sub31$
+; P3-3
+	db	0fdh
+	dw	sub31$
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	063h
+; P3-4
+	db	0fdh
+	dw	sub31$
+	db	0fdh
+	dw	sub31$
+; P3-5
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	0a0h
+	db	0c0h
+	db	0a0h
+	db	0c0h
+; P3-6
+	db	097h
+	db	027h
+; P3-7
+	db	0a7h
+;					a#
+	db	037h
+	db	0feh,0
+	dw	loop30$
+sub31$:
+	db	0e4h,021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	093h
+	db	0ffh
+;----------------------------------------
+Field54:
+;----------------------------------------
+	db	0d6h
+	db	0bfh,011h
+	db	0bfh,011h
+	db	0bfh,011h
+	db	0b7h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b0h,012h
+loop40$:
+	db	0fdh
+	dw	sub42$
+	db	0fdh
+	dw	sub41$
+	db	0fdh
+	dw	sub42$
+	db	0fdh
+	dw	sub43$
+	db	0fdh
+	dw	sub42$
+	db	0fdh
+	dw	sub41$
+	db	0fdh
+	dw	sub42$
+	db	0fdh
+	dw	sub43$
+	db	0fdh
+	dw	sub42$
+	db	0fdh
+	dw	sub41$
+	db	0fdh
+	dw	sub42$
+	db	0fdh
+	dw	sub43$
+	db	0fdh
+	dw	sub41$
+	db	0fdh
+	dw	sub43$
+; P4-6
+	db	0bfh,011h
+	db	0b7h,011h
+	db	0b7h,012h
+; P4-7
+	db	0bfh,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b0h,011h
+	db	0b0h,011h
+	db	0b0h,011h
+	db	0b0h,011h
+	db	0feh,0
+	dw	loop40$
+sub41$:
+	db	0b3h,011h
+	db	0b3h,012h
+	db	0b3h,013h
+	db	0b3h,012h
+	db	0b3h,011h
+	db	0b3h,012h
+	db	0b3h,013h
+	db	0b1h,013h
+	db	0b1h,012h
+	db	0ffh
+sub42$:
+	db	0b3h,011h
+	db	0b3h,012h
+	db	0b3h,013h
+	db	0b3h,012h
+	db	0b3h,011h
+	db	0b3h,012h
+	db	0b3h,013h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0ffh
+sub43$:
+	db	0b3h,011h
+	db	0b3h,012h
+	db	0b3h,011h
+	db	0b3h,012h
+	db	0b3h,011h
+	db	0b3h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0ffh
+
+

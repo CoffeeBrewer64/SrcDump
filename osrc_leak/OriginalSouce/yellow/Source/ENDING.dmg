@@ -1,0 +1,2014 @@
+
+	include		common.def
+	include		se.def
+	include		effect.def
+	include		sgb_col.def
+	include		effecter.h
+	include		..\data\waza_se.h
+	include		fntequ.def
+	include		banktool.def
+	include		macro.h
+	include		group.def
+	include		pm_debug.def
+
+	extern		memset
+	extern		wait_vb_s
+	extern		wait_vb
+	extern		direct_play
+	extern		musdendou
+	extern		color_set
+	extern		block_move
+	extern		push_vram
+	extern		pop_vram
+	extern		put_wait
+
+	extern		BGMplay
+	extern		SEplay
+	extern		MusicStop
+
+	extern		change_cgb_bgp
+
+
+
+bank1c	group	G_BANK1c
+
+;=======================================================;
+;   DENDOU_IRI ANIMETION                                ;
+;=======================================================;
+	extern	hero_size1
+	extern	get_img_direct
+	extern	set_monsimg
+	extern	jiki_data
+	extern	put_bcd	
+	extern	put_dec
+	extern	set_serifu
+	extern	put_win_msg
+	extern	msg_return
+	extern	gyaarth_play
+	extern	dendou_save
+
+dendou_iri:
+	call	fadeout			;fadeout & n_to_w
+	call	dvram_cls
+
+	ld	c,100
+	call	wait_vb_s
+
+	call	set_kana
+	call	set_serifu
+	call	lcdc_stop
+	ld	hl,9800h
+	ld	bc,800h
+	ld	a,spc@
+	call	memset
+	call	lcdc_on
+
+	ld	hl,LCDC
+	set	3,(hl)
+
+	xor	a
+	ld	hl,anime_buf
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,60h
+ else
+	ld	bc,60h			; 60h は故意なのか間違いなのか、疑問です！！
+ endif					; work_anime_buf[0..35] もクリアしてしまう
+	call	memset
+
+	xor	a
+	ld	(oam_flg),a
+	ld	(wave_flg),a
+	ld	(reverse_fg),a
+	ld	(msg_speed),a
+	ld	(usr_buf + 3),a
+	inc	a
+	ld	(all_put_req),a
+
+	ld	hl,dendou_no		;dendou_no inc
+	ld	a,(hl)
+	inc	a
+	jr	z,max$
+	inc	(hl)
+max$:
+	ld	a,90h
+	ld	(window_y),a
+
+
+	ld	c,MUSIC_BANK3_NO
+	ld	a,musdendou
+	call	direct_play
+
+
+	ld	hl,my_cap_tbl + 1
+	ld	c,0ffh			;mons_pos counter
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,exit$	
+	
+	inc	c			;mons_pos counter
+	push	hl
+	push	bc
+
+	ld	(usr_buf + 0),a		;monster_no
+
+	ld	a,c
+	ld	(usr_buf + 1),a		;mons_pos
+
+	ld	hl,my_cap_data + 33
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+	ld	a,(hl)
+	ld	(usr_buf + 2),a		;monster_level
+
+	call	dendou_anime
+	call	mons_window
+
+	ld	c,80
+	call	wait_vb_s
+
+	SET_WIN_POS	2,13,17,17
+	call	put_window
+	
+ ifn  pm_jmsg
+;	S_POS	3,14
+	S_POS	3,15
+ else
+	S_POS	4,15			; "HALL OF FAME"
+ endif
+	ld	de,dendou_msg$		; ”でんどう いり おめでとう！”
+	call	put_msg
+
+	ld	c,180
+	call	wait_vb_s
+
+	call	n_to_w
+	pop	bc
+	pop	hl
+	jr	loop$
+
+exit$:
+	ld	a,c
+	inc	a
+	ld	hl,anime_buf
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, DENDOU_LEN
+ else
+	ld	bc,10h
+ endif
+	call	mul_any
+	ld	(hl),0ffh		; anime_buf[DENDOU_LEN*(Counter+1)] = $FF
+					;	$FF : 殿堂入りポケモンデータ終了コード
+	ld	hl,dendou_save
+	ld	b,G_BANK1c
+	call	bank_push_call
+
+	xor	a
+	ld	(usr_buf),a
+	inc	a
+	ld	(usr_buf + 3),a
+	call	dendou_anime
+	call	jiki_window
+
+	call	fadeout			;fadeout & n_to_w
+
+	xor	a
+	ld	(window_y),a
+	ld	hl,LCDC
+	res	3,(hl)	
+	ret
+
+dendou_msg$:
+ ifn  pm_jmsg	; でんどう いり おめでとう！
+	db	de_,n_,do_,u_,spc@,i_,ri_,spc@,o_,me_,de_,to_,u_,gyoe@,EOM
+ else
+	db	usf_h,usf_a,usf_l,usf_l,spc@,usf_o,usf_f,spc@
+	db	usf_f,usf_a,usf_m,usf_e,EOM			; "HALL OF FAME" でんどういり
+ endif
+
+dendou_anime:
+	call	dvram_cls
+	ld	a,0d0h
+	ld	(headery),a
+	ld	a,0c0h
+	ld	(headerx),a
+
+	ld	a,(usr_buf)
+	ld	(sel_item_no),a
+	ld	(tbl_pos),a
+	ld	(mymons_no),a
+	ld	(sgbcol_buf),a
+
+	ld	a,(usr_buf + 3)
+	and	a
+	jr	z,mons$
+
+	call	jiki_set
+	jr	next$
+
+mons$:
+	S_POS	12,5
+	call	get_monsadr
+	call	prt_mons_chr2
+
+	ld	a,B_PUT_MYMONS_IMAGE
+	call	bank2bank
+next$:
+	ld	b,COL_SHINKA
+	ld	c,0
+	call	color_set
+
+	ld	a,0e4h
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+
+	ld	c,31h
+	call	site_change
+
+	ld	d,0a0h
+	ld	e,4
+scloll$:
+	ld	a,(sgb_flg)
+	and	a
+	jr	z,scloll_next$
+	sla	e
+scloll_next$:
+	call	scloll_main$
+
+	xor	a
+	ld	(headery),a
+	ld	c,a
+	call	site_change
+
+	ld	d,000h
+	ld	e,-4
+
+scloll_main$:
+	call	wait_vb
+
+	ld	a,(headerx)
+	add	a,e
+	ld	(headerx),a
+	cp	d
+	jr	nz,scloll_main$
+	ret
+
+
+;========================================================
+; In	: usr_buf + 0		ポケモンの種類
+; 	: usr_buf + 1		手持ちの順番
+; 	: usr_buf + 2		ポケモンのレベル
+; 	: table_data		ポケモンの名前
+;
+;========================================================
+mons_window:
+	ld	a,(usr_buf + 1)
+	ld	hl,my_cap_name
+	call	get_pet_name
+;	call	mons_window2
+	call	mons_window_main
+
+	ld	a,(usr_buf + 1)
+	ld	(sel_item_pos),a
+	extern	check_pika
+	ld	hl,check_pika
+	ld	b,G_BANK3f
+	call	bank_push_call
+	jr	nc,normal$
+
+	ld	e,22h
+	extern	PikaVoicePlay
+	ld	hl,PikaVoicePlay
+	ld	b,BANK__PikaVoicePlay	;	ld	b,G_BANK3b
+	call	bank_push_call
+	jr	dendouset$
+
+normal$:
+	ld	a,(usr_buf)
+	call	gyaarth_play
+
+dendouset$:
+	jp	dendou_set
+
+
+
+	public	mons_window2
+
+mons_window2:
+	call	mons_window_main
+
+	ld	a,(usr_buf)
+	jp	gyaarth_play
+
+
+mons_window_main:
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS	0,2,11,12
+	call	put_window
+
+	S_POS	2,6
+	ld	de,data_msg$			; ”レベル／ タイプ１／ タイプ２／”
+	call	put_msg
+
+	S_POS	1,4
+	ld	de,table_data			; ポケモン名（ニックネーム）を表示
+	call	put_msg
+
+	ld	a,(usr_buf + 2)
+	S_POS	8,7
+	call	put_level1			; レベル値を表示
+
+	ld	a,(usr_buf)
+	ld	(tbl_pos),a
+	S_POS	3,9				; タイプ１，２の内容を表示
+ else
+;	SET_WIN_POS	1,4,10,11
+	SET_WIN_POS	0,3,10,12
+	call	put_window
+
+;	S_POS	2,8
+	S_POS	1,7
+	ld	de,data_msg$
+	call	put_msg
+
+;	S_POS	2,6
+	S_POS	2,5
+	ld	de,table_data
+	call	put_msg
+
+	ld	a,(usr_buf + 2)
+;	S_POS	7,8
+	S_POS	7,7
+	call	put_level1
+
+	ld	a,(usr_buf)
+	ld	(tbl_pos),a
+;	S_POS	6,10
+	S_POS	6,9
+ endif
+	ld	a,B_PUT_TYPE
+	call	bank2bank
+
+	ret
+
+
+data_msg$:
+ ifn  pm_jmsg
+	db	spc@,re__,be__,ru__,sura@,cr@			;   レベル／
+	db	ta__,i__,pu__,n1@,sura@,cr@			; タイプ１／
+	db	ta__,i__,pu__,n2@,sura@,EOM			; タイプ２／
+ else
+	db	usf_l,usf_e,usf_v,usf_e,usf_l,sura@,cr@		; LEVEL/
+	db	usf_t,usf_y,usf_p,usf_e,n1@,sura@,cr@		; TYPE1/
+	db	usf_t,usf_y,usf_p,usf_e,n2@,sura@,EOM		; TYPE2/
+ endif
+
+
+jiki_set:
+	ld	de,hero_size1
+	ld	a,4
+	call	get_img_direct
+
+	ld	a,0
+	extern	open_ram_bank
+	call	open_ram_bank
+
+	ld	hl,plane0_area
+	ld	de,plane2_area
+	ld	bc,784
+	call	block_move
+
+	extern	close_ram_bank
+	call	close_ram_bank
+
+	ld	de,CHAR_BG
+	call	set_monsimg
+
+	ld	de,jiki_data
+	ld	a,3dh				; change bank number
+	call	get_img_direct			; bank0
+
+	ld	a,B_ZOOMER
+	call	bank2bank
+
+	ld	de,09310h		; set chr ram
+	call	set_monsimg
+
+	ld	c,1
+site_change:
+	ld	b,0
+	S_POS	12,5
+	ld	a,B_DEMO_ZOOM
+	jp	bank2bank
+
+
+jiki_window:
+	ld	hl,ev_t1
+	set	3,(hl)
+	ld	a,86
+	call	bank2bank
+
+	SET_WIN_POS	0,4,11,11
+	call	put_window
+
+ ifn  pm_jmsg
+	SET_WIN_POS	5,0,14,3
+ else
+	SET_WIN_POS	5,0,15,3
+ endif
+	call	put_window
+
+	S_POS	7,2
+	ld	de,my_name
+	call	put_msg				; name string
+
+	S_POS	1,6			
+	ld	de,msg1$
+	call	put_msg
+
+	S_POS	5,7
+	ld	de,play_time_h + 0
+	ld	bc,0103h 			; 1 byte length, 2 column
+	call	put_dec
+	ld	(hl),n@				; ':'
+	inc	hl
+	ld	de,play_time_m
+	ld	bc,8102h			; 1 byte length, 2 column
+	call	put_dec
+
+	S_POS	1,9			
+	ld	de,msg2$
+	call	put_msg
+
+	S_POS	4,10
+	ld	de,my_gold
+ ifn  pm_jmsg
+	ld	c,083h
+	call	put_bcd				; money
+	ld	(hl),yen@			; unit
+ else
+	ld	c,0A3h
+	call	put_bcd				; money
+ endif
+	ld	hl,msg3_1$
+	call	zukam_msg$
+	
+	ld	hl,msg3_2$
+	call	zukam_msg$
+
+	ld	hl,anime_buf + 2
+zukam_msg$:
+	call	put_win_msg
+	ld	c,120
+ ifn	ASSEMBLE__ENGLISH
+	jp	wait_vb_s
+ else
+	call	wait_vb_s	; 注意！）ret 命令がない（バグ！）
+
+	ret	; <- ret 命令を付けておく
+ endif
+	
+
+
+msg1$:
+ ifn  pm_jmsg
+	db	pu__,re__,i__,zi_,ka_,n_,EOM					; プレイじかん
+ else
+	db	usf_p,usf_l,usf_a,usf_y,spc@,usf_t,usf_i,usf_m,usf_e,EOM	; PLAY TIME
+ endif
+msg2$:
+ ifn  pm_jmsg
+	db	no_,ko_,ttu_,ta_,spc@,o_,ko_,du_,ka_,i_,EOM	; のこった おこずかい
+ else
+	db	usf_m,usf_o,usf_n,usf_e,usf_y,EOM		; MONEY
+ endif
+msg3_1$:
+	extern	msg3_1_0_ENDING
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_0_ENDING	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	EOM
+
+msg3_2$:
+	extern	msg3_2_1_ENDING
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_1_ENDING	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+dendou_set:
+	ld	hl,anime_buf
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, DENDOU_LEN
+ else
+	ld	bc,10h
+ endif
+	ld	a,(usr_buf + 1)			; 位置
+	call	mul_any
+
+	ld	a,(usr_buf + 0)			; ポケモンナンバー
+	ld	(hli),a
+
+	ld	a,(usr_buf + 2)			; レベル
+	ld	(hli),a
+	
+	ld	e,l
+	ld	d,h
+	ld	hl,table_data			; 名前
+	ld	bc,MONS_NAME_LEN
+	jp	block_move	
+	
+
+fadeout:
+	ld	a,0ah
+	ld	(fade_play_wait),a
+	ld	(fade_play_cou),a
+	ld	a,0ffh
+	ld	(fade_play_fg),a	; = Music Number
+	jp	n_to_w
+
+
+
+;=======================================================================================
+
+
+ ifn	ASSEMBLE__BANK_CHANGE
+bank3c	group	G_BANK3c
+ else
+bank30	group	G_BANK30
+ endif
+
+;==========================================================;
+;     ENDING     	                                   ;
+;==========================================================;
+	public	ending
+
+	extern	dvram_cls
+	extern	put_window
+	extern	put_msg
+	extern	cont_abwait
+	extern	n_to_w
+	extern	w_to_n
+	extern	demo_tit_dat
+	extern	put_title
+	extern	bank_push_call
+	extern	bank2bank
+	extern	chrmove
+	extern	get_mons_name
+	extern	get_monsadr
+	extern	prt_mons_chr
+	extern	prt_mons_chr2
+	extern	get_pet_name
+	extern	set_kana
+	extern	put_level1
+	extern	mul_any
+	extern	se_play
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	musending
+
+
+STAFFEND	equ	0ffh
+STAFFEND2	equ	0feh
+STAFFNEXT	equ	0fdh
+STAFFNEXT2	equ	0fch
+MARUSHI		equ	0fbh
+THEEND		equ	0fah
+
+ending:
+;	call	dendou_iri
+	ld	hl,dendou_iri
+	ld	b,G_BANK1c
+	call	bank_push_call
+
+	call	dvram_cls
+
+	ld	c,100
+	call	wait_vb_s
+
+	call	lcdc_stop
+
+	ld	a,167
+	ld	(WX),a
+
+	xor	a
+	ld	(SCX),a
+	ld	(SCY),a
+	ld	(headerx),a
+	ld	(headery),a
+	ld	(window_y),a
+	ld	(WY),a
+	
+	call	sp_font_set
+
+	ld	hl,dmy_vram
+	call	screen_to_dmy
+
+	ld	hl,14*20 + dmy_vram
+	call	screen_to_dmy
+
+	ld	a,0c0h			; 1100 0000
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+
+	call	lcdc_on
+
+	call	MusicStop
+
+	ld	hl,9c00h
+	call	bg_adr_chg
+	ld	hl,9800h
+	call	bg_adr_chg
+
+	ld	c,MUSIC_BANK3_NO
+	ld	a,musending
+	call	direct_play
+
+
+	public	ending_start		; for debug global label
+ending_start:
+	ld	c,80h
+	call	wait_vb_s
+
+	xor	a
+	ld	(usr_buf),a
+	ld	(usr_buf + 1),a
+
+	jp	staff_main
+
+
+
+;-------------------------------------------------------
+; 文字を浮き上がらせる
+;-------------------------------------------------------
+bgpchg_inc:
+	ld	a,1
+	ld	(all_put_req),a
+
+	ld	hl,bgpchg_tbl$
+	ld	b,4
+loop$:
+	ld	a,(hli)
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ld	c,5
+	call	wait_vb_s
+	dec	b
+	jr	nz,loop$
+	ret
+
+bgpchg_tbl$:
+	db	0c0h			; 1100 0000
+	db	0d0h			; 1101 0000
+	db	0e0h			; 1110 0000
+	db	0f0h			; 1111 0000
+
+
+;-------------------------------------------------------
+; ポケモンシルエットのスライドイン＞アウト
+;-------------------------------------------------------
+	extern	push_vram_m
+	extern	pop_vram_s
+
+	public	bgpchg_dec		; for debug global
+
+bgpchg_dec:
+	ld	hl,9c00h		;
+	call	bg_adr_chg		; 現状の画面状態を
+	xor	a			; 9C00～に反映、9800～を隠す
+	ld	(all_put_req),a		;
+	ld	hl,lcdc			;
+	set	3,(hl)			;
+
+
+	call	push_vram_m
+
+	call	credit_cls
+	call	prt_next_shadow
+	ld	hl,980ch
+	call	bg_adr_chg
+
+	xor	a
+	ld	(all_put_req),a
+	call	pop_vram_s
+	ld	hl,9800h
+	call	bg_adr_chg
+
+
+	ld	a,0fch			; 1111 1100
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+
+	ld	hl,lcdc			; 9800～を表示領域にする
+	res	3,(hl)			;
+
+
+	ld	a,1
+	ld	(all_put_req),a
+
+	ld	b,00h
+
+	ld	c,10
+	call	spritloop
+
+	call	cls_left_half
+
+	ld	c,10
+	call	spritloop
+
+	call	cls_right_half
+
+	ld	c,8
+	call	spritloop
+
+
+	ld	a,0c0h
+	ld	(BGP),a			; 1100 0000
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+
+	xor	a
+	ld	(headerx),a
+
+	ret
+
+
+spritloop:
+	ld	a,b
+	ld	(headerx),a
+	add	a,8
+	ld	b,a
+	call	wait_vb
+	
+	dec	c
+	jr	nz,spritloop
+
+	ret
+
+
+
+
+;----------------------------------------------------------------
+; ポケモンの影を表示
+;----------------------------------------------------------------
+prt_next_shadow:
+	ld	hl,usr_buf + 1
+	ld	c,(hl)
+	inc	(hl)
+	ld	b,0
+	ld	hl,endmons_tbl
+	add	hl,bc
+	ld	a,(hl)
+
+	ld	(sel_item_no),a
+	ld	(tbl_pos),a
+	S_POS	8,6
+	call	get_monsadr
+	call	prt_mons_chr2
+	ret
+
+	public	endmons_tbl
+endmons_tbl:
+	db	154,45,18,35,148,39,43,30,152,22,76,99,187,7,46
+	db	14,14,14,14,14,14,14,14,14		; 予備データ
+
+
+
+bg_adr_chg:
+	ld	a,l
+	ld	(all_putadr_l),a
+	ld	a,h
+	ld	(all_putadr_h),a
+	ld	a,1
+	ld	(all_put_req),a
+	jp	put_wait
+
+
+
+;----------------------------------------------------------------
+; スタッフロール用フォントのセット
+;----------------------------------------------------------------
+sp_font_set:
+	call	set_kana
+	ld	hl,8800h
+	ld	bc,80h*8
+	call	chr_dec$
+
+	call	set_serifu
+	ld	hl,9600h
+	ld	bc,20h*8
+	call	chr_dec$
+	
+	ld	hl,97e0h
+	ld	bc,010h
+	ld	a,0ffh
+	call	memset
+
+	ret
+
+chr_dec$:
+	ld	(hl),0
+	inc	hl
+	inc	hl
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,chr_dec$
+	ret
+
+
+;----------------------------------------------------------------
+; シネスコ上下の帯を表示
+;----------------------------------------------------------------
+screen_to_dmy:
+	ld	bc,20*4
+	ld	a,7eh
+	jp	memset
+
+
+;----------------------------------------------------------------
+; シネスコセンター部分のクリア
+;----------------------------------------------------------------
+credit_cls:
+	S_POS	0,4			; CREDIT  cls
+	ld	bc,20*10
+	ld	a,spc@
+	jp	memset			; don't break DE reg.
+
+
+;----------------------------------------------------------------
+; シネスコセンター部分の半分クリア
+;----------------------------------------------------------------
+cls_left_half:
+	S_POS	0,4
+	push	bc
+	call	cls_half
+	pop	bc
+	ret
+
+cls_right_half:
+	S_POS	10,4
+	push	bc
+	call	cls_half
+	pop	bc
+	ret
+
+
+cls_half:
+	ld	b,10
+	ld	c,10
+	ld	a,spc@
+loop0$:
+	push	bc
+	push	hl
+
+loop1$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop1$
+
+	pop	hl
+	ld	bc,20
+	add	hl,bc
+	pop	bc
+	dec	b
+	jr	nz,loop0$
+
+	ret
+
+;----------------------------------------------------------------
+; スタッフロール表示ウェイト
+;----------------------------------------------------------------
+ ifn  pm_jmsg
+	public	staff_wait
+staff_wait:
+;	ld	c,168
+	ld	c,163
+	jp	wait_vb_s
+ else
+ endif
+
+
+
+;======================================================
+;
+; スタッフロール表示メインループ
+;
+;======================================================
+staff_main:
+	ld	de,staff_roll_table
+	push	de
+
+main_loop$:
+	pop	de
+	ld	hl,6*20 + 9 + dmy_vram	; S_POS(9,6)
+
+	push	hl
+	call	credit_cls		; S_POS(0,4)～(19,13) = spc@
+	pop	hl			; HL= S_POS(9,6)
+
+loop$:
+	
+	ld	a,(de)
+	inc	de
+
+	push	de
+
+	cp	STAFFEND
+	jr	z,end1$			; フェードイン＆待ち＆ポケモンスクロール
+	cp	STAFFEND2
+	jr	z,end2$			; 待ち＆ポケモンスクロール
+	cp	STAFFNEXT
+	jr	z,next1$		; フェードイン＆待ち
+	cp	STAFFNEXT2
+	jr	z,next2$		; 待ちのみ
+	cp	MARUSHI
+	jr	z,marushi$		; ”@1995,1996 ...”を表示
+	cp	THEEND
+	jr	z,theend$		;”ＴＨＥ ＥＮＤ”を表示
+
+
+put_credit$:
+	call	put_name
+
+	pop	de
+	jr	loop$
+
+marushi$:
+	ld	b,G_BANK1
+	extern	opning_marushi2
+	ld	hl,opning_marushi2
+	call	bank_push_call
+
+	pop	de
+	jr	loop$
+
+ ifn  pm_jmsg
+end1$:
+	call	bgpchg_inc		; (BGP) = $C0->$D0->$E0->$F0
+end2$:
+	call	staff_wait		; wait_vb_s(168)  １６８フレーム待ち
+	call	bgpchg_dec
+	jr	main_loop$
+
+next1$:
+	call	bgpchg_inc
+next2$:
+	call	staff_wait
+	jr	main_loop$
+ else
+
+ADJUST_WAIT	=	12		; 待ち時間調整
+
+end1$:	call	bgpchg_inc		; (BGP) = $C0->$D0->$E0->$F0
+	ld	c,90 + ADJUST_WAIT
+	jr	end3$
+end2$:	ld	c,110 + ADJUST_WAIT
+end3$:	call	wait_vb_s
+	call	bgpchg_dec
+	jr	main_loop$
+
+next1$:	call	bgpchg_inc
+	ld	c,120 + ADJUST_WAIT
+	jr	next3$
+next2$:	ld	c,140 + ADJUST_WAIT
+next3$	call	wait_vb_s
+	jr	main_loop$
+ endif
+
+
+theend$:				; ”ＴＨＥ ＥＮＤ”を表示する
+	call	put_theend
+	pop	de			;clear stack mem.
+	ret
+
+
+
+
+	public	put_theend
+
+put_theend:
+	ld	c,18h
+	call	wait_vb_s
+
+	call	credit_cls
+
+	ld	de,end_data
+	ld	hl,09600h		; BGｷｬﾗｸﾀNo.60～69 に ＴＨＥ ＥＮＤキャラクタを転送
+
+  ifn	ASSEMBLE__BANK_CHANGE
+	ld	bc,G_BANK3c*100h + 10
+  else
+	ld	bc,G_BANK30*100h + 10
+  endif
+	call	chrmove
+
+	S_POS	4,8
+	ld	de,end1_msg$
+	call	put_msg
+	S_POS	4,9
+	inc	de
+	call	put_msg
+	jp	bgpchg_inc
+
+end1_msg$:
+	db	60h,spc@,62h,spc@,64h,spc@,spc@,64h,spc@,66h,spc@,68h
+	db	EOM
+end2_msg$:
+	db	61h,spc@,63h,spc@,65h,spc@,spc@,65h,spc@,67h,spc@,69h
+	db	EOM
+
+
+
+put_name:
+	push	hl
+
+	push	hl
+	ld	hl,name_tbl
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	pop	hl
+
+	ld	a,(de)			; 表示位置補正の値
+	inc	de			; 表示文字列の先頭アドレスをさす
+	ld	c,a
+	ld	b,0ffh
+	add	hl,bc
+
+	call	put_msg
+
+	pop	hl
+	ld	bc,40
+	add	hl,bc			; 次の表示開始行へ
+	ret
+
+
+
+staff_roll_table:
+msg1$:
+	db	msg_pokemon			; POKe'MON
+	db	msg_staff			; PIKACHU VERSION STAFF
+	db	STAFFEND
+msg2$:
+	db	msg_directer
+	db	msg_syatyou
+	db	STAFFEND
+msg3$:
+	db	msg_program
+	db	msg_karate
+	db	msg_morimoto
+	db	msg_tetsu
+	db	STAFFNEXT
+msg4$:
+	db	msg_program
+	db	msg_masuda
+	db	msg_tamada
+	db	STAFFEND2
+msg5$:
+	db	msg_chard
+	db	msg_sugimori
+	db	msg_atsuko
+	db	STAFFEND
+msg6$:
+	db	msg_sound
+	db	msg_masuda
+	db	STAFFNEXT
+msg7$:
+	db	msg_se
+	db	msg_masuda
+	db	msg_tetsu
+	db	STAFFEND2
+msg8$:
+	db	msg_gamed
+	db	msg_syatyou
+	db	msg_kabi
+	db	STAFFEND
+msg9$:
+	db	msg_monsd
+	db	msg_sugimori
+	db	msg_atsuko
+	db	msg_yoshida
+	db	STAFFEND
+msg11$:
+	db	msg_sinario
+	db	msg_syatyou
+	db	STAFFNEXT
+msg12$:
+	db	msg_sinario
+	db	msg_matsumiya
+	db	STAFFEND2
+msg13$:
+	db	msg_para
+	db	msg_kabi
+	db	STAFFEND
+msg14$:
+	db	msg_mapd
+	db	msg_syatyou
+	db	msg_kabi
+	db	msg_seya
+	db	STAFFEND
+msg16$:
+	db	msg_debug
+	db	msg_sekine
+	db	msg_seya
+	db	STAFFNEXT
+msg17$:
+	db	msg_debug
+	db	msg_shimamura
+	db	msg_shimoyamada
+
+ ifn	ASSEMBLE__ENGLISH
+	db	STAFFEND2
+ else
+	db	STAFFNEXT2
+
+	db	msg_debug
+	db	msg_supermario
+	db	STAFFEND2
+msg18$:
+	db	msg_spthanks
+	db	msg_nomura
+	db	msg_harada
+	db	msg_yamagami
+	db	STAFFNEXT
+msg19$:
+	db	msg_spthanks
+	db	msg_nishimura
+	db	msg_saeki
+	db	msg_fujii
+	db	STAFFNEXT2
+ endif
+
+msg20$:
+	db	msg_spthanks
+	db	msg_sho_pro
+ ifn	ASSEMBLE__ENGLISH
+	db	STAFFEND
+ else
+	db	STAFFEND2
+ endif
+
+msgvoice$:
+	db	msg_pika_voice
+	db	msg_ootani_ikue
+	db	STAFFEND
+msg21$:
+	db	msg_producer
+	db	msg_izushi
+	db	STAFFNEXT
+msg22$:
+	db	msg_producer
+	db	msg_kawaguchi
+	db	STAFFNEXT2
+msg23$:
+	db	msg_producer
+	db	msg_ishihara
+	db	STAFFEND2
+
+;	--------------------				; 英語版スタッフの表示
+ ifn  pm_jmsg
+ else
+;	db	STAFFNEXT
+	db	msg_US_VERSION_STAFF
+	db	STAFFNEXT
+
+	db	msg_US_COORDINATION
+	db	msg_GAIL_TILDEN
+	db	STAFFNEXT
+
+	db	msg_US_COORDINATION
+	db	msg_NAOKO_KAWAKAMI
+	db	msg_HIRO_NAKAMURA
+	db	STAFFNEXT2
+	
+	db	msg_US_COORDINATION
+	db	msg_RANDY_SHOEMAKE	; msg_WILLIAM_GIESE から変更 '99 1/27
+	db	msg_SARA_OSBORNE
+	db	STAFFNEXT2
+
+	db	msg_TEXT_TRANSLATION
+	db	msg_NOB_OGASAWARA
+	db	STAFFNEXT
+
+	db	msg_program
+	db	msg_TERUKI_MURAKAWA
+	db	msg_KOHTA_FUKUI
+	db	STAFFNEXT
+
+	db	msg_chard
+	db	msg_TAKEHIKO_HOSOKAWA
+	db	STAFFNEXT
+
+;;;	db	msg_spthanks
+;;;	db	msg_SATORU_IWATA
+;;;	db	STAFFNEXT
+
+	db	msg_spthanks
+	db	msg_KENJI_OKUBO
+	db	msg_TAKAHIRO_HARADA
+;	db	msg_nishimura
+;	db	msg_fujii
+;	db	STAFFNEXT2
+	db	STAFFNEXT
+	
+	db	msg_spthanks
+	db	msg_KIMIKO_NAKAMICHI
+	db	msg_KAMON_YOSHIMURA
+	db	msg_SAKAE_YAMAZAKI
+	db	STAFFNEXT2
+
+	db	msg_debug
+	db	msg_PAAD_TESTING
+	db	msg_SUPER_MARIOCLUB
+	db	STAFFNEXT
+
+;;;	db	msg_producer_s
+;;;	db	msg_TAKEHIRO_IZUSHI
+;;;	db	STAFFNEXT
+ endif
+;	--------------------
+
+msg24$:
+	db	msg_exproducer
+	db	msg_yamauchi
+	db	STAFFEND
+msg25$:
+	db	MARUSHI
+	db	STAFFEND
+msg26$:
+	db	THEEND
+
+
+
+name_tbl:
+	initndw	str_staff	,msg_staff
+	ndw	str_syatyou	,msg_syatyou
+	ndw	str_karate	,msg_karate
+	ndw	str_sige	,msg_morimoto
+	ndw	str_tetsu	,msg_tetsu
+	ndw	str_jun		,msg_masuda
+	ndw	str_kabi	,msg_kabi
+	ndw	str_sugimori	,msg_sugimori
+	ndw	str_atsuko	,msg_atsuko
+	ndw	str_miyamoto	,msg_miyamoto
+	ndw	str_kawaguchi	,msg_kawaguchi
+	ndw	str_ishihara	,msg_ishihara
+	ndw	str_yamauchi	,msg_yamauchi
+	ndw	str_jinnai	,msg_zinnai
+	ndw	str_hishida	,msg_hishida
+	ndw	str_sakai	,msg_sakai
+	ndw	str_yamaguchi	,msg_yamaguchi
+	ndw	str_yamamoto	,msg_yamamoto
+	ndw	str_taniguchi	,msg_taniguchi
+	ndw	str_nonomura	,msg_nonomura
+	ndw	str_fujiwara	,msg_fujiwara
+	ndw	str_matsushima	,msg_matsushima
+	ndw	str_tomisawa	,msg_tomisawa
+	ndw	str_kawamoto	,msg_kawamoto
+	ndw	str_kakei	,msg_kakei
+	ndw	str_tsuchiya	,msg_tsuchiya
+	ndw	str_nakamura	,msg_nakamura
+	ndw	str_yuda	,msg_yuda
+	ndw	str_pokemon	,msg_pokemon
+	ndw	str_director	,msg_directer
+	ndw	str_programer	,msg_program
+	ndw	str_chr_designer,msg_chard
+	ndw	str_music	,msg_sound
+	ndw	str_soundeffect	,msg_se
+	ndw	str_game_designer,msg_gamed
+	ndw	str_mons_design	,msg_monsd
+	ndw	str_scenario	,msg_sinario
+	ndw	str_parameter	,msg_para
+	ndw	str_map_design	,msg_mapd
+	ndw	str_debugplay	,msg_debug
+	ndw	str_sp_thanks	,msg_spthanks
+	ndw	str_producer	,msg_producer
+	ndw	str_exe_producer,msg_exproducer
+	ndw	str_tamada	,msg_tamada
+	ndw	str_oota_satoshi,msg_oota_sato
+	ndw	str_yoshikawa	,msg_yoshikawa
+	ndw	str_oota_tomo	,msg_oota_tomo
+
+	ndw	str_yoshida	,msg_yoshida
+	ndw	str_matsumiya	,msg_matsumiya
+	ndw	str_seya	,msg_seya
+	ndw	str_sekine	,msg_sekine
+	ndw	str_shimamura	,msg_shimamura
+	ndw	str_shimoyamada	,msg_shimoyamada
+	ndw	str_supermario	,msg_supermario
+	ndw	str_izushi	,msg_izushi
+	ndw	str_nomura	,msg_nomura
+	ndw	str_harada	,msg_harada
+	ndw	str_yamagami	,msg_yamagami
+	ndw	str_nishimura	,msg_nishimura
+	ndw	str_saeki	,msg_saeki
+	ndw	str_fujii	,msg_fujii
+	ndw	str_sho_pro	,msg_sho_pro
+	ndw	str_ootani_ikue	,msg_ootani_ikue
+	ndw	str_pika_voice	,msg_pika_voice
+;	-----------------------------		英語版スタッフ
+ ifn  pm_jmsg
+ else
+	ndw	staff48,msg_US_VERSION_STAFF
+	ndw	staff49,msg_US_COORDINATION
+	ndw	staff50,msg_GAIL_TILDEN
+	ndw	staff51_1,msg_NAOKO_KAWAKAMI
+	ndw	staff51,msg_HIRO_NAKAMURA
+	ndw	staff52,msg_RANDY_SHOEMAKE		; msg_WILLIAM_GIESE から変更 '99 1/27
+	ndw	staff53,msg_SARA_OSBORNE
+	ndw	staff54,msg_TEXT_TRANSLATION
+	ndw	staff55,msg_NOB_OGASAWARA
+	ndw	staff56,msg_SATORU_IWATA
+	ndw	staff57,msg_TAKEHIRO_IZUSHI		;@
+	ndw	staff58,msg_TAKAHIRO_HARADA		;@
+	ndw	staff59,msg_TERUKI_MURAKAWA
+	ndw	staff60,msg_KOHTA_FUKUI
+	ndw	staff61,msg_SUPER_MARIOCLUB		;@
+	ndw	staff62,msg_PAAD_TESTING
+	ndw	str_producer_s,msg_producer_s
+	ndw	staff63,msg_TAKEHIKO_HOSOKAWA
+	ndw	staff64,msg_KENJI_OKUBO
+	ndw	staff65,msg_KIMIKO_NAKAMICHI
+	ndw	staff66,msg_KAMON_YOSHIMURA
+	ndw	staff67,msg_SAKAE_YAMAZAKI
+ endif
+;	-----------------------------
+
+ ifn  pm_jmsg
+str_staff:
+	db	-6
+	db	pi__,ka__,ti__,yyu__,u__
+	db	ba__,bou@,zi__,yyo__,n__,spc@
+	db	su__,ta__,ttu__,hu__,EOM
+str_syatyou:
+	db	-3
+	db	ta_,zi_,ri_,spc@,sa_,to_,si_,EOM
+str_karate:
+	db	-3
+	db	o_,o_,ta_,spc@,ta_,ke_,no_,ri_,EOM
+str_sige:
+	db	-3
+	db	mo_,ri_,mo_,to_,spc@,si_,ge_,ki_,EOM
+str_tetsu:
+	db	-3
+	db	wa_,ta_,na_,be_,spc@,te_,tu_,ya_,EOM
+str_jun:
+	db	-3
+	db	ma_,su_,da_,spc@,zi_,yyu_,n_,i_,ti_,EOM
+str_kabi:
+	db	-3
+	db	ni_,si_,no_,spc@,ko_,u_,zi_,EOM
+str_sugimori:
+	db	-3
+	db	su_,gi_,mo_,ri_,spc@,ke_,n_,EOM
+str_atsuko:
+	db	-3
+	db	ni_,si_,da_,spc@,a_,tu_,ko_,EOM
+str_miyamoto:
+	db	-3
+	db	mi_,ya_,mo_,to_,spc@,si_,ge_,ru_,EOM
+str_kawaguchi:
+	db	-3
+	db	ka_,wa_,gu_,ti_,spc@,ta_,ka_,si_,EOM
+str_ishihara:
+	db	-3
+	db	i_,si_,ha_,ra_,spc@,tu_,ne_,ka_,zu_,EOM
+str_yamauchi:
+	db	-3
+	db	ya_,ma_,u_,ti_,spc@,hi_,ro_,si_,EOM
+str_jinnai:
+	db	-3
+	db	zi_,n_,na_,i_,spc@,hi_,ro_,yu_,ki_,EOM
+str_hishida:
+	db	-3
+	db	hi_,si_,da_,spc@,ta_,tu_,ya_,EOM
+str_sakai:
+	db	-3
+	db	sa_,ka_,i_,spc@,ya_,su_,hi_,ro_,EOM
+str_yamaguchi:
+	db	-3
+	db	ya_,ma_,gu_,ti_,spc@,wa_,ta_,ru_,EOM
+str_yamamoto:
+	db	-3
+	db	ya_,ma_,mo_,to_,spc@,ka_,zu_,yu_,ki_,EOM
+str_taniguchi:
+	db	-4
+	db	ta_,ni_,gu_,ti_,spc@,ri_,yyo_,u_,su_,ke_,EOM
+str_nonomura:
+	db	-3
+	db	no_,no_,mu_,ra_,spc@,hu_,mi_,hi_,ro_,EOM
+str_fujiwara:
+	db	-3
+	db	hu_,zi_,wa_,ra_,spc@,mo_,to_,hu_,mi_,EOM
+str_matsushima:
+	db	-3
+	db	ma_,tu_,si_,ma_,spc@,ke_,n_,zi_,EOM
+str_tomisawa:
+	db	-3
+	db	to_,mi_,sa_,wa_,spc@,a_,ki_,hi_,to_,EOM
+str_kawamoto:
+	db	-3
+	db	ka_,wa_,mo_,to_,spc@,hi_,ro_,si_,EOM
+str_kakei:
+	db	-3
+	db	ka_,ke_,i_,spc@,a_,ki_,yo_,si_,EOM
+str_tsuchiya:
+	db	-3
+	db	tu_,ti_,ya_,spc@,ka_,du_,ki_,EOM
+str_nakamura:
+	db	-3
+	db	na_,ka_,mu_,ra_,spc@,ta_,ke_,o_,EOM
+str_yuda:
+	db	-3
+	db	yu_,da_,spc@,ma_,sa_,mi_,tu_,EOM
+str_pokemon:
+	db	-3
+	db	po__,ke__,ttu__,to__,mo__,n__,su__,ta__,bou@,EOM
+str_director:
+	db	-3
+	db	de__,ii__,re__,ku__,ta__,bou@,EOM
+str_programer:
+	db	-2
+	db	pu__,ro__,gu__,ra__,mu__,EOM
+str_chr_designer:
+	db	-4
+	db	ki__,yya__,ra__,ku__,ta__,bou@,de__,za__,i__,n__,EOM
+str_music:
+	db	-1
+	db	o_,n_,ga_,ku_,EOM
+str_soundeffect:
+	db	-4
+	db	sa__,u__,n__,do__,spc@,e__,hu__,ee__,ku__,to__,EOM
+str_game_designer:
+	db	-3
+	db	ge__,bou@,mu__,de__,za__,i__,n__,EOM
+str_mons_design:
+	db	-4
+	db	mo__,n__,su__,ta__,bou@,spc@,de__,za__,i__,n__,EOM
+str_scenario:
+	db	-2
+	db	si__,na__,ri__,o__,EOM
+str_parameter:
+	db	-4
+	db	pa__,ra__,me__,bou@,ta__,spc@,se_,ttu_,te_,i_,EOM
+str_map_design:
+	db	-3
+	db	ma__,ttu__,pu__,spc@,de__,za__,i__,n__,EOM
+str_debugplay:
+	db	-3
+	db	de__,ba__,ttu__,gu__,spc@,pu__,re__,i__,EOM
+str_sp_thanks:
+	db	-4
+	db	su__,pe__,si__,yya__,ru__,nakag@,sa__,n__,ku__,su__,EOM
+str_producer:
+	db	-3
+	db	pu__,ro__,de__,yyu__,bou@,sa__,bou@,EOM
+str_exe_producer:
+	db	-6
+	db	e__,gu__,ze__,ku__,te__,ii__,bu__,spc@
+	db	pu__,ro__,de__,yyu__,bou@,sa__,bou@,EOM
+str_tamada:
+	db	-3
+	db	ta_,ma_,da_,spc@,so_,u_,su_,ke_,EOM
+str_oota_satoshi:
+	db	-3
+	db	o_,o_,ta_,spc@,sa_,to_,si_,EOM	
+str_yoshikawa:	
+	db	-3
+	db	yo_,si_,ka_,wa_,spc@,re_,na_,EOM
+str_oota_tomo:
+	db	-3
+	db	o_,o_,ta_,spc@,to_,mo_,mi_,ti_,EOM
+
+
+str_matsumiya:
+	db	-4
+	db	ma_,tu_,mi_,ya_,spc@,to_,si_,no_,bu_,EOM
+str_seya:
+	db	-3
+	db	se_,ya_,spc@,no_,bu_,hi_,ro_,EOM
+str_yoshida:
+	db	-3
+	db	yo_,si_,da_,spc@,hi_,ro_,no_,bu_,EOM
+str_sekine:
+	db	-3
+	db	se_,ki_,ne_,spc@,ka_,zu_,hi_,to_,EOM
+str_shimamura:
+	db	-3
+	db	si_,ma_,mu_,ra_,spc@,ka_,zu_,si_,EOM
+str_shimoyamada:
+	db	-4
+	db	si_,mo_,ya_,ma_,da_,spc@,te_,ru_,yu_,ki_,EOM
+str_supermario:
+	db	-4
+	db	su__,bou@,pa__,bou@,ma__,ri__,o__,ku__,ra__,bu__,EOM
+str_izushi:
+	db	-3
+	db	i_,zu_,si_,spc@,ta_,ke_,hi_,ro_,EOM
+str_nomura:
+	db	-3
+	db	no_,mu_,ra_,spc@,hu_,zi_,ko_,EOM
+str_harada:
+	db	-3
+	db	ha_,ra_,da_,spc@,ta_,ka_,hi_,ro_,EOM
+str_yamagami:
+	db	-3
+	db	ya_,ma_,ga_,mi_,spc@,hi_,to_,si_,EOM
+str_nishimura:
+	db	-4
+	db	ni_,si_,mu_,ra_,spc@,ke_,n_,ta_,ro_,u_,EOM
+str_saeki:
+	db	-3
+	db	sa_,e_,ki_,spc@,na_,o_,ko_,EOM
+str_fujii:
+	db	-3
+	db	hu_,zi_,i_,spc@,ta_,ka_,ya_,EOM
+str_sho_pro:
+	db	-6
+	db	si_,yyo_,u_,ga_,ku_,ka_,n_
+	db	pu__,ro__,da__,ku__,si__,yyo__,n__,EOM
+str_ootani_ikue:
+	db	-3
+	db	o_,o_,ta_,ni_,spc@,i_,ku_,e_,EOM
+str_pika_voice:
+	db	-3
+	db	pi__,ka__,ti__,yyu__,u__,spc@,bo__,i__,su__,EOM
+
+
+
+	db	-3
+	db	si_,n_,ki_,to_,u_,ro_,ku_,EOM
+
+ else
+
+; ピカチューバージョン スタッフ
+str_staff:
+	db	-6
+	db	usf_y,usf_e,usf_l,usf_l,usf_o,usf_w,spc@	; YELLOW VERSION
+	db	usf_v,usf_e,usf_r,usf_s,usf_i,usf_o,usf_n,cr@
+	db	spc@,spc@,spc@,spc@,usf_s,usf_t,usf_a,usf_f,usf_f ;   STAFF	
+	db	EOM
+; たじり さとし
+str_syatyou:
+	db	-6
+	db	usf_s,usf_a,usf_t,usf_o,usf_s,usf_h,usf_i,spc@
+	db	usf_t,usf_a,usf_j,usf_i,usf_r,usf_i,EOM
+; おおた たけのり
+str_karate:
+	db	-6
+	db	usf_t,usf_a,usf_k,usf_e,usf_n,usf_o,usf_r,usf_i,spc@
+	db	usf_o,usf_o,usf_t,usf_a,EOM
+; もりもと しげき
+str_sige:
+	db	-7
+	db	usf_s,usf_h,usf_i,usf_g,usf_e,usf_k,usf_i,spc@
+	db	usf_m,usf_o,usf_r,usf_i,usf_m,usf_o,usf_t,usf_o,EOM
+; わたなべ てつや
+str_tetsu:
+	db	-7
+	db	usf_t,usf_e,usf_t,usf_s,usf_u,usf_y,usf_a,spc@
+	db	usf_w,usf_a,usf_t,usf_a,usf_n,usf_a,usf_b,usf_e,EOM
+; ますだ じゅんいち
+str_jun:
+	db	-6
+	db	usf_j,usf_u,usf_n,usf_i,usf_c,usf_h,usf_i,spc@
+	db	usf_m,usf_a,usf_s,usf_u,usf_d,usf_a,EOM
+; にしの こうじ
+str_kabi:
+	db	-5
+	db	usf_k,usf_o,usf_h,usf_j,usf_i,spc@
+	db	usf_n,usf_i,usf_s,usf_h,usf_i,usf_n,usf_o,EOM
+; すぎもり けん
+str_sugimori:
+	db	-5
+	db	usf_k,usf_e,usf_n,spc@
+	db	usf_s,usf_u,usf_g,usf_i,usf_m,usf_o,usf_r,usf_i,EOM
+; にしだ あつこ
+str_atsuko:
+	db	-6
+	db	usf_a,usf_t,usf_s,usf_u,usf_k,usf_o,spc@
+	db	usf_n,usf_i,usf_s,usf_h,usf_i,usf_d,usf_a,EOM
+; みやもと しげる
+str_miyamoto:
+	db	-7
+	db	usf_s,usf_h,usf_i,usf_g,usf_e,usf_r,usf_u,spc@
+	db	usf_m,usf_i,usf_y,usf_a,usf_m,usf_o,usf_t,usf_o,EOM
+; かわぐち たかし
+str_kawaguchi:
+	db	-8
+	db	usf_t,usf_a,usf_k,usf_a,usf_s,usf_h,usf_i,spc@
+	db	usf_k,usf_a,usf_w,usf_a,usf_g,usf_u,usf_c,usf_h,usf_i,EOM
+; いしはら つねかず
+str_ishihara:
+	db	-8
+	db	usf_t,usf_s,usf_u,usf_n,usf_e,usf_k,usf_a,usf_z,usf_u,spc@
+	db	usf_i,usf_s,usf_h,usf_i,usf_h,usf_a,usf_r,usf_a,EOM
+; やまうち ひろし
+str_yamauchi:
+	db	-7
+	db	usf_h,usf_i,usf_r,usf_o,usf_s,usf_h,usf_i,spc@
+	db	usf_y,usf_a,usf_m,usf_a,usf_u,usf_c,usf_h,usf_i,EOM
+; じんない ひろゆき
+str_jinnai:
+	db	-7
+	db	usf_h,usf_i,usf_r,usf_o,usf_y,usf_u,usf_k,usf_i,spc@
+	db	usf_z,usf_i,usf_n,usf_n,usf_a,usf_i,EOM
+; ひしだ たつや
+str_hishida:
+	db	-7
+	db	usf_t,usf_a,usf_t,usf_s,usf_u,usf_y,usf_a,spc@
+	db	usf_h,usf_i,usf_s,usf_h,usf_i,usf_d,usf_a,EOM
+; さかい やすひろ
+str_sakai:
+	db	-6
+	db	usf_y,usf_a,usf_s,usf_u,usf_h,usf_i,usf_r,usf_o,spc@
+	db	usf_s,usf_a,usf_k,usf_a,usf_i,EOM
+; やまぐち わたる
+str_yamaguchi:
+	db	-7
+	db	usf_w,usf_a,usf_t,usf_a,usf_r,usf_u,spc@
+	db	usf_y,usf_a,usf_m,usf_a,usf_g,usf_u,usf_c,usf_h,usf_i,EOM
+; やまもと かずゆき
+str_yamamoto:
+	db	-8
+	db	usf_k,usf_a,usf_z,usf_u,usf_y,usf_u,usf_k,usf_i,spc@
+	db	usf_y,usf_a,usf_m,usf_a,usf_m,usf_o,usf_t,usf_o,EOM
+; たにぐち りょうすけ
+str_taniguchi:
+	db	-8
+	db	usf_r,usf_y,usf_o,usf_h,usf_s,usf_u,usf_k,usf_e,spc@
+	db	usf_t,usf_a,usf_n,usf_i,usf_g,usf_u,usf_c,usf_h,usf_i,EOM
+; ののむら ふみひろ
+str_nonomura:
+	db	-8
+	db	usf_f,usf_u,usf_m,usf_i,usf_h,usf_i,usf_r,usf_o,spc@
+	db	usf_n,usf_o,usf_n,usf_o,usf_m,usf_u,usf_r,usf_a,EOM
+; ふじわら もとふみ
+str_fujiwara:
+	db	-7  ;-8
+	db	usf_m,usf_o,usf_t,usf_o,usf_f,usf_u,usf_m,usf_i,spc@
+	db	usf_f,usf_u,usf_z,usf_i,usf_w,usf_a,usf_r,usf_a,EOM
+; まつしま けんじ
+str_matsushima:
+	db	-7
+	db	usf_k,usf_e,usf_n,usf_j,usf_i,spc@
+	db	usf_m,usf_a,usf_t,usf_s,usf_u,usf_s,usf_i,usf_m,usf_a,EOM
+; とみさわ あきひと
+str_tomisawa:
+	db	-7
+	db	usf_a,usf_k,usf_i,usf_h,usf_i,usf_t,usf_o,spc@
+	db	usf_t,usf_o,usf_m,usf_i,usf_s,usf_a,usf_w,usf_a,EOM
+; かわもと ひろし
+str_kawamoto:
+	db	-7
+	db	usf_h,usf_i,usf_r,usf_o,usf_s,usf_h,usf_i,spc@
+	db	usf_k,usf_a,usf_w,usf_a,usf_m,usf_o,usf_t,usf_o,EOM
+; かけい あきよし
+str_kakei:
+	db	-6
+	db	usf_a,usf_k,usf_i,usf_y,usf_o,usf_s,usf_h,usf_i,spc@
+	db	usf_k,usf_a,usf_k,usf_e,usf_i,EOM
+; つちや かづき
+str_tsuchiya:
+	db	-7
+	db	usf_k,usf_a,usf_z,usf_u,usf_k,usf_i,spc@
+	db	usf_t,usf_s,usf_u,usf_c,usf_h,usf_i,usf_y,usf_a,EOM
+; なかむら たけお
+str_nakamura:
+	db	-6
+	db	usf_t,usf_a,usf_k,usf_e,usf_o,spc@
+	db	usf_n,usf_a,usf_k,usf_a,usf_m,usf_u,usf_r,usf_a,EOM
+; ゆだ まさみつ
+str_yuda:
+	db	-6
+	db	usf_m,usf_a,usf_s,usf_a,usf_m,usf_i,usf_t,usf_s,usf_u,spc@
+	db	usf_y,usf_u,usf_d,usf_a,EOM
+; ポケットモンスター
+str_pokemon:
+	db	-3
+	db	poke@,usf_m,usf_o,usf_n,EOM	; POKe'MON
+; ディレクター
+str_director:
+	db	-3
+	db	usf_d,usf_i,usf_r,usf_e,usf_c,usf_t,usf_o,usf_r,EOM
+; プログラム
+str_programer:
+	db	-5
+	db	usf_p,usf_r,usf_o,usf_g,usf_r,usf_a,usf_m,usf_m,usf_e,usf_r,usf_s,EOM
+; キャラクターデザイン
+str_chr_designer:
+	db	-7
+	db	usf_c,usf_h,usf_a,usf_r,usf_a,usf_c,usf_t,usf_e,usf_r,spc@
+	db	usf_d,usf_e,usf_s,usf_i,usf_g,usf_n,EOM
+; おんがく
+str_music:
+	db	-2
+	db	usf_m,usf_u,usf_s,usf_i,usf_c,EOM
+; サウンド エフェクト
+str_soundeffect:
+	db	-6
+	db	usf_s,usf_o,usf_u,usf_n,usf_d,spc@
+	db	usf_e,usf_f,usf_f,usf_e,usf_c,usf_t,usf_s,EOM
+; ゲームデザイン
+str_game_designer:
+	db	-5
+	db	usf_g,usf_a,usf_m,usf_e,spc@
+	db	usf_d,usf_e,usf_s,usf_i,usf_g,usf_n,EOM
+; モンスター デザイン
+str_mons_design:
+	db	-6
+	db	usf_m,usf_o,usf_n,usf_s,usf_t,usf_e,usf_r,spc@
+	db	usf_d,usf_e,usf_s,usf_i,usf_g,usf_n,EOM
+; シナリオ
+str_scenario:
+	db	-6
+	db	usf_g,usf_a,usf_m,usf_e,spc@
+	db	usf_s,usf_c,usf_e,usf_n,usf_a,usf_r,usf_i,usf_o,EOM
+; パラメータ せってい
+str_parameter:
+	db	-8 + 1
+	db	usf_p,usf_a,usf_r,usf_a,usf_m,usf_e,usf_t,usf_r,usf_i,usf_c,spc@
+	db	usf_d,usf_e,usf_s,usf_i,usf_g,usf_n,EOM
+; マップ デザイン
+str_map_design:
+	db	-4
+	db	usf_m,usf_a,usf_p,spc@
+	db	usf_d,usf_e,usf_s,usf_i,usf_g,usf_n,EOM
+; デバッグ プレイ
+str_debugplay:
+	db	-7 + 1
+	db	usf_p,usf_r,usf_o,usf_d,usf_u,usf_c,usf_t,spc@
+	db	usf_t,usf_e,usf_s,usf_t,usf_i,usf_n,usf_g,EOM
+; スペシャル サンクス
+str_sp_thanks:
+	db	-6
+	db	usf_s,usf_p,usf_e,usf_c,usf_i,usf_a,usf_l,spc@
+	db	usf_t,usf_h,usf_a,usf_n,usf_k,usf_s,EOM
+; プロデューサーズ
+str_producer_s:
+	db	-4
+	db	usf_p,usf_r,usf_o,usf_d,usf_u,usf_c,usf_e,usf_r,usf_s,EOM
+; プロデューサ
+str_producer:
+	db	-4 + 1
+	db	usf_p,usf_r,usf_o,usf_d,usf_u,usf_c,usf_e,usf_r,EOM
+; エグゼクティブ プロデューサー
+str_exe_producer:
+	db	-8
+	db	usf_e,usf_x,usf_e,usf_c,usf_u,usf_t,usf_i,usf_v,usf_e,spc@
+	db	usf_p,usf_r,usf_o,usf_d,usf_u,usf_c,usf_e,usf_r,EOM
+; たまだ そうすけ
+str_tamada:
+	db	-6
+	db	usf_s,usf_o,usf_u,usf_s,usf_u,usf_k,usf_e,spc@
+	db	usf_t,usf_a,usf_m,usf_a,usf_d,usf_a,EOM
+; おおた さとし
+str_oota_satoshi:
+	db	-5
+	db	usf_s,usf_a,usf_t,usf_o,usf_s,usf_h,usf_i,spc@
+	db	usf_o,usf_o,usf_t,usf_a,EOM
+; よしかわ れな
+str_yoshikawa:
+	db	-6
+	db	usf_r,usf_e,usf_n,usf_a,spc@
+	db	usf_y,usf_o,usf_s,usf_h,usf_i,usf_k,usf_a,usf_w,usf_a,EOM
+; おおた ともみち
+str_oota_tomo:
+	db	-6
+	db	usf_t,usf_o,usf_m,usf_o,usf_m,usf_i,usf_c,usf_h,usf_i,spc@
+	db	usf_o,usf_o,usf_t,usf_a,EOM
+
+
+
+; まつみや としのぶ
+str_matsumiya:
+	db	-8
+	db	usf_t,usf_o,usf_s,usf_h,usf_i,usf_n,usf_o,usf_b,usf_u,spc@
+	db	usf_m,usf_a,usf_t,usf_s,usf_u,usf_m,usf_i,usf_y,usf_a,EOM
+; せや のぶひろ
+str_seya:
+	db	-5
+	db	usf_n,usf_o,usf_b,usf_u,usf_h,usf_i,usf_r,usf_o,spc@
+	db	usf_s,usf_e,usf_y,usf_a,EOM
+; よしだ ひろのぶ
+str_yoshida:
+	db	-7
+	db	usf_h,usf_i,usf_r,usf_o,usf_n,usf_o,usf_b,usf_u,spc@
+	db	usf_y,usf_o,usf_s,usf_h,usf_i,usf_d,usf_a,EOM
+; せきね かずひと
+str_sekine:
+	db	-6
+	db	usf_k,usf_a,usf_z,usf_u,usf_h,usf_i,usf_t,usf_o,spc@
+	db	usf_s,usf_e,usf_k,usf_i,usf_n,usf_e,EOM
+; しまむら かずし
+str_shimamura:
+	db	-7
+	db	usf_k,usf_a,usf_z,usf_u,usf_s,usf_h,usf_i,spc@
+	db	usf_s,usf_h,usf_i,usf_m,usf_a,usf_m,usf_u,usf_r,usf_a,EOM
+; しもやまだ てるゆき
+str_shimoyamada:
+	db	-9
+	db	usf_t,usf_e,usf_r,usf_u,usf_y,usf_u,usf_k,usf_i,spc@
+	db	usf_s,usf_h,usf_i,usf_m,usf_o,usf_y,usf_a,usf_m,usf_a,usf_d,usf_a,EOM
+; スーバーマリオクラブ
+str_supermario:
+	db	-9
+	db	usf_n,usf_c,usf_l,spc@,usf_s,usf_u,usf_p,usf_e,usf_r,spc@
+	db	usf_m,usf_a,usf_r,usf_i,usf_o,spc@,usf_c,usf_l,usf_u,usf_b,EOM
+; いずし たけひろ
+str_izushi:
+	db	-7
+	db	usf_t,usf_a,usf_k,usf_e,usf_h,usf_i,usf_r,usf_o,spc@
+	db	usf_i,usf_z,usf_u,usf_s,usf_h,usf_i,EOM
+; のむら ふじこ
+str_nomura:
+	db	-5
+	db	usf_f,usf_u,usf_z,usf_i,usf_k,usf_o,spc@
+	db	usf_n,usf_o,usf_m,usf_u,usf_r,usf_a,EOM
+; はらだ たかひろ
+str_harada:
+	db	-6
+	db	usf_t,usf_a,usf_k,usf_a,usf_h,usf_i,usf_r,usf_o,spc@
+	db	usf_h,usf_a,usf_r,usf_a,usf_d,usf_a,EOM
+; やまがみ ひとし
+str_yamagami:
+	db	-7
+	db	usf_h,usf_i,usf_t,usf_o,usf_s,usf_h,usf_i,spc@
+	db	usf_y,usf_a,usf_m,usf_a,usf_g,usf_a,usf_m,usf_i,EOM
+; にしむら けんたろう
+str_nishimura:
+	db	-8
+	db	usf_k,usf_e,usf_n,usf_t,usf_a,usf_r,usf_o,usf_u,spc@
+	db	usf_n,usf_i,usf_s,usf_h,usf_i,usf_m,usf_u,usf_r,usf_a,EOM
+; さえき なおこ
+str_saeki:
+	db	-5
+	db	usf_n,usf_a,usf_o,usf_k,usf_o,spc@
+	db	usf_s,usf_a,usf_e,usf_k,usf_i,EOM
+; ふじい たかや
+str_fujii:
+	db	-5
+	db	usf_t,usf_a,usf_k,usf_a,usf_y,usf_a,spc@
+	db	usf_f,usf_u,usf_z,usf_i,usf_i,EOM
+; しょうがくかんプロダクション
+str_sho_pro:
+	db	-5 + 1
+	db	usf_s,usf_h,usf_o,usf_g,usf_a,usf_k,usf_u,usf_k,usf_a,usf_n,cr@
+	db	usf_p,usf_r,usf_o,usf_d,usf_u,usf_c,usf_t,usf_i,usf_o,usf_n
+	db	EOM
+; おおたに いくえ
+str_ootani_ikue:
+	db	-5
+	db	usf_i,usf_k,usf_u,usf_e,spc@
+	db	usf_o,usf_o,usf_t,usf_a,usf_n,usf_i,EOM
+; ピカチュウ ボイス
+str_pika_voice:
+	db	-6
+	db	usf_p,usf_i,usf_k,usf_a,usf_c,usf_h,usf_u,spc@
+	db	usf_v,usf_o,usf_i,usf_c,usf_e,EOM
+
+; しんきとうろく
+	db	-3
+	db	batu@,batu@,batu@,batu@,batu@,batu@,batu@,batu@,EOM
+
+
+;	-----------------------------------------------------------------
+
+; ＵＳバージョン スタッフ
+staff48:
+	db	-7
+	db	usf_u,usf_s,spc@,usf_v,usf_e,usf_r,usf_s,usf_i,usf_o,usf_n,spc@
+	db	usf_s,usf_t,usf_a,usf_f,usf_f,EOM
+; ＵＳ コーディネーション
+staff49:
+	db	-7
+	db	usf_u,usf_s,spc@
+	db	usf_c,usf_o,usf_o,usf_r,usf_d,usf_i,usf_n,usf_a,usf_t,usf_i,usf_o,usf_n,EOM
+; ゲイル・ティルデン
+staff50:
+	db	-5
+	db	usf_g,usf_a,usf_i,usf_l,spc@
+	db	usf_t,usf_i,usf_l,usf_d,usf_e,usf_n,EOM
+;かわかみ　なおこ
+staff51_1:
+	db	-6
+	db	usf_n,usf_a,usf_o,usf_k,usf_o,spc@
+	db	usf_k,usf_a,usf_w,usf_a,usf_k,usf_a,usf_m,usf_i,EOM
+; ひろ なかむら
+staff51:
+	db	-6
+	db	usf_h,usf_i,usf_r,usf_o,spc@
+	db	usf_n,usf_a,usf_k,usf_a,usf_m,usf_u,usf_r,usf_a,EOM
+;; ウィリアム・ゲーツ（ランディー・シューメークに変更 ('99 1/27)）
+;staff52:
+;	db	-6
+;	db	usf_w,usf_i,usf_l,usf_l,usf_i,usf_a,usf_m,spc@
+;	db	usf_g,usf_i,usf_e,usf_s,usf_e,EOM
+; ランディー・シューメーク
+staff52:
+	db	-6
+	db	usf_r,usf_a,usf_n,usf_d,usf_y,spc@
+	db	usf_s,usf_h,usf_o,usf_e,usf_m,usf_a,usf_k,usf_e,EOM
+; サラ・オズボーン
+staff53:
+	db	-5
+	db	usf_s,usf_a,usf_r,usf_a,spc@
+	db	usf_o,usf_s,usf_b,usf_o,usf_r,usf_n,usf_e,EOM
+; テキスト翻訳
+staff54:
+	db	-7
+	db	usf_t,usf_e,usf_x,usf_t,spc@
+	db	usf_t,usf_r,usf_a,usf_n,usf_s,usf_l,usf_a,usf_t,usf_i,usf_o,usf_n,EOM
+; のぶ おがさわら
+staff55:
+	db	-6
+	db	usf_n,usf_o,usf_b,spc@
+	db	usf_o,usf_g,usf_a,usf_s,usf_a,usf_w,usf_a,usf_r,usf_a,EOM
+
+; いわた さとる
+staff56:
+	db	-5
+	db	usf_s,usf_a,usf_t,usf_o,usf_r,usf_u,spc@
+	db	usf_i,usf_w,usf_a,usf_t,usf_a,EOM
+
+; たけひろ いずし
+staff57:
+	db	-7
+	db	usf_t,usf_a,usf_k,usf_e,usf_h,usf_i,usf_r,usf_o,spc@
+	db	usf_i,usf_z,usf_u,usf_s,usf_h,usf_i,EOM
+; たかひろ はらだ
+staff58:
+	db	-7
+	db	usf_t,usf_a,usf_k,usf_a,usf_h,usf_i,usf_r,usf_o,spc@
+	db	usf_h,usf_a,usf_r,usf_a,usf_d,usf_a,EOM
+; むらかわ てるき
+staff59:
+	db	-7
+	db	usf_t,usf_e,usf_r,usf_u,usf_k,usf_i,spc@
+	db	usf_m,usf_u,usf_r,usf_a,usf_k,usf_a,usf_w,usf_a,EOM
+; ふくい こうた
+staff60:
+	db	-5
+	db	usf_k,usf_o,usf_h,usf_t,usf_a,spc@
+	db	usf_f,usf_u,usf_k,usf_u,usf_i,EOM
+; スーパーマリオクラブ
+staff61:
+	db	-9
+	db	usf_n,usf_c,usf_l,spc@,usf_s,usf_u,usf_p,usf_e,usf_r,spc@
+	db	usf_m,usf_a,usf_r,usf_i,usf_o,spc@,usf_c,usf_l,usf_u,usf_b,EOM
+; ＰＡＡＤ　ＴＥＳＴＩＮＧ
+staff62:
+	db	-5
+	db	usf_p,usf_a,usf_a,usf_d,spc@
+	db	usf_t,usf_e,usf_s,usf_t,usf_i,usf_n,usf_g,EOM
+; ほそかわ たけひこ
+staff63:
+	db	-8
+	db	usf_t,usf_a,usf_k,usf_e,usf_h,usf_i,usf_k,usf_o,spc@
+	db	usf_h,usf_o,usf_s,usf_o,usf_k,usf_a,usf_w,usf_a,EOM
+; おうくぼ けんじ
+staff64:
+	db	-5
+	db	usf_k,usf_e,usf_n,usf_j,usf_i,spc@
+	db	usf_o,usf_k,usf_u,usf_b,usf_o,EOM
+;なかみち きみこ
+staff65:
+	db	-7
+	db	usf_k,usf_i,usf_m,usf_i,usf_k,usf_o,spc@
+	db	usf_n,usf_a,usf_k,usf_a,usf_m,usf_i,usf_c,usf_h,usf_i,EOM
+;よしむら かもん
+staff66:
+;	db	-7
+	db	-6
+	db	usf_k,usf_a,usf_m,usf_o,usf_n,spc@
+	db	usf_y,usf_o,usf_s,usf_h,usf_i,usf_m,usf_u,usf_r,usf_a,EOM
+;やまざき さかえ
+staff67:
+	db	-6
+	db	usf_s,usf_a,usf_k,usf_a,usf_e,spc@
+	db	usf_y,usf_a,usf_m,usf_a,usf_z,usf_a,usf_k,usf_i,EOM
+;	-----------------------------------------------------------------
+ endif
+
+
+
+end_data:
+	include		..\data\theend.dat
+
+
+
+

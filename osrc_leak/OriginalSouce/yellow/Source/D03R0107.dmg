@@ -1,0 +1,213 @@
+	include		common.def
+	include		maphead.def
+	include		se.def
+	include		fntequ.def
+	include		macro.h
+	include		group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	d3_room7
+
+
+	extern	obj_stepping
+	extern	SetActorSite
+	extern	wait_vb
+	extern	put_wait
+	extern	bank_push_call
+	extern	set_now_music
+	extern	musasa
+	extern	se_wait
+	extern	over_music_fade
+
+	extern	BGMplay
+	extern	MusicStop
+	
+
+SHIP_TYPE	equ	13
+EXIT		=	0ffh
+
+
+d3_room7:
+ysiz	=	4
+xsiz	=	3
+	db	SHIP_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	shroom3			; map data adrs
+	dw	msg_d3r1f7   		; message tbl adrs
+	dw	ev_d3r1f7     		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d3r1f7  
+
+
+ev_d3r1f7:      
+	call	init$
+
+	jp	init_for_talkmap
+
+
+init$:
+	ld	a,(ev_d3 + 12)
+	bit	0,a
+	ret	nz
+
+	ld	hl,event_flg
+	set	5,(hl)				; site unchange mode
+
+	ret
+
+
+
+msg_d3r1f7:   
+	dw	msg1
+	dw	trash
+	dw	book
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_d3 + 12)
+	bit	0,a
+	jr	nz,obtain$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	bc,196 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	ld	hl,ev_d3 + 12
+	set	0,(hl)				; obtained
+
+	ld	hl,event_flg
+	res	5,(hl)				; site unchange mode
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg1_4$
+	call	put_win_msg
+
+	jr	rts$
+
+
+obtain$:
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_D03R0107
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_D03R0107	; mvmsg追加
+	db 026h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,(music_bank_flg)
+	cp	MUSIC_BANK3_NO			; Music Bank 3
+	ld	(music_bank_flg_back),a		; Bank-Save / Load "talkmap.src"
+	jr	nz,non_change$
+
+	call	MusicStop
+
+	ld	a,MUSIC_BANK1_NO		; Music Bank 1
+	ld	(music_bank_flg),a
+
+non_change$:
+	ld	a,< musasa
+	ld	(music_flag),a			; 0:SE / !0:Music
+	call	BGMplay
+
+loop$:
+	ld	a,(condetion)
+	cp	< musasa
+	jr	z,loop$
+
+	call	set_now_music
+
+	ld	hl,ev_d3 + 12
+	set	1,(hl)				; helper switch
+
+	ld	hl,event_flg
+	res	5,(hl)				; site unchange mode
+
+	jp	msg_return
+
+
+msg1_1$:
+	extern	msg1_1_1_D03R0107
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_D03R0107	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_D03R0107
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_D03R0107	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	FANFARE6
+	db	EOM
+
+
+msg1_3$:
+	extern	msg1_3_3_D03R0107
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_D03R0107	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_4$:
+	extern	msg1_4_4_D03R0107
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_4_D03R0107	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+trash:
+	extern	trash_5_D03R0107
+	db I_MSG2	; mvmsg追加
+	dw trash_5_D03R0107	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+book:
+	extern	book_6_D03R0107
+	db I_MSG2	; mvmsg追加
+	dw book_6_D03R0107	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d3r1f7:   
+	include	..\sxy\d03r0107.sxy
+
+
+shroom3:
+	include	..\mapdata\shroom3.map   
+
+
+
+
+
+

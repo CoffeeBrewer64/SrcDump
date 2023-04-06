@@ -1,0 +1,214 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	r18_room1
+
+
+	extern	CheckBicycle
+	extern	gate11_18
+
+	extern	table_jump
+	extern	actor_anime_set
+	extern	CheckAssignPos
+	extern	memset
+
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+seq_r18r1f1	equ	seq_ctrl_buf + 079h
+
+
+r18_room1:  
+ysiz	=	5
+xsiz	=	4
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gate11_18  	 	; map data adrs
+	dw	msg_tbl 		; message tbl adrs
+	dw	event 			; event routine adrs
+	db	0			; map link flg
+	dw	room_str 
+
+
+event:
+	ld	hl,game_mode + 0
+	res	5,(hl)
+
+	call	init_for_talkmap
+
+	ld	a,(seq_r18r1f1)
+	ld	hl,r18r1f1_tbl
+	jp	table_jump
+
+
+
+r18r1f1_tbl:
+	initndw	r18r1f1_main,SeqR18R1F1main
+	ndw	Step,SeqStep
+	ndw	Info,SeqInfo
+	ndw	ObsBack,SeqObsBack
+
+
+
+r18r1f1_main:
+	call	CheckBicycle
+	ret	nz
+
+	ld	hl,stopper_pos$
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,msg_stopper
+	ld	(work1),a
+	call	talk_map
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,(usr_buf + 0)
+	cp	1				; front of counter
+	jr	z,no_stepping$
+
+	ld	a,(usr_buf + 0)			; animetion pattern lot
+	dec	a
+	ld	(ctrl_move_cnt),a
+
+	ld	b,0
+	ld	c,a
+	ld	a,W_U				; animetion pattern
+	ld	hl,ctrl_move_val + 0
+	call	memset
+
+	extern	init_hero_anime
+	call	init_hero_anime
+
+	ld	a,SeqStep
+	ld	(seq_r18r1f1),a
+
+	ret
+
+
+no_stepping$:
+	ld	a,SeqInfo
+	ld	(seq_r18r1f1),a
+
+	ret
+
+
+stopper_pos$:
+	db	003h,004h
+	db	004h,004h
+	db	005h,004h
+	db	006h,004h
+	db	0ffh
+
+
+Step:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+;	call	actor_blanch
+
+Info:
+	ld	a,MsgChecker
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,1
+	ld	(ctrl_move_cnt),a
+	ld	a,W_R				; animetion pattern
+	ld	(ctrl_move_val + 0),a
+
+	call	init_hero_anime
+
+	ld	a,SeqObsBack
+	ld	(seq_r18r1f1),a
+
+	ret
+
+
+ObsBack:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	hl,obs_system
+	res	7,(hl)				; hero demonstration mode on
+
+	ld	a,SeqR18R1F1main
+	ld	(seq_r18r1f1),a
+
+	ret
+
+
+msg_tbl:
+	msgndw	msg1,MsgChecker
+	ndw	msg1_3,msg_stopper
+
+
+msg1:
+	db	CALL_MSG
+
+	call	CheckBicycle
+	jr	z,no$
+
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_1$:
+	extern	msg1_1_0_R18R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_0_R18R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_1_R18R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_1_R18R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3:
+	extern	msg1_3_2_R18R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_2_R18R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\r18r0101.sxy
+

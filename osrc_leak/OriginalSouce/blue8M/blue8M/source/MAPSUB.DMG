@@ -1,0 +1,1514 @@
+;=======================================================;
+;							;
+;	sub-routines for main loop in "mapper.src"	;
+;							;
+;=======================================================;
+
+	include		common.def
+	include		fntequ.def
+	include		map.def
+	include		maptype.def
+	include		banktool.def
+	include		macro.h
+	include		group.def
+	include		pm_debug.def
+
+
+	extern	bank2bank
+	extern	ready2ready
+	extern	game_over
+	extern	talk_map
+	extern	get_mons_name
+	extern	get_pet_name
+	extern	block_move
+	extern	table_search
+	extern	mul_any
+	extern	push_bank
+	extern	pop_bank
+	extern	bank_push_call
+	extern	get_level
+	extern	play
+	extern	door_check
+	extern	put_window
+	extern	put_dec
+	extern	put_msg
+	extern	put_wait
+	extern	wait_vb
+	extern	init_for_talkmap
+	extern	push_vram
+	extern	pop_vram
+	extern	put_win_msg
+	extern	actor_blanch
+	extern	allow
+	extern	memset
+	extern	elev_effect
+
+	extern	muswarai
+
+
+bank7	group	G_BANK7
+
+	public	elevator_system
+
+;=======================================;
+; elevator system			;
+; <<in>>				;
+;	ld	hl,floorlist		;
+;	call	set_data		;
+; floor_list:				;
+;	db	8			;
+;	db	1			;
+;	db	2			;
+;	db	3			;
+;	db	4			;
+;	db	5			;
+;	db	6			;
+;	db	7			;
+;	db	8			;
+;	db	0ffh			;
+;=======================================;
+
+	extern	shop_window
+
+elevator_system:
+	ld	hl,elevator$
+	call	put_win_msg
+
+	ld	hl,shop_item_tbl		; floor message
+	ld	a,l
+	ld	(item_list_adrs + 0),a
+	ld	a,h
+	ld	(item_list_adrs + 1),a
+	ld	a,(scloll_sv)
+	push	af
+
+	xor	a
+	ld	(allow_cnt),a
+	ld	(scloll_sv),a
+	ld	(gold_req),a
+
+	ld	a,4
+	ld	(mons_or_item),a		; my item
+	call	shop_window
+	pop	bc
+	ld	a,b
+	ld	(scloll_sv),a
+	ret	c
+
+	ld	hl,ptn_data
+	set	7,(hl)				; effect request
+
+	ld	hl,anime_buf + 0
+
+	ld	a,(sel_item_pos)
+	add	a,a
+	ld	d,0
+	ld	e,a
+	add	hl,de
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(hl)
+	ld	c,a
+
+	ld	hl,ie_tbl
+
+	call	twice$
+
+twice$:
+	inc	hl
+	inc	hl
+	ld	a,b
+	ld	(hli),a
+	ld	a,c
+	ld	(hli),a
+
+	ret
+
+
+elevator$:
+	extern	elevator_0_MAPSUB
+	db I_MSG2	; mvmsgí«â¡
+	dw elevator_0_MAPSUB	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+
+
+bank0	group	G_BANK0
+
+;===============================================================;
+;								;
+;	set data as "ram_map" calcurated address in sxy-file	;
+;	IN							;
+;	a regs							;
+;		"ram_map_id" value				;
+;	hl regs							;
+;		"ram_map" address in sxy-file			;
+;	sv_bank2bank						;
+;		bank number of called "bank2bank" for real	;
+;								;
+;===============================================================;
+set_sxy_rammap:
+	ld	b,a				; "ram_map_id" value save
+
+	ld	a,(rombankno)
+	push	af				; rom bank value save
+
+	ld	a,(sv_bank2bank)		; for object sxy-file
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	a,b				; "ram_map_id" value load
+	add	a,a				; * 2
+	add	a,a				; * 4
+	ld	c,a
+	ld	b,00h
+	add	hl,bc				; object ram_map address
+	ld	bc,4
+	ld	de,mapadr2
+	call	block_move
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+
+
+bank4	group	G_BANK4
+
+	public	check_out_limit1
+check_out_limit1:
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	a,(mapysize)
+	call	check$
+	ret	z
+
+	ld	a,(mapscloll_x)
+	ld	b,a
+	ld	a,(mapxsize)
+
+check$:
+	add	a,a
+	cp	b
+	ret	z
+
+	inc	b
+	ret
+
+
+
+
+
+
+bank3	group	G_BANK3
+
+	public	check_out_limit2
+
+check_out_limit2:
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,(actor_table + 9)		; hero's site check
+
+limit_sub:
+	srl	a
+	ld	c,a
+	ld	b,0
+	ld	hl,site_table$
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	a,(mapscloll_x)
+	ld	c,a
+
+	ld	de,exit$
+	push	de
+
+	jp	(hl)
+
+
+exit$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+
+site_table$:
+	dw	south$
+	dw	north$
+	dw	west$
+	dw	east$
+
+south$:
+	ld	a,(mapysize)
+	add	a,a
+	dec	a
+	cp	b
+	jr	z,hit$
+	jr	not$
+	
+north$:
+	ld	a,b
+	and	a
+	jr	z,hit$
+	jr	not$
+	
+west$:
+	ld	a,c
+	and	a
+	jr	z,hit$
+	jr	not$
+	
+east$:
+	ld	a,(mapxsize)
+	add	a,a
+	dec	a
+	cp	c
+	jr	z,hit$
+	jr	not$
+	
+not$:
+	and	a
+	ret
+
+hit$:
+	scf
+	ret
+
+
+	public	check_out_limit3
+check_out_limit3:
+	push	hl
+	push	de
+	push	bc
+
+	call	get_fchr
+
+	ld	a,(mapno)
+	cp	D3R1F5
+	jr	z,kanpan$
+
+	ld	a,(actor_table + 9)		; hero's site check
+	srl	a
+	ld	c,a
+	ld	b,0
+	ld	hl,site_table$
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	a,(flont_chr)
+	ld	de,1
+	call	table_search
+exit$:
+	pop	bc
+	pop	de
+	pop	hl
+	ret
+
+site_table$:
+	dw	south$
+	dw	north$
+	dw	west$
+	dw	east$
+
+south$:
+	db	001h,012h,017h,03dh,004h,018h,033h,0ffh
+north$:
+	db	001h,05ch,0ffh
+west$:
+	db	01ah,04bh,0ffh
+east$:
+	db	00fh,04eh,0ffh
+
+kanpan$:
+	ld	a,(flont_chr)
+	cp	15h
+	jr	nz,no_exit$
+	scf
+	jr	exit$
+	
+no_exit$:
+	and	a
+	jr	exit$
+
+
+	public	check_out_limit4
+check_out_limit4:
+	push	hl
+	push	de
+	push	bc
+
+	ld	b,006h
+	ld	hl,door_check
+	call	bank_push_call
+	jr	c,exit$
+
+	ld	a,(map_type)
+	add	a,a
+	ld	c,a
+	ld	b,0
+	ld	hl,kaidan_tbl$
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,1
+	ld	a,(20*9 + 8 + dmy_vram)  ;ashimoto_chr
+
+	call	table_search
+	jr	nc,exit$
+
+	ld	hl,obs_map_step
+	res	2,(hl)
+
+exit$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+kaidan_tbl$:
+	dw	map_type0$
+	dw	map_type1$
+	dw	map_type2$
+	dw	map_type3$
+	dw	map_type4$
+	dw	map_type5$
+	dw	map_type6$
+	dw	map_type7$
+	dw	map_type8$
+	dw	map_type9$
+	dw	map_type10$
+	dw	map_type11$
+	dw	map_type12$
+	dw	map_type13$
+	dw	map_type14$
+	dw	map_type15$
+	dw	map_type16$
+	dw	map_type17$
+	dw	map_type18$
+	dw	map_type19$
+	dw	map_type20$
+	dw	map_type21$
+	dw	map_type22$
+	dw	map_type23$
+
+map_type0$:
+	db	01bh,058h
+	db	0ffh
+map_type9$:
+map_type10$:
+map_type12$:
+	db	03bh
+map_type1$:
+map_type4$:
+	db	01ah,01ch
+	db	0ffh
+map_type2$:
+map_type6$:
+	db	05eh
+	db	0ffh
+map_type3$:
+	db	05ah,05ch,03ah
+	db	0ffh
+map_type5$:
+map_type7$:
+	db	04ah
+	db	0ffh
+map_type8$:
+	db	054h,05ch,032h
+	db	0ffh
+map_type13$:
+	db	037h,039h,01eh,04ah
+	db	0ffh
+map_type16$:
+	db	015h,055h,004h
+	db	0ffh
+map_type17$:
+	db	018h,01ah,022h
+	db	0ffh
+map_type18$:
+	db	01ah,01ch,038h
+	db	0ffh
+map_type19$:
+	db	01ah,01ch,053h
+	db	0ffh
+map_type20$:
+	db	034h
+	db	0ffh
+map_type22$:
+	db	043h,058h,020h
+map_type15$:
+	db	01bh
+map_type11$:
+	db	013h
+	db	0ffh
+map_type23$:
+	db	01bh,03bh
+map_type14$:
+map_type21$:
+	db	0ffh
+
+
+
+;========================================================;
+;   Count_down Timer Put  for  Safari_Zone               ;
+;========================================================;
+	public	timer_put
+
+timer_put:					; *--------------*
+	ld	a,(mapno)			; |ÇSÇWÇSÅ^ÇTÇOÇO|
+;	ld	hl,timeputmap_tbl1$		; |              |
+;	ld	de,1				; |É{Å[Éã  ÇRÇOÇ±|
+;	call	table_search			; *--------------*
+;	ret	nc
+
+	cp	D12R1F1
+	ret	c
+	cp	D13R1F1
+	ret	nc
+	
+	SET_WIN_POS	0,0,8,4
+	call	put_window
+
+	S_POS	1,1
+	ld	de,save_event_flg + 2		; hosuu_count
+	ld	bc,0203h 			; 2 byte length, 3 column
+	call	put_dec
+
+	S_POS	4,1
+	ld	de,count_msg1$			;ÅhÅ^ÇTÇOÇOÅh
+	call	put_msg
+
+	S_POS	1,3
+	ld	de,count_msg2$			;ÅhÉ{Å[Éã   Ç±Åh
+	call	put_msg
+
+ ifn  pm_jmsg
+	S_POS	5,3
+ else
+	ld	a,(safari_ball_cnt)
+	cp	10
+	jr	nc,timer_put_0$
+	S_POS	5,3
+	ld	a,spc@
+	ld	(hl),a
+timer_put_0$:
+	S_POS	6,3
+ endif
+	ld	de,safari_ball_cnt 		; ball_count
+	ld	bc,0102h 			; 2 byte length, 3 column
+	jp	put_dec
+
+
+count_msg1$:
+	db	sura@,n5@,n0@,n0@,EOM				; Å^ÇTÇOÇO
+
+count_msg2$:
+ ifn  pm_jmsg
+	db	bo__,bou@,ru__,spc@,spc@,spc@,ko_,EOM		; É{Å[Éã   Ç±
+ else
+	db	usf_b,usf_a,usf_l,usf_l,batu@,batu@,spc@,EOM	; ÇaÇ`ÇkÇk
+ endif
+
+
+;=======================================================;
+;							;
+;	calcurated code of hero's front character	;
+;							;
+;=======================================================;
+	public	get_flontchr
+
+get_flontchr:
+	call	ready2ready
+
+get_fchr:
+	ld	a,(mapscloll_y)
+	ld	d,a
+	ld	a,(mapscloll_x)
+	ld	e,a
+
+	ld	a,(actor_table + 09h)		; hero's site check
+
+z00$:
+	and	a
+	jr	nz,z10$
+
+	ld	a,(11 * 20 + 8 + dmy_vram)
+	inc	d
+
+	jr	z40$
+
+z10$:
+	cp	04h				; north
+	jr	nz,z20$
+
+	ld	a,(7 * 20 + 8 + dmy_vram)
+	dec	d
+
+	jr	z40$
+
+z20$:
+	cp	08h				; west
+	jr	nz,z30$
+
+	ld	a,(9 * 20 + 6 + dmy_vram)
+	dec	e
+
+	jr	z40$
+
+z30$:
+	cp	0ch				; east
+	jr	nz,z40$
+
+	ld	a,(9 * 20 + 10 + dmy_vram)
+	inc	e
+
+z40$:
+	ld	c,a
+	ld	(flont_chr),a
+
+	ret
+
+
+
+
+;===============================================;
+; get the code as non stepping place of 1 front	;
+; <<out>>			     		;
+; ev_something + 4		     		;
+;	code			     		;
+;===============================================;
+	public	CheckAway
+
+CheckAway:
+	xor	a
+	ld	(DA_BUF + 0),a
+
+	ld	hl,mapscloll_y
+	ld	a,(hli)
+	ld	d,a
+	ld	e,(hl)
+
+	ld	a,(actor_table + 09h)		; hero's site check
+
+z00$:
+;	cp	00h				; south
+	and	a
+	jr	nz,z10$
+
+	ld	hl,DA_BUF + 0
+	set	0,(hl)
+
+	ld	a,(13 * 20 + 8 + dmy_vram)
+	inc	d
+
+	jr	z40$
+
+
+z10$:
+	cp	04h				; north
+	jr	nz,z20$
+
+	ld	hl,DA_BUF + 0
+	set	1,(hl)
+
+	ld	a,(5 * 20 + 8 + dmy_vram)
+	dec	d
+
+	jr	z40$
+
+
+z20$:
+	cp	08h				; west
+	jr	nz,z30$
+
+	ld	hl,DA_BUF + 0
+	set	2,(hl)
+
+	ld	a,(9 * 20 + 4 + dmy_vram)
+	dec	e
+
+	jr	z40$
+
+
+z30$:
+	cp	0ch				; east
+	jr	nz,z40$
+
+	ld	hl,DA_BUF + 0
+	set	3,(hl)
+
+	ld	a,(9 * 20 + 12 + dmy_vram)
+	inc	e
+
+z40$:
+	ld	c,a
+	ld	(ev_something + 4),a
+	ld	(flont_chr),a
+
+	ret
+
+
+
+	public	CheckAwayWall
+
+	extern	ramp_tbl
+	extern	chk_ramp2
+
+CheckAwayWall:
+	call	CheckAway			; return --> DA_BUF + 0
+
+;	ld	a,(arukeru_tbl + 0)
+;	ld	l,a
+;	ld	a,(arukeru_tbl + 1)
+;	ld	h,a
+
+	ld	hl,arukeru_tbl + 0
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,ng$				; end of table(no apply)
+
+	cp	c
+	jr	nz,loop$
+
+	ld	hl,ramp_tbl
+	call	chk_ramp2			; dansa
+	ld	a,0ffh
+	jr	c,ng$
+
+	ld	a,(ev_something + 4)
+;	ld	a,(flont_chr)
+	cp	015h				; kaidan
+	ld	a,0ffh
+	jr	z,ng$
+
+ok$:
+	call	AroundVsActor
+
+ng$:
+	ld	(ev_something + 4),a
+
+	ret
+
+
+AroundVsActor:
+	ld	a,(ev_something + 0)		; number of rock actor
+	dec	a
+	swap	a
+	ld	d,0
+	ld	e,a
+	ld	hl,actor_table + 0114h
+	add	hl,de
+	ld	a,(hli)
+	ld	(DA_BUF + 1),a			; global-y
+	ld	a,(hl)
+	ld	(DA_BUF + 2),a			; global-x
+
+	ld	a,(murabito_cnt)
+	ld	c,a
+
+	ld	de,00fh				; next offset address
+	ld	hl,actor_table + 0114h
+
+	ld	a,(DA_BUF + 0)
+	and	00000011b			; south & north
+	jr	z,x_loop$
+
+y_loop$:
+	inc	hl
+	ld	a,(DA_BUF + 2)
+	cp	(hl)
+	jr	nz,next_y$
+
+	dec	hl
+	ld	a,(hli)
+	ld	b,a
+
+	ld	a,(DA_BUF + 0)
+;	bit	0,a
+;	jr	nz,south$
+	rrca
+	jr	c,south$
+
+	ld	a,(DA_BUF + 1)
+	dec	a
+
+	jr	y_comp$
+
+
+south$:
+	ld	a,(DA_BUF + 1)
+	inc	a	
+
+y_comp$:
+	cp	b
+	jr	z,invoke$
+
+
+next_y$:
+	dec	c
+	jr	z,rts$
+
+	add	hl,de
+
+	jr	y_loop$
+
+
+x_loop$:
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(DA_BUF + 1)
+	cp	b
+	jr	nz,next_x$
+
+	ld	b,(hl)
+
+	ld	a,(DA_BUF + 0)
+	bit	2,a
+	jr	nz,west$
+
+	ld	a,(DA_BUF + 2)
+	inc	a
+
+	jr	x_comp$
+
+
+west$:
+	ld	a,(DA_BUF + 2)
+	dec	a	
+
+x_comp$:
+	cp	b
+	jr	z,invoke$
+
+
+next_x$:
+	dec	c
+	jr	z,rts$
+
+	add	hl,de
+
+	jr	x_loop$
+
+
+invoke$:
+	ld	a,0ffh
+
+	ret
+
+rts$:
+	xor	a
+
+	ret
+
+
+
+
+
+
+
+
+
+;=======================================================;
+;							;
+;	observe abnormal step as poisonous monster	;
+;							;
+;=======================================================;
+DOKU_KOUKA_COLOR	equ	2
+
+	public	doku_chk
+
+doku_chk:
+	ld	a,(obs_system)
+;	bit	7,a
+	add	a,a
+	jp	c,jumping$
+
+	ld	a,(my_cap_tbl)
+	and	a
+	jp	z,no_have$			; no lot of monster
+
+	call	benriya_exp_inc
+
+	ld	a,(stepping)
+	and	03h
+	jp	nz,check_through$
+
+	ld	(sel_item_pos),a		; a = 0
+	ld	hl,my_cap_data + 4		; condition
+	ld	de,my_cap_tbl + 1		; monster number
+
+loop$:
+	ld	a,(hl)
+	and	008h
+	jr	z,next$				; doku wo uketeinai
+
+	dec	hl
+	dec	hl
+	ld	a,(hld)				; life (low)
+	ld	b,a
+	ld	a,(hli)				; life (high)
+	or	b
+	jr	z,z10$				; already dead
+
+	ld	a,(hl)				; life (low)
+	dec	a
+	ld	(hld),a
+	inc	a
+	jr	nz,life_check$
+
+	dec	(hl)				; life (high)
+	inc	hl
+
+	jr	z10$
+
+
+life_check$:
+	ld	a,(hli)				; life (high)
+	or	(hl)
+	jr	nz,z10$				; not die
+
+	push	hl
+
+	inc	hl
+	inc	hl
+
+;	xor	a
+	ld	(hl),a				; condition clear
+
+	ld	a,(de)				; monster number
+	ld	(in_dat),a
+
+	push	de
+
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_name
+	call	get_pet_name
+
+	xor	a
+	ld	(cancel_key),a
+
+	call	init_for_talkmap
+
+	ld	a,DEAD
+	ld	(work1),a
+	call	talk_map			; my monster dead message
+	
+	pop	de
+	pop	hl
+
+
+z10$:
+	inc	hl
+z20$:
+	inc	hl
+next$:
+	inc	de
+	ld	a,(de)
+	inc	a
+	jr	z,flash$
+
+	ld	bc,CAPDATA_LEN
+	add	hl,bc
+
+	push	hl
+	ld	hl,sel_item_pos
+	inc	(hl)
+	pop	hl
+
+	jr	loop$
+
+
+flash$:
+	ld	hl,my_cap_data + 4		; condition
+	ld	a,(my_cap_tbl)
+	ld	d,a
+	ld	e,0
+
+loop2$:
+	ld	a,(hl)
+	and	008h
+	or	e
+	ld	e,a
+	ld	bc,CAPDATA_LEN
+	add	hl,bc
+	dec	d
+	jr	nz,loop2$
+	
+	ld	a,e
+	and	a
+	jr	z,check_life$
+
+	ld	b,DOKU_KOUKA_COLOR
+	ld	a,B_BLACK_FLASH
+	call	bank2bank
+
+	ld	a,muswarai
+	call	play
+
+check_life$:
+	ld	a,B_CHECK_LIFE_ALL
+	call	bank2bank			; calling "check_life_all"
+
+	ld	a,d
+	and	a
+	jr	nz,yet$
+
+	call	init_for_talkmap
+
+	ld	a,DEAD2
+	ld	(work1),a
+	call	talk_map			; cannot fight message
+
+	ld	hl,obs_player
+	set	5,(hl)
+
+	ld	a,0ffh
+	
+	jr	rts$
+
+
+yet$:
+no_have$:
+check_through$:
+jumping$:
+	xor	a
+
+rts$:
+	ld	(func_ret),a
+	
+	ret
+
+
+;===============================================;
+;						;
+;	set initialize data as renewal map	;
+;						;
+;	IN					;
+;	map_type				;
+;		000h to 015h			;
+;	HL regs					;
+;		calcurated ram_map address	;
+;						;
+;===============================================;
+MAPIMGBANK0	equ	019h
+MAPIMGBANK1	equ	01ah
+MAPIMGBANK2	equ	01bh
+
+INITMOVE_LEN	equ	00bh			; table size
+
+
+	public	initmove
+
+initmove:
+	call	ready2ready
+
+	push	hl				; ram_map address table top
+
+	ld	d,000h
+	ld	a,(map_type)			; Load Map Type
+	add	a,a				; a * 2
+	add	a,a				; a * 4
+	ld	b,a
+	add	a,a				; a * 8
+	add	a,b				; map_type * 12
+	jr	nc,z5$
+
+	inc	d
+
+z5$:
+	ld	e,a
+	ld	hl,initmove_tbl$
+	add	hl,de				; object table position
+
+	ld	de,map_data_bank
+	ld	c,INITMOVE_LEN			; table size
+
+set_loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,set_loop$
+
+	ld	a,(hl)
+	ld	(wave_flg),a
+	xor	a
+	ld	(wave_cnt),a
+
+;	call	cell2char			; take out limits code
+
+	pop	hl				; ram_map address table top
+
+	ld	a,(map_type)
+
+	push	hl
+	push	de
+	ld	hl,map_type_tbl$
+	ld	de,1
+	call	table_search
+	pop	de
+	pop	hl
+	jr	c,set$
+
+	ld	a,(map_type)
+	ld	b,a
+	ld	a,(work0)			; check previous map_type
+	cp	b
+	jr	z,exit$
+
+set$:
+	ld	a,(ram_map_id)
+	cp	0ffh				; From "play1.src"
+	jr	z,exit$
+
+	call	set_sxy_rammap
+
+	ld	a,(mapscloll_y)
+	and	1				; Odd/Even
+	ld	(mapscloll_y4),a
+
+	ld	a,(mapscloll_x)
+	and	1				; Odd/Even
+	ld	(mapscloll_x4),a
+
+exit$:
+	ret
+
+map_type_tbl$:
+	db	DUNGEON_TYPE,HAKUBUTSU_TYPE,SHIP_TYPE,DOUKUTU_TYPE,DEPART_TYPE
+	db	MANSHON_TYPE,GATE_TYPE,KENKYUJO_TYPE,BUILDING_TYPE,TOWER_TYPE
+	db	CHAMPCUP_TYPE
+	db	0ffh
+
+initmove_tbl$:
+	db	MAPIMGBANK0
+	dw	towncell		; map chell adrs
+	dw	townimg			; img data adrs
+	extern	bui_machi		; arukeru tokoro tbl adrs
+	dw	bui_machi		; arukeru tokoro tbl adrs
+	db	0ffh,0ffh,0ffh		; table chr
+	db	052h			; kusamura chr(old type = 058h)
+	db	2			; wave flg
+
+	db	MAPIMGBANK0
+	dw	room1fcell		; map chell adrs
+	dw	room1fimg 		; img data adrs
+	extern	bui_room		; arukeru tokoro tbl adrs
+	dw	bui_room		; arukeru tokoro tbl adrs
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK1
+	dw	miseyadocell
+	dw	miseyadoimg
+	extern	bui_miseyado		; arukeru tokoro tbl adrs
+	dw	bui_miseyado
+	db	018h,019h,01eh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK1
+	dw	dungeoncell
+	dw	dungeonimg
+	extern	bui_dungeon
+	dw	bui_dungeon
+	db	0ffh,0ffh,0ffh		; table chr
+	db	020h			; kusamura chr
+	db	1			; wave flg
+
+	db	MAPIMGBANK0
+	dw	room2fcell		; map chell adrs
+	dw	room2fimg		; img data adrs
+;	extern	bui_room		; arukeru tokoro tbl adrs
+	dw	bui_room		; arukeru tokoro tbl adrs
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK1
+	dw	schoolcell
+	dw	schoolimg
+	extern	bui_school
+	dw	bui_school
+	db	03ah,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	2			; wave flg
+
+	db	MAPIMGBANK1
+	dw	miseyadocell
+	dw	miseyadoimg
+;	extern	bui_miseyado		; arukeru tokoro tbl adrs
+	dw	bui_miseyado
+	db	018h,019h,01eh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK1
+	dw	schoolcell
+	dw	schoolimg
+	dw	bui_school
+	db	03ah,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	2			; wave flg
+
+	db	MAPIMGBANK0
+	dw	minkacell
+	dw	minkaimg
+	extern	bui_minka
+	dw	bui_minka
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK1
+	dw	gatehakucell
+	dw	gatehakuimg
+	extern	bui_gatehaku
+	dw	bui_gatehaku
+	db	017h,032h,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK1
+	dw	gatehakucell
+	dw	gatehakuimg
+;	extern	bui_gatehaku
+	dw	bui_gatehaku
+	db	017h,032h,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK2
+	dw	nukemichicell
+	dw	nukemichiimg
+	extern	bui_nukemichi
+	dw	bui_nukemichi
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK1
+	dw	gatehakucell
+	dw	gatehakuimg
+;	extern	bui_gatehaku
+	dw	bui_gatehaku
+	db	017h,032h,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK2
+	dw	shipcell
+	dw	shipimg
+	extern	bui_ship
+	dw	bui_ship
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	1			; wave flg
+
+	db	MAPIMGBANK0
+	dw	portcell
+	dw	portimg
+	extern	bui_port
+	dw	bui_port
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	1			; wave flg
+
+	db	MAPIMGBANK2
+	dw	towercell
+	dw	towerimg
+	extern	bui_tower
+	dw	bui_tower
+	db	012h,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK0
+	dw	daimaniacell
+	dw	daimaniaimg
+	extern	bui_daimania
+	dw	bui_daimania
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK2
+	dw	doukutucell
+	dw	doukutuimg
+	extern	bui_doukutu
+	dw	bui_doukutu
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	1			; wave flg
+
+	db	MAPIMGBANK2
+	dw	departcell
+	dw	departimg
+	extern	bui_depart
+	dw	bui_depart
+	db	015h,036h,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK0
+	dw	manshoncell
+	dw	manshonimg
+	extern	bui_manshon
+	dw	bui_manshon
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK2
+	dw	kenkyujocell
+	dw	kenkyujoimg
+	extern	bui_kenkyujo
+	dw	bui_kenkyujo
+	db	0ffh,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK2
+	dw	cyclecell
+	dw	cycleimg
+	extern	bui_cycle
+	dw	bui_cycle
+	db	007h,017h,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	0			; wave flg
+
+	db	MAPIMGBANK1
+	dw	buildingcell
+	dw	buildingimg
+	extern	bui_building
+	dw	bui_building
+	db	012h,0ffh,0ffh		; table chr
+	db	0ffh			; kusamura chr
+	db	1			; wave flg
+
+	db	MAPIMGBANK0
+	dw	centercell
+	dw	centerimg
+	extern	bui_centering
+	dw	bui_centering
+	db	0ffh,0ffh,0ffh		; table chr
+	db	045h			; kusamura chr
+	db	1			; wave flg
+
+benriya_exp_inc:
+	ld	a,(benriya_flg)
+	and	a
+	ret	z
+
+	ld	hl,benri_mons_data + 16	; exp (low)
+
+	inc	(hl)
+	ret	nz
+
+	dec	hl
+	inc	(hl)
+	ret	nz
+
+	dec	hl
+	inc	(hl)
+	ld	a,(hl)
+	cp	050h
+	ret	c
+
+	ld	a,050h
+	ld	(hl),a
+
+	ret
+
+bank19	group	G_BANK19
+ 
+	public	townimg
+townimg:
+;	include	..\mapdata\btown_b1.dat 
+	include	..\mapdata\town_b1.dat 
+
+	public	towncell
+towncell:
+	include	..\mapdata\town_b1.cel
+
+	public	room1fimg
+	public	room2fimg
+room1fimg:
+room2fimg:
+	include	..\mapdata\room.dat    
+
+	public	room1fcell
+	public	room2fcell
+room1fcell:
+room2fcell:
+	include	..\mapdata\room2f.cel   
+
+	public	minkaimg
+minkaimg:
+	include	..\mapdata\minka_a.dat
+
+	public	minkacell
+minkacell:
+	include	..\mapdata\minka_a.cel
+
+	public	manshonimg
+manshonimg:
+	include	..\mapdata\mansho.dat
+
+	public	manshoncell
+manshoncell:
+	include	..\mapdata\mansho.cel
+
+	public	portimg
+portimg:
+	include	..\mapdata\port.dat
+
+	public	portcell
+portcell:
+	include	..\mapdata\port.cel
+
+	public	daimaniaimg
+daimaniaimg:
+	include	..\mapdata\daimania.dat
+
+	public	daimaniacell
+daimaniacell:
+	include	..\mapdata\daimania.cel
+
+	public	centerimg
+centerimg:
+	include	..\mapdata\pokecen.dat
+
+	public	centercell
+centercell:
+	include	..\mapdata\pokecen.cel
+
+
+bank1a	group	G_BANK1a
+
+	public	schoolimg
+schoolimg:
+	include	..\mapdata\gym.dat    
+
+	public	schoolcell
+schoolcell:
+	include	..\mapdata\gym.cel
+
+	public	miseyadoimg
+miseyadoimg:				; Shop hotel Image File
+	include	..\mapdata\miseyado.dat
+
+	public	miseyadocell
+miseyadocell:				; Shop hotel Cell File
+	include	..\mapdata\miseyado.cel
+
+	public	gatehakuimg
+gatehakuimg:
+	include	..\mapdata\gatehaku.dat
+
+	public	gatehakucell
+gatehakucell:
+	include	..\mapdata\gatehaku.cel
+
+	public	dungeonimg
+dungeonimg:
+	include	..\mapdata\dgn01.dat
+
+	public	dungeoncell
+dungeoncell:
+	include	..\mapdata\dgn01.cel
+
+	public	buildingimg
+buildingimg:
+	include	..\mapdata\building.dat
+
+	public	buildingcell
+buildingcell:
+	include	..\mapdata\building.cel
+
+
+bank1b	group	G_BANK1b
+
+	public	towerimg
+towerimg:
+	include	..\mapdata\ntower.dat
+
+	public	towercell
+towercell:
+	include	..\mapdata\ntower.cel
+
+	public	doukutuimg
+doukutuimg:
+	include	..\mapdata\dgn02.dat
+
+	public	doukutucell
+doukutucell:
+	include	..\mapdata\dgn02.cel
+
+	public	departimg
+departimg:
+	include	..\mapdata\dept.dat
+
+	public	departcell
+departcell:
+	include	..\mapdata\dept.cel
+
+	public	shipimg
+shipimg:
+	include	..\mapdata\stannu.dat
+
+	public	shipcell
+shipcell:
+	include	..\mapdata\stannu.cel
+
+	public	kenkyujoimg
+kenkyujoimg:
+	include	..\mapdata\kenkyu.dat
+
+	public	kenkyujocell
+kenkyujocell:
+	include	..\mapdata\kenkyu.cel
+
+	public	cycleimg
+cycleimg:
+	include	..\mapdata\cicle.dat
+
+	public	cyclecell
+cyclecell:
+	include	..\mapdata\cicle.cel
+
+	public	nukemichiimg
+nukemichiimg:
+	include	..\mapdata\nuke.dat
+
+	public	nukemichicell
+nukemichicell:
+	include	..\mapdata\nuke.cel
+
+
+
+

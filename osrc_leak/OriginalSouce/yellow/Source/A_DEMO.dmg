@@ -1,0 +1,885 @@
+;===============================================================/
+;								;
+;	observe demonstration for each times & each map		;
+;								;
+;===============================================================;
+
+
+	include	common.def	
+	include	fntequ.def
+	include	anime.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include macro.h
+
+
+	extern	bank_change
+	extern	init_hero_anime
+	extern	door_check
+	extern	search_hit
+	extern	table_jump
+	extern	bank2bank
+	extern	fnt_kana
+	extern	fontmove
+	extern	memset
+	extern	actor_anime_set
+	extern	ev_msg_adrs_save
+	extern	ev_msg_adrs_load
+	extern	change_command
+	extern	mk_trace_cmd
+	extern	acttbl_l_adrs
+	extern	acttbl_h_adrs
+	extern	save_position
+	extern	bank_push_call
+
+	extern	set_now_music
+
+	extern	musautowalk
+	extern	musdoor
+
+	extern	BGMplay
+	extern	SEplay
+	extern	MusicStop
+	extern	direct_play
+
+
+bank0	group	0
+
+
+;----------------------------------------------------------;
+; check demonstration mode as automation step, each events ;
+; <<out>>						   ;	
+;	zero-flag on					   ;
+;		running some event or demonstration	   ;
+;----------------------------------------------------------;
+	public	check_demo
+
+check_demo:
+	ld	a,(demo_flag + 0)
+	and	a
+	ret	nz
+
+	ld	a,(obs_map_step)
+	bit	1,a				; auto down step mode
+	ret	nz
+
+	ld	a,(obs_system)
+	and	080h
+
+	ret
+
+
+
+
+;=======================================================;
+;							;
+;	demonstration main routine			;
+;	IN						;
+;	demo_flag + 0					;
+;		demonstration kind(table) number	;
+;		00h : non demonstration mode		;
+;	seq_demo					;
+;		demonstration step observe number	;
+;	demo_flag + 1					;
+;		demonstration program bank		;
+;							;
+;=======================================================;
+	public	act_demo
+
+act_demo:
+	ld	hl,obs_map_step
+	bit	0,(hl)
+	res	0,(hl)
+	jr	nz,system_demo			; system demonstration check
+
+	ld	a,(demo_flag + 0)		; kind of demonstration
+	and	a
+	ret	z				; non demonstration
+
+	dec	a
+	add	a,a
+	ld	d,0
+	ld	e,a
+	ld	hl,demo_kind
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; object demonstration table
+
+	ld	a,(rombankno)
+	push	af
+	ld	a,(demo_flag + 1)
+	call	bank_change
+
+	ld	a,(seq_demo)			; demonstration sequence number
+	call	table_jump
+
+	pop	af
+	call	bank_change
+
+	ret
+
+
+;-----------------;
+; demo kind table ;
+;-----------------;
+demo_kind:
+	dw	demo_01				; 001h:town01
+	dw	demo_02				; 002h:town03-01
+	dw	demo_03				; 003h:town03-02
+
+
+;--------------------------------------;
+; system demonstration as door through ;
+;--------------------------------------;
+system_demo:
+	ld	b,006h
+	ld	hl,SystemDemo
+	jp	bank_push_call
+
+
+
+;----------------------------------------------;
+; all demonstration finished aftercare process ;
+;----------------------------------------------;
+after_care_finish:
+	ld	b,006h
+	ld	hl,AfterCare
+	jp	bank_push_call
+
+
+
+
+bank6	group	6
+
+
+SystemDemo:
+	ld	hl,obs_system
+	res	1,(hl)				; force clear for observe timer
+
+	call	door_check
+	jr	nc,sys_demo_cancel$
+
+door_step$:
+	ld	a,0fch
+	ld	(cancel_key),a			; site key cancel
+
+	ld	hl,obs_map_step
+	set	1,(hl)				; auto down step mode on
+
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+	ld	a,080h				; animetion pattern( W_D )
+	ld	(ctrl_move_val),a
+
+	xor	a
+	ld	(actor_table + 002h),a		; character pattern
+
+	call	init_hero_anime
+
+	ret
+
+
+sys_demo_cancel$:
+	xor	a
+	ld	(auto_move_cnt),a
+	ld	(ctrl_move_cnt),a
+	ld	(ctrl_move_val),a		; stop a step after animetion
+
+	ld	hl,obs_map_step
+	res	0,(hl)
+	res	1,(hl)
+
+	ld	hl,obs_system
+	res	7,(hl)
+
+	ret
+
+
+
+AfterCare:
+	ld	hl,obs_system
+	res	7,(hl)				; hero's demonstration finish
+
+	ld	hl,obs_player
+	res	7,(hl)				; hero's demonstration finish
+
+	ld	hl,obs_map_step
+	res	0,(hl)				; front one stepping switch
+	res	1,(hl)				; system demonstration(door)
+
+	xor	a
+	ld	(together),a
+	ld	(seq_demo),a
+	ld	(demo_flag + 0),a
+
+	ld	(auto_move_cnt),a
+	ld	(ctrl_move_cnt),a
+	ld	(ctrl_move_val),a		; stop a step after animetion
+
+	ret
+
+
+
+
+;--------------------------------------------------;
+; town01 wts-event as following to labo with okido ;
+;--------------------------------------------------;
+demo_01:
+	initndw	starting,seq_starting
+	ndw	okido_step,seq_okido_step
+	ndw	hero_step,seq_hero_step
+	ndw	ex_okido_hero,seq_ex_okido_hero
+	ndw	okido_hero,seq_okido_hero
+
+
+starting:
+	ld	a,(mapscloll_x)			; hero's x-position
+;	sub	008h				; base position(x,y)=(8,1)
+	sub	00ah				; base position(x,y)=(a,1)
+	ld	(work_anime_buf + 10),a		; hero's step
+	jr	z,no_move$
+
+	ld	b,0
+	ld	c,a				; step count
+	ld	hl,work_anime_buf
+	ld	a,080h				; A_L
+	call	memset
+	ld	(hl),0ffh			; end of animetion
+
+	ld	a,(sv_msg_no)
+	ld	(work1),a
+	ld	de,work_anime_buf
+	call	actor_anime_set
+
+	ld	a,seq_okido_step
+	ld	(seq_demo),a
+
+	jr	rts$
+
+
+no_move$:
+	ld	a,seq_ex_okido_hero
+	ld	(seq_demo),a
+
+rts$:
+  ifn	0
+	ld	a,MUSIC_BANK1_NO		; Music Bank 3
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+	ld	a,<musautowalk
+	ld	(music_flag),a			; 0 : SE / !0 : Music
+	call	BGMplay
+  endif
+	ld	a,MUSIC_BANK1_NO		; Set Bank
+	ld	c,a
+	ld	a,<musautowalk
+	call	direct_play
+
+	ld	hl,game_mode + 1
+	set	1,(hl)
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ret
+
+
+okido_step:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,(work_anime_buf + 10)		; hero's
+	ld	(ctrl_move_cnt),a
+	ld	(calc_work0),a
+	ld	a,B_CHANGE_COMMAND		; work_anime_buf -> hero's
+	call	bank2bank
+
+	call	init_hero_anime
+
+	ld	a,seq_hero_step
+	ld	(seq_demo),a
+
+	ret
+
+
+	public	hero_step
+
+hero_step:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+
+ex_okido_hero:
+	xor	a
+	ld	(auto_move_msk),a
+
+	ld	a,(sv_msg_no)
+	swap	a				; *010h
+	ld	(together),a
+
+	xor	a
+	ld	(actor_table + 106h),a
+
+	ld	hl,ctrl_move_val
+	ld	de,to_okido_house2$
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	ld	hl,work_anime_buf
+	ld	de,to_okido_house1$
+	call	mk_trace_cmd			; others
+
+	ld	hl,obs_player
+	res	7,(hl)				; ready to wts
+
+	ld	hl,obs_system
+	set	7,(hl)				; hero's animetion mode on
+
+	ld	a,seq_okido_hero
+	ld	(seq_demo),a
+
+	ret
+
+
+;-------------------------;
+; others:top down command ;
+;-------------------------;
+to_okido_house1$:
+	db	A_D,6				; command top
+	db	A_L,1
+	db	A_D,5
+	db	A_R,3
+	db	A_U,1				; for debug
+	db	A_DMY,1
+	db	A_E
+
+
+;------------------------;
+; hero:bottom up command ;
+;------------------------;
+to_okido_house2$:				; others:bottom up command
+	db	W_U,2				; for debug
+	db	W_R,3
+	db	W_D,5
+	db	W_L,1
+	db	W_D,7				; command top
+	db	A_E
+
+
+okido_hero:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	a,T1msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	hl,obs_system
+	res	7,(hl)
+
+	ld	hl,obs_player
+	res	7,(hl)				; ready to wts
+
+	jp	after_care_finish
+
+
+
+demo_02:
+	initndw	ToMusiumStart,SeqToMusiumStart
+	ndw	StepStep,SeqStepStep
+
+
+ToMusiumStart:
+  ifn	0
+	ld	a,MUSIC_BANK1_NO		; Music Bank 3
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+	ld	a,<musautowalk
+	ld	(music_flag),a			; 0 : SE / !0 : Music
+	call	BGMplay
+  endif
+	ld	a,MUSIC_BANK1_NO		; Set Bank
+	ld	c,a
+	ld	a,<musautowalk
+	call	direct_play
+
+	ld	a,(sv_msg_no)
+	swap	a				; *010h
+	ld	(together),a
+
+	call	init_hero_anime
+
+	ld	hl,ctrl_move_val
+	ld	de,hero_to_musium$
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(command top point)
+
+	xor	a
+	ld	(temp_box_s),a			; table structure number
+;	ld	a,79				; FirstOneStep
+;	call	bank2bank
+	call	FirstOneStep
+
+	ld	hl,work_anime_buf
+	ld	de,ossan_to_musium$
+	call	mk_trace_cmd			; others
+
+	ld	hl,obs_player
+	res	7,(hl)				; ready to wts
+
+	ld	a,SeqStepStep
+	ld	(seq_demo),a
+
+	ret
+
+
+;------------------------;
+; hero:bottom up command ;
+;------------------------;
+hero_to_musium$:				; others:bottom up command
+	db	W_DMY,1
+	db	W_U,3
+	db	W_L,13
+	db	W_U,6
+	db	A_E
+
+
+;-------------------------;
+; others:top down command ;
+;-------------------------;
+ossan_to_musium$:
+	db	A_U,6
+	db	A_L,13
+	db	A_U,3
+	db	A_L,1
+	db	A_E
+
+
+StepStep:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	hl,obs_system
+	res	7,(hl)
+
+	ld	hl,obs_player
+	res	7,(hl)				; ready to wts
+
+	jp	after_care_finish
+
+
+
+
+demo_03:
+	initndw	ToHallStart,SeqToHallStart
+	ndw	StepStep,SeqStepStep1
+
+
+ToHallStart:
+  ifn	0
+	ld	a,MUSIC_BANK1_NO		; Music Bank 3
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+	ld	a,< musautowalk
+	ld	(music_flag),a			; 0 : SE / !0 : Music
+	call	BGMplay
+  endif
+	ld	a,MUSIC_BANK1_NO		; Set Bank
+	ld	c,a
+	ld	a,<musautowalk
+	call	direct_play
+
+	ld	a,(sv_msg_no)
+	swap	a				; *010h
+	ld	(together),a
+
+	xor	a
+	ld	(actor_table + 106h),a
+
+	ld	hl,ctrl_move_val
+	ld	de,hero_to_hall$
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(command top point)
+
+	ld	a,01h
+	ld	(temp_box_s),a			; table structure number
+;	ld	a,79				; FirstOneStep
+;	call	bank2bank
+	call	FirstOneStep
+
+	ld	hl,work_anime_buf
+	ld	de,shounen_to_hall$
+	call	mk_trace_cmd			; others
+
+	ld	hl,obs_player
+	res	7,(hl)				; ready to wts
+
+	ld	hl,obs_system
+	set	7,(hl)				; hero's animetion mode on
+
+	ld	a,SeqStepStep1
+	ld	(seq_demo),a
+
+	ret
+
+
+;------------------------;
+; hero:bottom up command ;
+;------------------------;
+hero_to_hall$:
+	db	W_DMY,1
+	db	W_R,2				; 38 step
+	db	W_D,5
+	db	W_L,11
+	db	W_U,5
+	db	W_L,15
+	db	A_E
+
+
+;-------------------------;
+; others:top down command ;
+;-------------------------;
+shounen_to_hall$:
+	db	A_D,2
+	db	A_L,15
+	db	A_U,5
+	db	A_L,11
+	db	A_D,5
+	db	A_R,3				; 41 step
+	db	A_E
+
+
+	public	FirstOneStep
+
+FirstOneStep:
+	ld	hl,ctrl_move_val
+	ld	a,(ctrl_move_cnt)		; table structure number
+	dec	a				; reset one step
+	ld	(ctrl_move_cnt),a		; table structure number
+	ld	d,00h
+	ld	e,a
+	add	hl,de
+	ld	d,h
+	ld	e,l
+
+	ld	hl,one_step_table
+	ld	a,(temp_box_s)			; table structure number
+	add	a,a
+	ld	b,00h
+	ld	c,a
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	a,(mapscloll_x)
+	ld	c,a
+
+loop$:
+	ld	a,(hli)
+	cp	b
+	jr	nz,next1$
+
+	ld	a,(hli)
+	cp	c
+	jr	nz,next2$
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+set_loop$:
+	ld	a,(hli)
+	cp	A_E
+	ret	z				; end of setting data
+
+	ld	(de),a
+	inc	de
+
+	ld	a,(ctrl_move_cnt)
+	inc	a
+	ld	(ctrl_move_cnt),a
+
+	jr	set_loop$
+
+
+next1$:
+	inc	hl
+
+next2$:
+	inc	hl
+	inc	hl
+
+	jr	loop$
+
+
+
+one_step_table:
+	dw	t3_01
+	dw	t3_02
+
+
+t3_01:
+	db	012h,01bh
+	dw	t3_01_01$			; south(rewrite on)
+	db	010h,01bh
+	dw	t3_01_02$			; north
+	db	011h,01ah
+	dw	t3_01_03$			; west(rewrite on)
+	db	011h,01ch
+	dw	t3_01_04$			; east(rewrite on)
+
+t3_01_01$:
+	db	W_U				; rewrite command
+	db	W_U
+	db	A_E
+t3_01_02$:
+	db	W_R,W_L
+	db	A_E
+t3_01_03$:
+	db	W_U				; rewrite command
+	db	W_R
+	db	A_E
+t3_01_04$:
+	db	W_U				; rewrite command
+	db	W_L
+	db	A_E
+
+
+t3_02:
+	db	010h,022h
+	dw	t3_02_01$			; south(rewrite on)
+	db	011h,023h
+	dw	t3_02_02$			; north
+	db	012h,025h
+	dw	t3_02_03$			; west(rewrite on)
+	db	013h,025h
+	dw	t3_02_04$			; east(rewrite on)
+	db	011h,024h
+	dw	t3_02_05$			; north
+
+t3_02_01$:
+	db	W_L				; rewrite command
+	db	W_D,W_D,W_R
+	db	A_E
+t3_02_02$:
+	db	W_L				; rewrite command
+	db	W_D,W_R,W_L
+	db	A_E
+t3_02_03$:
+	db	W_L				; rewrite command
+	db	W_L,W_L
+	db	W_DMY,W_DMY
+	db	W_DMY,W_DMY
+	db	W_DMY,W_DMY
+	db	W_DMY,W_DMY
+	db	A_E
+t3_02_04$:
+	db	W_L				; rewrite command
+	db	W_L,W_U,W_L
+	db	A_E
+t3_02_05$:
+	db	W_L				; rewrite command
+	db	W_D,W_L
+	db	W_DMY,W_DMY
+	db	W_DMY,W_DMY
+	db	W_DMY,W_DMY
+	db	W_DMY,W_DMY
+	db	A_E
+
+
+
+
+
+bank14	group	20
+
+
+;=======================================================================;
+; Category	: checker for door open in SYLF Bld.
+; Author	:
+; Bank-No.	: G_BANK14
+; Infomation	: Nothing
+;=======================================================================;
+
+
+
+	public	ObsDoorVanish
+	extern	easy_talk
+
+ObsDoorVanish:
+	ld	hl,obs_map$
+	ld	a,(mapno)
+	ld	b,a
+
+lp$:
+	ld	a,(hli)
+	cp	0ffh
+	ret	z
+
+	cp	b
+	jr	nz,lp$
+
+	ld	a,(flont_chr)
+	cp	018h
+	jr	z,door$
+
+	cp	024h
+	jr	z,door$
+
+	ld	b,a
+
+	ld	a,(mapno)
+	cp	D10R1F10
+	ret	nz
+
+	ld	a,b
+	cp	05eh
+	ret	nz
+
+door$:
+	ld	b,48
+	extern	check_pack
+	call	check_pack
+	jr	z,no_take$
+
+	xor	a				; by tama,98/05/22
+	ld	(watashi_muki),a		; for debug sylf bld. door bug
+	ld	a,1
+	ld	(work1),a
+	call	easy_talk
+
+	call	GetFcharStatus
+	srl	d				; mapscloll_y / 2
+	ld	a,d
+	ld	b,a
+	ld	(checker_flag + 0),a
+	srl	e				; mapscloll_x / 2
+	ld	a,e
+	ld	c,a
+	ld	(checker_flag + 1),a
+
+	ld	a,(mapno)
+	cp	D10R1F10
+	jr	nz,oth$
+
+	ld	a,000h + 003h
+
+	jr	set$
+
+
+oth$:
+	ld	a,00ch + 002h
+
+set$:
+	ld	(el_c),a
+	ld	a,B_BGCELL_CHANGE
+	call	bank2bank
+
+	ld	hl,ptn_data
+	set	5,(hl)
+
+	ld	a,<musdoor
+	jp	SEplay
+
+
+no_take$:
+	ld	a,2
+	ld	(work1),a
+	jp	easy_talk
+
+
+
+obs_map$:
+	db	D10R1F1
+	db	D10R1F2
+	db	D10R1F3
+	db	D10R1F4
+	db	D10R1F5
+	db	D10R1F6
+	db	D10R1F7
+	db	D10R1F8
+	db	D10R1F9
+	db	D10R1F10
+	db	0ffh
+
+
+	public	D10open
+
+D10open:
+	extern	D10open_0_A_DEMO
+	db I_MSG2	; mvmsg追加
+	dw D10open_0_A_DEMO	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	FANFARE
+	extern	D10open_1_A_DEMO
+	db I_MSG2	; mvmsg追加
+	dw D10open_1_A_DEMO	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+	public	D10close
+
+D10close:
+	extern	D10close_2_A_DEMO
+	db I_MSG2	; mvmsg追加
+	dw D10close_2_A_DEMO	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+GetFcharStatus:
+	ld	a,(mapscloll_y)
+	ld	d,a
+	ld	a,(mapscloll_x)
+	ld	e,a
+
+	ld	a,(actor_table + 009h)
+	and	a
+	jr	nz,non_south$
+
+	inc	d
+
+	ret
+
+
+non_south$:
+	cp	04h
+	jr	nz,non_north$
+
+	dec	d
+
+	ret
+
+
+non_north$:
+	cp	08h
+	jr	nz,non_west$
+
+	dec	e
+
+	ret
+
+
+non_west$:
+	inc	e
+
+	ret
+
+

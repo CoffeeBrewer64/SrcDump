@@ -1,0 +1,5149 @@
+;===============================================;
+;						;
+;	Display & Character effect unit		;
+;						;
+;===============================================;
+
+	include		pm_debug.def
+	include		common.def
+	include		se.def
+	include		effect.def
+	include		banktool.def
+	include		maptype.def
+	include		fntequ.def
+	include		fight.def
+	include		sgb_col.def
+	include		..\data\waza_se.h
+	include		macro.h
+
+	include		pika.def
+
+	include		objbank.def
+	include		group.def
+
+;	extern		objct
+
+
+	public		play_waza_se
+	public		zoomsub1_ready
+	public		zoomsub1
+	public		zoomt1
+	public		zoomt2
+	public		demo_zoom
+	public		play_demo_se
+	public		bgreq_change
+	public		to_oam
+	public		migawari1
+	public		migawari2
+
+	extern		color_set
+	extern		oam_clr
+	extern		effect_chr_tbl
+	extern		ef_address_table
+	extern		efchr_buf_set
+	extern		real_effect
+	extern		set_jiki
+	extern		set_kana
+	extern		block_cls
+	extern		block_move
+	extern		set_ef_cram
+	extern		wait_vb
+	extern		put_wait
+	extern		wait_vb_s
+	extern		play
+	extern		effect_ready
+	extern		bank2bank
+	extern		bank_push_call
+	extern		ready2ready
+	extern		put_msg
+	extern		prt_mons_chr2
+	extern		prt_mons_chr
+	extern		lcdc_stop
+	extern		lcdc_on
+	extern		push_vram
+	extern		pop_vram
+	extern		push_vram_m
+	extern		pop_vram_m
+	extern		memset
+	extern		gyaarth
+	extern		badge_chrset
+	extern		actor_blanch
+	extern		dvram_cls
+	extern		set_now_music
+	extern		n_to_w
+	extern		w_to_n
+	extern		n_to_b
+	extern		b_to_n
+	extern		pal_off
+	extern		chrset
+	extern		chrmove
+	extern		get_monsadr
+	extern		get_monsimg
+	extern		set_monsimg
+	extern		effect_data
+	extern		cont_repeat
+	extern		put_all
+	extern		put_window
+	extern		puthaji_yoko
+	extern		muskon
+	extern		mustaberu
+	extern		muswngo
+	extern		mussucha
+	extern		muspoko
+	extern		musbashi2
+	extern		musasa
+	extern		mussyowan
+	extern		muswarpup
+	extern		muswarpdown
+	extern		musturnup
+	extern		musbird
+	extern		mussyakin2
+	extern		slot_machine
+	extern		put_win_msg
+	extern		color_rewrite
+	extern		se_wait
+	extern		over_music_fade
+	extern		ef0
+	extern		ef1
+	extern		table_search
+
+	extern		BGMplay
+	extern		SEplay
+	extern		MusicStop
+
+	extern		change_cgb_bgp
+	extern		change_cgb_obp0
+	extern		change_cgb_obp1
+	extern		change_cgbattr_0
+
+WSE_NO		equ	0
+
+
+bank1e	group	30
+;=======================================;
+;					;
+;	choosing effect pattern		;
+;					;
+;=======================================;
+	public		effect_select
+
+effect_select:
+	push	hl
+	push	de
+	push	bc
+	push	af
+
+	call	se_wait
+	call	effect_col_set
+	
+	ld	a,(effect_no)
+	and	a
+	jr	z,exit$
+
+	cp	193
+	jr	nz,n1$
+	ld	de,exit$
+	push	de
+	jp	cap_effect
+n1$:
+	ld	a,(my_lvl)
+	bit	7,a
+	jr	nz,exit1$
+
+	call	effect_check
+	call	effect_ready			; some effect pattern set
+	jr	exit2$
+
+exit1$:
+	ld	c,30
+	call	wait_vb_s
+exit2$:
+	call	shake_effect
+
+exit$:
+	call	se_wait
+	xor	a
+	ld	(ef_adr2_l),a
+	ld	(ef_adr4_l),a
+	ld	(ef_count2),a
+	dec	a
+	ld	(waza_se_cnt + WSE_NO),a
+
+;	call	BackGroundClear
+	pop	af
+	pop	bc
+	pop	de
+	pop	hl
+	ret
+
+
+effect_check:
+	ld	a,(attack_turn)
+	and	a
+	ret	z
+
+	ld	a,(effect_no)
+	cp	133
+	ld	b,191
+	jr	z,z1$
+	cp	156
+	ld	b,189
+	ret	nz
+z1$:
+	ld	a,b
+	ld	(effect_no),a
+	ret
+
+
+
+shake_effect:
+	ld	a,(anime_buf)
+	and	a
+	ret	z
+	dec	a
+	add	a,a
+	ld	c,a
+	ld	b,0
+	ld	hl,shake_tbl$
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+shake_tbl$:
+	dw	shake_ef1$
+	dw	shake_ef2$
+	dw	shake_ef3$
+	dw	shake_ef4$
+	dw	shake_ef5$
+	dw	shake_ef6$
+
+shake_ef1$:
+	call	zokusei_se
+	ld	b,8
+	jp	tate_sub
+
+shake_ef2$:
+	call	zokusei_se
+	ld	b,8
+	jp	yoko_sub
+
+shake_ef3$:
+	ld	bc,0602h
+	jr	ef_shake
+
+shake_ef4$:
+	call	zokusei_se
+	jp	rev_tenmetu
+
+shake_ef5$:
+	call	zokusei_se
+	ld	b,2
+	jp	yoko_sub
+
+shake_ef6$:
+	ld	bc,0302h
+
+ef_shake:
+loop2$:
+	push	bc
+	push	bc
+loop$:
+	ld	a,(WX)
+	inc	a
+	ld	(WX),a
+	ld	c,2
+	call	wait_vb_s
+	dec	b
+	jr	nz,loop$
+	pop	bc
+loop1$:
+	ld	a,(WX)
+	dec	a
+	ld	(WX),a
+	ld	c,2
+	call	wait_vb_s
+	dec	b
+	jr	nz,loop1$
+	pop	bc
+	dec	c
+	jr	nz,loop2$
+	ret
+
+
+effect_col_set:
+	ld	a,(sgb_flg)
+	and	a
+	ld	a,0e4h
+	jr	z,no_color$
+	ld	a,0f0h
+	ld	(anime_buf + 30),a
+
+	ld	b,0e4h
+	ld	a,(effect_no)
+	cp	170
+	jr	c,z1$
+	cp	174
+	jr	nc,z1$
+	ld	b,0f0h
+z1$:
+	ld	a,b
+	ld	(OBP0),a
+	
+	ld	a,06ch
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+no_color$:
+	ld	a,0e4h
+	ld	(anime_buf + 30),a
+	ld	(OBP0),a
+	ld	a,06ch
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+
+  ifn 0
+wse_pickup:
+	dec	c
+	ld	l,c		;c ->effect_no
+	ld	h,0
+	add	hl,hl
+	ld	de,effect_data
+	add	hl,de
+
+	ld	a,(hli)		;effect_kind_adr -> hl
+	ld	h,(hl)
+	ld	l,a
+
+	inc	hl
+	ld	a,(hl)		;pickup wse_data
+	ret
+  endif
+
+	public	BackGroundClear
+BackGroundClear:
+	call	push_vram_m
+	xor	a
+	ld	(all_put_req),a
+	call	dvram_cls
+	
+	ld	h,98h
+	call	sub$
+
+	call	put_wait
+
+	xor	a
+	ld	(all_put_req),a
+	call	pop_vram_m
+	
+	ld	h,9ch
+sub$:
+	ld	l,00h
+	call	bgreq_change
+
+	ld	a,1
+	ld	(all_put_req),a
+	ret
+	
+;=======================================================;
+;							;
+;	effect actor control with ........		;
+;							;
+;	IN						;
+;	(ef_adr1_h)					;
+;	(ef_adr1_l)					;
+;		detail table top address		;
+;							;
+;	(ef_adr2_h)					;
+;	(ef_adr2_l)					;
+;		element table top address		;
+;							;
+;=======================================================;
+	public	ctrl_effect
+	public  out_ef_tbl2
+
+ctrl_effect:
+	ld	a,(waza_se_cnt + WSE_NO)
+	cp	NO_SE
+	jr	z,z1000$
+
+	call	play_waza_se
+	call	SEplay
+
+z1000$:
+	ld	hl,oam_buf
+	ld	a,l
+	ld	(ef_oamadr_l),a
+	ld	a,h
+	ld	(ef_oamadr_h),a
+
+	ld	a,(ef_adr2_h)			; pattern change table address
+	ld	h,a
+	ld	a,(ef_adr2_l)
+	ld	l,a
+loop1$:
+	push	hl
+	ld	c,(hl)
+	ld	b,0
+	ld	hl,effect_chr_tbl
+	add	hl,bc
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	c,a
+	ld	a,(hli)
+	ld	b,a
+	pop	hl
+	inc	hl
+
+	push	hl
+	ld	e,(hl)
+	ld	d,0
+	ld	hl,ef_address_table
+	add	hl,de
+	add	hl,de
+
+	ld	a,(hli)
+	ld	(effect_y),a			; Y-position
+	ld	a,(hl)
+	ld	(effect_x),a			; X-position
+
+;	ld	a,(hli)
+;	ld	e,a
+;	ld	a,(hli)
+;	ld	d,a
+	pop	hl
+	inc	hl
+
+	ld	a,(hl)
+	ld	(ef_anime),a
+
+;	ld	a,(de)
+;	ld	(effect_y),a			; Y-position
+;	inc	de
+;	ld	a,(de)
+;	ld	(effect_x),a			; X-position
+
+z1$:
+	call	real_effect			; pattern write main frame
+	call	out_effect			; outside controll
+
+	ld	a,(ef_ptn)
+	dec	a
+	ld	(ef_ptn),a
+	ret	z
+
+	ld	a,(ef_adr2_h)
+	ld	h,a
+	ld	a,(ef_adr2_l)
+	ld	l,a
+	ld	a,(ef_count2)
+	cp	4
+
+	ld	bc,3
+	jr	nz,z2$
+	ld	bc,-3
+
+z2$:
+	add	hl,bc
+	ld	a,h
+	ld	(ef_adr2_h),a
+	ld	a,l
+	ld	(ef_adr2_l),a
+
+	jp	loop1$
+
+;===============================================;
+;						;
+;	clear effect pattern on LCDC(OAM)	;
+;						;
+;	IN					;
+;	C regs					;
+;		display time ( v-blank count )	;
+;						;
+;===============================================;
+	public		ef_clear
+
+ef_clear:
+	push	hl
+	push	de
+	push	bc
+	push	af
+
+	call	wait_vb				; timing maker
+	call	oam_clr				; effect vanish
+
+	pop	af
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+;===============================;
+;				;
+;	no character effect	;
+;				;
+;===============================;
+out_effect:
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,(effect_no)
+	ld	hl,out_effect_tbl$
+	ld	de,3
+	call	table_search
+	jr	nc,exit$
+
+	inc	hl
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,exit$
+	push	de
+
+	jp	(hl)
+
+exit$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+
+out_effect_tbl$:
+	db	5
+	dw	flash
+	db	12
+	dw	flash
+	db	25
+	dw	flash
+	db	29
+	dw	flash
+	db	39
+	dw	sippo_ef
+	db	45
+	dw	nakigoe
+	db	50
+	dw	flash
+	db	59
+	dw	fubuki
+	db	61
+	dw	flash
+	db	63
+	dw	flash_check
+	db	85
+	dw	bolt10
+	db	115
+	dw	flash
+	db	120
+	dw	bomb
+	db	147
+	dw	flash_check
+	db	153
+	dw	bomb
+	db	157
+	dw	star_freeze
+	db	170
+	dw	koukan1				; koukan_effect
+	db	171
+	dw	koukan2				; koukan_effect
+	db	172
+	dw	koukan3				; koukan_effect
+	db	193
+	dw	cap_throw			; capture control
+	db	194
+	dw	cap_guga			; capture control
+	db	195
+	dw	cap_smoke			; capture control
+	db	197
+	dw	cap_throw			; capture control
+	db	198
+	dw	cap_throw			; capture control
+	db	0ffh
+
+;---------------------------------;
+; vanish timing in capture effect ;
+;---------------------------------;
+cap_throw:			; capture control
+	ld	a,(sel_item_no)
+	cp	3
+	jr	nc,normal$
+	ld	a,(OBP0)
+	xor	3ch
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+normal$:	
+	ld	a,(ef_ptn)
+	cp	0bh
+	jr	nz,z1$
+	ld	a,muspiew2
+	call	SEplay
+z1$:
+	ld	a,(fighting_flg)
+	cp	2
+	jr	z,dealer$
+	
+	ld	a,(in_dat)
+	cp	10h
+	ret	nz
+
+	ld	a,(ef_ptn)
+	cp	3
+	jr	z,right$
+	cp	2
+	jr	z,right$
+	cp	1
+	ret	nz
+right$:
+	ld	hl,dmy_vram + 17
+	ld	de,20
+	ld	bc,0707h
+loop$:
+	push	hl
+	push	bc
+	call	right_move
+	pop	bc
+	pop	hl
+	add	hl,de
+	dec	b
+	jr	nz,loop$
+	ld	a,8
+	ld	(NR10),a
+	ret
+	
+dealer$:
+	ld	a,(ef_ptn)
+	cp	3
+	ret	nz
+	dec	a
+	ld	(ef_ptn),a
+	ret
+
+
+cap_guga:			; capture control
+	ld	a,(ef_ptn)
+	cp	4
+	jr	nz,z1$
+
+	ld	a,muswngo
+	call	SEplay
+	ld	c,40
+	call	wait_vb_s
+z1$:
+	ld	a,(ef_ptn)
+	dec	a		;cp 1
+	ret	nz
+
+	ld	a,(usr_buf)
+	dec	a
+	ld	(usr_buf),a
+	ret	z
+
+	ld	a,(ef_adr2_l)
+	ld	l,a
+	ld	a,(ef_adr2_h)
+	ld	h,a
+	ld	de,-12		;4*3
+	add	hl,de
+	ld	a,l
+	ld	(ef_adr2_l),a
+	ld	a,h
+	ld	(ef_adr2_h),a
+	ld	a,5
+	ld	(ef_ptn),a
+	ret
+
+
+cap_smoke:
+	ld	a,(ef_ptn)
+	cp	5
+	ret	nz
+	ld	a,muspowan2
+	jp	SEplay
+
+
+star_freeze:
+	ld	a,(ef_ptn)
+	cp	00ch
+	ret	nc
+	cp	008h
+	jr	nc,z1$
+	cp	001h
+	jp	z,flash
+	ret
+z1$:
+	ld	b,1
+	ld	a,B_WINDOW_SHAKE_X
+	call	bank2bank
+	ld	b,1
+	ld	a,B_WINDOW_SHAKE_Y
+	jp	bank2bank
+
+
+bolt10:
+beam:
+;	ld	a,(ef_ptn)
+;	srl	a
+;	call	c,flash
+;	ret
+	ld	a,(ef_ptn)
+	and	00000111b
+	call	z,flash
+	ret
+
+flash_check:
+	ld	a,(ef_ptn)
+	and	00000011b
+	call	z,flash
+	ret
+
+bomb:
+	ld	a,(ef_ptn)
+	cp	001h
+;	jp	nz,flash
+	jr	nz,flash_check
+
+	ld	hl,5 * 20 + 1 + dmy_vram
+	jp	chr_kieru_auto
+
+fubuki:
+	ld	a,(ef_ptn)
+	cp	00dh
+	jp	z,flash
+	cp	009h
+	jp	z,flash
+	cp	005h
+	jp	z,flash
+	cp	001h
+	jp	z,flash
+	ret	
+
+speed_star:
+	ld	a,(ef_ptn)
+	cp	00eh
+	jp	z,flash
+	cp	009h
+	jp	z,flash
+	cp	002h
+	jp	z,flash
+	ret	
+
+koukan1:	
+	ld	a,(ef_ptn)
+	cp	006h
+	ret	nz
+	ld	a,20*2 + 7	;mons clear from 9c00h
+	jp	chr_kieru
+
+koukan2:	
+	ld	a,(ef_ptn)
+	cp	001h
+	ret	nz
+
+	ld	de,suikomi_tbl$
+loop1$:
+	ld	hl,oam_buf
+	ld	bc,4
+loop$:
+	ld	a,(de)
+	cp	0ffh
+	jr	z,exit$
+	add	a,(hl)
+	ld	(hl),a
+	add	hl,bc
+	ld	a,l
+	cp	010h
+	jr	nz,loop$
+	inc	de
+	
+	push	bc
+	call	put_wait
+	pop	bc
+
+	jr	loop1$
+exit$:
+	call	ef_clear
+	ld	a,mustaberu
+	jp	SEplay
+
+suikomi_tbl$:
+	db	0f4h,0f4h,0f8h,0ffh
+
+koukan3:	
+	ld	de,rakka_tbl$
+loop1$:
+	ld	hl,oam_buf
+	ld	bc,4
+loop$:
+	ld	a,(de)
+	cp	0ffh
+	jp	z,dvram_cls
+
+	add	a,(hl)
+	ld	(hl),a
+	add	hl,bc
+
+	ld	a,l
+	cp	010h
+	jr	nz,loop$
+	inc	de
+	
+	push	de
+	ld	a,(de)
+	cp	00ch
+	jr	z,kon$
+	cp	0ffh
+	jr	nz,next$
+kon$:
+	ld	a,muskon
+	call	SEplay
+next$:
+	push	bc
+	ld	c,5
+	call	wait_vb_s
+	pop	bc
+
+	ld	a,(headerx)
+	sub	8
+	ld	(headerx),a
+
+	pop	de	
+	jr	loop1$
+	
+rakka_tbl$:
+;	db	008h
+	db	00bh,00ch,0f4h,0f9h,007h,00ch,0f8h,008h,0ffh
+
+nakigoe:
+	ld	hl,oam_buf
+	ld	de,4*4 + oam_buf
+	ld	bc,4*4
+	call	block_move
+
+	ld	a,(ef_ptn)
+	dec	a
+	call	z,ef_clear
+	ret
+
+sippo_ef:
+	ld	a,1
+	ld	(ef_ptn),a
+	ld	c,20
+	jp	wait_vb_s
+
+;=======================================================;
+out_ef_tbl2:
+	db	0feh
+	dw	flash
+	db	0fdh
+	dw	dark
+	db	0fch
+	dw	light
+	db	0fbh
+	dw	yokoyure
+	db	0fah
+	dw	rain
+	db	0f9h
+	dw	dark2
+	db	0f8h
+	dw	phy
+	db	0f7h
+	dw	mons_up
+	db	0f6h
+	dw	mons_down
+	db	0f5h
+	dw	back
+	db	0f4h
+	dw	leave1
+	db	0f3h
+	dw	tenmetu
+	db	0f2h
+	dw	taiatari
+	db	0f1h
+	dw	after_taiatari
+	db	0f0h
+	dw	light2
+	db	0efh
+	dw	chr_kieru_auto
+	db	0eeh
+	dw	teleport
+	db	0edh
+	dw	teleport_b
+	db	0ech
+	dw	kiai
+	db	0ebh
+	dw	haneru
+	db	0eah
+	dw	tiisaku
+	db	0e9h
+	dw	tokeru
+	db	0e8h
+	dw	hensin
+	db	0e7h
+	dw	happa_cutter
+	db	0e6h
+	dw	hanabira
+	db	0e5h
+	dw	leave3
+	db	0e4h
+	dw	ef_shake_sp
+	db	0e3h
+	dw	ef_shake_sp
+	db	0e2h
+	dw	uzumaki
+	db	0e1h
+	dw	ef_wait
+	db	0e0h
+	dw	rev_back
+	db	0dfh
+	dw	rev_vani
+	db	0deh
+	dw	rev_tenmetu
+	db	0ddh
+	dw	back2
+	db	0dch
+	dw	rev_back2
+	db	0dbh
+	dw	rev_leave
+	db	0dah
+	dw	bunsin
+	db	0d9h
+	dw	migawari
+	db	0d8h
+	dw	saico_wave
+	db	0ffh
+;-----------------------------------------------------
+ef_wait:
+	ld	c,10
+	jp	wait_vb_s
+
+
+reverse_call:			; IN : HL = call_address
+	ld	a,(attack_turn)
+	push	af
+	xor	1
+	ld	(attack_turn),a
+
+	ld	de,exit$
+	push	de
+	jp	(hl)
+exit$:
+	pop	af
+	ld	(attack_turn),a
+	ret
+
+	
+phy:
+;	ld	a,004h
+	ld	a,003h
+	ld	(ef_count1),a
+	ld	a,(sgb_flg)
+	and	a
+	ld	hl,phy_tbl
+	jr	z,loop1$
+	ld	hl,phy_tbl2
+loop1$:
+	push	hl
+loop$:
+	ld	a,(hli)
+	cp	001h
+	jr	z,exit$
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	call	timer
+	jr	loop$
+exit$:
+	ld	a,(ef_count1)
+	dec	a
+	ld	(ef_count1),a
+	pop	hl
+	jr	nz,loop1$
+
+	ret
+
+phy_tbl:
+	db	0f9h,0feh,0ffh,0feh,0f9h,0e4h
+	db	090h,040h,000h,040h,090h,0e4h
+	db	001h
+phy_tbl2:
+	db	0f8h,0fch,0ffh,0fch,0f8h,0e4h
+	db	090h,040h,000h,040h,090h,0e4h
+	db	001h
+timer:
+	ld	a,(ef_count1)
+;	cp	003h
+	cp	004h
+	ld	c,4
+	jr	z,exit$
+
+	cp	003h
+;	ld	c,3
+	ld	c,2
+	jr	z,exit$
+
+	cp	002h
+;	ld	c,2
+	ld	c,1
+;	jr	z,exit$
+;	ld	c,1
+exit$:
+	jp	wait_vb_s
+
+
+flash:
+	ld	a,(BGP)
+	push	af
+	ld	a,01bh
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ld	c,2h
+	call	wait_vb_s
+	xor	a
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ld	c,2h
+	call	wait_vb_s
+	pop	af
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ret
+dark:    
+	ld	bc,06f6fh
+	jr	bgp_set
+dark2:
+	ld	bc,0f9f4h
+	jr	bgp_set
+dark3:
+	ld	bc,0fef8h
+	jr	bgp_set
+dark4:
+	ld	bc,0ffffh
+	jr	bgp_set
+light:
+	ld	bc,0e4e4h
+	jr	bgp_set
+light1:
+	ld	bc,0
+	jr	bgp_set
+light2:
+	ld	bc,09090h
+	jr	bgp_set
+light3:
+	ld	bc,04040h
+bgp_set:
+	ld	a,(sgb_flg)
+	and	a
+	ld	a,b
+	jr	z,z1$
+	ld	a,c
+z1$:
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ret
+
+tateyure:
+	ld	b,5
+tate_sub:
+	ld	a,B_WINDOW_SHAKE_Y
+	jp	bank2bank
+
+yokoyure:
+	ld	b,8
+yoko_sub:
+	ld	a,B_WINDOW_SHAKE_X
+	jp	bank2bank
+
+
+rain:
+	xor	a
+	ld	(el_c),a
+	call	set_ef_cram
+	ld	d,020h
+	ld	a,0f0h
+	ld	(effect_x),a
+	ld	a,071h
+	ld	(el_c),a
+loop$:
+	ld 	a,010h
+	ld	(effect_y),a
+	ld	a,000h
+	ld	(ef_count1),a
+	call	set_rain
+
+	ld 	a,018h
+	ld	(effect_y),a
+	ld	a,020h
+	ld	(ef_count1),a
+	call	set_rain
+
+	dec	d
+	jr	nz,loop$
+	ret
+
+set_rain:
+	ld 	hl,oam_buf
+loop$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,1
+	ld	(temp_attr),a
+  endif
+	ld 	a,(effect_y)
+	ld	(hli),a
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	40
+	jr	c,set_rain_0$
+	ld	a,(temp_attr)
+	inc	a
+	ld	(temp_attr),a
+set_rain_0$:
+  endif
+	ld	a,(effect_x)
+	add	a,01bh
+	ld	(effect_x),a
+	ld	(hli),a
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	88
+	jr	c,set_rain_1$
+	ld	a,(temp_attr)
+	add	a,2
+	and	03h
+	ld	(temp_attr),a
+set_rain_1$:
+  endif
+	ld	a,(el_c)
+	ld	(hli),a
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,(temp_attr)
+  else
+	xor	a
+  endif
+	ld	(hli),a
+
+	ld	a,(effect_x)
+	cp	090h 
+	jr	c,loop$
+
+	sub	0a8h
+	ld	(effect_x),a
+	ld	a,(effect_y)
+	add	a,010h
+	ld	(effect_y),a
+	cp	070h
+	jr	c,loop$
+
+	call	ef_clear
+	jp	wait_vb
+
+;---------------------------------------------------------------
+mons_up:
+	ld	c,7
+	ld	a,(attack_turn)
+	and	a
+	ld	hl,20*6 + 1 + dmy_vram
+	ld	de,20*5 + 1 + dmy_vram
+	ld	a,030h
+	jr	z,next$
+	ld	hl,20*1 + 12 + dmy_vram
+	ld	de,20*0 + 12 + dmy_vram
+	ld	a,0ffh
+next$:
+	ld	(el_c),a
+	jp	up
+
+;--------------------------------------------------------------
+mons_down:
+	xor	a
+	call	zoom_set
+loop$:
+	call	auto_address_set
+	push	bc
+	push	de
+
+        call    ef_zoom_ready
+	call	put_wait
+
+	call	chr_kieru_auto
+
+	pop	de
+	pop	bc
+	dec	b
+	jr	nz,loop$
+	ret
+;-----------------------------------------------------------
+	public	leave1
+leave1:
+	ld	e,8
+	ld	a,3
+	ld	(ef_count2),a
+	jp	leave
+
+	public	rev_leave
+rev_leave:
+	ld	hl,leave1
+	jp	reverse_call
+
+;--------------------------------------------------------------
+up:
+loop$:
+	push	de
+	push	hl
+	push	bc
+	ld	b,6
+loop2$:
+	push	bc
+	push	de
+	push	hl
+
+	ld	bc,7
+	call	block_move
+
+	pop	de
+	pop	hl
+
+	ld	bc,40
+	add	hl,bc
+	
+	pop	bc
+	dec	b
+	jr	nz,loop2$
+
+	ld	a,(attack_turn)
+	and	a
+	S_POS	1,11
+	jr	z,next$
+	S_POS	12,6
+next$:
+	ld	a,(el_c)
+	inc	a
+	ld	(el_c),a
+
+	ld	c,7
+loop3$:
+	ld	(hli),a
+	add	a,7
+	dec	c
+	jr	nz,loop3$
+
+	ld	c,2
+	call	wait_vb_s
+
+	pop	bc
+	pop	hl
+	pop	de
+	dec	c
+	jr	nz,loop$
+
+	ret	
+
+;---------------------------------------------------------------
+obj_headset:
+	ld	a,010h
+	ld	(effect_x),a
+	ld	a,030h
+	ld	(effect_y),a
+obj_headset2:
+	ld	hl,oam_buf
+	ld	d,0
+	ld	c,7
+loop1$:
+	ld	a,(effect_y)
+	ld	e,a
+	ld	b,5
+loop$:
+	call	to_oam
+
+	inc	d
+	dec	b
+	jr	nz,loop$
+	dec 	c
+	ret	z
+
+	inc	d
+	inc	d
+	ld	a,(effect_x)
+	add	a,008h
+	ld	(effect_x),a
+
+	jr	loop1$
+
+;-----------------------------------------------------------------
+to_oam:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,1
+	ld	(temp_attr),a
+  endif
+	ld	a,e
+	add	a,008h
+	ld	e,a
+	ld	(hli),a			; y座標セット
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	40
+	jr	c,to_oam_0$
+	ld	a,(temp_attr)
+	inc	a
+	ld	(temp_attr),a
+to_oam_0$:
+  endif
+	ld	a,(effect_x)
+	ld	(hli),a			; x座標セット
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	88
+	jr	c,to_oam_1$
+	ld	a,(temp_attr)
+	add	a,2
+	ld	(temp_attr),a
+to_oam_1$:
+  endif
+	ld	a,d
+	ld	(hli),a			; キャラコード・セット
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,(temp_attr)
+  else
+	xor	a
+  endif
+	ld	(hli),a			; アトリビュート・セット
+	ret
+;-----------------------------------------------------------------
+obj_move_x:
+	ld	l,e
+	ld	h,d
+obj_move_x1:
+	ld	de,004h
+loop$:
+	ld	a,(ef_count1)
+	ld	b,a
+	ld	a,(hl)
+	add	a,b
+	cp	0a8h
+	jr	c,z1$
+	dec	hl
+	ld	a,0a0h
+	ld	(hli),a
+z1$:
+	ld	(hl),a
+	add	hl,de
+	dec 	c
+	jr	nz,loop$
+	ret
+;----------------------------------------------------------------
+obj_move_y:
+	ld	l,e
+	ld	h,d
+obj_move_y1:
+	ld	de,004h
+loop$:
+	ld	a,(ef_count1)
+	ld	b,a
+	ld	a,(hl)
+	add	a,b
+	cp	070h
+	jr	c,z1$
+	dec	hl
+	ld	a,0a0h
+	ld	(hli),a
+z1$:
+	ld	(hl),a
+	add	hl,de
+	dec 	c
+	jr	nz,loop$
+	ret
+;----------------------------------------------------------------	
+  ifn 0
+set_blank:
+	ld	de,spc$
+	jp	put_msg
+
+spc$:
+	db	spc@,spc@,spc@,spc@,spc@,spc@,spc@
+	db	EOM
+;----------------------------------------------------------------	
+bg_headclr:
+	ld	hl,dmy_vram+065h
+	ld	b,5
+loop$:
+	push	bc
+	push	hl
+
+	call	set_blank
+
+	pop	hl
+	ld	de,20
+	add	hl,de
+
+	pop	bc
+	dec	b
+	jr	nz,loop$
+	ret	
+  endif
+;----------------------------------------------------------------;
+rev_tenmetu:
+	ld	hl,tenmetu
+	jp	reverse_call
+	
+tenmetu:
+	push	af
+	ld	c,6
+loop$:	 
+	push	bc
+	call	chr_kieru_auto
+	ld	c,5
+	call	wait_vb_s
+	call	back2
+	ld	c,5
+	call	wait_vb_s
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	pop	af
+	ret
+;-----------------------------------------------------------------
+	public	back
+back:
+;	ld	a,(mymons_no)
+	ld	a,(mymons_data + 11)
+	ld	(yes_no_map + 1),a
+;	ld	a,(enemy_no)
+	ld	a,(enemy_data + 11)
+	ld	(yes_no_map),a
+
+	jp	hen_sub
+
+rev_back:
+	ld	hl,back
+	jp	reverse_call
+	
+	
+	public	back2
+back2:
+	xor	a
+	call	zoom_set
+	call	auto_address_set
+	call	ef_zoom_ready
+	jp	put_wait
+
+
+rev_back2:
+	ld	hl,back2
+	jp	reverse_call
+	
+	
+;----------------------------------------------------------------
+bunsin:
+	ld	a,(attack_turn)
+	and	a
+	ld	hl,20*5 + dmy_vram
+	ld	de,20*5 + 2 + dmy_vram
+	jr	z,z1$
+	ld	hl,20*0 + 11 + dmy_vram
+	ld	de,20*0 + 13 + dmy_vram
+z1$:
+	xor	a
+	ld	c,16
+loop$:
+	push	af
+	push	bc
+	push	de
+	push	hl
+
+	push	hl
+	push	de
+	push	af
+	push	hl
+	push	hl
+	call	zoom_set
+	pop	hl
+	call	ef_zoom_ready
+	call	put_wait
+	pop	hl
+	ld	bc,0709h
+	call	block_cls
+	pop	af
+	call	zoom_set
+	pop	hl
+	call	ef_zoom_ready
+	call	put_wait
+	pop	hl
+	ld	bc,0709h
+	call	block_cls
+
+	pop	hl
+	pop	de
+	pop	bc
+	pop	af
+	dec	c
+	jr	nz,loop$
+	ret
+
+;----------------------------------------------------------------
+taiatari:
+	call	chr_kieru_auto
+	ld	a,(attack_turn)
+	and	a
+	S_POS	2,5
+	jr	z,next$
+	S_POS	11,0
+next$:
+	xor	a
+	push	hl
+	call	zoom_set
+	pop	hl
+	call	ef_zoom_ready
+	ld	c,3
+	jp	wait_vb_s
+	
+;---------------------------------------------------------------
+after_taiatari:
+	ld	a,(attack_turn)
+	and	a
+	ld	a,20*5 + 2
+	jr	z,next$
+	ld	a,20*0 + 11
+next$:
+	call	chr_kieru
+	jp	back2
+
+;---------------------------------------------------------------
+uzumaki:
+	ld	a,(attack_turn)
+	and	a
+	jr	z,my_effect
+
+teki_effect:
+	ld	a,0d8h		;-028h
+	ld	(ef_count1),a
+	ld	a,050h
+	ld	(ef_count2),a
+	jr	my_ef_sub
+my_effect:
+	xor	a
+	ld	(ef_count1),a
+	ld	(ef_count2),a
+my_ef_sub:
+	ld	d,07ah
+	ld	c,3
+	xor	a
+	call	ef_chr_set
+
+	ld	hl,kaiten_tbl$
+loop2$:
+	push	hl
+	ld	c,3
+	ld	de,oam_buf
+loop1$:
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,exit$
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,2
+	ld	(temp_attr),a
+  endif
+	ld	a,(ef_count1)		;jiki or teki
+	add	a,(hl)
+	ld	(de),a				; y座標セット
+	inc	de
+	inc	hl
+	ld	a,(ef_count2)		;jiki or teki
+	add	a,(hl)
+	ld	(de),a				; x座標セット
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	88
+	jr	c,loop1_0$
+	ld	a,3
+	ld	(temp_attr),a
+loop1_0$:
+  endif
+	
+	inc	hl
+	inc	de					; キャラコード・オフセット
+	inc	de					; アトリビュート・オフセット
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,(de)
+	and	0f0h
+	ld	b,a
+	ld	a,(temp_attr)
+	or	b
+	ld	(de),a
+  endif
+	inc	de					; 次ぎのオブジェ
+	dec	c
+	jr	nz,loop1$
+
+	ld	c,5
+	call	wait_vb_s
+	pop	hl
+	inc	hl
+	inc	hl
+	jr	loop2$	
+exit$:
+	pop	hl
+	call	ef_clear
+	jp	flash
+
+kaiten_tbl$:
+	db	038h,028h,040h,018h,050h,010h,060h,018h
+	db	068h,028h,060h,038h,050h,040h,040h,038h
+	db	040h,028h,046h,01eh,050h,018h,05bh,01eh
+	db	060h,028h,05bh,032h,050h,038h,046h,032h
+	db	048h,028h,050h,020h,058h,028h,050h,030h
+	db	050h,028h,0ffh
+;---------------------------------------------------------------
+teleport:
+	ld	c,4
+loop$:
+	push	bc
+	ld	a,(attack_turn)
+	and	a
+	jr	z,jiki$
+	ld	hl,0*20 + 12 + 4 + dmy_vram
+	ld	de,0*20 + 12 + 2 + dmy_vram
+	jr	top$
+jiki$:
+	ld	hl,5*20 + 5 + dmy_vram
+	ld	de,5*20 + 3 + dmy_vram
+top$:	
+	push	de
+	xor	a
+	ld	(el_c),a
+
+	call	tele_sub
+	
+	pop	hl
+	ld	a,1
+	ld	(el_c),a
+
+	call	tele_sub
+
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	call	chr_kieru_auto
+	ld	c,2
+	jp	wait_vb
+
+tele_sub:
+	ld	c,7
+loop1$:
+	push	bc
+	push	hl
+	ld	c,3
+loop$:
+	ld	a,(el_c)
+	cp	0
+	jr	nz,z1$
+
+	call	left_move
+	dec	hl
+	jr	z2$
+z1$:
+	call	right_move
+	inc	hl
+z2$:	
+	ld	(hl),7fh
+	pop	hl
+	ld	de,20
+	add	hl,de
+
+	pop	bc
+	dec	c
+	jr	nz,loop1$
+	jp	put_wait
+
+;---------------------------------------------------------------
+teleport_b:
+	ld	a,(attack_turn)
+	and	a
+	jr	z,jiki$
+	ld	bc,0080h
+	jr	top$
+jiki$:
+	ld	bc,3028h
+top$:
+	ld	a,b
+	ld	(effect_y),a
+	ld	a,c
+	ld	(effect_x),a
+	ld	bc,0501h
+	call	line_up
+	jp	ef_clear
+
+;---------------------------------------------------------------
+line_up:
+	push	bc
+	xor	a
+	ld	(el_c),a
+	call	set_ef_cram
+	pop	bc
+
+	ld	d,07ah
+	ld	hl,oam_buf
+	push	bc
+	ld	a,(effect_y)
+	ld	e,a
+loop$:
+	call	to_oam
+	dec	b
+	jr	nz,loop$
+
+	call	wait_vb
+
+	pop	bc
+	ld	a,b
+	ld	(ef_count1),a
+loop2$:
+	push	bc
+	ld	hl,oam_buf
+loop1$:
+	ld	a,(effect_y)
+	add	a,8
+	ld	e,a
+	ld	a,(hl)
+	cp	e
+	jr	z,z1$
+	add	a,0fch
+	ld	(hl),a
+	jr	z2$
+z1$:
+	ld	(hl),0
+	ld	a,(ef_count1)
+	dec	a
+	ld	(ef_count1),a
+z2$:
+	ld	de,004h
+	add	hl,de
+	dec	b
+	jr	nz,loop1$
+
+	call	wait_vb_s
+	pop	bc
+	ld	a,(ef_count1)
+	and	a
+	jr	nz,loop2$
+	ret
+	
+;---------------------------------------------------------------
+kiai:
+	ld	a,(attack_turn)
+	and	a
+	ld	hl,kiai_tbl$
+	ld	a,50h
+	jr	z,z1$
+	ld	hl,kiai_teki_tbl$
+	ld	a,28h
+z1$:
+	ld	(usr_buf),a
+loop$:
+	ld	a,(usr_buf)
+	ld	(effect_y),a
+	ld	a,(hli)
+	cp	0ffh
+	jp	z,ef_clear
+
+	ld	(effect_x),a
+	ld	bc,0401h
+	push	hl
+	call	line_up
+	pop	hl
+	jr	loop$
+
+kiai_tbl$:
+	db	010h,040h,028h,018h,038h,030h,0ffh	
+kiai_teki_tbl$:
+	db	060h,090h,078h,068h,088h,080h,0ffh	
+;---------------------------------------------------------------
+	public	tiisaku
+tiisaku:
+	ld	hl,ram_map
+	push	hl
+	xor	a
+	ld	bc,49*10h
+	call	memset
+	pop	hl
+	ld	de,190h + 4
+	add	hl,de
+  ifn 0
+	ld	e,l
+	ld	d,h
+	ld	hl,tiisai_tbl
+	ld	bc,10
+	call	block_move
+  else
+	ld	de,tiisai_tbl
+	ld	c,5
+loop$:
+	ld	a,(de)
+	ld	(hli),a
+	ld	(hli),a
+	inc	de
+	dec	c
+	jr	nz,loop$
+  endif
+	call	ram_to_bg
+	call	put_wait
+	jp	back2
+
+tiisai_tbl:
+	db	18h,3ch,7eh,3ch,24h
+;	db	18h,18h,3ch,3ch,7eh,7eh,3ch,3ch,24h,24h
+
+	
+;--------------------------------------------------------
+tokeru:
+	ld	a,1
+	ld	c,2
+loop$:
+	push	bc
+	push	af
+	call	chr_kieru_auto
+	pop	af
+	push	af
+	call	zoom_set 
+	call	auto_address_set 
+        call    ef_zoom_ready
+
+	ld	c,8
+	call	wait_vb_s
+
+	pop	af
+	inc	a
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	call	chr_kieru_auto
+	ld	hl,ram_map
+	ld	bc,49*16
+	xor	a
+	call	memset
+	jp	ram_to_bg
+	
+;-----------------------------------------------------------
+leave:
+	ld	a,(attack_turn)
+	and	a
+	jr	z,jiki$
+	ld	hl,0*5 + 12 + dmy_vram
+	jr	top$
+jiki$:
+	ld	hl,20*5 + dmy_vram
+top$:
+	ld	d,8
+loop2$:
+	push	hl
+	ld	b,7
+loop1$:
+	ld	c,8
+loop$:
+	ld	a,(attack_turn)
+	and	a
+	jr	z,left$
+	call	r_leave$
+	jr	next$
+left$:
+	call	l_leave$
+next$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+
+	push	de
+	ld	de,12
+	add	hl,de
+	pop	de
+
+	dec	b
+	jr	nz,loop1$
+
+	ld	a,(ef_count2)
+	ld	c,a
+	call	wait_vb_s
+
+ 	pop	hl
+	dec	d
+	dec	e
+	jr	nz,loop2$
+
+	ret
+
+l_leave$:
+	ld	a,(hl)
+	add	a,7
+	cp	98
+	ret	c
+	ld	a,spc@
+	ret
+
+r_leave$:
+	ld	a,(hl)
+	sub	7
+	cp	48
+	ret	c
+	ld	a,spc@
+	ret
+
+;-----------------------------------------------------------
+leave3:
+	ld	e,4
+	ld	a,4
+	ld	(ef_count2),a
+	call	leave
+
+	jp	put_wait
+
+;-----------------------------------------------------------
+  ifn 0
+bg_to_ram:
+	ld	a,(attack_turn)
+	and	a
+	ld	de,9310h
+	jr	z,z1$
+	ld	de,9000h
+z1$:
+	ld	hl,ram_map
+	ld	bc,49				; bank number + counter
+	jp	chrmove				; vram set
+  endif
+
+;-----------------------------------------------------------
+ram_to_bg:
+	ld	a,(attack_turn)
+	and	a
+	ld	hl,9310h
+	jr	z,z1$
+	ld	hl,9000h
+z1$:
+	ld	de,ram_map
+	ld	bc,49				; bank number + counter
+	jp	chrmove				; vram set
+
+;-----------------------------------------------------------
+saico_wave:
+	ld	hl,9800h
+	call	bgreq_change
+	call	put_wait
+
+	xor	a
+	ld	(all_put_req),a
+	
+	ld	a,90h
+	ld	(window_y),a
+
+	ld	d,80h
+	ld	e,143
+	ld	c,0ffh
+	ld	hl,tbl$
+loop1$:
+	push	hl
+loop$:
+	call	scr$
+
+	ld	a,(LY)
+	cp	e
+	jr	nz,loop$
+
+	pop	hl
+	inc	hl
+	ld	a,(hl)
+	cp	d
+	jr	nz,next$
+	ld	hl,tbl$
+next$:
+	dec	c
+	jr	nz,loop1$
+
+	xor	a
+	ld	(window_y),a
+	call	push_vram_m
+	call	dvram_cls
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	call	pop_vram_m
+	ld	hl,9c00h
+	call	bgreq_change
+	ret
+
+
+scr$:
+	ld	a,(STAT)
+	and	3
+	jr	nz,scr$
+
+	ld	a,(hl)
+	ld	(SCX),a
+
+	inc	hl
+	ld	a,(hl)
+	cp	d
+	ret	nz
+
+	ld	hl,tbl$
+	ret
+	
+	
+tbl$:
+	db	0,0,0,0,0,1,1,1,2,2,2,2,2,1,1,1
+	db	0,0,0,0,0,-1,-1,-1,-2,-2,-2,-2,-2,-1,-1,-1
+	db	80h
+
+;-----------------------------------------------------------
+	public	migawari
+migawari:
+	ld	hl,ram_map
+	xor	a
+	ld	bc,49*10h
+	call	memset
+
+	ld	a,(attack_turn)
+	and	a
+	jr	z,z1$
+
+;	ld	hl,objct + 600h
+	ld	hl,OBJ_MONSTER + 000h
+	ld	de,ram_map + 120h
+	call	setting$
+
+;	ld	hl,objct + 610h
+	ld	hl,OBJ_MONSTER + 010h
+	ld	de,ram_map + 190h
+	call	setting$
+
+;	ld	hl,objct + 620h
+	ld	hl,OBJ_MONSTER + 020h
+	ld	de,ram_map + 130h
+	call	setting$
+
+;	ld	hl,objct + 630h
+	ld	hl,OBJ_MONSTER + 030h
+	ld	de,ram_map + 1a0h
+	call	setting$
+	jr	exit$
+
+z1$:
+;	ld	hl,objct + 640h
+	ld	hl,OBJ_MONSTER + 040h
+	ld	de,ram_map + 190h
+	call	setting$
+
+;	ld	hl,objct + 650h
+	ld	hl,OBJ_MONSTER + 050h
+	ld	de,ram_map + 200h
+	call	setting$
+
+;	ld	hl,objct + 660h
+	ld	hl,OBJ_MONSTER + 060h
+	ld	de,ram_map + 1a0h
+	call	setting$
+
+;	ld	hl,objct + 670h
+	ld	hl,OBJ_MONSTER + 070h
+	ld	de,ram_map + 210h
+	call	setting$
+exit$:
+	call	ram_to_bg
+	jp	back2
+
+
+setting$:
+	ld	bc,1*16
+;	ld	a,OBJ_CHARA_BANK1
+	ld	a,< CBANK_MONSTER
+	jp	chrset
+
+
+migawari1:			;migawari -> mymons
+	ld	a,(attack_turn)
+	and	a
+	ld	hl,ctrl_move_val + MY_SMALL
+	ld	de,mymons_cond3
+	ld	bc,m_kougeki
+	ld	a,(mymons_cond4)
+	jr	z,z1$
+	ld	hl,ctrl_move_val + ENEMY_SMALL
+	ld	de,enemy_cond3
+	ld	bc,e_kougeki
+	ld	a,(enemy_cond4)
+z1$:
+	push	hl
+	push	de
+	push	bc
+	bit	4,a
+	jr	nz,z2$
+
+	call	mons_down
+	jr	z3$
+z2$:
+	call	leave1
+z3$:
+	pop	bc
+	pop	de
+	ld	a,(de)
+	bit	6,a			; kieteiru bit
+	pop	hl
+	jr	nz,z4$
+
+	ld	a,(bc)			; waza No
+	cp	19			; sorawotobu
+	jr	z,chrset_only$
+	cp	91			; anawohoru
+	jr	z,chrset_only$
+
+z4$:
+	ld	a,(hl)
+	and	a
+	jp	nz,tiisaku
+	call	back
+	jp	back2
+
+chrset_only$:
+	ld	a,(attack_turn)
+	and	a
+	jr	nz,enemy$
+
+	ld	a,(ctrl_move_val + MY_SMALL)
+	and	a
+	jr	nz,small$
+	
+	ld	a,(mymons_data + 11)
+	ld	(sel_item_no),a
+	ld	(tbl_pos),a
+	call	get_monsadr
+
+	ld	a,B_PUT_MYMONS_IMAGE
+	call	bank2bank
+	ret
+
+enemy$:
+	ld	a,(ctrl_move_val + ENEMY_SMALL)
+	and	a
+	jr	nz,small$
+	
+	ld	a,(enemy_data + 11)
+	ld	(sel_item_no),a
+	ld	(tbl_pos),a
+	call	get_monsadr
+
+	ld	de,9000h
+	extern	put_monschr
+	jp	put_monschr
+
+
+small$:
+	ld	hl,ram_map
+	push	hl
+	xor	a
+	ld	bc,49*10h
+	call	memset
+	pop	hl
+	ld	de,190h + 4
+	add	hl,de
+	ld	de,tiisai_tbl
+	ld	c,5
+loop$:
+	ld	a,(de)
+	ld	(hli),a
+	ld	(hli),a
+	inc	de
+	dec	c
+	jr	nz,loop$
+
+	jp	ram_to_bg
+
+
+
+migawari2:			;my_mons -> migawari
+	call	leave1
+	call	migawari
+	jp	back2
+
+;-----------------------------------------------------------
+haneru:
+	ld	c,5
+loop$:
+	push	bc
+	call	mons_down
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	jp	back2
+
+;-----------------------------------------------------------
+	public	hensin
+hensin:
+;	ld	a,(enemy_no)
+	ld	a,(enemy_data + 11)
+	ld	(yes_no_map + 1),a
+;	ld	a,(mymons_no)
+	ld	a,(mymons_data + 11)
+	ld	(yes_no_map),a
+
+hen_sub:
+	ld	a,(attack_turn)
+	and	a
+	jr	z,z1$
+
+	ld	a,(yes_no_map)
+	ld	(sel_item_no),a
+	ld	(tbl_pos),a
+	xor	a
+	ld	(reverse_fg),a
+
+	call	get_monsadr
+	S_POS	12,0
+	call	prt_mons_chr2
+	jr	exit$
+
+z1$:
+	ld	a,(mymons_no)
+	push	af
+
+	ld	a,(yes_no_map + 1)
+	ld	(mymons_no),a
+	ld	(tbl_pos),a
+
+	call	get_monsadr
+	ld	a,B_PUT_MYMONS_IMAGE
+	call	bank2bank
+	xor	a
+	call	zoom_set
+	call	auto_address_set
+	call	ef_zoom_ready
+
+	pop	af
+	ld	(mymons_no),a
+exit$:
+	ld	b,COL_FIGHT2
+	jp	color_set
+
+;-----------------------------------------------------------
+rev_vani:
+	xor	a
+	ld	(all_put_req),a
+	ld	hl,chr_kieru_auto
+	call	reverse_call
+	ld	a,1
+	ld	(all_put_req),a
+	jp	put_wait
+	
+
+
+;=======================================================;
+;=======================================================;
+	public	migawari_dead
+migawari_dead:
+	ld	hl,ctrl_move_val + MY_SMALL
+	ld	a,(attack_turn)
+	and	a
+	jr	z,jump$
+	ld	hl,ctrl_move_val + ENEMY_SMALL
+jump$:
+	ld	a,(hl)
+	and	a
+	jr	z,back$
+
+	call	tiisaku
+	ret
+
+back$:
+	call	back
+	call	back2
+
+	ret
+
+
+;=======================================================;
+;	effect_chr_set   to OAM                         ;
+;           in  Creg  ->   chr_count                    ;
+;               Dreg  ->   chr_no                       ;
+;=======================================================;
+ef_chr_set:
+	push	bc
+	push	de
+	ld	(el_c),a
+	call	set_ef_cram
+	pop	de
+	pop	bc
+	xor	a
+	ld	e,a
+	ld	(effect_x),a
+	ld	hl,oam_buf
+loop$:
+	call	to_oam
+	dec	c
+	jr	nz,loop$
+	ret
+
+;---------------------------------------------------------------
+PikatyuInFight:
+	ret
+ ifn 0
+	ld	hl,20*5 + dmy_vram
+top$:
+	ld	e,8
+	ld	d,8
+loop2$:
+	push	hl
+	ld	b,7
+loop1$:
+	ld	c,8
+loop$:
+	call	In$
+next$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+
+	push	de
+	ld	de,12
+	add	hl,de
+	pop	de
+
+	dec	b
+	jr	nz,loop1$
+
+	ld	c,3
+	call	wait_vb_s
+
+ 	pop	hl
+	dec	d
+	dec	e
+	jr	nz,loop2$
+	ret
+
+In$:
+	ld	a,(hl)
+	add	a,7
+	cp	97
+	ret	c
+	ld	a,spc@
+	ret
+ endif
+
+
+;---------------------------------------------------------------
+
+;================================================;
+;    chractor_clear    for BG                    ;
+;	auto : attack_turn  0 -> jiki            ;
+;	       	            1 -> teki            ;
+;       other: Areg -> chr_position              ;
+;================================================;
+chr_kieru_auto:
+	ld	a,(attack_turn)
+	and	a
+	jr	z,z1$
+	ld	a,0*20 + 12
+	jr	z2$
+z1$:
+	ld	a,5*20 + 1
+z2$:
+chr_kieru:
+	push	hl
+	push	de
+	push	bc
+
+	ld	e,a
+	ld	d,0
+	ld	hl,dmy_vram
+	add	hl,de
+
+	ld	bc,0707h
+	call	block_cls
+	
+	pop	bc
+	pop	de
+	pop	hl
+	ret
+;================================================;
+;    auto_address_set                            ;
+;        out -> hl = chr_position                 ;
+;================================================;
+auto_address_set: 
+	push	de
+	ld	a,(attack_turn)
+	and	a
+	jr	nz,z1$
+	ld	a,5*20 + 1
+	jr	z2$
+z1$:
+	ld	a,0*20 + 12
+z2$:
+	ld	hl,dmy_vram
+	ld	e,a
+	ld	d,0
+	add	hl,de
+
+	ld	a,7
+	sub	b
+	and	a
+	jr	z,exit$
+	ld	de,20
+loop$:
+	add	hl,de
+	dec	a
+	jr	nz,loop$
+exit$:
+	pop	de
+	ret
+
+;================================================;
+;    zoom_size&chr_kind_set                      ;
+;	 in  -> a  = zoom_no                     ;	
+;        out -> bc = chr_size  	                 ;
+;        	de = chr_kind                    ;
+;================================================;
+zoom_set:
+	ld	hl,zoom_table
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)
+set_size:
+	ld	b,a
+	and	00fh
+	ld	c,a
+	ld	a,b
+	swap	a
+	and	00fh
+	ld	b,a
+	ret
+;================================================;
+;    left                                        ;
+;    right     move   in Creg count              ;
+;                                                ;
+;================================================;
+left_move:
+loop$:
+	ld	a,(hld)
+	ld	(hli),a
+	inc	hl
+	dec	c
+	jr	nz,loop$
+	
+	ret
+
+right_move:
+loop$:
+	ld	a,(hli)
+	ld	(hld),a
+	dec	hl
+	dec	c
+	jr	nz,loop$
+	
+	ret
+;=======================================;
+;					;
+;	In A : Waza SE Number		;
+;					;
+;=======================================;
+play_demo_se:
+	ld	a,b
+	call	play_waza_se
+	ld	b,a
+	ret
+
+
+play_waza_se:
+	ld	hl,waza_se_tbl
+	ld	e,a
+	ld	d,0
+
+	add	hl,de
+	add	hl,de
+	add	hl,de
+
+	ld	a,(hli)		; Waza
+	ld	b,a
+
+	call	check_monster
+	jr	nc,next$
+
+	ld	a,(attack_turn)
+	and	a
+	jr	nz,z1000$
+	ld	a,(mymons_data + 11)
+	jr	z2000$
+z1000$:
+	ld	a,(enemy_data + 11)
+z2000$:
+	push	hl
+	call	gyaarth
+	ld	b,a
+	pop	hl
+
+	ld	a,(mons_voice_offset)	; Monster Voice Tone Changer
+	add	a,(hl)		; Tune
+	ld	(mons_voice_offset),a	; Monster Voice Tone Changer
+	inc	hl
+
+	ld	a,(mons_voice_tempo)	; Monster Voice Speed Changer
+	add	a,(hl)		; Tune
+	ld	(mons_voice_tempo),a	; Monster Voice Speed Changer
+	jr	recover$
+
+next$:
+	ld	a,(hli)		; Tune
+	ld	(mons_voice_offset),a	; Monster Voice Tone Changer
+	ld	a,(hli)		; Speed
+	ld	(mons_voice_tempo),a	; Monster Voice Speed Changer
+recover$:
+	ld	a,b
+
+	ret
+
+
+;=======================================;
+;					;
+;	In A : Waza SE Number		;
+;					;
+;=======================================;
+check_monster:
+	ld	a,(effect_no)
+	cp	45			; Naku
+	jr	z,cy_on$
+	cp	46			; Hoeru
+	jr	z,cy_on$
+	and	a			; carry reset
+	ret
+cy_on$:
+	scf				; carry set
+	ret
+
+	public	waza_se_tbl
+waza_se_tbl:
+	include	..\data\waza_se.dat
+
+;*********************************
+;* Function	zoomsub1         *
+;*********************************
+ef_zoom_ready:
+	ld	a,(attack_turn)
+	and	a
+	ld	a,49
+	jr	z,z1$
+	xor	a
+z1$:
+	ld	(work0),a
+	jr	zoomsub1
+
+
+zoomsub1_ready:
+	call	ready2ready
+
+	ld	a,(para_work)
+	and	a
+	jr	nz,oth$
+
+	ld	de,zoomt1
+	jr	oth_end$
+
+oth$:
+	ld	de,zoomt2
+
+oth_end$:
+
+
+zoomsub1:
+	xor	a
+	ld	(all_put_req),a
+zoomsub2:
+	push	hl
+
+zs2$:
+	push	bc
+	push	hl
+	ld	a,(work0)
+	ld	b,a
+
+zs1$:
+	ld	a,(de)
+	add	a,b
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz,zs1$
+
+	pop	hl
+	ld	bc,20
+	add	hl,bc
+	pop	bc
+	dec	b
+	jr	nz,zs2$
+
+	ld	a,1
+	ld	(all_put_req),a
+	pop	hl
+
+	ret
+
+
+zoom_table:
+	dw	full
+	db	077h
+	dw	tokeru1
+	db	057h
+	dw	tokeru2
+	db	037h
+	dw	demo1
+	db	077h
+	dw	demo2
+	db	077h
+	dw	demo3
+	db	077h
+	dw	game_boy
+	db	086h
+	dw	trade_mashine
+	db	03ch
+
+zoomt1:
+	db	49,56,70,84,91
+	db	50,57,71,85,92
+	db	52,59,73,87,94
+	db	54,61,75,89,96
+	db	55,62,76,90,97
+
+zoomt2:
+	db	49,70,91
+	db	52,73,94
+	db	55,76,97
+
+full:
+	db	00,07,14,21,28,35,42
+	db	01,08,15,22,29,36,43
+	db	02,09,16,23,30,37,44
+	db	03,10,17,24,31,38,45
+	db	04,11,18,25,32,39,46
+	db	05,12,19,26,33,40,47
+	db	06,13,20,27,34,41,48
+
+tokeru1:
+	db	00,07,14,21,28,35,42
+	db	01,08,15,22,29,36,43
+	db	03,10,17,24,31,38,45
+	db	04,11,18,25,32,39,46
+	db	05,12,19,26,33,40,47
+
+tokeru2:
+	db	00,07,14,21,28,35,42
+	db	02,09,16,23,30,37,44
+	db	04,11,18,25,32,39,46
+
+demo1:
+	db	00,00,00,00,00,00,00
+	db	00,00,00,00,00,25,00
+	db	02,06,11,16,20,26,00
+	db	00,07,12,17,21,27,00
+	db	03,08,13,18,22,28,00
+	db	04,09,14,19,23,29,31
+	db	05,10,15,01,24,30,32
+
+demo2:
+	db	00,00,00,48,00,55,00
+	db	00,00,43,49,52,56,61
+	db	33,38,44,01,53,57,62
+	db	34,39,45,50,54,01,00
+	db	35,40,46,51,01,58,00
+	db	36,41,47,01,01,59,00
+	db	37,42,01,01,01,60,00
+
+demo3:
+;	db	00,01,02,03,04,05
+;	db	06,07,08,09,10,11
+;	db	12,13,14,15,16,17
+;	db	18,19,20,21,22,23
+;	db	24,25,26,27,28,29
+
+	db	00,00,00,00,00,00,00
+	db	00,00,71,77,00,00,00
+	db	00,00,72,78,82,86,91
+	db	63,67,73,79,83,87,92
+	db	64,68,74,80,84,88,00
+	db	65,69,75,81,76,89,93
+	db	66,70,76,76,85,90,94
+
+game_boy:
+	db	49,50,50,50,50,51
+	db	52,53,54,54,55,56
+	db	52,57,58,58,59,56
+	db	60,61,62,62,63,64
+	db	65,66,67,67,68,69
+	db	70,71,67,72,73,74
+	db	65,67,75,76,77,78
+	db	79,80,80,80,81,82
+
+trade_mashine:
+	db	67,85,86,83,83,83,83,83,83,83,83,83
+	db	67,87,88,84,84,84,84,84,84,84,84,84
+	db	67,89,90,67,67,67,67,67,67,67,67,67
+
+;=======================================================;
+;	happa_cutter					;
+;=======================================================;
+happa_cutter:
+	ld	a,(anime_buf + 30)
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+	ld	d,031h + 6
+	ld	a,3
+	ld	(ef_count2),a
+	jp	happa_main
+
+hanabira:
+	ld	d,031h + 040h
+	ld	a,20
+	ld	(ef_count2),a
+	call	happa_main
+	jp	oam_clr
+
+happa_main:
+	ld	c,a
+	ld	a,1
+	call	ef_chr_set
+	call	happa_set
+	call	happa_houkouset
+
+	ld	hl,oam_buf
+	ld	(hl),0
+loop1$:
+	ld	hl,usr_buf
+	ld	de,0
+	ld	a,(ef_count2)
+	ld	c,a
+loop$:
+	push	bc
+	push	hl
+	push	de
+
+	ld	a,(hl)
+	ld	(ef_count1),a
+	call	happa_xycount
+	call	happa_oam_sub
+
+	pop	de
+	ld	hl,4
+	add	hl,de
+	ld	e,l
+	ld	d,h
+
+	pop	hl
+	ld	a,(ef_count1)
+	ld	(hli),a
+
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	
+	call	put_wait
+
+	ld	hl,oam_buf
+	ld	a,(hl)
+	cp	068h
+	jr	nz,loop1$
+	ret
+
+happa_oam_sub:
+	ld	hl,oam_buf
+	add	hl,de
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,1
+	ld	(temp_attr),a
+  endif
+
+	ld	a,(hl)
+	inc	a
+	inc	a
+	cp	070h
+	jr	c,z20$
+	ld	a,0a0h
+z20$:
+	ld	(hli),a			; y座標セット
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	40
+	jr	c,z20_0$
+	ld	a,(temp_attr)
+	inc	a
+	ld	(temp_attr),a
+z20_0$:
+  endif
+	
+	ld	a,(ef_count1)
+	ld	b,a
+	ld	de,happa_x_tbl$
+	and	07fh
+	add	a,e
+	jr	nc,z10$
+	inc	d
+z10$:
+	ld	e,a
+	ld	a,b
+	and	080h
+	jr	nz,z100$
+	ld	a,(de)
+	add	a,(hl)
+	ld	(hli),a			; x座標セット
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	88
+	jr	c,z10_0$
+	ld	a,(temp_attr)
+	add	a,2
+	and	03h
+	ld	(temp_attr),a
+z10_0$:
+  endif
+
+	inc	hl				; キャラコードをスキップ
+	xor	a
+	jr	z200$
+z100$:
+	ld	a,(de)
+	ld	b,a
+	ld	a,(hl)
+	sub	b
+	ld	(hli),a			; x座標セット
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	88
+	jr	c,z100_0$
+	ld	a,(temp_attr)
+	add	a,2
+	and	03h
+	ld	(temp_attr),a
+z100_0$:
+  endif
+	inc	hl				; キャラコードをスキップ
+	ld	a,020h
+z200$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	b,a
+	ld	a,(temp_attr)
+	or	b
+  endif
+	ld	(hl),a			; アトリビュートセット
+	ret
+
+happa_x_tbl$:
+	db	0,1,3,5,7,9,11,13,15
+
+
+;=======================================================;
+;	happa_xycount	  				;
+;			->  ef_X     count		;
+;			->  ef_Y     count		;
+;=======================================================;
+happa_xycount:
+	ld	a,(ef_count1)
+	inc	a
+	ld	b,a
+	and	07fh
+	cp	9
+	ld	a,b
+	jr	nz,z1$
+	and	080h
+	xor	080h
+z1$:
+	ld	(ef_count1),a
+	ret
+	
+
+happa_set:
+	ld	hl,oam_buf + 1 
+	ld	de,happa_table$
+	ld	a,(ef_count2)
+	ld	c,a
+loop$:
+	ld	a,(de)
+	ld	(hli),a		;x
+
+	inc	hl
+	inc	hl
+	inc	hl
+
+	inc	de
+	dec	c
+	jr	nz,loop$
+	ret
+
+happa_table$:
+	db	038h,040h,050h,060h,070h,088h,090h
+	db	056h,067h,04ah,077h,084h,098h,032h
+	db	022h,05ch,06ch,07dh,08eh,099h
+
+
+happa_houkouset:
+	ld	hl,usr_buf
+	ld	de,houkou_table$
+	ld	a,(ef_count2)
+	ld	c,a
+loop$:
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+
+	dec	c
+	jr	nz,loop$
+	ret
+
+houkou_table$:
+	db	000h,084h,006h,081h,002h,088h,001h
+	db	083h,005h,089h,009h,080h,007h,087h
+	db	003h,082h,004h,085h,008h,086h
+
+
+;=======================================================;
+;	effect_shake_special 				;
+;=======================================================;
+	public	ef_shake_sp
+ef_shake_sp:
+	ld	de,9310h
+	ld	hl,8000h
+	ld	bc,49
+	call	chrmove
+
+	xor	a
+	ld	(headerx),a
+	ld	hl,9800h
+	call	bgreq_change
+	ld	a,144
+	ld	(window_y),a
+	ld	hl,9b20h
+	call	bgreq_change
+	
+  ifn	pm_cgb		;ウィンドウ表示のためのアトリビュートを一時的に書き込む。（ＣＧＢの場合のみ）
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,ef_s_sp_0
+	ld	c,13
+	ld	b,G_BANK2f
+	ld	hl,change_cgbattr_0
+	call	bank_push_call
+ef_s_sp_0:
+  endif
+	
+	ld	a,38h
+	ld	(window_y),a
+	call	obj_headset
+	ld	hl,9800h
+	call	bgreq_change
+	call	chr_kieru_auto
+	call	put_wait
+;	call	wait_vb
+
+	ld	de,0208h
+	call	ef_shake_x
+	call	back2
+	call	oam_clr
+	ld	a,144
+	ld	(window_y),a
+	ld	hl,9c00h
+	call	bgreq_change
+	
+  ifn	pm_cgb		;書き換えたアトリビュートを元に戻す。（ＣＧＢの場合のみ）
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,ef_s_sp_1
+	ld	c,11
+	ld	b,G_BANK2f
+	ld	hl,change_cgbattr_0
+	call	bank_push_call
+ef_s_sp_1:
+  endif
+	
+	xor	a
+	ld	(window_y),a
+	call	push_vram
+	ld	hl,9800h
+	call	bgreq_change
+	call	pop_vram
+	ld	hl,9c00h
+	jp	bgreq_change
+
+
+demo_zoom:
+	call	ready2ready
+	ld	a,c
+	ld	(work0),a
+	ld	a,b
+	push	hl
+	call	zoom_set
+	pop	hl
+	jp	zoomsub2
+
+ef_shake_x:
+	ld	a,(headerx)
+	ld	(usr_buf),a
+loop$:
+	ld	a,(usr_buf)
+	add	a,d
+	ld	(headerx),a
+	ld	c,2
+	call	wait_vb_s
+	ld	a,(usr_buf)
+	sub	d
+	ld	(headerx),a
+	ld	c,2
+	call	wait_vb_s
+	dec	e
+	jr	nz,loop$
+	ld	a,(usr_buf)
+	ld	(headerx),a
+	ret
+	
+bgreq_change:
+	ld	a,h
+	ld	(all_putadr_h),a
+	ld	a,l
+	ld	(all_putadr_l),a
+	jp	put_wait
+
+;==============================================================;
+;  capsule_effect                                              ;
+;							       ;
+;==============================================================;
+cap_effect:
+	ld	a,(fighting_flg)
+	cp	2
+	jr	z,dealer$
+	ld	a,(in_dat)
+	ld	b,a
+	and	0f0h
+	swap	a
+	ld	c,a
+	ld	a,b
+	and	0fh
+	ld	(usr_buf),a
+
+	ld	hl,cap_tbl$
+	ld	a,(sel_item_no)
+	cp	4
+	ld	b,193
+	jr	z,next$
+	cp	3
+	ld	b,197
+	jr	z,next$
+	ld	b,198
+next$:
+	ld	a,b
+loop$:
+	ld	(effect_no),a
+	push	bc
+	push	hl
+	call	effect_ready
+	pop	hl
+	ld	a,(hli)
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	ret
+
+cap_tbl$:
+	db	195		;smoke
+	db	200		;mons_vanish
+	db	194		;gugaguga
+	db	195		;smoke
+	db	166		;back
+	
+dealer$:
+	ld	a,193
+	ld	(effect_no),a
+	call	effect_ready
+
+	ld	a,musbashi2
+	call	SEplay
+
+	ld	a,196
+	ld	(effect_no),a
+	jp	effect_ready
+
+
+;==============================================================;
+;  zokusei_se                                                  ;
+;							       ;
+;==============================================================;
+zokusei_se:
+	call	se_wait
+	ld	a,(zokusei_flg)
+	and	07fh
+	ret	z
+
+	cp	10
+	ld	a,020h			; Tone
+	ld	b,030h			; Speed
+	ld	c,muskama
+	jr	z,play$
+
+	ld	a,0e0h			; Tone
+	ld	b,0ffh			; Speed
+	ld	c,mustaiatari
+	jr	nc,play$
+
+	ld	a,050h			; Tone
+	ld	b,001h			; Speed
+	ld	c,muskiru
+play$:
+	ld	(mons_voice_offset),a	; Monster Voice Tone Changer
+	ld	a,b
+	ld	(mons_voice_tempo),a	; Monster Voice Speed Changer
+	ld	a,c
+	jp	SEplay
+
+
+;==============================================================;
+;  iai_effect 	                                               ;
+;							       ;
+;==============================================================;
+	public	iai_effect
+iai_effect:
+	ld	a,(usr_buf + 16)
+	cp	52h
+	jr	z,kusa$
+
+	ld	c,8
+loop$:
+	push	bc
+	ld	hl,36*4 + 1 + oam_buf
+	ld 	a,1
+	ld	(ef_count1),a
+	ld	c,2
+	call	obj_move_x1
+
+	ld	hl,38*4 + 1 + oam_buf
+	ld 	a,-1
+	ld	(ef_count1),a
+	ld	c,2
+	call	obj_move_x1
+
+	ld	a,(OBP1)
+	xor	64h
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+
+	call	wait_vb
+
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	ret
+
+kusa$:
+	ld	c,2
+loop1$:
+	push	bc
+	ld	c,8
+	call	f_ef_yoko
+	call	site_change
+
+	ld	c,8
+	call	f_ef_yoko
+	call	site_change
+
+	ld	hl,36*4 + oam_buf
+	ld 	a,2
+	ld	(ef_count1),a
+	ld	c,4
+	call	obj_move_y1
+	pop	bc
+	dec	c
+	jr	nz,loop1$
+	ret
+
+
+f_ef_yoko:
+	push	bc
+	ld	hl,36*4 + 1 + oam_buf
+	ld 	a,1
+	ld	(ef_count1),a
+	ld	c,1
+	call	obj_move_x1
+
+	ld	hl,37*4 + 1 + oam_buf
+	ld 	a,2
+	ld	(ef_count1),a
+	ld	c,1
+	call	obj_move_x1
+
+	ld	hl,38*4 + 1 + oam_buf
+	ld 	a,-2
+	ld	(ef_count1),a
+	ld	c,1
+	call	obj_move_x1
+
+	ld	hl,39*4 + 1 + oam_buf
+	ld 	a,-1
+	ld	(ef_count1),a
+	ld	c,1
+	call	obj_move_x1
+
+	ld	a,(OBP1)
+	xor	64h
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+
+	call	wait_vb
+
+	pop	bc
+	dec	c
+	jr	nz,f_ef_yoko
+	ret
+	
+site_change:
+	ld	hl,36*4 + oam_buf
+	ld	de,yes_no_map
+	ld	bc,8
+	call	block_move
+
+	ld	hl,38*4 + oam_buf
+	ld	de,36*4 + oam_buf
+	ld	bc,8
+	call	block_move
+
+	ld	hl,yes_no_map
+	ld	de,38*4 + oam_buf
+	ld	bc,8
+	jp	block_move
+
+
+;==============================================================;
+;  kairiki_effect                                              ;
+;	         					       ;
+;==============================================================;
+	public	kairiki_effect
+kairiki_effect:
+	ld	a,1
+	ld	(usr_buf + 19),a
+	ld	a,(oam_flg)
+	push	af
+	ld	a,0ffh
+	ld	(oam_flg),a
+	
+	ld	a,0e4h
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+	call	kemuri_set
+
+	ld	b,3
+	ld	hl,efchr_buf_set
+	call	bank_push_call
+
+	ld	c,8
+loop1$:
+	push	bc
+	call	move_chk$
+	ld	bc,next$
+	push	bc
+	ld	c,4
+	jp	(hl)
+next$:	
+	ld	a,(OBP1)
+	xor	64h
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+
+	call	put_wait
+
+	pop	bc
+	dec	c
+	jr	nz,loop1$
+	pop	af
+	ld	(oam_flg),a
+	jp	set_jiki
+
+
+move_chk$:
+	ld	a,(actor_table + 9)
+	ld	hl,m_chk_tbl$
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	(ef_count1),a
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	push	hl
+	ld	hl,36*4 + oam_buf
+	ld	d,0
+	add	hl,de
+	ld	e,l
+	ld	d,h
+	pop	hl
+	ret
+	
+
+m_chk_tbl$:
+	db	-1,0
+	dw	obj_move_y
+	db	1,0
+	dw	obj_move_y
+	db	1,1
+	dw	obj_move_x
+	db	-1,1
+	dw	obj_move_x
+	
+
+	public	kemuri_set
+kemuri_set:
+	ld	hl,8fc0h			; vram address
+	ld	c,4
+loop$:
+	push	bc
+	push	hl
+	call	kemuri_sub$
+	pop	hl
+	ld	bc,10h
+	add	hl,bc
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	ret
+
+
+kemuri_sub$:
+	ld	de,kemuri$
+	ld	bc,1eh *100h + 1		; bank number + counter
+	jp	chrmove				; vram set
+
+kemuri$:
+	db	000h,018h,01ah,066h,004h,042h,00bh,081h
+	db	056h,089h,01ah,02eh,04ch,012h,038h,038h
+
+
+turichrdata:
+	include		..\effdata\turi.dat
+
+bank1c	group	28
+;==============================================================;
+;  hotel_effect                                                ;
+;							       ;
+;==============================================================;
+	public	hotel_effect
+hotel_effect:
+	ld	de,minicap$
+	ld	hl,87c0h			; vram address
+	ld	bc,1ch*100h + 3			; bank number + counter
+	call	chrmove				; vram set
+
+	ld	hl,oam_flg
+	ld	a,(hl)
+	push	af
+	ld	(hl),0ffh
+	push	hl
+
+	ld	a,(OBP1)
+	push	af
+	ld	a,0e0h
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+
+	ld	hl,33*4 + oam_buf
+	ld	de,minicap_tbl$
+	call	set_obj
+
+	ld	a,04h				; Fadeout Speed
+	ld	(fade_play_fg),a
+	call	MusicStop
+loop4$:
+	ld	a,(fade_play_fg)
+	and	a
+	jr	nz,loop4$
+
+	ld	a,(my_cap_tbl)
+	ld	b,a
+loop$:
+	call	set_obj
+
+	ld	a,muspoko
+	call	SEplay
+
+	ld	c,30
+	call	wait_vb_s
+	dec	b
+	jr	nz,loop$
+
+	ld	a,(music_bank_flg)
+	cp	MUSIC_BANK3_NO			; Music Bank 3
+	ld	(music_bank_flg_back),a		; Bank-Save / Load "talkmap.src"
+	jr	nz,non_change$
+
+	call	MusicStop
+
+	ld	a,MUSIC_BANK1_NO		; Music Bank 1
+	ld	(music_bank_flg),a
+non_change$:
+	ld	a,musasa
+	ld	(music_flag),a			; 0:SE / !0:Music
+	call	BGMplay
+
+	ld	d,28h
+	call	obp_effect
+
+loop2$:
+	ld	a,(condetion)			; Music Condition Check
+	cp	musasa
+	jr	z,loop2$
+
+	ld	c,020h
+	call	wait_vb_s
+
+	pop	af
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+	pop	hl
+	pop	af
+	ld	(hl),a
+	jp	actor_blanch
+	
+
+minicap$:
+	db	000h,000h,000h,000h,07eh,000h,07eh,000h
+	db	07eh,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,00ch,00ch,012h,01eh
+	db	021h,03fh,033h,02dh,01eh,012h,00ch,00ch
+
+minicap_tbl$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	db	024h,034h,07ch,014h
+	db	02bh,030h,07dh,014h
+	db	02bh,038h,07dh,034h
+	db	030h,030h,07dh,014h
+	db	030h,038h,07dh,034h
+	db	035h,030h,07dh,014h
+	db	035h,038h,07dh,034h
+  else
+	db	024h,034h,07ch,010h
+	db	02bh,030h,07dh,010h
+	db	02bh,038h,07dh,030h
+	db	030h,030h,07dh,010h
+	db	030h,038h,07dh,030h
+	db	035h,030h,07dh,010h
+	db	035h,038h,07dh,030h
+  endif
+
+obp_effect:
+	ld	b,8
+loop1$:
+	ld	a,(OBP1)
+	xor	d
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+	ld	c,10
+	call	wait_vb_s
+	dec	b
+	jr	nz,loop1$
+	ret
+
+set_obj:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+
+	ret
+
+
+
+;==============================================================;
+;  warp_effect                                                 ;
+;	         					       ;
+;==============================================================;
+	public	warp_ef_out
+	public	warp_ef_in
+
+
+warp_ef_in:
+
+	call	warp_ready
+	ld	a,0ech			; 自機を画面外に
+	ld	(actor_table + 4),a
+	call	put_wait
+
+	push	hl
+	call	w_to_n
+
+	ld	hl,game_mode + 1
+	bit	7,(hl)
+	res	7,(hl)
+	jr	nz,sora$
+
+	ld	a,muswarpdown
+	call	SEplay
+
+	ld	hl,game_mode
+	bit	4,(hl)
+;	res	4,(hl)			; newmap.dmg (呼び出し元)でリセットするように変更
+					;  by tama 98/05/31
+	pop	hl
+	jr	nz,ana$
+
+	call	drop
+
+	ld	a,mussucha
+	call	SEplay
+
+	call	check_map
+	ld	a,b
+	and	a
+	jr	nz,pass$
+
+  ifn 1
+	ld	hl,usr_buf
+	xor	a
+	ld	(hli),a
+	inc	a
+	ld	(hli),a
+	ld	a,8
+	ld	(hli),a
+	ld	(hl),0ffh
+  else
+	xor	a
+	ld	(usr_buf),a
+	ld	a,1
+	ld	(usr_buf + 1),a
+	ld	a,8
+	ld	(usr_buf + 2),a
+	ld	a,0ffh
+	ld	(usr_buf + 3),a
+  endif
+	ld	hl,usr_buf + 11
+	call	guruguru
+
+  ifn	YELLOW_VERSION
+	ld	a,SIDE_PIKA_SET
+	ld	(pika_set_pos),a
+  endif
+
+pass2$:
+	call	set_now_music
+pass$:
+	extern	set_pika_appear
+	call	set_pika_appear
+	jp	warp_end
+
+ana$:
+	ld	c,50
+	call	wait_vb_s
+	call	drop
+  ifn	YELLOW_VERSION
+	ld	a,NORMAL_PIKA_SET
+	ld	(pika_set_pos),a
+  endif
+	jr	pass$
+
+sora$:
+	pop	hl
+	call	tori_set
+
+	ld	a,musbird
+	call	SEplay
+
+	ld	hl,usr_buf
+	xor	a
+	ld	(hli),a
+	ld	a,12
+	ld	(hli),a
+	ld	(hl),8
+
+  ifn 0
+	xor	a
+	ld	(usr_buf),a
+	ld	a,12
+	ld	(usr_buf + 1),a
+	ld	a,08h
+	ld	(usr_buf + 2),a
+  endif
+	ld	de,sora_tbl$
+	call	sora2_loop
+	call	set_jiki
+  ifn	YELLOW_VERSION
+	ld	a,SIDE_PIKA_SET
+	ld	(pika_set_pos),a
+  endif
+	jr	pass2$
+
+
+sora_tbl$:
+	db	05h,98h,0fh,90h,18h,88h,20h,80h,27h,78h,2dh,70h
+	db	32h,68h,36h,60h,39h,58h,3bh,50h,3ch,48h,3ch,40h
+
+
+drop:
+	ld	hl,usr_buf
+	ld	a,16
+	ld	(hli),a
+	ld	a,3ch
+	ld	(hli),a
+	call	get_wait
+	ld	(hl),a
+  ifn 0
+	ld	a,16
+	ld	(usr_buf),a
+	ld	a,3ch
+	ld	(usr_buf + 1),a
+	call	get_wait
+	ld	(usr_buf + 2),a
+  endif
+	jp	guruguru_jump
+
+
+warp_ef_out:
+	extern	set_pika_vanish
+	call	set_pika_vanish
+	
+	call	warp_ready
+
+	call	check_map
+	ld	a,b
+	and	a
+	jr	z,sora$
+
+	dec	a
+	jp	nz,ana$
+
+pass$:
+	ld	a,muswarpup
+	call	SEplay
+
+	ld	hl,usr_buf
+	ld	a,-16
+	ld	(hli),a
+	ld	a,0ech
+	ld	(hli),a
+	call	get_wait
+	ld	(hl),a
+  ifn 0
+	ld	a,-16
+	ld	(usr_buf),a
+	ld	a,0ech
+	ld	(usr_buf + 1),a
+	call	get_wait
+	ld	(usr_buf + 2),a
+  endif
+	call	guruguru_jump
+
+	call	check_map
+	ld	a,b
+	dec	a
+	jr	z,pass2$
+	ld	c,10
+	call	wait_vb_s
+pass2$:
+	call	n_to_w
+	jp	warp_end
+
+
+sora$:
+	ld	a,04h				; Fadeout Speed
+	call	over_music_fade
+
+	ld	a,(game_mode)
+	bit	6,a
+	jr	z,sora2$
+
+	ld	hl,usr_buf
+	ld	a,16
+	ld	(hli),a
+	ld	a,-1
+	ld	(hli),a
+	xor	a
+	ld	(hli),a
+	ld	(hl),musturnup
+   ifn 0
+	ld	a,16
+	ld	(usr_buf),a
+	ld	a,-1
+	ld	(usr_buf + 1),a
+	xor	a
+	ld	(usr_buf + 2),a
+	ld	a,musturnup
+	ld	(usr_buf + 3),a
+  endif
+	ld	hl,usr_buf + 11
+	call	guruguru
+	jr	pass$
+
+
+sora2$:
+	call	tori_set
+
+	ld	hl,usr_buf
+	ld	a,0ffh
+	ld	(hli),a
+	ld	a,8
+	ld	(hli),a
+	ld	(hl),0ch
+  ifn 0
+	ld	a,0ffh
+	ld	(usr_buf),a
+	ld	a,8
+	ld	(usr_buf + 1),a
+	ld	a,0ch
+	ld	(usr_buf + 2),a
+  endif
+	call	sora2_loop
+
+	ld	a,musbird
+	call	SEplay
+
+	ld	hl,usr_buf
+	xor	a
+	ld	(hli),a
+	ld	a,12
+	ld	(hli),a
+	ld	(hl),0ch
+  ifn 0
+	xor	a
+	ld	(usr_buf),a
+	ld	a,12
+	ld	(usr_buf + 1),a
+	ld	a,0ch
+	ld	(usr_buf + 2),a
+  endif
+	ld	de,sora_tbl1$
+	call	sora2_loop
+
+	ld	c,40
+	call	wait_vb_s
+
+	ld	hl,usr_buf + 1
+	ld	a,11
+	ld	(hli),a
+	ld	(hl),8
+  ifn 0
+	ld	a,11
+	ld	(usr_buf + 1),a
+	ld	a,08h
+	ld	(usr_buf + 2),a
+  endif
+	ld	de,sora_tbl2$
+	call	sora2_loop
+	call	n_to_w
+	jp	warp_end
+
+
+sora_tbl1$:
+	db	3ch,48h,3ch,50h,3bh,58h,3ah,60h,39h,68h,37h,70h
+	db	37h,78h,33h,80h,30h,88h,2dh,90h,2ah,98h,27h,0a0h
+sora_tbl2$:
+	db	1ah,90h,19h,80h,17h,70h,15h,60h,12h,50h
+	db	0fh,40h,0ch,30h,09h,20h,05h,10h,0,0,0f0h,0
+
+
+ana$:
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	ld	a,(oam_buf + 2)
+	ld	(oam_buf + 10),a
+	ld	a,(oam_buf + 6)
+	ld	(oam_buf + 14),a
+
+	ld	a,0a0h
+	ld	(oam_buf),a
+	ld	(oam_buf + 4),a
+	
+	ld	c,2
+	call	wait_vb_s
+
+	ld	a,0a0h
+	ld	(oam_buf + 8),a
+	ld	(oam_buf + 12),a
+	
+	call	n_to_w
+	ld	a,1
+	ld	(oam_flg),a
+	jp	warp_end
+
+
+sora2_loop:
+	ld	a,(usr_buf + 2)
+	xor	1
+	ld	(usr_buf + 2),a
+	ld	(actor_table + 2),a
+	call	put_wait
+	ld	a,(usr_buf)
+	cp	0ffh
+	jr	z,next$
+
+	ld	hl,actor_table + 4
+
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	inc	hl
+	ld	a,(de)
+	inc	de
+	ld	(hl),a
+next$:
+	ld	a,(usr_buf + 1)
+	dec	a
+	ld	(usr_buf + 1),a
+	jr	nz,sora2_loop
+	ret
+	
+
+tori_set:
+	ld	de,OBJ_TORI
+	ld	b,< CBANK_TORI 		; CBANK_TORIは外部ラベルなので式に含めると
+	ld	c,12			; おかしなことになる。だから
+	ld	hl,8000h		; ld	bc,<CBANK_TORI*100h+12
+	call	chrmove			; のような書式は禁止！
+
+	ld	de,OBJ_TORI + 00c0h
+	ld	b,< CBANK_TORI 
+	ld	c,12
+	ld	hl,8800h
+	jp	chrmove
+
+
+warp_ready:
+	ld	a,(actor_table + 2)
+	ld	(usr_buf + 19),a
+	ld	a,(actor_table + 4)
+	ld	(usr_buf + 18),a
+
+	ld	hl,guruguru_tbl$
+	ld	de,usr_buf + 11
+	ld	bc,4
+	call	block_move
+
+	ld	a,(actor_table + 2)
+	ld	hl,usr_buf + 11
+loop$:
+	cp	(hl)
+	inc	hl
+	jr	nz,loop$
+	dec	hl
+	ret
+
+guruguru_tbl$:
+	db	0,8,4,12
+
+
+
+guruguru_main:
+	ld	a,(hl)			;SITE_MOVE
+	ld	(actor_table + 2),a
+
+	push	hl
+	ld	hl,usr_buf + 11
+	ld	de,usr_buf + 10
+	ld	bc,4
+	call	block_move
+
+	ld	a,(usr_buf + 10)
+	ld	(usr_buf + 14),a
+	pop	hl
+	ret
+
+
+guruguru:
+	call	guruguru_main
+
+	ld	a,(usr_buf)
+	ld	c,a
+	and	3
+	jr	nz,non_play$
+
+	ld	a,(usr_buf + 3)
+	cp	0ffh	
+	call	nz,SEplay
+
+non_play$:
+	ld	a,(usr_buf + 1)
+	add	a,c
+	ld	(usr_buf),a
+
+	ld	c,a
+	ld	a,(usr_buf + 2)
+	cp	c
+	ret	z
+
+	call	wait_vb_s
+	jr	guruguru
+
+
+guruguru_jump:
+	call	guruguru_main
+
+	ld	a,(usr_buf)		;Y_MOVE
+	ld	c,a
+	ld	a,(actor_table + 4)
+	add	a,c
+	ld	(actor_table + 4),a
+
+	ld	c,a
+	ld	a,(usr_buf + 1)		;LIMITTER
+	cp	c
+	ret	z
+
+	ld	a,(usr_buf + 2)
+	ld	c,a
+	call	wait_vb_s
+	jr	guruguru_jump
+
+
+warp_end:
+;	ld	a,SIDE_PIKA_SET
+;	ld	(pika_set_pos),a
+
+	ld	a,(usr_buf + 18)
+	ld	(actor_table + 4),a
+	ld	a,(usr_buf + 19)
+	ld	(actor_table + 2),a
+	ret
+
+
+get_wait:
+	ld	a,(sgb_flg)		;SGB = 1,GB = 0
+	xor	1
+	inc	a			;jump_speed  SGB = 1,GB = 2
+	inc	a			;jump_speed  SGB = 1,GB = 2
+	ret
+
+
+	public	check_map
+check_map:
+	ld	b,0
+	ld	hl,map_tbl$
+	ld	a,(map_type)
+	ld	c,a
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,exit$
+
+	cp	c
+	jr	nz,next_loop$
+
+	ld	a,(9*20 + 8 + dmy_vram)
+	cp	(hl)
+	jr	z,hit$
+
+next_loop$:
+	inc	hl
+	inc	hl
+	jr	loop$
+
+hit$:
+	inc	hl
+	ld	b,(hl)
+exit$:
+	ld	a,b
+	ld	(usr_buf + FREE_AREA_@),a	; ld	(usr_buf + 20),a
+	ret
+
+
+map_tbl$:
+	db	BUILDING_TYPE,20h,1
+	db	BUILDING_TYPE,11h,2
+	db	DOUKUTU_TYPE ,22h,2
+	db	MANIA_TYPE   ,55h,1
+	db	0ffh
+
+
+;============================================================;
+;   pikupiku	  		                             ;
+;============================================================;
+	public	pikupiku
+pikupiku:
+	ld	c,10
+	call	wait_vb_s
+	ld	hl,obs_map_step
+	set	6,(hl)
+
+	ld	hl,CHAR_DATA		; vram address
+	ld	de,OBJ_JIBUN
+	ld	b,< CBANK_JIBUN 
+	ld	c,12
+;	ld	de,objct		; otokonoko data address 
+;	ld	bc,OBJ_CHARA_BANK1*100h + 12
+	call	chrmove
+
+	ld	a,4
+	ld	hl,turichr_tbl$
+	extern	monschrsetmain
+	call	monschrsetmain
+
+	ld	a,(actor_table + 2)
+	ld	c,a
+	ld	b,0
+	ld	hl,piku_tbl$
+	add	hl,bc
+
+	ld	de,39*4 + oam_buf
+	ld	bc,4
+	call	block_move
+
+	ld	c,100
+	call	wait_vb_s
+
+	ld	a,(usr_buf)
+	and	a
+	ld	hl,tsurenai_msg$
+	jr	z,exit$
+	cp	2
+	ld	hl,inai_msg$
+	jr	z,exit$
+
+	ld	b,10
+pikupiku1$:
+	ld	hl,actor_table + 4
+	call	move$
+	ld	hl,39*4 + oam_buf
+	call	move$
+	call	put_wait
+	dec	b
+	jr	nz,pikupiku1$
+
+	ld	a,(actor_table + 2)
+	cp	4
+	jr	nz,next$
+	ld	a,0a0h
+	ld	(39*4 + oam_buf),a
+next$:
+	ld	hl,usr_buf + 18
+	xor	a
+	ld	(hli),a
+	ld	(hl),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	ld	a,(actor_table + 2)
+	cp	4
+	jr	nz,next2$
+	ld	a,044h
+	ld	(39*4 + oam_buf),a
+next2$:
+	ld	hl,hiiteru_msg$
+exit$:
+	call	put_win_msg
+
+	ld	hl,obs_map_step
+	res	6,(hl)
+
+;;	call	set_jiki	; 村川削除「Oh! It`s a bite!」の「I」が一瞬バケるバグ修正。
+	call	set_kana
+	ret
+
+
+move$:
+	ld	a,(hl)
+	xor	1
+	ld	(hl),a
+	ret
+
+
+tsurenai_msg$:
+	extern	tsurenai_msg_0_C_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw tsurenai_msg_0_C_EFFECT	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+inai_msg$:
+	extern	inai_msg_1_C_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw inai_msg_1_C_EFFECT	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+hiiteru_msg$:
+	extern	hiiteru_msg_2_C_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw hiiteru_msg_2_C_EFFECT	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+piku_tbl$:
+	db	5bh,4ch,0fdh,00h
+	db	44h,4ch,0fdh,00h
+	db	50h,40h,0feh,00h
+	db	50h,58h,0feh,20h
+
+
+turichr_tbl$:
+	dw	turichrdata      , 1eh*100h + 2,8020h
+	dw	turichrdata + 20h, 1eh*100h + 2,8060h
+	dw	turichrdata + 40h, 1eh*100h + 2,80a0h
+	dw	turichrdata + 60h, 1eh*100h + 3,8fd0h
+	
+
+;============================================================;
+;   jump_effect  		                             ;
+;============================================================;
+	public	jump_effect
+jump_effect:
+	ld	a,(save_event_flg + 9)
+	ld	c,a
+	inc	a
+	cp	16
+	jr	nc,end$
+	ld	(save_event_flg + 9),a
+
+	ld	b,0
+	ld	hl,jump_tbl$
+	add	hl,bc
+	ld	a,(hl)
+	ld	(actor_table + 4),a
+	ret
+
+end$:
+	ld	a,(scloll_cnt)
+	cp	0
+	ret	nz
+
+	call	actor_blanch
+	call	put_wait
+	xor	a
+	ld	(joy_status),a
+	ld	(joy_on),a
+	ld	(joy_off),a
+	ld	(save_event_flg + 9),a
+	ld	hl,obs_map_step
+	res	6,(hl)
+	ld	hl,obs_system
+	res	7,(hl)
+	xor	a
+	ld	(cancel_key),a
+	ret
+
+jump_tbl$:
+	db	38h,36h,34h,32h,31h,30h,30h,30h
+	db	31h,32h,33h,34h,36h,38h,3ch,3ch
+
+;============================================================;
+;   ghost_to_mons  		                             ;
+;============================================================;
+	public	ghost_to_mons
+ghost_to_mons:
+	ld	a,0e4h
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+	call	ghost_main
+	S_POS	12,0
+	ld	bc,0707h
+	call	block_cls
+	call	put_wait
+
+	xor	a
+	ld	(all_put_req),a
+	ld	a,145
+	ld	(yes_no_map),a
+	ld	a,1
+	ld	(attack_turn),a
+	ld	hl,hen_sub
+	ld	b,1eh
+	call	bank_push_call
+
+	ld	d,80h
+	call	obp_effect
+loop1$:
+	ld	c,10
+	call	wait_vb_s
+	ld	a,(OBP1)
+	sla	a
+	sla	a
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+	jr	nz,loop1$
+
+	call	oam_clr
+
+	call	ghost_main
+	ld	b,0e4h
+loop2$:
+	ld	c,10
+	call	wait_vb_s
+	ld	a,(OBP1)
+	srl	b
+	rra	
+	srl	b
+	rra
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+	ld	a,b
+	and	a
+	jr	nz,loop2$
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	jp	oam_clr
+	
+ghost_main:
+	ld	de,9000h 
+	ld	hl,8000h
+	ld	bc,49				; bank number + counter
+	call	chrmove				; vram set
+
+	ld	a,10h
+	ld	(effect_y),a
+	ld	a,70h
+	ld	(effect_x),a
+	ld	hl,oam_buf
+	ld	bc,0606h
+	ld	d,8
+loop$:
+	push	bc
+	ld	a,(effect_y)
+	ld	e,a
+loop1$:
+	ld	a,e
+	add	a,008h
+	ld	e,a
+	ld	(hli),a
+	ld	a,(effect_x)
+	ld	(hli),a
+	ld	a,d
+	ld	(hli),a
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,14h
+  else
+	ld	a,10h
+  endif
+	ld	(hli),a
+	inc	d
+	dec	c
+	jr	nz,loop1$
+
+	inc	d
+	ld	a,(effect_x)
+	add	a,008h
+	ld	(effect_x),a
+
+	pop	bc
+	dec	b
+	jr	nz,loop$
+	
+	ret
+
+
+;============================================================;
+;   encount_effect  		                             ;
+;============================================================;
+	public		gokiburi
+	public		bg_cc1
+	public		bg_cc2
+gokiburi:
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	xor	a
+	ld	(window_y),a
+	dec	a
+	ld	(oam_flg),a
+	call	wait_vb
+
+	ld	hl,actor_table + 2
+	ld	a,(work1)
+	ld	c,a
+	ld	b,0
+	ld	de,10h
+loop1$:
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,z1$
+	inc	b
+z1$:
+	add	hl,de
+	dec	c
+	jr	nz,loop1$
+
+	ld	hl,oam_buf + 10h
+	ld	c,9
+loop$:
+	ld	a,b
+	swap	a
+	cp	l
+	jr	z,next$
+	
+	push	hl
+	push	bc
+	ld	bc,10h
+	xor	a
+	call	memset
+	pop	bc
+	pop	hl
+next$:
+	ld	de,10h
+	add	hl,de
+	dec	c
+	jr	nz,loop$
+	call	put_wait
+
+	call	gokiburi_set
+
+	ld	bc,0
+	ld	a,(tuushin_flg)
+	cp	4
+	jr	z,next1$
+
+	call	dealer_or_mons
+	call	level_check
+	call	field_or_dungeon
+
+next1$:
+	ld	hl,encount_ef_tbl$
+	add	hl,bc
+	add	hl,bc
+	
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+	
+encount_ef_tbl$:
+	dw	encount_effect6
+	dw	gokiburi_main
+	dw	encount_effect5
+	dw	gokiburi_main
+	dw	encount_effect4
+	dw	encount_effect3
+	dw	encount_effect7
+	dw	encount_effect8
+
+dealer_or_mons:		;0 = wild, 1 = dealer
+	ld	a,(event_fight_no)	; Check Dealer Or Wild
+	cp	200
+	jr	nc,set$
+	res	0,c
+	ret
+set$:
+	set	0,c
+	ret
+
+level_check:		;0 = yowai, 1 = tsuyoi 
+	ld	hl,my_cap_data + 1
+loop$:
+	ld	a,(hli)
+	or	(hl)
+	jr	nz,next$
+	ld	de,CAPDATA_LEN - 1
+	add	hl,de
+	jr	loop$
+next$:
+	ld	de,31
+	add	hl,de
+	ld	a,(hl)
+	add	a,3
+	ld	e,a		;my_mons_lvl + 3
+
+	ld	a,(mons_level)	;enemy_lvl
+	sub	e
+	jr	nc,set$
+
+	res	1,c
+	ld	a,1
+	ld	(usr_buf + 10),a
+	ret
+set$:
+	set	1,c
+	xor	a
+	ld	(usr_buf + 10),a
+	ret
+	
+field_or_dungeon:	;0 = field, 1 = dungeon
+	ld	a,(mapno)
+	ld	e,a
+	ld	hl,map_tbl1$
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,next$
+	cp	e
+	jr	nz,loop$
+set$:
+	set	2,c
+	ret
+next$:
+	ld	hl,map_tbl2$
+loop1$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,res$
+	ld	d,a
+	ld	a,(hli)
+	cp	e
+	jr	c,loop1$
+	ld	a,e
+	cp	d
+	jr	nc,set$
+res$:
+	res	2,c
+	ret
+	
+map_tbl1$:
+	db	51,82,192,232,0ffh
+
+map_tbl2$:
+	db	59,61
+	db	95,118
+	db	141,151
+	db	207,228
+	db	0ffh
+
+gokiburi_set:
+	ld	hl,8ff0h
+	ld	de,gokiburi_chr$
+	ld	bc,1ch*100h + 1
+	jp	chrmove
+
+
+gokiburi_chr$:
+	db	0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	db	0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+
+
+darkness:
+	ld	a,0ffh
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+	
+;============================================================;
+;   encount_effect  for  Dealer                              ;
+;============================================================;
+gokiburi_main:
+	ld	a,(usr_buf + 10)
+	and	a
+	jr	z,z1$
+	call	gokiburi_move1
+	jr	exit$
+z1$:
+	ld	hl,20*10 + 10 + dmy_vram
+	ld	a,3
+	ld	(el_c),a
+	ld	a,l
+	ld	(ef_adr4_l),a
+	ld	a,h
+	ld	(ef_adr4_h),a
+
+	ld	b,120
+loop1$:
+	ld	c,3
+loop$:
+	push	bc
+	call	gokiburi_move2
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	call	wait_vb
+	dec	b
+	jr	nz,loop1$
+exit$:
+	call	darkness
+	xor	a
+	ld	(ef_adr4_l),a
+	ld	(ef_adr4_h),a
+	ret
+
+gokiburi_move1:
+	ld	a,7
+	ld	(usr_buf),a
+	ld	hl,dmy_vram
+	ld	c,17
+	ld	de,20
+	call	goki_loop$
+	inc	c
+	jr	z1$
+loop$:
+	ld	de,20
+	call	goki_loop$
+z1$:
+	inc	c
+	ld	de,1
+	call	goki_loop$
+	dec	c
+	dec	c
+	ld	de,-20
+	call	goki_loop$
+	inc	c
+	ld	de,-1
+	call	goki_loop$
+	dec	c
+	dec	c
+
+	ld	a,c
+	and	a
+	jr	nz,loop$
+	ret
+	
+goki_loop$:
+	push	bc
+loop100$:
+	ld	(hl),0ffh
+	add	hl,de
+
+	push	bc
+	ld	a,(usr_buf)
+	dec	a
+	jr	nz,no_wait$
+	call	en_ef_put
+	ld	a,7
+no_wait$:	
+	ld	(usr_buf),a
+	pop	bc
+
+	dec	c
+	jr	nz,loop100$
+	pop	bc
+	ret
+
+
+gokiburi_move2:
+	ld	bc,-20
+	ld	de,20
+
+	ld	a,(ef_adr4_l)	;gokiburi_position
+	ld	l,a
+	ld	a,(ef_adr4_h)
+	ld	h,a
+
+	ld	a,(el_c)	;gokiburi_houkou
+	cp	0
+	jr	z,north$
+	cp	1
+	jr	z,west$
+	cp	2
+	jr	z,south$
+	cp	3
+	jr	z,east$
+next$:
+	ld	(hl),0ffh
+exit$:
+	ld	a,l
+	ld	(ef_adr4_l),a
+	ld	a,h
+	ld	(ef_adr4_h),a
+	ret
+
+north$:
+	dec	hl
+	ld	a,(hl)
+	cp	0ffh
+	jr	nz,kakikae$
+
+	inc	hl
+	add	hl,bc
+	jr	next$
+	
+west$:
+	add	hl,de
+	ld	a,(hl)
+	cp	0ffh
+	jr	nz,kakikae$
+
+	add	hl,bc
+	dec	hl
+	jr	next$
+
+south$:
+	inc	hl
+	ld	a,(hl)
+	cp	0ffh
+	jr	nz,kakikae$
+
+	dec	hl
+	add	hl,de
+	jr	next$
+
+east$:
+	add	hl,bc
+	ld	a,(hl)
+	cp	0ffh
+	jr	nz,kakikae$
+
+	add	hl,de
+	inc	hl
+	jr	next$
+
+kakikae$:
+	ld	(hl),0ffh
+	ld	a,(el_c)	;houkou_syuusei
+	inc	a
+	cp	4
+	jr	nz,z1$
+	xor	a
+z1$:
+	ld	(el_c),a
+	jr	exit$
+
+
+;============================================================;
+;   BG color_change at encount                               ;
+;============================================================;
+bg_cc1:
+;	ld	hl,bgcc_tbl + 1
+;loop$:
+;	ld	a,(hli)
+;	cp	0ffh
+;	ret	z
+;	ld	(BGP),a
+;	ld	c,5
+;	call	wait_vb_s
+;	jr	loop$
+;
+bg_cc2:
+;	ld	hl,bgcc_tbl + 4
+;loop$:
+;	ld	a,(hld)
+;	cp	0ffh
+;	ret	z
+;	ld	(BGP),a
+;	ld	c,5
+;	call	wait_vb_s
+;	jr	loop$
+bgcc_tbl:
+;	db	0ffh,0e4h,090h,040h,000h,0ffh
+bg_cc3:
+;	ld	b,3
+;	call	pal_change
+;	jp	pal_off
+
+pal_change:
+loop1$:
+	ld	hl,phy_tbl3
+loop$:
+	ld	a,(hli)
+	cp	001h
+	jr	z,exit$
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ld	c,2
+	call	wait_vb_s
+	jr	loop$
+exit$:
+	dec	b
+	jr	nz,loop1$
+	ret
+
+phy_tbl3:
+	db	0f9h,0feh,0ffh,0feh,0f9h,0e4h
+	db	090h,040h,000h,040h,090h,0e4h
+	db	001h
+
+;============================================================;
+;   ENCOUNT_EFFECT3	               		             ;
+;============================================================;
+encount_effect3:
+	ld	c,9
+loop$:
+	push	bc
+	xor	a
+	ld	(all_put_req),a
+
+	ld	hl,20*7 + dmy_vram
+	ld	de,20*8 + dmy_vram
+	ld	bc,-40
+	call	yoko_line
+
+	ld	hl,20*10 + dmy_vram
+	ld	de,20*9 + dmy_vram
+	ld	bc,40
+	call	yoko_line
+
+	ld	hl,dmy_vram + 8
+	ld	de,dmy_vram + 9
+	ld	bc,-2
+	call	tate_line
+
+	ld	hl,dmy_vram + 11
+	ld	de,dmy_vram + 10
+	ld	bc,2
+	call	tate_line
+
+	ld	a,1
+	ld	(all_put_req),a
+	ld	c,6
+	call	wait_vb_s
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	call	darkness
+	ld	c,10
+	jp	wait_vb_s
+
+encount_effect8:
+	ld	c,9
+	xor	a
+	ld	(all_put_req),a
+loop$:
+	push	bc
+
+	ld	hl,20*16 + dmy_vram
+	ld	de,20*17 + dmy_vram
+	ld	bc,-40
+	call	yoko_line
+
+	ld	hl,20*1 + dmy_vram
+	ld	de,20*0 + dmy_vram
+	ld	bc,40
+	call	yoko_line
+
+	ld	hl,dmy_vram + 18
+	ld	de,dmy_vram + 19
+	ld	bc,-2
+	call	tate_line
+
+	ld	hl,dmy_vram + 1
+	ld	de,dmy_vram + 0
+	ld	bc,2
+	call	tate_line
+
+	call	en_ef_put
+	call	put_wait
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	call	darkness
+	ld	c,10
+	jp	wait_vb_s
+
+
+yoko_line:
+	ld	a,c
+	ld	(usr_buf),a
+	ld	a,b
+	ld	(usr_buf + 1),a
+	ld	c,8
+loop$:
+	push	bc
+	push	hl
+	push	de
+	ld	bc,20
+	call	block_move
+	pop	hl
+	pop	de
+	ld	a,(usr_buf)
+	ld	c,a
+	ld	a,(usr_buf + 1)
+	ld	b,a
+	add	hl,bc
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	ld	l,e
+	ld	h,d
+	ld	a,0ffh
+	ld	c,20
+loop1$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop1$
+	ret
+
+tate_line:
+	ld	a,c
+	ld	(usr_buf),a
+	ld	a,b
+	ld	(usr_buf + 1),a
+	ld	c,9
+loop$:
+	push	bc
+	push	hl
+	push	de
+	ld	c,18
+loop2$:
+	ld	a,(hl)
+	ld	(de),a
+
+	ld	a,e
+	add	a,20
+	jr	nc,z1$
+	inc	d
+z1$:
+	ld	e,a
+	
+	ld	a,l
+	add	a,20
+	jr	nc,z2$
+	inc	h
+z2$:
+	ld	l,a
+	dec	c
+	jr	nz,loop2$
+	
+	pop	hl
+	pop	de
+	ld	a,(usr_buf)
+	ld	c,a
+	ld	a,(usr_buf + 1)
+	ld	b,a
+	add	hl,bc
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	ld	l,e
+	ld	h,d
+	ld	de,20
+	ld	c,18
+loop1$:
+	ld	(hl),0ffh
+	add	hl,de
+	dec	c
+	jr	nz,loop1$
+	ret
+
+;============================================================;
+;   ENCOUNT_EFFECT4	               		             ;
+;============================================================;
+encount_effect7:
+	ld	c,18
+	ld	hl,dmy_vram
+	ld	de,20*17 + 1 + dmy_vram
+	xor	a
+	ld	(all_put_req),a
+loop$:
+	push	bc
+	push	hl
+	push	de
+	push	de
+
+	call	simasima1
+	pop	hl
+	call	simasima1
+
+	call	en_ef_put
+
+	pop	hl
+	ld	bc,-20
+	add	hl,bc
+	ld	e,l
+	ld	d,h
+	pop	hl
+	ld	bc,20
+	add	hl,bc
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	jp	darkness
+
+simasima1:
+	ld	c,10
+loop$:
+	ld	(hl),0ffh
+	inc	hl
+	inc	hl
+	dec	c
+	jr	nz,loop$
+	ret
+	
+;============================================================;
+;   ENCOUNT_EFFECT4	               		             ;
+;============================================================;
+encount_effect4:
+	ld	c,20
+	ld	hl,dmy_vram
+	ld	de,20*1 + 19 + dmy_vram
+	xor	a
+	ld	(all_put_req),a
+loop$:
+	push	bc
+	push	hl
+	push	de
+	push	de
+
+	call	simasima2
+	pop	hl
+	call	simasima2
+
+	call	en_ef_put
+
+	pop	de
+	pop	hl
+	pop	bc
+	inc	hl
+	dec	de
+	dec	c
+	jr	nz,loop$
+
+	jp	darkness
+
+simasima2:
+	ld	c,9
+	ld	de,40
+loop$:
+	ld	(hl),0ffh
+	add	hl,de
+	dec	c
+	jr	nz,loop$
+	ret
+	
+;============================================================;
+;   ENCOUNT_EFFECT5	               		             ;
+;============================================================;
+encount_effect5:
+	call	en_ready
+	ld	bc,10
+	ld	hl,block_tbl1
+	call	en_ef_sub
+
+	ld	c,10
+	ld	b,1
+	ld	hl,block_tbl2
+	call	en_ef_sub
+	jp	darkness
+
+en_ready:
+	ld	b,3
+	call	pal_change
+	xor	a
+	ld	(all_put_req),a
+	ret
+
+en_ef_sub:
+loop$:
+	push	bc
+	push	hl
+	ld	a,b
+	call	data_set_write
+	pop	hl
+	ld	bc,5
+	add	hl,bc
+	call	en_ef_put
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	ret
+
+en_ef_put:
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	xor	a
+	ld	(all_put_req),a
+	ret
+
+;============================================================;
+;   ENCOUNT_EFFECT6	               		             ;
+;============================================================;
+encount_effect6:
+	call	en_ready
+	ld	c,10
+	ld	hl,block_tbl1
+	ld	de,block_tbl2
+loop$:
+	push	bc
+	push	hl
+	push	de
+	push	de
+	xor	a
+	call	data_set_write
+	pop	hl
+	ld	a,1
+	call	data_set_write
+	pop	hl
+	ld	bc,5
+	add	hl,bc
+	ld	e,l
+	ld	d,h
+	pop	hl
+	add	hl,bc
+	call	en_ef_put
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	jp	darkness
+
+data_set_write:
+	ld	(usr_buf),a
+	ld	a,(hli)
+	ld	(usr_buf + 1),a
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	block_write	
+	
+block_tbl1:
+	db	1
+	dw	block1,20*6 + 18 + dmy_vram
+	db	1
+	dw	block2,20*3 + 19 + dmy_vram
+	db	1
+	dw	block3,20*0 + 18 + dmy_vram
+	db	1
+	dw	block4,20*0 + 14 + dmy_vram
+	db	1
+	dw	block5,20*0 + 10 + dmy_vram
+	db	0
+	dw	block5,20*0 + 9 + dmy_vram 
+	db	0
+	dw	block4,20*0 + 5 + dmy_vram 
+	db	0
+	dw	block3,20*0 + 1 + dmy_vram 
+	db	0
+	dw	block2,20*3 + 0 + dmy_vram 
+	db	0
+	dw	block1,20*6 + 1 + dmy_vram 
+
+block_tbl2:
+	db	0
+	dw	block1,20*11 + 1 + dmy_vram 
+	db	0
+	dw	block2,20*14 + 0 + dmy_vram
+	db	0
+	dw	block3,20*17 + 1 + dmy_vram
+	db	0
+	dw	block4,20*17 + 5 + dmy_vram
+	db	0
+	dw	block5,20*17 + 9 + dmy_vram
+	db	1
+	dw	block5,20*17 + 10 + dmy_vram
+	db	1
+	dw	block4,20*17 + 14 + dmy_vram
+	db	1
+	dw	block3,20*17 + 18 + dmy_vram
+	db	1
+	dw	block2,20*14 + 19 + dmy_vram
+	db	1
+	dw	block1,20*11 + 18 + dmy_vram
+
+block_write:		;DE = table_address write_len,sub_cnt
+loop2$:
+	push	hl
+	ld	a,(de)
+	ld	c,a
+	inc	de
+loop$:	
+	ld	(hl),0ffh
+	ld	a,(usr_buf + 1)
+	and	a
+	jr	z,plus3$
+	inc	hl
+	jr	n1$
+plus3$:
+	dec	hl
+n1$:
+	dec	c
+	jr	nz,loop$
+	pop	hl
+
+	ld	a,(usr_buf)
+	and	a
+	ld	bc,20
+	jr	z,plus1$
+	ld	bc,-20
+plus1$:
+	add	hl,bc
+
+	ld	a,(de)
+	inc	de
+	cp	0ffh
+	ret	z
+
+	and	a
+	jr	z,loop2$
+
+	ld	c,a
+loop1$:
+	ld	a,(usr_buf + 1)
+	and	a
+	jr	z,plus2$
+	dec	hl
+	jr	n2$
+plus2$:
+	inc	hl
+n2$:
+	dec	c
+	jr	nz,loop1$
+	jr	loop2$
+	
+
+block1:
+	db	2,3,5,4,9,0ffh
+block2:
+	db	1,1,2,2,4,2,4,2,3,0ffh
+block3:
+	db	2,1,3,1,4,1,4,1,4,1,3,1,2,1,1,1,1,0ffh
+block4:
+	db	4,1,4,0,3,1,3,0,2,1,2,0,1,0ffh
+block5:
+	db	4,0,3,0,3,0,2,0,2,0,1,0,1,0,1,0ffh
+

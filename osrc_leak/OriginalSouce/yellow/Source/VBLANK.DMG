@@ -1,0 +1,391 @@
+	include	common.def
+	include	fntequ.def
+	include macro.h
+	include group.def
+	include	pm_debug.def
+
+
+bank0	group	0
+
+
+	public	vblank
+	public	wait_vb
+	public	b_to_n
+	public	n_to_b
+	public	n_to_w
+	public	w_to_n
+	public	color_reset
+
+
+	extern	all_put
+	extern	block_prt
+	extern	chr_move
+	extern	fnt_move
+	extern	fadeplay
+	extern	bmusic
+;;	extern	fadeplay2
+	extern	check_pinchi_sound
+	extern	haji_put
+	extern	actor_put
+	extern	wave
+	extern	rnd
+	extern	wait_vb_s
+;;	extern	noise_on
+	extern	play
+	extern	bank_push_call
+	extern	bank_change
+
+	extern	change_cgb_bgp
+	extern	change_cgb_obp0
+	extern	change_cgb_obp1
+
+COLWAIT		equ	08h
+
+
+vblank:
+	push	af
+	push	bc
+	push	de
+	push	hl
+
+  ifn	pm_cgb
+	ld	a,(VBK)
+	push	af
+	xor	a
+	ld	(VBK),a
+  endif
+
+	ld	a,(rombankno)
+	ld	(bank_vblank),a			; saved section bank number
+
+	ld	a,(headerx)
+	ld	(SCX),a
+	ld	a,(headery)
+	ld	(SCY),a
+
+	ld	a,(window_shake_flag)		; for "battle effect"
+	and	a
+	jr	nz,no_init$
+
+	ld	a,(window_y)
+	ld	(WY),a
+no_init$:
+	call	all_put
+	call	block_prt
+	call	haji_put
+	call	chr_move
+	call	fnt_move
+	call	wave
+
+	call	dmasub
+
+	ld	a,1
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	actor_put
+
+	call	play_time
+
+	call	rnd
+
+	extern	KeyStatusGet			;1998/7/31 Tetsu
+	call	KeyStatusGet
+
+	ld	a,(vb_sw)
+	and	a
+	jr	z,pass1$
+
+	xor	a
+	ld	(vb_sw),a
+
+pass1$:
+	ld	a,(vb_count)
+	and	a
+	jr	z,z1$
+
+	dec	a
+	ld	(vb_count),a
+
+z1$:
+	call	fadeplay			; Music Fadeout Function
+
+	ld	a,G_MUSIC2
+	call	bank_change
+
+	call	check_pinchi_sound		; "play.src" Included
+
+	ld	a,G_MUSIC1
+	call	bank_change
+
+	call    bmusic
+
+	extern	SioWatchDog
+	call	SioWatchDog
+
+	ld	a,(bank_vblank)
+	ld	(rombankno),a
+	ld      (ROMBANK),a
+
+  ifn	pm_cgb
+	pop	af
+	ld	(VBK),a
+  endif
+
+	pop	hl
+	pop	de
+	pop	bc
+	pop	af
+
+	reti
+
+
+
+
+
+wait_vb:
+	ld	a,001h
+	ld	(vb_sw),a	; vb_sw = 001h
+
+z1$:
+	halt			; CPU stop
+	ld	a,(vb_sw)
+	and	a
+	jr	nz,z1$
+
+	ret			; vb_sw == 0 return
+
+
+color_reset:
+	ld	a,(base_color)		; event nite set(base_color=0~9)
+;	ld	a,(dendou_no + 1)
+	ld	b,a
+	ld	hl,color3 + 9
+	ld	a,l
+	sub	b
+	ld	l,a
+	jr	nc,z1$
+
+	dec	h
+
+z1$:
+	ld	a,(hli)
+	ld	(BGP),a		; BG palette data
+	ld	a,(hli)
+	ld	(OBP0),a	; OBP0 palette,oam palette flag = 0
+	ld	a,(hli)
+	ld	(OBP1),a	; OBP1 palette,oam palette flag = 1
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+
+	ret
+
+
+
+
+;*********************************
+;*				*
+;*	black -> normal		*
+;*				*
+;*********************************
+b_to_n:
+	ld	hl,color3
+	ld	b,4
+
+	jr	color_inc
+
+
+;*********************************
+;*				*
+;*	normal -> white		*
+;*				*
+;*********************************
+n_to_w:
+	ld	hl,color4 + 3
+	ld	b,3
+
+color_inc:
+z1$:
+	ld	a,(hli)
+	ld	(BGP),a
+	ld	a,(hli)
+	ld	(OBP0),a
+	ld	a,(hli)
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ld	c,COLWAIT
+	call	wait_vb_s
+	dec	b
+	jr	nz,z1$
+
+	ret
+
+
+
+
+;*********************************
+;*				*
+;*	normal -> black		*
+;*				*
+;*********************************
+n_to_b:
+	ld	hl,color3+11
+	ld	b,4
+	jr	color_dec
+
+
+;*********************************
+;*				*
+;*	white -> normal		*
+;*				*
+;*********************************
+w_to_n:
+	ld	hl,color4+8
+	ld	b,3
+
+color_dec:
+z1$:
+	ld	a,(hld)
+	ld	(OBP1),a
+	ld	a,(hld)
+	ld	(OBP0),a
+	ld	a,(hld)
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ld	c,COLWAIT
+	call	wait_vb_s
+	dec	b
+	jr	nz,z1$
+
+	ret
+
+
+color3:
+	db	0ffh,0ffh,0ffh		; GBP,OBP0,OBP1
+	db	0feh,0feh,0f8h
+	db	0f9h,0e4h,0e4h
+	db	0e4h,0d0h,0e0h
+
+color4:
+	db	0e4h,0d0h,0e0h
+	db	090h,080h,090h
+	db	040h,040h,040h
+	db	000h,000h,000h
+
+	
+
+
+
+
+play_time:
+	call	count_down
+
+	ld	hl,obs_time_count
+	bit	0,(hl)				; check timer stop
+	jr	nz,h_stop$
+
+	ld	a,(game_mode + 0)
+	bit	0,a				; check allowed count time
+	ret	z
+
+	ld	a,(play_time_h + 1)
+	and	a
+	ret	nz				; counter stop
+
+	ld	a,(play_time_cnt)
+	inc	a
+	ld	(play_time_cnt),a
+	cp	60				; for second count limit
+	ret	nz
+
+s_up$:
+	xor	a
+	ld	(play_time_cnt),a
+
+	ld	a,(play_time_s)
+	inc	a
+	ld	(play_time_s),a
+	cp	60				; for minute count limit
+	ret	nz
+
+m_up$:
+	xor	a
+	ld	(play_time_s),a
+
+	ld	a,(play_time_m)
+	inc	a
+	ld	(play_time_m),a
+	cp	60				; for hour count limit
+	ret	nz
+
+h_up$:
+	xor	a
+	ld	(play_time_m),a
+
+	ld	a,(play_time_h + 0)
+	inc	a
+	ld	(play_time_h + 0),a
+	cp	255				; for hour upper limit
+	ret	nz
+
+	ld	hl,obs_time_count
+	set	0,(hl)				; timer stop
+
+h_stop$:
+	ld	a,59
+	ld	(play_time_s),a
+	ld	(play_time_m),a
+	ld	a,255
+	ld	(play_time_h + 0),a
+	ld	(play_time_h + 1),a
+
+	ret
+
+
+count_down:
+	ld	a,(tm_count)
+	and	a
+	jr	nz,z1$
+
+	ld	a,0ffh
+
+	jr	z2$
+
+
+z1$:
+	dec	a				; timer count down
+
+z2$:
+	ld	(tm_count),a
+
+	and	a
+	ret	nz
+
+	ld	a,(obs_system)
+	res	1,a				; tomer off
+	res	2,a				; normal step(program) mode
+	bit	5,a				; cehck cancel all key value
+	res	5,a
+	ld	(obs_system),a
+	ret	z
+
+	xor	a
+	ld	(joy_on),a
+	ld	(joy_status),a
+
+	ret
+
+
+
+

@@ -1,0 +1,35 @@
+; 04/28/98		00:42:59
+dun_tbl$:
+	db	00fh
+ie_tbl$:
+	db	003h
+	db	001h,00ch,000h,T7R1F3
+	db	001h,010h,001h,T7R6F1
+	db	001h,001h,000h,T7R1F6
+kanban_tbl$:
+	db	001h
+	db	001h,00Eh,4
+hito_tbl$:
+	db	003h
+	db	SHOPMAN
+	db	007h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	NIICHYAN
+	db	005h+4,00Fh+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	002h
+	db	SHOUNEN
+	db	002h+4,005h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	003h
+ram_map_tbl$:
+	dw	010h * 001h + 007h + ram_map
+	db	001h,00ch
+	dw	010h * 001h + 009h + ram_map
+	db	001h,010h
+	dw	010h * 001h + 001h + ram_map
+	db	001h,001h

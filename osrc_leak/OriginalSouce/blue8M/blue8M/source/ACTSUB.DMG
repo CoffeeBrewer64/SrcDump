@@ -1,0 +1,531 @@
+
+	include		common.def
+	include		map.def
+	include		anime.def
+	include		fntequ.def
+	include		banktool.def
+	include		macro.h
+	include		few_mac.h
+
+
+
+	public	vanish_group_up
+	public	vanish_setup
+	public	obs_obj_atr
+	public	req_obj_appear
+	public	req_obj_vanish	
+	public	rock
+	public	rock_move
+
+
+	extern	actor_blanch
+	extern	ready2ready
+	extern	bank2bank
+	extern	bank_push_call
+
+	extern	cast_up_map
+	extern	cast_up_table
+
+	extern	div_direct
+	extern	get_item_name
+	extern	str_cpy
+	extern	add_item
+	extern	memset
+	extern	GetMoveStatus
+	extern	search_hit
+	extern	actor_anime_set
+
+	extern	step_prn_win
+	extern	put_win_msg
+	extern	put_window
+	extern	put_msg
+	extern	allow
+
+	extern	play
+	extern	wait_vb_s
+	extern  se_wait
+	extern	mussave
+	extern	musgo
+	extern	musiwa
+
+
+
+CAST_UP_SIZE	equ	32
+CAST_UP_MAX	equ	0ffh
+
+
+bank3	group	3
+
+
+;===============================================;
+; casting up for vanish actor status on map	;
+; calling from "get_map_info" in "mapper.src"	;
+;===============================================;
+vanish_group_up:
+	ld	a,(mapno)
+	cp	R1
+	jr	nc,no_check$
+
+	ld	c,a
+	ld	b,1				; bit set mode
+	ld	hl,save_event_flg + 0		; arrive map
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+
+no_check$:
+	ld	hl,cast_up_map
+	ld	a,(mapno)
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	add	hl,bc
+	
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; element (cast_up_table)
+
+	push	hl				; save element data address
+
+	ld	de,cast_up_table		; table offset
+	ld	a,l
+	sub	e
+	jr	nc,z100$
+
+	dec	h
+
+z100$:
+	ld	l,a
+	ld	a,h
+	sub	d
+	ld	h,a				; offset - top(hl = hl - de)
+
+	ld	a,h
+	ld	(calc_work0 + 0),a
+	ld	a,l
+	ld	(calc_work0 + 1),a
+
+	xor	a
+	ld	(calc_work0 + 2),a
+	ld	(calc_work0 + 3),a
+
+	ld	a,3
+	ld	(calc_work4 + 0),a
+
+	ld	b,2
+	call	div_direct
+
+	ld	a,(mapno)
+	ld	b,a
+	ld	a,(calc_work0 + 3)		; address offset / 3(byte)
+	ld	c,a
+
+	ld	de,vanish_group
+
+	pop	hl				; load element address
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh				; check end of table
+	jr	z,rts$
+
+	cp	b				; check target map number
+	jr	nz,rts$
+
+	ld	a,(hli)
+	inc	hl				; next top
+	ld	(de),a				; set obj number
+	inc	de
+
+	ld	a,c
+	inc	c
+	ld	(de),a				; set bit assign value
+	inc	de
+
+	jr	loop$
+
+
+rts$:
+	ld	a,0ffh
+	ld	(de),a
+
+	ret
+
+
+
+;===============================================;
+; casting up for vanish actor at starting	;
+; <<in>>					;
+; vanish_flag	ds	32			;
+;	assign data table for vanish actor	;
+; data/cast_up.dat				;
+;	cast up data table for vanish actor	;
+;===============================================;
+vanish_setup:
+	ld	hl,vanish_flag
+	ld	bc,CAST_UP_SIZE
+	xor	a
+	call	memset
+
+	ld	hl,cast_up_table
+
+	xor	a
+	ld	(dealer_work1),a		; range 000h --- 0ffh
+
+obj_init_loop$:
+	ld	a,(hli)
+	cp	0ffh
+	ret	z				; setup end
+
+	push	hl
+
+	inc	hl
+
+	ld	a,(hl)
+	cp	B_REQ_OBJ_VANISH
+	jr	nz,next$
+
+	ld	hl,vanish_flag
+	ld	a,(dealer_work1)
+	ld	c,a
+	ld	b,1				; set mode
+	call	bit_ctrl			; inner routine
+;	ld	a,B_BIT_CONTROL
+;	call	bank2bank
+
+next$:
+	ld	hl,dealer_work1
+	inc	(hl)
+
+	pop	hl
+
+	inc	hl
+	inc	hl
+
+	jr	obj_init_loop$
+
+
+
+;===============================================================;
+; observe attribute of actor as hidden & appearance		;
+; <<in>>							;
+;	actlow			actor number * 010h		;
+;	vanish_group		hidden attribute flag set	;
+;	vanish_flag		hidden attribute flag set	;
+;===============================================================;
+obs_obj_atr:
+	ld	a,(actlow)
+	swap	a
+	ld	b,a				; actor number(00h -- 0fh)
+
+	ld	hl,vanish_group
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh				; check end of data
+	jr	z,appear$			; search end(no vanish)
+
+	cp	b				; check target obj number
+	ld	a,(hli)
+	jr	nz,loop$
+
+	ld	c,a
+	ld	b,2
+	ld	hl,vanish_flag
+
+	call	bit_ctrl			; inner routine
+;	ld	a,B_BIT_CONTROL
+;	call	bank2bank
+
+	ld	a,c
+	and	a
+	jr	nz,vanish$
+
+appear$:
+	xor	a
+
+vanish$:
+	ld	(temp_box1),a
+
+	ret
+
+
+;===============================================================;
+; request of appearance some OBJ				;
+; <<in>>							;
+;	obs_obj			vanish assign number		;
+;	vanish_flag		hidden attribute flag set	;
+;===============================================================;
+req_obj_appear:
+	ld	hl,vanish_flag
+	ld	a,(obs_obj)
+	ld	c,a
+	ld	b,0				; bit clear mode
+	call	bit_ctrl			; inner routine
+;	ld	a,B_BIT_CONTROL
+;	call	bank2bank
+	jp	actor_blanch
+
+
+;===============================================================;
+; request of vanish some OBJ					;
+; <<in>>							;
+;	obs_obj			vanish assign number		;
+;	vanish_flag		hidden attribute flag set	;
+;===============================================================;
+req_obj_vanish:
+	ld	hl,vanish_flag
+	ld	a,(obs_obj)
+	ld	c,a
+	ld	b,1				; bit set mode
+	call	bit_ctrl			; inner routine
+;	ld	a,B_BIT_CONTROL
+;	call	bank2bank
+	jp	actor_blanch
+
+
+;---------------------------------------;
+;	bit_control			;
+;  IN  :  hl = bit save area address	;
+;	   c = bit number ( 0~255 )	;
+;	   b = 0  then bit off		;
+;	   b = 1  then bit on		;
+;	   b = 2  then bit check	;
+; OUT  	   c = 0  then off bit		;
+;---------------------------------------;
+bit_ctrl:
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,c
+	ld	d,a
+	and	07h
+	ld	e,a
+	ld	a,d
+	srl	a
+	srl	a
+	srl	a
+	add	a,l
+	ld	l,a
+	jr	nc,z1$
+
+	inc	h
+
+z1$:
+	inc	e
+	ld	d,1
+
+loop$:
+	dec	e
+	jr	z,z2$
+
+	sla	d
+
+	jr	loop$
+
+
+z2$:
+	ld	a,b
+	and	a
+	jr	z,bit_off$
+
+	cp	2
+	jr	z,bit_check$
+
+	ld	a,(hl)
+	ld	b,a
+	ld	a,d
+	or	b		; bit on
+	ld	(hl),a
+
+	jr	ret$
+
+	
+bit_off$:
+	ld	a,(hl)
+	ld	b,a
+	ld	a,d
+	xor	0ffh
+	and	b
+	ld	(hl),a
+
+	jr	ret$
+
+
+bit_check$:
+	ld	a,(hl)
+	ld	b,a
+	ld	a,d
+	and	b
+
+ret$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ld	c,a
+
+	ret
+
+
+
+;=================================;
+; observe to action of rock actor ;
+;=================================;
+rock:
+	ld	a,(ev_special + 0)
+	bit	0,a
+	ret	z				; check to allowed "kairiki"
+
+	ld	a,(obs_event + 0)
+	bit	1,a
+	ret	nz				; in moving with animetion
+
+	xor	a
+	ld	(work1),a
+	extern	search_hit1_0
+	call	search_hit1_0			; OBJ only check
+	ld	a,(work1)
+	ld	(ev_something + 0),a
+	and	a
+	jp	z,rock_status			; no actor in front
+
+	ld	hl,actor_table + 01h
+	ld	d,0
+	ld	a,(work1)
+	swap	a
+	ld	e,a
+	add	hl,de
+	res	7,(hl)
+
+	call	GetMoveStatus			; in-argument : work1
+	ld	a,(hl)
+	cp	010h				; check code as rock actor
+	jp	nz,rock_status
+
+	ld	hl,obs_event + 0
+	bit	6,(hl)
+	set	6,(hl)
+	ret	z				; 1 turn wait switch
+
+	ld	a,(joy_status)
+	and	0f0h
+	ret	z
+
+	ld	a,90				; CheckAwayWall
+	call	bank2bank
+	ld	a,(ev_something + 4)
+	and	a
+	jp	nz,rock_status
+
+	ld	a,(joy_status)
+	ld	b,a
+
+	ld	a,(actor_table + 009h)
+	cp	004h
+	jr	z,up$
+
+	cp	008h
+	jr	z,left$
+
+	cp	00ch
+	jr	z,right$
+
+low$:
+	bit	7,b				; low key
+	ret	z
+
+	ld	de,d_move$
+
+	jr	set$
+
+
+up$:
+	bit	6,b				; up key
+	ret	z
+
+	ld	de,u_move$
+
+	jr	set$
+
+
+left$:
+	bit	5,b				; left key
+	ret	z
+
+	ld	de,l_move$
+
+	jr	set$
+
+
+right$:
+	bit	4,b				; right key
+	ret	z
+
+	ld	de,r_move$
+
+set$:
+	call	actor_anime_set
+
+	ld	a,< musiwa
+	call	play
+
+	ld	hl,obs_event + 0
+	set	1,(hl)				; push rock mode
+
+	ret
+
+
+
+u_move$:
+	db	A_U,A_E
+
+d_move$:
+	db	A_D,A_E
+
+l_move$:
+	db	A_L,A_E
+
+r_move$:
+	db	A_R,A_E
+
+
+
+;===============================;
+; moving observe for rock actor ;
+;===============================;
+	extern	kairiki_effect
+
+rock_move:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	hl,kairiki_effect
+	ld	b,1eh
+	call	bank_push_call
+
+	extern	joy_clear
+	call	joy_clear
+	ld	(cancel_key),a
+
+	call	rock_status			; "obs_event + 0"
+	set	7,(hl)				; vanish allow switch
+
+	ld	a,(ev_something + 0)
+	ld	(work1),a
+	call	GetMoveStatus			; in-argument : work1
+	ld	(hl),010h
+
+	ld	a,< musgo
+	jp	play
+
+
+
+rock_status:
+	ld	hl,obs_event + 0
+	res	1,(hl)				; 16 dot moving status(push)
+	res	6,(hl)				; 1turn after touch (push)
+
+	ret
+

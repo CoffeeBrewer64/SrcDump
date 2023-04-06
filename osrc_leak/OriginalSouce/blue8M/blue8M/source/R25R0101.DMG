@@ -1,0 +1,376 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		anime.def
+	include		vanish.def
+	include		banktool.def
+	include		macro.h
+	include		group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	r25_room1
+
+
+	extern	bank2bank
+	extern	table_jump
+	extern	actor_anime_set   
+	extern	yes_no
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	save_position
+	extern	load_position
+
+
+MANIA_TYPE	equ	16
+EXIT		=	0ffh
+
+
+seq_r25r1f1	equ	seq_ctrl_buf + 071h
+
+
+r25_room1:  
+ysiz	=	4
+xsiz	=	4
+	db	MANIA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	mania			; map data adrs
+	dw	msg_r25r1f1		; message tbl adrs
+	dw	ev_r25r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r25r1f1
+
+
+ev_r25r1f1:
+	call	init_for_talkmap
+
+	ld	a,(seq_r25r1f1)
+	ld	hl,r25r1f1_tbl
+	jp	table_jump
+
+
+
+r25r1f1_tbl:
+	initndw	r25r1f1_main,seq_r25r1f1_main
+	ndw	StepIn,SeqStepIn
+	ndw	IntoMachine,SeqIntoMachine
+	ndw	FromMachine,SeqFromMachine
+	ndw	Success,SeqSuccess
+	ndw	leave,seq_leave
+
+
+r25r1f1_main:
+	ret
+
+
+StepIn:
+	ld	a,(actor_table + 009h)
+	and	a
+	ld	de,into_machine1$
+	jr	nz,normal$
+
+	ld	de,into_machine2$
+
+normal$:
+	ld	a,msg_monster1
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,SeqIntoMachine
+	ld	(seq_r25r1f1),a
+
+	ret
+
+
+into_machine1$:
+	db	A_U,A_U,A_U,A_E
+
+
+into_machine2$:
+	db	A_R
+	db	A_U,A_U
+	db	A_L
+	db	A_U
+	db	A_E
+
+
+IntoMachine:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,R25R1F1msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	hl,ev_r25 + 1
+	set	6,(hl)				; into machine
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,SeqFromMachine
+	ld	(seq_r25r1f1),a
+
+	ret
+
+
+FromMachine:
+	ld	a,(ev_r25 + 1)
+	bit	3,a				; check out from machine
+	ret	z
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,msg_niichyan1
+	ld	(sv_msg_no),a
+	ld	a,00ch
+	ld	(sv_box01),a
+	ld	a,040h
+	ld	(sv_box02),a
+	ld	a,002h + 004h
+	ld	(sv_box03),a
+	ld	a,001h + 004h
+	ld	(sv_box04),a
+	call	load_position
+
+	ld	a,R25R1F1msg2
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	ld	c,8
+	call	wait_vb_s
+
+	ld	a,msg_niichyan1
+	ld	(work1),a
+	ld	de,from_machine$
+	call	actor_anime_set
+
+	ld	a,SeqSuccess
+	ld	(seq_r25r1f1),a
+
+	ret
+
+
+from_machine$:
+	db	A_D,A_R,A_R,A_R,A_D,A_E
+
+
+Success:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	hl,ev_r25 + 1
+	set	5,(hl)				; out from machine
+
+	ld	hl,ev_r25 + 0
+	set	0,(hl)				; event successful(machine on)
+
+	ld	a,seq_r25r1f1_main
+	ld	(seq_r25r1f1),a
+
+	ret
+
+
+leave:
+	ld	a,msg_stock
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,seq_r25r1f1_main
+	ld	(seq_r25r1f1),a
+
+	ret
+
+
+
+msg_r25r1f1:
+	msgndw	msg1,msg_monster1
+	ndw	msg2,msg_niichyan1
+	ndw	msg3,msg_niichyan2
+	ndw	stock,msg_stock
+
+
+
+stock:
+	db	MONSSTOCK
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+loop$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	a,SeqStepIn
+	ld	(seq_r25r1f1),a
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	jr	loop$
+
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_R25R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_R25R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_R25R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,(ev_r25 + 1)
+	bit	4,a				; check obtained "ticket"
+	jr	nz,after$
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	ld	bc,63 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+	ld	hl,ev_r25 + 1
+	set	4,(hl)				; obtained "ticket"
+
+	extern	T4msg6
+	ld	a,< T4msg6
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	extern	T4msg11
+	ld	a,< T4msg11
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+after$:
+	ld	hl,msg2_3$
+	call	put_win_msg
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg2_2$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_3_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_3_R25R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_4_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_4_R25R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db	FANFARE6
+	db	WAIT
+	db	EOM
+
+
+msg2_2$:
+	extern	msg2_2_5_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_5_R25R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_3$:
+	extern	msg2_3_6_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_3_6_R25R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_7_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_7_R25R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+sxy_r25r1f1:
+	include	..\sxy\r25r0101.sxy
+
+
+mania:
+	include ..\mapdata\mania.map
+
+

@@ -1,0 +1,555 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include	dealer.def
+	include	macro.h
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+	public	t11_room2
+
+
+	extern	SetActorSite
+	extern	take_monster
+	extern	look_guide
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+SCHOOL_TYPE	equ	5
+EXIT		=	0ffh
+
+
+seq_t11r2f1	equ	seq_ctrl_buf + 52h
+
+
+t11_room2:
+ysiz	=	6
+xsiz	=	5
+	db	SCHOOL_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	donata			; map data adrs
+	dw	msg_t11r2f1		; message tbl adrs
+	dw	ev_t11r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t11r2f1
+
+
+ev_t11r2f1:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,t11r2f1_tbl
+	ld	a,(seq_t11r2f1)
+	call	battle_sequence
+	ld	(seq_t11r2f1),a
+
+	ret
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_t11r2f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+t11r2f1_tbl:
+	initndw	t11r2f1_main,seq_t11r2f1_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+	ndw	vs_after,seq_vs_after
+
+
+t11r2f1_main:
+	ld	a,(ev_t11_2 + 0)
+	bit	0,a				; all event finished
+	ret	nz
+
+	call	battle_main
+	ld	a,(obs_actor)
+	and	a
+	ret	nz				; battle invoke
+
+	ld	a,(ev_t11_2 + 0)
+	bit	1,a
+	ret	nz
+
+	xor	a
+	ld	(joy_status),a
+	ld	(event_check),a
+
+	ld	a,(mapscloll_y)
+	cp	003h
+	ret	nz
+
+	ld	a,(mapscloll_x)
+	cp	004h
+	ret	nz
+
+	ld	a,1
+	ld	(event_check),a
+
+	ld	a,1
+	ld	(watashi_muki),a
+
+	ld	a,msg_boss
+	ld	(work1),a
+	ld	a,08h
+	ld	(work2),a
+	call	SetActorSite
+
+	ld	a,msg_boss
+	ld	(work1),a
+	call	talk_map
+
+	ret
+
+
+vs_after:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,(event_check)
+	and	a
+	jr	z,etc$
+
+	ld	a,1
+	ld	(watashi_muki),a
+
+	ld	a,msg_boss
+	ld	(work1),a
+	ld	a,08h
+	ld	(work2),a
+	call	SetActorSite
+
+etc$:
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,(ev_t11_2 + 0)
+	or	00111110b
+	ld	(ev_t11_2 + 0),a
+
+	ld	a,msg_after
+	ld	(work1),a
+	call	talk_map
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	(seq_t11r2f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+msg_t11r2f1:
+	msgndw	msg1,msg_boss
+	ndw	msg2,msg_karate1
+	ndw	msg3,msg_karate2
+	ndw	msg4,msg_karate3
+	ndw	msg5,msg_karate4
+	ndw	capsule1,msg_capsule1
+	ndw	capsule2,msg_capsule2
+	ndw	msg1_after,msg_after
+
+
+
+dealer_talk:
+d_talk1:
+	db	msg_karate1,040h
+	dw	ev_t11_2 + 0
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk2:
+	db	msg_karate2,040h
+	dw	ev_t11_2 + 0
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk3:
+	db	msg_karate3,030h
+	dw	ev_t11_2 + 0
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk4:
+	db	msg_karate4,030h
+	dw	ev_t11_2 + 0
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t11_2 + 0)
+	bit	0,a				; check to obtain capsule
+	jp	nz,after_obtain$
+
+	bit	1,a				; check battle
+	jp	nz,after$
+
+	ld	hl,msg1_0
+	call	put_win_msg
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg1_win			; hero lose
+	ld	de,msg1_win			; hero win
+	call	set_battle_msg
+
+	ld	a,(work1)
+	ld	(sv_msg_no),a
+	call	set_battle
+	call	set_battle_data
+
+	ld	a,seq_vs_after
+	ld	(seq_t11r2f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	jr	rts$
+
+
+after_obtain$:
+	ld	hl,msg1_after2
+	call	put_win_msg
+
+	jr	rts$
+
+
+after$:
+	ld	hl,msg1_after
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0:
+	extern	msg1_0_0_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_1_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_2_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_2_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after2:
+	extern	msg1_after2_3_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_after2_3_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg2_0:
+	extern	msg2_0_4_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_4_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_5_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_5_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_6_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_6_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg3_0:
+	extern	msg3_0_7_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_7_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_8_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_8_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_9_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_9_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg4_0:
+	extern	msg4_0_10_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_10_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_11_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_11_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_12_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_12_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg5_0:
+	extern	msg5_0_13_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_13_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_14_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_14_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_15_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_15_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+capsule1:
+	db	CALL_MSG
+
+	ld	a,(ev_t11_2 + 0)
+	and	11000000b
+	jr	z,obtain$
+
+	ld	hl,after_obtain
+	call	put_win_msg
+
+	jr	rts$
+
+
+obtain$:
+	ld	a,43				; "sawamura-"
+	call	look_guide
+
+	ld	hl,capsule1_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,rts$
+
+	ld	a,(sel_item_no)
+	ld	b,a
+	ld	c,30
+	call	take_monster
+	jr	nc,rts$
+
+	ld	a,T11R2F1msg6
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	hl,ev_t11_2 + 0
+	set	6,(hl)
+	set	0,(hl)				; all event finished
+
+rts$:
+	jp	msg_return
+
+
+capsule1_0$:
+	extern	capsule1_0_16_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw capsule1_0_16_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+capsule2:
+	db	CALL_MSG
+
+	ld	a,(ev_t11_2 + 0)
+	and	11000000b
+	jr	z,obtain$
+
+	ld	hl,after_obtain
+	call	put_win_msg
+
+	jr	rts$
+
+
+obtain$:
+	ld	a,44				; "ebiwara-"
+	call	look_guide
+
+	ld	hl,capsule2_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,rts$
+
+	ld	a,(sel_item_no)
+	ld	b,a
+	ld	c,30
+	call	take_monster
+	jr	nc,rts$
+
+	ld	hl,ev_t11_2 + 0
+	set	7,(hl)
+	set	0,(hl)				; all event finished
+
+	ld	a,T11R2F1msg7
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+rts$:
+	jp	msg_return
+
+
+capsule2_0$:
+	extern	capsule2_0_17_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw capsule2_0_17_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+after_obtain:
+	extern	after_obtain_18_T11R0201
+	db I_MSG2	; mvmsg追加
+	dw after_obtain_18_T11R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t11r2f1:
+	include	..\sxy\t11r0201.sxy
+
+
+donata:
+	include	..\mapdata\donata.map
+

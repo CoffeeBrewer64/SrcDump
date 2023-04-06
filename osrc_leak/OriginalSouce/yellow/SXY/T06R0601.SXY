@@ -1,0 +1,16 @@
+; 06/02/98		16:16:47
+dun_tbl$:
+	db	00fh
+ie_tbl$:
+	db	002h
+	db	000h,00eh,005h,EXIT
+	db	002h,00eh,001h,D3R1F1
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	000h
+ram_map_tbl$:
+	dw	014h * 001h + 008h + ram_map
+	db	000h,00eh
+	dw	014h * 002h + 008h + ram_map
+	db	002h,00eh

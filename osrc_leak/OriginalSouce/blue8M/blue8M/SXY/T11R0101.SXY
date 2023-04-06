@@ -1,0 +1,34 @@
+; 11/10/95		14:35:46
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	003h
+	db	007h,002h,000h,EXIT
+	db	007h,003h,000h,EXIT
+	db	001h,007h,000h,T11R1F2
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	003h
+	db	OBASAN
+	db	002h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+	db	OSSAN
+	db	004h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	002h
+	db	MARUMON
+	db	004h+4,001h+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	003h
+ram_map_tbl$:
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,002h
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,003h
+	dw	00ah * 001h + 004h + ram_map
+	db	001h,007h

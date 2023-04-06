@@ -1,0 +1,416 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room2_3f
+
+
+	extern	how_many_bit
+	extern	bank_push_call
+	extern	hyousyoujyou
+	extern	yes_no
+	extern	put_wait
+
+	extern	ZukanComplete
+	extern	pal_off_put_wait
+	extern	map_rewrite2
+	extern	set_objdata
+	extern	palset
+	extern	pop_vram_m
+
+
+MANSHON_TYPE	equ	19
+EXIT		=	0ffh
+
+
+t7_room2_3f:
+
+ysiz	=	6
+xsiz	=	4
+	db	MANSHON_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	manshon3f		; map data adrs
+	dw	msg_t7r2f3
+	dw	ev_t7r2f3		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r2f3
+
+
+ev_t7r2f3:
+	call	init_for_talkmap
+
+	ret
+
+
+check_obtained:
+	ld	hl,zukan_flg			; catch status
+	ld	b,19
+	call	how_many_bit
+	ld	a,(in_dat)
+
+	ret
+
+
+msg_t7r2f3:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+	dw	msg4
+	dw	kanban1
+	dw	kanban2
+	dw	kanban3
+	dw	kanban4
+
+
+msg1:
+	db	CALL_MSG
+
+	call	check_obtained
+	cp	150
+	ld	hl,msg1_1$
+	jr	nc,many$
+
+	ld	hl,msg1_0$
+
+many$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	call	check_obtained
+	cp	150
+	jr	nc,many$
+
+	ld	hl,msg2_0$
+
+	jr	rts$
+
+
+many$:
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	call	push_vram_m
+	xor	a
+	ld	(oam_flg),a
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+	ld	hl,ZukanComplete
+	ld	b,G_BANK3a
+	call	bank_push_call
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	pal_off_put_wait
+	call	map_rewrite2
+	call	set_objdata
+	call	pop_vram_m
+	call	put_wait
+	call	palset
+
+	ld	hl,msg2_ng$
+
+	ld	a,(DA_BUF + 00h)
+	and	a
+	jr	nz,rts$
+
+	ld	hl,msg2_3$
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg2_2$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_2_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_2_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_3_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_3_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_2$:
+	extern	msg2_2_4_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_4_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_3$:
+	extern	msg2_3_5_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg2_3_5_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_ng$:
+	extern	msg2_ng_6_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg2_ng_6_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	call	check_obtained
+	cp	150
+	ld	hl,msg3_1$
+	jr	nc,many$
+
+	ld	hl,msg3_0$
+
+many$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_7_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_7_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_1$:
+	extern	msg3_1_8_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_8_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	call	check_obtained
+	cp	150
+	jr	nc,many$
+
+	ld	hl,msg4_0$
+
+	jr	rts$
+
+
+many$:
+	ld	hl,msg4_1$
+	call	put_win_msg
+
+	call	put_wait
+
+	xor	a
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg4_2$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg4_0$:
+	extern	msg4_0_9_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_9_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_1$:
+	extern	msg4_1_10_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg4_1_10_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db	WAIT
+	db	CALL_MSG
+
+	ld	hl,hyousyoujyou			;in_dat = Zukan Counter(0~151)
+	ld	b,G_BANK15
+	call	bank_push_call
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	jp	msg_return
+
+
+msg4_2$:
+	extern	msg4_2_11_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg4_2_11_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kan1
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban2:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kan2
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban3:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kan3
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban4:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kan4
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+
+
+sxy_t7r2f3:
+	include	..\sxy\t07r0203.sxy
+
+
+manshon3f:
+	include	..\mapdata\mansh03.map
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+kan1:
+	ld	hl,kanban1_0$
+	call	put_win_msg
+
+	ret
+
+
+kanban1_0$:
+	extern	kanban1_0_12_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_12_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kan2:
+	ld	hl,kanban2_0$
+	call	put_win_msg
+
+	ret
+
+
+kanban2_0$:
+	extern	kanban2_0_13_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw kanban2_0_13_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kan3:
+	ld	hl,kanban3_0$
+	call	put_win_msg
+
+	ret
+
+
+kanban3_0$:
+	extern	kanban3_0_14_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw kanban3_0_14_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kan4:
+	ld	hl,kanban4_0$
+	call	put_win_msg
+
+	ret
+
+
+kanban4_0$:
+	extern	kanban4_0_15_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw kanban4_0_15_T07R0203	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+

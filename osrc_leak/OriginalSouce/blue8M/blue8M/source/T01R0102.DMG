@@ -1,0 +1,80 @@
+
+	include	common.def	
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include macro.h
+	include group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	t1_room1_2f
+
+
+	extern	table_jump
+
+	extern	room2f
+
+
+
+ROOM2F_TYPE	equ	4
+
+
+seq_t1r1f2	equ	seq_ctrl_buf + 01ch
+
+
+t1_room1_2f:
+ysiz	=	4
+xsiz	=	4
+	db	ROOM2F_TYPE			; map type
+	db	ysiz,xsiz			; yx size
+	dw	room2f				; map data adrs
+	dw	msg_t1r1f2
+	dw	ev_t1r1f2
+	db	0				; map link flg
+	dw	room_str
+
+
+ev_t1r1f2:
+	call	init_for_talkmap
+
+	ld	hl,event_table
+	ld	a,(seq_t1r1f2)
+	jp	table_jump
+
+
+
+event_table:
+	initndw	turn,seq_turn
+	ndw	main_t1r1f2,seq_main_t1r1f2
+
+
+turn:
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,008h
+	ld	(watashi_muki),a
+
+	ld	a,seq_main_t1r1f2
+	ld	(seq_t1r1f2),a
+
+	ret
+
+
+main_t1r1f2:
+	ret
+
+
+msg_t1r1f2:
+	db	EOM
+
+
+room_str:
+	include	..\sxy\t01r0102.sxy
+
+
+
+

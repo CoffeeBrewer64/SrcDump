@@ -1,0 +1,336 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	t5_room2_5f
+
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+	extern	CheckActorPos
+	extern	CheckAssignPos
+	extern	put_wait
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+	
+
+TOWER_TYPE	equ	15
+EXIT		=	0ffh
+
+
+seq_t5r2f5	equ	seq_ctrl_buf + 3eh
+
+
+t5_room2_5f:
+ysiz	=	9
+xsiz	=	10
+	db	TOWER_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	tower5			; map data adrs
+	dw	msg_t5r2f5		; message tbl adrs
+	dw	ev_t5r2f5		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+ev_t5r2f5:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,t5r2f5_tbl
+	ld	a,(seq_t5r2f5)
+	call	battle_sequence
+	ld	(seq_t5r2f5),a
+
+	ret
+
+
+t5r2f5_tbl:
+	initndw	T5R2F5main,SeqT5R2F5main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+T5R2F5main:
+	ld	hl,area_pos$
+	call	CheckAssignPos
+	jr	c,on_area$
+
+	ld	hl,obs_player
+	res	4,(hl)
+
+	ld	hl,ev_t5_2 + 3
+	res	7,(hl)
+
+	jp	battle_main
+
+
+on_area$:
+	ld	hl,ev_t5_2 + 3
+	bit	7,(hl)
+	set	7,(hl)
+	ret	nz
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	hl,obs_player
+	set	4,(hl)
+
+	ld	a,B_KAIHUKU
+	call	bank2bank
+
+	call	n_to_w
+
+	call	put_wait
+	call	put_wait
+
+	call	w_to_n
+
+	ld	a,msg_area
+	ld	(work1),a
+	call	talk_map
+
+	xor	a
+	ld	(cancel_key),a
+
+	ret
+
+
+area_pos$:
+	db	008h,00ah
+	db	008h,00bh
+	db	009h,00ah
+	db	009h,00bh
+	db	0ffh
+
+
+msg_t5r2f5:
+	msgndw	msg1,msg_kitoushi
+	ndw	msg2,msg_prayer1
+	ndw	msg4,msg_prayer3
+	ndw	msg5,msg_prayer4
+	ndw	msg6,msg_prayer5
+	ndw	capsule_item,msg_capsule1
+	ndw	area,msg_area
+
+
+dealer_talk:
+d_talk1:
+	db	msg_prayer1,020h
+	dw	ev_t5_2 + 3
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk3:
+	db	msg_prayer3,030h
+	dw	ev_t5_2 + 3
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk4:
+	db	msg_prayer4,020h
+	dw	ev_t5_2 + 3
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+d_talk5:
+	db	msg_prayer5,020h
+	dw	ev_t5_2 + 3
+	dw	msg6_0
+	dw	msg6_after
+	dw	msg6_win
+	dw	msg6_win
+
+	db	0ffh
+
+
+msg1:
+	extern	msg1_0_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg2_0:
+	extern	msg2_0_1_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_1_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_2_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_2_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_3_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_3_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg4_0:
+	extern	msg4_0_4_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_4_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_5_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_5_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_6_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_6_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg5_0:
+	extern	msg5_0_7_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_7_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_8_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_8_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_9_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_9_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	db	CALL_MSG
+
+	ld	hl,d_talk5
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg6_0:
+	extern	msg6_0_10_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg6_0_10_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_win:
+	extern	msg6_win_11_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg6_win_11_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_after:
+	extern	msg6_after_12_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw msg6_after_12_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+area:
+	extern	area_13_T05R0205
+	db I_MSG2	; mvmsg追加
+	dw area_13_T05R0205	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+room_str:
+	include	..\sxy\t05r0205.sxy
+
+
+tower5:
+	include	..\mapdata\nt_5f.map
+
+
+

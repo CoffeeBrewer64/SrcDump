@@ -1,0 +1,216 @@
+
+	include	common.def
+	include	fntequ.def
+	include	anime.def
+	include	maphead.def
+	include macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	r22_room1
+
+
+	extern	set_battle
+	extern	set_battle_msg
+	extern	fnt_kana
+	extern	fontmove
+	extern	actor_anime_set
+	extern	mk_trace_cmd
+	extern	table_jump
+	extern	cont
+	extern	yes_no
+	extern	i_see
+	extern	acttbl_l_adrs
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	memset
+
+	extern	actor_put
+	extern	push_bank
+	extern	pop_bank
+	extern	check_money
+
+	extern	musboboo
+	extern	se_play
+	extern	se_wait
+	extern	set_now_music
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+seq_r22r1f1		equ	seq_ctrl_buf + 01eh
+
+
+r22_room1:  
+ysiz	=	4
+xsiz	=	5
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gate22  	 	; map data adrs
+	dw	msg_r22 		; message tbl adrs
+	dw	event_r22		; event routine adrs
+	db	0			; map link flg
+	dw	room_str 
+
+
+event_r22:
+	call	init_for_talkmap
+
+	ld	hl,event_table
+	ld	a,(seq_r22r1f1)
+	call	table_jump
+
+	ld	a,(mapscloll_y)
+	cp	4
+	ld	a,R23
+	jr	c,rts$
+
+	ld	a,R22
+
+rts$:
+	ld	(mapno_stack),a
+
+	ret
+
+
+event_table:
+	initndw	r22r1f1_main,seq_r22r1f1_main
+	ndw	obs_stepback,seq_obs_stepback
+	ndw	freegate,seq_freegate
+
+
+r22r1f1_main:
+	ld	hl,stop_pos$
+	extern	CheckAssignPos
+	call	CheckAssignPos
+	ret	nc
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,msg_gatekeeper
+	ld	(work1),a
+	jp	talk_map
+
+
+stop_pos$:
+	db	002h,004h
+	db	002h,005h
+	db	0ffh
+
+
+stepback:
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+	ld	a,W_D				; animetion pattern
+	ld	(ctrl_move_val),a
+
+	ld	(actor_table + 009h),a
+	ld	(cancel_key),a
+
+	extern	init_hero_anime
+	jp	init_hero_anime
+
+
+obs_stepback:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	extern	put_wait
+	call	put_wait
+
+	ld	a,seq_r22r1f1_main
+	ld	(seq_r22r1f1),a
+
+
+
+freegate:
+	ret
+
+
+
+msg_r22:
+	msgndw	msg1,msg_gatekeeper
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(my_badge + 0)
+	bit	0,a				; "badge"
+	jr	nz,obtained$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	call	stepback
+
+	ld	a,seq_obs_stepback
+
+	jr	rts$
+
+
+obtained$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	a,seq_freegate
+
+rts$:
+	ld	(seq_r22r1f1),a
+
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_R22R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_R22R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,< musboboo
+	call	se_play
+	call	se_wait
+
+	ld	hl,msg1_0_0$
+
+	ret
+
+
+msg1_0_0$:
+	extern	msg1_0_0_1_R22R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_1_R22R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg1_1$:
+	extern	msg1_1_2_R22R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_2_R22R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+room_str:
+	include	..\sxy\r22r0101.sxy
+
+
+gate22:
+	include ..\mapdata\22gate.map
+
+

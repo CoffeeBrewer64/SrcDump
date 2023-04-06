@@ -1,0 +1,69 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include macro.h
+	include group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t2_room3
+
+
+	extern	minka_b
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t2_room3:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE			; map type
+	db	ysiz,xsiz			; yx size
+	dw	minka_b				; map data adrs
+	dw	msg_t2r3f1			; message tbl adrs
+	dw	event_t2r3f1			; event routine adrs
+	db	0				; map link flg
+	dw	room_str
+
+
+event_t2r3f1:
+	jp	init_for_talkmap
+
+
+
+msg_t2r3f1:
+	dw	msg1$
+	dw	msg2$
+
+
+
+
+msg1$:
+	extern	msg1_0_T02R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T02R0301	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_T02R0301
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T02R0301	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\t02r0301.sxy
+
+
+
+
+
+

@@ -1,0 +1,7255 @@
+
+	include		fntequ.def
+	include		group.def
+	include		common.def
+	include		fight.def
+	include		pm_debug.def
+
+
+
+bank24		group	024h
+	public	msg1_0_ROAD12
+msg1_0_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,ga_,spc@,to_,te_,mo_
+	db	home@
+	db	ki_,mo_,ti_,spc@,yo_,sa_,so_,u_,ni_,spc@,ne_,te_,ma_,su_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_s_,usf_l_,usf_e_,usf_e_,usf_p_,usf_i_,usf_n_,usf_g_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_b_,usf_l_,usf_o_,usf_c_,usf_k_,usf_s_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_w_,usf_a_,usf_y_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_kabigon_1_ROAD12
+msg1_kabigon_1_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka__,bi__,go__,n__,ga_,spc@,me_,wo_,spc@,sa_,ma_,si_,ta_,gyoe@
+	db	normal@
+	db	ka__,bi__,go__,n__,ha_
+	db	home@
+	db	ne_,bo_,ke_,te_,spc@,o_,so_,ttu_,te_,ki_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_n,usf_o,usf_r,usf_l,usf_a,usf_x,spc@
+	db	usf_w_,usf_o_,usf_k_,usf_e_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	normal@
+	db	usf_i,usf_t_,spc@
+	db	usf_a_,usf_t_,usf_t_,usf_a_,usf_c_,usf_k_,usf_e_,usf_d_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_g_,usf_r_,usf_u_,usf_m_,usf_p_,usf_y_,spc@
+	db	usf_r_,usf_a_,usf_g_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_after_2_ROAD12
+msg1_after_2_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka__,bi__,go__,n__,ha_,spc@,o_,to_,na_,si_,ku_,spc@,na_,ttu_,ta_
+	db	home@
+	db	o_,o_,ki_,na_,spc@,a_,ku_,bi_,wo_,spc@
+	db	su_,ru_,to_,tenten2@,gyo3@
+	db	ya_,ma_,o_,ku_,he_,spc@,sa_,ttu_,te_,spc@,i_,ttu_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_n,usf_o,usf_r,usf_l,usf_a,usf_x,spc@
+	db	usf_c_,usf_a_,usf_l_,usf_m_,usf_e_,usf_d_
+	db	home@
+	db	usf_d_,usf_o_,usf_w_,usf_n_,gyoe@,spc@
+	db	usf_w,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_a_,spc@
+	db	usf_b_,usf_i_,usf_g_
+	db	gyo3@
+	db	usf_y_,usf_a_,usf_w_,usf_n_,comma@,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_r_,usf_e_,usf_t_,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_
+	db	gyo3@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_u_,usf_n_,usf_t_,usf_a_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_3_ROAD12
+msg2_0_3_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ttu_,spc@,o_,bou@,ttu__,gyoe@
+	db	home@
+	db	hi_,i_,te_,ru_,spc@,hi_,i_,te_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_e_,usf_a_,usf_h_,gyoe@,spc@
+	db	usf_i,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_b_,usf_i_,usf_t_,usf_e_,comma@,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_win_4_ROAD12
+msg2_win_4_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ti_,ttu__,gyoe@
+	db	home@
+	db	ge_,do_,u_,spc@,da_,ttu_,ta_,ka_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_c_,usf_h_,gyoe@
+	db	home@
+	db	usf_j,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_a_,spc@
+	db	usf_s_,usf_m_,usf_a_,usf_l_,usf_l_,spc@
+	db	usf_f_,usf_r_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg2_after_5_ROAD12
+msg2_after_5_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,ttu_,te_,spc@,ku_,re_,gyoe@
+	db	home@
+	db	tu_,ri_,i_,to_,ga_,spc@,ko_,n_,ga_,ra_,ga_,ttu_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_a_,usf_n_,usf_g_,spc@
+	db	usf_o_,usf_n_,gyoe@,spc@
+	db	usf_m,usf_y_,spc@
+	db	usf_l_,usf_i_,usf_n_,usf_e_,apt_s_
+	db	home@
+	db	usf_s_,usf_n_,usf_a_,usf_g_,usf_g_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_6_ROAD12
+msg3_0_6_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,a_,wa_,te_,ru_,na_,gyoe@
+	db	home@
+	db	ma_,tu_,spc@,ko_,to_,mo_,spc@,ma_,ta_,gyoe@,gyo3@
+	db	tu_,ri_,no_,spc@,ta_,no_,si_,mi_,spc@,de_,a_,ru_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_e_,spc@
+	db	usf_p_,usf_a_,usf_t_,usf_i_,usf_e_,usf_n_,usf_t_,gyoe@
+	db	home@
+	db	usf_f,usf_i_,usf_s_,usf_h_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_a_
+	db	gyo3@
+	db	usf_w_,usf_a_,usf_i_,usf_t_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_g_,usf_a_,usf_m_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_7_ROAD12
+msg3_win_7_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ttu_,to_,tenten2@,gyoe@
+	db	home@
+	db	ti_,yyo_,ttu_,to_,spc@,ma_,ttu_,te_,spc@,ku_,re_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_t_
+	db	home@
+	db	usf_o_,usf_n_,usf_e_,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_a_,usf_w_,usf_a_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_8_ROAD12
+msg3_after_8_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,i_,spc@,tu_,ri_,za_,o_,wo_,spc@,tu_,ka_,e_,ba_
+	db	home@
+	db	i_,i_,spc@,poke@,ga_,spc@,tu_,re_,ru_,n_,da_,ga_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_a_,spc@
+	db	usf_b_,usf_e_,usf_t_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_r,usf_o,usf_d,comma@
+	db	home@
+	db	usf_i,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_
+	db	gyo3@
+	db	usf_b_,usf_e_,usf_t_,usf_t_,usf_e_,usf_r_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_0_9_ROAD12
+msg5_0_9_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,ki_,no_,i_,si_,spc@,sa_,ga_,si_,te_,ru_,n_,da_,spc@,ke_,do_
+	db	home@
+	db	ki_,mi_,spc@,mo_,ttu_,te_,spc@,na_,i_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_f_,usf_o_,usf_u_,usf_n_,usf_d_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_m,usf_o,usf_o,usf_n,spc@
+	db	usf_s,usf_t,usf_o,usf_n,usf_e,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_win_10_ROAD12
+msg5_win_10_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ri_,yya_,ri_,yya_,tenten2@,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_w_,usf_w_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg5_after_11_ROAD12
+msg5_after_11_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,ki_,no_,i_,si_,ga_,spc@,a_,re_,ba_
+	db	home@
+	db	poke@,ga_,spc@,si_,n_,ka_,spc@,si_,te_,gyo3@
+	db	bo_,ku_,spc@,ka_,ttu_,te_,ta_,spc@,ka_,mo_,spc@
+	db	si_,re_,na_,i_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_m_,usf_a_,usf_d_,usf_e_
+	db	home@
+	db	usf_m_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_e_,usf_v_,usf_o_,usf_l_,usf_v_,usf_e_
+	db	gyo3@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_m,usf_o,usf_o,usf_n,spc@
+	db	usf_s,usf_t,usf_o,usf_n,usf_e,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_0_12_ROAD12
+msg6_0_12_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ku_,no_,spc@,se_,n_,mo_,n_,spc@,de_,n_,ki_,spc@,da_,ka_,ra_
+	db	home@
+	db	u_,mi_,spc@,poke@,ha_,spc@,ku_,wa_,si_,ku_,spc@,na_,i_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_e,usf_l_,usf_e_,usf_c_,usf_t_,usf_r_,usf_i_,usf_c_,usf_i_,usf_t_,usf_y_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_m_,usf_y_
+	db	home@
+	db	usf_s_,usf_p_,usf_e_,usf_c_,usf_i_,usf_a_,usf_l_,usf_t_,usf_y_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_win_13_ROAD12
+msg6_win_13_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ni_,yya_,spc@,hu_,ni_,yya_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_u,usf_n_,usf_p_,usf_l_,usf_u_,usf_g_,usf_g_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg6_after_14_ROAD12
+msg6_after_14_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,bou@,n_,tenten2@,spc@,ta_,si_,ka_,spc@,mi_,zu_,ha_
+	db	home@
+	db	de_,n_,ki_,wo_,spc@,yo_,ku_,spc@,to_,o_,su_,spc@,ka_,ra_,gyo3@
+	db	wa_,za_,ga_,spc@,ki_,ku_,spc@,ha_,zu_,spc@,da_,yo_,ne_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_a_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_c_,usf_o_,usf_n_,usf_d_,usf_u_,usf_c_,usf_t_,usf_s_
+	db	home@
+	db	usf_e_,usf_l_,usf_e_,usf_c_,usf_t_,usf_r_,usf_i_,usf_c_,usf_i_,usf_t_,usf_y_,comma@,spc@
+	db	usf_s_,usf_o_
+	db	gyo3@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_s_,usf_h_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_z_,usf_a_,usf_p_
+	db	gyo3@
+	db	usf_s_,usf_e_,usf_a_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_0_15_ROAD12
+msg8_0_15_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,u_,ttu__,gyoe@,spc@,tu_,ri_,spc@,ba__,ka__
+	db	home@
+	db	poke@,spc@,ba__,ka__,ni_,spc@,de_,a_,u_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_f,usf_i,usf_s,usf_h,usf_i,usf_n,usf_g,spc@
+	db	usf_f,usf_o,usf_o,usf_l
+	db	home@
+	db	usf_v_,usf_s_,kten@,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_k,usf_i,usf_d,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_win_16_ROAD12
+msg8_win_16_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	sa_,su_,ga_,spc@,tu_,yo_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_o_,usf_o_
+	db	home@
+	db	usf_m_,usf_u_,usf_c_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg8_after_17_ROAD12
+msg8_after_17_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	su_,ki_,spc@,ko_,so_
+	db	home@
+	db	mo_,no_,no_,spc@,zi_,yyo_,u_,zu_,spc@
+	db	na_,re_,tenten2@,spc@,da_,na_,gyoe@,gyo3@
+	db	bo_,ku_,mo_,spc@,tu_,ri_,spc@,na_,ra_,spc@
+	db	ma_,ke_,na_,i_,zo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_b_,usf_e_,usf_a_,usf_t_,spc@
+	db	usf_m_,usf_e_,spc@
+	db	usf_a_,usf_t_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,comma@,spc@
+	db	usf_b_,usf_u_,usf_t_,spc@
+	db	usf_i,apt_m_
+	db	gyo3@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_a_,usf_t_,spc@
+	db	usf_f_,usf_i_,usf_s_,usf_h_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_0_18_ROAD12
+msg9_0_18_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,ri_,spc@,ba_,ttu_,ka_,ri_,spc@,si_,te_,spc@,na_,i_,de_
+	db	home@
+	db	mo_,ttu_,to_,spc@,si_,go_,to_,mo_,spc@,de_,ki_,re_,ba_,gyo3@
+	db	sa_,i_,ko_,u_,spc@,na_,n_,da_,ga_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_d_,spc@
+	db	usf_r_,usf_a_,usf_t_,usf_h_,usf_e_,usf_r_,spc@
+	db	usf_b_,usf_e_
+	db	home@
+	db	usf_w_,usf_o_,usf_r_,usf_k_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_win_19_ROAD12
+msg9_win_19_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ka_,na_,ka_,tenten2@
+	db	home@
+	db	u_,ma_,ku_,spc@,i_,ka_,n_,spc@,mo_,no_,spc@,zi_,yya_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_
+	db	home@
+	db	usf_n_,usf_o_,usf_t_,spc@
+	db	usf_e_,usf_a_,usf_s_,usf_y_,kten@,kten@,kten@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg9_after_20_ROAD12
+msg9_after_20_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ha_,ha_,ha_,tenten2@,spc@,da_,i_,zi_,yyo_,u_,bu_,gyoe@
+	db	home@
+	db	ma_,ke_,ta_,spc@,ku_,ra_,i_,de_,spc@,ha_,ra_,ha_,spc@
+	db	ta_,te_,n_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,kten@
+	db	home@
+	db	usf_l,usf_o_,usf_s_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_d_,usf_o_,usf_e_,usf_s_,usf_n_,apt_t_
+	db	gyo3@
+	db	usf_b_,usf_u_,usf_g_,spc@
+	db	usf_m_,usf_e_,spc@
+	db	usf_a_,usf_n_,usf_y_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_0_21_ROAD12
+msg10_0_21_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,na_,ni_,ga_,spc@,tu_,re_,ru_,ka_,ttu_,te_,hate@
+	db	home@
+	db	so_,ri_,yya_,spc@,tu_,ttu_,te_,spc@,mi_,na_,ke_,ri_,yya_,gyo3@
+	db	wa_,ka_,ra_,n_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_n_,usf_e_,usf_v_,usf_e_,usf_r_,spc@
+	db	usf_k_,usf_n_,usf_o_,usf_w_
+	db	home@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_
+	db	gyo3@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_win_22_ROAD12
+msg10_win_22_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,ku_,zi_,ttu_,ta_,na_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_l,usf_o_,usf_s_,usf_t_
+	db	home@
+	db	usf_i_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg10_after_23_ROAD12
+msg10_after_23_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,a_,spc@,ko__,i__,ki__,n__,gu__,tenten2@,spc@,ne_
+	db	home@
+	db	yo_,ku_,spc@,tu_,re_,ru_,spc@,ke_,do_,gyo3@
+	db	yo_,wa_,su_,gi_,ru_,n_,da_,yo_,na_,a_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_,spc@
+	db	usf_m,usf_a,usf_g,usf_i,usf_k,usf_a,usf_r,usf_p
+	db	home@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_t_,usf_i_,usf_m_,usf_e_,comma@,spc@
+	db	usf_b_,usf_u_,usf_t_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,usf_y_,apt_r_,usf_e_,spc@
+	db	usf_s_,usf_o_,spc@
+	db	usf_w_,usf_e_,usf_a_,usf_k_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban1_24_ROAD12
+kanban1_24_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,n1@,n2@,ba_,n_,spc@,do_,u_,ro_
+	db	home@
+	db	ki_,ta_,spc@,tenten2@,spc@,si__,o__,n__,spc@,ta__,u__,n__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_o,usf_u,usf_t,usf_e,spc@
+	db	n1@,n2@,spc@
+	db	home@
+	db	usf_n,usf_o_,usf_r_,usf_t_,usf_h_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_l,usf_a,usf_v,usf_e,usf_n,usf_d,usf_e,usf_r
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban2_25_ROAD12
+kanban2_25_ROAD12:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,tu_,ri_,no_,spc@,me_,i_,si_,yyo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_p,usf_o,usf_r,usf_t,spc@
+	db	usf_f,usf_i,usf_s,usf_h,usf_i,usf_n,usf_g,spc@
+	db	usf_a,usf_r,usf_e,usf_a
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD13
+msg1_0_0_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ku_,no_,spc@,to_,ri_,po__,ke__,ga_,spc@,ki_,mi_,ta_,ti_,to_
+	db	home@
+	db	ta_,ta_,ka_,i_,spc@,ta_,ga_,ttu_,te_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_s_,usf_c_,usf_r_,usf_a_,usf_p_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_win_1_ROAD13
+msg1_win_1_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	po__,ttu__,po__,to_,spc@,pi__,zi__,yyo__,n__
+	db	home@
+	db	ko__,n__,bi__,ga_,spc@,ma_,ke_,ru_,spc@,na_,n_,te_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_
+	db	home@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,spc@
+	db	usf_c_,usf_o_,usf_m_,usf_b_,usf_o_,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,hate@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_after_2_ROAD13
+msg1_after_2_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,ke_,te_,mo_,spc@,bo_,ku_,no_,spc@,to_,ri_,po__,ke__,ha_
+	db	home@
+	db	ma_,n_,zo_,ku_,spc@,si_,ta_,spc@,mi_,ta_,i_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_
+	db	home@
+	db	usf_h_,usf_a_,usf_p_,usf_p_,usf_y_,spc@
+	db	usf_e_,usf_v_,usf_e_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_o_,usf_u_,usf_g_,usf_h_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,usf_y_,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_3_ROAD13
+msg3_0_3_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,n_,na_,no_,ko_,ni_,spc@,si_,te_,ha_
+	db	home@
+	db	su_,zi_,ga_,spc@,i_,i_,ttu_,te_,spc@
+	db	ho_,me_,ra_,re_,ru_,no_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_t_,usf_o_,usf_l_,usf_d_,spc@
+	db	usf_i,apt_m_,spc@
+	db	usf_g_,usf_o_,usf_o_,usf_d_
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_a_,spc@
+	db	usf_k_,usf_i_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_4_ROAD13
+msg3_win_4_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,ke_,ti_,yya_,ttu_,ta_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_h_,usf_h_,gyoe@
+	db	home@
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_5_ROAD13
+msg3_after_5_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,tu_,ka_,ha_
+	db	home@
+	db	tu_,yo_,i_,spc@,trainer@,ni_,spc@
+	db	na_,ri_,ta_,i_,gyo3@
+	db	ki_,yyo_,u_,ka_,ra_,spc@,ma_,ta_,spc@,to_,ttu_,ku_,n_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_b_,usf_e_,usf_c_,usf_o_,usf_m_,usf_e_
+	db	home@
+	db	usf_a_,spc@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,kten@
+	db	gyo3@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,spc@
+	db	usf_h_,usf_a_,usf_r_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_0_6_ROAD13
+msg5_0_6_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ra_,gyoe@
+	db	home@
+	db	ka_,ttu_,ko_,i_,i_,spc@,ba__,ttu__,zi__,spc@,mo_,ttu_,te_,ru_,ne_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_o_,usf_w_,gyoe@,spc@
+	db	usf_y,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_b,usf_a,usf_d,usf_g,usf_e,usf_s_
+	db	home@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_t_,usf_o_,usf_o_,spc@
+	db	usf_c_,usf_o_,usf_o_,usf_l_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_win_7_ROAD13
+msg5_win_7_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,da_,ma_,da_,spc@,da_,wa_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,usf_t_
+	db	home@
+	db	usf_e_,usf_n_,usf_o_,usf_u_,usf_g_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg5_after_8_ROAD13
+msg5_after_8_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,no_,ba__,ttu__,zi__,tenten2@
+	db	home@
+	db	ri__,bou@,da__,bou@,spc@,ka_,ra_,spc@
+	db	mo_,ra_,ttu_,ta_,n_,de_,si_,yyo_,gyo3@
+	db	tenten2@,spc@,si_,ttu_,te_,ru_,wa_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_o_,usf_s_,usf_e_
+	db	home@
+	db	usf_b,usf_a,usf_d,usf_g,usf_e,usf_s_,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_m_,spc@
+	db	usf_g,usf_y,usf_m
+	db	gyo3@
+	db	usf_l,usf_e,usf_a,usf_d,usf_e,usf_r,usf_s_,kten@,spc@
+	db	usf_i,spc@
+	db	usf_k_,usf_n_,usf_o_,usf_w_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_0_9_ROAD13
+msg6_0_9_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka_,wa_,i_,i_,spc@,poke@,spc@,ta_,ti_,ni_
+	db	home@
+	db	go_,a_,i_,sa_,tu_,wo_,spc@,sa_,se_,ru_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	usf_c_,usf_u_,usf_t_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_w_,usf_i_,usf_s_,usf_h_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_m_,usf_a_,usf_k_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_
+	db	gyo3@
+	db	usf_a_,usf_c_,usf_q_,usf_u_,usf_a_,usf_i_,usf_n_,usf_t_,usf_a_,usf_n_,usf_c_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_win_10_ROAD13
+msg6_win_10_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,mi_,go_,to_,gyoe@
+	db	home@
+	db	wa_,ta_,si_,no_,spc@,ka_,n_,pa_,i_,ne_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_o_,usf_w_,gyoe@
+	db	home@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_t_,usf_o_,usf_t_,usf_a_,usf_l_,usf_l_,usf_y_,spc@
+	db	usf_w_,usf_o_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg6_after_11_ROAD13
+msg6_after_11_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,ha_,spc@,ko_,u_,ya_,ttu_,te_
+	db	home@
+	db	do_,n_,do_,n_,spc@,ta_,ta_,ka_,wa_,se_,te_,gyo3@
+	db	tu_,yo_,ku_,spc@,si_,te_,ka_,na_,i_,to_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_m_,usf_a_,usf_k_,usf_e_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	usf_t_,usf_o_,usf_u_,usf_g_,usf_h_,usf_e_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_m_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_0_12_ROAD13
+msg7_0_12_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,u_,ku_,tu_,spc@,ta_,n_,ke_,n_,ni_,spc@,i_,ttu_,te_
+	db	home@
+	db	i__,n__,do__,me__,ta__,si__,n__,wo_,spc@
+	db	hi_,ro_,ttu_,ta_,no_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_f_,usf_o_,usf_u_,usf_n_,usf_d_,spc@
+	db	usf_c,usf_a,usf_r,usf_b,usf_o,usf_s,spc@
+	db	usf_i_,usf_n_
+	db	home@
+	db	usf_a_,spc@
+	db	usf_c_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_o_,usf_n_,usf_c_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_win_13_ROAD13
+msg7_win_13_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,za_,n_,ne_,n_,gyoe@
+	db	home@
+	db	ti_,yyo_,u_,si_,ga_,spc@,de_,na_,ka_,ttu_,ta_,wa_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_j,usf_u_,usf_s_,usf_t_
+	db	home@
+	db	usf_m_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg7_after_14_ROAD13
+msg7_after_14_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,u_,spc@,i__,n__,do__,me__,ta__,si__,n__,spc@
+	db	a_,ta_,e_,ta_,ra_
+	db	home@
+	db	poke@,no_,spc@,su_,ba_,ya_,sa_,ga_,spc@,a_,ga_,ttu_,ta_,no_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_a,usf_r,usf_b,usf_o,usf_s,spc@
+	db	usf_b_,usf_o_,usf_o_,usf_s_,usf_t_,usf_e_,usf_d_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_s,usf_p,usf_e,usf_e,usf_d,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_m_,usf_y_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_0_15_ROAD13
+msg10_0_15_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,ke_,na_,i_,yo_,gyoe@,spc@,ka_,ze_,ha_
+	db	home@
+	db	bo_,ku_,no_,spc@,ho_,u_,ni_,spc@,hu_,i_,te_,spc@,i_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_w_,usf_i_,usf_n_,usf_d_,apt_s_,spc@
+	db	usf_b_,usf_l_,usf_o_,usf_w_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_m_,usf_y_,spc@
+	db	usf_w_,usf_a_,usf_y_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_win_16_ROAD13
+msg10_win_16_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,ka_,za_,mu_,ki_,ga_
+	db	home@
+	db	ka_,wa_,ttu_,ta_,spc@,mi_,ta_,i_,spc@,da_,na_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_
+	db	home@
+	db	usf_w_,usf_i_,usf_n_,usf_d_,spc@
+	db	usf_t_,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg10_after_17_ROAD13
+msg10_after_17_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ta_,ta_,ka_,u_,spc@,ge_,n_,ki_,mo_,spc@,na_,i_,ya_
+	db	home@
+	db	to_,ri_,ni_,spc@,no_,ttu_,te_,spc@,u_,ti_,ni_,spc@,ka_,e_,ro_,u_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_b_,usf_e_,usf_a_,usf_t_,kten@,spc@
+	db	usf_i,spc@
+	db	usf_g_,usf_u_,usf_e_,usf_s_,usf_s_
+	db	home@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_f,usf_l,usf_y,spc@
+	db	usf_h_,usf_o_,usf_m_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg11_0_18_ROAD13
+msg11_0_18_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ra_,tenten2@,spc@,bo_,u_,ya_
+	db	home@
+	db	a_,i_,te_,spc@,si_,te_,spc@,a_,ge_,te_,mo_,spc@,i_,i_,wa_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_u_,usf_r_,usf_e_,comma@,spc@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_p_,usf_l_,usf_a_,usf_y_
+	db	home@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg11_win_19_ROAD13
+msg11_win_19_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,yo_,i_,gyoe@
+	db	home@
+	db	o_,to_,ko_,spc@,ra_,si_,i_,wa_,ne_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_h_,gyoe@
+	db	home@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_l_,usf_i_,usf_t_,usf_t_,usf_l_,usf_e_,spc@
+	db	usf_b_,usf_r_,usf_u_,usf_t_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg11_after_20_ROAD13
+msg11_after_20_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,no_,spc@,se_,ka_,i_,spc@,de_,ha_
+	db	home@
+	db	o__,su__,spc@,to_,spc@,me__,su__,gyo3@
+	db	do_,ti_,ra_,ga_,spc@,tu_,yo_,i_,no_,spc@,ka_,si_,ra_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_o_,usf_n_,usf_d_,usf_e_,usf_r_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_c_,usf_h_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_s_,usf_t_,usf_r_,usf_o_,usf_n_,usf_g_,usf_e_,usf_r_,comma@,spc@
+	db	usf_m_,usf_a_,usf_l_,usf_e_,spc@
+	db	usf_o_,usf_r_
+	db	gyo3@
+	db	usf_f_,usf_e_,usf_m_,usf_a_,usf_l_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_0_21_ROAD13
+msg12_0_21_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ta_,si_,to_,spc@,poke@,spc@,si_,ta_,i_,no_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_d,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_m_,usf_e_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_win_22_ROAD13
+msg12_win_22_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,mo_,u_
+	db	home@
+	db	o_,wa_,ttu_,ti_,yya_,ttu_,ta_,no_,ne_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_o_,usf_v_,usf_e_,usf_r_
+	db	home@
+	db	usf_a_,usf_l_,usf_r_,usf_e_,usf_a_,usf_d_,usf_y_,hate@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg12_after_23_ROAD13
+msg12_after_23_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ta_,si_,spc@,ho_,n_,to_,ha_,spc@,poke@
+	db	home@
+	db	yo_,ku_,spc@,wa_,ka_,ra_,na_,i_,no_,gyo3@
+	db	tu_,ka_,u_,spc@,poke@,mo_,gyo3@
+	db	ka_,ttu_,ko_,u_,spc@,da_,ke_,de_,spc@,ki_,me_,ti_,yya_,u_,no_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_k_,usf_n_,usf_o_,usf_w_
+	db	home@
+	db	usf_a_,usf_n_,usf_y_,usf_t_,usf_h_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_b_,usf_o_,usf_u_,usf_t_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@,spc@
+	db	usf_i,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_
+	db	gyo3@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_c_,usf_o_,usf_o_,usf_l_,spc@
+	db	usf_o_,usf_n_,usf_e_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg14_0_24_ROAD13
+msg14_0_24_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ttu_,da_,yo_,gyoe@,spc@,ttu_,se_,bou@,na_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,apt_r_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,usf_i_,usf_n_,apos@,spc@
+	db	usf_a_,usf_t_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg14_win_25_ROAD13
+msg14_win_25_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ttu_,ta_,ku_,yo_,gyoe@
+	db	home@
+	db	ttu_,za_,ke_,n_,na_,yo_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_a_,usf_n_,usf_g_,gyoe@
+	db	home@
+	db	usf_s,usf_t_,usf_r_,usf_i_,usf_p_,usf_p_,usf_e_,usf_d_,spc@
+	db	usf_g_,usf_e_,usf_a_,usf_r_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg14_after_26_ROAD13
+msg14_after_26_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ttu_,se_,bou@,na_,gyoe@
+	db	home@
+	db	a_,ttu_,ti_,spc@,i_,ke_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg15_0_27_ROAD13
+msg15_0_27_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	zu_,bou@,ttu__,to_,spc@,to_,ri_,spc@,poke@,ni_
+	db	home@
+	db	ko_,da_,wa_,ttu_,te_,spc@,ki_,ta_,spc@,bo_,ku_,de_,su_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_a_,usf_l_,usf_w_,usf_a_,usf_y_,usf_s_,spc@
+	db	usf_g_,usf_o_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_
+	db	home@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg15_win_28_ROAD13
+msg15_win_28_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ti_,ka_,ra_,spc@,tu_,ki_,ta_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_u_,usf_t_
+	db	home@
+	db	usf_o_,usf_f_,spc@
+	db	usf_p_,usf_o_,usf_w_,usf_e_,usf_r_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg15_after_29_ROAD13
+msg15_after_29_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,bou@,a_,tenten2@,spc@,bo_,ku_,mo_
+	db	home@
+	db	po__,ttu__,po__,ya_,spc@,bi__,zi__,yyo__,n__,no_,spc@,yo_,u_,ni_
+	db	gyo3@
+	db	so_,ra_,wo_,spc@,to_,n_,de_,spc@,i_,ki_,ta_,i_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_i_,usf_s_,usf_h_,spc@
+	db	usf_i,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_
+	db	home@
+	db	usf_f_,usf_l_,usf_y_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_p,usf_i,usf_d,usf_g,usf_e,usf_y
+	db	gyo3@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_p,usf_i,usf_d,usf_g,usf_e,usf_o,usf_t,usf_t,usf_o,kten@,kten@,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban1_30_ROAD13
+kanban1_30_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,o_,to_,ku_,na_,spc@,ke_,i_,zi_,ba_,n_,gyoe@
+	db	normal@
+	db	so_,ko_,spc@,so_,ko_,gyoe@
+	db	home@
+	db	ku_,i_,wo_,spc@,ha_,sa_,n_,de_,spc@,hi_,da_,ri_,spc@,ga_,wa_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,spc@
+	db	usf_t,usf_i,usf_p,usf_s
+	db	normal@
+	db	usf_l,usf_o_,usf_o_,usf_k_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_l_,usf_e_,usf_f_,usf_t_
+	db	home@
+	db	usf_o_,usf_f_,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_p_,usf_o_,usf_s_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban2_31_ROAD13
+kanban2_31_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,o_,to_,ku_,na_,spc@,ke_,i_,zi_,ba_,n_,gyoe@
+	db	normal@
+	db	do_,u_,gu_,spc@,u__,ii__,n__,do__,u__,de_
+	db	home@
+	db	se__,re__,ku__,to__,spc@,bo__,ta__,n__,wo_,spc@
+	db	o_,su_,to_,gyo3@
+	db	do_,u_,gu_,no_,spc@,ba_,si_,yyo_,wo_,gyo3@
+	db	i_,re_,ka_,e_,ru_,spc@,ko_,to_,ga_,spc@,de_,ki_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,spc@
+	db	usf_t,usf_i,usf_p,usf_s
+	db	normal@
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_s,usf_e,usf_l,usf_e,usf_c,usf_t,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_s_,usf_w_,usf_i_,usf_t_,usf_c_,usf_h_,spc@
+	db	usf_i_,usf_t_,usf_e_,usf_m_,usf_s_,spc@
+	db	usf_i_,usf_n_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_i,usf_t,usf_e,usf_m,spc@
+	db	usf_w_,usf_i_,usf_n_,usf_d_,usf_o_,usf_w_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban3_32_ROAD13
+kanban3_32_ROAD13:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,n1@,n3@,ba_,n_,spc@,do_,u_,ro_
+	db	home@
+	db	ki_,ta_,spc@,tenten2@,spc@,sa__,i__,re__,n__,zu__,spc@
+	db	bu__,ri__,ttu__,zi__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_o,usf_u,usf_t,usf_e,spc@
+	db	n1@,n3@
+	db	home@
+	db	usf_n,usf_o_,usf_r_,usf_t_,usf_h_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_s,usf_i,usf_l,usf_e,usf_n,usf_c,usf_e
+	db	gyo3@
+	db	usf_b,usf_r,usf_i,usf_d,usf_g,usf_e
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD14
+msg1_0_0_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,yo_,i_,spc@,poke@,ni_,spc@,su_,ru_,na_,ra_
+	db	home@
+	db	ya_,ttu_,pa_,ri_,spc@,skill@,de_,gyo3@
+	db	i_,i_,spc@,wa_,za_,wo_,spc@,o_,si_,e_,na_,i_,to_,ne_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_u_,usf_s_,usf_e_
+	db	home@
+	db	usf_t,usf_m,usf_s_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_e_,usf_a_,usf_c_,usf_h_,spc@
+	db	usf_g_,usf_o_,usf_o_,usf_d_
+	db	gyo3@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_win_1_ROAD14
+msg1_win_1_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,da_,ma_,da_,ttu_,te_,spc@,ka_,n_,zi_,da_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,usf_t_
+	db	home@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_e_,usf_n_,usf_o_,usf_u_,usf_g_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_after_2_ROAD14
+msg1_after_2_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,mi_,spc@,hi_,de_,n_,ma__,si__,n__,mo_,spc@
+	db	mo_,ttu_,te_,ru_,ne_
+	db	home@
+	db	a_,re_,de_,spc@,o_,bo_,e_,ta_,spc@,wa_,za_,ha_,gyo3@
+	db	poke@,ha_,spc@,n2@,do_,to_,spc@,wa_,su_,re_,na_,i_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_h,usf_m,usf_s_
+	db	home@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,hate@,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_e_,usf_v_,usf_e_,usf_r_,spc@
+	db	usf_f_,usf_o_,usf_r_,usf_g_,usf_e_,usf_t_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_o_,usf_s_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_3_ROAD14
+msg2_0_3_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ku_,no_,spc@,to_,ri_,spc@,poke@
+	db	home@
+	db	so_,ro_,so_,ro_,tenten2@,gyo3@
+	db	ta_,ta_,ka_,wa_,se_,te_,spc@,mi_,yo_,u_,ka_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_s_,usf_h_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_r_,usf_e_,usf_a_,usf_d_,usf_y_
+	db	gyo3@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_win_4_ROAD14
+msg2_win_4_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,da_,spc@,ha_,ya_,ka_,ttu_,ta_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,usf_t_
+	db	home@
+	db	usf_r_,usf_e_,usf_a_,usf_d_,usf_y_,spc@
+	db	usf_y_,usf_e_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg2_after_5_ROAD14
+msg2_after_5_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,ttu_,to_,spc@,tu_,yo_,i_,spc@,wa_,za_
+	db	home@
+	db	o_,si_,e_,te_,spc@,ka_,ra_,spc@,ta_,ta_,ka_,wa_,se_,yo_,u_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_y_,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_l_,usf_e_,usf_a_,usf_r_,usf_n_
+	db	home@
+	db	usf_b_,usf_e_,usf_t_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_6_ROAD14
+msg3_0_6_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	skill@,ha_
+	db	home@
+	db	ta__,ma__,mu__,si__,spc@,de__,pa__,bou@,to__,spc@
+	db	de_,mo_,spc@,ka_,e_,ru_,gyoe@,gyo3@
+	db	de_,mo_,spc@,hi_,de_,n_,ma__,si__,n__,spc@
+	db	mo_,ttu_,te_,ru_,gyo3@
+	db	hi_,to_,ha_,spc@,su_,ku_,na_,i_,ne_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_m,usf_s_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_s_,usf_a_,usf_l_,usf_e_
+	db	home@
+	db	usf_i_,usf_n_,spc@
+	db	usf_c,usf_e,usf_l,usf_a,usf_d,usf_o,usf_n,gyoe@
+	db	gyo3@
+	db	usf_b,usf_u_,usf_t_,comma@,spc@
+	db	usf_o_,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_a_,spc@
+	db	usf_f_,usf_e_,usf_w_
+	db	gyo3@
+	db	usf_p_,usf_e_,usf_o_,usf_p_,usf_l_,usf_e_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_h,usf_m,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_7_ROAD14
+msg3_win_7_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,u_,spc@,da__,sa__,da__,sa__
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_w_,usf_w_,comma@
+	db	home@
+	db	usf_b_,usf_u_,usf_m_,usf_m_,usf_e_,usf_r_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_8_ROAD14
+msg3_after_8_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,no_,spc@,ta__,i__,pu__,to_,spc@,o_,na_,zi_
+	db	home@
+	db	ta__,i__,pu__,no_,spc@,wa_,za_,wo_,spc@,o_,si_,e_,ru_,to_,gyo3@
+	db	wa_,za_,no_,spc@,i_,ri_,yyo_,ku_,ga_,gyo3@
+	db	o_,o_,ki_,ku_,na_,ru_,spc@,ra_,si_,i_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_e_,usf_a_,usf_c_,usf_h_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_s_,usf_a_,usf_m_,usf_e_
+	db	gyo3@
+	db	usf_e_,usf_l_,usf_e_,usf_m_,usf_e_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_y_,usf_p_,usf_e_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	gyo3@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_p_,usf_o_,usf_w_,usf_e_,usf_r_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_0_9_ROAD14
+msg4_0_9_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,mi_,no_,spc@,to_,ri_,spc@,poke@,ha_
+	db	home@
+	db	ki_,mi_,wo_,spc@,no_,se_,te_,spc@
+	db	so_,ra_,wo_,spc@,to_,bu_,gyo3@
+	db	wa_,za_,ha_,spc@,o_,bo_,e_,ta_,ka_,i_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_t_,usf_a_,usf_u_,usf_g_,usf_h_,usf_t_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_h_,usf_o_,usf_w_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f,usf_l,usf_y,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_win_10_ROAD14
+msg4_win_10_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ro_,ma_,ke_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_h_,usf_o_,usf_t_
+	db	home@
+	db	usf_d_,usf_o_,usf_w_,usf_n_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_f_,usf_l_,usf_a_,usf_m_,usf_e_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg4_after_11_ROAD14
+msg4_after_11_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ku_,ra_,ha_,spc@,to_,ri_,poke@,ga_
+	db	home@
+	db	da_,i_,su_,ki_,spc@,da_,ka_,ra_,tenten2@,gyo3@
+	db	so_,re_,si_,ka_,spc@,so_,da_,te_,ta_,ku_,spc@,na_,i_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_i_,usf_r_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_m_,usf_y_,spc@
+	db	usf_t_,usf_r_,usf_u_,usf_e_,spc@
+	db	usf_l_,usf_o_,usf_v_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_0_12_ROAD14
+msg8_0_12_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	de_,n_,se_,tu_,no_,spc@,poke@,spc@,to_,i_,u_
+	db	home@
+	db	ha_,na_,si_,spc@,ki_,i_,ta_,spc@,ko_,to_,spc@,a_,ru_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_r_,usf_d_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_l_,usf_e_,usf_g_,usf_e_,usf_n_,usf_d_,usf_a_,usf_r_,usf_y_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_win_13_ROAD14
+msg8_win_13_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,u_,si_,te_,spc@,ma_,ke_,ta_,ka_,na_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_y_,hate@
+	db	home@
+	db	usf_w,usf_h_,usf_y_,apt_d_,spc@
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_e_,hate@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg8_after_14_ROAD14
+msg8_after_14_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	de_,n_,se_,tu_,no_,spc@,poke@,ha_
+	db	home@
+	db	n3@,si_,yyu_,ru_,i_,spc@,i_,te_,gyo3@
+	db	su_,be_,te_,spc@,to_,ri_,spc@,poke@,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	n3@,spc@
+	db	usf_l_,usf_e_,usf_g_,usf_e_,usf_n_,usf_d_,usf_a_,usf_r_,usf_y_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_a_,usf_l_,usf_l_
+	db	gyo3@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,usf_s_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_p_,usf_r_,usf_e_,usf_y_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_0_15_ROAD14
+msg9_0_15_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,ga_,spc@,no_,ra_,na_,i_,spc@,ke_,do_,tenten2@
+	db	home@
+	db	si_,yyo_,u_,ga_,spc@,na_,i_,gyoe@,spc@,ya_,ru_,ka_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_n_,usf_o_,usf_t_,spc@
+	db	usf_i_,usf_n_,usf_t_,usf_o_,spc@
+	db	usf_i_,usf_t_,comma@
+	db	home@
+	db	usf_b_,usf_u_,usf_t_,spc@
+	db	usf_o,usf_k,gyoe@,spc@
+	db	usf_l,usf_e_,usf_t_,apt_s_,spc@
+	db	usf_g_,usf_o_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_win_16_ROAD14
+msg9_win_16_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,a_,tenten2@,spc@,ya_,ttu_,pa_,ri_,na_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i
+	db	home@
+	db	usf_k_,usf_n_,usf_e_,usf_w_,spc@
+	db	usf_i_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg9_after_17_ROAD14
+msg9_after_17_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,ra_,no_,spc@,hi_,ro_,sa_,ni_,spc@,ku_,ra_,be_,ta_,ra_
+	db	home@
+	db	ka_,ti_,spc@,ma_,ke_,spc@,na_,n_,te_,gyo3@
+	db	do_,u_,ttu_,te_,spc@,ko_,to_,spc@,na_,i_,no_,sa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_n_,usf_n_,usf_i_,usf_n_,usf_g_,comma@,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_i_,usf_n_,usf_g_,comma@
+	db	home@
+	db	usf_i_,usf_t_,spc@
+	db	usf_d_,usf_o_,usf_e_,usf_s_,usf_n_,apt_t_,spc@
+	db	usf_m_,usf_a_,usf_t_,usf_t_,usf_e_,usf_r_
+	db	gyo3@
+	db	usf_i_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_l_,usf_o_,usf_n_,usf_g_,spc@
+	db	usf_r_,usf_u_,usf_n_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg11_0_18_ROAD14
+msg11_0_18_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,spc@,o_,re_,ha_,spc@,se_,ttu_,ka_,ti_,da_,gyoe@
+	db	home@
+	db	ha_,ya_,ku_,spc@,ha_,ya_,ku_,spc@
+	db	ha_,ya_,ku_,spc@,si_,ro_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,apt_m_,usf_o_,usf_n_,comma@,spc@
+	db	usf_c_,apt_m_,usf_o_,usf_n_,kten@
+	db	home@
+	db	usf_l,usf_e_,usf_t_,apt_s_,spc@
+	db	usf_g_,usf_o_,comma@,spc@
+	db	usf_l_,usf_e_,usf_t_,apt_s_
+	db	gyo3@
+	db	usf_g_,usf_o_,comma@,spc@
+	db	usf_l_,usf_e_,usf_t_,apt_s_,spc@
+	db	usf_g_,usf_o_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg11_win_19_ROAD14
+msg11_win_19_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,ke_,ta_,spc@,ma_,ke_,ta_
+	db	home@
+	db	o_,wa_,ri_,da_,spc@,zi_,yya_,a_,na_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_r_,usf_r_,usf_g_,gyoe@
+	db	home@
+	db	usf_l,usf_o_,usf_s_,usf_t_,gyoe@,spc@
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg11_after_20_ROAD14
+msg11_after_20_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,n_,da_,spc@,na_,n_,da_,spc@,na_,n_,da_,gyoe@
+	db	home@
+	db	ma_,da_,spc@,yo_,u_,zi_,ga_,spc@,a_,ru_,spc@
+	db	a_,ru_,spc@,no_,ka_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,comma@,spc@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,comma@,spc@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,hate@
+	db	home@
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_0_21_ROAD14
+msg12_0_21_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ti_,yyo_,u_,do_,spc@,i_,i_,ze_,gyoe@
+	db	home@
+	db	tu_,be_,ko_,be_,spc@,i_,wa_,zu_,ni_,spc@,a_,i_,te_,spc@,si_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_p,usf_e_,usf_r_,usf_f_,usf_e_,usf_c_,usf_t_,gyoe@,spc@
+	db	usf_i,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_b_,usf_u_,usf_r_,usf_n_,spc@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_t_,usf_i_,usf_m_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_win_22_ROAD14
+msg12_win_22_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,n_,da_,spc@,ko_,ra_,a_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,hate@
+	db	home@
+	db	usf_y,usf_o_,usf_u_,gyoe@,hate@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg12_after_23_ROAD14
+msg12_after_23_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,u_,mo_,spc@,ti_,ma_,ti_,ma_,to_
+	db	home@
+	db	so_,da_,te_,ru_,spc@,no_,ha_,spc@,ni_,ga_,te_,da_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_a_,usf_i_,usf_s_,usf_i_,usf_n_,usf_g_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_a_,spc@
+	db	usf_d_,usf_r_,usf_a_,usf_g_,comma@,spc@
+	db	usf_m_,usf_a_,usf_n_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg14_0_24_ROAD14
+msg14_0_24_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,no_,spc@,a_,ta_,ri_,ha_
+	db	home@
+	db	ta_,te_,mo_,no_,ga_,spc@,su_,ku_,ne_,e_,spc@,ka_,ra_,gyo3@
+	db	yo_,ku_,spc@,ha_,si_,ri_,ni_,spc@,ku_,ru_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_e_,spc@
+	db	usf_r_,usf_i_,usf_d_,usf_e_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_
+	db	home@
+	db	usf_b_,usf_e_,usf_c_,usf_a_,usf_u_,usf_s_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_
+	db	gyo3@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_r_,usf_o_,usf_o_,usf_m_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg14_win_25_ROAD14
+msg14_win_25_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ttu_,to_,spc@,ko_,ke_,ti_,ma_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_p_,usf_e_,spc@
+	db	usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg14_after_26_ROAD14
+msg14_after_26_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	yo_,ku_,spc@,so_,ko_,ma_,de_,spc@,so_,da_,te_,ta_,na_,gyoe@
+	db	home@
+	db	na_,n_,ni_,si_,te_,mo_,tenten2@
+	db	normal@
+	db	tu_,yo_,i_,ttu_,te_,spc@,ko_,to_,ha_
+	db	home@
+	db	ta_,i_,si_,ta_,spc@,mo_,n_,da_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_c_,usf_o_,usf_o_,usf_l_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_m_,usf_a_,usf_d_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_s_,usf_o_,spc@
+	db	usf_s_,usf_t_,usf_r_,usf_o_,usf_n_,usf_g_,gyoe@
+	db	normal@
+	db	usf_m,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,gyoe@
+	db	home@
+	db	usf_a,usf_n_,usf_d_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_k_,usf_n_,usf_o_,usf_w_,spc@
+	db	usf_i_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg15_0_27_ROAD14
+msg15_0_27_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,spc@,ta_,i_,ke_,tu_,ka_,gyoe@
+	db	home@
+	db	o_,mo_,si_,ro_,i_,gyoe@,spc@,tu_,ki_,a_,u_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,hate@
+	db	home@
+	db	usf_c,usf_o_,usf_o_,usf_l_,gyoe@,spc@
+	db	usf_r,usf_u_,usf_m_,usf_b_,usf_l_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg15_win_28_ROAD14
+msg15_win_28_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ttu_,to_,ku_,spc@,i_,ka_,ne_,e_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_b,usf_l_,usf_o_,usf_w_,usf_n_
+	db	home@
+	db	usf_a_,usf_w_,usf_a_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg15_after_29_ROAD14
+msg15_after_29_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,to_,spc@,o_,ma_,e_,no_
+	db	home@
+	db	ti_,yyo_,ku_,se_,tu_,spc@,ta_,i_,ke_,tu_,spc@
+	db	da_,ttu_,ta_,ra_,gyo3@
+	db	o_,re_,ga_,spc@,ka_,tu_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_k_,usf_n_,usf_o_,usf_w_,spc@
+	db	usf_w_,usf_h_,usf_o_,apt_d_
+	db	home@
+	db	usf_w_,usf_i_,usf_n_,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_m_,usf_e_
+	db	gyo3@
+	db	usf_o_,usf_n_,usf_e_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_o_,usf_n_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban1_30_ROAD14
+kanban1_30_ROAD14:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,n1@,n4@,ba_,n_,spc@,do_,u_,ro_
+	db	home@
+	db	ni_,si_,spc@,tenten2@,spc@
+	db	se__,ki__,ti__,ku__,spc@,si__,te__,ii__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_o,usf_u,usf_t,usf_e,spc@
+	db	n1@,n4@
+	db	home@
+	db	usf_w,usf_e_,usf_s_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a
+	db	gyo3@
+	db	usf_c,usf_i,usf_t,usf_y
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD15
+msg1_0_0_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to_,mo_,da_,ti_,to_,spc@,ko_,u_,ka_,n_,spc@,si_,ta_
+	db	home@
+	db	o_,ki_,ni_,i_,ri_,de_,spc@
+	db	si_,yyo_,u_,bu_,spc@,su_,ru_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_l,usf_e_,usf_t_,spc@
+	db	usf_m_,usf_e_,spc@
+	db	usf_t_,usf_r_,usf_y_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_i,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_
+	db	gyo3@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_a_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_win_1_ROAD15
+msg1_win_1_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	da_,me_,da_,wa_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,usf_t_
+	db	home@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_e_,usf_n_,usf_o_,usf_u_,usf_g_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_after_2_ROAD15
+msg1_after_2_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to_,mo_,da_,ti_,to_,spc@,ko_,u_,ka_,n_,spc@,si_,ta_
+	db	home@
+	db	poke@,no_,spc@,ni__,ttu__,ku__,ne__,bou@,mu__,gyo3@
+	db	ta_,to_,e_,spc@,ki_,ni_,spc@
+	db	i_,ra_,na_,ku_,te_,mo_,tenten2@,gyo3@
+	db	to_,ttu_,ta_,spc@,hi_,to_,de_,spc@,na_,i_,to_,gyo3@
+	db	tu_,ke_,spc@,na_,o_,se_,na_,i_,spc@,no_,yo_,ne_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_c_,usf_h_,usf_a_,usf_n_,usf_g_,usf_e_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_n_,usf_i_,usf_c_,usf_k_,usf_n_,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_o_,usf_f_
+	db	gyo3@
+	db	usf_a_,usf_n_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	gyo3@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_a_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,kten@
+	db	normal@
+	db	usf_o,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_o,usf_r_,usf_i_,usf_g_,usf_i_,usf_n_,usf_a_,usf_l_
+	db	home@
+	db	usf_t,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,spc@
+	db	usf_c_,usf_a_,usf_n_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_3_ROAD15
+msg2_0_3_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,mi_,spc@,ya_,sa_,si_,so_,u_,spc@,da_,ka_,ra_
+	db	home@
+	db	ma_,ke_,ru_,spc@,ki_,ga_,spc@,si_,na_,i_,gyoe@,gyo3@
+	db	si_,yyo_,u_,bu_,spc@,si_,te_,mi_,ru_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,spc@
+	db	usf_g_,usf_e_,usf_n_,usf_t_,usf_l_,usf_e_,comma@
+	db	home@
+	db	usf_s_,usf_o_,spc@
+	db	usf_i,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_n_,usf_k_,spc@
+	db	usf_i,spc@
+	db	usf_c_,usf_a_,usf_n_
+	db	gyo3@
+	db	usf_b_,usf_e_,usf_a_,usf_t_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_win_4_ROAD15
+msg2_win_4_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,re_,hate@,spc@,ma_,ke_,ta_,no_,hate@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,comma@
+	db	home@
+	db	usf_w_,usf_r_,usf_o_,usf_n_,usf_g_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg2_after_5_ROAD15
+msg2_after_5_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,u_,so_,u_,zo_,ku_,tenten2@
+	db	home@
+	db	yo_,ku_,spc@,mi_,ka_,ke_,ru_,spc@,ke_,do_,gyo3@
+	db	ko_,wa_,so_,u_,de_,spc@,i_,ya_,da_,wa_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_a_,usf_f_,usf_r_,usf_a_,usf_i_,usf_d_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	usf_b,usf_i,usf_k,usf_e,usf_r,usf_s_,comma@,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_y_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_
+	db	gyo3@
+	db	usf_s_,usf_o_,spc@
+	db	usf_u_,usf_g_,usf_l_,usf_y_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_m_,usf_e_,usf_a_,usf_n_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_0_6_ROAD15
+msg6_0_6_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ku_,ga_,spc@,ku_,ti_,bu_,e_,spc@
+	db	hu_,i_,ta_,ri_,spc@,su_,ru_,to_
+	db	home@
+	db	to_,ri_,spc@,poke@,ga_,gyo3@
+	db	to_,n_,de_,spc@,ki_,ta_,ri_,spc@,su_,ru_,n_,da_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_e_,usf_n_,spc@
+	db	usf_i,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_s_,usf_t_,usf_l_,usf_e_,comma@,spc@
+	db	usf_i
+	db	home@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_s_,usf_u_,usf_m_,usf_m_,usf_o_,usf_n_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_win_7_ROAD15
+msg6_win_7_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ttu__,spc@,ka_,na_,si_,i_,ne_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_w_,gyoe@
+	db	home@
+	db	usf_t,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_g_,usf_i_,usf_c_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg6_after_8_ROAD15
+msg6_after_8_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ku_,no_,spc@,yo_,u_,na_,spc@,ta__,i__,pu__,ha_
+	db	home@
+	db	si_,yyo_,u_,bu_,spc@,go_,to_,spc@,ni_,ha_,gyo3@
+	db	mu_,i_,te_,spc@,na_,i_,no_,ka_,na_,a_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_a_,usf_y_,usf_b_,usf_e_,spc@
+	db	usf_i,apt_m_,spc@
+	db	usf_n_,usf_o_,usf_t_,spc@
+	db	usf_c_,usf_u_,usf_t_
+	db	home@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,usf_s_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_0_9_ROAD15
+msg7_0_9_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ya_,tenten2@,hate@
+	db	home@
+	db	to_,ri_,ga_,spc@,hu_,ru_,e_,te_,ru_,gyoe@,gyo3@
+	db	o_,ma_,e_,spc@,mo_,si_,ka_,si_,te_,tenten2@,spc@
+	db	tu_,yo_,i_,na_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_m_,usf_m_,hate@,spc@
+	db	usf_m,usf_y_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,usf_s_,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_s_,usf_h_,usf_i_,usf_v_,usf_e_,usf_r_,usf_i_,usf_n_,usf_g_,gyoe@,spc@
+	db	usf_y,usf_o_,usf_u_,apt_r_,usf_e_
+	db	gyo3@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,comma@,spc@
+	db	usf_a_,usf_r_,usf_e_,usf_n_,apt_t_,spc@
+	db	usf_y_,usf_o_,usf_u_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_win_10_ROAD15
+msg7_win_10_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,mo_,ttu_,ta_,spc@,to_,o_,ri_,da_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_j,usf_u_,usf_s_,usf_t_
+	db	home@
+	db	usf_a_,usf_s_,spc@
+	db	usf_i,spc@
+	db	usf_t_,usf_h_,usf_o_,usf_u_,usf_g_,usf_h_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg7_after_11_ROAD15
+msg7_after_11_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ttu_,ta_,ri_,spc@,ma_,e_,spc@,da_,ke_,do_,sa_,tenten2@
+	db	home@
+	db	to_,ri_,spc@,poke@,ha_,gyo3@
+	db	zi_,si_,n_,spc@,ya_,spc@,zi_,wa_,re_,spc@
+	db	ni_,ha_,spc@,tu_,yo_,i_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_d,usf_i_,usf_d_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_k_,usf_n_,usf_o_,usf_w_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_
+	db	home@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_e,usf_a,usf_r,usf_t,usf_h,usf_q,usf_u,usf_a,usf_k,usf_e
+	db	gyo3@
+	db	usf_d_,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_a_,usf_n_,usf_y_
+	db	gyo3@
+	db	usf_e_,usf_f_,usf_f_,usf_e_,usf_c_,usf_t_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,usf_s_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_0_12_ROAD15
+msg10_0_12_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ra_,bou@,n_,gyoe@
+	db	home@
+	db	poke@,spc@,mi_,ta_,i_,ni_,gyo3@
+	db	ka_,wa_,i_,i_,spc@,o_,to_,ko_,no_,ko_,spc@,ne_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_h_,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,apt_r_,usf_e_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_l_,usf_i_,usf_t_,usf_t_,usf_l_,usf_e_,spc@
+	db	usf_c_,usf_u_,usf_t_,usf_i_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_win_13_ROAD15
+msg10_win_13_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	yu_,da_,n_,spc@,si_,ti_,yya_,ttu_,ta_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,usf_e_,usf_d_
+	db	home@
+	db	usf_s_,usf_o_,spc@
+	db	usf_c_,usf_u_,usf_t_,usf_e_,spc@
+	db	usf_t_,usf_o_,usf_o_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg10_after_14_ROAD15
+msg10_after_14_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ku_,ya_,si_,i_,spc@,ke_,do_
+	db	home@
+	db	o_,ne_,e_,sa_,n_,ha_,spc@,o_,to_,na_,spc@,da_,ka_,ra_,gyo3@
+	db	yu_,ru_,si_,te_,spc@,a_,ge_,ru_,wa_,ne_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_f_,usf_o_,usf_r_,usf_g_,usf_i_,usf_v_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	home@
+	db	usf_i,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_t_,usf_a_,usf_k_,usf_e_,spc@
+	db	usf_i_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg11_0_15_ROAD15
+msg11_0_15_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,no_,ne_,tenten2@,gyoe@
+	db	home@
+	db	wa_,ta_,si_,ha_,spc@,hi_,to_,ri_,spc@
+	db	gu_,ra_,si_,spc@,da_,ka_,ra_,gyo3@
+	db	poke@,spc@,ka_,ttu_,te_,ru_,spc@,wa_,ke_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_r_,usf_a_,usf_i_,usf_s_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_b_,usf_e_,usf_c_,usf_a_,usf_u_,usf_s_,usf_e_,spc@
+	db	usf_i,spc@
+	db	usf_l_,usf_i_,usf_v_,usf_e_
+	db	gyo3@
+	db	usf_a_,usf_l_,usf_o_,usf_n_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg11_win_16_ROAD15
+msg11_win_16_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,poke@,ha_
+	db	home@
+	db	ka_,ti_,spc@,ma_,ke_,spc@,zi_,yya_,spc@,na_,i_,wa_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_d_,usf_i_,usf_d_,usf_n_,apt_t_
+	db	home@
+	db	usf_a_,usf_s_,usf_k_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg11_after_17_ROAD15
+msg11_after_17_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,u_,tenten2@,gyoe@
+	db	home@
+	db	u_,ti_,ni_,spc@,ka_,e_,ttu_,ta_,spc@,to_,ki_,gyo3@
+	db	poke@,ga_,spc@,i_,ru_,to_,spc@,ho_,ttu_,to_,spc@,su_,ru_,no_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_g_,usf_o_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_h_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_
+	db	gyo3@
+	db	usf_m_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_0_18_ROAD15
+msg12_0_18_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ra_,spc@,bo_,u_,zu_,gyoe@,spc@,si_,yyo_,u_,bu_,da_,gyoe@
+	db	home@
+	db	so_,no_,spc@,he_,n_,no_,spc@,ya_,tu_,spc@,ka_,ra_,gyo3@
+	db	mu_,ri_,ya_,ri_,spc@,to_,ttu_,te_,spc@,ki_,ta_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_y_,spc@
+	db	usf_k_,usf_i_,usf_d_,gyoe@,spc@
+	db	usf_c,apt_m_,usf_o_,usf_n_,gyoe@
+	db	home@
+	db	usf_i,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_s_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_win_19_ROAD15
+msg12_win_19_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ttu_,to_,ku_,spc@,i_,ka_,ne_,e_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_y_
+	db	home@
+	db	usf_n_,usf_o_,usf_t_,hate@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg12_after_20_ROAD15
+msg12_after_20_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mi_,zi_,ka_,i_,spc@,zi_,n_,se_,i_,tenten2@,gyoe@
+	db	home@
+	db	wa__,ru__,no_,spc@,ho_,u_,ga_,spc@
+	db	ka_,ttu_,ko_,i_,i_,ze_,gyoe@,gyo3@
+	db	rocket@,spc@
+	db	mi_,ta_,i_,ni_,spc@,na_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_o_,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_l_,usf_i_,usf_v_,usf_e_
+	db	home@
+	db	usf_o_,usf_n_,usf_c_,usf_e_,comma@,spc@
+	db	usf_s_,usf_o_,spc@
+	db	usf_i,spc@
+	db	usf_l_,usf_i_,usf_v_,usf_e_
+	db	gyo3@
+	db	usf_a_,usf_s_,spc@
+	db	usf_a_,usf_n_,spc@
+	db	usf_o_,usf_u_,usf_t_,usf_l_,usf_a_,usf_w_,gyoe@
+	db	gyo3@
+	db	usf_t,usf_e,usf_a,usf_m,spc@
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t,spc@
+	db	usf_r,usf_u,usf_l,usf_e,usf_s,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg13_0_21_ROAD15
+msg13_0_21_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,u_,ttu__,gyoe@
+	db	home@
+	db	ma_,ke_,ta_,ra_,spc@,a_,ri_,ga_,ne_,spc@,ze_,n_,bu_,gyoe@,gyo3@
+	db	o_,i_,te_,spc@,i_,ttu_,te_,spc@,mo_,ra_,o_,u_,ka_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_f,usf_o_,usf_r_,usf_k_,spc@
+	db	usf_o_,usf_v_,usf_e_,usf_r_,spc@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_
+	db	home@
+	db	usf_c_,usf_a_,usf_s_,usf_h_,spc@
+	db	usf_w_,usf_h_,usf_e_,usf_n_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	gyo3@
+	db	usf_l_,usf_o_,usf_s_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_m_,usf_e_,comma@,spc@
+	db	usf_k_,usf_i_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg13_win_22_ROAD15
+msg13_win_22_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,ri_,yya_,spc@,ne_,e_,da_,ro_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_t_
+	db	home@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_t_,usf_r_,usf_u_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg13_after_23_ROAD15
+msg13_after_23_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ri_,ga_,ne_,spc@,o_,i_,te_,ku_,spc@,na_,n_,te_
+	db	home@
+	db	zi_,yyo_,u_,da_,n_,ni_,spc@,ki_,ma_,ttu_,te_,ru_,spc@
+	db	da_,ro_,gyoe@,gyo3@
+	db	ka_,ru_,i_,spc@,zi_,yyo_,u_,da_,n_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_a_,usf_s_,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_j_,usf_o_,usf_k_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_a_,usf_b_,usf_o_,usf_u_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_n_,usf_e_,usf_y_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg14_0_24_ROAD15
+msg14_0_24_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	sa_,i_,ki_,n_,spc@,ha_,ya_,ttu_,te_,ru_,spc@
+	db	ko_,to_,tenten2@,hate@
+	db	home@
+	db	so_,u_,ne_,e_,tenten2@,gyoe@,gyo3@
+	db	poke@,no_,spc@,ko_,u_,ka_,n_,spc@,ka_,na_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_c_,usf_o_,usf_o_,usf_l_,hate@
+	db	home@
+	db	usf_t,usf_r_,usf_a_,usf_d_,usf_i_,usf_n_,usf_g_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg14_win_25_ROAD15
+msg14_win_25_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,u_,ttu__,tenten2@,gyoe@
+	db	home@
+	db	si_,yyo_,u_,bu_,spc@,zi_,yya_,spc@,na_,ku_,te_,spc@
+	db	ko_,u_,ka_,n_,yo_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i
+	db	home@
+	db	usf_s_,usf_a_,usf_i_,usf_d_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg14_after_26_ROAD15
+msg14_after_26_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	yo_,ku_,spc@,wa_,ta_,si_,mo_,spc@,o_,to_,mo_,da_,ti_,to_
+	db	home@
+	db	poke@,spc@,ko_,u_,ka_,n_,spc@,su_,ru_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_f_,usf_r_,usf_i_,usf_e_,usf_n_,usf_d_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg15_0_27_ROAD15
+msg15_0_27_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,yo_,u_,yo_,spc@,si_,yo_,u_,yo_
+	db	home@
+	db	poke@,spc@,si_,yo_,u_,yo_,bou@,ttu__,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_p_,usf_l_,usf_a_,usf_y_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_
+	db	home@
+	db	usf_m_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg15_win_28_ROAD15
+msg15_win_28_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,yyo_,u_,bu_,spc@,a_,se_,ri_,spc@,su_,gi_,ta_,wa_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_a_,usf_s_
+	db	home@
+	db	usf_t_,usf_o_,usf_o_,spc@
+	db	usf_i_,usf_m_,usf_p_,usf_a_,usf_t_,usf_i_,usf_e_,usf_n_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg15_after_29_ROAD15
+msg15_after_29_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,u_,spc@,su_,ko_,si_,spc@,yo_,wa_,i_,spc@,hi_,to_,to_
+	db	home@
+	db	re_,n_,si_,yyu_,u_,spc@,si_,te_,spc@,ku_,ru_,yo_,EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_g_,usf_o_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_
+	db	home@
+	db	usf_w_,usf_e_,usf_a_,usf_k_,usf_e_,usf_r_,spc@
+	db	usf_p_,usf_e_,usf_o_,usf_p_,usf_l_,usf_e_,kten@
+	db	EOM,EOM
+  endif
+
+bank24		group	024h
+	public	kanban1_30_ROAD15
+kanban1_30_ROAD15:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,n1@,n5@,ba_,n_,spc@,do_,u_,ro_
+	db	home@
+	db	ni_,si_,spc@,tenten2@,spc@,se__,ki__,ti__,ku__,spc@
+	db	si__,te__,ii__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_o,usf_u,usf_t,usf_e,spc@
+	db	n1@,n5@
+	db	home@
+	db	usf_w,usf_e_,usf_s_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a
+	db	gyo3@
+	db	usf_c,usf_i,usf_t,usf_y
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD16
+msg1_0_0_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ttu_,da_,to_,spc@,ko_,ra_,a_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_win_1_ROAD16
+msg1_win_1_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ttu_,te_,n_,zi_,yya_,ne_,e_,zo_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_d_,usf_a_,usf_r_,usf_e_,spc@
+	db	usf_l_,usf_a_,usf_u_,usf_g_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_after_2_ROAD16
+msg1_after_2_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ttu_,se_,bou@,na_,gyoe@
+	db	home@
+	db	o_,re_,ta_,ti_,yya_,spc@,ha_,si_,ru_,spc@,yo_,ri_,gyo3@
+	db	ko_,ko_,de_,spc@,da_,ra_,da_,ra_,spc@,si_,te_,ru_,spc@
+	db	ho_,u_,ga_,gyo3@
+	db	ta_,no_,si_,i_,n_,da_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_e_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_
+	db	home@
+	db	usf_h_,usf_a_,usf_n_,usf_g_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,comma@
+	db	gyo3@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_3_ROAD16
+msg2_0_3_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,u_,spc@,o_,u_,ttu__,gyoe@
+	db	home@
+	db	so_,no_,spc@,zi_,te_,n_,si_,yya_,spc@
+	db	o_,re_,ni_,spc@,ku_,re_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_n,usf_i_,usf_c_,usf_e_,spc@
+	db	usf_b,usf_i,usf_k,usf_e,gyoe@
+	db	home@
+	db	usf_h,usf_a_,usf_n_,usf_d_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_o_,usf_v_,usf_e_,usf_r_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_win_4_ROAD16
+msg2_win_4_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	no__,ttu__,ku__,spc@,a__,u__,to__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_k,usf_n_,usf_o_,usf_c_,usf_k_
+	db	home@
+	db	usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg2_after_5_ROAD16
+msg2_after_5_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,u_,spc@,i_,i_,gyoe@
+	db	home@
+	db	zi_,te_,n_,si_,yya_,ha_,spc@,i_,ra_,ne_,e_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_f,usf_o_,usf_r_,usf_g_,usf_e_,usf_t_,spc@
+	db	usf_i_,usf_t_,comma@,spc@
+	db	usf_w_,usf_h_,usf_o_
+	db	home@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,usf_s_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_b,usf_i,usf_k,usf_e,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_6_ROAD16
+msg3_0_6_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka_,wa_,i_,ga_,ttu_,te_,spc@,ya_,ro_,u_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_p_,usf_l_,usf_a_,usf_y_,comma@
+	db	home@
+	db	usf_l_,usf_i_,usf_t_,usf_t_,usf_l_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_u_,usf_s_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_7_ROAD16
+msg3_win_7_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,no_,spc@,ya_,ro_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_
+	db	home@
+	db	usf_l_,usf_i_,usf_t_,usf_t_,usf_l_,usf_e_,spc@
+	db	usf_r_,usf_a_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_8_ROAD16
+msg3_after_8_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	yo_,ku_,mo_,spc@,ya_,ttu_,te_,spc@,ku_,re_,ta_,na_,gyoe@
+	db	home@
+	db	o_,re_,ha_,spc@,ma_,ke_,ru_,no_,ga_,gyo3@
+	db	da_,i_,spc@,ki_,ra_,i_,spc@,na_,n_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_h_,usf_a_,usf_t_,usf_e_,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	home@
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_a_,usf_w_,usf_a_,usf_y_,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_m_,spc@
+	db	usf_m_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_0_9_ROAD16
+msg4_0_9_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ra_,spc@,ma_,te_,gyoe@
+	db	home@
+	db	bu_,tu_,ka_,ttu_,te_,spc@,o_,i_,te_,spc@,ni_,ge_,ru_,na_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_y_,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_
+	db	home@
+	db	usf_b_,usf_u_,usf_m_,usf_p_,usf_e_,usf_d_,spc@
+	db	usf_m_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_win_10_ROAD16
+msg4_win_10_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo__,n__,ba__,bou@,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_k,usf_a_,usf_b_,usf_o_,usf_o_,usf_m_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg4_after_11_ROAD16
+msg4_after_11_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,ta_,ti_,spc@,i_,tu_,mo_,spc@
+	db	ko_,ko_,ni_,spc@,i_,ru_,ze_,gyoe@
+	db	home@
+	db	ko_,wa_,ka_,ttu_,ta_,ra_,spc@,ku__,ti__,ba__,spc@,ka_,ra_,gyo3@
+	db	u_,mi_,zo_,i_,spc@,ma_,wa_,ttu_,te_,gyo3@
+	db	se__,ki__,ti__,ku__,he_,spc@,i_,ku_,n_,da_,na_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_a_,usf_l_,usf_s_,usf_o_,spc@
+	db	usf_g_,usf_e_,usf_t_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_m_
+	db	gyo3@
+	db	usf_v,usf_e,usf_r,usf_m,usf_i,usf_l,usf_i,usf_o,usf_n,spc@
+	db	usf_u_,usf_s_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_
+	db	gyo3@
+	db	usf_c_,usf_o_,usf_a_,usf_s_,usf_t_,usf_a_,usf_l_,spc@
+	db	usf_r_,usf_o_,usf_a_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_0_12_ROAD16
+msg5_0_12_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,ha_,spc@,i_,ma_,spc@,ki_,ge_,n_,ga_,spc@,wa_,ru_,i_,gyoe@
+	db	home@
+	db	u__,sa__,spc@,ba_,ra_,si_,ga_,spc@,si_,te_,e_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_f_,usf_e_,usf_e_,usf_l_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_h_,usf_u_,usf_n_,usf_g_,usf_r_,usf_y_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_m_,usf_e_,usf_a_,usf_n_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_win_13_ROAD16
+msg5_win_13_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ma_,i_,ki_,na_,spc@,ko_,zo_,u_,da_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_b,usf_a_,usf_d_,comma@
+	db	home@
+	db	usf_b_,usf_a_,usf_d_,comma@,spc@
+	db	usf_b_,usf_a_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg5_after_14_ROAD16
+msg5_after_14_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,u_,se_,spc@,poke@,spc@,ya_,ru_,na_,ra_
+	db	home@
+	db	ki_,yyo_,u_,bo_,u_,na_,spc@,ya_,tu_,ga_,spc@
+	db	ho_,si_,i_,ze_,gyoe@,gyo3@
+	db	so_,re_,de_,spc@,a_,i_,te_,wo_,gyo3@
+	db	bo__,ro__,bo__,ro__,ni_,spc@,si_,te_,ya_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_f_,usf_e_,usf_r_,usf_o_,usf_c_,usf_i_,usf_o_,usf_u_,usf_s_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_e_,usf_y_
+	db	gyo3@
+	db	usf_t_,usf_e_,usf_a_,usf_r_,spc@
+	db	usf_u_,usf_p_,spc@
+	db	usf_e_,usf_n_,usf_e_,usf_m_,usf_i_,usf_e_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_0_15_ROAD16
+msg6_0_15_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hi_,yyo_,hi_,yyo_,bou@,ttu__,gyoe@
+	db	home@
+	db	su_,ko_,si_,spc@,a_,so_,n_,de_,ttu_,te_,spc@,ya_,ru_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_u_,usf_r_,usf_e_,comma@,spc@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_g_,usf_o_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_win_16_ROAD16
+msg6_win_16_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,wo_,spc@,o_,ko_,ra_,su_,na_,yo_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_m_,usf_a_,usf_k_,usf_e_
+	db	home@
+	db	usf_m_,usf_e_,spc@
+	db	usf_m_,usf_a_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg6_after_17_ROAD16
+msg6_after_17_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,u_,spc@,o_,u_,ttu__,gyoe@
+	db	home@
+	db	poke@,de_,spc@,o_,do_,ka_,si_,ta_,ri_,gyo3@
+	db	ka_,mi_,tu_,ka_,se_,ta_,ri_,spc@
+	db	i_,ta_,zu_,ra_,spc@,si_,ta_,ri_,gyo3@
+	db	su_,ru_,no_,ga_,spc@,su_,ki_,da_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_h_,usf_a_,usf_r_,usf_a_,usf_s_,usf_s_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_p_,usf_e_,usf_o_,usf_p_,usf_l_,usf_e_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_m_,usf_y_
+	db	gyo3@
+	db	usf_v_,usf_i_,usf_c_,usf_i_,usf_o_,usf_u_,usf_s_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_18_ROAD16
+msg7_18_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,ga_,spc@,to_,te_,mo_
+	db	home@
+	db	ki_,mo_,ti_,yo_,sa_,so_,u_,ni_,spc@,ne_,te_,i_,ma_,su_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_s_,usf_l_,usf_e_,usf_e_,usf_p_,usf_i_,usf_n_,usf_g_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_b_,usf_l_,usf_o_,usf_c_,usf_k_,usf_s_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_w_,usf_a_,usf_y_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_kabigon_19_ROAD16
+msg7_kabigon_19_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka__,bi__,go__,n__,ha_,spc@,me_,wo_,spc@,sa_,ma_,si_,ta_,gyoe@
+	db	normal@
+	db	ne_,bo_,ke_,ta_,spc@,ka__,bi__,go__,n__,ga_
+	db	home@
+	db	o_,so_,ttu_,te_,ki_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_n,usf_o,usf_r,usf_l,usf_a,usf_x,spc@
+	db	usf_w_,usf_o_,usf_k_,usf_e_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	normal@
+	db	usf_i,usf_t_,spc@
+	db	usf_a_,usf_t_,usf_t_,usf_a_,usf_c_,usf_k_,usf_e_,usf_d_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_g_,usf_r_,usf_u_,usf_m_,usf_p_,usf_y_,spc@
+	db	usf_r_,usf_a_,usf_g_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_after_20_ROAD16
+msg7_after_20_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka__,bi__,go__,n__,ha_,spc@
+	db	o_,o_,ki_,na_,spc@,a_,ku_,bi_,wo_,si_,te_
+	db	home@
+	db	ya_,ma_,no_,o_,ku_,he_,spc@
+	db	sa_,ttu_,te_,i_,ttu_,ta_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_a_,spc@
+	db	usf_b_,usf_i_,usf_g_,spc@
+	db	usf_y_,usf_a_,usf_w_,usf_n_,comma@
+	db	home@
+	db	usf_s,usf_n,usf_o,usf_r,usf_l,usf_a,usf_x,spc@
+	db	usf_r_,usf_e_,usf_t_,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_
+	db	gyo3@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_u_,usf_n_,usf_t_,usf_a_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban1_21_ROAD16
+kanban1_21_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	sa_,ka_,mi_,ti_,wo_,spc@,ta_,no_,si_,mo_,u_,gyoe@
+	db	home@
+	db	sa__,i__,ku__,ri__,n__,gu__,spc@,ro__,bou@,do__,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_e,usf_n_,usf_j_,usf_o_,usf_y_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_s_,usf_l_,usf_o_,usf_p_,usf_e_,gyoe@
+	db	home@
+	db	usf_c,usf_y,usf_c,usf_l,usf_i,usf_n,usf_g,spc@
+	db	usf_r,usf_o,usf_a,usf_d
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban2_22_ROAD16
+kanban2_22_ROAD16:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,n1@,n6@,ba_,n_,spc@,do_,u_,ro_
+	db	home@
+	db	ta__,ma__,mu__,si__,spc@,tenten2@,spc@,se__,ki__,ti__,ku__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_o,usf_u,usf_t,usf_e,spc@
+	db	n1@,n6@
+	db	home@
+	db	usf_c,usf_e,usf_l,usf_a,usf_d,usf_o,usf_n,spc@
+	db	usf_c,usf_i,usf_t,usf_y,spc@
+	db	bou@
+	db	gyo3@
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a,spc@
+	db	usf_c,usf_i,usf_t,usf_y
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_0_ROAD17
+msg2_0_0_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,do_,mo_,spc@,a_,i_,te_,ni_,spc@,ta_,ta_,ka_,ttu_,te_,mo_
+	db	home@
+	db	si_,yyo_,u_,ki_,n_,ha_,spc@,ta_,ma_,ra_,ne_,e_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_m_,usf_o_,usf_n_,usf_e_,usf_y_
+	db	home@
+	db	usf_i_,usf_n_,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_k_,usf_i_,usf_d_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_win_1_ROAD17
+msg2_win_1_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,e_,tu_,ki_,ta_,ze_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_b,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_
+	db	home@
+	db	usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg2_after_2_ROAD17
+msg2_after_2_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	sa__,i__,ku__,ri__,n__,gu__,spc@,ro__,bou@,do__,ha_
+	db	home@
+	db	o_,to_,si_,mo_,no_,ga_,spc@,o_,o_,i_,gyoe@,gyo3@
+	db	hi_,ro_,ttu_,te_,spc@,u_,re_,ba_,spc@,mo_,u_,ka_,ru_,ze_,e_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_g,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_s_,usf_t_,usf_u_,usf_f_,usf_f_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_l_,usf_y_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_r_,usf_o_,usf_u_,usf_n_,usf_d_,spc@
+	db	usf_o_,usf_n_
+	db	gyo3@
+	db	usf_c,usf_y,usf_c,usf_l,usf_i,usf_n,usf_g,spc@
+	db	usf_r,usf_o,usf_a,usf_d,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_3_ROAD17
+msg3_0_3_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ta_,i_,ri_,yyo_,ku_,spc@,ni_,ha_
+	db	home@
+	db	zi_,si_,n_,spc@,a_,ru_,ze_,e_,tenten2@,spc@,ko_,i_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,comma@
+	db	home@
+	db	usf_k_,usf_i_,usf_d_,usf_d_,usf_o_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_4_ROAD17
+msg3_win_4_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,yo_,yo_,bou@,n_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_o_,usf_o_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_5_ROAD17
+msg3_after_5_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,i_,de_,ni_
+	db	home@
+	db	o_,na_,ka_,de_,mo_,spc@,sa_,wa_,ttu_,te_,spc@,mi_,ru_,ka_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_b_,usf_e_,usf_l_,usf_l_,usf_y_,bou@
+	db	home@
+	db	usf_b_,usf_u_,usf_m_,usf_p_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_o_,usf_u_,usf_t_,usf_t_,usf_a_
+	db	gyo3@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_0_6_ROAD17
+msg4_0_6_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	se__,ki__,ti__,ku__,spc@,si__,te__,ii__,ni_,spc@
+	db	i_,ku_,no_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_d_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_win_7_ROAD17
+msg4_win_7_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,hi_,yyo_,bou@,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_c,usf_r_,usf_a_,usf_s_,usf_h_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	home@
+	db	usf_b_,usf_u_,usf_r_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg4_after_8_ROAD17
+msg4_after_8_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ku_,da_,ri_,za_,ka_,spc@,i_,ttu_,ki_,ni_,spc@,o_,ri_,ru_,to_
+	db	home@
+	db	ki_,mo_,ti_,spc@,i_,i_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_v_,usf_e_,spc@
+	db	usf_r_,usf_a_,usf_c_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_d_,usf_o_,usf_w_,usf_n_,usf_h_,usf_i_,usf_l_,usf_l_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_0_9_ROAD17
+msg6_0_9_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,ta_,ti_,spc@,bo_,u_,so_,u_,spc@,zo_,ku_,gyoe@
+	db	home@
+	db	na_,ku_,spc@,ko_,mo_,spc@,da_,ma_,ra_,se_,ru_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_e_,apt_r_,usf_e_,spc@
+	db	usf_b,usf_i,usf_k,usf_e,usf_r,usf_s_,gyoe@
+	db	home@
+	db	usf_h,usf_i_,usf_g_,usf_h_,usf_w_,usf_a_,usf_y_,spc@
+	db	usf_s_,usf_t_,usf_a_,usf_r_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_win_10_ROAD17
+msg6_win_10_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga_,ma_,n_,spc@,na_,ra_,ne_,e_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_m_,usf_o_,usf_k_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg6_after_11_ROAD17
+msg6_after_11_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ka_,na_,ka_,tenten2@
+	db	home@
+	db	do_,ki_,yyo_,u_,spc@,a_,ru_,spc@,zi_,yya_,ne_,e_,ka_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,usf_r_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_a_,usf_d_,usf_v_,usf_e_,usf_n_,usf_t_,usf_u_,usf_r_,usf_e_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_0_12_ROAD17
+msg7_0_12_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,ri_,yya_,a_,gyoe@
+	db	home@
+	db	bi__,ri__,ri__,da__,ma__,ni_,spc@,si_,bi_,re_,ro_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_l,usf_e_,usf_t_,spc@
+	db	usf_v,usf_o,usf_l,usf_t,usf_o,usf_r,usf_b
+	db	home@
+	db	usf_e_,usf_l_,usf_e_,usf_c_,usf_t_,usf_r_,usf_i_,usf_f_,usf_y_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_win_13_ROAD17
+msg7_win_13_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	gu_,o_,ttu__,tenten2@,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_g,usf_r_,usf_o_,usf_u_,usf_n_,usf_d_,usf_e_,usf_d_
+	db	home@
+	db	usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg7_after_14_ROAD17
+msg7_after_14_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,no_,spc@,bi__,ri__,ri__,da__,ma__,ha_
+	db	home@
+	db	mu_,zi_,n_,spc@,ha_,tu_,de_,n_,si_,yyo_,de_,spc@,to_,ttu_,ta_,ze_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_v,usf_o,usf_l,usf_t,usf_o,usf_r,usf_b
+	db	home@
+	db	usf_a_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_a_,usf_b_,usf_a_,usf_n_,usf_d_,usf_o_,usf_n_,usf_e_,usf_d_
+	db	gyo3@
+	db	usf_p,usf_o,usf_w,usf_e,usf_r,spc@
+	db	usf_p,usf_l,usf_a,usf_n,usf_t,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_0_15_ROAD17
+msg9_0_15_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,no_,spc@,poke@,spc@,re__,be__,ru__,spc@,a_,ge_,te_,mo_
+	db	home@
+	db	na_,ka_,na_,ka_,spc@,si_,n_,ka_,spc@,si_,na_,i_,ze_,e_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_w_,usf_o_,usf_n_,apt_t_
+	db	home@
+	db	usf_e_,usf_v_,usf_o_,usf_l_,usf_v_,usf_e_,gyoe@,spc@
+	db	usf_w,usf_h_,usf_y_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_win_16_ROAD17
+msg9_win_16_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,no_,spc@,ya_,ro_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_y_,comma@
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg9_after_17_ROAD17
+msg9_after_17_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,u_,i_,e_,ba_,spc@,poke@,ni_,spc@,yo_,ttu_,te_
+	db	home@
+	db	i_,si_,wo_,spc@,ka_,za_,su_,to_,gyo3@
+	db	si_,n_,ka_,spc@,su_,ru_,ka_,mo_,spc@,si_,re_,na_,i_,ze_,e_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_a_,usf_y_,usf_b_,usf_e_,spc@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,spc@
+	db	usf_e_,usf_l_,usf_e_,usf_m_,usf_e_,usf_n_,usf_t_
+	db	gyo3@
+	db	usf_s,usf_t,usf_o,usf_n,usf_e,usf_s_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_e_,usf_v_,usf_o_,usf_l_,usf_v_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_0_18_ROAD17
+msg10_0_18_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hi_,to_,a_,se_,spc@,ka_,i_,te_,spc@,ya_,se_,ru_,ka_,a_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,spc@
+	db	usf_a_,spc@
+	db	usf_l_,usf_i_,usf_t_,usf_t_,usf_l_,usf_e_
+	db	home@
+	db	usf_e_,usf_x_,usf_e_,usf_r_,usf_c_,usf_i_,usf_s_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_win_19_ROAD17
+msg10_win_19_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	da_,a_,gyoe@
+	db	home@
+	db	a_,tu_,i_,spc@,ta_,ta_,ka_,i_,spc@,da_,ze_,e_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_e_,usf_w_,gyoe@
+	db	home@
+	db	usf_g,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_w_,usf_o_,usf_r_,usf_k_,usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg10_after_20_ROAD17
+msg10_after_20_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,se_,spc@,ka_,i_,te_
+	db	home@
+	db	su_,ko_,si_,spc@,ya_,se_,ta_,spc@,ki_,ga_,spc@,su_,ru_,ze_,e_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_s_,usf_u_,usf_r_,usf_e_,spc@
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_
+	db	home@
+	db	usf_w_,usf_e_,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_0_21_ROAD17
+msg12_0_21_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,ttu_,pa_,ru_,spc@,ko_,to_,ga_
+	db	home@
+	db	o_,to_,ko_,no_,spc@,ku_,n_,si_,yyo_,u_,da_,ze_,e_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_e_,spc@
+	db	usf_a_,spc@
+	db	usf_r_,usf_e_,usf_b_,usf_e_,usf_l_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_win_22_ROAD17
+msg12_win_22_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga_,bou@,ttu__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_a_,usf_a_,usf_a_,usf_r_,usf_g_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg12_after_23_ROAD17
+msg12_after_23_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,to_,ko_,spc@,da_,ttu_,ta_,ra_
+	db	home@
+	db	si_,n_,zi_,ru_,spc@,mi_,ti_,wo_,spc@,i_,ke_,e_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_e_,spc@
+	db	usf_r_,usf_e_,usf_a_,usf_d_,usf_y_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_b_,usf_e_,usf_l_,usf_i_,usf_e_,usf_f_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg13_0_24_ROAD17
+msg13_0_24_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,ka_,su_,spc@,zi_,te_,n_,si_,yya_,da_,na_,gyoe@
+	db	home@
+	db	no_,ri_,go_,ko_,ti_,ha_,spc@,do_,u_,da_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_n,usf_i_,usf_c_,usf_e_,spc@
+	db	usf_b,usf_i,usf_k,usf_e,gyoe@
+	db	home@
+	db	usf_h,usf_o_,usf_w_,apt_s_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_h_,usf_a_,usf_n_,usf_d_,usf_l_,usf_e_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg13_win_25_ROAD17
+msg13_win_25_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ku_,so_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_h_,usf_o_,usf_o_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg13_after_26_ROAD17
+msg13_after_26_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	sa_,ka_,mi_,ti_,de_,no_,spc@,ha__,n__,do__,ru__,spc@,sa_,ba_,ki_
+	db	home@
+	db	mu_,zu_,ka_,si_,i_,spc@,da_,ro_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_s_,usf_l_,usf_o_,usf_p_,usf_e_,spc@
+	db	usf_m_,usf_a_,usf_k_,usf_e_,usf_s_
+	db	home@
+	db	usf_i_,usf_t_,spc@
+	db	usf_h_,usf_a_,usf_r_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_s_,usf_t_,usf_e_,usf_e_,usf_r_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg14_0_27_ROAD17
+msg14_0_27_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,da_,ri_,i_,yo_,tenten2@,spc@,ne_,mi_,i_,yo_
+	db	home@
+	db	me_,n_,do_,ku_,se_,e_,tenten2@,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,spc@
+	db	usf_k_,usf_i_,usf_d_,gyoe@
+	db	home@
+	db	usf_i,apt_m_,spc@
+	db	usf_b_,usf_u_,usf_s_,usf_h_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg14_win_28_ROAD17
+msg14_win_28_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,wa_,ttu_,ta_,ka_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_r_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_s_,usf_a_,usf_t_,usf_i_,usf_s_,usf_f_,usf_i_,usf_e_,usf_d_,hate@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg14_after_29_ROAD17
+msg14_after_29_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,u_,spc@,ba__,ttu__,ku__,re__,te_,spc@,ne_,te_,e_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_
+	db	home@
+	db	usf_a_,spc@
+	db	usf_f_,usf_e_,usf_w_,spc@
+	db	usf_z,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban1_30_ROAD17
+kanban1_30_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ti__,ra__,si__,ga_,spc@,ha_,ttu_,te_,a_,ru_,gyoe@
+	db	normal@
+	db	tenten2@,spc@,do_,u_,gu_,spc@,na_,ge_,su_,te_,spc@
+	db	ti_,yyu_,u_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_a_,spc@
+	db	usf_n_,usf_o_,usf_t_,usf_i_,usf_c_,usf_e_,gyoe@
+	db	normal@
+	db	usf_w,usf_a_,usf_t_,usf_c_,usf_h_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	home@
+	db	usf_d_,usf_i_,usf_s_,usf_c_,usf_a_,usf_r_,usf_d_,usf_e_,usf_d_,spc@
+	db	usf_i_,usf_t_,usf_e_,usf_m_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban2_31_ROAD17
+kanban2_31_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,o_,to_,ku_,na_,spc@,ke_,i_,zi_,ba_,n_,gyoe@
+	db	normal@
+	db	o_,na_,zi_,spc@,poke@,spc@,o_,na_,zi_,spc@
+	db	re__,be__,ru__,de_,mo_
+	db	home@
+	db	to_,ru_,ta_,bi_,ni_,spc@
+	db	pa__,ra__,me__,bou@,ta__,ga_,spc@,su_,ko_,si_,gyo3@
+	db	ti_,ga_,ttu_,te_,te_,tenten2@,spc@,so_,da_,tu_,to_,gyo3@
+	db	ti_,ga_,i_,ga_,spc@,o_,o_,ki_,ku_,spc@,na_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,spc@
+	db	usf_t,usf_i,usf_p,usf_s
+	db	normal@
+	db	usf_a,usf_l_,usf_l_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_u_,usf_n_,usf_i_,usf_q_,usf_u_,usf_e_,kten@
+	db	normal@
+	db	usf_e,usf_v_,usf_e_,usf_n_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_s_,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_t_,usf_y_,usf_p_,usf_e_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	gyo3@
+	db	usf_l_,usf_e_,usf_v_,usf_e_,usf_l_,spc@
+	db	usf_g_,usf_r_,usf_o_,usf_w_,spc@
+	db	usf_a_,usf_t_
+	db	gyo3@
+	db	usf_d_,usf_i_,usf_f_,usf_f_,usf_e_,usf_r_,usf_e_,usf_n_,usf_t_,spc@
+	db	usf_r_,usf_a_,usf_t_,usf_e_,usf_s_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban3_32_ROAD17
+kanban3_32_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,o_,to_,ku_,na_,spc@,ke_,i_,zi_,ba_,n_,gyoe@
+	db	normal@
+	db	bo__,ta__,n__,wo_,spc@,o_,si_,te_,re_,ba_
+	db	home@
+	db	sa_,ka_,mi_,ti_,de_,mo_,spc@,zi_,te_,n_,si_,yya_,no_,gyo3@
+	db	ta__,i__,ya__,ga_,spc@,su_,be_,ra_,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,spc@
+	db	usf_t,usf_i,usf_p,usf_s
+	db	normal@
+	db	usf_p,usf_r_,usf_e_,usf_s_,usf_s_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_a,spc@
+	db	usf_o_,usf_r_,spc@
+	db	usf_b
+	db	home@
+	db	usf_b,usf_u_,usf_t_,usf_t_,usf_o_,usf_n_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_s_,usf_t_,usf_a_,usf_y_,spc@
+	db	usf_i_,usf_n_
+	db	gyo3@
+	db	usf_p_,usf_l_,usf_a_,usf_c_,usf_e_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_l_,usf_e_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_a_
+	db	gyo3@
+	db	usf_s_,usf_l_,usf_o_,usf_p_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban4_33_ROAD17
+kanban4_33_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,n1@,n7@,ba_,n_,spc@,do_,u_,ro_
+	db	home@
+	db	ta__,ma__,mu__,si__,spc@,tenten2@,spc@,se__,ki__,ti__,ku__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_o,usf_u,usf_t,usf_e,spc@
+	db	n1@,n7@
+	db	home@
+	db	usf_c,usf_e,usf_l,usf_a,usf_d,usf_o,usf_n,spc@
+	db	usf_c,usf_i,usf_t,usf_y,spc@
+	db	bou@
+	db	gyo3@
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a,spc@
+	db	usf_c,usf_i,usf_t,usf_y
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban5_34_ROAD17
+kanban5_34_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ti__,ra__,si__,ga_,spc@,ha_,ttu_,te_,a_,ru_,gyoe@
+	db	normal@
+	db	ge__,bou@,mu__,wo_,spc@,na_,ge_,ru_,na_,gyoe@
+	db	home@
+	db	mo__,n__,su__,ta__,bou@,bo__,bou@,ru__,wo_,spc@
+	db	na_,ge_,ro_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_a_,spc@
+	db	usf_n_,usf_o_,usf_t_,usf_i_,usf_c_,usf_e_,gyoe@
+	db	normal@
+	db	usf_d,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_t_,usf_h_,usf_r_,usf_o_,usf_w_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_g_,usf_a_,usf_m_,usf_e_,comma@,spc@
+	db	usf_t_,usf_h_,usf_r_,usf_o_,usf_w_,spc@
+	db	poke@
+	db	gyo3@
+	db	usf_b,usf_a,usf_l,usf_l,usf_s_,spc@
+	db	usf_i_,usf_n_,usf_s_,usf_t_,usf_e_,usf_a_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban6_35_ROAD17
+kanban6_35_ROAD17:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	sa__,i__,ku__,ri__,n__,gu__,spc@,ro__,bou@,do__
+	db	home@
+	db	tenten2@,spc@,sa_,ka_,mi_,ti_,ha_,spc@,ko_,ko_,ma_,de_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_y,usf_c,usf_l,usf_i,usf_n,usf_g,spc@
+	db	usf_r,usf_o,usf_a,usf_d
+	db	home@
+	db	usf_s,usf_l_,usf_o_,usf_p_,usf_e_,spc@
+	db	usf_e_,usf_n_,usf_d_,usf_s_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_0_ROAD18
+msg3_0_0_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,u_,i_,u_,spc@,ku_,sa_,mu_,ra_,wo_,spc@,mi_,tu_,ke_,te_,ha_
+	db	home@
+	db	a_,ta_,ra_,si_,i_,spc@,poke@,spc@,i_,na_,i_,ka_,gyo3@
+	db	sa_,ga_,si_,te_,ru_,no_,sa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_a_,usf_l_,usf_w_,usf_a_,usf_y_,usf_s_,spc@
+	db	usf_c_,usf_h_,usf_e_,usf_c_,usf_k_
+	db	home@
+	db	usf_e_,usf_v_,usf_e_,usf_r_,usf_y_,spc@
+	db	usf_g_,usf_r_,usf_a_,usf_s_,usf_s_,usf_y_,spc@
+	db	usf_a_,usf_r_,usf_e_,usf_a_
+	db	gyo3@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_n_,usf_e_,usf_w_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_1_ROAD18
+msg3_win_1_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,u_,tenten2@,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_c_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_2_ROAD18
+msg3_after_2_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	zi_,te_,n_,si_,yya_,spc@,mo_,ttu_,te_,spc@,i_,ta_,ra_
+	db	home@
+	db	bo_,ku_,mo_,spc@,sa__,i__,ku__,ri__,n__,gu__,spc@,si_,ta_,i_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_i_,usf_s_,usf_h_,spc@
+	db	usf_i,spc@
+	db	usf_h_,usf_a_,usf_d_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_b,usf_i,usf_k,usf_e,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_0_3_ROAD18
+msg4_0_3_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ku__,ru__,ttu__,ku__,tenten2@,ttu__,gyoe@
+	db	home@
+	db	do_,u_,hate@,spc@,bo_,ku_,no_,spc@,yu_,bi_,bu_,e_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_k,usf_u_,usf_r_,usf_u_,usf_k_,usf_k_,usf_o_,usf_o_,gyoe@
+	db	home@
+	db	usf_h,usf_o_,usf_w_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_
+	db	gyo3@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,spc@
+	db	usf_c_,usf_a_,usf_l_,usf_l_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_win_4_ROAD18
+msg4_win_4_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,zi_,mo_,spc@,na_,ka_,zu_,ba_
+	db	home@
+	db	u_,ta_,re_,ma_,i_,ni_,spc@,ttu_,te_,spc@,ko_,to_,ka_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i
+	db	home@
+	db	usf_h_,usf_a_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_b_,usf_u_,usf_g_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg4_after_5_ROAD18
+msg4_after_5_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,mi_,ga_,spc@,ti_,ka_,i_,spc@,ka_,ra_
+	db	home@
+	db	si_,yyu_,u_,ma_,tu_,ha_,spc@,u_,mi_,do_,ri_,spc@,poke@,gyo3@
+	db	tu_,ka_,ma_,e_,ni_,spc@,ku_,ru_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_a_,usf_l_,usf_s_,usf_o_,spc@
+	db	usf_c_,usf_o_,usf_l_,usf_l_,usf_e_,usf_c_,usf_t_,spc@
+	db	usf_s_,usf_e_,usf_a_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_o_,usf_n_
+	db	gyo3@
+	db	usf_w_,usf_e_,usf_e_,usf_k_,usf_e_,usf_n_,usf_d_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_0_6_ROAD18
+msg9_0_6_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,no_,spc@,a_,ta_,ri_,ha_
+	db	home@
+	db	bo_,ku_,ra_,no_,spc@,na_,wa_,ba_,ri_,da_,gyoe@,gyo3@
+	db	ti_,ka_,yo_,ra_,na_,i_,de_,spc@,ho_,si_,i_,na_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_t_,usf_u_,usf_r_,usf_f_,gyoe@
+	db	home@
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_win_7_ROAD18
+msg9_win_7_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,hu_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_a_,usf_r_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg9_after_8_ROAD18
+msg9_after_8_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	da_,re_,de_,mo_,spc@,o_,ki_,ni_,i_,ri_,no_
+	db	home@
+	db	poke@,wo_,spc@,to_,ri_,ni_,spc@,i_,ku_,gyo3@
+	db	ba_,si_,yyo_,ga_,spc@,a_,ru_,da_,ro_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_f_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_h_,usf_u_,usf_n_,usf_t_,usf_i_,usf_n_,usf_g_
+	db	gyo3@
+	db	usf_a_,usf_r_,usf_e_,usf_a_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban1_9_ROAD18
+kanban1_9_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,n1@,n8@,ba_,n_,spc@,do_,u_,ro_
+	db	home@
+	db	ta__,ma__,mu__,si__,spc@,tenten2@,spc@,se__,ki__,ti__,ku__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_o,usf_u,usf_t,usf_e,spc@
+	db	n1@,n8@
+	db	home@
+	db	usf_c,usf_e,usf_l,usf_a,usf_d,usf_o,usf_n,spc@
+	db	usf_c,usf_i,usf_t,usf_y,spc@
+	db	bou@
+	db	gyo3@
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a,spc@
+	db	usf_c,usf_i,usf_t,usf_y
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban2_10_ROAD18
+kanban2_10_ROAD18:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,sa__,i__,ku__,ri__,n__,gu__,spc@
+	db	ro__,bou@,do__
+	db	home@
+	db	a_,ru_,i_,te_,no_,spc@,tu_,u_,ko_,u_,spc@,ki_,n_,si_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_y,usf_c,usf_l,usf_i,usf_n,usf_g,spc@
+	db	usf_r,usf_o,usf_a,usf_d
+	db	home@
+	db	usf_n,usf_o_,spc@
+	db	usf_p_,usf_e_,usf_d_,usf_e_,usf_s_,usf_t_,usf_r_,usf_i_,usf_a_,usf_n_,usf_s_
+	db	gyo3@
+	db	usf_p_,usf_e_,usf_r_,usf_m_,usf_i_,usf_t_,usf_t_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD19
+msg1_0_0_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mi_,zu_,ni_,spc@,ha_,i_,ru_,spc@,ma_,e_,ni_
+	db	home@
+	db	zi_,yyu_,n_,bi_,spc@,ta_,i_,so_,u_,spc@,si_,na_,ki_,yya_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_w_,usf_a_,usf_r_,usf_m_,spc@
+	db	usf_u_,usf_p_
+	db	home@
+	db	usf_b_,usf_e_,usf_f_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_s_,usf_w_,usf_i_,usf_m_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_win_1_ROAD19
+msg1_win_1_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ta_,i_,so_,u_,spc@,o_,wa_,ri_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_l_,usf_l_
+	db	home@
+	db	usf_w_,usf_a_,usf_r_,usf_m_,usf_e_,usf_d_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_after_2_ROAD19
+msg1_after_2_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	yo_,si_,ttu__,gyoe@,spc@,o_,ka_,ge_,de_
+	db	home@
+	db	i_,i_,spc@,u_,n_,do_,u_,ni_,spc@,na_,ttu_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_n_,usf_k_,usf_s_,comma@,spc@
+	db	usf_k_,usf_i_,usf_d_,gyoe@,spc@
+	db	usf_i,apt_m_
+	db	home@
+	db	usf_r_,usf_e_,usf_a_,usf_d_,usf_y_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_a_,spc@
+	db	usf_s_,usf_w_,usf_i_,usf_m_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_3_ROAD19
+msg2_0_3_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,te_,spc@,a_,wa_,te_,ru_,na_,gyoe@
+	db	home@
+	db	si_,n_,zo_,u_,spc@,ma__,hi__,ni_,spc@
+	db	na_,ttu_,ta_,ra_,spc@,do_,u_,su_,ru_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_a_,usf_i_,usf_t_,gyoe@,spc@
+	db	usf_y,usf_o_,usf_u_,apt_l_,usf_l_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	usf_a_,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_r_,usf_t_,spc@
+	db	usf_a_,usf_t_,usf_t_,usf_a_,usf_c_,usf_k_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_win_4_ROAD19
+msg2_win_4_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,bou@,spc@,sa_,mu_,i_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_o_,usf_h_,gyoe@
+	db	home@
+	db	usf_t,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_c_,usf_h_,usf_i_,usf_l_,usf_l_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg2_after_5_ROAD19
+msg2_after_5_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	me__,no__,ku__,ra__,ge__,ni_,spc@,sa_,sa_,re_,na_,i_,yo_,u_
+	db	home@
+	db	ki_,wo_,spc@,tu_,ke_,te_,spc@,o_,yo_,ge_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_a_,usf_t_,usf_c_,usf_h_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	home@
+	db	usf_t,usf_e,usf_n,usf_t,usf_a,usf_c,usf_o,usf_o,usf_l,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_6_ROAD19
+msg3_0_6_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,yo_,gu_,no_,spc@,da_,i_,su_,ki_,gyoe@
+	db	home@
+	db	tenten2@,spc@,ki_,mi_,ha_,spc@,do_,u_,na_,no_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_v_,usf_e_,spc@
+	db	usf_s_,usf_w_,usf_i_,usf_m_,usf_m_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	home@
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_a_,usf_b_,usf_o_,usf_u_,usf_t_,spc@
+	db	usf_y_,usf_o_,usf_u_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_7_ROAD19
+msg3_win_7_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do__,ttu__,po__,bou@,n__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_b,usf_e_,usf_l_,usf_l_,usf_y_
+	db	home@
+	db	usf_f_,usf_l_,usf_o_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_8_ROAD19
+msg3_after_8_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,yo_,gi_,spc@,na_,ra_
+	db	home@
+	db	u_,mi_,no_,spc@,poke@,ni_,mo_,spc@,ma_,ke_,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_b_,usf_e_,usf_a_,usf_t_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_a_,usf_t_,spc@
+	db	usf_s_,usf_w_,usf_i_,usf_m_,usf_m_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_0_9_ROAD19
+msg4_0_9_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	su_,i_,he_,i_,se_,n_,no_,spc@,mu_,ko_,u_
+	db	home@
+	db	tenten2@,spc@,na_,ni_,ga_,spc@,a_,ru_,n_,da_,ro_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_b_,usf_e_,usf_y_,usf_o_,usf_n_,usf_d_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_h_,usf_o_,usf_r_,usf_i_,usf_z_,usf_o_,usf_n_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_win_10_ROAD19
+msg4_win_10_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ri_,yya_,ri_,yya_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_g,usf_l_,usf_u_,usf_b_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg4_after_11_ROAD19
+msg4_after_11_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,mu_,ko_,u_,ni_
+	db	home@
+	db	i_,ku_,tu_,ka_,spc@,si_,ma_,ga_,spc@,mi_,e_,ru_,zo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_s_,usf_e_,usf_e_,spc@
+	db	usf_a_,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_p_,usf_l_,usf_e_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	usf_i_,usf_s_,usf_l_,usf_a_,usf_n_,usf_d_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_0_12_ROAD19
+msg5_0_12_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,gu_,ttu_,te_,tenten2@,spc@,u_,mi_,spc@,poke@
+	db	home@
+	db	to_,ro_,u_,to_,si_,ta_,ke_,do_,spc@
+	db	da_,me_,spc@,mi_,ta_,i_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_t_,usf_r_,usf_i_,usf_e_,usf_d_,spc@
+	db	usf_d_,usf_i_,usf_v_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,comma@,spc@
+	db	usf_b_,usf_u_,usf_t_
+	db	gyo3@
+	db	usf_i_,usf_t_,spc@
+	db	usf_w_,usf_a_,usf_s_,spc@
+	db	usf_a_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_g_,usf_o_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_win_13_ROAD19
+msg5_win_13_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	go_,bo_,spc@,go_,bo_,ttu__
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_l_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg5_after_14_ROAD19
+msg5_after_14_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,mi_,no_,spc@,poke@,ha_,spc@,ya_,ttu_,pa_,ri_
+	db	home@
+	db	tu_,ri_,de_,spc@,to_,ru_,spc@,si_,ka_,spc@,na_,i_,ya_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_i_,usf_s_,usf_h_
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_s_,usf_e_,usf_a_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_0_15_ROAD19
+msg6_0_15_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,o_,i_,spc@,u_,mi_,wo_,spc@,mi_,te_,re_,ba_
+	db	home@
+	db	i_,ya_,na_,spc@,ko_,to_,mo_,spc@,wa_,su_,re_,ru_,zo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,spc@
+	db	usf_a_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_s_,usf_e_,usf_a_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_o_,usf_r_,usf_g_,usf_e_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_win_16_ROAD19
+msg6_win_16_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,ya_,na_,spc@,ma_,ke_,ka_,ta_,da_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_o_,usf_h_,gyoe@
+	db	home@
+	db	usf_t,usf_r_,usf_a_,usf_u_,usf_m_,usf_a_,usf_t_,usf_i_,usf_c_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg6_after_17_ROAD19
+msg6_after_17_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,o_,i_,spc@,u_,mi_,wo_,spc@,mi_,te_,tenten2@
+	db	home@
+	db	i_,ya_,na_,spc@,ko_,to_,wo_,spc@,wa_,su_,re_,yo_,u_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_s_,usf_e_,usf_a_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_o_,usf_r_,usf_g_,usf_e_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_0_18_ROAD19
+msg7_0_18_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,gyoe@,spc@,i_,i_,spc@,mo_,no_,ni_,spc@
+	db	no_,ttu_,te_,ru_,wa_,ne_
+	db	home@
+	db	ka_,ttu_,ta_,ra_,spc@,wa_,ta_,si_,ni_,spc@
+	db	ti_,yyo_,u_,da_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_h_,comma@,spc@
+	db	usf_i,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_l_,usf_o_,usf_v_,usf_e_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_r_,usf_i_,usf_d_,usf_e_,gyoe@,spc@
+	db	usf_c,usf_a_,usf_n_,spc@
+	db	usf_i
+	db	gyo3@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_i_,usf_f_,spc@
+	db	usf_i,spc@
+	db	usf_w_,usf_i_,usf_n_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_win_19_ROAD19
+msg7_win_19_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ta_,si_,no_,spc@,ma_,ke_,ka_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_h_,gyoe@
+	db	home@
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg7_after_20_ROAD19
+msg7_after_20_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ta_,go_,zi_,ma_,spc@,ma_,de_
+	db	home@
+	db	ma_,da_,spc@,a_,ri_,so_,u_,da_,si_,tenten2@,gyo3@
+	db	se__,ki__,ti__,ku__,ni_,spc@,ka_,e_,ri_,ta_,i_,wa_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_s_,usf_t_,usf_i_,usf_l_,usf_l_,spc@
+	db	usf_a_,spc@
+	db	usf_l_,usf_o_,usf_n_,usf_g_
+	db	home@
+	db	usf_w_,usf_a_,usf_y_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_g_,usf_o_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	usf_s,usf_e,usf_a,usf_f,usf_o,usf_a,usf_m,spc@
+	db	usf_i,usf_s,usf_l,usf_a,usf_n,usf_d,usf_s,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_0_21_ROAD19
+msg8_0_21_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,yo_,gu_,no_,spc@,su_,ki_,spc@,da_,ke_,do_
+	db	home@
+	db	hi_,ya_,ke_,spc@,su_,ru_,no_,ha_,spc@,i_,ya_,da_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_w_,usf_i_,usf_m_,usf_m_,usf_i_,usf_n_,usf_g_,apt_s_,spc@
+	db	usf_g_,usf_r_,usf_e_,usf_a_,usf_t_,gyoe@
+	db	home@
+	db	usf_s,usf_u_,usf_n_,usf_b_,usf_u_,usf_r_,usf_n_,usf_s_,spc@
+	db	usf_a_,usf_r_,usf_e_,usf_n_,apt_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_win_22_ROAD19
+msg8_win_22_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ku_,ra_,ku_,ra_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_h_,usf_o_,usf_c_,usf_k_,usf_e_,usf_r_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg8_after_23_ROAD19
+msg8_after_23_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka_,re_,ga_,spc@,hu_,ta_,go_,zi_,ma_,spc@,ma_,de_
+	db	home@
+	db	o_,yo_,go_,u_,ttu_,te_,spc@,i_,ttu_,ta_,no_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	usf_b_,usf_o_,usf_y_,spc@
+	db	usf_f_,usf_r_,usf_i_,usf_e_,usf_n_,usf_d_
+	db	home@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_s_,usf_w_,usf_i_,usf_m_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	usf_s,usf_e,usf_a,usf_f,usf_o,usf_a,usf_m,spc@
+	db	usf_i,usf_s,usf_l,usf_a,usf_n,usf_d,usf_s,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_0_24_ROAD19
+msg9_0_24_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,ko_,no_,spc@,si_,yyo_,u_,ne_,n_,gyoe@
+	db	home@
+	db	ko_,no_,spc@,u_,mi_,ha_,spc@,ki_,ke_,n_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_s_,usf_e_,spc@
+	db	usf_w_,usf_a_,usf_t_,usf_e_,usf_r_,usf_s_,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_t_,usf_r_,usf_e_,usf_a_,usf_c_,usf_h_,usf_e_,usf_r_,usf_o_,usf_u_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_win_25_ROAD19
+msg9_win_25_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,bu_,na_,i_,spc@,me_,ni_,spc@,a_,ttu_,ta_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_o_,usf_h_,gyoe@
+	db	home@
+	db	usf_d,usf_a_,usf_n_,usf_g_,usf_e_,usf_r_,usf_o_,usf_u_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg9_after_26_ROAD19
+msg9_after_26_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,spc@,a_,si_,ga_,spc@,tu_,ttu_,ta_,gyoe@
+	db	home@
+	db	bu_,ku_,tenten2@,spc@,bu_,ku_,bu_,ku_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_a_,spc@
+	db	usf_c_,usf_r_,usf_a_,usf_m_,usf_p_,gyoe@
+	db	home@
+	db	usf_g,usf_l_,usf_u_,usf_b_,comma@,spc@
+	db	usf_g_,usf_l_,usf_u_,usf_b_,kten@,kten@,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_0_27_ROAD19
+msg10_0_27_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mi_,n_,na_,de_,spc@,ko_,ko_,ma_,de_,spc@,o_,yo_,i_,de_
+	db	home@
+	db	ki_,ta_,ke_,do_,tenten2@,spc@,ku_,ta_,bi_,re_,ta_,wa_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_s_,usf_w_,usf_a_,usf_m_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,comma@,spc@
+	db	usf_b_,usf_u_,usf_t_
+	db	home@
+	db	usf_i,apt_m_,spc@
+	db	usf_t_,usf_i_,usf_r_,usf_e_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg10_win_28_ROAD19
+msg10_win_28_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,ka_,re_,ta_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_
+	db	home@
+	db	usf_e_,usf_x_,usf_h_,usf_a_,usf_u_,usf_s_,usf_t_,usf_e_,usf_d_,kten@,kten@,kten@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg10_after_29_ROAD19
+msg10_after_29_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,mi_,de_,spc@,poke@,ni_,spc@,no_,ru_,na_,ra_
+	db	home@
+	db	ra__,pu__,ra__,su__,ga_,spc@,i_,i_,wa_,gyo3@
+	db	o_,o_,ki_,i_,ka_,ra_,spc@,nu_,re_,na_,i_,spc@,mo_,no_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_l,usf_a,usf_p,usf_r,usf_a,usf_s,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_s_,usf_o_,spc@
+	db	usf_b_,usf_i_,usf_g_,comma@
+	db	home@
+	db	usf_i_,usf_t_,spc@
+	db	usf_m_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_k_,usf_e_,usf_e_,usf_p_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	gyo3@
+	db	usf_d_,usf_r_,usf_y_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_w_,usf_a_,usf_t_,usf_e_,usf_r_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban1_30_ROAD19
+kanban1_30_ROAD19:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,n1@,n9@,ba_,n_,spc@,su_,i_,do_,u_
+	db	home@
+	db	se__,ki__,ti__,ku__,spc@,tenten2@,spc@,hu_,ta_,go_,zi_,ma_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_e,usf_a,spc@
+	db	usf_r,usf_o,usf_u,usf_t,usf_e,spc@
+	db	n1@,n9@
+	db	home@
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a,spc@
+	db	usf_c,usf_i,usf_t,usf_y,spc@
+	db	bou@
+	db	gyo3@
+	db	usf_s,usf_e,usf_a,usf_f,usf_o,usf_a,usf_m,spc@
+	db	usf_i,usf_s,usf_l,usf_a,usf_n,usf_d,usf_s
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD20
+msg1_0_0_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to_,o_,a_,sa_,ni_,spc@,na_,ttu_,te_,ru_,spc@,ka_,ra_
+	db	home@
+	db	o_,yo_,i_,de_,ru_,spc@,hi_,to_,mo_,spc@,o_,o_,i_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_w_,usf_a_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_s_,usf_h_,usf_a_,usf_l_,usf_l_,usf_o_,usf_w_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_win_1_ROAD20
+msg1_win_1_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,bou@,mi_,bou@,ttu__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_p_,usf_l_,usf_a_,usf_s_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_after_2_ROAD20
+msg1_after_2_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,mi_,ha_,spc@,poke@,ni_,spc@,no_,ttu_,te_,te_
+	db	home@
+	db	tu_,ka_,re_,spc@,na_,i_,ka_,ra_,spc@,i_,i_,na_,a_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_i_,usf_s_,usf_h_,spc@
+	db	usf_i,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_
+	db	home@
+	db	usf_r_,usf_i_,usf_d_,usf_e_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_3_ROAD20
+msg2_0_3_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ta_,go_,zi_,ma_,ni_
+	db	home@
+	db	ri__,zo__,bou@,to__,ni_,spc@,ki_,te_,ru_,no_,spc@,wa_,ta_,si_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_e,usf_a,usf_f,usf_o,usf_a,usf_m,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_q_,usf_u_,usf_i_,usf_e_,usf_t_,spc@
+	db	usf_g_,usf_e_,usf_t_,usf_a_,usf_w_,usf_a_,usf_y_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_win_4_ROAD20
+msg2_win_4_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ti_,yyo_,ttu_,to_,spc@,ya_,me_,te_,yo_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_q,usf_u_,usf_i_,usf_t_,spc@
+	db	usf_i_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg2_after_5_ROAD20
+msg2_after_5_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ta_,go_,zi_,ma_,no_,spc@,ti_,ka_,ni_
+	db	home@
+	db	si_,yyo_,u_,ni_,yyu_,u_,do_,u_,ga_,spc@,a_,ru_,n_,da_,ttu_,te_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_,spc@
+	db	usf_a_,spc@
+	db	usf_h_,usf_u_,usf_g_,usf_e_
+	db	home@
+	db	usf_c_,usf_a_,usf_v_,usf_e_,usf_r_,usf_n_,spc@
+	db	usf_u_,usf_n_,usf_d_,usf_e_,usf_r_,usf_n_,usf_e_,usf_a_,usf_t_,usf_h_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,usf_l_,usf_a_,usf_n_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_6_ROAD20
+msg3_0_6_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,mi_,ma_,ni_,spc@,pu_,ka_,pu_,ka_,spc@,u_,ka_,bu_
+	db	home@
+	db	tenten2@,spc@,a_,ta_,si_,ha_,spc@,o_,sa_,ka_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_v_,usf_e_,spc@
+	db	usf_f_,usf_l_,usf_o_,usf_a_,usf_t_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_f_,usf_i_,usf_s_,usf_h_,usf_e_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_7_ROAD20
+msg3_win_7_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,bou@,spc@,ma_,n_,bo_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_w_,usf_c_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_8_ROAD20
+msg3_after_8_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,na_,ta_,spc@,i_,ttu_,si_,yyo_,ni_
+	db	home@
+	db	tenten2@,spc@,pu_,ka_,pu_,ka_,spc@,si_,na_,i_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_l_,usf_o_,usf_a_,usf_t_
+	db	home@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_m_,usf_e_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_0_9_ROAD20
+msg4_0_9_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,mi_,mo_,spc@,ri__,zo__,bou@,to__,ni_,spc@
+	db	ki_,te_,ru_,no_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,usf_r_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_o_,usf_n_
+	db	home@
+	db	usf_v_,usf_a_,usf_c_,usf_a_,usf_t_,usf_i_,usf_o_,usf_n_,spc@
+	db	usf_t_,usf_o_,usf_o_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_win_10_ROAD20
+msg4_win_10_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	te_,ka_,ge_,n_,spc@,na_,si_,ne_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_
+	db	home@
+	db	usf_m_,usf_e_,usf_r_,usf_c_,usf_y_,spc@
+	db	usf_a_,usf_t_,spc@
+	db	usf_a_,usf_l_,usf_l_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg4_after_11_ROAD20
+msg4_after_11_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ta_,go_,zi_,ma_,ha_,spc@,mu_,ka_,si_,ha_
+	db	home@
+	db	hu_,ta_,tu_,no_,spc@,si_,ma_,spc@,da_,ttu_,ta_,spc@
+	db	ra_,si_,i_,ne_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_e,usf_a,usf_f,usf_o,usf_a,usf_m,spc@
+	db	usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_b_,usf_e_,spc@
+	db	usf_o_,usf_n_,usf_e_,spc@
+	db	usf_i_,usf_s_,usf_l_,usf_a_,usf_n_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_0_12_ROAD20
+msg5_0_12_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mi_,yo_,bou@,ttu__,gyoe@
+	db	home@
+	db	ki_,ta_,e_,spc@,a_,ge_,ta_,spc@,ko_,no_,spc@,ka_,ra_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_h_,usf_e_,usf_c_,usf_k_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_u_,usf_f_,usf_f_
+	db	home@
+	db	usf_p_,usf_h_,usf_y_,usf_s_,usf_i_,usf_q_,usf_u_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_win_13_ROAD20
+msg5_win_13_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ni_,yya_,hu_,ni_,yya_,da_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_m_,usf_p_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg5_after_14_ROAD20
+msg5_after_14_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	zi_,bu_,n_,no_,spc@,ka_,ra_,da_,spc@,yo_,ri_
+	db	home@
+	db	poke@,wo_,spc@,ki_,ta_,e_,ru_,spc@,be_,ki_,da_,ttu_,ta_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_s_,usf_h_,usf_o_,usf_u_,usf_l_,usf_d_,apt_v_,usf_e_,spc@
+	db	usf_b_,usf_e_,usf_e_,usf_n_
+	db	home@
+	db	usf_b_,usf_u_,usf_f_,usf_f_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_u_,usf_p_,spc@
+	db	usf_m_,usf_y_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,comma@,spc@
+	db	usf_n_,usf_o_,usf_t_,spc@
+	db	usf_m_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_0_15_ROAD20
+msg6_0_15_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,ni_,spc@,no_,ttu_,te_,ru_,spc@,na_,n_,te_
+	db	home@
+	db	mo_,si_,ka_,si_,te_,spc@,o_,yo_,ge_,na_,i_,spc@,to_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_y_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_r_,usf_i_,usf_d_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	gyo3@
+	db	usf_c,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_s_,usf_w_,usf_i_,usf_m_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_win_16_ROAD20
+msg6_win_16_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,bou@,spc@,bu_,ku_,bu_,ku_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_u_,usf_c_,usf_h_,gyoe@
+	db	home@
+	db	usf_t,usf_o_,usf_r_,usf_p_,usf_e_,usf_d_,usf_o_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg6_after_17_ROAD20
+msg6_after_17_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,ni_,spc@,no_,ttu_,te_,spc@,i_,ku_,no_,mo_
+	db	home@
+	db	ta_,no_,si_,so_,u_,da_,na_,a_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_i_,usf_d_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_s_,usf_u_,usf_r_,usf_e_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,usf_s_,spc@
+	db	usf_f_,usf_u_,usf_n_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_0_18_ROAD20
+msg8_0_18_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to_,ri_,spc@,poke@,ni_,spc@,tu_,ka_,ma_,ttu_,te_
+	db	home@
+	db	ko_,ko_,ma_,de_,spc@,ki_,ta_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_r_,usf_o_,usf_d_,usf_e_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_win_19_ROAD20
+msg8_win_19_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,gyoe@,spc@,ko_,ma_,ttu_,ta_,na_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_h_
+	db	home@
+	db	usf_n_,usf_o_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg8_after_20_ROAD20
+msg8_after_20_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to_,ri_,ga_,spc@,he_,ba_,ti_,yya_,ttu_,te_,spc@
+	db	mo_,do_,re_,na_,i_,zo_
+	db	home@
+	db	tenten2@,spc@,do_,u_,si_,yo_,u_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,usf_s_,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_
+	db	home@
+	db	usf_f,usf_l,usf_y,spc@
+	db	usf_m_,usf_e_,spc@
+	db	usf_b_,usf_a_,usf_c_,usf_k_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_0_21_ROAD20
+msg9_0_21_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka_,re_,ni_
+	db	home@
+	db	o_,ttu_,ki_,na_,spc@,si_,n_,zi_,yyu_,spc@
+	db	mo_,ra_,ttu_,ta_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	usf_b_,usf_o_,usf_y_,spc@
+	db	usf_f_,usf_r_,usf_i_,usf_e_,usf_n_,usf_d_,spc@
+	db	usf_g_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	usf_m_,usf_e_,spc@
+	db	usf_b_,usf_i_,usf_g_,spc@
+	db	usf_p_,usf_e_,usf_a_,usf_r_,usf_l_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_win_22_ROAD20
+msg9_win_22_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ya_,bou@,n_,gyoe@
+	db	home@
+	db	si_,n_,zi_,yyu_,spc@,i_,ri_,spc@,na_,no_,ni_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_o_,usf_n_,apt_t_
+	db	home@
+	db	usf_t_,usf_o_,usf_u_,usf_c_,usf_h_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_p_,usf_e_,usf_a_,usf_r_,usf_l_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg9_after_23_ROAD20
+msg9_after_23_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	pa__,ru__,si__,ee__,n__,spc@,mo_,ttu_,to_,spc@,so_,da_,te_,ta_,ra_
+	db	home@
+	db	si_,n_,zi_,yyu_,mo_,spc@,o_,ttu_,ki_,ku_,spc@,na_,ru_,ka_,si_,ra_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_l_,usf_l_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_p_,usf_e_,usf_a_,usf_r_,usf_l_,usf_s_
+	db	home@
+	db	usf_g_,usf_r_,usf_o_,usf_w_,spc@
+	db	usf_b_,usf_i_,usf_g_,usf_g_,usf_e_,usf_r_
+	db	gyo3@
+	db	usf_i_,usf_n_,usf_s_,usf_i_,usf_d_,usf_e_,spc@
+	db	usf_c,usf_l,usf_o,usf_y,usf_s,usf_t,usf_e,usf_r,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_0_24_ROAD20
+msg12_0_24_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	gu__,re__,n__,spc@,zi_,ma_,spc@,ka_,ra_
+	db	home@
+	db	o_,yo_,i_,de_,spc@,ki_,ta_,ke_,do_,tenten2@,spc@
+	db	ki_,tu_,i_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_s_,usf_w_,usf_a_,usf_m_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_m_
+	db	home@
+	db	usf_c,usf_i,usf_n,usf_n,usf_a,usf_b,usf_a,usf_r,spc@
+	db	usf_i,usf_s,usf_l,usf_a,usf_n,usf_d,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg12_win_25_ROAD20
+msg12_win_25_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga_,ttu_,ka_,ri_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_
+	db	home@
+	db	usf_s_,usf_o_,spc@
+	db	usf_d_,usf_i_,usf_s_,usf_a_,usf_p_,usf_p_,usf_o_,usf_i_,usf_n_,usf_t_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg12_after_26_ROAD20
+msg12_after_26_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	gu__,re__,n__,spc@,zi_,ma_,no_
+	db	home@
+	db	da_,re_,mo_,spc@,su_,n_,de_,na_,i_,spc@,o_,ya_,si_,ki_,gyo3@
+	db	i_,tu_,ka_,ra_,ka_,spc@,poke@,ga_,spc@,su_,mi_,tu_,i_,te_,gyo3@
+	db	poke@,spc@,ya_,si_,ki_,to_,spc@,yo_,ba_,re_,te_,ru_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	usf_t_,usf_a_,usf_k_,usf_e_,usf_n_,spc@
+	db	usf_o_,usf_v_,usf_e_,usf_r_,spc@
+	db	usf_a_,usf_n_
+	db	gyo3@
+	db	usf_a_,usf_b_,usf_a_,usf_n_,usf_d_,usf_o_,usf_n_,usf_e_,usf_d_,spc@
+	db	usf_m_,usf_a_,usf_n_,usf_s_,usf_i_,usf_o_,usf_n_
+	db	gyo3@
+	db	usf_o_,usf_n_,spc@
+	db	usf_c,usf_i,usf_n,usf_n,usf_a,usf_b,usf_a,usf_r,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg13_0_27_ROAD20
+msg13_0_27_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ni_,si_,ni_,spc@,a_,ru_,spc@,gu__,re__,n__,spc@,zi_,ma_,ha_
+	db	home@
+	db	poke@,spc@,ke_,n_,ki_,yyu_,u_,no_,spc@,si_,ma_,gyoe@,gyo3@
+	db	a_,so_,ko_,de_,spc@,pa__,pa__,mo_,spc@
+	db	ha_,ta_,ra_,i_,te_,ru_,wa_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_i,usf_n,usf_n,usf_a,usf_b,usf_a,usf_r,comma@,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_w_,usf_e_,usf_s_,usf_t_,comma@,spc@
+	db	usf_h_,usf_a_,usf_s_,spc@
+	db	usf_a_,spc@
+	db	usf_l,usf_a,usf_b
+	db	gyo3@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg13_win_28_ROAD20
+msg13_win_28_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,ttu_,te_,yo_,spc@,mo_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_a_,usf_i_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg13_after_29_ROAD20
+msg13_after_29_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	gu__,re__,n__,ha_,spc@,ka_,za_,n_,no_,spc@,hu_,n_,ka_,de_
+	db	home@
+	db	mo_,ri_,a_,ga_,ttu_,te_,spc@,de_,ki_,ta_,ttu_,te_,spc@
+	db	ki_,i_,ta_,wa_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_i,usf_n,usf_n,usf_a,usf_b,usf_a,usf_r,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_a_,spc@
+	db	home@
+	db	usf_v_,usf_o_,usf_l_,usf_c_,usf_a_,usf_n_,usf_i_,usf_c_,spc@
+	db	usf_i_,usf_s_,usf_l_,usf_a_,usf_n_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban2_30_ROAD20
+kanban2_30_ROAD20:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ta_,go_,zi_,ma_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_e,usf_a,usf_f,usf_o,usf_a,usf_m,spc@
+	db	usf_i,usf_s,usf_l,usf_a,usf_n,usf_d,usf_s
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD21
+msg1_0_0_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	kako@,tu_,re_,ma_,su_,ka_,hate@,kakot@,to_,ka_,spc@
+	db	o_,ma_,e_,ha_
+	db	home@
+	db	ki_,ki_,ta_,i_,n_,zi_,yya_,na_,i_,no_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_k_,usf_n_,usf_o_,usf_w_
+	db	home@
+	db	usf_i_,usf_f_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_f_,usf_i_,usf_s_,usf_h_,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	gyo3@
+	db	usf_b_,usf_i_,usf_t_,usf_i_,usf_n_,usf_g_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_win_1_ROAD21
+msg1_win_1_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,bou@,spc@,ya_,ra_,re_,ta_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_a_,usf_n_,usf_g_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_after_2_ROAD21
+msg1_after_2_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,i_,spc@,poke@,spc@,tu_,re_,ne_,bou@,yo_,gyoe@
+	db	home@
+	db	ze_,n_,ze_,n_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_
+	db	home@
+	db	usf_a_,usf_n_,usf_y_,usf_t_,usf_h_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_3_ROAD21
+msg2_0_3_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ta_,i_,ri_,yyo_,u_,gyoe@,spc@,ta_,i_,ri_,yyo_,u_,gyoe@
+	db	home@
+	db	o_,re_,no_,spc@,poke@,to_,spc@,ta_,ta_,ka_,u_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_a_,spc@
+	db	usf_b_,usf_i_,usf_g_,spc@
+	db	usf_h_,usf_a_,usf_u_,usf_l_,gyoe@
+	db	home@
+	db	usf_w,usf_a_,usf_n_,usf_n_,usf_a_,spc@
+	db	usf_g_,usf_o_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_i_,usf_t_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_win_4_ROAD21
+msg2_win_4_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	sa_,su_,ga_,ni_
+	db	home@
+	db	ko__,i__,ki__,n__,gu__,spc@,zi_,yya_,spc@,da__,me__,ka_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_a_,usf_r_,usf_n_
+	db	home@
+	db	usf_m,usf_a,usf_g,usf_i,usf_k,usf_a,usf_r,usf_p,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg2_after_5_ROAD21
+msg2_after_5_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ze_,ka_,spc@,ko__,i__,ki__,n__,gu__
+	db	home@
+	db	ba_,ttu_,ka_,ri_,spc@,tu_,re_,ru_,n_,da_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_s_,usf_e_,usf_e_,usf_m_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_o_,usf_n_,usf_l_,usf_y_
+	db	home@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_,spc@
+	db	usf_m,usf_a,usf_g,usf_i,usf_k,usf_a,usf_r,usf_p,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_0_6_ROAD21
+msg3_0_6_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,mi_,ha_,bou@,ttu__
+	db	home@
+	db	o_,to_,ko_,no_,spc@,ro__,ma__,n__,da_,bou@,ttu__,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_s_,usf_e_,usf_a_,spc@
+	db	usf_c_,usf_l_,usf_e_,usf_a_,usf_n_,usf_s_,usf_e_,usf_s_
+	db	home@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_o_,usf_d_,usf_y_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_s_,usf_o_,usf_u_,usf_l_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg3_win_7_ROAD21
+msg3_win_7_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	da_,a_,bou@,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_y_,usf_a_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg3_after_8_ROAD21
+msg3_after_8_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,mi_,mo_,spc@,i_,i_,ke_,do_
+	db	home@
+	db	zi_,tu_,ha_,spc@,ya_,ma_,mo_,spc@,su_,ki_,da_,na_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_m_,usf_o_,usf_u_,usf_n_,usf_t_,usf_a_,usf_i_,usf_n_,usf_s_,spc@
+	db	usf_t_,usf_o_,usf_o_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_0_9_ROAD21
+msg4_0_9_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,da_,ttu_,te_,spc@,ta_,ma_,ni_,ha_
+	db	home@
+	db	o_,yo_,gi_,ni_,spc@,ku_,ru_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_w_,usf_r_,usf_o_,usf_n_,usf_g_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_
+	db	home@
+	db	usf_m_,usf_e_,spc@
+	db	usf_s_,usf_w_,usf_i_,usf_m_,usf_m_,usf_i_,usf_n_,usf_g_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg4_win_10_ROAD21
+msg4_win_10_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	gu_,wa_,wa_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_c,usf_h_,usf_e_,usf_a_,usf_p_
+	db	home@
+	db	usf_s_,usf_h_,usf_o_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg4_after_11_ROAD21
+msg4_after_11_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,ki_,ya_,su_,so_,u_,spc@,da_,to_,hate@
+	db	home@
+	db	u_,ru_,se_,bou@,spc@,o_,o_,ki_,na_,spc@
+	db	o_,se_,wa_,da_,ttu__,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,hate@
+	db	home@
+	db	usf_a,spc@
+	db	usf_s_,usf_t_,usf_u_,usf_d_,usf_d_,usf_e_,usf_d_,spc@
+	db	usf_i_,usf_n_,usf_n_,usf_e_,usf_r_
+	db	gyo3@
+	db	usf_t_,usf_u_,usf_b_,usf_e_,hate@,spc@
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_0_12_ROAD21
+msg5_0_12_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u__,ti__,no_,spc@,poke@,ha_
+	db	home@
+	db	u_,mi_,de_,spc@,to_,ttu_,te_,spc@,ki_,ma_,si_,ta_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_c_,usf_a_,usf_u_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	usf_m_,usf_y_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_a_,usf_t_,spc@
+	db	usf_s_,usf_e_,usf_a_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg5_win_13_ROAD21
+msg5_win_13_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,bou@,spc@,mi_,bou@,ttu__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_i_,usf_v_,usf_e_,usf_r_,gyoe@,gyoe@
+	db	home@
+	db	usf_d,usf_o_,usf_w_,usf_n_,gyoe@,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg5_after_14_ROAD21
+msg5_after_14_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,mi_,no_,spc@,poke@,ha_
+	db	home@
+	db	do_,ko_,de_,spc@,to_,ttu_,te_,spc@,ki_,ta_,no_,ka_,na_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_e_,usf_r_,usf_e_,apt_d_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_0_15_ROAD21
+msg6_0_15_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	zi_,tu_,ha_,spc@,i_,ma_,spc@
+	db	to__,ra__,i__,a__,su__,ro__,n__,no_
+	db	home@
+	db	ma_,ttu_,sa_,i_,ti_,yyu_,u_,spc@,na_,no_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_n_,usf_o_,usf_w_,comma@,spc@
+	db	usf_i,apt_m_,spc@
+	db	usf_i_,usf_n_
+	db	home@
+	db	usf_a_,spc@
+	db	usf_t_,usf_r_,usf_i_,usf_a_,usf_t_,usf_h_,usf_l_,usf_o_,usf_n_,spc@
+	db	usf_m_,usf_e_,usf_e_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg6_win_16_ROAD21
+msg6_win_16_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ha_,tenten2@,spc@,ha_,bou@,ttu__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_p,usf_a_,usf_n_,usf_t_,kten@,kten@,kten@
+	db	home@
+	db	usf_p_,usf_a_,usf_n_,usf_t_,kten@,kten@,kten@,usf_p_,usf_a_,usf_n_,usf_t_,kten@,kten@,kten@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg6_after_17_ROAD21
+msg6_after_17_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ba_,spc@,ba_,te_,ta_,tenten2@,gyoe@
+	db	home@
+	db	a_,to_,tenten2@,spc@,zi_,te_,n_,si_,yya_,to_,gyo3@
+	db	ma__,ra__,so__,n__,ga_,spc@,a_,ru_,no_,ni_,tenten2@,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_b_,usf_e_,usf_a_,usf_t_,gyoe@
+	db	home@
+	db	usf_b,usf_u_,usf_t_,comma@,spc@
+	db	usf_i,spc@
+	db	usf_s_,usf_t_,usf_i_,usf_l_,usf_l_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_b_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_r_,usf_a_,usf_c_,usf_e_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	gyo3@
+	db	usf_m_,usf_a_,usf_r_,usf_a_,usf_t_,usf_h_,usf_o_,usf_n_,spc@
+	db	usf_l_,usf_e_,usf_f_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_0_18_ROAD21
+msg7_0_18_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,bou@,ttu__,gyoe@
+	db	home@
+	db	hi_,za_,si_,ga_,spc@,ki_,mo_,ti_,i_,bou@,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,usf_h_,usf_h_,gyoe@,spc@
+	db	usf_f,usf_e_,usf_e_,usf_l_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_s_,usf_u_,usf_n_
+	db	home@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_w_,usf_i_,usf_n_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg7_win_19_ROAD21
+msg7_win_19_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,no_,spc@,ma_,ke_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_w_,gyoe@
+	db	home@
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg7_after_20_ROAD21
+msg7_after_20_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ya_,ke_,ta_,spc@,ya_,ke_,ta_,gyoe@,spc@
+	db	ma_,ttu_,ku_,ro_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_s_,usf_u_,usf_n_,usf_b_,usf_u_,usf_r_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_c_,usf_r_,usf_i_,usf_s_,usf_p_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_0_21_ROAD21
+msg8_0_21_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ma_,ru_,na_,bou@,spc@,ki_,mi_,gyoe@
+	db	home@
+	db	u_,mi_,wo_,spc@,a_,ra_,sa_,na_,i_,de_,spc@,ku_,re_,ta_,ma_,e_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_y_,comma@,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_s_,usf_c_,usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_a_,usf_w_,usf_a_,usf_y_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_f_,usf_i_,usf_s_,usf_h_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg8_win_22_ROAD21
+msg8_win_22_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ru_,i_,gyoe@
+	db	home@
+	db	tu_,re_,na_,i_,no_,de_,spc@,ki_,ga_,spc@,ta_,ttu_,te_,ta_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_o_,usf_r_,usf_r_,usf_y_,gyoe@
+	db	home@
+	db	usf_i,spc@
+	db	usf_d_,usf_i_,usf_d_,usf_n_,apt_t_,spc@
+	db	usf_m_,usf_e_,usf_a_,usf_n_,spc@
+	db	usf_i_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg8_after_23_ROAD21
+msg8_after_23_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,re_,n_,na_,a_,gyoe@
+	db	home@
+	db	ma_,sa_,ka_,spc@,ko_,ko_,ha_,spc@,o_,ttu_,ki_,na_,gyo3@
+	db	pu__,bou@,ru__,spc@,da_,ttu_,ta_,ri_,spc@,si_,te_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_a_,usf_s_,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_a_,usf_n_,usf_g_,usf_r_,usf_y_
+	db	home@
+	db	usf_t_,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_i,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_,usf_n_,apt_t_
+	db	gyo3@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_,spc@
+	db	usf_a_,usf_n_,usf_y_,usf_t_,usf_h_,usf_i_,usf_n_,usf_g_,kten@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_0_24_ROAD21
+msg9_0_24_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a__,ta__,ri__,ga_,spc@,ku_,ru_,ma_,de_
+	db	home@
+	db	o_,ma_,e_,no_,spc@,a_,i_,te_,de_,mo_,spc@,si_,te_,yo_,u_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_k,usf_e_,usf_e_,usf_p_,spc@
+	db	usf_m_,usf_e_,spc@
+	db	usf_c_,usf_o_,usf_m_,usf_p_,usf_a_,usf_n_,usf_y_
+	db	home@
+	db	apt_t_,usf_i_,usf_l_,spc@
+	db	usf_i,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_a_,spc@
+	db	usf_h_,usf_i_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg9_win_25_ROAD21
+msg9_win_25_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hi_,ma_,tu_,bu_,si_,ni_,spc@,na_,ttu_,ta_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_t_
+	db	home@
+	db	usf_b_,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_,spc@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_t_,usf_i_,usf_m_,usf_e_,kten@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg9_after_26_ROAD21
+msg9_after_26_ROAD21:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,ma_,te_,gyoe@,spc@,i_,ma_,spc@
+	db	a_,ta_,ri_,ga_,ttu__,gyoe@
+	db	home@
+	db	a_,tenten2@,gyoe@,spc@,hi_,i_,te_,ru_,spc@,hi_,i_,te_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_h_,spc@
+	db	usf_w_,usf_a_,usf_i_,usf_t_,gyoe@,spc@
+	db	usf_i,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_b_,usf_i_,usf_t_,usf_e_,gyoe@,spc@
+	db	usf_y,usf_e_,usf_a_,usf_h_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	talk_about_0_ROAD22
+talk_about_0_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	rival@
+	db	kako2@,a_,bou@,ttu__,gyoe@,spc@
+	db	myname@
+	db	gyoe@
+	db	normal@
+	db	poke@,spc@,ri__,bou@,gu__,ni_,spc@,i_,ku_,no_,ka_,hate@,home@
+	db	ya_,me_,to_,ke_,gyoe@
+	db	normal@
+	db	o_,ma_,e_,spc@,do_,u_,se_
+	db	home@
+	db	ba__,ttu__,zi__,spc@,mo_,ttu_,te_,ne_,bou@,da_,ro_,hate@
+	db	normal@
+	db	mi_,ha_,ri_,no_,spc@,o_,ttu_,sa_,n_,ga_
+	db	home@
+	db	to_,o_,si_,te_,spc@,ku_,re_,ne_,bou@,yo_,gyoe@
+	db	normal@
+	db	tenten2@,spc@,so_,re_,yo_,ri_,sa_,a_,gyoe@
+	db	home@
+	db	o_,ma_,e_,no_,spc@,poke@,gyo3@
+	db	su_,ko_,si_,ha_,spc@,tu_,yo_,ku_,spc@,na_,ttu_,ta_,ka_,yo_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	rival@
+	db	colon2@,spc@
+	db	usf_h,usf_e_,usf_y_,gyoe@
+	db	home@
+	db	myname@
+	db	gyoe@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,apt_r_,usf_e_,spc@
+	db	usf_g_,usf_o_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,hate@
+	db	normal@
+	db	usf_f,usf_o_,usf_r_,usf_g_,usf_e_,usf_t_,spc@
+	db	usf_i_,usf_t_,gyoe@,spc@
+	db	usf_y,usf_o_,usf_u_
+	db	home@
+	db	usf_p_,usf_r_,usf_o_,usf_b_,usf_a_,usf_b_,usf_l_,usf_y_,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_
+	db	gyo3@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_a_,usf_n_,usf_y_,spc@
+	db	usf_b,usf_a,usf_d,usf_g,usf_e,usf_s_,gyoe@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_g_,usf_u_,usf_a_,usf_r_,usf_d_,spc@
+	db	usf_w_,usf_o_,usf_n_,apt_t_
+	db	home@
+	db	usf_l_,usf_e_,usf_t_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_t_,usf_h_,usf_r_,usf_o_,usf_u_,usf_g_,usf_h_,gyoe@
+	db	normal@
+	db	usf_b,usf_y_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_w_,usf_a_,usf_y_,comma@,spc@
+	db	usf_d_,usf_i_,usf_d_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_a_,usf_n_,usf_y_,spc@
+	db	usf_s_,usf_t_,usf_r_,usf_o_,usf_n_,usf_g_,usf_e_,usf_r_,hate@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	after_1_ROAD22
+after_1_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,u_,ya_,ra_,spc@,poke@,spc@,ri__,bou@,gu__,ni_,ha_
+	db	home@
+	db	tu_,yo_,ku_,te_,spc@,su_,go_,i_,spc@,trainer@,ga_,gyo3@
+	db	u__,zi__,yya__,u__,zi__,yya__,spc@,i_,ru_,ra_,si_,i_,ze_
+	db	normal@
+	db	do_,u_,ni_,ka_
+	db	home@
+	db	a_,so_,ko_,wo_,spc@,to_,o_,ri_,nu_,ke_,ru_,gyo3@
+	db	ho_,u_,ho_,u_,wo_,spc@,ka_,n_,ga_,e_,na_,ki_,yya_,na_,gyoe@
+	db	normal@
+	db	o_,ma_,e_,mo_,spc@,i_,tu_,ma_,de_,mo_
+	db	home@
+	db	ko_,ko_,ra_,ni_,spc@,i_,na_,i_,de_,gyo3@
+	db	to_,ttu_,to_,to_,spc@,sa_,ki_,ni_,spc@,su_,su_,me_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_r_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,spc@
+	db	usf_h_,usf_a_,usf_s_,spc@
+	db	usf_m_,usf_a_,usf_n_,usf_y_
+	db	gyo3@
+	db	usf_t_,usf_o_,usf_u_,usf_g_,usf_h_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_,gyoe@
+	db	normal@
+	db	usf_i,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_u_,usf_r_,usf_e_
+	db	home@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_h_,usf_o_,usf_w_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_g_,usf_e_,usf_t_
+	db	gyo3@
+	db	usf_p_,usf_a_,usf_s_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_m_,gyoe@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_s_,usf_h_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_q_,usf_u_,usf_i_,usf_t_
+	db	home@
+	db	usf_d_,usf_a_,usf_w_,usf_d_,usf_l_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_g_,usf_e_,usf_t_
+	db	gyo3@
+	db	usf_a_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,spc@
+	db	usf_o_,usf_n_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	win_2_ROAD22
+win_2_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,bou@,ttu__,gyoe@
+	db	home@
+	db	ko_,i_,tu_,spc@,na_,me_,ta_,spc@,ma__,ne__,wo_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_w_,usf_w_,usf_w_,gyoe@
+	db	home@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_l_,usf_u_,usf_c_,usf_k_,usf_e_,usf_d_
+	db	gyo3@
+	db	usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	lose_3_ROAD22
+lose_3_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	rival@
+	db	kako2@,na_,n_,da_,hate@
+	db	home@
+	db	poke@,spc@,n2@,hi_,ki_,mo_,gyo3@
+	db	mo_,ttu_,te_,ru_,no_,spc@,na_,ze_,ka_,spc@,da_,ttu_,te_,hate@
+	db	normal@
+	db	o_,ma_,e_,mo_
+	db	home@
+	db	tu_,ka_,ma_,e_,re_,ba_,spc@,i_,i_,spc@,zi_,yya_,n_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	rival@
+	db	colon2@,spc@
+	db	usf_w,usf_h_,usf_a_,usf_t_,hate@
+	db	home@
+	db	usf_w,usf_h_,usf_y_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_i,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	n2@
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_s_,usf_h_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_
+	db	gyo3@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_t_,usf_o_,usf_o_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	talk_about2_4_ROAD22
+talk_about2_4_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	rival@
+	db	kako2@,na_,n_,da_,hate@,spc@
+	db	myname@
+	db	gyoe@
+	db	home@
+	db	ko_,n_,na_,spc@,to_,ko_,ro_,de_,spc@,a_,u_,to_,ha_,gyo3@
+	db	ma_,ta_,ma_,ta_,spc@,gu_,u_,ze_,n_,da_,gyoe@
+	db	normal@
+	db	zi_,yya_,a_,tenten2@,spc@,o_,ma_,e_,mo_
+	db	home@
+	db	poke@,spc@,ri__,bou@,gu__,ni_,spc@,i_,ku_,spc@,wa_,ke_,hate@
+	db	normal@
+	db	ba__,ttu__,zi__,mo_
+	db	home@
+	db	ze_,n_,bu_,spc@,a_,tu_,ma_,ttu_,ta_,no_,ka_,gyoe@,gyo3@
+	db	a_,spc@,so_,u_,tenten2@,spc@,ya_,ru_,zi_,yya_,n_,gyoe@
+	db	normal@
+	db	so_,re_,zi_,yya_,spc@,poke@,spc@,ri__,bou@,gu__
+	db	home@
+	db	i_,ku_,ma_,e_,ni_,spc@
+	db	myname@
+	db	de_,gyo3@
+	db	u__,oo__,bou@,mi__,n__,gu__,spc@
+	db	a__,ttu__,pu__,to_,spc@,i_,ku_,ka_,gyoe@
+	db	normal@
+	db	ka_,ka_,ttu_,te_,spc@,ki_,na_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	rival@
+	db	colon2@,spc@
+	db	usf_w,usf_h_,usf_a_,usf_t_,hate@
+	db	home@
+	db	myname@
+	db	gyoe@,spc@
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_a_
+	db	gyo3@
+	db	usf_s_,usf_u_,usf_r_,usf_p_,usf_r_,usf_i_,usf_s_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_s_,usf_e_,usf_e_
+	db	gyo3@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	normal@
+	db	usf_s,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,apt_r_,usf_e_,spc@
+	db	usf_g_,usf_o_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,hate@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_o_,usf_l_,usf_l_,usf_e_,usf_c_,usf_t_,usf_e_,usf_d_,spc@
+	db	usf_a_,usf_l_,usf_l_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_b,usf_a,usf_d,usf_g,usf_e,usf_s_,spc@
+	db	usf_t_,usf_o_,usf_o_,hate@
+	db	gyo3@
+	db	usf_t,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_c_,usf_o_,usf_o_,usf_l_,gyoe@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,usf_n_,spc@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_p_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	myname@
+	db	spc@,usf_a_,usf_s_,spc@
+	db	usf_a_
+	db	gyo3@
+	db	usf_w_,usf_a_,usf_r_,usf_m_,spc@
+	db	usf_u_,usf_p_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,gyoe@
+	db	normal@
+	db	usf_c,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_o_,usf_n_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	after2_5_ROAD22
+after2_5_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka_,ra_,da_,mo_,spc@,ho_,gu_,re_,ta_,si_,tenten2@,gyoe@
+	db	home@
+	db	i_,yo_,i_,yo_,spc@,poke@,spc@,ri__,bou@,gu__,gyo3@
+	db	se_,i_,ha_,ni_,spc@,mu_,ka_,u_,to_,spc@,su_,ru_,ka_,gyoe@
+	db	normal@
+	db	myname@
+	db	ha_,tenten2@
+	db	home@
+	db	mo_,ttu_,to_,spc@,re_,n_,si_,yyu_,u_,spc@,si_,ta_,ho_,u_,ga_,gyo3@
+	db	i_,i_,n_,zi_,yya_,na_,i_,no_,gyoe@
+	db	normal@
+	db	o_,ttu_,to_,gyoe@,spc@,o_,se_,ttu_,ka_,i_,spc@
+	db	da_,ttu_,ta_,ka_,gyoe@
+	db	home@
+	db	to_,ni_,ka_,ku_,tenten2@,spc@,o_,re_,ha_,spc@
+	db	sa_,ki_,spc@,i_,ku_,ze_,gyo3@
+	db	zi_,yya_,a_,gyoe@,tenten2@,spc@,a_,bou@,ba_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_s_,usf_e_,usf_n_,usf_e_,usf_d_,spc@
+	db	usf_m_,usf_e_
+	db	home@
+	db	usf_u_,usf_p_,gyoe@,spc@
+	db	usf_i,apt_m_,spc@
+	db	usf_r_,usf_e_,usf_a_,usf_d_,usf_y_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,gyoe@
+	db	normal@
+	db	myname@
+	db	comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_
+	db	home@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_p_,usf_r_,usf_a_,usf_c_,usf_t_,usf_i_,usf_c_,usf_e_,gyoe@
+	db	normal@
+	db	usf_b,usf_u_,usf_t_,spc@
+	db	usf_h_,usf_e_,usf_y_,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_k_,usf_n_,usf_o_,usf_w_
+	db	home@
+	db	usf_t_,usf_h_,usf_a_,usf_t_,gyoe@,spc@
+	db	usf_i,apt_m_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_o_,usf_f_
+	db	gyo3@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,kten@,spc@
+	db	usf_s,usf_m_,usf_e_,usf_l_,usf_l_,spc@
+	db	usf_y_,usf_a_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	Win2_6_ROAD22
+Win2_6_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,spc@,ko_,ra_,gyoe@
+	db	normal@
+	db	o_,re_,ga_,spc@,ti_,yyo_,ttu_,to_
+	db	home@
+	db	yu_,da_,n_,spc@,si_,ta_,spc@,su_,ki_,ni_,tenten2@,spc@
+	db	ku_,so_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,gyoe@,hate@
+	db	normal@
+	db	usf_i,spc@
+	db	usf_w_,usf_a_,usf_s_,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_
+	db	home@
+	db	usf_c_,usf_a_,usf_r_,usf_e_,usf_l_,usf_e_,usf_s_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	Lose2_7_ROAD22
+Lose2_7_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	rival@
+	db	kako2@,hi_,yya_,ha_,ha_,ttu__,spc@
+	db	myname@
+	db	bou@,gyoe@
+	db	home@
+	db	so_,re_,de_,spc@,ga_,n_,ba_,ttu_,te_,ru_,no_,ka_,yo_,gyoe@,gyo3@
+	db	o_,re_,no_,spc@,sa_,i_,no_,u_,ni_,spc@
+	db	ku_,ra_,be_,ri_,yya_,gyo3@
+	db	myname@
+	db	ha_,spc@,ma_,da_,ma_,da_,spc@,da_,na_,gyoe@
+	db	normal@
+	db	mo_,ttu_,to_,spc@,re_,n_,si_,yyu_,u_,spc@,ko_,i_,yo_,gyoe@
+	db	home@
+	db	a_,ha_,ha_,bou@,ttu__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	rival@
+	db	colon2@,spc@
+	db	usf_h,usf_a_,usf_h_,usf_a_,usf_h_,usf_a_,gyoe@
+	db	home@
+	db	myname@
+	db	gyoe@,spc@
+	db	usf_t,usf_h_,usf_a_,usf_t_,apt_s_
+	db	gyo3@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_b_,usf_e_,usf_s_,usf_t_,hate@,spc@
+	db	usf_y,usf_o_,usf_u_,apt_r_,usf_e_
+	db	gyo3@
+	db	usf_n_,usf_o_,usf_w_,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_n_,usf_e_,usf_a_,usf_r_,spc@
+	db	usf_a_,usf_s_
+	db	gyo3@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_a_,usf_s_,spc@
+	db	usf_m_,usf_e_,comma@,spc@
+	db	usf_p_,usf_a_,usf_l_,gyoe@
+	db	normal@
+	db	usf_g,usf_o_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,spc@
+	db	usf_s_,usf_o_,usf_m_,usf_e_
+	db	home@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,gyoe@,spc@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_e_,usf_r_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	kanban1_8_ROAD22
+kanban1_8_ROAD22:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,poke@,spc@,ri__,bou@,gu__
+	db	home@
+	db	si_,yyo_,u_,me_,n_,spc@,ge__,bou@,to__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e
+	db	home@
+	db	usf_f,usf_r_,usf_o_,usf_n_,usf_t_,spc@
+	db	usf_g,usf_a_,usf_t_,usf_e_
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD23
+msg1_0_0_ROAD23:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ka_,ra_,spc@,sa_,ki_,ha_,tenten2@
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,ba__,ttu__,zi__,wo_
+	db	gyo3@
+	db	mo_,ttu_,ta_,spc@,mo_,no_,spc@,da_,ke_,ga_,spc@
+	db	su_,su_,me_,ru_,gyoe@
+	db	normal@
+	db	ki_,mi_,ha_,spc@,ma_,da_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,ba__,ttu__,zi__,wo_,spc@,mo_,ttu_,te_,spc@,i_,na_,i_
+	db	normal@
+	db	poke@,spc@,ri__,bou@,gu__,wo_,spc@,me_,za_,su_,spc@,na_,ra_
+	db	home@
+	db	de_,na_,o_,si_,te_,spc@,ki_,na_,sa_,i_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_p_,usf_a_,usf_s_,usf_s_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_
+	db	home@
+	db	usf_o_,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_i_,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	gyoe@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_y_,usf_e_,usf_t_,gyoe@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	usf_i_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,gyoe@
+	db	EOM,EOM
+  endif
+
+bank24		group	024h
+	public	msg1_1_1_ROAD23
+msg1_1_1_ROAD23:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ka_,ra_,spc@,sa_,ki_,ha_,tenten2@
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,ba__,ttu__,zi__,wo_
+	db	gyo3@
+	db	mo_,ttu_,ta_,spc@,mo_,no_,spc@,da_,ke_,ga_,spc@
+	db	su_,su_,me_,ru_,gyoe@
+	db	normal@
+	db	mu_,mu_,ttu__,tenten2@,gyoe@
+	db	home@
+	db	so_,re_,ha_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,ba__,ttu__,zi__,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_p_,usf_a_,usf_s_,usf_s_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_
+	db	home@
+	db	usf_o_,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_i_,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	gyoe@
+	db	normal@
+	db	usf_o,usf_h_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	gyoe@
+	db	EOM,EOM
+  endif
+
+bank24		group	024h
+	public	msg1_1_2_ROAD23
+msg1_1_2_ROAD23:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	normal@
+	db	wa_,ka_,ttu_,ta_,tenten2@,gyoe@
+	db	home@
+	db	ko_,no_,spc@,sa_,ki_,he_,spc@,su_,su_,mi_,na_,sa_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	normal@
+	db	usf_o,usf_k,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_n_,gyoe@,spc@
+	db	usf_p,usf_l_,usf_e_,usf_a_,usf_s_,usf_e_,comma@
+	db	home@
+	db	usf_g_,usf_o_,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_a_,usf_h_,usf_e_,usf_a_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	kanban1_3_ROAD23
+kanban1_3_ROAD23:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,ti__,yya__,n__,pi__,o__,n__,spc@,ro__,bou@,do__
+	db	home@
+	db	ge__,bou@,to__,spc@,tenten2@,spc@,poke@,ri__,bou@,gu__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_v,usf_i,usf_c,usf_t,usf_o,usf_r,usf_y,spc@
+	db	usf_r,usf_o,usf_a,usf_d,spc@
+	db	usf_g,usf_a,usf_t,usf_e
+	db	home@
+	db	bou@,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_0_0_ROAD24
+msg1_0_0_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,mi_,go_,to_,bou@,ttu__,gyoe@
+	db	home@
+	db	n5@,ni_,n_,nu_,ki_,spc@,o_,me_,de_,to_,u_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_c,usf_o_,usf_n_,usf_g_,usf_r_,usf_a_,usf_t_,usf_u_,usf_l_,usf_a_,usf_t_,usf_i_,usf_o_,usf_n_,usf_s_,gyoe@
+	db	home@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_b_,usf_e_,usf_a_,usf_t_,spc@
+	db	usf_o_,usf_u_,usf_r_,spc@
+	db	n5@
+	db	gyo3@
+	db	usf_c_,usf_o_,usf_n_,usf_t_,usf_e_,usf_s_,usf_t_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank24		group	024h
+	public	msg1_0_1_ROAD24
+msg1_0_1_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	normal@
+	db	si_,yyo_,u_,hi_,n_,ni_
+	db	home@
+	db	ko_,re_,wo_,spc@,pu__,re__,ze__,n__,to__,spc@,si_,yo_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_e_,usf_a_,usf_r_,usf_n_,usf_e_,usf_d_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_f_,usf_a_,usf_b_,usf_u_,usf_l_,usf_o_,usf_u_,usf_s_,spc@
+	db	usf_p_,usf_r_,usf_i_,usf_z_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_1_2_ROAD24
+msg1_1_2_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_,spc@
+	db	na_,zo_,no_,trainer@,ka_,ra_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	wo_,spc@,mo_,ra_,ttu_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_r_,usf_e_,usf_c_,usf_e_,usf_i_,usf_v_,usf_e_,usf_d_
+	db	home@
+	db	usf_a_,spc@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	gyoe@
+	db	EOM,EOM
+  endif
+
+bank24		group	024h
+	public	msg1_2_3_ROAD24
+msg1_2_3_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,ti_,mo_,no_,ga_,spc@,i_,ttu_,pa_,i_,da_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	usf_a_,usf_n_,usf_y_,spc@
+	db	usf_r_,usf_o_,usf_o_,usf_m_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_3_4_ROAD24
+msg1_3_4_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to_,ko_,ro_,de_,tenten2@,spc@
+	db	ko_,ko_,da_,ke_,no_,spc@,ha_,na_,si_
+	db	home@
+	db	rocket@,ni_,spc@,ha_,i_,ra_,na_,i_,hate@
+	db	normal@
+	db	o_,re_,ta_,ti_,ha_
+	db	home@
+	db	poke@,wo_,spc@,wa_,ru_,i_,ko_,to_,ni_,gyo3@
+	db	tu_,ka_,o_,u_,ttu_,te_,i_,u_,spc@,gu__,ru__,bou@,pu__,da_,gyoe@
+	db	normal@
+	db	ha_,i_,ri_,na_,yo_,normal@
+	db	ha_,i_,ra_,na_,i_,no_,hate@,normal@
+	db	ha_,i_,ttu_,te_,yo_,gyoe@,normal@
+	db	ha_,i_,re_,yo_,gyoe@,normal@
+	db	tenten2@,spc@,ko_,to_,wa_,ru_,ttu_,te_,spc@,ka_,o_,spc@
+	db	si_,te_,n_,na_
+	db	normal@
+	db	so_,re_,na_,ra_,tenten2@,gyoe@
+	db	home@
+	db	mu_,ri_,ya_,ri_,spc@,i_,re_,te_,spc@,ya_,ru_,gyoe@,gyo3@
+	db	u_,ri_,yya_,bou@,ttu__,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_y_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_w_,usf_a_,usf_y_,comma@,spc@
+	db	usf_w_,usf_o_,usf_u_,usf_l_,usf_d_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_j_,usf_o_,usf_i_,usf_n_
+	db	gyo3@
+	db	usf_t,usf_e,usf_a,usf_m,spc@
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t,hate@
+	db	normal@
+	db	usf_w,usf_e_,apt_r_,usf_e_,spc@
+	db	usf_a_,spc@
+	db	usf_g_,usf_r_,usf_o_,usf_u_,usf_p_
+	db	home@
+	db	usf_d_,usf_e_,usf_d_,usf_i_,usf_c_,usf_a_,usf_t_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_e_,usf_v_,usf_i_,usf_l_
+	db	gyo3@
+	db	usf_u_,usf_s_,usf_i_,usf_n_,usf_g_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	normal@
+	db	usf_w,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_j_,usf_o_,usf_i_,usf_n_,hate@
+	db	normal@
+	db	usf_a,usf_r_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_s_,usf_u_,usf_r_,usf_e_,hate@
+	db	normal@
+	db	usf_c,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_o_,usf_n_,comma@,spc@
+	db	usf_j_,usf_o_,usf_i_,usf_n_,spc@
+	db	usf_u_,usf_s_,gyoe@
+	db	normal@
+	db	usf_i,apt_m_,spc@
+	db	usf_t_,usf_e_,usf_l_,usf_l_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_j_,usf_o_,usf_i_,usf_n_,gyoe@
+	db	normal@
+	db	usf_o,usf_k,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_
+	db	home@
+	db	usf_c_,usf_o_,usf_n_,usf_v_,usf_i_,usf_n_,usf_c_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	normal@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_m_,usf_a_,usf_k_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_a_,usf_n_
+	db	home@
+	db	usf_o_,usf_f_,usf_f_,usf_e_,usf_r_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_
+	db	gyo3@
+	db	usf_r_,usf_e_,usf_f_,usf_u_,usf_s_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg1_4_5_ROAD24
+msg1_4_5_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,zo_,u_,tenten2@,gyoe@
+	db	home@
+	db	ho__,n__,to__,spc@,tu_,e_,e_,na_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_r_,usf_r_,usf_g_,usf_h_,gyoe@
+	db	home@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank24		group	024h
+	public	msg1_5_6_ROAD24
+msg1_5_6_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,re_,da_,ke_,no_,spc@,u_,de_,ga_,spc@,a_,re_,ba_
+	db	home@
+	db	rocket@,spc@,de_,mo_,gyo3@
+	db	e_,ra_,ku_,spc@,na_,re_,ru_,no_,ni_,spc@
+	db	mo_,ttu_,ta_,i_,na_,i_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_a_,usf_b_,usf_i_,usf_l_,usf_i_,usf_t_,usf_y_,comma@
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_b_,usf_e_,usf_c_,usf_o_,usf_m_,usf_e_
+	db	gyo3@
+	db	usf_a_,spc@
+	db	usf_t_,usf_o_,usf_p_,spc@
+	db	usf_l_,usf_e_,usf_a_,usf_d_,usf_e_,usf_r_,spc@
+	db	usf_i_,usf_n_
+	db	gyo3@
+	db	usf_t,usf_e,usf_a,usf_m,spc@
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t,gyoe@
+	db	EOMeom
+  endif
+
+bank24		group	024h
+	public	msg2_0_7_ROAD24
+msg2_0_7_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,hu_,tenten2@,ttu__,gyoe@,spc@,ku_,sa_,mu_,ra_,ka_,ra_
+	db	home@
+	db	ki_,mi_,no_,spc@,ka_,tu_,ya_,ku_,wo_,spc@,mi_,te_,ta_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_s_,usf_a_,usf_w_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_f_,usf_e_,usf_a_,usf_t_
+	db	home@
+	db	usf_f_,usf_r_,usf_o_,usf_m_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_g_,usf_r_,usf_a_,usf_s_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	org	04000h
+	public	msg2_win_8_ROAD24
+msg2_win_8_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,ya_,ttu_,pa_,ri_,spc@,da_,me_,da_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i
+	db	home@
+	db	usf_t_,usf_h_,usf_o_,usf_u_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_n_,usf_o_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank25		group	025h
+	public	msg2_after_9_ROAD24
+msg2_after_9_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,ha_,si_,wo_,spc@,wa_,ta_,ru_,no_,ga_,spc@
+	db	ko_,wa_,ku_,te_
+	db	home@
+	db	zu_,ttu_,to_,spc@,ko_,ko_,ni_,spc@,ka_,ku_,re_,te_,ta_,n_,da_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_h_,usf_i_,usf_d_,spc@
+	db	usf_b_,usf_e_,usf_c_,usf_a_,usf_u_,usf_s_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_p_,usf_e_,usf_o_,usf_p_,usf_l_,usf_e_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_b_,usf_r_,usf_i_,usf_d_,usf_g_,usf_e_,spc@
+	db	usf_s_,usf_c_,usf_a_,usf_r_,usf_e_,usf_d_,spc@
+	db	usf_m_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg4_0_10_ROAD24
+msg4_0_10_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,e_,bou@,i_,ttu__,gyoe@,spc@,n5@,ni_,n_,me_,gyoe@
+	db	home@
+	db	o_,re_,ga_,spc@,a_,i_,te_,da_,a_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_k,gyoe@,spc@
+	db	usf_i,apt_m_,spc@
+	db	usf_n,usf_o_,kten@,spc@
+	db	n5@,gyoe@
+	db	home@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_s_,usf_t_,usf_o_,usf_m_,usf_p_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg4_win_11_ROAD24
+msg4_win_11_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ta_,i_,si_,ta_,spc@,mo_,n_,da_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_o_,usf_a_,gyoe@
+	db	home@
+	db	usf_t,usf_o_,usf_o_,spc@
+	db	usf_m_,usf_u_,usf_c_,usf_h_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank25		group	025h
+	public	msg4_after_12_ROAD24
+msg4_after_12_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	be__,su__,to__,wo_,spc@,tu_,ku_,si_,ta_,n_,da_
+	db	home@
+	db	ku_,i_,ha_,spc@,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_d_,usf_i_,usf_d_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_e_,usf_s_,usf_t_,comma@,spc@
+	db	usf_i
+	db	home@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_r_,usf_e_,usf_g_,usf_r_,usf_e_,usf_t_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg5_0_13_ROAD24
+msg5_0_13_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	n4@,ni_,n_,me_,ha_,spc@,wa_,ta_,si_,yo_,gyoe@
+	db	home@
+	db	so_,ro_,so_,ro_,spc@,ba_,te_,te_
+	db	gyo3@
+	db	ki_,ta_,n_,zi_,yya_,na_,i_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_n,usf_o_,kten@,spc@
+	db	n4@,gyoe@
+	db	home@
+	db	usf_g,usf_e_,usf_t_,usf_t_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_t_,usf_i_,usf_r_,usf_e_,usf_d_,hate@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg5_win_14_ROAD24
+msg5_win_14_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ta_,si_,mo_,spc@,ma_,ke_,ta_,no_,ne_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_l_,usf_o_,usf_s_,usf_t_
+	db	home@
+	db	usf_t_,usf_o_,usf_o_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank25		group	025h
+	public	msg5_after_15_ROAD24
+msg5_after_15_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	be__,su__,to__,wo_,spc@,tu_,ku_,si_,ta_,n_,da_,ka_,ra_
+	db	home@
+	db	ku_,i_,ha_,spc@,na_,i_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_d_,usf_i_,usf_d_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_e_,usf_s_,usf_t_,comma@,spc@
+	db	usf_s_,usf_o_
+	db	home@
+	db	usf_i,apt_v_,usf_e_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_r_,usf_e_,usf_g_,usf_r_,usf_e_,usf_t_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg6_0_16_ROAD24
+msg6_0_16_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	n3@,ni_,n_,me_,spc@,to_,u_,zi_,yyo_,u_,gyoe@
+	db	home@
+	db	so_,u_,spc@,ka_,n_,ta_,n_,ni_,ha_,spc@,i_,ka_,na_,i_,ze_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_r_,usf_e_,apt_s_,spc@
+	db	usf_n,usf_o_,kten@,spc@
+	db	n3@,gyoe@
+	db	home@
+	db	usf_i,spc@
+	db	usf_w_,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_e_,usf_a_,usf_s_,usf_y_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg6_win_17_ROAD24
+msg6_win_17_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	he_,ro_,he_,ro_,spc@,mo_,u_,spc@,da__,me__
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_w_,gyoe@
+	db	home@
+	db	usf_s,usf_t_,usf_o_,usf_m_,usf_p_,usf_e_,usf_d_,spc@
+	db	usf_f_,usf_l_,usf_a_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank25		group	025h
+	public	msg6_after_18_ROAD24
+msg6_after_18_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	be__,su__,to__,wo_,spc@,tu_,ku_,si_,ta_,n_,da_
+	db	home@
+	db	ku_,i_,ha_,spc@,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_d_,usf_i_,usf_d_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_e_,usf_s_,usf_t_,comma@,spc@
+	db	usf_i
+	db	home@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_r_,usf_e_,usf_g_,usf_r_,usf_e_,usf_t_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg7_0_19_ROAD24
+msg7_0_19_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,ta_,ri_,me_,ha_,spc@,wa_,ta_,si_,gyoe@
+	db	home@
+	db	ko_,re_,ka_,ra_,ga_,spc@,ho_,n_,ba_,n_,spc@,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_s_,usf_e_,usf_c_,usf_o_,usf_n_,usf_d_,gyoe@
+	db	home@
+	db	usf_n,usf_o_,usf_w_,spc@
+	db	usf_i_,usf_t_,apt_s_,spc@
+	db	usf_s_,usf_e_,usf_r_,usf_i_,usf_o_,usf_u_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg7_win_20_ROAD24
+msg7_win_20_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,n_,zi_,ra_,n_,na_,bou@,i_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_h,usf_o_,usf_w_,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_i
+	db	home@
+	db	usf_l_,usf_o_,usf_s_,usf_e_,hate@
+	db	EOMwaiteom
+  endif
+
+bank25		group	025h
+	public	msg7_after_21_ROAD24
+msg7_after_21_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	be__,su__,to__,wo_,spc@,tu_,ku_,si_,ta_,n_,da_,ka_,ra_
+	db	home@
+	db	ku_,i_,ha_,spc@,na_,i_,wa_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_d_,usf_i_,usf_d_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_e_,usf_s_,usf_t_,comma@,spc@
+	db	usf_i
+	db	home@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_r_,usf_e_,usf_g_,usf_r_,usf_e_,usf_t_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg8_0_22_ROAD24
+msg8_0_22_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,no_,spc@,ha_,si_,ha_,spc@,hi_,to_,spc@,yo_,n_,de_
+	db	home@
+	db	go__,bou@,ru__,de__,n__,bo__,bou@,ru__,spc@
+	db	bu__,ri__,ttu__,zi__,gyoe@
+	db	normal@
+	db	n5@,ni_,n_,spc@,ka_,ti_,nu_,ke_,ba_
+	db	home@
+	db	go_,u_,ka_,na_,spc@,si_,yyo_,u_,hi_,n_,ga_,spc@
+	db	mo_,ra_,e_,ru_,gyoe@
+	db	normal@
+	db	sa_,te_,gyoe@
+	db	home@
+	db	o_,ma_,e_,ni_,spc@,nu_,ke_,ra_,re_,ru_,ka_,na_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_n,usf_u,usf_g,usf_g,usf_e,usf_t
+	db	home@
+	db	usf_b,usf_r,usf_i,usf_d,usf_g,usf_e,gyoe@,spc@
+	db	usf_b,usf_e_,usf_a_,usf_t_,spc@
+	db	usf_u_,usf_s_,spc@
+	db	n5@
+	db	gyo3@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_w_,usf_i_,usf_n_
+	db	gyo3@
+	db	usf_a_,spc@
+	db	usf_f_,usf_a_,usf_b_,usf_u_,usf_l_,usf_o_,usf_u_,usf_s_,spc@
+	db	usf_p_,usf_r_,usf_i_,usf_z_,usf_e_,gyoe@
+	db	normal@
+	db	usf_t,usf_h_,usf_i_,usf_n_,usf_k_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_g_,usf_o_,usf_t_
+	db	home@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_t_,usf_a_,usf_k_,usf_e_,usf_s_,hate@
+	db	EOMeom
+  endif
+
+bank25		group	025h
+	public	msg8_win_23_ROAD24
+msg8_win_23_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ka_,na_,ka_,spc@,ya_,ru_,zi_,yya_,n_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_o_,usf_o_,gyoe@
+	db	home@
+	db	usf_g,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_s_,usf_t_,usf_u_,usf_f_,usf_f_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank25		group	025h
+	public	msg8_after_24_ROAD24
+msg8_after_24_ROAD24:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	be__,su__,to__,wo_,spc@,tu_,ku_,si_,ta_,n_,da_
+	db	home@
+	db	ku_,i_,ha_,spc@,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_d_,usf_i_,usf_d_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_e_,usf_s_,usf_t_,comma@,spc@
+	db	usf_i
+	db	home@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_r_,usf_e_,usf_g_,usf_r_,usf_e_,usf_t_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+

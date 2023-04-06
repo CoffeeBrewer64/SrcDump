@@ -1,0 +1,29 @@
+; 11/11/95		16:36:09
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	002h
+	db	005h,002h,003h,D14R1F3
+	db	005h,003h,003h,D14R1F3
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	HOTELM
+	db	004h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	001h+040h			; battle type
+	db	0f1h				; dealer number
+	db	004h				; taking pattern 
+	db	CAPSULE
+	db	001h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h+080h			; capsule type
+	db	024h				; item number
+ram_map_tbl$:
+	dw	008h * 003h + 002h + ram_map
+	db	005h,002h
+	dw	008h * 003h + 002h + ram_map
+	db	005h,003h

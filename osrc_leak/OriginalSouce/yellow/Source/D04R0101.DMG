@@ -1,0 +1,49 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		few_mac.h
+	include		macro.h
+	include		group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	d4_room1
+
+
+	extern	table_jump
+	extern	dungeon4
+
+
+NUKEMICHI_TYPE	equ	11
+EXIT		=	0ffh
+
+
+;;;;;seq_d4r1	equ	seq_ctrl_buf + 006h
+
+
+d4_room1:
+ysiz	=	24
+xsiz	=	4
+	db	NUKEMICHI_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	dungeon4		; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	dun04_event		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+dun04_event:
+	jp	init_for_talkmap
+
+
+msg_tbl:
+	db	EOM
+
+
+room_str:
+	include	..\sxy\d04r0101.sxy
+

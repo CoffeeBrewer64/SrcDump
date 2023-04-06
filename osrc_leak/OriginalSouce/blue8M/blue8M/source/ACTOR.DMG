@@ -1,0 +1,107 @@
+
+	include		common.def
+;	include		banktool.def
+	include		macro.h
+	include		few_mac.h
+
+	public	actor_blanch
+
+	extern	check_demo
+	extern	watashi
+	extern	actor_normal
+	extern	ctrl_demo_step
+
+
+bank0	group	0
+
+
+ACT_LAST_ADRS	equ	ACTOR_MAX * TABLE_AREA + actor_table + 00eh 
+
+
+actor_blanch:
+	ld	a,(oam_flg)
+	dec	a
+	ret	nz
+
+	ld	a,(rombankno)
+	push	af
+	ld	a,1
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	actor_main
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+
+
+bank1	group	1
+
+actor_main:
+	ld	h,> actor_table
+	inc	h				; actor_table + 100h
+	ld	a,00eh				; offset to each element tail
+
+loop$:
+	ld	l,a
+	sub	00eh
+	ld	c,a
+	ld	(actlow),a			; decide "actlow" value
+
+	ld	a,(hl)				; actor number
+	and	a
+	jr	z,jump$				; no entry actor
+
+	push	hl
+	push	de
+	push	bc
+
+	call	blanch
+
+	pop	bc
+	pop	de
+	pop	hl
+
+jump$:
+	ld	a,l
+	add	a,TABLE_AREA
+	cp	< ACT_LAST_ADRS			; check table last
+	jr	nz,loop$
+
+	ret
+
+
+;-----------------------------------------------------------;
+; routine jump for each actor number 			    ; 
+; << in >>						    ;
+; (together)		assign number of wts-stepping actor ;
+;-----------------------------------------------------------;
+blanch:
+	cp	1				; leader(hero) check
+	jp	nz,other$
+
+	jp	watashi
+
+
+other$:
+	dec	a
+	swap	a				; * 16
+	ld	(actwork4),a
+
+	ld	a,(together)
+	ld	b,a
+	ld	a,(actlow)
+	cp	b
+	jr	nz,normal_run$
+
+	jp	ctrl_demo_step
+
+
+normal_run$:
+	jp	actor_normal			; each actor control
+
+

@@ -1,0 +1,83 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t9_room3_2f
+
+
+	extern	bank2bank		
+
+
+KENKYUJO_TYPE	equ	20
+EXIT		=	0ffh
+
+
+t9_room3_2f:
+ysiz	=	4
+xsiz	=	4
+	db	KENKYUJO_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	kenkyujo2		; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	jp	init_for_talkmap
+
+
+
+msg_tbl:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+
+
+msg1:
+	extern	msg1_0_T09R0302
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T09R0302	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,7
+	ld	(usr_buf + 0),a
+
+	jr	msg23same
+	
+
+msg3:
+	db	CALL_MSG
+
+	ld	a,8
+	ld	(usr_buf + 0),a
+
+msg23same:
+	ld	a,B_MONSTER_TRADE
+	call	bank2bank
+
+	jp	msg_return
+
+
+room_str:
+	include	..\sxy\t09r0302.sxy
+
+
+kenkyujo2:
+	include	..\mapdata\kenkyu_2.map
+
+

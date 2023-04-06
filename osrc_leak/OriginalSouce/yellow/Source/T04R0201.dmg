@@ -1,0 +1,226 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t4_room2
+
+
+	extern	minka_a
+
+	extern	bank2bank		
+	extern	gyaarth_play
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t4_room2:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_a			; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_tbl:
+	msgndw	msg1,MsgMidori
+	ndw	msg2,MsgFushigidane
+	ndw	msg3,MsgNazonokusa
+	ndw	msg4,MsgSando
+
+
+	public	t4r2f1_msg1
+
+t4r2f1_msg1:
+msg1:
+	db	CALL_MSG
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	a,(ev_t4_2)
+	bit	0,a
+	jr	nz,second$
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	a,(pika_friendly + 00h)		; natsuki-ratio
+	cp	147				; 147 < pika_friendly
+	jr	c,rts$
+
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	extern	yes_no
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	a,153				; Hushigidane
+	ld	(in_dat),a
+	ld	(sel_item_no),a
+	call	get_mons_name
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	bc,153 * 256 + 10		; フシギダネ、レベル１０
+	extern	take_monster
+	call	take_monster
+	jr	nc,rts$
+
+	ld	a,(ctrl_move_val)
+	and	a
+	call	z,cont_abwait
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg1_2_1$
+	call	put_win_msg
+
+	ld	a,T4R2F1msg2
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	hl,ev_t4_2
+	set	0,(hl)				; obtained Hushigidane
+
+rts$:
+	jp	msg_return
+
+
+no$:
+	ld	hl,msg1_4$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+second$:
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg1_1$:
+	extern	msg1_1_0_T04R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_0_T04R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg1_2$:
+	extern	msg1_2_1_T04R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_1_T04R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2_1$:
+	extern	msg1_2_1_2_T04R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_1_2_T04R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg1_3$:
+	extern	msg1_3_3_T04R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_T04R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg1_4$:
+	extern	msg1_4_4_T04R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_4_T04R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg2:
+	extern	msg2_5_T04R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_5_T04R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,153
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+msg3:
+	extern	msg3_6_T04R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_6_T04R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,185
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+msg4:
+	extern	msg4_7_T04R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_7_T04R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,96
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+
+
+room_str:
+	include	..\sxy\t04r0201.sxy
+
+
+
+
+

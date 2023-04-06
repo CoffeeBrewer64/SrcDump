@@ -1,0 +1,748 @@
+	include		group.def
+
+bank1f	group	G_MUSIC3
+	;
+	;	Dungeon
+	;
+	;	Converting on Wed Aug 22 18:30:00 1990
+	;
+	;				by ver 1.02
+	;
+	public	DungeonMusic1
+	public	DungeonMusic2
+	public	DungeonMusic3
+	public	DungeonMusic4
+;----------------------------------------
+; ----- CODE -----
+DungeonMusic1:
+;----------------------------------------
+	db	0edh,000h,090h
+	db	0f0h,077h
+	db	0ech,003h
+	db	0e8h
+	db	0eah,00ah,014h
+	db	0dch,04dh
+; P1-1
+	db	0c7h
+;	db	0eeh,0edh
+	db	0e4h,067h
+;	db	0eeh,0ffh
+loop10$:
+	db	0dch,0b2h
+; P1-2
+	db	0e5h
+loop11$:
+	db	0fdh
+	dw	sub11$
+	db	0feh,3
+	dw	loop11$
+; P1-5
+	db	040h
+	db	030h
+	db	0b0h
+	db	0a0h
+	db	070h
+	db	080h
+	db	0c0h
+	db	0a0h
+	db	040h
+	db	030h
+	db	0b0h
+	db	0a0h
+	db	070h
+	db	080h
+	db	090h
+	db	0a0h
+; P1-6
+loop12$:
+	db	0fdh
+	dw	sub11$
+	db	0feh,4
+	dw	loop12$
+; P1-10
+	db	0fdh
+	dw	sub14$
+	db	0e5h,070h
+	db	060h
+	db	040h
+	db	070h
+; P1-11
+	db	0fdh
+	dw	sub14$
+	db	0e5h,090h
+	db	070h
+	db	040h
+	db	090h
+; P1-12
+	db	0fdh
+	dw	sub14$
+	db	0e5h,0b0h
+	db	090h
+	db	070h
+	db	060h
+; P1-13
+	db	0dch,0c3h
+	db	073h
+	db	063h
+	db	043h
+	db	033h
+; P1-14
+	db	0dch,0c2h
+	db	0fdh
+	dw	sub13$
+	db	0e5h,0b2h
+; P1-15
+	db	0fdh
+	dw	sub13$
+	db	002h
+; P1-16
+	db	0fdh
+	dw	sub13$
+	db	012h
+; P1-17
+	db	0dch,0c3h
+	db	0e5h,073h
+	db	063h
+	db	043h
+	db	033h
+; P1-18
+	db	043h
+	db	033h
+	db	003h
+	db	0e6h,0b3h
+; P1-19
+	db	0dch,0c2h
+	db	0b0h
+	db	0a0h
+	db	070h
+	db	0a0h
+	db	0b0h
+	db	0a0h
+	db	070h
+	db	0a0h
+	db	0e5h,000h
+	db	0e6h,0b0h
+	db	080h
+	db	0b0h
+	db	0e5h,000h
+	db	0e6h,0b0h
+	db	080h
+	db	0b0h
+; P1-20
+	db	0e5h,010h
+	db	000h
+	db	0e6h,090h
+	db	0e5h,000h
+	db	010h
+	db	000h
+	db	0e6h,090h
+	db	0e5h,000h
+	db	020h
+	db	010h
+	db	0e6h,0a0h
+	db	0e5h,010h
+	db	020h
+	db	010h
+	db	0e6h,0a0h
+	db	0e5h,010h
+;: P1-21
+loop13$:
+	db	0cfh
+	db	0feh,8
+	dw	loop13$
+; P1-29
+	db	0dch,0c3h
+	db	0fdh
+	dw	sub12$
+; P1-30
+	db	0b1h
+	db	071h
+	db	0e5h,013h
+	db	0e6h,071h
+	db	093h
+	db	061h
+; P1-31
+	db	0fdh
+	dw	sub12$
+; P1-32
+	db	0a1h
+	db	071h
+	db	0b3h
+	db	071h
+	db	061h
+	db	071h
+	db	031h
+; P1-33
+	db	0dch,0c2h
+	db	0fdh
+	dw	sub13$
+	db	0e5h,0b2h
+; P1-34
+	db	0fdh
+	dw	sub13$
+	db	002h
+; P1-35
+	db	0fdh
+	dw	sub13$
+	db	012h
+; P1-36
+	db	0dch,0c7h
+	db	0e5h,067h
+	db	037h
+; P1-37
+	db	0dch,0c2h
+	db	0fdh
+	dw	sub11$
+	db	0fdh
+	dw	sub11$
+	db	0feh,0
+	dw	loop10$
+sub11$:
+	db	040h
+	db	030h
+	db	0b0h
+	db	0a0h
+	db	070h
+	db	080h
+	db	0c0h
+	db	0a0h
+	db	040h
+	db	030h
+	db	0b0h
+	db	0a0h
+	db	070h
+	db	080h
+	db	0c0h
+	db	0a0h
+	db	0ffh
+sub12$:
+	db	0e6h,071h
+	db	0a3h
+	db	071h
+	db	0e5h,013h
+	db	0e6h,071h
+	db	0a1h
+	db	0ffh
+sub13$:
+	db	0e5h,040h
+	db	040h
+	db	050h
+	db	040h
+	db	070h
+	db	040h
+	db	090h
+	db	040h
+	db	0a0h
+	db	040h
+	db	0b0h
+	db	040h
+	db	0e4h,000h
+	db	0ffh
+sub14$:
+	db	040h
+	db	040h
+	db	0c3h
+	db	0e7h,040h
+	db	0c2h
+	db	040h
+	db	0c0h
+	db	0ffh
+;----------------------------------------
+DungeonMusic2:
+;----------------------------------------
+	db	0eah,00bh,015h
+	db	0ech,003h
+; P2-1
+	db	0dch,00fh
+	db	0e4h,087h
+	db	0dch,04dh
+	db	0e3h,027h
+; P2-2
+loop20$:
+	db	0dch,0c2h
+loop21$:
+	db	0fdh
+	dw	sub21$
+	db	0feh,3
+	dw	loop21$
+; P2-5
+	db	0e6h,040h
+	db	040h
+	db	0b0h
+	db	0e5h,000h
+	db	0c1h
+	db	000h
+	db	0e6h,0b0h
+	db	040h
+	db	040h
+	db	090h
+	db	070h
+	db	050h
+	db	060h
+	db	070h
+	db	030h
+; P2-6
+loop22$:
+	db	0fdh
+	dw	sub21$
+	db	0feh,4
+	dw	loop22$
+; P2-10
+	db	0c1h
+	db	0fdh
+	dw	sub22$
+	db	0e5h,003h
+; P2-11 --- tied
+	db	0fdh
+	dw	sub22$
+	db	0e5h,013h
+; P2-12 --- tied
+	db	0fdh
+	dw	sub22$
+	db	0e5h,033h
+; P2-13 --- tied
+	db	0dch,0d3h
+	db	0e4h,043h
+	db	033h
+	db	003h
+	db	0e5h,0b3h
+; P2-14 --- tied
+	db	0dch,0d2h
+	db	0fdh
+	dw	sub23$
+	db	0e5h,063h
+; P2-15 --- tied
+	db	0fdh
+	dw	sub23$
+	db	0e5h,073h
+; P2-16 --- tied
+	db	0fdh
+	dw	sub23$
+	db	0e5h,0a3h
+; P2-17 --- tied
+	db	0dch,0d3h
+	db	0e4h,043h
+	db	033h
+	db	003h
+	db	0e5h,0b3h
+; P2-18 --- tied
+	db	0e4h,003h
+	db	0e5h,0b3h
+	db	073h
+	db	061h
+; P2-19
+	db	0dch,0d6h
+	db	047h
+	db	057h
+; P2-20
+	db	067h
+	db	077h
+; P2-21
+	db	0dch,0d2h
+	db	0fdh
+	dw	sub24$
+	db	0c9h
+	db	040h
+	db	0c0h
+; P2-22
+	db	0fdh
+	dw	sub24$
+	db	0cbh
+; P2-23
+	db	0fdh
+	dw	sub24$
+	db	0cbh
+; P2-24
+	db	0fdh
+	dw	sub24$
+	db	0cdh
+; P2-25 --- tied
+	db	0dch,0d3h
+	db	0fdh
+	dw	sub26$
+	db	033h
+	db	0fdh
+	dw	sub26$
+	db	031h
+	db	0c1h
+; P2-33 --- tied
+	db	0dch,0d2h
+	db	0fdh
+	dw	sub25$
+	db	0c1h
+	db	0e5h,063h
+; P2-34 --- tied
+	db	0e6h,040h
+	db	040h
+	db	0e5h,0b0h
+	db	0c0h
+	db	0e4h,000h
+	db	0c0h
+	db	010h
+	db	0c0h
+	db	020h
+	db	010h
+	db	0c1h
+	db	0e5h,073h
+; P2-35 --- tied
+	db	0fdh
+	dw	sub25$
+	db	0e5h,0a3h
+; P2-36
+	db	0dch,0d6h
+	db	0b7h
+	db	0e4h,037h
+; P2-37
+	db	0dch,0d2h
+	db	0fdh
+	dw	sub21$
+	db	0fdh
+	dw	sub21$
+	db	0feh,0
+	dw	loop20$
+sub21$:
+	db	0e6h,040h
+	db	040h
+	db	0b0h
+	db	0e5h,000h
+	db	0c1h
+	db	000h
+	db	0e6h,0b0h
+	db	040h
+	db	040h
+	db	0b0h
+	db	0e5h,000h
+	db	0c1h
+	db	000h
+	db	0e6h,0b0h
+	db	0ffh
+sub22$:
+	db	0e6h,040h
+	db	040h
+	db	0c1h
+	db	0e7h,040h
+	db	0c2h
+	db	040h
+	db	0c2h
+	db	0ffh
+sub23$:
+	db	0e6h,040h
+	db	040h
+	db	0c9h
+	db	0ffh
+sub24$:
+	db	0e7h,040h
+	db	070h
+	db	040h
+	db	030h
+	db	0ffh
+sub25$:
+	db	0e6h,040h
+	db	040h
+	db	0e4h,040h
+	db	0c0h
+	db	030h
+	db	0c0h
+	db	020h
+	db	0c0h
+	db	010h
+	db	000h
+	db	0ffh
+sub26$:
+	db	0e5h,045h
+	db	075h
+	db	043h
+; P2
+	db	095h
+	db	0e4h,005h
+	db	0e5h,0b3h
+; P2
+	db	075h
+	db	0a5h
+	db	063h
+; P2
+	db	045h
+	db	065h
+	db	0ffh
+;----------------------------------------
+DungeonMusic3:
+;----------------------------------------
+	db	0dch,011h
+	db	0eah,008h,026h
+; P3-1
+	db	0cdh
+	db	0e4h,020h
+	db	030h
+loop30$:
+; P3-2
+	db	0fdh
+	dw	sub31$
+	db	0fdh
+	dw	sub31$
+; P3-10
+	db	0e3h,041h
+	db	0c3h
+	db	0e5h,040h
+	db	0c2h
+	db	040h
+	db	0c0h
+	db	0e4h,063h
+; P3-11
+	db	0fdh
+	dw	sub32$
+	db	0e4h,073h
+; P3-12
+	db	0fdh
+	dw	sub32$
+	db	0e4h,093h
+; P3-13
+	db	0b3h
+	db	0a3h
+	db	073h
+	db	063h
+	db	0c5h
+; P3-14 --- tied
+	db	0fdh
+	dw	sub35$
+; P3-17
+	db	0b3h
+	db	0a3h
+	db	073h
+	db	063h
+; P3-18
+	db	073h
+	db	063h
+	db	043h
+	db	033h
+; P3-19
+	db	0fdh
+	dw	sub33$
+	db	0cbh
+; P3-20
+	db	0fdh
+	dw	sub33$
+	db	0cbh
+; P3-21
+	db	0fdh
+	dw	sub33$
+	db	0c9h
+	db	040h
+	db	0c0h
+; P3-22
+	db	0fdh
+	dw	sub33$
+	db	0cbh
+; P3-23
+	db	0fdh
+	dw	sub33$
+	db	0cbh
+; P3-24
+	db	0fdh
+	dw	sub33$
+	db	0c9h
+	db	020h
+	db	030h
+; P3-25
+	db	0fdh
+	dw	sub34$
+	db	0fdh
+	dw	sub34$
+; P3-33
+	db	041h
+	db	0c3h
+	db	0fdh
+	dw	sub35$
+; P3-36
+	db	0b7h
+	db	065h
+	db	020h
+	db	030h
+;: P3-37
+	db	0cfh
+;: P3-38
+	db	0cfh
+	db	0feh,0
+	dw	loop30$
+sub31$:
+	db	0e3h,043h
+	db	0b3h
+	db	0a3h
+	db	0e2h,023h
+; P3-
+	db	013h
+	db	0e3h,083h
+	db	073h
+	db	0b3h
+; P3-
+	db	0a3h
+	db	043h
+	db	033h
+	db	093h
+; P3-
+	db	083h
+	db	043h
+	db	063h
+	db	033h
+	db	0ffh
+sub32$:
+	db	0e2h,040h
+	db	040h
+	db	0c3h
+	db	0e5h,040h
+	db	0c2h
+	db	040h
+	db	0c0h
+	db	0ffh
+sub33$:
+	db	0e5h,040h
+	db	070h
+	db	040h
+	db	030h
+	db	0ffh
+sub34$:
+	db	043h
+	db	0b3h
+	db	0a3h
+	db	0e4h,023h
+; P3-
+	db	013h
+	db	0e5h,083h
+	db	073h
+	db	0b3h
+; P3-
+	db	0a3h
+	db	043h
+	db	033h
+	db	093h
+; P3-
+	db	083h
+	db	043h
+	db	063h
+	db	033h
+	db	0ffh
+sub35$:
+	db	0e4h,040h
+	db	0c2h
+	db	040h
+	db	0c0h
+	db	063h
+	db	0c5h
+; P3
+	db	040h
+	db	0c2h
+	db	040h
+	db	0c0h
+	db	073h
+	db	0c5h
+; P3
+	db	040h
+	db	0c2h
+	db	040h
+	db	040h
+	db	0a3h
+	db	0ffh
+;----------------------------------------
+DungeonMusic4:
+;----------------------------------------
+	db	0dch
+; P4-1
+	db	0cdh
+	db	0b0h,0ch
+	db	0b0h,0ch
+loop40$:
+; P4-2
+loop41$:
+	db	0fdh
+	dw	sub41$
+	db	0feh,3
+	dw	loop41$
+; P4-5
+	db	0b3h,0dh
+	db	0b3h,0ch
+	db	0b3h,0dh
+	db	0b1h,0ch
+	db	0b1h,0ch
+; P4-6
+loop42$:
+	db	0fdh
+	dw	sub41$
+	db	0feh,3
+	dw	loop42$
+; P4-9
+	db	0b3h,0dh
+	db	0b3h,0ch
+	db	0b3h,0dh
+	db	0b3h,0dh
+; P4-10
+loop43$:
+	db	0fdh
+	dw	sub42$
+	db	0feh,3
+	dw	loop43$
+; P4-13
+	db	0fdh
+	dw	sub43$
+; P4-14
+loop44$:
+	db	0fdh
+	dw	sub42$
+	db	0feh,3
+	dw	loop44$
+; P4-17
+	db	0fdh
+	dw	sub43$
+; P4-18
+	db	0b3h,09h
+	db	0b3h,0ah
+	db	0b3h,0ah
+	db	0c1h
+	db	0b1h,09h
+; P4-19
+	db	0b3h,0dh
+;: P4-20
+loop45$:
+	db	0cfh
+	db	0feh,13
+	dw	loop45$
+;: P4-32
+	db	0cbh
+; P4-33
+loop46$:
+	db	0fdh
+	dw	sub42$
+	db	0feh,3
+	dw	loop46$
+; P4-36
+	db	0b3h,0ch
+	db	0b3h,0ch
+	db	0b3h,0ch
+	db	0c1h
+	db	0b0h,0ch
+	db	0b0h,0ch
+; P4-37
+	db	0fdh
+	dw	sub41$
+	db	0fdh
+	dw	sub41$
+	db	0feh,0
+	dw	loop40$
+sub41$:
+	db	0b3h,0dh
+	db	0b3h,0ch
+	db	0b3h,0dh
+	db	0b3h,0ch
+	db	0ffh
+sub42$:
+	db	0b0h,0ch
+	db	0b0h,0ch
+	db	0c9h
+	db	0b3h,0eh
+	db	0ffh
+sub43$:
+	db	0b3h,09h
+	db	0b3h,0ah
+	db	0b3h,0ah
+	db	0b3h,0bh
+	db	0ffh
+
+

@@ -1,0 +1,165 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room2_3f
+
+
+MANSHON_TYPE	equ	19
+EXIT		=	0ffh
+
+
+t7_room2_3f:
+
+ysiz	=	6
+xsiz	=	4
+	db	MANSHON_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	manshon3f		; map data adrs
+	dw	msg_t7r2f3
+	dw	ev_t7r2f3		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r2f3
+
+
+ev_t7r2f3:
+	jp	init_for_talkmap
+
+
+
+msg_t7r2f3:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+	dw	msg4$
+	dw	kanban1$
+	dw	kanban2$
+	dw	kanban3$
+	dw	kanban4$
+
+
+msg1$:
+	extern	msg1_0_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_2_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg4$:
+	db	CALL_MSG
+
+	ld	hl,zukan_flg			; catch status
+	ld	b,19
+	extern	how_many_bit
+	call	how_many_bit
+	ld	a,(in_dat)
+	cp	150
+	jr	nc,final$
+
+	ld	hl,msg4_0$
+
+	jr	set$
+
+
+final$:
+	ld	hl,msg4_1$
+
+set$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg4_0$:
+	extern	msg4_0_3_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_3_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_1$:
+	extern	msg4_1_4_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw msg4_1_4_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	WAIT
+
+	db	CALL_MSG
+
+	extern	hyousyoujyou
+	ld	hl,hyousyoujyou
+	ld	b,G_BANK15
+	extern	bank_push_call
+	call	bank_push_call
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	jp	msg_return
+
+
+kanban1$:
+	extern	kanban1_5_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw kanban1_5_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2$:
+	extern	kanban2_6_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw kanban2_6_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban3$:
+	extern	kanban3_7_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw kanban3_7_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban4$:
+	extern	kanban4_8_T07R0203
+	db I_MSG2	; mvmsg追加
+	dw kanban4_8_T07R0203	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t7r2f3:
+	include	..\sxy\t07r0203.sxy
+
+
+manshon3f:
+	include	..\mapdata\mansh03.map
+
+
+

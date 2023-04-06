@@ -1,0 +1,609 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+	include pika.def
+	include	pm_debug.def
+	include	pikaanm.h
+
+
+bank16	group	G_BANK16
+
+
+	public	t6_room2
+
+
+	extern	se_wait
+	extern	gyaarth_play
+	extern	yes_no
+	extern	check_pack
+	extern	bank2bank
+
+;	extern	cap_list
+	extern	StatusPrintOut
+	extern	pal_off_put_wait
+	extern	map_rewrite2
+	extern	set_objdata
+	extern	put_wait
+;	extern	put_map
+	extern	palset
+	extern	pop_vram_m
+	extern	bank_push_call
+
+	extern	table_jump
+	extern	set_pika_invisible
+	extern	actor_anime_set
+
+BIKKURI_MARK	equ	0
+QUESTION_MARK	equ	1
+NIKONIKO_MARK	equ	2
+DOKURO_MARK	equ	3
+HEART_MARK	equ	4
+THUNDER_MARK	equ	5
+ZZZ_MARK	equ	6
+SAKANA_MARK	equ	7
+
+
+seq_t6r2f1	equ	seq_ctrl_buf + 00ah
+
+
+MANIA_TYPE	equ	16
+EXIT		=	0ffh
+
+
+t6_room2:
+ysiz	=	4
+xsiz	=	4
+	db	MANIA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	daisuki			; map data adrs
+	dw	msg_t6r2f1		; message tbl adrs
+	dw	ev_t6r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t6r2f1
+
+
+ev_t6r2f1:
+	call	init_for_talkmap
+
+	ld	hl,event_table
+	ld	a,(seq_t6r2f1)
+	call	table_jump
+
+	ret
+
+
+event_table:
+	initndw	First_main,Seq_First_Main
+	ndw	Second_Main,Seq_Second_Main
+
+
+	extern	set_pika_sleep
+	extern	PikaEventAnime
+	extern	event_with_pika
+
+First_Main:
+	ld	hl,yellow_event + 00h
+	bit	7,(hl)
+
+	call	z,pika_pippi_event		; 部屋に入ったときのみ呼ばれる。
+
+	ld	hl,yellow_event + 00h
+	set	7,(hl)
+
+	ret
+
+
+Second_Main:
+	ld	hl,yellow_event + 00h
+	bit	7,(hl)
+
+	call	z,rnd_event$
+
+	ld	hl,yellow_event + 00h
+	set	7,(hl)
+	ret
+
+
+rnd_event$:
+	call	rnd
+	ld	a,(random + 00h)
+	cp	255 / 10
+	call	c,pika_pippi_event
+
+	ret
+
+
+	public	pika_pippi_event
+
+pika_pippi_event:
+	ld	a,(obs_pikachu)
+	bit	7,a				; 自分のピカチュウが手元にいない
+	ret	z
+
+	extern	check_pika_cond			; ピカチュウの状態異常を
+	ld	hl,check_pika_cond		; チェックする
+	ld	b,G_BANK3f			; carry ON = 異常あり
+	call	bank_push_call			;
+	ret	c
+
+
+	ld	a,Seq_Second_Main		; 2度目以降はランダムチェックを
+	ld	(seq_t6r2f1),a			; いれる
+
+	xor	a
+	ld	(watashi_muki),a
+	
+	call	actor_blanch			; 初期化処理
+	call	actor_blanch			; actor描画１回目
+
+	ld	a,BIKKURI_MARK
+	ld	(usr_buf + 19),a
+	ld	a,PIKA_ACT_NO
+	ld	(usr_buf + 18),a
+	ld	a,<B_BIKKURI
+	call	bank2bank
+
+	ld	hl,anime$
+	call	PikaEventAnime			; ピッピのところに移動
+
+	ld	a,02h
+	ld	(actor_table + 031h),a
+	xor	a
+	ld	(actor_table + 039h),a
+
+	ld	hl,event_with_pika		; ピッピとあってうれしい表情
+	ld	b,G_BANK3f			; 表情=mapnoとyellow_eventで
+	call	bank_push_call			; ルーチン内で判断している
+
+	call	set_pika_sleep
+
+	ret
+
+
+
+anime$:
+	db	Pika_Init
+
+	db	Pika_Go_North
+	db	Pika_Run_East
+	db	Pika_Run_East
+	db	Pika_Run_East
+	db	Pika_Run_North
+
+	db	Pika_End
+
+
+
+
+msg_t6r2f1:
+	msgndw	msg1,MsgSeinen
+	ndw	msg2,MsgNeechan
+	ndw	msg3,MsgPippi
+	ndw	msg4,MsgPauwau
+	ndw	msg5,MsgKaityou
+	ndw	msg6,MsgHisyo
+;	ndw	msg7,MsgPikachu			; change plan to tama.
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,ev_t6_2
+	bit	2,(hl)
+	jr	z,bef$
+
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+bef$:
+	bit	7,(hl)				; check first coversation
+	jr	nz,later$
+
+	set	6,(hl)
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+later$:
+	res	7,(hl)
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,ev_t6_2
+	bit	2,(hl)
+	jr	z,bef$
+
+	ld	hl,msg2_2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+bef$:
+	bit	6,(hl)				; check first coversation
+	jr	nz,later$
+
+	set	7,(hl)
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+later$:
+	res	6,(hl)
+
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_3_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_3_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_4_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_4_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_2$:
+	extern	msg2_2_5_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_5_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	ld	a,4
+	call	gyaarth_play
+	call	se_wait
+	
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_6_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_6_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,msg4_0$
+	call	put_win_msg
+
+	ld	a,58
+	call	gyaarth_play
+	call	se_wait
+	
+	jp	msg_return
+
+
+msg4_0$:
+	extern	msg4_0_7_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_7_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,ev_t6_2 + 00h
+	bit	2,(hl)
+	jr	z,bef$
+
+	ld	hl,msg5_6$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	z,print$
+
+	ld	hl,msg5_6_no$
+
+	jr	rts$
+
+
+bef$:
+	ld	a,(ev_t6_2 + 00h)
+	bit	1,a
+	jr	nz,obtain$
+
+	ld	hl,msg5_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	hl,msg5_1$
+	call	put_win_msg
+
+	ld	bc,45 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg5_2$
+	call	put_win_msg
+
+	ld	hl,ev_t6_2 + 00h
+	set	1,(hl)
+
+	jp	msg_return
+
+
+full$:
+	ld	hl,msg5_5$
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg5_3$
+
+	jr	rts$
+
+
+obtain$:
+	ld	hl,msg5_4$
+
+rts$:
+	push	hl
+	call	color_reset
+	pop	hl
+	call	put_win_msg
+
+	jp	msg_return
+
+
+print$:
+	call	pal_off_put_wait
+	call	put_map				; マップだけの画面をプッシュしておく
+	call	push_vram_m			; 
+
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	ld	a,00h
+	ld	(ef_size),a			; どの　ポケモンに　しますか？
+	call	cap_list			; result = sel_item_pos
+
+	jp	nc,select$
+
+	call	pal_off_put_wait
+	call	set_objdata
+
+	ld	hl,msg5_6_no$
+
+	jr	rts$
+
+
+select$:
+	xor	a
+	ld	(oam_flg),a
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+	ld	hl,StatusPrintOut
+	ld	b,G_BANK3a
+	call	bank_push_call
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	pal_off_put_wait
+	call	map_rewrite2
+	call	set_objdata
+	call	pop_vram_m
+	call	put_wait
+	call	palset
+
+	ld	hl,msg5_ng$
+
+	ld	a,(DA_BUF + 00h)
+	and	a
+	jr	nz,rts$
+
+	ld	hl,msg5_7$
+
+	jr	rts$
+
+
+msg5_0$:
+	extern	msg5_0_8_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_8_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_1$:
+	extern	msg5_1_9_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_1_9_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_2$:
+	extern	msg5_2_10_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_10_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db	FANFARE6
+	extern	msg5_2_11_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_11_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_3$:
+	extern	msg5_3_12_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_3_12_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_4$:
+	extern	msg5_4_13_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_4_13_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_5$:
+	extern	msg5_5_14_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_5_14_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_6$:
+	extern	msg5_6_15_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_6_15_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_6_no$:
+	extern	msg5_6_no_16_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_6_no_16_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_7$:
+	extern	msg5_7_17_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_7_17_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_ng$:
+	extern	msg5_ng_18_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_ng_18_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	extern	msg6_19_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg6_19_T06R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+  ifn	0
+msg7:
+ 	db	CALL_MSG
+
+	ld	hl,msg7_0$
+	call	put_win_msg
+	
+	ld	e,020h
+	extern	PikaVoicePlay
+	ld	hl,PikaVoicePlay
+	ld	b,BANK__PikaVoicePlay	;	ld	b,G_BANK3b
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg7_0$:
+	db	D_MSG
+	db	pi__,ka__,ti__,yyu__,u__,kako2@
+	db	pi_,ttu_,ka_,bou@,gyoe@
+	db	EOMeom
+  endif
+
+
+
+
+sxy_t6r2f1:
+	include	..\sxy\t06r0201.sxy
+
+
+daisuki:
+	include ..\mapdata\daisuki.map
+
+
+
+
+

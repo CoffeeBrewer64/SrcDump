@@ -1,0 +1,297 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank14	group	G_BANK14
+
+
+	public	d11_room1_2f
+	public	sw_d11r1f2
+
+
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+	extern	CheckAssignPos
+	extern	change_door
+	extern	link_door_tool
+
+	extern	musdoor
+
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+
+seq_d11r1f2	equ	seq_ctrl_buf + 4dh
+
+
+d11_room1_2f:
+ysiz	=	9
+xsiz	=	15
+	db	BUILDING_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	poke_3f			; map data adrs
+	dw	msg_d11r1f2		; message tbl adrs
+	dw	ev_d11r1f2		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d11r1f2
+
+
+ev_d11r1f2:
+	call	switch_door_open
+
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d11r1f2_tbl
+	ld	a,(seq_d11r1f2)
+	call	battle_sequence
+	ld	(seq_d11r1f2),a
+
+	ret
+
+
+switch_door_open:
+	ld	hl,ptn_data
+	bit	5,(hl)
+	res	5,(hl)
+	ret	z
+
+	ld	a,(ev_t9 + 0)
+	bit	0,a
+	jr	nz,change$
+
+	ld	a,00ch + 002h
+	ld	bc,2 * 256 + 7
+	call	link_door_tool			; door-a
+
+	ld	a,05ch + 003h
+	ld	bc,5 * 256 + 7
+	call	link_door_tool			; door-b
+
+	ret
+
+
+change$:
+	ld	a,05ch + 003h
+	ld	bc,2 * 256 + 7
+	call	link_door_tool			; door-a
+
+	ld	a,00ch + 002h
+	ld	bc,5 * 256 + 7
+	call	link_door_tool			; door-b
+
+	ret
+
+
+d11r1f2_tbl:
+	initndw	CheckPlace,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+CheckPlace:
+	ld	hl,fall_pos$
+	call	FallToHole
+	ld	a,(ev_something + 6)
+	and	a
+	jp	z,battle_main
+
+	cp	3
+	ld	a,T9R1F1
+	jr	nz,z100$
+
+	ld	a,D11R1F1
+
+z100$:
+	ld	(ev_something + 5),a
+
+	ret
+
+
+fall_pos$:
+	db	00eh,010h
+	db	00eh,011h
+	db	00eh,013h
+	db	0ffh
+
+
+;-----------------------------------------------;
+; check place on hole				;
+; <<in>>					;
+; hl-regs					;
+; 	data table address hole position	;
+; ev_something + 6				;
+;	to falling arrived map number		;
+;-----------------------------------------------;
+FallToHole:
+	xor	a
+	ld	(ev_something + 6),a
+
+	ld	a,(event_flg)
+	bit	4,a
+	ret	nz
+
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,(usr_buf + 0)
+	ld	(ev_something + 6),a
+
+	ld	hl,event_flg
+	set	4,(hl)
+
+	ld	hl,game_mode
+	set	4,(hl)
+
+	ret
+
+
+
+sw_d11r1f2:
+	ld	a,(actor_table + 009h)
+	cp	004h
+	ret	nz
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,msg_door
+	ld	(work1),a
+	jp	talk_map
+
+
+
+
+msg_d11r1f2:
+	msgndw	msg1,msg_doro
+	ndw	msg4,msg_sylpu_w
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	msg8,msg_diary
+	ndw	change_door,msg_door
+
+
+
+dealer_talk:
+d_talk1:
+	db	msg_doro,000h
+	dw	ev_d11 + 2
+	dw	msg1_0
+	dw	msg1_after
+	dw	msg1_win
+	dw	msg1_win
+
+d_talk4:
+	db	msg_sylpu_w,020h
+	dw	ev_d11 + 2
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg1_0:
+	extern	msg1_0_0_D11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_D11R0102	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_1_D11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_D11R0102	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_2_D11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_2_D11R0102	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_0:
+	extern	msg4_0_3_D11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_3_D11R0102	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_4_D11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_4_D11R0102	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_5_D11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_5_D11R0102	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8:
+	extern	msg8_6_D11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg8_6_D11R0102	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d11r1f2:
+	include	..\sxy\d11r0102.sxy
+
+poke_3f:
+	include	..\mapdata\poke_3f.map
+

@@ -1,0 +1,152 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank15	group	G_BANK15
+
+
+	public	t8_room8
+
+	extern	turi
+
+
+SHIP_TYPE	equ	13
+EXIT		=	0ffh
+
+
+t8_room8:
+ysiz	=	4
+xsiz	=	4
+	db	SHIP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	turi			; map data adrs
+	dw	msg_t8r8		; message tbl adrs
+	dw	ev_t8r8			; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t8r8
+
+
+ev_t8r8:
+	jp	init_for_talkmap
+
+
+
+msg_t8r8:
+	dw	msg1$
+
+
+msg1$:
+	db	CALL_MSG
+
+	ld	a,(ev_special + 0)
+	bit	4,a
+	jr	nz,yet$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	extern	yes_no
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	bc,77 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+;	ld	hl,msg1_1$
+;	call	put_win_msg
+
+	ld	hl,ev_special + 0
+	set	4,(hl)
+
+	ld	hl,msg1_1$
+;	call	put_win_msg
+	jr	rts$
+
+
+full$:
+	ld	hl,msg1_4$
+;	call	put_win_msg
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg1_2$
+;	call	put_win_msg
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg1_3$
+;	call	put_win_msg
+
+rts$:
+	call	put_win_msg
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T08R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T08R0801	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T08R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T08R0801	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE
+	db	EOM
+	db	normal@
+	db	tu_,ri_,spc@,ko_,so_
+	db	home@
+	db	o_,to_,ko_,no_,spc@,ro__,ma__,n__,spc@,da_,gyoe@
+	db	normal@
+	db	he_,bo_,i_,tu_,ri_,za_,o_,ha_
+	db	home@
+	db	ko__,i__,ki__,n__,gu__,si_,ka_,spc@,tu_,re_,spc@,na_,n_,da_,ga_
+	db	home@
+	db	ko_,no_,spc@,i_,i_,tu_,ri_,za_,o_,na_,ra_
+	db	home@
+	db	mo_,ttu_,to_,spc@,i_,i_,mo_,n_,ga_,spc@
+	db	tu_,re_,ru_,n_,zi_,yya_,gyoe@
+	db	EOMeom
+
+
+msg1_2$:
+	extern	msg1_2_2_T08R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T08R0801	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_3_T08R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_T08R0801	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_4$:
+	extern	msg1_4_4_T08R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_4_T08R0801	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t8r8:
+	include	..\sxy\t08r0801.sxy
+

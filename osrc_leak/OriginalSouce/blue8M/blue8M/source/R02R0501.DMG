@@ -1,0 +1,68 @@
+
+	include	common.def
+	include	fntequ.def
+	include	anime.def
+	include	maphead.def
+	include macro.h
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	r2_room5
+
+
+	extern	table_jump
+	extern	actor_anime_set
+
+	extern	sekisyo
+
+
+SEKISYO_TYPE	equ	9
+EXIT		=	0ffh
+
+
+r2_room5:  
+ysiz	=	4
+xsiz	=	5
+	db	SEKISYO_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	sekisyo			; map data adrs
+	dw	msg_r2r5f1		; message tbl adrs
+	dw	ev_r2r5f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r2r5f1
+
+
+ev_r2r5f1:
+	jp	init_for_talkmap
+
+
+
+msg_r2r5f1:
+	dw	msg1$
+	dw	msg2$
+
+
+
+msg1$:
+	extern	msg1_0_R02R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_R02R0501	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_R02R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_R02R0501	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_r2r5f1:
+	include	..\sxy\r02r0501.sxy
+
+

@@ -1,0 +1,26 @@
+; 06/05/98		18:06:22
+dun_tbl$:
+	db	001h
+ie_tbl$:
+	db	002h
+	db	009h,003h,000h,T5R2F3
+	db	009h,012h,002h,T5R2F1
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	RIVAL
+	db	005h+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	KITOUSHI
+	db	007h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	002h
+ram_map_tbl$:
+	dw	010h * 005h + 002h + ram_map
+	db	009h,003h
+	dw	010h * 005h + 00ah + ram_map
+	db	009h,012h

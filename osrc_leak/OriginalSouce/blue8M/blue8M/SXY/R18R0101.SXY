@@ -1,0 +1,30 @@
+; 07/03/95		17:34:00
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	005h
+	db	004h,000h,000h,EXIT
+	db	005h,000h,001h,EXIT
+	db	004h,007h,002h,EXIT
+	db	005h,007h,003h,EXIT
+	db	008h,006h,000h,R18R1F2
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	001h
+	db	KEIBI
+	db	001h+4,004h+4			; Y, X
+	db	0ffh				; random move mode
+	db	0d0h				; moving site
+	db	001h
+ram_map_tbl$:
+	dw	00ah * 003h + 001h + ram_map
+	db	004h,000h
+	dw	00ah * 003h + 001h + ram_map
+	db	005h,000h
+	dw	00ah * 003h + 004h + ram_map
+	db	004h,007h
+	dw	00ah * 003h + 004h + ram_map
+	db	005h,007h
+	dw	00ah * 005h + 004h + ram_map
+	db	008h,006h

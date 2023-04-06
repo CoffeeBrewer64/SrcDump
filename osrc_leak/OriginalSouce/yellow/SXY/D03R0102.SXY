@@ -1,0 +1,49 @@
+; 05/11/98		21:16:30
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	009h
+	db	00bh,009h,000h,D3R1F9
+	db	00bh,00dh,002h,D3R1F9
+	db	00bh,011h,004h,D3R1F9
+	db	00bh,015h,006h,D3R1F9
+	db	00bh,019h,008h,D3R1F9
+	db	00bh,01dh,00ah,D3R1F9
+	db	004h,002h,008h,D3R1F1
+	db	00ch,002h,001h,D3R1F3
+	db	004h,024h,000h,D3R1F7
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	BOY
+	db	007h+4,003h+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	001h
+	db	RIVAL
+	db	004h+4,024h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h+040h			; battle type
+	db	0e1h				; dealer number
+	db	001h				; taking pattern 
+ram_map_tbl$:
+	dw	01ah * 006h + 005h + ram_map
+	db	00bh,009h
+	dw	01ah * 006h + 007h + ram_map
+	db	00bh,00dh
+	dw	01ah * 006h + 009h + ram_map
+	db	00bh,011h
+	dw	01ah * 006h + 00bh + ram_map
+	db	00bh,015h
+	dw	01ah * 006h + 00dh + ram_map
+	db	00bh,019h
+	dw	01ah * 006h + 00fh + ram_map
+	db	00bh,01dh
+	dw	01ah * 003h + 002h + ram_map
+	db	004h,002h
+	dw	01ah * 007h + 002h + ram_map
+	db	00ch,002h
+	dw	01ah * 003h + 013h + ram_map
+	db	004h,024h

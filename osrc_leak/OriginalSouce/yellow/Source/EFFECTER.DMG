@@ -1,0 +1,803 @@
+;===============================================;
+;						;
+;	Display & Character effect unit		;
+;						;
+;===============================================;
+
+	include		common.def
+	include		se.def
+	include		effect.def
+	include		sgb_col.def
+	include		effecter.h
+	include		..\data\waza_se.h
+	include		fntequ.def
+	include		banktool.def
+	include		macro.h
+	include		group.def
+	include		pm_debug.def
+
+
+	extern		push_vram
+	extern		pop_vram
+	extern		ef_clear
+	extern		memset
+	extern		oam_off
+	extern		wait_vb_s
+	extern		set_ef_cram
+	extern		ctrl_effect
+	extern		effect_table
+	extern		effect_data
+	extern		out_ef_tbl2
+	extern		play_waza_se
+	extern		bgreq_change
+	extern		wait_vb
+	extern		to_oam
+	extern		fnt_marushi
+	extern		se_wait
+	extern		put_wait
+	extern		musmons
+	extern		color_set
+	extern		block_move
+	extern		direct_play
+	extern		musdendou
+	extern		wait_cont
+	extern		chrmove
+
+	extern		BGMplay
+	extern		SEplay
+	extern		MusicStop
+
+	extern		change_cgb_obp0
+	extern		change_cgb_obp1
+
+bank1e	group	G_BANK1e
+
+;-----------------------------------------------------------------------;
+;									;
+;	set data into OAM(buffer) each characters with attribute	;
+;									;
+;	IN								;
+;	ef_adr3_h, ef_adr3_l						;
+;		character define table top address( 4byte * n block )	;
+;									;
+;	effect_x, effect_y						;
+;		display position as left-upper				;
+;									;
+;	ef_size								;
+;		transfer block lots					;
+;									;
+;-----------------------------------------------------------------------;
+	public		real_effect
+real_effect:
+	ld	l,c
+	ld	h,b				; HL = character table top
+
+	ld	a,(hli)
+	ld	(ef_timer),a
+
+	ld	a,(ef_oamadr_l)
+	ld	e,a
+	ld	a,(ef_oamadr_h)
+	ld	d,a
+
+	xor	a
+	ld	(ef_oam_cnt),a			; OAM put count up
+
+loop_top$:
+	ld	a,(ef_oam_cnt)
+	inc	a
+	ld	(ef_oam_cnt),a			; OAM put count up
+
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,2
+	ld	(temp_attr),a
+  endif
+
+	ld	a,(ef_count2)
+	dec	a				; cp 1
+	jr	z,enemy_attack1$
+	dec	a				; cp 2
+	jp	z,enemy_attack2$
+	dec	a				; cp 3
+	jr	z,enemy_attack3$
+
+my_attack$:
+	ld	a,(effect_y)			; Y-base load
+	add	a,(hl)
+	ld	(de),a				; Y-pos
+	inc	hl
+	inc	de
+	ld	a,(effect_x)			; X-base load
+	jr	z1000$
+
+enemy_attack3$:
+	ld	a,(effect_y)			; Y-base load
+	ld	b,a
+	ld	a,088h
+	sub	b
+	add	a,(hl)
+	ld	(de),a				; Y-pos
+	inc	hl
+	inc	de
+	ld	a,(effect_x)			; X-base load
+	ld	b,a
+	ld	a,0a8h
+	sub	b
+z1000$:
+	add	a,(hl)
+	ld	(de),a				; X-pos
+	
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	88
+	jr	c,z1000_0$
+	ld	a,(temp_attr)
+	inc	a
+	ld	(temp_attr),a
+z1000_0$:
+  endif
+	
+	inc	hl
+	inc	de
+	ld	a,(hli)
+	add	a,031h				; offset code
+	ld	(de),a				; character code
+	inc	de
+	ld	a,(hli)
+	
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	b,a
+	ld	a,(temp_attr)
+	or	b
+  endif
+
+	ld	(de),a				; character attribute
+	inc	de
+	jp	end$
+
+enemy_attack1$:
+	ld	a,(effect_y)			; Y-base load
+	add	a,(hl)
+	ld	b,a
+	ld	a,088h
+	sub	b
+	ld	(de),a				; Y-pos
+	inc	hl
+	inc	de
+	ld	a,(effect_x)			; X-base load
+	add	a,(hl)
+	ld	b,a
+	ld	a,0a8h
+	sub	b
+	ld	(de),a				; X-pos
+
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	88
+	jr	c,z1000_1$
+	ld	a,(temp_attr)
+	inc	a
+	ld	(temp_attr),a
+z1000_1$:
+  endif
+
+	inc	hl
+	inc	de
+	ld	a,(hli)
+	add	a,031h				; offset code
+	ld	(de),a				; character code
+	inc	de
+	ld	a,(hli)
+
+	and	a
+	ld	b,60h
+	jr	z,z40$
+	cp	20h
+	ld	b,40h
+	jr	z,z40$
+	cp	40h
+	ld	b,20h
+	jr	z,z40$
+	ld	b,00h
+z40$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,(temp_attr)
+	or	b
+  else
+	ld	a,b
+  endif
+
+	ld	(de),a				; character attribute
+	inc	de
+	jp	end$
+
+enemy_attack2$:
+	ld	a,(effect_y)			; Y-base load
+	add	a,(hl)
+	add	a,8*5
+	ld	(de),a				; Y-pos
+	inc	hl
+	inc	de
+	ld	a,(effect_x)			; X-base load
+	add	a,(hl)
+	ld	b,a
+	ld	a,0a8h
+	sub	b
+	ld	(de),a				; X-pos
+
+  ifn	pm_cgb & pm_cgb_obj_atr
+	cp	88
+	jr	c,z1000_2$
+	ld	a,(temp_attr)
+	inc	a
+	ld	(temp_attr),a
+z1000_2$:
+  endif
+
+	inc	hl
+	inc	de
+	ld	a,(hli)
+	add	a,031h				; offset code
+	ld	(de),a				; character code
+	inc	de
+	ld	a,(hli)
+	bit	5,a
+	jr	nz,z60$
+	set	5,a
+	jr	z70$
+z60$:
+	res	5,a
+z70$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	b,a
+	ld	a,(temp_attr)
+	or	b
+  endif
+
+	ld	(de),a				; character attribute
+	inc	de
+
+end$:
+	ld	a,(ef_oam_cnt)
+	ld	c,a
+	ld	a,(ef_timer)
+	cp	c				; OAM trans lots check
+	jp	nz,loop_top$
+
+	ld	a,(ef_anime)
+	cp	2
+	jr	z,z1$
+
+	ld	a,(ef_pctime)
+	ld	c,a
+	call	wait_vb_s
+
+	ld	a,(ef_anime)
+	cp	3
+	jr	z,z1$
+	cp	4
+	jr	z,z2$
+
+	ld	a,(effect_no)
+	cp	45
+	jr	z,z5$
+
+	call	ef_clear
+z5$:
+	ld	hl,oam_buf
+	ld	a,l
+	ld	(ef_oamadr_l),a
+	ld	a,h
+	ld	(ef_oamadr_h),a
+	ret
+
+z1$:
+	ld	a,e
+	ld	(ef_oamadr_l),a
+	ld	a,d
+	ld	(ef_oamadr_h),a
+z2$:
+	ret
+
+
+;-----------------------------------------------;
+;						;
+;	ready to read pattern set table		;
+;						;
+;-----------------------------------------------;
+	public		effect_ready
+	public		ef_ready
+
+WSE_NO		equ	0
+
+effect_ready:
+	xor	a
+	ld	(work0),a
+	ld	(ef_count2),a
+	ld	a,(effect_no)
+
+	dec	a
+
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+
+	ld	de,effect_data			; main table address
+	add	hl,de
+
+	ld	a,(hli)				; hl = effect_kind_address
+	ld	h,(hl)
+	ld	l,a
+loop$:
+	ld	a,(hli)
+
+	cp	0ffh
+	jr	z,exit$
+
+	cp	0c0h				;out_ef_no
+	jr	c,next1$			; = MIN 0c0h
+
+	ld	c,a
+	ld	de,out_ef_tbl2
+loop1$:
+	ld	a,(de)
+	cp	c
+	jr	z,much$
+
+	inc	de
+	inc	de
+	inc	de
+
+	jr	loop1$
+
+much$:
+	ld	a,(hli)
+	cp	NO_SE
+	jr	z,z1$
+	ld	(waza_se_cnt + WSE_NO),a
+	push	hl
+	push	de
+
+	call	play_waza_se
+	call	SEplay
+
+	pop	de
+	pop	hl
+z1$:
+	push	hl
+	inc	de
+	ld	a,(de)
+	ld	l,a
+	inc	de
+	ld	a,(de)
+	ld	h,a
+
+	ld	de,next$
+	push	de
+	jp	(hl)
+
+next1$:	
+	ld	c,a
+	and	03fh
+	ld	(ef_pctime),a
+
+	xor	a
+	sla	c
+	rla
+	sla	c
+	rla
+	ld	(el_c),a
+
+	ld	a,(hli)
+	ld	(waza_se_cnt + WSE_NO),a
+
+	ld	a,(hli)
+
+	ld	c,l
+	ld	b,h
+
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+
+	ld	de,effect_table
+	add	hl,de
+	
+	ld	a,l
+	ld	(ef_adr1_l),a
+	ld	a,h
+	ld	(ef_adr1_h),a
+	
+	ld	l,c
+	ld	h,b
+
+	push	hl
+	ld	a,(OBP0)
+	push	af
+	ld	a,(anime_buf + 30)
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+	call	set_ef_cram
+	call	ef_ready
+	call	ctrl_effect
+	pop	af
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+next$:
+	pop	hl
+	jr	loop$
+
+exit$:
+	ret
+	
+
+ef_ready:
+	ld	a,(ef_adr1_h)		
+	ld	h,a	
+	ld	a,(ef_adr1_l)
+	ld	l,a
+
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hl)
+	ld	d,a				; DE = element table top
+
+	ld	a,(de)
+	ld	b,a
+	and	01fh
+	ld	(ef_ptn),a			; pattern change count
+
+	ld	a,b
+	and	0e0h
+	cp	TURN_REV
+	jr	nz,normal$
+
+	call	reverse_change$
+	jr	next$
+normal$:
+	call	normal_change$
+next$:
+	srl	a
+	swap	a
+	ld	(ef_count2),a
+
+	cp	4
+	ld	hl,0
+	jr	nz,exit$
+
+	ld	a,(ef_ptn)
+	dec	a
+	ld	bc,3
+loop$:
+	add	hl,bc
+	dec	a
+	jr	nz,loop$
+exit$:
+	inc	de
+	add	hl,de
+	ld	a,l
+	ld	(ef_adr2_l),a			; element->address table(L)
+	ld	a,h
+	ld	(ef_adr2_h),a			; element->address table(L)
+
+	ret
+
+normal_change$:
+	ld	b,a
+	ld	a,(attack_turn)
+	and	a
+	ld	a,b
+	ret	nz
+	xor	a
+	ret
+
+reverse_change$:
+	ld	a,(attack_turn)
+	and	a
+	ld	a,X_REV
+	ret	z
+	xor	a
+	ret
+
+
+
+
+
+bank1c	group	G_BANK1c
+
+
+
+
+
+
+	public	game_freak_put
+	public	gamefreak_effect
+	extern	ef1
+game_freak_set:
+	ld	a,0f9h
+	ld	(OBP0),a
+	ld	a,0a4h
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+
+
+	ld	de,ef1 + 30h
+	ld	hl,08a00h
+	ld	bc,1eh*100h + 1
+	call	chrmove
+
+	ld	de,ef1 + 130h
+	ld	hl,08a10h
+	ld	bc,1eh*100h + 1
+	call	chrmove
+
+	ld	de,chibistar
+	ld	hl,08a20h
+	ld	bc,1ch*100h + 1
+	call	chrmove
+
+	ld	hl,logodat
+	ld	de,24*4 + oam_buf
+	ld	bc,16*4
+	call	block_move
+
+	ld	hl,hoshidat
+	ld	de,oam_buf
+	ld	bc,4*4
+	jp	block_move
+
+
+game_freak_put:
+	call	game_freak_set
+gamefreak_effect:
+	extern	musstar
+	ld	a,musstar
+	call	SEplay
+
+	ld	hl,oam_buf
+	ld	bc,0a004h
+starloop$:
+	push	hl
+	push	bc
+starloop1$:
+	ld	a,(hl)
+	add	a,4
+	ld	(hli),a
+	ld	a,(hl)
+	add	a,-4
+	ld	(hli),a
+	inc	hl
+	inc	hl
+	dec	c
+	jr	nz,starloop1$
+
+	ld	c,1
+	call	wait_cont
+
+	pop	bc
+	pop	hl
+	ret	c
+
+	ld	a,(hl)
+	cp	50h
+	jr	nz,starnext$
+	jr	starloop$
+
+starnext$:
+	cp	b
+	jr	nz,starloop$
+
+	ld	hl,oam_buf
+	ld	c,4
+	ld	de,4
+starclsloop$:
+	ld	(hl),0a0h
+	add	hl,de
+	dec	c
+	jr	nz,starclsloop$
+
+	ld	b,3
+loop$:
+	ld	hl,OBP0
+	rrc	(hl)
+	rrc	(hl)
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+	ld	c,10
+	call	wait_cont
+	ret	c
+
+	dec	b
+	jr	nz,loop$
+
+	ld	de,oam_buf
+	ld	a,24
+initloop$:
+	push	af
+	ld	hl,init_tbl$
+	ld	bc,4
+	call	block_move
+	pop	af
+	dec	a
+	jr	nz,initloop$
+
+	xor	a
+	ld	(usr_buf),a
+	ld	hl,chibistar_tbl$
+	ld	c,6
+chibiloop1$:
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	push	bc
+	push	hl
+	ld	hl,20*4 + oam_buf
+	ld	c,4
+chibiloop$:
+	ld	a,(de)
+	cp	0ffh
+	jr	z,next$
+
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	inc	hl
+  ifn	pm_cgb & pm_cgb_obj_atr		;チビスター（オブジェ）のアニメーションのためのパレットを設定（村川）
+	push	bc
+	ld	a,(de)
+	ld	b,a
+	ld	a,(hl)
+	and	0f0h
+	or	b
+	ld	(hl),a
+	inc	de
+	pop	bc
+  endif
+	inc	hl
+	dec	c
+	jr	nz,chibiloop$
+
+	ld	a,(usr_buf)
+	cp	24
+	jr	z,next$
+
+	add	a,6
+	ld	(usr_buf),a
+
+next$:	
+	call	chibistar_move
+
+	push	af
+	ld	hl,4*4 + oam_buf
+	ld	de,oam_buf
+	ld	bc,20*4
+	call	block_move
+	pop	af
+
+	pop	hl
+	pop	bc
+
+	ret	c
+
+	dec	c
+	jr	nz,chibiloop1$
+	and	a
+	ret
+
+
+init_tbl$:
+	db	000h,000h,0a2h,090h
+
+chibistar_tbl$:
+	dw	chibi1$
+	dw	chibi2$
+	dw	chibi3$
+	dw	chibi4$
+	dw	end$
+	dw	end$
+
+chibi1$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	db	068h,030h,5,068h,040h,5,068h,058h,4,068h,078h,7
+  else
+	db	068h,030h,068h,040h,068h,058h,068h,078h
+  endif
+chibi2$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	db	068h,038h,5,068h,048h,6,068h,060h,4,068h,070h,7
+  else
+	db	068h,038h,068h,048h,068h,060h,068h,070h
+  endif
+chibi3$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	db	068h,034h,5,068h,04ch,6,068h,054h,6,068h,064h,7
+  else
+	db	068h,034h,068h,04ch,068h,054h,068h,064h
+  endif
+chibi4$:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	db	068h,03ch,5,068h,05ch,4,068h,06ch,7,068h,074h,7
+  else
+	db	068h,03ch,068h,05ch,068h,06ch,068h,074h
+  endif
+end$:
+	db	0ffh	;end
+
+
+chibistar_move:
+	ld	b,8
+loop1$:
+	ld	hl,23*4 + oam_buf
+	ld	a,(usr_buf)
+	ld	de,-4
+	ld	c,a
+loop$:
+	inc	(hl)
+	add	hl,de
+
+	dec	c
+	jr	nz,loop$
+	
+	ld	a,(OBP1)
+	xor	0a0h
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+
+	ld	c,3
+	call	wait_cont
+	ret	c
+
+	dec	b
+	jr	nz,loop1$
+exit$:
+	ret
+	
+
+logodat:
+	db	048h,050h,08dh,000h
+	db	048h,058h,08eh,000h
+	db	050h,050h,08fh,000h
+	db	050h,058h,090h,000h
+	db	058h,050h,091h,000h
+	db	058h,058h,092h,000h
+
+	db	060h,030h,080h,000h
+	db	060h,038h,081h,000h
+	db	060h,040h,082h,000h
+	db	060h,048h,083h,000h
+	db	060h,050h,093h,000h
+	db	060h,058h,084h,000h
+	db	060h,060h,085h,000h
+	db	060h,068h,083h,000h
+	db	060h,070h,081h,000h
+	db	060h,078h,086h,000h
+
+hoshidat:
+  ifn	pm_cgb & pm_cgb_obj_atr
+	db	000h,0a0h,0a0h,014h
+	db	000h,0a8h,0a0h,034h
+	db	008h,0a0h,0a1h,014h
+	db	008h,0a8h,0a1h,034h
+  else
+	db	000h,0a0h,0a0h,010h
+	db	000h,0a8h,0a0h,030h
+	db	008h,0a0h,0a1h,010h
+	db	008h,0a8h,0a1h,030h
+  endif
+	
+chibistar:
+	db	004h,000h,01fh,000h,00eh,000h,00ah,020h
+	db	000h,0f8h,000h,070h,000h,050h,000h,000h
+
+

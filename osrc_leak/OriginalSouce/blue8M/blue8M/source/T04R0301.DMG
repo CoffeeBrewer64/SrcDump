@@ -1,0 +1,76 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	t4_room3
+
+	extern	hotel_sio
+
+
+
+HOTEL_TYPE	equ	6
+EXIT		=	0ffh
+
+
+t4_room3:
+
+ysiz	=	4
+xsiz	=	7
+	db	HOTEL_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	hotel1  		; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	call	hotel_sio
+	jp	init_for_talkmap
+
+
+msg_tbl:
+	msgndw	msg1,msg_hotelman1
+	ndw	msg2,msg_niichyan1
+	ndw	msg3,msg_hotelm1
+	ndw	msg4,msg_termgirl
+
+msg4:	
+	db	0f6h
+
+msg1:
+	db	HOTEL
+
+
+msg2:
+	extern	msg2_0_T04R0301
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T04R0301	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_1_T04R0301
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T04R0301	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\t04r0301.sxy
+
+
+hotel1:  
+	include	..\mapdata\hotel.map  
+
+

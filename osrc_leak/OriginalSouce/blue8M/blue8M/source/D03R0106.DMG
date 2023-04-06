@@ -1,0 +1,167 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	d3_room6
+
+
+SHIP_TYPE	equ	13
+EXIT		=	0ffh
+
+
+d3_room6:
+ysiz	=	8
+xsiz	=	7
+	db	SHIP_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	shroom4			; map data adrs
+	dw	msg_d3r1f6  		; message tbl adrs
+	dw	ev_d3r1f6     		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d3r1f6  
+
+
+ev_d3r1f6:      
+	call	init_for_talkmap
+
+	ret
+
+
+msg_d3r1f6:  
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+	dw	msg4$
+	dw	msg5$
+	dw	msg6$
+	dw	msg7$
+
+
+msg1$:
+	extern	msg1_0_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_2_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4$:
+	extern	msg4_3_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg4_3_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5$:
+	extern	msg5_4_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg5_4_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6$:
+	extern	msg6_5_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg6_5_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg7$:
+	db	CALL_MSG
+
+	ld	hl,msg7_0$
+	call	put_win_msg
+
+	ld	a,(random + 0)
+	bit	7,a
+	jr	z,next1$
+
+	ld	hl,msg7_1$
+
+	jr	ptn$
+
+
+next1$:
+	bit	4,a
+	jr	z,next2$
+
+	ld	hl,msg7_2$
+
+	jr	ptn$
+
+
+next2$:
+	ld	hl,msg7_3$
+
+ptn$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg7_0$:
+	extern	msg7_0_6_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg7_0_6_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_1$:
+	extern	msg7_1_7_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg7_1_7_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_2$:
+	extern	msg7_2_8_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg7_2_8_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_3$:
+	extern	msg7_3_9_D03R0106
+	db I_MSG2	; mvmsg追加
+	dw msg7_3_9_D03R0106	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d3r1f6:  
+	include	..\sxy\d03r0106.sxy
+
+
+shroom4:
+	include	..\mapdata\shroom4.map   
+
+

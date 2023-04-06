@@ -1,0 +1,1698 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include pm_debug.def
+	include group.def
+
+bank11	group	G_BANK11
+
+	public	town_1		; 0
+	public	town_2		; 1
+	public	town_3		; 2
+	public	town_4		; 3
+	public	town_5		; 4
+	public	town_6		; 5
+	public	town_7		; 6
+	public	town_8		; 7
+	public	town_9		; 8
+	public	town_10		; 9
+	public	town_11		; 10
+	public	town_12		; 11
+
+	public	road_1		; 12
+	public	road_2		; 13
+	public	road_3		; 14
+	public	road_4		; 15
+	public	road_5		; 16
+	public	road_6		; 17
+	public	road_7		; 18
+	public	road_8		; 19
+	public	road_9		; 20
+	public	road_10		; 21
+	public	road_11		; 22
+	public	road_12		; 23
+	public	road_13		; 24
+	public	road_14		; 25
+	public	road_15		; 26
+	public	road_16		; 27
+	public	road_17		; 28
+	public	road_18		; 29
+	public	road_19		; 30
+	public	road_20		; 31
+	public	road_21		; 32
+	public	road_22		; 33
+	public	road_23		; 34
+	public	road_24		; 35
+	public	road_25		; 36
+
+
+
+
+
+;*********************************
+;*				*
+;*	town 5			*
+;*				*
+;*********************************
+town_5:
+
+	extern	town5_msg
+	extern	town5_event
+
+ysiz	=	9
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town5			; map data adrs
+	dw	town5_msg	 	; message tbl adrs
+	dw	town5_event 		; event routine adrs
+	db	00eh			; map link flg
+	db	R10			; ue no map
+	dw	road10btm - 30		; (road10btm-10*3) adrs
+	dw	ram_map + 3		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	71			;	zazaza y
+	db	0			;	zazaza x
+	dw	16*36 + 1 + ram_map	;	zazaza ram_map
+	db	R12			; sita no map
+	dw	road12			;	adrs
+	dw	16*12 + 3 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	db	R8			; hidari no map
+	dw	road8 + 27		;	adrs
+	dw	16 * 3 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	0			;	zazaza y
+	db	59			;	zazaza x
+	dw	ram_map + 36 + 30	;	zazaza ram_map
+	dw	town_5_str
+
+town_5_str:     
+	include	..\sxy\town05.sxy
+town5:
+	include	..\mapdata\ntown_05.map
+town5btm:
+
+
+
+
+
+
+
+bank7	group	G_BANK7
+
+;*********************************
+;*				*
+;*	town 9			*
+;*				*
+;*********************************
+town_9:
+	extern	town9_event
+	extern	town9_msg
+
+ysiz	=	9
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town9			; map data adrs
+	dw	town9_msg 		; message tbl adrs
+	dw	town9_event		; event routine adrs
+	db	009h			; map link flg
+	db	R21			; ue no map
+	dw	road21btm - 30		; (road21btm-10*3) adrs
+	dw	ram_map + 3		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	89			;	zazaza y
+	db	0			;	zazaza x
+	dw	16*45 + 1 + ram_map	;	zazaza ram_map
+	db	R20			; migi no map
+	dw	road20			;	adrs
+	dw	16*3 + 13 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	50			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 56 + 1	;	zazaza ram_map
+	dw	town_9_str
+
+town_9_str:    
+	include	..\sxy\town09.sxy
+town9:
+	include	..\mapdata\ntown_09.map    
+town9btm:
+
+;*********************************
+;*				*
+;*	road 1			*
+;*				*
+;*********************************
+road_1:
+	extern	road1_msg
+	extern	road1_event
+
+ysiz	=	18
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road1			; map data adrs
+	dw	road1_msg		; message tbl adrs
+	dw	road1_event		; event routine adrs
+	db	00ch			; map link flg
+	db	T2			; ue no map
+	dw	town2btm - 60 + 2	; (town2btn-20*3+2) adrs
+	dw	ram_map			;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	35			;	zazaza y
+ 	db	10			;	zazaza x
+	dw	26*18 + 1 + ram_map	;	zazaza ram_map
+	db	T1			; sita no map
+	dw	town1			;	adrs
+	dw	16*21 + 3 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	road_1_str
+
+road_1_str:
+	include	..\sxy\road01.sxy
+	dw	10*4 + 2 + ram_map	; initial ram map
+		;	(4 + 6)*Y + X/2	;
+		;	(map size + 3cell + 3cell)
+	db	7			; mapscloll_y
+	db	2			; mapscloll_x
+		; Y, X : ie ni haitta tokino zahyou
+		;	  (tsuujyou ha deiriguchi to onaji)
+
+
+road1:
+	include	..\mapdata\nroad_01.map		; New Map Data
+road1btm:
+
+
+
+
+
+
+
+
+bank6	group	G_BANK6
+
+;*********************************
+;*				*
+;*	town 7			*
+;*				*
+;*********************************
+town_7:
+	extern	town7_event	
+	extern	town7_msg
+
+ysiz	=	18
+xsiz	=	25
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town7			; map data adrs
+	dw	town7_msg		; message tbl adrs
+	dw	town7_event		; event routine adrs
+	db	003h			; map link flg
+	db	R16			; hidari no map
+	dw	road16 + 17		;	adrs
+	dw	31*7 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	20			;	hontai x haba
+	db	-8			;	zazaza y
+	db	39			;	zazaza x
+	dw	ram_map + 26 + 20	;	zazaza ram_map
+	db	R7			; migi no map
+	dw	road7			;	adrs
+	dw	31*7 + 28 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	10			;	hontai x haba
+	db	-8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	town_7_str
+
+town_7_str:     
+	include	..\sxy\town07.sxy
+town7:
+	include	..\mapdata\ntown_07.map
+town7btm:
+
+
+;*********************************
+;*				*
+;*	town 1			*
+;*				*
+;*********************************
+	extern	msg_town01
+	extern	ev_town01
+
+town_1:
+ysiz	=	9
+xsiz	=	10
+
+	db	0				; map type
+	db	ysiz,xsiz			; yx size
+	dw	town1				; map data adrs
+	dw	msg_town01			; conversation event
+	dw	ev_town01			; action event
+	db	00ch				; map link flg
+	db	R1				; ue no map
+	dw	road1btm - 30			;(road1btm-10*3)adrs
+	dw	ram_map + 3			;	ram map adrs
+	db	10				;	x haba
+	db	10				;	hontai x haba
+	db	35				;	zazaza y
+	db	0				;	zazaza x
+	dw	16*18 + 1 + ram_map		;	zazaza ram_map
+	db	R21				; sita no map
+	dw	road21				;	adrs
+	dw	16*12 + 3 + ram_map		;	ram map adrs
+	db	10				;	x haba
+	db	10				;	hontai x haba
+	db	0				;	zazaza y
+	db	0				;	zazaza x
+	dw	ram_map + 16 + 1		;	zazaza ram_map
+	dw	town_1_str$			; SXY data file
+
+
+town_1_str$:
+	include	..\sxy\town01.sxy
+
+town1:
+	include	..\mapdata\ntown_01.map
+
+town1btm:
+
+
+
+;*********************************
+;*				*
+;*	town 2			*
+;*				*
+;*********************************
+town_2:
+	extern	town2_msg
+	extern	town2_event
+
+ysiz	=	18
+xsiz	=	20
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town2			; map data adrs
+	dw	town2_msg
+	dw	town2_event		; event routine adrs
+	db	00eh			; map link flg
+	db	R2			; ue no map
+	dw	road2btm - 30		; (road2btm-10*3) adrs
+	dw	ram_map + 8		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	71			;	zazaza y
+	db	-10			;	zazaza x
+	dw	16*36 + 1 + ram_map	;	zazaza ram_map
+	db	R1			; sita no map
+	dw	road1			;	adrs
+	dw	26*21 + 8 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	-10			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	db	R22			; hidari no map
+	dw	road22 + 17		;	adrs
+	dw	26*7 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	20			;	hontai x haba
+	db	-8			;	zazaza y
+	db	39			;	zazaza x
+	dw	ram_map + 26 + 20	;	zazaza ram_map
+	dw	town_2_str
+
+town_2_str:     
+	include	..\sxy\town02.sxy
+
+
+town2:
+	include	..\mapdata\ntown_02.map
+
+
+town2btm:
+
+
+
+;*********************************
+;*				*
+;*	town 3			*
+;*				*
+;*********************************
+town_3:
+	extern	msg_town03
+	extern	ev_town03
+
+ysiz	=	18
+xsiz	=	20
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town3			; map data adrs
+	dw	msg_town03		; message tbl adrs
+	dw	ev_town03		; event routine adrs
+	db	005h			; map link flg
+	db	R2			; sita no map
+	dw	road2			;	adrs
+	dw	26*21 + 8 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	-10			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	db	R3			; migi no map
+	dw	road3			;	adrs
+	dw	26*7 + 23 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	35			;	hontai x haba
+	db	-8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 41 + 1	;	zazaza ram_map
+	dw	town_3_str
+	db	0
+
+town_3_str:      
+	include	..\sxy\town03.sxy
+
+town3:
+	include	..\mapdata\ntown_03.map
+town3btm:
+
+
+;*********************************
+;*				*
+;*	town 4			*
+;*				*
+;*********************************
+town_4:
+	extern	town4_msg
+	extern	town4_event
+
+ysiz	=	18
+xsiz	=	20
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town4			; map data adrs
+	dw	town4_msg		; message tbl adrs
+	dw	town4_event		; event routine adrs
+	db	00fh			; map link flg
+	db	35			; ue no map
+	dw	road24btm - 30		; (road24btm-10*3) adrs
+	dw	ram_map + 8		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	35			;	zazaza y
+	db	-10			;	zazaza x
+	dw	16*18 + 1 + ram_map	;	zazaza ram_map
+	db	16			; sita no map
+	dw	road5			;	adrs
+	dw	26*21 + 8 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	-10			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	db	R4			; hidari no map
+	dw	road4 + 42		;	adrs
+	dw	26*7 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	45			;	hontai x haba
+	db	-8			;	zazaza y
+	db	89			;	zazaza x
+	dw	ram_map + 51 + 45	;	zazaza ram_map
+	db	R9			; migi no map
+	dw	road9			;	adrs
+	dw	26*7 + 23 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	-8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 36 + 1	;	zazaza ram_map
+	dw	town_4_str
+
+town_4_str:      
+	include	..\sxy\town04.sxy
+
+town4:
+	include	..\mapdata\ntown_04.map
+town4btm:
+
+
+;*********************************
+;*				*
+;*	town 6			*
+;*				*
+;*********************************
+town_6:
+	extern	town6_msg
+	extern	town6_event
+
+ysiz	=	18
+xsiz	=	20
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town6			; map data adrs
+	dw	town6_msg		; message tbl adrs
+	dw	town6_event		; event routine adrs
+	db	009h			; map link flg
+	db	R6			; ue no map
+	dw	road6btm - 30		; (road6btm-10*3) adrs
+	dw	ram_map + 8		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	35			;	zazaza y
+	db	-10			;	zazaza x
+	dw	16*18 + 1 + ram_map	;	zazaza ram_map
+	db	R11			; migi no map
+	dw	road11			;	adrs
+	dw	26*7 + 23 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	-8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 36 + 1	;	zazaza ram_map
+	dw	town_6_str
+
+town_6_str:     
+	include	..\sxy\town06.sxy
+town6:
+	include	..\mapdata\ntown_06.map
+town6btm:
+
+
+;*********************************
+;*				*
+;*	town 8			*
+;*				*
+;*********************************
+town_8:
+	extern	town8_event
+	extern	town8_msg
+
+ysiz	=	18
+xsiz	=	20
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town8			; map data adrs
+	dw	town8_msg		; message tbl adrs
+	dw	town8_event		; event routine adrs
+	db	007h			; map link flg
+	db	R19			; sita no map
+	dw	road19			;	adrs
+	dw	26*21 + 8 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	-10			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	db	R18			; hidari no map
+	dw	road18 + 22		;	adrs
+	dw	26*7 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	25			;	hontai x haba
+	db	-8			;	zazaza y
+	db	49			;	zazaza x
+	dw	ram_map + 31 + 25	;	zazaza ram_map
+	db	R15			; migi no map
+	dw	road15			;	adrs
+	dw	26*7 + 23 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	-8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 36 + 1	;	zazaza ram_map
+	dw	town_8_str
+
+town_8_str:      
+	include	..\sxy\town08.sxy
+town8:
+	include	..\mapdata\ntown_08.map
+town8btm:
+
+
+
+
+
+
+
+bank12	group	G_BANK12
+
+;*********************************
+;*				*
+;*	road 7			*
+;*				*
+;*********************************
+road_7:
+	extern	road7_msg
+	extern	road7_event
+ysiz	=	9
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road7			; map data adrs
+	dw	road7_msg		; message tbl adrs
+	dw	road7_event		; event routine adrs
+	db	003h			; map link flg
+	db	T7			; hidari no map
+	dw	town7 + 25 + 22		;	adrs
+	dw	ram_map			;	ram map adrs
+	db	9 + 6			;	y haba
+	db	25			;	hontai x haba
+	db	8			;	zazaza y
+	db	49			;	zazaza x
+	dw	ram_map + 31 + 25	;	zazaza ram_map
+	db	T11			; migi no map
+	dw	town11 + 20		;	adrs
+	dw	ram_map + 13		;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	dw	road_7_str
+
+road_7_str:
+	include	..\sxy\road07.sxy
+
+road7:
+	include	..\mapdata\nroad_07.map
+road7btm:
+
+
+
+bank15	group	G_BANK15
+
+
+;*********************************
+;*				*
+;*	road 2			*
+;*				*
+;*********************************
+road_2:
+	extern	road2_msg
+	extern	road2_event
+
+ysiz	=	36
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road2			; map data adrs
+	dw	road2_msg		; message tbl adrs
+	dw	road2_event 		; event routine adrs
+	db	00ch			; map link flg
+	db	T3			; ue no map
+	dw	town3btm - 60 + 2	; (town3btm-20*3+2) adrs
+	dw	ram_map			;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	35			;	zazaza y
+	db	10			;	zazaza x
+	dw	26*18 + 1 + ram_map	;	zazaza ram_map
+	db	T2			; sita no map
+	dw	town2 + 2		;	adrs
+	dw	16*39 + ram_map		;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	0			;	zazaza y
+	db	10			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	dw	road_2_str
+
+road_2_str:
+	include	..\sxy\road02.sxy
+	dw	10*4 + 2 + ram_map	; initial ram map
+		;	(4 + 6)*Y + X/2	;
+		;	(map size + 3cell + 3cell)
+	db	7			; mapscloll_y
+	db	2			; mapscloll_x
+		; Y, X : ie ni haitta tokino zahyou
+		;	  (tsuujyou ha deiriguchi to onaji)
+	dw	10*4 + 2 + ram_map	; initial ram map
+	db	9			; mapscloll_y
+	db	7			; mapscloll_x
+	dw	10*4 + 2 +ram_map	; initial ram map
+	db	7			; mapscloll_y
+	db	2			; mapscloll_x
+	dw	10*4 + 2 + ram_map	; initial ram map
+	db	7			; mapscloll_y
+	db	2			; mapscloll_x
+	dw	10*4 + 2 + ram_map	; initial ram map
+	db	7			; mapscloll_y
+	db	2			; mapscloll_x
+
+
+road2:
+	include	..\mapdata\nroad_02.map
+road2btm:
+
+;*********************************
+;*				*
+;*	road 3			*
+;*				*
+;*********************************
+	extern	msg_road3
+	extern	ev_road3
+
+road_3:
+ysiz	=	9
+xsiz	=	35
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road3			; map data adrs
+	dw	msg_road3		; message tbl adrs
+	dw	ev_road3 		; event routine adrs
+	db	00ah			; map link flg
+	db	R4			; ue no map
+	dw	45*6 + road4		;	adrs
+	dw	ram_map + 28		;	ram map adrs
+	db	13			;	x haba
+	db	45			;	hontai x haba
+	db	17			;	zazaza y
+	db	-50			;	zazaza x
+	dw	51*9 + 1 + ram_map	;	zazaza ram_map
+	db	T3			; hidari no map
+	dw	town3 + 20 + 17		;	adrs
+	dw	ram_map			;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	39			;	zazaza x
+	dw	ram_map + 26 + 20	;	zazaza ram_map
+	dw	sxy_road3
+
+
+sxy_road3:
+	include	..\sxy\road03.sxy
+
+road3:
+	include	..\mapdata\nroad_03.map
+
+road3btm:
+
+
+;*********************************
+;*				*
+;*	road 4			*
+;*				*
+;*********************************
+road_4:
+	extern	msg_road4      
+	extern	ev_road4     
+
+ysiz	=	9
+xsiz	=	45
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road4			; map data adrs
+	dw	msg_road4    		; message tbl adrs
+	dw	ev_road4		; event routine adrs
+	db	005h			; map link flg
+	db	R3			; sita no map
+	dw	road3 + 22		;	adrs
+	dw	51 * 12 + ram_map	;	ram map adrs
+	db	13			;	x haba
+	db	35			;	hontai x haba
+	db	0			;	zazaza y
+	db	50			;	zazaza x
+	dw	ram_map + 41 + 1	;	zazaza ram_map
+	db	T4			; migi no map
+	dw	town4 + 20		;	adrs
+	dw	ram_map + 48		;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	dw	sxy_road4      
+
+sxy_road4:     
+	include	..\sxy\road04.sxy
+
+road4:
+	include	..\mapdata\nroad_04.map
+road4btm:
+
+
+;******************************** 94.09.01
+;*				*
+;*	road 5			*
+;*				*
+;********************************
+road_5:
+	extern	road5_msg
+	extern	road5_event
+
+ysiz	=	18
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road5			; map data adrs
+	dw	road5_msg		; message tbl adrs
+	dw	road5_event		; event routine adrs
+	db	00ch			; map link flg
+ 	db	T4			; ue no map
+	dw	town4btm - 60 + 2	; (town4btm-20*3+2) adrs
+	dw	ram_map			;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	35			;	zazaza y
+	db	10			;	zazaza x
+	dw	26*18 + 1 + ram_map	;	zazaza ram_map
+	db	T11			; sita no map
+	dw	town11 + 2		;	adrs
+	dw	16*21 + ram_map		;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	0			;	zazaza y
+	db	10			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	dw	road_5_str
+
+road_5_str:
+ 	include	..\sxy\road05.sxy
+
+road5:
+	include	..\mapdata\nroad_05.map
+road5btm:
+
+
+;*********************************
+;*				*
+;*	road 9			*
+;*				*
+;*********************************
+road_9:
+	extern	road9_msg
+	extern	road9_event
+
+ysiz	=	9
+xsiz	=	30
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road9			; map data adrs
+	dw	road9_msg		; message tbl adrs
+	dw	road9_event			; event routine adrs
+	db	003h			; map link flg
+	db	T4			; hidari no map
+	dw	town4 + 20 + 17		;	adrs
+	dw	ram_map			;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	39			;	zazaza x
+	dw	ram_map + 26 + 20	;	zazaza ram_map
+	db	R10			; migi no map
+	dw	road10			;	adrs
+	dw	36*3 + 33 + ram_map	;	ram map adrs
+	db	12			;	y haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	road_9_str
+road_9_str:
+	include	..\sxy\road09.sxy
+
+road9:
+	include	..\mapdata\nroad_09.map
+road9btm:
+
+
+;*********************************
+;*				*
+;*	road 13			*
+;*				*
+;*********************************
+road_13:
+	extern	road13_msg
+	extern	road13_event
+
+ysiz	=	9
+xsiz	=	30
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road13			; map data adrs
+	dw	road13_msg		; message tbl adrs
+	dw	road13_event		; event routine adrs
+	db	00ah			; map link flg
+	db	R12			; ue no map
+	dw	road12btm - 30		; (road12btm-10*3) adrs
+	dw	ram_map + 23		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	107			;	zazaza y
+	db	-40			;	zazaza x
+	dw	16*54 + 1 + ram_map	;	zazaza ram_map
+	db	R14			; hidari no map
+	dw	road14 + 7		;	adrs
+	dw	36*3 + ram_map		;	ram map adrs
+	db	12			;	y haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	19			;	zazaza x
+	dw	ram_map + 16 + 10	;	zazaza ram_map
+	dw	road_13_str
+
+road_13_str:
+	include	..\sxy\road13.sxy
+road13:
+	include	..\mapdata\nroad_13.map 
+road13btm:
+
+;*********************************
+;*				*
+;*	road 14			*
+;*				*
+;*********************************
+road_14:
+	extern	road14_msg
+	extern	road14_event
+ysiz	=	27
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road14			; map data adrs
+	dw	road14_msg		; message tbl adrs
+	dw	road14_event		; event routine adrs
+	db	003h			; map link flg
+	db	R15			; hidari no map
+	dw	road15 + 27		;	adrs
+	dw	16*21 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	-36			;	zazaza y
+	db	59			;	zazaza x
+	dw	ram_map + 36 + 30	;	zazaza ram_map
+	db	R13			; migi no map
+	dw	road13			;	adrs
+	dw	16*3 + 13 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 36 + 1	;	zazaza ram_map
+	dw	road_14_str
+
+road_14_str:
+	include	..\sxy\road14.sxy
+
+road14:
+	include	..\mapdata\nroad_14.map
+road14btm:
+
+
+;*********************************
+;*				*
+;*	road 17			*
+;*				*
+;*********************************
+road_17:
+	extern	road17_msg
+	extern	road17_event
+ysiz	=	72
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road17			; map data adrs
+	dw	road17_msg		; message tbl adrs
+	dw	road17_event		; event routine adrs
+	db	00ch			; map link flg
+	db	R16			; ue no map
+	dw	road16btm - 60		; (road16btm-20*3) adrs
+	dw	ram_map + 3		;	ram map adrs
+	db	13			;	x haba
+	db	20			;	hontai x haba
+	db	17			;	zazaza y
+	db	0			;	zazaza x
+	dw	26*9 + 1 + ram_map	;	zazaza ram_map
+	db	R18			; sita no map
+	dw	road18			;	adrs
+	dw	16*75 + 3 + ram_map	;	ram map adrs
+	db	13			;	x haba
+	db	25			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 31 + 1	;	zazaza ram_map
+	dw	road_17_str
+
+
+road_17_str:
+	include	..\sxy\road17.sxy
+
+road17:
+	include	..\mapdata\nroad_17.map
+road17btm:
+
+;*********************************
+;*				*
+;*	road 19			*
+;*				*
+;*********************************
+road_19:
+	extern	road19_msg
+	extern	road19_event
+ysiz	=	27
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road19			; map data adrs
+	dw	road19_msg		; message tbl adrs
+	dw	road19_event		; event routine adrs
+	db	00ah			; map link flg
+	db	T8			; ue no map
+	dw	town8btm - 60 + 2	; (town8btm-20*3+2) adrs
+	dw	ram_map			;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	35			;	zazaza y
+	db	10			;	zazaza x
+	dw	26*18 + 1 + ram_map	;	zazaza ram_map
+	db	R20			; hidari no map
+	dw	road20 + 47		;	adrs
+	dw	16*21 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	50			;	hontai x haba
+	db	-36			;	zazaza y
+	db	99			;	zazaza x
+	dw	ram_map + 56 + 50	;	zazaza ram_map
+	dw	road_19_str
+
+road_19_str:
+	include	..\sxy\road19.sxy
+road19:
+	include	..\mapdata\nroad_19.map
+road19btm:
+
+
+;*********************************
+;*				*
+;*	road 21			*
+;*				*
+;*********************************
+road_21:
+	extern	road21_msg
+	extern	road21_event
+ysiz	=	45
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road21			; map data adrs
+	dw	road21_msg		; message tbl adrs
+	dw	road21_event		; event routine adrs
+	db	00ch			; map link flg
+	db	T1			; ue no map
+	dw	town1btm - 30		; (town1btm-10*3) adrs
+	dw	ram_map + 3		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	17			;	zazaza y
+	db	0			;	zazaza x
+	dw	16*9 + 1 + ram_map	;	zazaza ram_map
+	db	T9			; sita no map
+	dw	town9			;	adrs
+	dw	16*48 + 3 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	road_21_str
+
+road_21_str:
+	include	..\sxy\road21.sxy
+
+road21:
+	include	..\mapdata\nroad_21.map
+road21btm:
+
+
+
+
+
+
+bank16	group	G_BANK16
+
+;******************************** 94.09.01
+;*				*
+;*	road 6			*
+;*				*
+;********************************
+road_6:
+	extern	road6_msg
+	extern	road6_event
+
+ysiz	=	18
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road6			; map data adrs
+	dw	road6_msg		; message tbl adrs
+	dw	road6_event		; event routine adrs
+	db	00ch			; map link flg
+	db	T11			; ue no map
+	dw	town11btm - 60 + 2	; (town11btm-20*3+2) adrs
+	dw	ram_map			;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	35			;	zazaza y
+	db	10			;	zazaza x
+	dw	26*18 + 1 + ram_map	;	zazaza ram_map
+	db	T6			; sita no map
+	dw	town6 + 2		;	adrs
+	dw	16*21 + ram_map		;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	0			;	zazaza y
+	db	10			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	dw	road_6_str
+
+road_6_str:
+	include	..\sxy\road06.sxy
+
+road6:
+	include	..\mapdata\nroad_06.map
+road6btm:
+
+
+;*********************************
+;*				*
+;*	road 8			*
+;*				*
+;*********************************
+road_8:
+	extern	road8_event
+	extern	road8_msg
+ysiz	=	9
+xsiz	=	30
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road8			; map data adrs
+	dw	road8_msg		; message tbl adrs
+	dw	road8_event		; event routine adrs
+	db	003h			; map link flg
+	db	T11			; hidari no map
+	dw	town11 + 20 + 17	;	adrs
+	dw	ram_map			;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	39			;	zazaza x
+	dw	ram_map + 26 + 20	;	zazaza ram_map
+	db	T5			; migi no map
+	dw	town5			;	adrs
+	dw	36*3 + 33 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	road_8_str
+
+road_8_str:
+	include	..\sxy\road08.sxy
+
+road8:
+	include	..\mapdata\nroad_08.map
+road8btm:
+
+
+;*********************************
+;*				*
+;*	road 10			*
+;*				*
+;*********************************
+road_10:
+	extern	road10_msg
+	extern	road10_event
+ysiz	=	36
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road10			; map data adrs
+	dw	road10_msg		; message tbl adrs
+	dw	road10_event		; event routine adrs
+	db	006h			; map link flg
+	db	T5			; sita no map
+	dw	town5			;	adrs
+	dw	16*39 + 3 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	db	R9			; hidari no map
+	dw	road9 + 27		;	adrs
+	dw	16*3 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	0			;	zazaza y
+	db	59			;	zazaza x
+	dw	ram_map + 36 + 30	;	zazaza ram_map
+	dw	road_10_str
+road_10_str:
+	include	..\sxy\road10.sxy
+
+road10:
+	include	..\mapdata\nroad_10.map
+road10btm:
+
+;*********************************
+;*				*
+;*	road 11			*
+;*				*
+;*********************************
+road_11:
+	extern	road11_msg
+	extern	road11_event
+ysiz	=	9
+xsiz	=	30
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road11			; map data adrs
+	dw	road11_msg		; message tbl adrs
+	dw	road11_event			; event routine adrs
+	db	003h			; map link flg
+	db	T6			; hidari no map
+	dw	town6 + 20 + 17		;	adrs
+	dw	ram_map			;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	39			;	zazaza x
+	dw	ram_map + 26 + 20	;	zazaza ram_map
+	db	R12			; migi no map
+	dw	10*24 + road12		;	adrs
+	dw	ram_map	+ 33		;	ram map adrs
+	db	9 + 6			;	y haba
+	db	10			;	hontai x haba
+	db	54			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	road_11_str
+
+road_11_str:
+	include	..\sxy\road11.sxy
+
+road11:
+	include	..\mapdata\nroad_11.map
+road11btm:
+
+
+;*********************************
+;*				*
+;*	road 12			*
+;*				*
+;*********************************
+road_12:
+	extern	road12_event
+	extern	road12_msg
+ysiz	=	54
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road12			; map data adrs
+	dw	road12_msg		; message tbl adrs
+	dw	road12_event			; event routine adrs
+	db	00eh			; map link flg
+	db	T5			; ue no map
+	dw	town5btm - 30		; (town5btm-10*3) adrs
+	dw	ram_map + 3		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	17			;	zazaza y
+	db	0			;	zazaza x
+	dw	16*9 + 1 + ram_map	;	zazaza ram_map
+	db	R13			; sita no map
+	dw	road13 + 17		;	adrs
+	dw	16*57 + ram_map		;	ram map adrs
+	db	13			;	x haba
+	db	30			;	hontai x haba
+	db	0			;	zazaza y
+	db	40			;	zazaza x
+	dw	ram_map + 36 + 1	;	zazaza ram_map
+	db	R11			; hidari no map
+	dw	road11 + 27		;	adrs
+	dw	16*30 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	-54			;	zazaza y
+	db	59			;	zazaza x
+	dw	ram_map + 36 + 30	;	zazaza ram_map
+	dw	road_12_str
+
+road_12_str:
+	include	..\sxy\road12.sxy
+
+road12:
+	include	..\mapdata\nroad_12.map
+road12btm:
+
+;*********************************
+;*				*
+;*	road 15			*
+;*				*
+;*********************************
+road_15:
+	extern	road15_msg
+	extern	road15_event
+ysiz	=	9
+xsiz	=	30
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road15			; map data adrs
+	dw	road15_msg		; message tbl adrs
+	dw	road15_event		; event routine adrs
+	db	003h			; map link flg
+	db	T8			; hidari no map
+	dw	town8 + 20 + 17		;	adrs
+	dw	ram_map			;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	39			;	zazaza x
+	dw	ram_map + 26 + 20	;	zazaza ram_map
+	db	R14			; migi no map
+	dw	10*15 + road14		;	adrs
+	dw	ram_map + 33		;	ram map adrs
+	db	9 + 3			;	y haba
+	db	10			;	hontai x haba
+	db	36			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	road_15_str
+
+road_15_str:
+	include	..\sxy\road15.sxy
+road15:
+	include	..\mapdata\nroad_15.map
+road15btm:
+
+;*********************************
+;*				*
+;*	road 16			*
+;*				*
+;*********************************
+road_16:
+	extern	road16_msg
+	extern	road16_event
+ysiz	=	9
+xsiz	=	20
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road16			; map data adrs
+	dw	road16_msg		; message tbl adrs
+	dw	road16_event		; event routine adrs
+	db	005h			; map link flg
+	db	R17			; sita no map
+	dw	road17			;	adrs
+	dw	26*12 + 3 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	db	T7			; migi no map
+	dw	town7 + 25		;	adrs
+	dw	ram_map + 23		;	ram map adrs
+	db	9 + 6			;	y haba
+	db	25			;	hontai x haba
+	db	8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 31 + 1	;	zazaza ram_map
+	dw	road_16_str
+
+road_16_str:
+	include	..\sxy\road16.sxy
+
+road16:
+	include	..\mapdata\nroad_16.map
+road16btm:
+
+
+;*********************************
+;*				*
+;*	road 18			*
+;*				*
+;*********************************
+road_18:
+	extern	road18_msg
+	extern	road18_event
+ysiz	=	9
+xsiz	=	25
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road18			; map data adrs
+	dw	road18_msg		; message tbl adrs
+	dw	road18_event		; event routine adrs
+	db	009h			; map link flg
+	db	R17			; ue no map
+	dw	road17btm - 30		; (road17btm-10*3) adrs
+	dw	ram_map + 3		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	143			;	zazaza y
+	db	0			;	zazaza x
+	dw	16*72 +1 + ram_map	;	zazaza ram_map
+	db	T8			; migi no map
+	dw	town8 + 20		;	adrs
+	dw	ram_map + 28		;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	dw	road_18_str
+
+road_18_str:
+	include	..\sxy\road18.sxy
+
+road18:
+	include	..\mapdata\nroad_18.map
+road18btm:
+
+
+
+
+
+
+bank14	group	G_BANK14
+
+
+;*********************************
+;*				*
+;*	road 22			*
+;*				*
+;*********************************
+road_22:
+	extern	road22_msg
+	extern	road22_event
+ysiz	=	9
+xsiz	=	20
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road22			; map data adrs
+	dw	road22_msg		; message tbl adrs
+	dw	road22_event		; event routine adrs
+	db	009h			; map link flg
+	db	R23			; ue no map
+	dw	road23btm - 30		; (road23btm-10*3) adrs
+	dw	ram_map + 3		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	143			;	zazaza y
+	db	0			;	zazaza x
+	dw	72*16 +1 + ram_map	;	zazaza ram_map
+	db	T2			; migi no map
+	dw	town2 + 20		;	adrs
+	dw	ram_map + 23		;	ram map adrs
+	db	9 + 6			;	y haba
+	db	20			;	hontai x haba
+	db	8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	dw	road22_str
+
+road22_str:
+	include	..\sxy\road22.sxy
+road22:
+	include	..\mapdata\nroad_22.map
+road22btm:
+
+
+
+;*********************************
+;*				*
+;*	road 20			*
+;*				*
+;*********************************
+road_20:
+	extern	road20_msg
+	extern	road20_event
+ysiz	=	9
+xsiz	=	50
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road20			; map data adrs
+	dw	road20_msg		; message tbl adrs
+	dw	road20_event		; event routine adrs
+	db	003h			; map link flg
+	db	T9			; hidari no map
+	dw	town9 + 7		;	adrs
+	dw	56*3 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	19			;	zazaza x
+	dw	ram_map + 16 + 10	;	zazaza ram_map
+	db	R19			; migi no map
+	dw	10*15 + road19		;	adrs
+	dw	ram_map + 53		;	ram map adrs
+	db	12			;	y haba
+	db	10			;	hontai x haba
+	db	36			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	road_20_str
+
+
+road_20_str:
+	include	..\sxy\road20.sxy
+road20:
+	include	..\mapdata\nroad_20.map
+road20btm:
+
+
+
+;*********************************
+;*				*
+;*	road 23			*
+;*				*
+;*********************************
+road_23:
+	extern	road23_msg
+	extern	road23_event
+ysiz	=	72
+xsiz	=	10
+	db	23			; map type (pokemon center)
+	db	ysiz,xsiz		; yx size
+	dw	road23			; map data adrs
+	dw	road23_msg		; message tbl adrs
+	dw	road23_event		; event routine adrs
+	db	00ch			; map link flg
+	db	T10			; ue no map
+	dw	town10btm - 30		; (town10btm-10*3) adrs
+	dw	ram_map + 3		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	17			;	zazaza y
+	db	0			;	zazaza x
+	dw	16*9 + 1 + ram_map	;	zazaza ram_map
+	db	R22			; sita no map
+	dw	road22			;	adrs
+	dw	16*75 + 3 + ram_map	;	ram map adrs
+	db	13			;	x haba
+	db	20			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	dw	road23_str
+
+road23_str:
+	include	..\sxy\road23.sxy
+
+road23:
+	include	..\mapdata\nroad_23.map
+road23btm:
+
+
+
+;******************************** 94.09.01
+;*				*
+;*	road 24			*
+;*				*
+;********************************
+road_24:
+	extern	road24_msg
+	extern	road24_event
+
+ysiz	=	18
+xsiz	=	10
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road24			; map data adrs
+	dw	road24_msg	; message tbl adrs
+	dw	road24_event	; event routine adrs
+	db	005h			; map link flg
+	db	T4			; sita no map
+	dw	town4 + 2		;	adrs
+	dw	16*21 + ram_map		;	ram map adrs
+	db	16			;	x haba
+	db	20			;	hontai x haba
+	db	0			;	zazaza y
+	db	10			;	zazaza x
+	dw	ram_map + 26 + 1	;	zazaza ram_map
+	db	R25			; migi no map
+	dw	road25			;	adrs
+	dw	16*3 + 13 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 36 + 1	;	zazaza ram_map
+	dw	road24_str
+
+road24_str:
+	include	..\sxy\road24.sxy 
+
+road24:
+	include	..\mapdata\nroad_24.map
+road24btm:
+
+;******************************** 94.09.01
+;*				*
+;*	road 25			*
+;*				*
+;********************************
+road_25:
+	extern	road25_msg
+	extern	road25_event
+
+ysiz	=	9
+xsiz	=	30
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	road25			; map data adrs
+	dw	road25_msg
+	dw	road25_event 
+	db	002h			; map link flg
+	db	R24			; hidari no map
+	dw	road24 + 7		;	adrs
+	dw	36*3 + ram_map		;	ram map adrs
+	db	12			;	y haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	19			;	zazaza x
+	dw	ram_map + 16 + 10	;	zazaza ram_map
+	dw	road25_str
+road25_str:
+	include	..\sxy\road25.sxy
+
+road25:
+	include	..\mapdata\nroad_25.map
+road25btm:
+
+
+
+;*********************************
+;*				*
+;*	town 10			*
+;*				*
+;*********************************
+town_10:
+
+ysiz	=	9
+xsiz	=	10
+	db	23			; map type (pokemon center)
+	db	ysiz,xsiz		; yx size
+	dw	town10			; map data adrs
+	dw	msg_tbl$		; message tbl adrs
+	dw	event$			; event routine adrs
+	db	004h			; map link flg
+	db	R23			; sita no map
+	dw	road23			;	adrs
+	dw	16*12 + 3 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	dw	town_10_str$
+
+event$:
+	ret
+msg_tbl$:
+
+town_10_str$:   
+	include	..\sxy\town10.sxy
+town10:
+	include	..\mapdata\pokecen.map    
+town10btm:
+
+
+;*********************************
+;*				*
+;*	town 11			*
+;*				*
+;*********************************
+town_11:
+town_12:				; dummy map
+	extern	town11_msg
+	extern	town11_event
+ysiz	=	18
+xsiz	=	20
+	db	0			; map type
+	db	ysiz,xsiz		; yx size
+	dw	town11			; map data adrs
+	dw	town11_msg		; message tbl adrs
+	dw	town11_event		; event routine adrs
+	db	00fh			; map link flg
+	db	R5			; ue no map
+	dw	road5btm - 30		; (road5btm-10*3) adrs
+	dw	ram_map + 8		;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	35			;	zazaza y
+	db	-10			;	zazaza x
+	dw	16*18 + 1 + ram_map	;	zazaza ram_map
+	db	R6			; sita no map
+	dw	road6			;	adrs
+	dw	26*21 + 8 + ram_map	;	ram map adrs
+	db	10			;	x haba
+	db	10			;	hontai x haba
+	db	0			;	zazaza y
+	db	-10			;	zazaza x
+	dw	ram_map + 16 + 1	;	zazaza ram_map
+	db	R7			; hidari no map
+	dw	road7 + 7		;	adrs
+	dw	26*7 + ram_map		;	ram map adrs
+	db	9			;	y haba
+	db	10			;	hontai x haba
+	db	-8			;	zazaza y
+	db	19			;	zazaza x
+	dw	ram_map + 16 + 10	;	zazaza ram_map
+	db	R8			; migi no map
+	dw	road8			;	adrs
+	dw	26*7 + 23 + ram_map	;	ram map adrs
+	db	9			;	y haba
+	db	30			;	hontai x haba
+	db	-8			;	zazaza y
+	db	0			;	zazaza x
+	dw	ram_map + 36 + 1	;	zazaza ram_map
+	dw	town_11_str
+
+town_11_str:     
+	include	..\sxy\town11.sxy
+town11:
+	include	..\mapdata\ntown_t.map
+;	include	..\mapdata\ntown_11.map
+town11btm:
+
+

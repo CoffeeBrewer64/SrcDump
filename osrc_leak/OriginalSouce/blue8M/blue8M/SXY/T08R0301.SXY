@@ -1,0 +1,36 @@
+; 10/23/95		13:52:53
+dun_tbl$:
+	db	000h
+ie_tbl$:
+	db	002h
+	db	007h,003h,002h,EXIT
+	db	007h,004h,002h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	004h
+	db	HOTELMAN
+	db	001h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+	db	PHILIP
+	db	003h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+	db	TRAINERW
+	db	005h+4,006h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	003h
+	db	DEPAGA
+	db	002h+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	004h
+ram_map_tbl$:
+	dw	00dh * 004h + 002h + ram_map
+	db	007h,003h
+	dw	00dh * 004h + 003h + ram_map
+	db	007h,004h

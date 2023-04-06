@@ -1,0 +1,464 @@
+;=======================================================================;
+; Category	: pikatyuu game
+; Author	: tetsu
+; Bank-No.	: 0001h
+; In		: Nothing
+; Out		: Nothing
+;=======================================================================;
+	include		common.def
+	include		group.def
+	include		ex_actor.h
+	include		pm_debug.def
+
+bank3e	group	G_BANK3e
+
+	public	EXActorInit
+	public	EXActorJump
+	public	EXAddActor
+	public	EXDelActor
+	public	EXDelActorAll
+	public	EXActorAnmSet
+
+	extern	memset
+
+E_HL	macro	address
+	ld	hl,address
+	add	hl,bc
+	endm
+
+;=======================================;
+;	ACTOR INIT			;
+;=======================================;
+EXActorInit:
+	ld	hl,ActorWorkTop
+	ld	bc,ActorWorkEnd - ActorWorkTop
+	xor	a
+	call	memset
+	ret
+
+;=======================================;
+;	ACTOR JUMP			;
+;  IN:OAM_Address = OAMaddressOffset	;
+;=======================================;
+EXActorJump:
+	ld	hl,ActorWork
+	ld	e,A_MAX
+mainloop$:
+	ld	a,(hl)
+	and	a
+	jr	z,next$
+	ld	c,l
+	ld	b,h
+	push	hl
+	push	de
+	call	ActorMove
+	call	ActorMake
+	pop	de
+	pop	hl
+	jr	c,end$		;Sprite Over
+next$:
+	ld	bc,ACTOR_LEN
+	add	hl,bc
+	dec	e
+	jr	nz,mainloop$
+
+	ld	a,(OAM_Address)
+	ld	l,a
+	ld	h,> oam_buf
+endloop$
+	ld	a,l
+	cp	OAM_END_VALUE
+	jr	nc,end$
+	xor	a
+	ld	(hli),a
+	jr	endloop$
+end$:
+	ret
+
+;=======================================;
+;	ADD ACTOR	 		;
+;  IN:A_Header = Header Address		;
+;           DE = Y,X Point		;
+;	    A  = ActorNo.		;
+;  OUT:     BC = ActorStruct Point	;
+;=======================================;
+EXAddActor:
+	push	de
+	push	af
+	ld	hl,ActorWork
+	ld	e,A_MAX
+searchloop$
+	ld	a,(hl)
+	and	a
+	jr	z,ok$
+
+	ld	bc,ACTOR_LEN
+	add	hl,bc
+	dec	e
+	jr	nz,searchloop$
+over$:
+	pop	af
+	pop	de
+	scf
+	ret
+ok$:
+	pop	af
+	ld	c,l
+	ld	b,h
+	ld	hl,Act_Total
+	inc	(hl)
+set$:
+	ld	e,a
+	ld	d,00h
+	ld	a,(A_Header+0)
+	ld	l,a
+	ld	a,(A_Header+1)
+	ld	h,a
+	add	hl,de
+	add	hl,de
+	add	hl,de
+	ld	e,l
+	ld	d,h
+
+	E_HL	ACTOR_NO
+	ld	a,(Act_Total)
+	ld	(hli),a		;ActorNo
+	ld	a,(de)
+	ld	(hli),a		;Anm
+	inc	de
+	ld	a,(de)
+	ld	(hli),a		;Move
+	inc	de
+	xor	a
+	ld	(hli),a		;Chr_Offset
+	pop	de
+
+	E_HL	ACTOR_X
+	ld	a,e
+	ld	(hli),a		;X
+	ld	a,d
+	ld	(hli),a		;Y
+	xor	a
+	ld	(hli),a		;DX
+	ld	(hli),a		;DY
+
+	xor	a
+	ld	(hli),a		;Anm_Wait
+	ld	(hli),a		;Anm_Wait Offset
+	dec	a
+	ld	(hli),a		;Anm_Offset
+	xor	a
+	ld	(hli),a		;Work0
+	ld	(hli),a		;Work1
+	ld	(hli),a		;Work2
+	ld	(hli),a		;Work3
+	ld	(hl),a		;Work4
+	ret
+
+;=======================================;
+;	DEL ACTOR	 		;
+;=======================================;
+EXDelActor:
+	E_HL	ACTOR_NO
+	ld	(hl),00h
+	ret
+
+;=======================================;
+;	DEL ACTOR	 		;
+;=======================================;
+EXDelActorAll:
+	ld	hl,ActorWork
+	ld	e,A_MAX
+loop$:
+	ld	(hl),00
+	ld	bc,ACTOR_LEN
+	add	hl,bc
+	dec	e
+	jr	nz,loop$
+	ret
+
+;=======================================;
+;	ACTOR MAKE			;
+;=======================================;
+ActorMake
+	xor	a
+	ld	(A_work0),a	;anime_rev flg
+
+	E_HL	ACTOR_COF
+	ld	a,(hli)
+	ld	(A_work1),a	;chr_offset
+	ld	a,(hli)
+	ld	(A_work2),a	;X
+	ld	a,(hli)
+	ld	(A_work3),a	;Y
+	ld	a,(hli)
+	ld	(A_work4),a	;DX
+	ld	a,(hl)
+	ld	(A_work5),a	;DY
+
+	call	ActorAnime
+
+	cp	ANMbanish
+	jr	z,banish$
+	cp	ANMdel
+	jr	z,del$
+
+	call	PatGet
+	ld	a,(A_work1)	;chr_offset
+	add	a,(hl)
+	ld	(A_work1),a	;chr_offset
+	inc	hl
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	push	bc
+	ld	a,(OAM_Address)
+	ld	e,a
+	ld	d,> oam_buf
+
+	ld	a,(hli)
+	ld	c,a		;Sprite_count
+setloop$:
+	ld	a,(A_work3)	;Y
+	ld	b,a
+	ld	a,(A_work5)	;DY
+	add	a,b
+	ld	b,a
+	ld	a,(Actor_OY)	;Actor MainY
+	add	a,b
+	ld	b,a
+	call	VREV_Check$
+	add	a,b
+	ld	(de),a
+	inc	hl
+	inc	de
+	ld	a,(A_work2)	;X
+	ld	b,a
+	ld	a,(A_work4)	;DX
+	add	a,b
+	ld	b,a
+	ld	a,(Actor_OX)	;Actor MainX
+	add	a,b
+	ld	b,a
+	call	HREV_Check$
+	add	a,b
+	ld	(de),a
+	inc	hl
+	inc	de
+	ld	a,(A_work1)	;chr_offset
+	add	a,(hl)
+	ld	(de),a
+	inc	hl
+	inc	de
+	call	ATTR_Check$
+  ifn	pm_cgb & pm_cgb_obj_atr		;オープニング・アニメでピカチュウのホッペを赤くする。（村川）
+	ld	b,a
+	ld	a,(300 + dmy_map)	;seq_work = 300 + dmy_map --> opening.dmg で定義。
+	cp	07h
+	ld	a,b
+	jr	z,ATTR_skip$
+  endif
+	ld	(de),a
+ATTR_skip$:
+	inc	hl
+	inc	de
+
+	ld	a,e
+	ld	(OAM_Address),a
+	cp	OAM_END_VALUE
+	jr	nc,over$	;Sprite_over
+
+	dec	c
+	jr	nz,setloop$
+
+	pop	bc
+	jr	ret$
+del$:
+	call	EXDelActor
+banish$:
+ret$:
+	and	a
+	ret
+over$:
+	pop	bc
+	scf
+	ret
+
+VREV_Check$:
+	push	hl
+	ld	a,(hl)
+	ld	hl,A_work0
+	bit	6,(hl)		;VREV_Flag
+	jr	z,no_v$
+	add	a,8
+	xor	11111111b
+	inc	a
+no_v$:
+	pop	hl
+	ret
+
+HREV_Check$:
+	push	hl
+	ld	a,(hl)
+	ld	hl,A_work0
+	bit	5,(hl)		;HREV_Flag
+	jr	z,no_h$
+	add	a,8
+	xor	11111111b
+	inc	a
+no_h$:
+	pop	hl
+	ret
+
+ATTR_Check$:
+	ld	a,(A_work0)	;chr_attr
+	ld	b,a
+	ld	a,(hl)
+	xor	b
+	and	11100000b
+	ld	b,a
+	ld	a,(hl)
+	and	00010000b
+	or	b
+  ifn	pm_cgb & pm_cgb_obj_atr
+	bit	4,a
+	ret	z
+	or	004h
+  endif
+	ret
+
+;=======================================;
+;	PatGet				;
+;  IN:A_Pat = Pat Address		;
+;=======================================;
+PatGet:
+	ld	e,a
+	ld	d,00h
+	ld	a,(A_Pat+0)
+	ld	l,a
+	ld	a,(A_Pat+1)
+	ld	h,a
+	add	hl,de
+	add	hl,de
+	add	hl,de
+	ret
+	
+;=======================================;
+;	ActorAnmSet			;
+;  IN:A = Animetion NO.			;
+;=======================================;
+EXActorAnmSet:
+	E_HL	ACTOR_ANM
+	ld	(hl),a
+	E_HL	ACTOR_AWT
+	ld	(hl),00h
+	E_HL	ACTOR_AWO
+	ld	(hl),00h
+	E_HL	ACTOR_AOF
+	ld	(hl),-1
+	ret
+
+;=======================================;
+;	ActorAnime			;
+;  IN:A_Animetion = Anm Address		;
+;=======================================;
+ActorAnime:
+	E_HL	ACTOR_AWT	;Anime wait
+	ld	a,(hl)
+	and	a
+	jr	z,next$
+	dec	(hl)
+	call	addres_get$
+	ld	a,(hli)
+	push	af
+	jr	ret$
+next$:
+	E_HL	ACTOR_AOF
+	inc	(hl)
+
+	call	addres_get$
+	ld	a,(hli)		;Next Anime No.
+	cp	ANMloop
+	jr	z,loop$
+	cp	ANMstop
+	jr	z,stop$
+
+	push	af
+	ld	a,(hl)
+	push	hl
+	and	00111111b
+	E_HL	ACTOR_AWO	;Next Anime wait Offset
+	add	a,(hl)
+	E_HL	ACTOR_AWT	;Next Anime wait(0 ...2fh)
+	ld	(hl),a
+	pop	hl
+ret$:
+	ld	a,(hl)
+	and	11000000b
+	srl	a
+	ld	(A_work0),a	;Reverse Flag
+	pop	af
+	ret
+stop$:
+	xor	a
+	E_HL	ACTOR_AWT
+	ld	(hl),a
+	E_HL	ACTOR_AOF
+	dec	(hl)
+	dec	(hl)
+	jr	ActorAnime
+loop$:
+	xor	a
+	E_HL	ACTOR_AWT
+	ld	(hl),a
+	dec	a
+	E_HL	ACTOR_AOF
+	ld	(hl),a
+	jr	ActorAnime
+
+addres_get$:
+	E_HL	ACTOR_ANM
+	ld	e,(hl)
+	ld	d,00h
+	ld	a,(A_Animetion+0)
+	ld	l,a
+	ld	a,(A_Animetion+1)
+	ld	h,a
+	add	hl,de
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+
+	E_HL	ACTOR_AOF
+	ld	l,(hl)
+	ld	h,00h
+	add	hl,hl
+	add	hl,de
+	ret
+	
+;=======================================;
+;	ActorMove			;
+;  IN:A_Move = Move Address		;
+;=======================================;
+ActorMove:
+	E_HL	ACTOR_MV
+	ld	e,(hl)
+	ld	d,00h
+	ld	a,(A_Move+0)
+	ld	l,a
+	ld	a,(A_Move+1)
+	ld	h,a
+	add	hl,de
+	add	hl,de
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+
+
+
+

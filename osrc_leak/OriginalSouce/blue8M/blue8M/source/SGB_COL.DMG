@@ -1,0 +1,1476 @@
+;=======================================================================;
+;=======================================================================;
+;									;
+;			 Super Game Boy Color				;
+;									;
+;=======================================================================;
+;=======================================================================;
+
+	include		common.def
+	include		banktool.def
+	include		sgb_col.def
+	include		maptype.def
+	include		pm_debug.def
+
+bank1c	group	28
+	public	sgb_color
+	public	sgb_check
+	public	sgb_set
+	public	listcol_ready
+
+	extern	block_move
+	extern	rnd
+	extern	lcdc_stop
+	extern	chrarea_clr
+	extern	ready2ready
+	extern	bank2bank
+	extern	div_direct
+	extern	mul_any
+
+;=======================================================;
+;	COLOR_SET FOR BG 				;
+;	    IN -> B_reg = Color_table position    	;
+;=======================================================;
+sgb_color:
+	call	ready2ready		; Bﾚｼﾞｽﾀの値を復元するために呼ばれている。 3Apr,1998 村川追加
+	ld	a,b
+	cp	0ffh
+
+	jr	nz,no_return$	
+	ld	a,(sgbatr_buf)
+no_return$:
+	cp	COL_CAPLIST2
+	jp	z,caplist_color
+
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+	ld	de,color_tbl$
+	add	hl,de
+	ld	a,(hli)	
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,color_change
+	push	de
+	jp	(hl)
+	
+fight1$:
+	ld	hl,fight1_pal
+	ld	de,fight_blk
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+fight2$:
+	ld	hl,normal_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+
+	ld	a,(mymons_cond5)
+	ld	hl,mymons_data + 11
+	call	monscol_get_0
+	ld	b,a
+	
+	ld	a,(enemy_cond5)
+	ld	hl,enemy_no
+	call	monscol_get_0
+	ld	c,a
+	
+	ld	hl,sgb_work + 1
+	ld	a,(sgbcol_buf)
+	add	a,31
+	ld	(hli),a
+	inc	hl
+	ld	a,(sgbcol_buf + 1)
+	add	a,31
+	ld	(hli),a
+	inc	hl
+
+	ld	a,b
+	ld	(hli),a
+	inc	hl
+	ld	a,c
+	ld	(hl),a
+
+	ld	hl,sgb_work
+	ld	de,fight_blk
+	ld	a,COL_FIGHT2
+	ld	(sgbatr_buf),a
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+worldmap$:
+	ld	hl,w_map_pal
+	ld	de,pal_cls
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+card$:
+	ld	hl,normal_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+
+	ld	a,(sel_item_no)
+	cp	191
+	jr	c,z4$
+	ld	a,1
+z4$:
+	call	monscol_get
+	push	af
+	ld	hl,sgb_work + 1
+	ld	a,(sgbcol_buf + 8)
+	add	a,31
+	ld	(hli),a
+	inc	hl
+	pop	af
+
+	ld	(hl),a
+	ld	hl,sgb_work
+	ld	de,card_blk
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+cap_list1$:
+	ld	hl,caplist_pal
+	ld	de,sgb_work + 1
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+zukan$:
+	ld	hl,zukan_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+
+	ld	a,(sel_item_no)
+	call	monscol_get
+	ld	hl,sgb_work + 3	
+	ld	(hl),a
+	ld	hl,sgb_work
+	ld	de,zukan_blk
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+slot$:
+	ld	hl,slot_pal
+	ld	de,slot_blk
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+opning$:
+	ld	hl,opning_pal
+	ld	de,opning_blk
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+game_start$:
+	ld	hl,start_pal
+	ld	de,pal_cls
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+op_demo$:
+	ld	hl,demo_pal
+	ld	de,demo_blk
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+op_title$:
+	ld	hl,gamefreak_pal
+	ld	de,gamefreak_blk
+	ld	a,COL_START
+	ld	(sgbatr_buf),a
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+town$:
+	ld	hl,normal_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+
+	ld	a,(map_type)
+	cp	TOWER_TYPE
+	jr	z,tower$
+	cp	DOUKUTU_TYPE
+	jr	z,doukutu$
+
+	ld	a,(mapno)
+	cp	025h
+	jr	c,z2$
+	cp	226
+	jr	c,normal$
+	cp	229
+	jr	c,doukutu$
+	cp	245
+	jr	z,kanna$
+	cp	246
+	jr	z,shiba$
+normal$:
+	ld	a,(mapno_stack)
+z2$:
+;	cp	6
+;	jr	z,tamamushi$
+	cp	0bh
+	jr	c,z3$
+	ld	a,0ffh
+z3$:
+	inc	a
+	ld	hl,sgb_work + 1
+	ld	(hld),a
+	
+	ld	de,pal_cls
+t_ret$:
+	ld	a,COL_TOWN
+	ld	(sgbatr_buf),a
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+tower$:
+	ld	a,24
+	jr	z3$
+doukutu$:
+shiba$:
+	ld	a,34
+	jr	z3$
+kanna$:
+	xor	a
+	jr	z3$
+
+tamamushi$:
+;	ld	hl,gamefreak_pal
+;	ld	de,tamamushi_blk
+;	jr	t_ret$
+
+shinka$:
+	push	bc
+	ld	hl,normal_pal
+	ld	de,sgb_work
+	ld	bc,16
+	call	block_move
+	pop	bc
+
+	ld	a,c
+	and	a
+	ld	a,30
+	jr	nz,changing$
+
+	ld	a,(sgbcol_buf)
+	call	monscol_get
+changing$:
+	ld	(sgb_work + 1),a
+	
+	ld	hl,sgb_work
+	ld	de,pal_cls
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+badge_color$:
+	ld	hl,badge_blk
+	ld	de,anime_buf
+	ld	bc,64
+	call	block_move
+
+	ld	de,badgecount$
+	ld	hl,anime_buf + 2
+	ld	a,(my_badge)
+	ld	c,8
+loop$:
+	srl	a
+	push	af
+	jr	c,have$
+
+	push	bc
+	ld	a,(de)
+	ld	c,a
+	xor	a
+loop1$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop1$
+	pop	bc
+	jr	next$
+
+have$:	
+	ld	a,(de)
+loop2$:
+	inc	hl
+	dec	a
+	jr	nz,loop2$
+
+next$:
+	pop	af
+	inc	de
+	dec	c
+	jr	nz,loop$
+	
+	ld	hl,status_pal
+	ld	de,anime_buf
+	ret					; color_changeへジャンプ 3Apr,1998 村川追加
+
+
+color_tbl$:
+	dw	fight1$
+	dw	fight2$
+	dw	worldmap$
+	dw	card$
+	dw	zukan$
+	dw	slot$
+	dw	opning$
+	dw	op_demo$
+	dw	game_start$
+	dw	town$
+	dw	cap_list1$
+	dw	shinka$
+	dw	op_title$
+	dw	badge_color$
+
+badgecount$:
+	db	6,6,6,18,6,6,6,6
+
+;=======================================================;
+;	MONSTER_COLOR GET FROM MONCOLOR_TABLE           ;
+;	        IN  -> Areg = monster   no.             ;
+;	        OUT -> Areg = color_pal no.             ;
+;=======================================================;
+monscol_get_0:
+	bit	3,a
+	ld	a,25
+	ret	nz
+
+	ld	a,(hl)
+monscol_get:
+	ld	(in_dat),a
+	and	a
+	jr	z,mymonscol_get
+	push	bc
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	pop	bc
+	ld	a,(in_dat)
+mymonscol_get:
+	ld	e,a
+	ld	d,0
+	ld	hl,monscolor_tbl
+	add	hl,de
+	
+	ld	a,(hl)
+	ret
+
+
+;=======================================================;
+;	CAP_LIST COLOR_CHANGE				;
+;=======================================================;
+listcol_ready:
+	ld	hl,caplist_blk
+	ld	de,sgb_work + 1
+	ld	bc,48
+	jp	block_move
+
+
+caplist_color:
+	ld	hl,sgbcol_buf + 2
+	ld	a,(sgb_work)
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	ld	e,l
+	ld	d,h
+
+	ld	a,(de)
+	and	a
+	ld	e,00000101b
+	jr	z,next$
+	dec	a
+	ld	e,00001010b
+	jr	z,next$
+	ld	e,00001111b
+next$:	
+	push	de
+	ld	hl,sgb_work + 10
+	ld	bc,6
+	ld	a,(sgb_work)
+	call	mul_any
+	pop	de
+
+	ld	(hl),e
+	ret
+	
+
+;=======================================================;
+;	SYSTEM_COMMAND TRANSFER				;
+;		IN -> 	HL = syscom_address		;
+;							;
+;=======================================================;
+syscom_trans:
+	ld	a,(hl)
+	and	7		; packet_count
+	ret	z
+	ld	b,a
+loop_top$:
+	push	bc
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,1			;（注意！）英語版ではキー入力をＶブランク割り込み内で
+	ld	(syscom_trans_flg),a	; 行っているので、（Ｐ１）アクセスの衝突を避ける必要がある
+ endif
+	xor	a		; reset/1_packet
+	ld	(P1),a
+
+	ld	a,30h		; port_reset
+	ld	(P1),a
+	ld	b,10h		; 16 byte
+loop1$:
+	ld	e,8		; 8 bit
+	ld	a,(hli)
+	ld	d,a
+loop$:
+	bit	0,d		; 0->Z, 1->NZ
+	ld	a,10h		; 1_trans
+	jr	nz,z1$
+	ld	a,20h		; 0_trans
+z1$:
+	ld	(P1),a
+	ld	a,30h		; port_reset
+	ld	(P1),a
+	rr	d
+	dec	e
+	jr	nz,loop$
+	dec	b
+	jr	nz,loop1$
+	
+	ld	a,20h		; 0_trans for 129th_bit
+	ld	(P1),a
+	ld	a,30h		; port_reset
+	ld	(P1),a
+
+ ifn	ASSEMBLE__ENGLISH
+	xor	a			; Ｖブランク割り込み内でのキー入力（Ｐ１）アクセス
+	ld	(syscom_trans_flg),a	; を許可する
+ endif
+
+	call	wait_60		; wait for 1packet_transfer
+	pop	bc
+	dec	b
+	ret	z
+
+	jr	loop_top$
+
+;=======================================================;
+;	CHECK_MACHINE & INTIALIZE        		;
+;		OUT -> 	GAMEBOY       -> sgb_flg = 0    ;
+;		       	SUPER_GAMEBOY -> sgb_flg = 1    ;
+;=======================================================;
+sgb_check:
+	xor	a
+	ld	(sgb_flg),a
+	call	sgbcheck_sub
+	ret	nc
+
+	ld	a,1
+	ld	(sgb_flg),a
+
+	; 3Apr,1998 村川追加ここから
+	; cgb_flg == 1 の場合、SGB関連の初期化はしない。
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,s_chk_0$
+	ret
+	; 3Apr,1998 村川追加ここまで
+
+s_chk_0$:
+ ifn	ASSEMBLE__ENGLISH
+	DI				;（注意！）ＳＧＢ初期化チェックでエラーが発生するので
+	call	sgb_init		;  初期化中は割り込みがかからないようにしておく
+	EI				;
+ else
+	call	sgb_init
+ endif
+
+	ld	a,1
+	ld	(sgb_work),a		
+	ld	de,bgchr_trn		; picture_flame set	
+	ld	hl,picf_chr		;     |
+	call	sgb_set	    		;     |
+					;     |
+	xor	a			;     |
+	ld	(sgb_work),a		;     |
+	ld	de,pct_trns		;     |
+	ld	hl,picture_flame	;     |
+	call	sgb_set	 		;     |/
+
+	xor	a
+	ld	(sgb_work),a
+	ld	de,pal_trans		; system_pallet set
+	ld	hl,syscol
+	call	sgb_set
+
+	call	chrarea_clr
+	ld	hl,mask_off
+	jp	syscom_trans
+
+
+sgb_init:
+	ld	hl,init_tbl$
+	ld	c,9
+loop$:
+	push	bc
+	ld	a,(hli)
+	push	hl
+	ld	h,(hl)
+	ld	l,a
+
+	call	syscom_trans
+	pop	hl
+	inc	hl
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	ret
+
+init_tbl$:
+	dw	mask_on
+	dw	init1		; initialize
+	dw	init2		;     |
+	dw	init3		;     |
+	dw	init4		;     |
+	dw	init5		;     |
+	dw	init6		;     |
+	dw	init7		;     |
+	dw	init8		;     |
+
+
+;=======================================================;
+;	CHECK_MACHINE         				;
+;		OUT -> 	GAMEBOY       -> C_flg = 0      ;
+;		       	SUPER_GAMEBOY -> C_flg = 1      ;
+;=======================================================;
+sgbcheck_sub:
+	ld	hl,req_2play
+
+ ifn	ASSEMBLE__ENGLISH
+	DI
+	call	syscom_trans		;（注意！）return 時  (syscom_trans_flg) == 0
+	ld	a,1			;（注意！）英語版ではキー入力をＶブランク割り込み内で
+	ld	(syscom_trans_flg),a	; 行っているので、（Ｐ１）アクセスの衝突を避ける必要がある
+	EI
+ else
+	call	syscom_trans
+ endif
+	call	wait_60		; wait for 1packet_transfer
+
+	ld	a,(P1)
+	and	3
+	cp	3
+	jr	nz,sgb_use$
+
+	ld	a,20h
+	ld	(P1),a
+	ld	a,(P1)
+	ld	a,(P1)
+	call	wait_60
+	call	wait_60
+	ld	a,30h
+	ld	(P1),a
+	call	wait_60
+	call	wait_60
+	ld	a,10h
+	ld	(P1),a
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	call	wait_60
+	call	wait_60
+	ld	a,30h
+	ld	(P1),a
+	ld	a,(P1)
+	ld	a,(P1)
+	ld	a,(P1)
+	call	wait_60
+	call	wait_60
+
+	ld	a,(P1)
+	and	3
+	cp	3
+	jr	nz,sgb_use$
+
+dmg_use$:
+	call	req1
+	and	a
+	ret
+
+sgb_use$:
+	call	req1
+	scf
+	ret
+
+req1:
+	ld	hl,req_1play
+	call	syscom_trans		; return 時  (syscom_trans_flg) == 0
+	jp	wait_60
+
+
+;=================================================;
+;  TRANSFER  USE  VRAM                            ;
+;  IN  ->  HL = TRANS_DATA ADDRESS                ;
+;          DE = SYSTEM_COMMAND ADDRESS            ;
+;=================================================;
+sgb_set:
+	di
+	push	de
+	call	lcdc_stop
+
+	ld	a,0e4h
+	ld	(BGP),a
+
+	ld	de,8800h
+
+	ld	a,(sgb_work)
+	and	a
+	jr	z,z1$
+	call	picf_chrset	;picture_f only
+	jr	z2$
+z1$:
+	ld	bc,1000h	;normal_trans
+	call	block_move
+z2$:
+	ld	hl,9800h
+	ld	de,12
+	ld	a,80h
+	ld	c,13
+loop$:
+	ld	b,20
+loop1$:
+	ld	(hli),a
+	inc	a
+	dec	b
+	jr	nz,loop1$
+	add	hl,de
+	dec	c
+	jr	nz,loop$
+
+	ld	a,0e3h		; BG ON,OBJ ON,8*8,WINDOW OFF
+	ld	(LCDC),a
+
+	pop	hl		; POP DE , HL = DE
+	call	syscom_trans
+
+	xor	a
+	ld	(BGP),a
+
+	ei
+	ret
+
+;=================================================;
+;   60msec WAIT                                   ;
+;=================================================;
+wait_60:
+	ld	de,7000
+loop$:
+	nop			;1
+	nop			;1
+	nop			;1
+	dec	de		;2
+	ld	a,d		;1
+	or	e		;1
+	jr	nz,loop$	;3
+	ret
+
+
+;=================================================;
+;   COLOR_CHANGE                                  ;
+;          IN  HL = pal address                   ;
+;              DE = atr address                   ;
+;=================================================;
+color_change:
+	; 3Apr,1998 村川追加ここから
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,c_c_0$
+	push	de
+	call	change_cgbpal	; CGB BGカラーパレット変更
+	pop	hl
+	call	change_cgbattr	; CGB BGアトリビュート変更
+	ret
+	; 3Apr,1998 村川追加ここまで
+	
+c_c_0$:
+	push	de
+	call	syscom_trans	; SGBカラーパレット変更
+	pop	hl
+	jp	syscom_trans		; SGBアトリビュート変更
+
+
+;=================================================;
+;   change_cgbpal                                 ;
+;          argument  HL = pal address             ;
+;          destroy   A,C,DE,HL                    ;
+;=================================================;
+change_cgbpal:
+	ld	a,80h
+	ld	(BCPS),a	; パレットアドレス・オートインクリメント・モード
+	inc	hl			; SGBｺﾏﾝﾄﾞをスキップ
+	ld	c,4*4*2		; ４パレット×４色×２バイト
+
+	
+c_cp0$:
+	ld	a,(hli)		; a = color palette No.(0～36)なので下位ﾊﾞｲﾄだけで足りる。
+	inc	hl			; color palette No.は2bytesなので上位ﾊﾞｲﾄをスキップする。
+	add	a,a			; palette address = syscol + 8 * color palette No.
+	add	a,a
+	add	a,a
+	ld	de,syscol
+	add	a,e
+	jr	nc,c_cp1$
+	inc	d
+c_cp1$:
+	ld	a,(de)
+	ld	(BCPD),a
+	dec	c
+	jr	nz,c_cp0$
+	
+	ret
+
+
+;=================================================;
+;   change_cgbattr                                ;
+;          argument  HL = attr address             ;
+;          destroy   A,C,DE,HL                    ;
+;=================================================;
+change_cgbattr:
+	ret
+
+
+;=================================================;
+;   CHARACTOR SET  FOR PICTURE_FLAME              ;
+;          IN  -> HL = data address(for GB)       ;
+;                 DE = data set address           ;
+;          OUT -> chr_set(for SFC) to DE          ;
+;=================================================;
+picf_chrset:
+	ld	b,80h
+loop$:
+	ld	c,16
+loop1$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,loop1$
+
+	ld	c,16
+	xor	a
+loop2$:
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,loop2$
+
+	dec	b
+	jr	nz,loop$
+	ret
+
+;-------system_command-----------------------------------
+pal_cls:
+	db	ATTR_BLK1
+	db	1		;data_lots
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	0,0		;start_pos X,Y
+	db	13h,11h		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0
+
+pal_cls_bg_attr:
+	db	CGB_ATTR_RECTAN,00h,00h,13h,11h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+fight_blk:
+	db	ATTR_BLK2
+	db	5		;data_lots
+	db	111b		;cont_code
+	db	00001010b	;pal_set
+	db	0,0ch		;start_pos X,Y
+	db	13h,11h		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000101b	;pal_set
+	db	1,0		;start_pos X,Y
+	db	0ah,3		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+ ifn	ASSEMBLE__ENGLISH
+	db	0ah,7		;start_pos X,Y
+ else
+	db	0ah,8		;start_pos X,Y
+ endif
+	db	13h,0ah		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001010b	;pal_set
+	db	0,4		;start_pos X,Y
+	db	8,0bh		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001111b	;pal_set
+	db	0bh,0		;start_pos X,Y
+ ifn	ASSEMBLE__ENGLISH
+	db	13h,6		;end_pos   X,Y
+ else
+	db	13h,7		;end_pos   X,Y
+ endif
+
+fight_blk_bg_attr:
+	db	CGB_ATTR_RECTAN,00h,00h,13h,0bh,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,0ch,13h,11h,02h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,01h,00h,0ah,03h,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0ah,08h,13h,0ah,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,04h,08h,0bh,02h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0bh,00h,13h,07h,03h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+card_blk:
+	db	ATTR_BLK1
+	db	1		;data_lots
+	db	111b		;cont_code
+	db	00000101b	;pal_set
+	db	1,0		;start_pos X,Y
+	db	7,6		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0
+
+card_blk_bg_attr:
+	db	CGB_ATTR_LINE_Y,00h,00h,11h,00h			;LINE_Y,x0,y0,y1,attr
+	db	CGB_ATTR_RECTAN,01h,00h,07h,06h,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,01h,07h,13h,11h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,08h,00h,13h,06h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+zukan_blk:
+	db	ATTR_BLK1
+	db	1		;data_lots
+	db	111b		;cont_code
+	db	00000101b	;pal_set
+	db	1,1		;start_pos X,Y
+	db	8,8		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0
+
+zukan_blk_bg_attr:
+	db	CGB_ATTR_LINE_Y,00h,00h,11h,00h			;LINE_Y,x0,y0,y1,attr
+	db	CGB_ATTR_LINE_X,00h,01h,13h,00h			;LINE_Y,y0,x0,x1,attr
+	db	CGB_ATTR_RECTAN,01h,01h,08h,08h,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,01h,09h,08h,11h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,09h,01h,13h,11h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+slot_blk:
+	db	ATTR_BLK2
+	db	5		;data_lots
+	db	011b		;cont_code
+	db	00000101b	;pal_set
+	db	0,0		;start_pos X,Y
+	db	13h,0bh		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001010b	;pal_set
+	db	0,4		;start_pos X,Y
+	db	13h,9		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001111b	;pal_set
+	db	0,6		;start_pos X,Y
+	db	13h,7		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	4,4		;start_pos X,Y
+	db	0fh,9		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	0,0ch		;start_pos X,Y
+	db	013h,11h	;end_pos   X,Y
+
+slot_blk_bg_attr:
+	db	CGB_ATTR_RECTAN,00h,00h,13h,0bh,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,04h,13h,09h,02h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,06h,13h,07h,03h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,04h,04h,0fh,09h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,0ch,13h,11h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+opning_blk:
+	db	ATTR_BLK2
+	db	3		;data_lots
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	0,0		;start_pos X,Y
+	db	13h,7		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00000101b	;pal_set
+	db	0,8		;start_pos X,Y
+	db	13h,9		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001010b	;pal_set
+	db	0,10		;start_pos X,Y
+	db	13h,11h		;end_pos   X,Y
+	db	0,0,0,0,0,0
+	db	0,0,0,0,0,0
+
+opning_blk_bg_attr:
+	db	CGB_ATTR_RECTAN,00h,00h,13h,07h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,08h,13h,09h,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,0ah,13h,11h,02h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+demo_blk:
+	db	ATTR_BLK2
+	db	3		;data_lots
+	db	011b		;cont_code
+	db	00000101b	;pal_set
+	db	0,0		;start_pos X,Y
+	db	13h,3		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000000b	;pal_set
+	db	0,4		;start_pos X,Y
+	db	13h,0dh		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00000101b	;pal_set
+	db	00h,0eh		;start_pos X,Y
+	db	13h,11h		;end_pos   X,Y
+	db	0,0,0,0,0,0
+	db	0,0,0,0,0,0
+
+demo_blk_bg_attr:
+	db	CGB_ATTR_RECTAN,00h,00h,13h,03h,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,04h,13h,0dh,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,0eh,13h,11h,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+caplist_blk:
+ ifn	ASSEMBLE__ENGLISH
+	db	ATTR_BLK3
+	db	7		;data_lots
+	db	110b		;cont_code
+	db	00010000b	;pal_set
+	db	1,0		;start_pos X,Y
+	db	2,12		;end_pos   X,Y
+	db	010b		;cont_code	;monster1
+	db	00000000b	;pal_set
+	db	 5,1		;start_pos X,Y
+	db	11,1		;end_pos   X,Y
+	db	010b		;cont_code	;monster2
+	db	00000000b	;pal_set
+	db	 5,3		;start_pos X,Y
+	db	11,3		;end_pos   X,Y
+	db	010b		;cont_code	;monster3
+	db	00000000b	;pal_set
+	db	 5,5		;start_pos X,Y
+	db	11,5		;end_pos   X,Y
+	db	010b		;cont_code	;monster4
+	db	00000000b	;pal_set
+	db	 5,7		;start_pos X,Y
+	db	11,7		;end_pos   X,Y
+	db	010b		;cont_code	;monster5
+	db	00000000b	;pal_set
+	db	 5,9		;start_pos X,Y
+	db	11,9		;end_pos   X,Y
+	db	010b		;cont_code	;monster6
+	db	00000000b	;pal_set
+	db	 5,11		;start_pos X,Y
+	db	11,11		;end_pos   X,Y
+	db	0,0,0,0
+ else
+	db	ATTR_BLK3
+	db	7		;data_lots
+	db	110b		;cont_code
+	db	00010000b	;pal_set
+	db	1,0		;start_pos X,Y
+	db	2,12		;end_pos   X,Y
+	db	010b		;cont_code	;monster1
+	db	00000000b	;pal_set
+	db	12,0		;start_pos X,Y
+	db	18,1		;end_pos   X,Y
+	db	010b		;cont_code	;monster2
+	db	00000000b	;pal_set
+	db	12,2		;start_pos X,Y
+	db	18,3		;end_pos   X,Y
+	db	010b		;cont_code	;monster3
+	db	00000000b	;pal_set
+	db	12,4		;start_pos X,Y
+	db	18,5		;end_pos   X,Y
+	db	010b		;cont_code	;monster4
+	db	00000000b	;pal_set
+	db	12,6		;start_pos X,Y
+	db	18,7		;end_pos   X,Y
+	db	010b		;cont_code	;monster5
+	db	00000000b	;pal_set
+	db	12,8		;start_pos X,Y
+	db	18,9		;end_pos   X,Y
+	db	010b		;cont_code	;monster6
+	db	00000000b	;pal_set
+	db	12,10		;start_pos X,Y
+	db	18,11		;end_pos   X,Y
+	db	0,0,0,0
+ endif
+
+caplist_blk_bg_attr:
+	db	CGB_ATTR_LINE_Y,00h,00h,11h,01h			;LINE_Y,x0,y0,y1,attr
+	db	CGB_ATTR_RECTAN,01h,00h,02h,0ch,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,01h,0dh,02h,11h,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,03h,00h,13h,11h,01h		;RECT,x0,y0,x1,y1,attr
+	
+	db	CGB_ATTR_RECTAN,0ch,00h,12h,01h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0ch,02h,12h,03h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0ch,04h,12h,05h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0ch,06h,12h,07h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0ch,08h,12h,09h,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0ch,0ah,12h,0bh,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+badge_blk:
+	db	ATTR_BLK4
+	db	10		;data_lots
+	db	010b		;cont_code
+	db	00000000b	;pal_set
+	db	3,12		;start_pos X,Y
+	db	4,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00000101b	;pal_set
+	db	7,12		;start_pos X,Y
+	db	8,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001111b	;pal_set
+	db	11,12		;start_pos X,Y
+	db	12,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001010b	;pal_set
+	db	16,11		;start_pos X,Y
+	db	17,12		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00000101b	;pal_set
+	db	14,13		;start_pos X,Y
+	db	15,14		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001111b	;pal_set
+	db	16,13		;start_pos X,Y
+	db	17,14		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001010b	;pal_set
+	db	3,15		;start_pos X,Y
+	db	4,16		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001111b	;pal_set
+	db	7,15		;start_pos X,Y
+	db	8,16		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001010b	;pal_set
+	db	11,15		;start_pos X,Y
+	db	12,16		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00000101b	;pal_set
+	db	15,15		;start_pos X,Y
+	db	16,16		;end_pos   X,Y
+	db	0,0
+
+badge_blk_bg_attr:
+	db	CGB_ATTR_RECTAN,03h,0ch,04h,0dh,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,07h,0ch,08h,0dh,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0bh,0ch,0ch,0dh,03h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,10h,0bh,11h,0ch,02h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0eh,0dh,0fh,0eh,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,10h,0dh,11h,0eh,03h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,03h,0fh,04h,10h,02h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,07h,0fh,08h,10h,03h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0bh,0fh,0ch,10h,02h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0fh,0fh,10h,10h,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+gamefreak_blk:
+	db	ATTR_BLK2
+	db	3		;data_lots
+	db	111b		;cont_code
+	db	00000101b	;pal_set
+	db	5,11		;start_pos X,Y
+	db	7,13		;end_pos   X,Y
+	db	010b		;cont_code
+	db	00001010b	;pal_set
+	db	8,11		;start_pos X,Y
+	db	9,13		;end_pos   X,Y
+	db	011b		;cont_code
+	db	00001111b	;pal_set
+	db	12,11		;start_pos X,Y
+	db	14,13		;end_pos   X,Y
+	db	0,0,0,0,0,0,0,0,0,0,0,0
+
+gamefreak_blk_bg_attr:
+	db	CGB_ATTR_RECTAN,00h,00h,13h,0ah,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,0bh,04h,0dh,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,05h,0bh,07h,0dh,01h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,08h,0bh,13h,0dh,00h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,00h,0eh,13h,11h,00h		;RECT,x0,y0,x1,y1,attr
+
+	db	CGB_ATTR_RECTAN,08h,0bh,09h,0dh,02h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_RECTAN,0ch,0bh,0eh,0dh,03h		;RECT,x0,y0,x1,y1,attr
+	db	CGB_ATTR_END
+
+
+tamamushi_blk:
+;	db	ATTR_BLK2
+;	db	3		;data_lots
+;	db	111b		;cont_code
+;	db	00000101b	;pal_set
+;	db	5,0		;start_pos X,Y
+;	db	9,17		;end_pos   X,Y
+;	db	011b		;cont_code
+;	db	00001010b	;pal_set
+;	db	10,0		;start_pos X,Y
+;	db	14,17		;end_pos   X,Y
+;	db	011b		;cont_code
+;	db	00001111b	;pal_set
+;	db	15,0		;start_pos X,Y
+;	db	19,17		;end_pos   X,Y
+
+normal_pal:
+	db	PAL_SET
+	dw	0,0,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+caplist_pal:
+	db	PAL_SET
+	dw	16,31,32,33
+	db	00000000b
+	db	0,0,0,0,0,0
+
+fight1_pal:
+	db	PAL_SET
+	dw	30,30,30,30
+	db	00000000b
+	db	0,0,0,0,0,0
+
+w_map_pal:
+	db	PAL_SET
+	dw	12,0,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+zukan_pal:
+	db	PAL_SET
+	dw	21,0,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+slot_pal:
+	db	PAL_SET
+	dw	26,27,28,29
+	db	00000000b
+	db	0,0,0,0,0,0
+
+opning_pal:
+	db	PAL_SET
+	dw	14,13,16,20
+	db	00000000b
+	db	0,0,0,0,0,0
+
+status_pal:				
+	db	PAL_SET
+	dw	16,34,18,24
+	db	00000000b
+	db	0,0,0,0,0,0
+
+start_pal:				
+	db	PAL_SET
+	dw	16,0,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+demo_pal:				
+	db	PAL_SET
+	dw	20,30,0,0
+	db	00000000b
+	db	0,0,0,0,0,0
+
+gamefreak_pal:
+	db	PAL_SET
+	dw	36,18,2,17
+	db	00000000b
+	db	0,0,0,0,0,0
+
+pal_trans:				
+	db	PAL_TRN
+	db	00h,00h,00h,00h,00h,00h,00h
+	db	00h,00h,00h,00h,00h,00h,00h,00h
+
+req_1play:
+	db	MLT_REQ
+	db	00b		;req_mode
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+req_2play:
+	db	MLT_REQ
+	db	01b		;req_mode
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+bgchr_trn:			
+	db	CHR_TRN
+	db	00b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+pct_trns:				
+	db	PCT_TRN
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+mask_on:				
+	db	MASK_EN
+	db	01b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+mask_off:
+	db	MASK_EN
+	db	00b
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+init1:
+	db	DATA_SND
+	dw	085dh		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	08Ch,0D0h,0F4h,060h,000h
+	db	000h,000h,000h,000h,000h,000h
+init2:
+	db	DATA_SND
+	dw	0852h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	0A9h,0E7h,09Fh,001h,0C0h
+	db	07Eh,0E8h,0E8h,0E8h,0E8h,0E0h
+init3:
+	db	DATA_SND
+	dw	0847h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	0C4h,0D0h,016h,0A5h,0CBh
+	db	0C9h,005h,0D0h,010h,0A2h,028h
+init4:
+	db	DATA_SND
+	dw	083ch		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	0F0h,012h,0A5h,0C9h,0C9h
+	db	0C8h,0D0h,01Ch,0A5h,0CAh,0C9h
+init5:
+	db	DATA_SND
+	dw	0831h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	00Ch,0A5h,0CAh,0C9h,07Eh
+	db	0D0h,006h,0A5h,0CBh,0C9h,07Eh
+init6:
+	db	DATA_SND
+	dw	0826h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	039h,0CDh,048h,00Ch,0D0h
+	db	034h,0A5h,0C9h,0C9h,080h,0D0h
+init7:
+	db	DATA_SND
+	dw	081bh		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	0EAh,0EAh,0EAh,0EAh,0EAh
+	db	0A9h,001h,0CDh,04Fh,00Ch,0D0h
+init8:
+	db	DATA_SND
+	dw	0810h		;transfer_address
+	db	00h		;bank_no.
+	db	0Bh		;data_lots(max = 0Bh)
+	db	04Ch,020h,008h,0EAh,0EAh
+	db	0EAh,0EAh,0EAh,060h,0EAh,0EAh
+
+monscolor_tbl:
+	db	16
+	db	22,22,22,18,18,18,19,19,19,22,22,19,24,24,24 ;  15
+	db	21,21,21,25,25,21,21,20,20,24,24,21,21,17,17 ;  30
+	db	17,20,20,20,23,23,18,24,23,23,17,17,22,18,18 ;  45
+	db	18,18,20,20,21,21,24,24,24,19,21,21,21,18,17 ;  60
+	db	17,17,24,24,24,25,25,25,22,22,22,19,19,25,25 ;  75
+	db	25,18,18,23,23,25,25,21,21,21,17,17,20,20,25 ;  90
+	db	25,20,20,20,25,24,24,18,18,24,24,23,22,25,25 ; 105
+	db	21,21,23,20,20,25,25,23,17,21,19,19,18,18,18 ; 120
+	db	25,23,22,16,24,18,21,25,18,17,19,25,25,19,24 ; 135
+	db	18,25,17,17,21,21,25,23,17,24,18,25,17,21,16 ; 150
+	db	16
+
+syscol:
+  ifn pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+	dw	07fbfh,02f95h,07f54h,0843h	;town 0~11
+	dw	07fbfh,06f99h,07f54h,0843h
+	dw	07fbfh,0f51h,07f54h,0843h
+	dw	07fbfh,04337h,07f54h,0843h
+	dw	07fbfh,07a91h,07f54h,0843h
+	dw	07fbfh,06e9bh,07f54h,0843h
+	dw	07fbfh,025eh,07f54h,0843h
+	dw	07fbfh,05bd0h,07f54h,0843h
+	dw	07fbfh,059ffh,07f54h,0843h
+	dw	07fbfh,0195ah,07f54h,0843h
+	dw	07fbfh,061d6h,07f54h,0843h
+	dw	07fbfh,0f7bh,07f54h,0843h
+
+	dw	07fbfh,07f54h,02af1h,0843h	;worldmap 12
+ ifn pm_jmsg
+	dw	07fbfh,047deh,01015h,03209h	;op_title 13~14  "Blue Version" 03209h は青緑色
+ else
+	dw	07fbfh,047deh,01015h,0766eh	;op_title 13~14  "Blue Version" 0766eh は水色
+ endif
+	dw	07fbfh,047deh,06252h,040e7h	;US_blue title 
+	dw	07fbfh,07a98h,07a8bh,0843h
+
+	dw	07fbfh,046deh,04dd0h,0843h	;mons 16~25
+	dw	07fbfh,06e92h,05debh,0843h
+	dw	07fbfh,02a9fh,0195ah,0843h
+	dw	07fbfh,07735h,0666eh,0843h
+	dw	07fbfh,062dbh,05df5h,0843h
+	dw	07fbfh,03e9ch,025d5h,0843h
+	dw	07fbfh,04354h,02e89h,0843h
+	dw	07fbfh,062deh,055fch,0843h
+	dw	07fbfh,03b9fh,0029ah,0843h
+	dw	07fbfh,05abah,049efh,0843h
+
+	dw	07fbfh,05abah,01a9bh,0843h 	;slot 26~29
+	dw	07fbfh,047ffh,07670h,0843h
+	dw	07fbfh,043f6h,07670h,0843h
+	dw	07fbfh,05639h,07670h,0843h
+
+	dw	07fbfh,01ce7h,00c62h,0843h	;encount 30
+	dw	07fbfh,03f5eh,02e89h,0843h	;fight_win green 31
+	dw	07fbfh,03f5eh,0029ah,0843h	;fight_win yellow 32
+	dw	07fbfh,03f5eh,0195ah,0843h	;fight_win red 33
+	dw	07fbfh,046deh,05debh,0843h	;badge_color for erika 34
+	dw	07fbfh,025d5h,05b12h,0843h	;dungeon_color 35
+	dw	07fbfh,03b9fh,02a98h,0843h	;game_freak 36
+   else
+	;-----<red version>-----
+	dw	07fbfh,02f95h,07f54h,0843h	;town 0~11
+	dw	07fbfh,06f99h,07f54h,0843h
+	dw	07fbfh,0f51h,07f54h,0843h
+	dw	07fbfh,04337h,07f54h,0843h
+	dw	07fbfh,07a91h,07f54h,0843h
+	dw	07fbfh,06e9bh,07f54h,0843h
+	dw	07fbfh,025eh,07f54h,0843h
+	dw	07fbfh,05bd0h,07f54h,0843h
+	dw	07fbfh,059ffh,07f54h,0843h
+	dw	07fbfh,0195ah,07f54h,0843h
+	dw	07fbfh,061d6h,07f54h,0843h
+	dw	07fbfh,0f7bh,07f54h,0843h
+
+	dw	07fbfh,07f54h,02af1h,0843h	;worldmap 12
+ ifn  pm_jmsg
+	dw	07fbfh,047deh,02af1h,0766eh	;op_title 13~14  "Red Version" 0766eh は水色
+ else
+	dw	07fbfh,047deh,02af1h,01015h	;op_title 13~14  "Red Version" 01015h は赤色
+ endif
+	dw	07fbfh,047deh,06252h,040e7h	;US_red title 
+	dw	07fbfh,07a98h,07a8bh,0843h
+
+	dw	07fbfh,046deh,04dd0h,0843h	;mons 16~25
+	dw	07fbfh,06e92h,05debh,0843h
+	dw	07fbfh,02a9fh,0195ah,0843h
+	dw	07fbfh,07735h,0666eh,0843h
+	dw	07fbfh,062dbh,05df5h,0843h
+	dw	07fbfh,03e9ch,025d5h,0843h
+	dw	07fbfh,04354h,02e89h,0843h
+	dw	07fbfh,062deh,055fch,0843h
+	dw	07fbfh,03b9fh,0029ah,0843h
+	dw	07fbfh,05abah,049efh,0843h
+
+	dw	07fbfh,05abah,01a9bh,0843h 	;slot 26~29
+	dw	07fbfh,047ffh,05639h,0843h
+	dw	07fbfh,043f6h,05639h,0843h
+	dw	07fbfh,07670h,05639h,0843h
+
+	dw	07fbfh,01ce7h,00c62h,0843h	;encount 30
+	dw	07fbfh,03f5eh,02e89h,0843h	;fight_win green 31
+	dw	07fbfh,03f5eh,0029ah,0843h	;fight_win yellow 32
+	dw	07fbfh,03f5eh,0195ah,0843h	;fight_win red 33
+	dw	07fbfh,046deh,05debh,0843h	;badge_color for erika 34
+	dw	07fbfh,025d5h,05b12h,0843h	;dungeon_color 35
+	dw	07fbfh,03b9fh,02a98h,0843h	;game_freak 36
+   endif
+  else
+	;-----<green version>-----
+	dw	077feh,02f95h,07f54h,0843h	;town 0~11
+	dw	077feh,07719h,07f54h,0843h
+	dw	077feh,0febh,07f54h,0843h
+	dw	077feh,04295h,07f54h,0843h
+	dw	077feh,07ab0h,07f54h,0843h
+	dw	077feh,07e79h,07f54h,0843h
+	dw	077feh,029fh,07f54h,0843h
+	dw	077feh,05b8ch,07f54h,0843h
+	dw	077feh,0563fh,07f54h,0843h
+	dw	077feh,0195ah,07f54h,0843h
+	dw	077feh,07dd2h,07f54h,0843h
+	dw	077feh,0f5dh,07f54h,0843h
+
+	dw	077feh,07f54h,02af1h,0843h	;worldmap 12
+ ifn  pm_jmsg
+	dw	077feh,047deh,01015h,0766eh	;op_title 13~14  "Green Version" 0766eh は水色
+ else
+	dw	077feh,047deh,01015h,02af1h	;op_title 13~14  "Green Version" 02af1h は黄緑色
+ endif
+	dw	077feh,047deh,06252h,040e7h	;US_green title 
+	dw	077feh,07a98h,07a8bh,0843h 
+
+	dw	077feh,046deh,04dd0h,0843h	;mons 16~25
+	dw	077feh,06e92h,05debh,0843h
+	dw	077feh,02a9fh,0195ah,0843h
+	dw	077feh,07735h,0666eh,0843h
+	dw	077feh,062dbh,05df5h,0843h
+	dw	077feh,03e9ch,025d5h,0843h
+	dw	077feh,04354h,02e89h,0843h
+	dw	077feh,062deh,055fch,0843h
+	dw	077feh,03b9fh,0029ah,0843h
+	dw	077feh,05abah,049efh,0843h 
+
+	dw	077feh,05abah,01015h,0843h 	;slot 26~29
+	dw	077feh,0137eh,03332h,0843h
+	dw	077feh,055fbh,03332h,0843h
+	dw	077feh,07670h,03332h,0843h
+
+	dw	077feh,01ce7h,00c62h,0843h	;encount 30
+	dw	077feh,03f5eh,02e89h,0843h	;fight_win green 31
+	dw	077feh,03f5eh,0029ah,0843h	;fight_win yellow 32
+	dw	077feh,03f5eh,0195ah,0843h	;fight_win red 33
+	dw	077feh,046deh,05debh,0843h	;badge_color for erika 34
+	dw	077feh,025d5h,05b12h,0843h	;dungeon_color 35
+	dw	077feh,03b9fh,02a98h,0843h	;game_freak 36
+  endif
+
+
+picture_flame:
+  ifn pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+	include		..\effdata\pf_blue.map
+   else
+	;-----<red version>-----
+	include		..\effdata\pf_red2.map
+   endif
+  else
+	;-----<green version>-----
+	include		..\effdata\pf_gre2.map
+  endif
+
+	
+picf_chr:
+  ifn pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+	include		..\effdata\pf_blue.cgx
+   else
+	;-----<red version>-----
+	include		..\effdata\pf_red2.cgx
+   endif
+  else
+	;-----<green version>-----
+	include		..\effdata\pf_gre2.cgx
+  endif
+
+
+
+
+

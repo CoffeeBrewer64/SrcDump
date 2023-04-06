@@ -1,0 +1,125 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank6	group	G_BANK6
+
+
+	public	t10_room1
+
+
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+	extern	hotel_kanban
+	extern	pf_kanban
+	extern	hotel_sio
+
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+	extern	item_town_10N
+
+
+
+SHOP_TYPE	equ	2
+EXIT		=	0ffh
+
+t10_room1:
+ysiz	=	6
+xsiz	=	8
+	db	SHOP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	preague			; map data adrs
+	dw	msg_t10r1f1		; message tbl adrs
+	dw	ev_t10r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t10r1f1
+
+
+ev_t10r1f1:
+	call	hotel_sio
+
+	call	init_for_talkmap
+
+	ld	hl,ptn_data
+	bit	6,(hl)
+	res	6,(hl)
+	ret	z
+
+	ld	hl,ev_d14 + 6
+	res	7,(hl)
+
+	ld	hl,game_mode + 2
+	bit	1,(hl)
+	res	1,(hl)
+	ret	z
+
+	ld	hl,ev_d14 + 0			; each event flag clear
+	xor	a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ret
+
+
+
+msg_t10r1f1:
+	msgndw	msg1,msg_hotel
+	ndw	msg2,msg_danpei
+	ndw	msg3,msg_trainerw
+	ndw	item_town_10N,msg_pf
+	ndw	msg5,msg_termgirl
+
+	
+msg1:
+	db	HOTEL
+
+
+msg2:
+	extern	msg2_0_T10R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T10R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_1_T10R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T10R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg5:
+	db	0f6h
+
+
+sxy_t10r1f1:
+	include	..\sxy\t10r0101.sxy
+
+
+preague:
+	include	..\mapdata\preague.map
+

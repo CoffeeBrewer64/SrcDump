@@ -1,0 +1,55 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+;bank12	group	G_BANK12
+bank14	group	G_BANK14
+
+
+	public	d2_room2
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+d2_room2:
+ysiz	=	14
+xsiz	=	14
+	db	DOUKUTU_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	dungeon2_2		; map data adrs
+	dw	msg_d2r1f2		; message tbl adrs
+	dw	ev_d2r1f2		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d2r1f2
+
+
+ev_d2r1f2:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_d2r1f2:
+	dw	msg1$
+
+
+msg1$:
+	extern	msg1_0_D02R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_D02R0102	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d2r1f2:
+	include	..\sxy\d02r0102.sxy
+
+
+dungeon2_2:
+	include	..\mapdata\otuki_b3.map   
+

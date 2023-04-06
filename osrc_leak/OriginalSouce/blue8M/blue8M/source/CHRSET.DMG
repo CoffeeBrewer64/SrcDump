@@ -1,0 +1,206 @@
+
+	include		common.def
+
+bank0	group	0
+	
+	extern	block_move
+	extern	wait_vb
+	extern	pop_bank		; Bank Number Loader - tool_2.src
+
+	public	chrset
+	public	chrmove
+	public	fontset
+	public	fontmove
+
+;********************************
+;*				*
+;*	character data set	*
+;*   in: hl = data adrs		*
+;*	de = vram adrs		*
+;*	bc = byte cnt		*
+;*	a  = bank no.		*
+;*				*
+;********************************
+chrset:
+	ld	(work0),a		; bank no. taihi
+
+	ld	a,(rombankno)		; Exchange Bank
+	push	af
+
+	ld	a,(work0)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	block_move		; data block move
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+chrset2:				; chrset no gyaku  DE -> HL
+	ld	(work0),a		; bank no. taihi
+	ld	a,(rombankno)		; Exchange Bank
+	push	af
+
+	ld	a,(work0)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	push	hl
+	push	de
+
+	push	de
+	ld	d,h
+	ld	e,l
+	pop	hl
+	call	block_move		; data block move
+	pop	de
+	pop	hl
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	ret
+
+fontset:
+	ld	(work0),a		; bank no. taihi
+
+	ld	a,(rombankno)		; Exchange RomBank
+	push	af
+
+	ld	a,(work0)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+z1$:
+	ld	a,(hli)			; Font data load
+	ld	(de),a			; Vram <- Font data (kaichou low)
+	inc	de			; next vram address
+	ld	(de),a			; Vram <- Font data (kaichou high)
+	inc	de			; next vram address
+
+	dec	bc			; byte counter --
+	ld	a,c
+	or	b
+	jr	nz,z1$
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+;********************************
+;*				*
+;*   chrdata move in vblank	*
+;*   in: hl = vram adrs		*
+;*	de = data adrs		*
+;*	c  = data len / 16	*
+;*	b  = bank no.		*
+;*				*
+;********************************
+chrmove:
+	ld	a,(all_put_req)
+	push	af
+	xor	a
+	ld	(all_put_req),a
+
+	ld	a,(rombankno)
+	ld	(work0),a
+
+	ld	a,b				; Bank No. taihi
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	a,e
+	ld	(chr_mv_buf + 1),a		; data address low
+	ld	a,d
+	ld	(chr_mv_buf + 2),a		; data address high
+	ld	a,l
+	ld	(chr_mv_buf + 3),a		; vram address low
+	ld	a,h
+	ld	(chr_mv_buf + 4),a		; vram address high
+move1$:
+	ld	a,c
+	cp	8
+	jr	nc,move2$			
+
+	ld	(chr_mv_buf + 0),a		; data len / 16 no keltuka
+	call	wait_vb
+
+	ld	a,(work0)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	pop	af
+	ld	(all_put_req),a
+
+	ret
+
+move2$:
+	ld	a,8
+	ld	(chr_mv_buf + 0),a		; data len ... 8
+	call	wait_vb
+	ld	a,c
+	sub	8
+	ld	c,a
+	jr	move1$				; move1$ he modore!
+
+
+
+
+
+
+fontmove:
+	ld	a,(all_put_req)
+	push	af
+	xor	a
+	ld	(all_put_req),a
+
+	ld	a,(rombankno)
+	ld	(work0),a
+
+	ld	a,b
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	a,e
+	ld	(fnt_mv_buf + 1),a		; Font kana address Low 
+	ld	a,d
+	ld	(fnt_mv_buf + 2),a		; Font kana address High
+	ld	a,l
+	ld	(fnt_mv_buf + 3),a		; Vram address Low
+	ld	a,h
+	ld	(fnt_mv_buf + 4),a		; Vram address High
+move1$:
+	ld	a,c
+	cp	8
+	jr	nc,move2$
+
+	ld	(fnt_mv_buf + 0),a		; Y Counter
+	call	wait_vb
+
+	ld	a,(work0)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	pop	af
+	ld	(all_put_req),a
+
+	ret
+
+
+move2$:
+	ld	a,8
+	ld	(fnt_mv_buf + 0),a
+
+	call	wait_vb
+
+	ld	a,c
+	sub	8
+	ld	c,a
+
+	jr	move1$
+

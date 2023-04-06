@@ -1,0 +1,243 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank16	group	G_BANK16
+
+
+	public	d14_room1_14f
+
+
+	extern	table_jump
+	extern	mk_trace_cmd
+	extern	init_hero_anime
+	extern	put_wait
+	extern	bank2bank
+	extern	bank_push_call
+	extern	reset
+	extern	cont
+	extern	obj_stopping
+	extern	SetActorSite
+
+
+CHAMPCUP_TYPE	equ	7
+EXIT		=	0ffh
+
+
+seq_d14r1f14	equ	seq_ctrl_buf + 05bh
+
+
+
+d14_room1_14f:
+ysiz	=	4
+xsiz	=	5
+	db	CHAMPCUP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	dendou			; map data adrs
+	dw	msg_d14r1f14		; message tbl adrs
+	dw	ev_d14r1f14		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d14r1f14
+
+
+ev_d14r1f14:
+	call	init_for_talkmap
+
+	ld	hl,d14r1f14_tbl
+	ld	a,(seq_d14r1f14)
+	jp	table_jump
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_d14r1f14),a
+
+	ret
+
+
+d14r1f14_tbl:
+	initndw	FirstStep,SeqFirstStep		; event no 1
+	ndw	Step,SeqStep			; event no 2
+	ndw	Main,SeqMain
+	ndw	Ret,SeqRet
+
+
+Ret:
+	ret
+
+
+Main:
+	call	put_wait
+	ld	a,(msg_speed)
+	push	af
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,85
+	call	bank2bank
+	pop	af
+	ld	(msg_speed),a
+
+  ifn 0
+	ld	b,5
+
+loop$:
+	ld	c,120				; 60m * 2
+	call	wait_vb_s
+	dec	b
+	jr	nz,loop$
+  endif
+
+;	ld	a,5
+;	ld	(my_lvl),a
+
+	ld	hl,game_mode + 1
+	res	1,(hl)
+	inc	hl
+	set	0,(hl)
+
+  ifn	0
+	ld	a,4
+	ld	(seq_ctrl_buf + 05dh),a
+	ld	(seq_ctrl_buf + 05eh),a
+	ld	(seq_ctrl_buf + 05fh),a
+	ld	(seq_ctrl_buf + 063h),a
+
+	ld	hl,ev_d14 + 3
+	res	7,(hl)
+  else
+	xor	a
+	ld	hl,seq_ctrl_buf + 05dh
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	ld	(seq_ctrl_buf + 063h),a
+	ld	(seq_ctrl_buf + 05bh),a
+
+	ld	hl,ev_d14 + 0
+	ld	(hli),a				; + 0
+	ld	(hli),a				; + 1
+	ld	(hli),a				; + 2
+	ld	(hli),a				; + 3
+	ld	(hl),a				; + 4
+  endif
+
+;	ld	a,SeqRet
+	xor	a
+	ld	(seq_d14r1f14),a
+
+	ld	a,T1
+	ld	(ev_something + 1),a		; place of last recover status
+
+	ld	b,01ch
+	extern	save_all
+	ld	hl,save_all
+	call	bank_push_call
+
+	ld	b,5
+
+loop$:
+	ld	c,120				; 60m * 2
+	call	wait_vb_s
+	dec	b
+	jr	nz,loop$
+
+	call	cont_abwait
+
+	jp	reset				; to be continued, to town-1
+
+
+
+FirstStep:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	hl,ctrl_move_val
+	ld	de,to_last$
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	call	init_hero_anime
+
+	ld	a,SeqStep
+	ld	(seq_d14r1f14),a
+
+	ret
+
+
+to_last$:
+	db	040h,5				; command top
+	db	0ffh
+
+
+Step:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	a,1
+	ld	(watashi_muki),a
+
+	ld	a,1
+	ld	(work1),a
+	call	obj_stopping
+
+	ld	a,08h
+	ld	(work2),a
+	call	SetActorSite
+
+	call	put_wait
+
+	xor	a
+	ld	(cancel_key),a
+
+	inc	a
+	ld	(watashi_muki),a
+
+	ld	a,MsgDendou
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	extern	T4msg10
+	ld	a,T4msg10
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,SeqMain
+	ld	(seq_d14r1f14),a
+
+	ret
+
+
+
+msg_d14r1f14:
+	msgndw	msg1,MsgDendou
+
+
+msg1:
+	extern	msg1_0_D14R0114
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_D14R0114	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d14r1f14:
+	include	..\sxy\d14r0114.sxy
+
+dendou:
+	include	..\mapdata\dendou.map
+

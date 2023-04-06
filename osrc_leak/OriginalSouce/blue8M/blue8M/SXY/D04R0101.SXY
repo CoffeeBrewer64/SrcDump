@@ -1,0 +1,16 @@
+; 10/03/95		17:34:51
+dun_tbl$:
+	db	001h
+ie_tbl$:
+	db	002h
+	db	004h,005h,002h,R5R2F1
+	db	029h,002h,002h,R6R2F1
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	000h
+ram_map_tbl$:
+	dw	00ah * 003h + 003h + ram_map
+	db	004h,005h
+	dw	00ah * 015h + 002h + ram_map
+	db	029h,002h

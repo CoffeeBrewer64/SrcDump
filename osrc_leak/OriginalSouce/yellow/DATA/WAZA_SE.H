@@ -1,0 +1,273 @@
+
+;---------------------------------------------------------------;
+;===============================================================;
+;								;
+;	    WAZA & TOKUI WAZA Sound Effects Number EQU		;
+;								;
+;===============================================================;
+;---------------------------------------------------------------;
+NO_SE	equ	0ffh
+
+WSE1	equ	0
+WSE2	equ	1
+WSE3	equ	2
+WSE4	equ	3
+WSE5	equ	4
+WSE6	equ	5
+WSE7	equ	6
+WSE8	equ	7
+WSE9	equ	8
+WSE10	equ	9
+
+WSE11	equ	10
+WSE12	equ	11
+WSE13	equ	12
+WSE14	equ	13
+WSE15	equ	14
+WSE16	equ	15
+WSE17	equ	16
+WSE18	equ	17
+WSE19	equ	18
+WSE20	equ	19
+
+WSE21	equ	20
+WSE22	equ	21
+WSE23	equ	22
+WSE24	equ	23
+WSE25	equ	24
+WSE26	equ	25
+WSE27	equ	26
+WSE28	equ	27
+WSE29	equ	28
+WSE30	equ	29
+
+WSE31	equ	30
+WSE32	equ	31
+WSE33	equ	32
+WSE34	equ	33
+WSE35	equ	34
+WSE36	equ	35
+WSE37	equ	36
+WSE38	equ	37
+WSE39	equ	38
+WSE40	equ	39
+
+WSE41	equ	40
+WSE42	equ	41
+WSE43	equ	42
+WSE44	equ	43
+WSE45	equ	44
+WSE46	equ	45
+WSE47	equ	46
+WSE48	equ	47
+WSE49	equ	48
+WSE50	equ	49
+
+WSE51	equ	50
+WSE52	equ	51
+WSE53	equ	52
+WSE54	equ	53
+WSE55	equ	54
+WSE56	equ	55
+WSE57	equ	56
+WSE58	equ	57
+WSE59	equ	58
+WSE60	equ	59
+
+WSE61	equ	60
+WSE62	equ	61
+WSE63	equ	62
+WSE64	equ	63
+WSE65	equ	64
+WSE66	equ	65
+WSE67	equ	66
+WSE68	equ	67
+WSE69	equ	68
+WSE70	equ	69
+
+WSE71	equ	70
+WSE72	equ	71
+WSE73	equ	72
+WSE74	equ	73
+WSE75	equ	74
+WSE76	equ	75
+WSE77	equ	76
+WSE78	equ	77
+WSE79	equ	78
+WSE80	equ	79
+
+WSE81	equ	80
+WSE82	equ	81
+WSE83	equ	82
+WSE84	equ	83
+WSE85	equ	84
+WSE86	equ	85
+WSE87	equ	86
+WSE88	equ	87
+WSE89	equ	88
+WSE90	equ	89
+
+WSE91	equ	90
+WSE92	equ	91
+WSE93	equ	92
+WSE94	equ	93
+WSE95	equ	94
+WSE96	equ	95
+WSE97	equ	96
+WSE98	equ	97
+WSE99	equ	98
+WSE100	equ	99
+
+WSE101	equ	100
+WSE102	equ	101
+WSE103	equ	102
+WSE104	equ	103
+WSE105	equ	104
+WSE106	equ	105
+WSE107	equ	106
+WSE108	equ	107
+WSE109	equ	108
+WSE110	equ	109
+
+WSE111	equ	110
+WSE112	equ	111
+WSE113	equ	112
+WSE114	equ	113
+WSE115	equ	114
+WSE116	equ	115
+WSE117	equ	116
+WSE118	equ	117
+WSE119	equ	118
+WSE120	equ	119
+
+WSE121	equ	120
+WSE122	equ	121
+WSE123	equ	122
+WSE124	equ	123
+WSE125	equ	124
+WSE126	equ	125
+WSE127	equ	126
+WSE128	equ	127
+WSE129	equ	128
+WSE130	equ	129
+
+WSE131	equ	130
+WSE132	equ	131
+WSE133	equ	132
+WSE134	equ	133
+WSE135	equ	134
+WSE136	equ	135
+WSE137	equ	136
+WSE138	equ	137
+WSE139	equ	138
+WSE140	equ	139
+
+WSE141	equ	140
+WSE142	equ	141
+WSE143	equ	142
+WSE144	equ	143
+WSE145	equ	144
+WSE146	equ	145
+WSE147	equ	146
+WSE148	equ	147
+WSE149	equ	148
+WSE150	equ	149
+
+WSE151	equ	150
+WSE152	equ	151
+WSE153	equ	152
+WSE154	equ	153
+WSE155	equ	154
+WSE156	equ	155
+WSE157	equ	156
+WSE158	equ	157
+WSE159	equ	158
+WSE160	equ	159
+
+WSE161	equ	160
+WSE162	equ	161
+WSE163	equ	162
+WSE164	equ	163
+WSE165	equ	164
+WSE166	equ	165
+WSE167	equ	166
+WSE168	equ	167
+WSE169	equ	168
+WSE170	equ	169
+
+WSE171	equ	170
+WSE172	equ	171
+WSE173	equ	172
+WSE174	equ	173
+WSE175	equ	174
+WSE176	equ	175
+WSE177	equ	176
+WSE178	equ	177
+WSE179	equ	178
+WSE180	equ	179
+
+WSE181	equ	180
+WSE182	equ	181
+WSE183	equ	182
+WSE184	equ	183
+WSE185	equ	184
+WSE186	equ	185
+WSE187	equ	186
+WSE188	equ	187
+WSE189	equ	188
+WSE190	equ	189
+
+WSE191	equ	190
+WSE192	equ	191
+WSE193	equ	192
+WSE194	equ	193
+WSE195	equ	194
+WSE196	equ	195
+WSE197	equ	196
+WSE198	equ	197
+WSE199	equ	198
+WSE200	equ	199
+
+WSE201	equ	200
+WSE202	equ	201
+WSE203	equ	202
+WSE204	equ	203
+WSE205	equ	204
+WSE206	equ	205
+WSE207	equ	206
+WSE208	equ	207
+WSE209	equ	208
+WSE210	equ	209
+
+WSE211	equ	210
+WSE212	equ	211
+WSE213	equ	212
+WSE214	equ	213
+WSE215	equ	214
+WSE216	equ	215
+WSE217	equ	216
+WSE218	equ	217
+WSE219	equ	218
+WSE220	equ	219
+
+WSE221	equ	220
+WSE222	equ	221
+WSE223	equ	222
+WSE224	equ	223
+WSE225	equ	224
+WSE226	equ	225
+WSE227	equ	226
+WSE228	equ	227
+WSE229	equ	228
+WSE230	equ	229
+
+WSE231	equ	230
+WSE232	equ	231
+WSE233	equ	232
+WSE234	equ	233
+WSE235	equ	234
+WSE236	equ	235
+WSE237	equ	236
+WSE238	equ	237
+
+

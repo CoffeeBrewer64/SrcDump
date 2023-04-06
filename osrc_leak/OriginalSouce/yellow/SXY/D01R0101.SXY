@@ -1,0 +1,97 @@
+; 05/11/98		21:15:28
+dun_tbl$:
+	db	003h
+ie_tbl$:
+	db	006h
+	db	000h,001h,002h,R2R2F1
+	db	000h,002h,002h,R2R2F1
+	db	02fh,00fh,001h,R2R5F1
+	db	02fh,010h,001h,R2R5F1
+	db	02fh,011h,001h,R2R5F1
+	db	02fh,012h,001h,R2R5F1
+kanban_tbl$:
+	db	006h
+	db	028h,018h,11
+	db	020h,010h,12
+	db	011h,01Ah,13
+	db	018h,004h,14
+	db	02Dh,012h,15
+	db	001h,002h,16
+hito_tbl$:
+	db	00ah
+	db	SHOUNEN
+	db	02Bh+4,010h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	SHOUNEN
+	db	021h+4,01Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	002h+040h			; battle type
+	db	0cah				; dealer number
+	db	001h				; taking pattern 
+	db	SHOUNEN
+	db	013h+4,01Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	003h+040h			; battle type
+	db	0cah				; dealer number
+	db	002h				; taking pattern 
+	db	SHOUNEN
+	db	012h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	004h+040h			; battle type
+	db	0cah				; dealer number
+	db	003h				; taking pattern 
+	db	TRAINERW
+	db	029h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	005h+040h			; battle type
+	db	0cbh				; dealer number
+	db	013h				; taking pattern 
+	db	SHOUNEN
+	db	011h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	006h+040h			; battle type
+	db	0cah				; dealer number
+	db	00fh				; taking pattern 
+	db	CAPSULE
+	db	00Bh+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	007h+080h			; capsule type
+	db	014h				; item number
+	db	CAPSULE
+	db	01Dh+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	008h+080h			; capsule type
+	db	014h				; item number
+	db	CAPSULE
+	db	01Fh+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	009h+080h			; capsule type
+	db	004h				; item number
+	db	SHOUNEN
+	db	028h+4,01Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00ah
+ram_map_tbl$:
+	dw	017h * 001h + 001h + ram_map
+	db	000h,001h
+	dw	017h * 001h + 002h + ram_map
+	db	000h,002h
+	dw	017h * 018h + 008h + ram_map
+	db	02fh,00fh
+	dw	017h * 018h + 009h + ram_map
+	db	02fh,010h
+	dw	017h * 018h + 009h + ram_map
+	db	02fh,011h
+	dw	017h * 018h + 00ah + ram_map
+	db	02fh,012h

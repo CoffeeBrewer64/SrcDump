@@ -1,0 +1,18 @@
+;-------------------------------;
+; sequence routine table define ;
+;-------------------------------;
+initndb	macro	_msg_no,_bitno
+	db	_msg_no
+_bitno	equ	0
+_count	set	1
+	endm
+
+
+ndb	macro	_msg_no,_bitno
+	dw	_msg_no
+_bitno	equ	_count
+_count	set	_count + 1
+	endm
+
+
+

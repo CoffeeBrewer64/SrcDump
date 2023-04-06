@@ -1,0 +1,64 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include macro.h
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	r2_room2
+
+
+	extern	sekisyo
+
+
+SEKISYO_TYPE	equ	9
+EXIT		=	0ffh
+
+
+r2_room2:  
+ysiz	=	4
+xsiz	=	5
+	db	SEKISYO_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	sekisyo			; map data adrs
+	dw	msg_r2r2f1		; message tbl adrs
+	dw	ev_r2r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r2r2f1
+
+
+ev_r2r2f1:
+	jp	init_for_talkmap
+
+
+
+msg_r2r2f1:
+	dw	msg1$
+	dw	msg2$
+
+
+
+msg1$:
+	extern	msg1_0_R02R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_R02R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_R02R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_R02R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_r2r2f1:
+	include	..\sxy\r02r0201.sxy
+
+

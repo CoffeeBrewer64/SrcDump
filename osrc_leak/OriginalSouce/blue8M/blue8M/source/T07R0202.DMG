@@ -1,0 +1,56 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room2_2f
+
+
+MANSHON_TYPE	equ	19
+EXIT		=	0ffh
+
+
+t7_room2_2f:
+ysiz	=	6
+xsiz	=	4
+	db	MANSHON_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	manshon2f		; map data adrs
+	dw	msg_t7r2f2
+	dw	ev_t7r2f2 		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r2f2
+
+
+
+ev_t7r2f2:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t7r2f2:
+	dw	kanban1$
+
+
+kanban1$:
+	extern	kanban1_0_T07R0202
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_T07R0202	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t7r2f2:
+	include	..\sxy\t07r0202.sxy
+
+
+manshon2f:
+	include	..\mapdata\mansh02.map
+
+

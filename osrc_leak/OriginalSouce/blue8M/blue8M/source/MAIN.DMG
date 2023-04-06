@@ -1,0 +1,862 @@
+
+	include	common.def
+	include	fntequ.def
+	include	pm_debug.def
+	include	banktool.def
+	include	sgb_col.def
+	include macro.h
+	include	group.def
+
+
+bank1	group	G_BANK1
+
+
+	public	main
+	public	main_loop
+
+	public	fnt_kana
+	public	fnt_gauge
+	public	fnt_fight
+	public	fnt_serifu
+	public	fnt_zukan
+	public	fnt_world
+	public	fnt_marushi
+	public	debug_hero
+	public	debug_rival
+	public	opning_marushi
+	public	opning_marushi2
+
+	extern	color_reset
+	extern	color_rewrite
+	extern	pal_off_put_wait
+	extern	get_mons_name
+	extern	get_dealer_name
+	extern	put_dec
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	chrset
+	extern	chrmove
+	extern	fontset
+	extern	set_kana
+	extern	cls
+	extern	wait_vb
+	extern	put_wait
+	extern	wait_vb_s
+	extern	block_move
+;;	extern	printind
+	extern	dvram_cls
+	extern	put_msg
+	extern	se_wait
+	extern	put_window
+	extern	play2
+	extern	play1
+	extern	block_cls
+	extern	add_capsule_new
+	extern	fighter0
+	extern	mul_any
+	extern	cont
+	extern	terminal
+	extern	set_serifu
+	extern	cont_repeat
+	extern	put_all
+
+	extern	play
+	extern	gyaarth_play
+	extern	musmons
+	extern	muslogoin
+	extern	muspi
+
+	extern	option
+	extern	bank2bank
+	extern	bank_push_call
+	extern	color_set
+	extern	palset
+	extern	pal_off
+	extern	rnd
+	extern	get_kaihatsu_no
+	extern	oam_clr
+	extern	prt_mons_chr2
+	extern	get_monsadr
+	extern	push_vram
+	extern	push_vram_m
+	extern	pop_vram
+	extern	pop_vram_m
+	extern	memset
+
+
+name_copy:
+	ld	bc,MONS_NAME_LEN
+	jp	block_move
+
+
+main:
+	ld	hl,debug_hero
+	ld	de,my_name
+	call	name_copy
+
+	ld	hl,debug_rival
+	ld	de,rival_name
+	call	name_copy
+
+	xor	a
+	ld	(window_y),a
+	ld	(msg_speed),a
+	ld	hl,game_mode + 0
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	a,MUSIC_BANK3_NO		; Title Music Bank
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+
+main_loop:
+	call	pal_off
+	ld	a,1				;by tama 960921 for save memory
+;	inc	a
+	ld	(all_put_req),a
+	xor	a
+	ld	(wave_flg),a
+
+;	ld	a,090h
+;	ld	a,070h			;by tama 0730
+	ld	(headerx),a			;headerx = 0 
+
+	ld	a,040h
+	ld	(headery),a
+
+	ld	a,144
+	ld	(window_y),a
+
+	call	dvram_cls
+	call	lcdc_stop			; LCD Control Stop Mode
+
+	call	set_kana
+
+ ifn	ASSEMBLE__ENGLISH			; "@'95.'96.'98 GAME FREAK Inc."キャラをセット
+	ld	hl,fnt_marushi
+	ld	de,9410h
+	ld	bc,5*16				; "@'95.6.8"
+	ld	a,4
+	call	chrset
+	ld	hl,fnt_marushi + 19*16
+	ld	de,9460h
+	ld	bc,9*16				; "GAME FREAK Inc."
+	ld	a,4
+	call	chrset
+ else
+	ld	hl,fnt_marushi	 		; Set maru C Font
+	ld	de,9410h			; 9410h
+;	ld	bc,13*16	
+	ld	bc,01ah*16		; for blue Ver 96-9-18 by Sige	
+	ld	a,4
+	call	chrset
+ endif
+
+	ld	hl,fnt_title			; "pocket monster"by large size
+	ld	de,CHAR_SIG			; 8800h
+	ld	bc,96*16
+	ld	a,4
+	call	chrset
+
+	ld	hl,96*16 + fnt_title		; "pocket monster"in 1 line
+	ld	de,9310h			; 9310h
+	ld	bc,16*16
+	ld	a,4
+	call	chrset
+
+	ld	hl,fnt_version 			; "red or green version"
+  ifn	pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+	ld	de,09610h			; 9610h for blue 96-9-18
+	ld	bc,8*8				; for blue version
+   else
+	;-----<red version>-----
+	ld	de,09600h			; 9600h
+	ld	bc,10*8
+   endif
+  else
+	;-----<green version>-----
+	ld	de,09600h			; 9600h
+	ld	bc,10*8
+  endif
+
+	ld	a,1ah
+	call	fontset
+
+
+	call	bgarea_cls			;->no.2
+
+
+
+
+	S_POS	2,1
+;	ld	hl,20 * 1 + 2 + dmy_vram
+	ld	a,080h
+	ld	de,20
+	ld	c,6
+
+op3$:
+	ld	b,16
+
+	push	hl
+
+op1$:
+	ld	(hli),a
+	inc	a
+	dec	b
+	jr	nz,op1$
+
+	pop	hl
+
+	add	hl,de				; next line
+	dec	c
+	jr	nz,op3$
+	
+	S_POS	2,7
+	ld	a,031h
+	ld	b,16
+
+op5$:						;pocket monsters in alphabet
+	ld	(hli),a
+	inc	a
+	dec	b
+	jr	nz,op5$
+
+	call	titlejiki_set			;put obj of hero
+
+;add for BALL_MOVE
+	ld	hl,oam_buf + 40
+	ld	a,74h				;(5ah,68h) -> (5ah,74h)
+	ld	(hl),a
+
+
+
+;---------------- for blue version by Sige 96-9-18--------
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	2,17			; "@'95.'96.'98 GAME FREAK Inc."を表示する
+	ld	de,maru_c_98
+	ld	b,maru_c_98_end - maru_c_98
+_10$:	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	dec	b
+	jr	nz, _10$
+	jr	maru_c_98_end
+
+maru_c_98:	; @'95.'96.'98 GAME FREAK Inc.
+	DB	$41,$42,$43,$42,$44,$42,$45,$46,$47,$48,$49,$4A,$4B,$4C,$4D,$4E
+maru_c_98_end:
+
+ else
+
+	S_POS	2,17
+	ld	a,041h
+	ld	b,4
+maru_c_loop1$:
+	ld	(hli),a			; maruc 1995.
+	inc	a
+	dec	b
+	jr	nz,maru_c_loop1$
+
+	ld	(hl),042h		; 19
+	inc	hl
+	ld	(hl),043h		; 99
+	inc	hl
+	ld	(hl),05ah		; 6
+	inc	hl
+	ld	b,9
+maru_c_loop2$:
+	ld	(hli),a
+	inc	a
+	dec	b
+	jr	nz,maru_c_loop2$
+ endif
+;---------------- for blue version by Sige 96-9-18--------
+
+	call	push_vram_m
+;	call	put_version
+;	call	push_vram
+	call	pop_vram_m
+
+	call	lcdc_on
+
+  ifn pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+	ld	a,177				;for blue ver. 96/07/26
+   else
+	;-----<red version>-----
+	ld	a,176
+   endif
+  else
+	;-----<green version>-----
+	ld	a,153
+  endif
+	ld	(usr_buf),a			;mons_no
+	call	mons_put
+	
+
+	ld	a,09bh
+	call	bgreq_change
+	call	push_vram
+
+	ld	a,040h
+	ld	(window_y),a
+
+	call	pop_vram_m
+	ld	a,098h
+	call	bgreq_change
+
+	ld	b,COL_OPNING
+	call	color_set
+	call	palset
+	ld	a,0e4h
+	ld	(OBP0),a
+
+;	ld	a,muslogoin
+;	extern	musiwa
+;	ld	a,musiwa
+;	call	play
+
+
+	ld	bc,headery
+	ld	hl,move_tbl$
+
+logo_in_loop$:
+	ld	a,(hli)
+;	cp	080h
+	and	a
+	jr	z,get_out$
+
+	ld	d,a
+
+	cp	-3
+	jr	nz,pass_se$
+
+	extern	musgengerpunch
+	ld	a,musgengerpunch
+	call	play
+
+pass_se$:
+	ld	a,(hli)
+	ld	e,a
+	call	up_loop$
+
+	jr 	logo_in_loop$
+	
+move_tbl$:
+;	db	0feh,20h,01h,10h,0feh,08h,01h,08h,0ffh,08h,80h
+	db	-4,010h,3,004h,-3,004h,2,002h,-2,002h,1,002h,-1,002h,0
+up_loop$:
+	call	wait_vb
+	ld	a,(bc)
+	add	a,d
+	ld	(bc),a
+	dec	e
+	jr	nz,up_loop$
+	ret
+
+get_out$:
+	call	pop_vram		;with pokemon CG
+	ld	c,36
+	call	wait_vb_s
+
+
+	ld	a,muslogoin
+	call	play
+
+	call	put_version
+;	call	put_wait
+
+
+	ld	a,90h
+	ld	(window_y),a
+
+	ld	d,18*8
+;	ld	c,28
+ver_in_loop$:					;sprit routine original
+	ld	h,d
+	ld	l,8*8
+	call	spritsub1a
+
+	ld	h,0
+	ld	l,10*8
+	call	spritsub1a
+
+	ld	a,d
+	add	a,4
+	ld	d,a
+
+	and	a
+	jr	nz,ver_in_loop$
+
+;	ld	c,36
+;	call	wait_vb_s
+
+
+	ld	a,09ch
+	call	bgreq_change
+	call	pop_vram_m		;without pokemon CG
+	call	put_version
+	call	put_wait
+
+	call	se_wait
+
+	ld	a,musmons			; Title Music Start!
+	ld	(music_flag),a			; 0 : SE / !0 : Music
+	call	play
+
+	xor	a
+	ld	(anime_buf),a
+
+	public	start_loop
+start_loop:
+start_loop$:
+;	ld	c,0ffh
+	ld	c,200
+	call	wait_cont
+	jr	c,start$
+
+	call	mons_move2
+
+	ld	c,1
+	call	wait_cont
+	jr	c,start$
+	
+;	and	a			;clear flag
+
+	extern	ball_mover
+	ld	b,0dh
+	ld	hl,ball_mover
+	call	bank_push_call
+	call	mons_move1
+	jr	start_loop$
+
+
+start$:
+	ld	a,(usr_buf)			;mons_no
+	call	gyaarth_play
+	call	se_wait
+
+	call	pal_off_put_wait
+	call	oam_clr
+	xor	a
+	ld	(window_y),a
+;	ld	a,1
+	inc	a
+	ld	(all_put_req),a
+	call	dvram_cls
+
+	ld	a,098h
+	call	bgreq_change
+	ld	a,09ch
+	call	bgreq_change
+
+	call	put_wait
+
+	call	color_reset
+
+	ld	a,(joy_status)
+	ld	b,a
+
+	and	046h
+	cp	046h
+	jp	z,Melting
+
+;-----------------------------------------------; for debug & test
+  ifn	pm_debug
+	ld	a,b
+	bit	2,a
+	jp	nz,option
+
+  endif
+;-----------------------------------------------; for debug & test
+
+	jp	play1
+
+
+
+Melting:
+	ld	b,007h
+	ld	hl,BankInit
+	jp	bank_push_call
+
+	extern	slide_mons
+
+	public		mons_move1	;this label is for debug work
+mons_move1:
+	ld	a,098h
+	call	bgreq_change
+
+rnd_loop$:
+	call	rnd
+	and	0fh
+	ld	c,a
+	ld	b,0
+
+	ld	hl,op_mons_tbl
+	add	hl,bc
+	ld	a,(hl)
+	ld	hl,usr_buf
+	cp	(hl)
+	jr	z,rnd_loop$
+	
+	ld	(hl),a			;mons_no
+	call	mons_put
+
+	ld	a,90h
+	ld	(window_y),a		;show BG area
+	
+	ld	d,1
+	ld	b,0dh
+	ld	hl,slide_mons
+	call	bank_push_call
+	ret
+
+
+mons_move2:
+	ld	d,0
+	ld	b,0dh
+	ld	hl,slide_mons
+	call	bank_push_call
+
+	xor	a
+	ld	(window_y),a		;hide bg with window
+
+	ret
+
+
+spritsub1a:
+spritsub1$:
+	ld	a,(LY)
+	cp	l
+	jr	nz,spritsub1$
+
+
+	ld	a,h
+	ld	(SCX),a
+
+spritsub2$:
+	ld	a,(LY)
+	cp	h
+	jr	z,spritsub2$
+
+	ret
+
+
+	public	titlejiki_set
+titlejiki_set:
+	ld	hl,fnt_titlejiki		; title picture
+	ld	de,8000h			
+	ld	bc,23h*16
+	ld	a,4
+	call	chrset
+
+	call	oam_clr
+
+	xor	a
+	ld	(usr_buf),a
+	ld	hl,oam_buf
+	ld	de,605ah
+	ld	b,7
+
+loop1$:
+	push	de
+	ld	c,5
+
+loop$:
+	ld	a,d
+	ld	(hli),a
+	ld	a,e
+	ld	(hli),a
+	add	a,8
+	ld	e,a
+	ld	a,(usr_buf)
+	ld	(hli),a
+	inc	a
+	ld	(usr_buf),a
+	inc	hl
+	dec	c
+	jr	nz,loop$
+	pop	de
+	ld	a,8
+	add	a,d
+	ld	d,a
+	dec	b
+	jr	nz,loop1$
+	ret
+	
+	
+bgarea_cls:
+	ld	hl,09800h
+	ld	bc,0800h
+	ld	a,spc@
+	jp	memset
+
+	
+mons_put:
+	ld	(sel_item_no),a
+	ld	(tbl_pos),a
+
+;	S_POS	9,9
+;	S_POS	9,10
+	ld	hl, 20 * 10 + 5 + dmy_vram
+	call	get_monsadr
+	jp	prt_mons_chr2
+
+
+bgreq_change:
+	ld	(all_putadr_h),a
+	jp	put_wait
+
+
+opning_marushi:
+	xor	a
+	ld	(window_y),a
+	call	dvram_cls
+	call	set_serifu
+
+opning_marushi2:
+	ld	de,fnt_marushi
+	ld	hl,9600h
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,4*100h + 1ch		; ピカチュウ版  まるＣ表示用キャラクタ数
+ else
+;	ld	bc,4*100h + 19h
+	ld	bc,4*100h + 1ah		; for blue Ver 96-9-18 by Sige
+ endif
+	call	chrmove
+	
+;	S_POS	5,7
+;	ld	hl,20 * 7 + 4 + dmy_vram
+	ld	hl,20 * 7 + 2 + dmy_vram ; for blue Ver 96-9-18 by Sige
+
+	ld	de,marushi_msg$
+	jp	put_msg
+
+marushi_msg$:
+ ifn	ASSEMBLE__ENGLISH
+;--------------------------------------------------------------------------------
+;
+;	ポケットモンスター  ピカチュウ版  まるＣ表示用スクリーンデータ
+;
+;			@'95.'96.'98  Nintendo
+;			@'95.'96.'98  Creatures inc.
+;			@'95.'96.'98  GAME FREAK inc.
+;--------------------------------------------------------------------------------
+	DB	$60,$61,$62,$61,$63,$61,$64,$7F,$65,$66,$67,$68,$69,$6A,cr@
+	DB	$60,$61,$62,$61,$63,$61,$64,$7F,$6B,$6C,$6D,$6E,$6F,$70,$71,$72,cr@
+	DB	$60,$61,$62,$61,$63,$61,$64,$7F,$73,$74,$75,$76,$77,$78,$79,$7A,$7B,EOM
+ else
+;--------------------------------------------------------------------------------
+;
+;	ポケットモンスター  ブルー版  まるＣ表示用スクリーンデータ
+;
+;			@1995.1996 Nintendo
+;			@1995.1996 Creatures inc.
+;			@1995.1996 GAME FREAK inc.
+;--------------------------------------------------------------------------------
+;	db	60h,61h,62h,63h,6dh,6eh,6fh,70h,71h,72h,cr@
+;	db	60h,61h,62h,63h,73h,74h,75h,76h,77h,78h,6bh,6ch,cr@
+;	db	60h,61h,62h,63h,64h,65h,66h,67h,68h,69h,6ah,6bh,6ch,EOM
+	db	60h,61h,62h,63h,61h,62h,79h,6dh,6eh,6fh,70h,71h,72h,cr@
+	db	60h,61h,62h,63h,61h,62h,79h
+	db	73h,74h,75h,76h,77h,78h,6bh,6ch,cr@
+	db	60h,61h,62h,63h,61h,62h,79h
+	db	64h,65h,66h,67h,68h,69h,6ah,6bh,6ch,EOM
+ endif
+
+op_mons_tbl:
+  ifn pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+	db	177,176,153,57,43,82,40,171,104,132,186,71,70,170,14,85
+   else
+	;-----<red version>-----
+	db	176,177,153,112,3,26,84,4,1,148,25,76,150,34,163,133
+   endif
+  else
+	;-----<green version>-----
+	db	153,176,177,123,15,29,84,4,1,148,25,76,150,34,163,133
+  endif
+
+
+put_version:
+  ifn pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+	S_POS	7,8
+	ld	de,msg_version$
+	jp	put_msg
+
+msg_version$:
+;	db	60h,61h,62h,63h,64h,65h,66h,67h,EOM
+	db	61h,62h,63h,64h,65h,66h,67h,68h,EOM ; for blue 96-9-18
+   else
+	;-----<red version>-----
+	S_POS	7,8
+	ld	de,msg_version$
+	jp	put_msg
+
+msg_version$:
+	db	60h,61h,spc@,65h,66h,67h,68h,69h,EOM
+   endif
+
+  else
+	;-----<green version>-----
+	S_POS	6,8
+	ld	de,msg_version$
+	jp	put_msg
+
+msg_version$:
+	db	62h,63h,64h,spc@,65h,66h,67h,68h,69h,EOM
+  endif
+
+
+debug_hero:
+  ifn	pm_jmsg
+	db	ge__,bou@,hu__,ri__
+	db	EOM
+  else
+	db	usf_n,usf_i,usf_n,usf_t,usf_e,usf_n
+	db	EOM
+  endif
+
+debug_rival:
+  ifn	pm_jmsg
+	db	ku__,ri__,ti__,yya__
+	db	EOM
+  else
+	db	usf_s,usf_o,usf_n,usf_y
+	db	EOM
+  endif
+
+
+
+
+
+bank1a	group	G_BANK1a
+
+fnt_version:				; "red or green version"
+	include	..\data\logover.dat
+
+
+bank4	group	G_BANK4
+
+	public	fnt_titlejiki
+fnt_title:
+	include	..\data\title03.dat		; Pocket Monsters Logo
+
+fnt_kana:
+  ifn	pm_jmsg
+	include	..\data\font.dat		; Kana Font Data
+  else
+	include	..\data\font_us.dat		; alphabet font data	23Apr,1998 村川追加
+  endif
+
+fnt_gauge:
+	include ..\data\gauge_b.dat		; Life Gauge Font Data
+
+fnt_fight:
+	include	..\data\fight.dat		; fight gauge Font Data
+
+fnt_marushi:
+;	include	..\data\marusi_n.dat		; maru C Font Data
+	include	..\data\b_maruc.dat		; maru C Font Data
+
+fnt_serifu:
+	include	..\data\serifu_b.dat		; Serifu Font Data
+
+fnt_zukan:
+	include	..\data\zukan.dat		; Kaijyuu Zukan Font Data
+
+fnt_world:
+	include	..\data\worldmap.dat		; Worldmap Font Data
+
+fnt_titlejiki:
+;	include	..\data\title_ji.dat		; TITLE Font Data
+	include	..\data\jiki_blu.dat		; blue version 96-9-19
+
+
+bank7	group	G_BANK7
+
+	extern	put_win_msg
+	extern	step_prn_win
+	extern	reset
+
+BankInit:
+	call	dvram_cls
+	call	color_rewrite
+	call	set_kana
+	call	set_serifu
+
+	ld	hl,msg_clr$
+	call	put_win_msg
+
+	ld	hl,7 * 20 + 14 + dmy_vram
+	ld	bc,8 * 256 + 15
+	ld	a,7
+	ld	(itwk0),a
+	ld	a,YES_NO_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+	ld	a,(allow_cnt)
+	and	a
+	jp	z,reset
+
+	ld	b,01ch
+	extern	bank_all_init
+	ld	hl,bank_all_init
+	call	bank_push_call
+
+	jp	reset
+
+
+msg_clr$:
+	extern	msg_clr_0_MAIN
+	db I_MSG2	; mvmsg追加
+	dw msg_clr_0_MAIN	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+bank0	group	G_BANK0
+
+;=======================================================;
+;   WAIT_CONT	(Creg_count  WAIT)			;
+; 		push_button = ret  (C_flg)		;
+;=======================================================;
+	public	wait_cont
+wait_cont:
+	call	wait_vb
+	
+	push	bc
+	call	cont_repeat
+	pop	bc
+
+	ld	a,(joy_status)
+	cp	46h
+	jr	z,exit$
+
+	ld	a,(joy_repeat)
+;-----------------------------------------------; for debug & test
+  ifn	pm_debug
+	and	0dh		; A,Start,Select
+  else
+	and	09h		; A,Start
+  endif
+;-----------------------------------------------; for debug & test
+	jr	nz,exit$
+
+	dec	c
+	jr	nz,wait_cont
+	and	a		; c_flg clear
+	ret
+
+exit$:
+	scf			; c_flg set
+	ret
+

@@ -1,0 +1,241 @@
+
+	include		common.def
+
+	public		actor_put
+
+	extern	oam_off
+	extern	wait_vb
+	extern	pattern_table
+;;	extern	musdamage
+;;	extern	mussymbal
+;;	extern	musdie
+;;	extern	sprclr
+	extern	cont
+;;	extern	itemlist
+	extern	reset
+
+bank1	group	1
+
+
+pattern_box		equ	vanish_flag + 39
+ACTOR_LAST_ADRS		equ	ACTOR_MAX * TABLE_AREA + actor_table 
+
+;********************************************************
+;*							*	
+;*	ACTOR_PUT					*
+;*							*
+;*	+0 ---	actor code				*
+;*	+1 	action code				*
+;*	+2 ---	actor pattern				*
+;*	+3	Y.dot					*
+;*	+4 ---	 Y					*
+;*	+5	X.dot					*
+;*	+6 ---	 X					*
+;*	+7	others					*
+;*							*
+;*	(oam_flg)					*
+;*		0 = OFF, 1 = ON , 0ffh = no access	*
+;*							*
+;********************************************************
+
+actor_put:
+	ld	a,(oam_flg)
+	dec	a
+	jr	z,acc_on$			; OAM access ON
+
+	cp	0ffh
+	ret	nz				; OAM No access
+
+	ld	(oam_flg),a			; OAM access OFF
+
+	jp	oam_off
+
+
+acc_on$:
+	xor	a
+	ld	(actwork1),a
+
+loop_top$:
+	ld	(actwork0),a
+	ld	d,> actor_table
+	ld	a,(actwork0)			; "actor_table" low address
+	ld	e,a
+	ld	a,(de)				; +0 actor code
+	and	a
+	jp	z,next$				; No active actor
+
+	inc	e
+	inc	e
+	ld	a,(de)				; +2 actor pattern code
+	ld	(pattern_box),a
+
+	cp	0ffh				; check vanish status
+	jr	nz,appear$
+
+	call	apcom				; actor_table data setting
+
+	jr	next$
+
+
+appear$:
+	cp	0a0h
+	jr	c,z78$	
+
+	and	0fh
+	add	a,10h
+
+	jr	z79$
+
+	
+z78$:
+	and	0fh
+
+z79$:
+	ld	l,a				; actor pattern code
+
+	push	de				; actor_tabel + 0bh save
+	inc	d
+
+	ld	a,e
+	add	a,005h
+	ld	e,a
+	ld	a,(de)				; pattern change time (v-brank)
+	and	080h				; pattern change end mask
+	ld	(actwork5),a			; pattern change time
+
+	pop	de				; actor_table + 2 load
+
+	ld	h,0
+	ld	bc,pattern_table		; word boundary table
+	add	hl,hl
+	add	hl,hl
+	add	hl,bc				; pattern code * 4 + address
+	ld	a,(hli)
+	ld	c,a
+	ld	a,(hli)
+	ld	b,a				; chr define (pattern_table)
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; atr define (pattern_table)
+
+	call	apcom				; actor_table data setting
+	ld	a,(actwork1)			; "oam_buf" low address
+	ld	e,a
+	ld	d,> oam_buf
+
+z3$:
+	ld	a,(actwork3)			; local Y
+	add	a,010h				; Y => 010h : display on LCDC
+	add	a,(hl)				; (pattern_tabel).atr->Y
+	ld	(de),a				; OAM(Y)
+
+	inc	hl
+	ld	a,(actwork2)			; local X
+	add	a,008h				; X => 008h : display on LCDC
+	add	a,(hl)				; (pattern_table).atr->X
+	inc	e
+	ld	(de),a				; OAM(X)
+
+	inc	e
+	ld	a,(bc)				; (pattern_table).chr
+	inc	bc				; next pattern(change pattern)
+
+	push	bc
+	ld	b,a
+	ld	a,(pattern_box)
+	swap	a
+	and	0fh
+	cp	0bh				; 2 tu me no komono
+	jr	nz,z5$
+
+	ld	a,07ch
+	jr	z6$
+
+z5$:
+	sla	a				; * 2
+	sla	a				; * 4
+	ld	c,a
+	sla	a				; * 8
+	add	a,c				; *12
+
+z6$:
+	add	a,b
+	pop	bc
+
+	ld	(de),a				; OAM(Pattern Code)
+
+	inc	hl
+	inc	e
+	ld	a,(hl)				; (pattern_table).atr->atr
+	bit	1,a				; grass like mode check
+	jr	z,no_grass$
+
+	ld	a,(actwork5)
+	or	(hl)				; attribute copy
+
+no_grass$:
+	inc	hl
+	ld	(de),a
+	inc	e
+	bit	0,a
+	jr	z,z3$
+
+	ld	a,e
+	ld	(actwork1),a
+
+next$:
+	ld	a,(actwork0)
+	add	a,TABLE_AREA
+	cp	< ACTOR_LAST_ADRS
+	jp	nz,loop_top$
+
+z10$:
+	ld	a,(actwork1)
+	ld	l,a
+	ld	h,> oam_buf
+	ld	de,04h
+	ld	b,0a0h
+
+	ld	a,(obs_map_step)
+	bit	6,a
+	ld	a,0a0h
+	jr	z,z11$
+
+	ld	a,090h
+
+z11$:
+	cp	l
+	ret	z
+
+	ld	(hl),b
+	add	hl,de
+
+	jr	z11$
+
+
+apcom:
+	inc	e
+	inc	e
+	ld	a,(de)				; +4
+	ld	(actwork3),a			; locate Y
+
+	inc	e
+	inc	e
+	ld	a,(de)				; +6
+	ld	(actwork2),a			; locate X
+
+	ld	a,004h
+	add	a,e
+	ld	e,a
+	ld	a,(actwork3)
+	add	a,004h
+	and	0f0h
+	ld	(de),a				; +a hit y
+
+	inc	e
+	ld	a,(actwork2)
+	and	0f0h
+	ld	(de),a				; +b hit x
+
+	ret
+

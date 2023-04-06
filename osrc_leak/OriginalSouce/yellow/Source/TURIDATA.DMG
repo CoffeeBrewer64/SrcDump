@@ -1,0 +1,259 @@
+;=======================================================;
+;							;
+;	FISHING DATA					;
+;							;
+;=======================================================;
+	include	common.def
+	include	fntequ.def
+	include macro.h
+	include	group.def
+	include	map.def
+
+bank3d	group	G_BANK3d	;29->3d ïœçXÅië∫êÏÅj
+
+;=======================================================;
+;	FISHING DATA GET				;
+;		IN :mapno				;
+;		OUT:Ereg  = MonsterNo(0=Non)		;
+;		    Dreg  = MonsterLevel		;
+;=======================================================;
+	public	FishingDataGet
+
+	extern	rnd
+
+FishingDataGet:
+	ld	a,(mapno)
+	ld	c,a
+	ld	hl,FishingMapTable
+search_loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,non_fishing$
+	cp	c
+	jr	z,DataGet$
+
+	ld	de,8
+	add	hl,de
+	jr	search_loop$
+DataGet$:
+	call	FishingDataGetMain
+	ret
+non_fishing$:
+	ld	de,00h
+	ret
+
+FishingDataGetMain:
+	call	rnd
+
+	cp	066h		;40%
+	jr	c,set$
+	inc	hl
+	inc	hl
+	cp	0b2h		;30%
+	jr	c,set$
+	inc	hl
+	inc	hl
+	cp	0e5h		;20%
+	jr	c,set$
+	inc	hl
+	inc	hl
+set$:
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ret
+
+FishingMapTable:	;MonsNo,MonsLevel
+	db	T1
+	db	027,10
+	db	024,10
+	db	027,05
+	db	024,20
+	
+	db	T2
+	db	071,05
+	db	071,10
+	db	071,15
+	db	071,10
+	
+	db	T4
+	db	157,25
+	db	157,30
+	db	158,30
+	db	158,40
+	
+	db	T6
+	db	024,15
+	db	024,20
+	db	024,10
+	db	092,05
+	
+	db	T7
+	db	157,05
+	db	157,10
+	db	157,15
+	db	157,20
+	
+	db	T8
+	db	133,05
+	db	133,10
+	db	133,15
+	db	022,15
+	
+	db	T9
+	db	027,15
+	db	024,15
+	db	027,10
+	db	024,30
+	
+	db	R4
+	db	157,20
+	db	157,25
+	db	157,30
+	db	158,30
+
+	db	R6
+	db	157,05
+	db	157,10
+	db	157,15
+	db	157,20
+
+	db	R24
+	db	157,20
+	db	157,25
+	db	157,30
+	db	158,30
+
+	db	R25
+	db	078,10
+	db	078,15
+	db	138,15
+	db	138,25
+
+	db	R10
+	db	078,15
+	db	078,20
+	db	092,10
+	db	138,25
+
+	db	R11
+	db	024,15
+	db	024,20
+	db	024,10
+	db	092,05
+
+	db	R12
+	db	092,20
+	db	092,25
+	db	093,25
+	db	093,35
+
+	db	R13
+	db	092,15
+	db	092,20
+	db	024,10
+	db	093,20
+
+	db	R17
+	db	024,05
+	db	024,15
+	db	023,25
+	db	023,35
+
+	db	R18
+	db	024,15
+	db	023,20
+	db	023,30
+	db	023,40
+
+	db	R19
+	db	024,15
+	db	027,20
+	db	024,30
+	db	155,30
+
+	db	R20
+	db	024,20
+	db	155,20
+	db	027,30
+	db	155,40
+
+	db	R21
+	db	024,15
+	db	027,20
+	db	024,30
+	db	155,30
+
+	db	R22
+	db	071,05
+	db	071,10
+	db	071,15
+	db	110,15
+
+	db	R23
+	db	071,25
+	db	071,30
+	db	110,30
+	db	110,40
+
+	db	T6R6F1
+	db	024,10
+	db	024,15
+	db	027,15
+	db	023,10
+
+	db	D12R1F4
+	db	133,05
+	db	133,10
+	db	088,10
+	db	089,15
+
+	db	D12R1F1
+	db	133,05
+	db	133,10
+	db	133,15
+	db	088,15
+
+	db	D12R1F2
+	db	133,05
+	db	133,10
+	db	133,15
+	db	088,15
+
+	db	D12R1F3
+	db	133,05
+	db	133,10
+	db	133,15
+	db	088,15
+
+	db	D16R1F3
+	db	078,25
+	db	027,20
+	db	138,35
+	db	027,40
+
+	db	D16R1F4
+	db	078,25
+	db	027,20
+	db	138,35
+	db	027,40
+
+	db	T4R7F1
+	db	157,25
+	db	158,35
+	db	158,45
+	db	158,55
+
+	db	D13R1F2
+	db	157,30
+	db	158,40
+	db	158,50
+	db	158,60
+
+	db	0ffh
+	
+	
+
+
+
+

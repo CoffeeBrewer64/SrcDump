@@ -1,0 +1,77 @@
+; 04/07/95		17:38:57
+dun_tbl$:
+	db	00fh
+ie_tbl$:
+	db	002h
+	db	00dh,004h,002h,EXIT
+	db	00dh,005h,002h,EXIT
+kanban_tbl$:
+	db	001h
+	db	006h,002h,11
+hito_tbl$:
+	db	00ch
+	db	JUDGE
+	db	005h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	JUDGE
+	db	005h+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+	db	TRAINERM
+	db	008h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	003h
+	db	DANPEI
+	db	005h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+	db	TRAINERW
+	db	008h+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	005h
+	db	TRAINERM
+	db	00Ah+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	006h
+	db	MONSTER
+	db	001h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	007h
+	db	SHOUNEN
+	db	002h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	008h
+	db	TRAINERM
+	db	00Ah+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	009h
+	db	GAMERM
+	db	00Ch+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00ah
+	db	DOOR
+	db	004h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00ch
+	db	DOOR
+	db	004h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00dh
+ram_map_tbl$:
+	dw	00bh * 007h + 003h + ram_map
+	db	00dh,004h
+	dw	00bh * 007h + 003h + ram_map
+	db	00dh,005h

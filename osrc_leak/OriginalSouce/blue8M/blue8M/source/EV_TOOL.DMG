@@ -1,0 +1,4653 @@
+;===============================================;
+;						;
+;	event tool box				;
+;		calling use "bank2bank"		;
+;						;
+;===============================================;
+	include		common.def	
+	include		fntequ.def
+	include		maphead.def
+	include		banktool.def
+	include		vanish.def
+	include		maptype.def
+	include		pm_debug.def
+	include		macro.h
+	include		few_mac.h
+	include		group.def
+
+	extern		bank2bank
+	extern		se_play
+	extern		bank_push_call
+	extern		musfanfare
+	extern		musfanfare5
+	extern		fontmove
+	extern		put_monschr
+	extern		prt_mons_chr
+	extern		pop_vram_m
+	extern		yes_no
+	extern		look_guide
+	extern		slot_machine
+	extern		put_wait
+
+	extern		se_wait
+	extern		set_now_music
+
+	extern		musswitch
+	extern		muswngo
+	extern		mussyowan
+	extern		musdoor
+	extern		musboboo
+
+
+;--------;
+; bank 0 ;
+;--------;
+	public		pickup_search
+	public		ev_msg_adrs_save
+	public		ev_msg_adrs_load
+
+
+U_SITE		equ	004h
+D_SITE		equ	000h
+L_SITE		equ	008h
+R_SITE		equ	00ch
+X_SITE		equ	0d0h			; no control
+
+
+
+bank0	group	G_BANK0
+
+
+	public	gym9_door_hook
+
+gym9_door_hook:
+	ld	b,007h
+	ld	hl,gym9_door
+	jp	bank_push_call
+
+
+;-------------------------------------------------------;
+;							;
+;	pick up & searching somthing & look event	;
+;							;
+;-------------------------------------------------------;
+pickup_search:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,(joy_status)
+	bit	0,a
+	jr	z,non$				; no push key
+
+	ld	a,011h				; searching bank
+	ld	(ROMBANK),a
+	ld	(rombankno),a
+
+	call	set_ev_tool
+	ld	a,(sv_box04)
+	and	a
+	jr	nz,table_end$
+
+	ld	a,(usr_buf + 1)			; control program bank
+	ld	(ROMBANK),a
+	ld	(rombankno),a
+
+	ld	de,return$
+	push	de
+
+	jp	(hl)				; call	(hl)
+
+
+return$:
+	xor	a				; event on
+
+	jr	rts$
+
+
+table_end$:
+	ld	b,003h
+	ld	hl,WhatIsThis
+	call	bank_push_call
+	ld	a,(DA_BUF + 0)
+	and	a
+	jr	z,rts$
+
+non$:
+	ld	a,0ffh				; event off
+
+rts$:
+	ld	(sv_box01),a
+
+	pop	af
+	ld	(ROMBANK),a
+	ld	(rombankno),a
+
+	ret
+
+
+;--------------------;
+; event user program ;
+;--------------------;
+	public	easy_talk
+
+easy_talk:
+	ld	(work1),a
+
+	ld	hl,ev_msg_tbl
+	call	ev_msg_adrs_save		; original data save & load
+
+	ld	hl,priority_buffer
+	set	0,(hl)				; hook mode in "talk_map"
+
+	call	talk_map
+
+
+;-----------------------------------;
+; special message group address set ;
+;-----------------------------------;
+ev_msg_adrs_load:
+	ld	hl,map_msg_tbl_adr + 0
+	ld	a,(sv_box02)
+	ld	(hli),a
+	ld	a,(sv_box03)
+	ld	(hl),a
+
+	ret
+
+
+ev_msg_adrs_save:
+	ld	a,(map_msg_tbl_adr + 0)
+	ld	(sv_box02),a
+	ld	a,(map_msg_tbl_adr + 1)
+	ld	(sv_box03),a
+
+	ld	a,l
+	ld	(map_msg_tbl_adr + 0),a
+	ld	a,h
+	ld	(map_msg_tbl_adr + 1),a
+
+	ret
+
+
+;-----------------------------------;
+; point event message address table ;
+;-----------------------------------;
+	extern	D10open
+	extern	D10close
+
+ev_msg_tbl:
+	msgndw	D10open,MsgD10open
+	ndw	D10close,MsgD10close
+	ndw	stock_box,msg_stock_box
+	ndw	famicom,msg_famicom
+	ndw	hang_picture1,msg_hang_picture1
+	ndw	hang_picture2_0,msg_hang_pic2_0
+	ndw	hang_picture2_1,msg_hang_pic2_1
+	ndw	okido_lt_off,msg_okido_lt_off
+	ndw	putera_info,msg_putera_info
+	ndw	freezer_info,msg_freezer_info
+	ndw	kabuto_info,msg_kabuto_info
+	ndw	figure_before,msg_figure_before
+	ndw	figure_after,msg_figure_after
+	ndw	bookrack_msg,msg_bookrack
+	ndw	sofa_t2_msg,msg_sofa_t2
+	ndw	sofa_t3_msg,msg_sofa_t3
+	ndw	sofa_t4_msg,msg_sofa_t4
+	ndw	sofa_t5_msg,msg_sofa_t5
+	ndw	sofa_t6_msg,msg_sofa_t6
+	ndw	sofa_t7_msg,msg_sofa_t7
+	ndw	sofa_t7a_msg,msg_sofa_t7a
+	ndw	sofa_t8_msg,msg_sofa_t8
+	ndw	sofa_t9_msg,msg_sofa_t9
+	ndw	sofa_t11_msg,msg_sofa_t11
+	ndw	sofa_r4_msg,msg_sofa_r4
+	ndw	sofa_r10_msg,msg_sofa_r10
+	ndw	sofa_d12_7_msg,msg_sofa_d12_7
+	ndw	sofa_d12_8_msg,msg_sofa_d12_8
+	ndw	sofa_d12_9_msg,msg_sofa_d12_9
+	ndw	rack_msg,msg_rack
+	ndw	laptop_on,msg_laptop_on
+	ndw	notebook,msg_notebook
+	ndw	blackboard,msg_blackboard
+	ndw	term_msg,msg_term
+	ndw	mstock,msg_mstock
+	ndw	item_in,msg_item_in
+	ndw	item_over,msg_item_over
+	ndw	trash_box,msg_trash_box
+	ndw	nucleus_info,msg_nucleus
+	ndw	slot_tag1,msg_tag1
+	ndw	slot_tag2,msg_tag2
+	ndw	slot_tag3,msg_tag3
+	ndw	coin_in,msg_coin_in
+	ndw	coin_over,msg_coin_over
+;	ndw	tv_news,msg_tv_news
+	ndw	dim_machine1,msg_dim_machine1
+	ndw	dim_machine2,msg_dim_machine2
+	ndw	dim_machine3,msg_dim_machine3
+	ndw	pm_books,msg_pm_books
+;	ndw	NoCoinCase,MsgNoCoinCase
+	ndw	Quiz,MsgQuiz
+	ndw	NoCoin,MsgNoCoin
+	ndw	NoCoinBox,MsgNoCoinBox
+	ndw	Omitoosi,msg_omitoosi
+	ndw	Unnya,msg_unnya
+	ndw	msg_gym11_figure,MsgGym11Figure
+	ndw	msg_gym11_pic1,MsgGym11Pic1
+	ndw	msg_gym11_pic2,MsgGym11Pic2
+	ndw	msg_mb,MsgMB
+	ndw	SekieiFigure,MsgSekieiFigure
+	ndw	trash_hit1,MsgTrashHit1
+	ndw	trash_hit2_0,MsgTrashHit2_0
+	ndw	trash_hit2_1,MsgTrashHit2_1
+	ndw	trash_out,MsgTrashOut
+	ndw	map_msg,Msgmap_msg
+	ndw	book_msg,Msgbook_msg
+	ndw	elev_msg,Msgelev_msg
+	ndw	shop_msg,Msgshop_msg
+
+
+
+bank18	group	G_BANK18
+
+pm_figure:
+	call	init_for_talkmap
+
+	ld	a,(actor_table + 009h)
+	cp	04h				; look site is front
+	ret	nz
+
+	ld	hl,figure_select
+	ld	a,(mapno)
+	ld	b,a
+
+loop$:
+	ld	a,(hli)				; mapno
+	cp	0ffh				; end mark check
+	ret	z
+
+	cp	b
+	jr	z,hit_map$
+
+	inc	hl
+
+	jr	loop$
+
+
+hit_map$:
+	ld	b,(hl)				; bit value
+
+value$:
+	ld	a,(ev_champ)
+	and	b
+	cp	b
+	ld	a,msg_figure_after
+	jr	z,win$				; case of on bit
+
+	ld	a,msg_figure_before
+
+win$:
+	jp	easy_talk
+
+
+figure_select:
+	db	T3R2F1, 00000001b		; mapno, bit-value
+	db	T4R4F1, 00000010b		; mapno, bit-value
+	db	T6R4F1, 00000100b		; mapno, bit-value
+	db	T7R4F1, 00001000b		; mapno, bit-value
+	db	T8R6F1, 00010000b		; mapno, bit-value
+	db	T11R3F1,00100000b		; mapno, bit-value
+	db	T9R2F1, 01000000b		; mapno, bit-value
+	db	T2R5F1, 10000000b		; mapno, bit-value
+	db	0ffh
+
+
+figure_before:
+	extern	figure_before_0_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw figure_before_0_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+figure_after:
+	extern	figure_after_1_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw figure_after_1_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+all_using:
+	call	init_for_talkmap
+
+	ld	hl,all_using_tbl
+	ld	a,(mapno)
+	ld	b,a
+
+loop$:
+	ld	a,(hli)				; mapno
+	cp	0ffh				; end mark check
+	ret	z
+
+	cp	b
+	jr	z,hit_map$
+
+	inc	hl
+	inc	hl
+
+	jr	loop$
+
+
+hit_map$:
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(actor_table + 009h)
+	cp	b
+	jr	nz,loop$
+
+	ld	a,(hl)				; case of found
+	jp	easy_talk
+
+
+all_using_tbl:
+	db	T2R1F1,08h,msg_sofa_t2
+	db	T3R6F1,08h,msg_sofa_t3
+	db	T4R3F1,08h,msg_sofa_t4
+	db	T5R1F1,08h,msg_sofa_t5
+	db	T6R1F1,08h,msg_sofa_t6
+	db	T7R3F1,08h,msg_sofa_t7
+	db	T7R10F1,08h,msg_sofa_t7a
+	db	T8R3F1,08h,msg_sofa_t8
+	db	T9R4F1,08h,msg_sofa_t9
+	db	T11R7F1,08h,msg_sofa_t11
+	db	R4R1F1,08h,msg_sofa_r4
+	db	R10R1F1,08h,msg_sofa_r10
+;	db	D12R1F7,08h,msg_sofa_d12_7	;村川削除
+;	db	D12R1F8,08h,msg_sofa_d12_8	;村川削除
+;	db	D12R1F9,08h,msg_sofa_d12_9	;村川削除
+	db	0ffh
+
+sofa_t2_msg:
+	extern	sofa_t2_msg_2_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t2_msg_2_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t3_msg:
+	extern	sofa_t3_msg_3_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t3_msg_3_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t4_msg:
+	extern	sofa_t4_msg_4_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t4_msg_4_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t5_msg:
+	extern	sofa_t5_msg_5_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t5_msg_5_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_r4_msg:
+	extern	sofa_r4_msg_6_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_r4_msg_6_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_r10_msg:
+	extern	sofa_r10_msg_7_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_r10_msg_7_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_d12_7_msg:
+	extern	sofa_d12_7_msg_8_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_d12_7_msg_8_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_d12_8_msg:
+	extern	sofa_d12_8_msg_9_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_d12_8_msg_9_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_d12_9_msg:
+	extern	sofa_d12_9_msg_10_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_d12_9_msg_10_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t6_msg:
+	extern	sofa_t6_msg_11_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t6_msg_11_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t7_msg:
+	extern	sofa_t7_msg_12_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t7_msg_12_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t8_msg:
+	extern	sofa_t8_msg_13_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t8_msg_13_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t9_msg:
+	extern	sofa_t9_msg_14_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t9_msg_14_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t11_msg:
+	db	CALL_MSG
+
+	ld	a,(ev_d10 + 19)
+	bit	7,a
+	ld	hl,st11_1$
+	jr	nz,free$
+
+	ld	hl,st11_0$
+
+free$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+st11_0$:
+	extern	st11_0_15_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw st11_0_15_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+st11_1$:
+	extern	st11_1_16_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw st11_1_16_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sofa_t7a_msg:
+	extern	sofa_t7a_msg_17_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw sofa_t7a_msg_17_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+rack:
+	ret	
+
+rack_msg:
+	db	EOM
+
+bookrack:
+	call	init_for_talkmap
+
+	ld	a,msg_bookrack
+	jp	easy_talk
+
+
+bookrack_msg:
+	extern	bookrack_msg_18_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw bookrack_msg_18_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+laptop:
+	ld	a,(actor_table + 009h)
+	cp	004h
+	ret	nz
+
+	call	init_for_talkmap
+	ld	a,1
+	ld	(win_cancel),a
+
+	ld	a,msg_laptop_on
+	jp	easy_talk
+
+
+laptop_on:
+	db	VMUNIX
+
+
+
+
+bank7	group	G_BANK7
+
+
+mb:
+	call	init_for_talkmap
+
+	ld	a,MsgMB
+	jp	easy_talk
+
+
+msg_mb:
+	extern	msg_mb_19_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw msg_mb_19_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+hanging_picture1:
+	call	init_for_talkmap
+
+	ld	a,msg_hang_picture1
+	jp	easy_talk
+
+
+
+hang_picture1:
+	extern	hang_picture1_20_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw hang_picture1_20_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+hanging_picture2:
+	call	init_for_talkmap
+
+	ld	hl,zukan_flg
+	ld	b,19
+	extern	how_many_bit
+	call	how_many_bit
+	ld	a,(in_dat)
+	cp	2				; check taking pm
+	ld	a,msg_hang_pic2_0
+	jr	c,rts$
+
+	ld	a,msg_hang_pic2_1
+
+rts$:
+	jp	easy_talk
+
+
+hang_picture2_0:
+	extern	hang_picture2_0_21_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw hang_picture2_0_21_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+hang_picture2_1:
+	extern	hang_picture2_1_22_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw hang_picture2_1_22_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+	public	CheckSafariBall
+
+CheckSafariBall:
+	ld	hl,ev_t8_5 + 0
+	bit	7,(hl)
+	jr	z,SafariNoOut
+
+	ld	a,(safari_ball_cnt)
+	and	a
+	jr	z,SafariOut
+
+	jr	SafariNoOut
+
+
+
+	public	CheckSafari
+
+seq_t8r5f1	equ	seq_ctrl_buf + 47
+
+CheckSafari:
+;-----------------------------------------------;
+  ifn	pm_debug
+	extern	DebugKeyHook
+	call	DebugKeyHook
+	ret	nz
+  endif
+;-----------------------------------------------;
+	ld	a,(save_event_flg + 2)	
+	ld	b,a
+	ld	a,(save_event_flg + 3)
+	ld	c,a
+
+	or	b
+	jr	z,SafariOut
+
+	dec	bc
+
+	ld	a,b
+	ld	(save_event_flg + 2),a
+	ld	a,c
+	ld	(save_event_flg + 3),a
+
+
+SafariNoOut:
+	xor	a
+	ld	(CountDownTime),a 
+	ret
+
+
+	extern	muspinpon
+SafariOut:
+	call	init_for_talkmap
+
+	xor	a
+	ld	(fade_play_fg),a
+	dec	a
+	call	play
+	
+	ld	c,MUSIC_BANK1_NO
+	ld	a,< muspinpon
+	extern	direct_play
+	call	direct_play
+
+loop$:
+	ld	a,(condetion + 4)
+	cp	< muspinpon
+	jr	nz,loop$
+
+;	ld	a,< muspinpon
+;	call	se_play
+
+	ld	a,0d3h				; Safari_end_msg
+	ld	(work1),a
+	call	talk_map
+
+	xor	a
+	ld	(watashi_muki),a
+
+	ld	a,T8R5F1			; mapno
+	ld	(work0),a
+	ld	a,3
+	ld	(ram_map_id),a
+
+	ld	a,5				; SeqFinishCheck
+	ld	(seq_t8r5f1),a
+
+	ld	hl,ev_t8_5 + 0
+	set	6,(hl)				; request
+
+	ld	a,1
+	ld	(CountDownTime),a 
+
+	ret
+
+
+
+	public	SafariEndMsg
+
+SafariEndMsg:
+;-----------------------------------------------; 1996.01.04 by Aspirin
+	xor	a
+	ld	(cancel_key),a
+;-----------------------------------------------;
+
+	ld	hl,safari_end$
+
+	jp	put_win_msg
+
+
+safari_end$:
+	db	CALL_MSG
+
+	ld	a,(safari_ball_cnt)
+	and	a
+	jr	z,end$
+
+	ld	hl,safari_end_msg1$
+	call	put_win_msg
+
+end$:
+	ld	hl,safari_end_msg2$
+	call	put_win_msg
+
+	jp	msg_return
+
+	
+safari_end_msg1$:
+	extern	safari_end_msg1_23_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw safari_end_msg1_23_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+safari_end_msg2$:
+	extern	safari_end_msg2_24_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw safari_end_msg2_24_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+QuizMachine:
+	ld	a,(actor_table + 009h)
+	cp	004h
+	ret	nz
+
+	call	init_for_talkmap
+
+	ld	a,MsgQuiz
+	jp	easy_talk
+
+
+Quiz:
+	db	CALL_MSG
+
+	xor	a
+	ld	(AdrsDealerTalk + 8),a
+
+	ld	a,(usr_buf + 0)
+	push	af
+	and	00fh
+	ld	(DA_BUF + 0),a			; quiz number
+	pop	af
+	and	0f0h
+	swap	a
+	ld	(DA_BUF + 1),a			; quiz answer
+
+	ld	hl,QuizStart$
+	call	put_win_msg
+
+	ld	a,(DA_BUF + 0)
+	dec	a
+	add	a,a
+	ld	d,0
+	ld	e,a
+	ld	hl,quiz_table$
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	call	put_win_msg			; quiz
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	call	gym9_door_check			; bit-off:close bit-on:open
+
+	jp	msg_return
+
+
+QuizStart$:
+	extern	QuizStart_25_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw QuizStart_25_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+quiz_table$:
+	dw	quiz_001$
+	dw	quiz_002$
+	dw	quiz_003$
+	dw	quiz_004$
+	dw	quiz_005$
+	dw	quiz_006$
+
+
+quiz_001$:
+	extern	quiz_001_26_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw quiz_001_26_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+quiz_002$:
+	extern	quiz_002_27_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw quiz_002_27_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+quiz_003$:
+	extern	quiz_003_28_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw quiz_003_28_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+quiz_004$:
+	extern	quiz_004_29_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw quiz_004_29_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+quiz_005$:
+	extern	quiz_005_30_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw quiz_005_30_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+quiz_006$:
+	extern	quiz_006_31_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw quiz_006_31_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+check_door_flag:
+	ld	hl,ev_t9_2 + 2
+	ld	a,B_BIT_CONTROL
+	jp	bank2bank
+
+
+
+gym9_door_check:
+	call	yes_no
+	ld	a,(DA_BUF + 1)
+	ld	c,a
+	ld	a,(allow_cnt)
+	cp	c				; quiz answer
+	jr	nz,out$
+
+	ld	hl,ptn_data
+	set	5,(hl)
+
+	ld	a,(DA_BUF + 0)
+	ld	(DA_BUF + 5),a
+
+	ld	hl,QuizNext$
+	call	put_win_msg
+
+	ld	a,(DA_BUF + 5)
+	ld	c,a
+	ld	b,1
+	call	check_door_flag
+
+	jp	gym9_door
+
+
+
+out$:
+	call	se_wait
+
+	ld	a,< musboboo
+	call	play
+
+	call	se_wait
+
+	ld	hl,QuizBomb$
+	call	put_win_msg
+
+	ld	a,(DA_BUF + 0)			; door number(1 -- 6)
+	add	a,2
+	ld	c,a
+	ld	b,2				; test bit mode
+	ld	hl,ev_t9_2 + 0
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+	ld	a,c
+	and	a
+	ret	nz
+
+	ld	a,(DA_BUF + 0)
+	add	a,2				; machine no. -> dealer no.
+	ld	(AdrsDealerTalk + 8),a
+
+	ret
+
+
+
+QuizNext$:
+	db	FANFARE
+	extern	QuizNext_32_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw QuizNext_32_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db	WAIT
+
+	db	CALL_MSG
+
+	ld	a,(DA_BUF + 5)
+	ld	c,a
+	ld	b,2				; test bit mode
+	call	check_door_flag
+	ld	a,c
+	and	a
+	jp	nz,msg_return
+
+	call	se_wait
+	ld	a,< musdoor
+	call	play
+	call	se_wait
+
+	jp	msg_return
+
+
+
+QuizBomb$:
+	extern	QuizBomb_33_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw QuizBomb_33_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+	public	gym9_door
+
+gym9_door:
+;	ld	a,< musdoor
+;	call	play
+
+	ld	a,6
+	ld	(DA_BUF + 0),a
+
+loop$:
+	ld	a,(DA_BUF + 0)			; door number(1 -- 6)
+	dec	a
+	add	a,a
+	add	a,a				; (n - 1) * 4
+	ld	d,0
+	ld	e,a
+	ld	hl,door_table
+	add	hl,de
+	ld	a,(hli)
+	ld	b,(hl)
+	ld	c,a				; (y, x):dmy_vram
+	inc	hl
+	ld	a,(hl)				; cell-block number
+	ld	(temp_box_s),a
+
+	push	bc
+
+	ld	a,(DA_BUF + 0)			; door number(1 -- 6)
+	ld	(DA_BUF + 5),a			; door number(1 -- 6)
+	ld	c,a
+	ld	b,2				; test bit mode
+	call	check_door_flag
+	ld	a,c
+	and	a
+	jr	nz,open$			; open the door
+
+	ld	a,(temp_box_s)
+
+	jr	set$
+
+
+open$:
+	ld	a,00ch + 002h
+
+set$:
+	pop	bc
+
+	ld	(el_c),a
+	ld	a,B_BGCELL_CHANGE
+	call	bank2bank
+
+	ld	hl,DA_BUF + 0
+	dec	(hl)
+	jr	nz,loop$
+
+	ret
+
+
+door_table:
+	dw	003h * 0100h + 009h
+	db	054h + 000h,000h
+
+	dw	003h * 0100h + 006h
+	db	054h + 000h,000h
+
+	dw	006h * 0100h + 006h
+	db	054h + 000h,000h
+
+	dw	008h * 0100h + 003h
+	db	05ch + 003h,000h
+
+	dw	006h * 0100h + 002h
+	db	054h + 000h,000h
+
+	dw	003h * 0100h + 002h
+	db	054h + 000h,000h
+
+
+
+
+pm_book:
+	call	init_for_talkmap
+
+	ld	a,msg_pm_books
+	call	easy_talk
+
+	ret
+
+
+pm_books:
+	extern	pm_books_34_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw pm_books_34_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+DimMachine:
+	call	init_for_talkmap
+
+	ld	a,(actor_table + 009h)
+	cp	004h
+	ret	nz
+
+	ld	a,(ev_r25 + 1)
+	bit	7,a				; check all end
+	jr	nz,guide$
+
+	bit	3,a				; check into machine
+	jr	nz,info$
+
+	bit	6,a				; check into machine
+	jr	nz,into$
+
+info$:
+	ld	a,msg_dim_machine1
+	jp	easy_talk
+
+into$:
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	a,msg_dim_machine2
+	call	easy_talk
+
+	ld	c,020h
+	call	wait_vb_s
+
+	ld	a,< muswngo
+	call	play
+	call	se_wait
+
+	ld	c,050h
+	call	wait_vb_s
+
+	ld	a,< mussyowan
+	call	play
+	call	se_wait
+
+	ld	c,030h
+	call	wait_vb_s
+
+	ld	a,< muswngo
+	call	play
+	call	se_wait
+
+	ld	c,020h
+	call	wait_vb_s
+
+	ld	a,< musfanfare
+	call	play
+	call	se_wait
+
+	call	set_now_music
+
+	ld	hl,ev_r25 + 1
+	set	3,(hl)				; success
+
+	ret
+
+
+guide$:
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	a,msg_dim_machine3
+	call	easy_talk
+
+	ret
+
+
+
+
+dim_machine1:
+	extern	dim_machine1_35_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dim_machine1_35_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+dim_machine2:
+	extern	dim_machine2_36_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dim_machine2_36_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db	WAIT
+
+	db	CALL_MSG
+
+	ld	a,0ffh
+	ld	(music_flag),a
+	call	play
+
+	ld	c,010h
+	call	wait_vb_s
+
+	ld	a,< musswitch
+	call	play
+	call	se_wait
+
+	ld	c,60
+	call	wait_vb_s
+
+	jp	msg_return
+
+
+
+dim_machine3:
+	db	CALL_MSG
+
+	call	push_vram
+
+	ld	hl,dim_0$
+	call	put_win_msg
+
+	xor	a
+	ld	(effect_no),a			; for element count
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+
+	ld	a,BT_A+BT_B
+	ld	(allow_msk),a			; assign key
+	ld	a,5 - 1
+	ld	(allow_max),a			; select elements
+	ld	a,2
+	ld	(allow_pos + 0),a		; 1st locate Y
+	ld	a,1
+	ld	(allow_pos + 1),a		; 1st locate X
+
+menu_loop$:
+	ld	hl,obs_system
+	set	6,(hl)
+
+	SET_WIN_POS	0,0,10,11
+	call	put_window
+	
+	SET_MSG_POS	2,2,dim_menu$
+	call 	put_msg
+
+	ld	hl,dim_select$
+	call	put_win_msg
+
+	call	push_vram_m
+
+	call	allow
+	bit    	1,a				; check cancel request(b)
+	jr	nz,close$
+
+	ld	a,(allow_cnt)
+	add	a,102
+	cp	102
+	jr	z,pm$
+
+	cp	103
+	jr	z,pm$
+
+	cp	104
+	jr	z,pm$
+
+	cp	105
+	jr	z,pm$
+
+	jr	close$
+
+
+pm$:
+	call	look_guide
+
+	call	pop_vram_m
+
+	jr	menu_loop$
+
+
+close$:
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	pop_vram_m
+
+	jp	msg_return
+
+
+dim_0$:
+	extern	dim_0_37_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dim_0_37_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+dim_menu$:
+  ifn	pm_jmsg
+	db	i__,bou@,bu__,i__,cr@
+	db	bu__,bou@,su__,ta__,bou@,cr@
+	db	sa__,n__,da__,bou@,su__,cr@
+	db	si__,yya__,wa__,bou@,zu__,cr@
+	db	mi_,ru_,no_,wo_,spc@,ya_,me_,ru_
+	db	EOM
+  else
+	db	usf_e,usf_e,usf_v,usf_e,usf_e,cr@
+	db	usf_f,usf_l,usf_a,usf_r,usf_e,usf_o,usf_n,cr@
+	db	usf_j,usf_o,usf_l,usf_t,usf_e,usf_o,usf_n,cr@
+	db	usf_v,usf_a,usf_p,usf_o,usf_r,usf_e,usf_o,usf_n,cr@
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l
+	db	EOM
+  endif
+
+
+dim_select$:
+	extern	dim_select_38_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dim_select_38_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+okido_laptop:
+	ld	a,(actor_table + 009h)
+	cp	004h
+	ret	nz
+
+	call	init_for_talkmap
+
+	ld	a,msg_okido_lt_off
+	jp	easy_talk
+
+
+okido_lt_off:
+	extern	okido_lt_off_39_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw okido_lt_off_39_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+bankb	group	G_BANKb
+
+check_joyland:
+	ld	a,(actor_table + 2)
+	and	8
+	jr	z,right$
+
+	ld	b,69				; coin case
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+	ld	a,b
+	and	a
+	ld	b,MsgNoCoinBox
+	jr	z,same$
+
+ok$:
+	ld	hl,coin + 0
+	ld	a,(hli)
+	or	(hl)
+
+	jr	nz,right$
+
+	ld	b,MsgNoCoin
+same$:
+	call	init_for_talkmap
+	ld	a,b
+	call	easy_talk
+
+	xor	a				; no
+
+right$:
+	ld	(usr_buf + 0),a
+
+	ret
+
+
+NoCoinBox:
+	extern	NoCoinBox_40_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw NoCoinBox_40_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+NoCoin:
+	extern	NoCoin_41_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw NoCoin_41_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+bankd	group	G_BANKd
+
+
+JOY_RATIO	equ	253
+BIG_RATIO	equ	250
+
+
+slot_control:
+	ld	a,(usr_buf + 0)
+	cp	0fdh
+	jr	z,tag1$
+
+	cp	0feh
+	jr	z,tag2$
+
+	cp	0ffh
+	jr	z,tag3$
+
+	ld	b,0bh
+	ld	hl,check_joyland
+	call	bank_push_call
+	ld	a,(usr_buf + 0)
+	and	a
+	ret	z
+
+	ld	a,(ctrl_move_val + 50)		; for "ev_tool" as machine
+	ld	b,a
+
+	ld	a,(usr_buf + 2)
+	inc	a
+	cp	b
+	jr	z,big$
+
+	ld	a,JOY_RATIO
+
+	jr	set$
+
+
+big$:
+	ld	a,BIG_RATIO
+
+set$:
+	ld	(anime_buf + 0),a		; ratio
+	ld	a,(rombankno)
+	ld	(anime_buf + 3),a		; debug for "slot machine"
+	call	slot_machine
+
+	ret
+
+
+tag1$:
+	ld	a,msg_tag1
+
+	jr	tag_same$
+
+
+tag2$:
+	ld	a,msg_tag2
+
+	jr	tag_same$
+
+
+tag3$:
+	ld	a,msg_tag3
+
+tag_same$:
+	push	af
+	call	init_for_talkmap
+	pop	af
+	call	easy_talk
+
+	ret
+
+
+slot_tag1:
+	extern	slot_tag1_42_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw slot_tag1_42_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+slot_tag2:
+	extern	slot_tag2_43_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw slot_tag2_43_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+slot_tag3:
+	extern	slot_tag3_44_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw slot_tag3_44_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+bank11	group	G_BANK11
+
+;----------------------------------;
+; setting data for "pickup_search" ;
+;----------------------------------;
+set_ev_tool:
+	ld	hl,sv_box01
+	xor	a
+	ld	(hli),a				; event observe(sv_box01)
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a				; result code(sv_box04)
+
+	ld	de,00h
+	ld	hl,pick_up_tbl			; event address table
+
+mapno_loop$:
+	ld	a,(hli)	
+	ld	b,a
+	cp	0ffh				; end of event table
+	jr	z,table_end$ 
+
+	ld	a,(mapno)
+	cp	b
+	jr	z,mapno_much$
+
+	inc	de
+	inc	de				; *2 (data count)
+
+	jr	mapno_loop$
+
+
+mapno_much$:
+	ld	hl,cdnt_table			; event address table
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; object demonstration table
+
+	push	hl
+	ld	hl,usr_buf + 0
+	xor	a
+	ld	(hli),a				; +0
+	ld	(hli),a				; +1
+	ld	(hl),a				; +2
+	pop	hl
+
+coordinate_loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,table_end$
+
+	ld	(usr_buf + 3),a
+	ld	b,a				; target coordinate-y
+	ld	a,(hli)
+	ld	(usr_buf + 4),a
+	ld	c,a				; target coordinate-x
+	call	target_check			; check around target
+	ld	a,(temp_box6)			; check value
+	and	a
+	jr	z,coordinate_much$
+
+	inc	hl				; control site skip
+	inc	hl				; bank number skip
+	inc	hl
+	inc	hl				; program address skip
+
+	push	hl
+	ld	hl,usr_buf + 2
+	inc	(hl)				; target event number(0-org)
+	pop	hl
+
+	jr	coordinate_loop$
+
+
+coordinate_much$:
+	ld	a,(hli)
+	ld	(usr_buf + 0),a			; control site(same work)
+
+	ld	a,(hli)
+	ld	(usr_buf + 1),a			; control program bank
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; control program address-H
+
+	ret
+
+
+table_end$:
+	ld	a,0ffh
+	ld	(sv_box04),a
+
+	ret
+
+
+;------------------------;
+; checking site of actor ;
+;------------------------;
+target_check:
+	ld	a,(actor_table + 09h)		; site value
+
+;	and	a				; look south
+;	jr	z,south$
+
+	cp	04h				; look north
+	jr	z,north$
+
+	cp	08h				; look east
+	jr	z,east$
+
+	cp	0ch				; look west
+	jr	z,west$
+
+
+south$:
+	ld	a,(mapscloll_y)
+	inc	a
+
+	jr	y_comp$
+
+
+north$:
+	ld	a,(mapscloll_y)
+	dec	a
+
+y_comp$:
+	cp	b
+	jr	nz,no_much$
+
+	ld	a,(mapscloll_x)
+	cp	c
+	jr	nz,no_much$
+
+	jr	much$
+
+
+east$:
+	ld	a,(mapscloll_x)
+	dec	a
+
+	jr	x_comp$
+
+
+west$:
+	ld	a,(mapscloll_x)
+	inc	a
+
+x_comp$:
+	cp	c
+	jr	nz,no_much$
+
+	ld	a,(mapscloll_y)
+	cp	b
+	jr	nz,no_much$
+
+much$:
+	xor	a
+
+	jr	rts$
+
+
+no_much$:
+	ld	a,0ffh
+
+rts$:
+	ld	(temp_box6),a
+
+	ret
+
+
+;-------------------;
+; struct of "mapno" ;
+;-------------------;
+pick_up_tbl:
+	db	T1R1F2
+	db	T1R2F1
+	db	T1R3F1
+	db	T2R1F1
+	db	T2R2F1
+	db	T2R3F1
+	db	T2R5F1
+	db	T3R1F1
+	db	T3R2F1
+	db	T3R4F1
+	db	T3R6F1
+	db	T4R3F1
+	db	T4R4F1
+	db	T4R6F1
+	db	T5R1F1
+	db	T6R1F1
+	db	T6R4F1
+	db	T7R2F2
+	db	T7R3F1
+	db	T7R4F1				
+	db	T7R5F1
+	db	T7R10F1
+	db	T8R3F1
+	db	T8R6F1
+	db	T9R2F1
+	db	T9R4F1
+	db	T11R3F1
+	db	R4R1F1
+	db	R10R1F1
+	db	T0R1F1
+	db	T0R1F2
+	db	D1R1F1
+	db	D2R1F3
+	db	T10
+	db	R25
+	db	R9
+	db	D3R1F6
+	db	D3R1F10
+	db	D9R1F1
+	db	D9R1F3
+	db	D9R1F4
+;	db	T5R2F3
+	db	T11R7F1
+	db	T5R2F5
+	db	R13
+	db	T8R5F1
+	db	D12R1F3
+	db	D10R1F4
+	db	D10R1F8
+	db	T11R1F2
+	db	T4R7F1
+	db	D13R1F2
+	db	R10R3F1
+	db	D16R1F2
+	db	D16R1F4
+	db	T9R1F1
+	db	D11R1F2
+	db	R23
+	db	R23R1F1
+	db	D14R1F7
+;	db	T1R1F1
+	db	R25R1F1
+	db	T2
+	db	D12R1F7
+	db	D12R1F8
+	db	D12R1F9
+	db	R15R1F2
+;	db	D3R1F7
+	db	T5R3F1
+	db	T7R2F5
+	db	T11R2F1
+	db	R10
+	db	T10R1F1
+	db	T9R3F4
+	db	T4R5F1
+	db	R11
+	db	R12
+	db	D11R1F1
+	db	D11R1F3
+	db	D10R1F10
+	db	R17
+	db	D4R1F1
+	db	D6R1F1
+	db	T7
+	db	D16R1F3
+	db	T6
+	db	T4
+	db	R4
+
+
+
+	db	0ffh				; data end
+;===============================================; index table
+
+
+;----------------------;
+; struct of coordinate ;
+;----------------------;
+cdnt_table:
+	dw	cdnt_t1r1f2
+	dw	cdnt_t1r2f1
+	dw	cdnt_t1r3f1
+	dw	cdnt_t2r1f1
+	dw	cdnt_t2r2f1
+	dw	cdnt_t2r3f1
+	dw	cdnt_t2r5f1
+	dw	cdnt_t3r1f1
+	dw	cdnt_t3r2f1
+	dw	cdnt_t3r4f1
+	dw	cdnt_t3r6f1
+	dw	cdnt_t4r3f1
+	dw	cdnt_t4r4f1
+	dw	cdnt_t4r6f1
+	dw	cdnt_t5r1f1
+	dw	cdnt_t6r1f1
+	dw	cdnt_t6r4f1
+	dw	cdnt_t7r2f2
+	dw	cdnt_t7r3f1
+	dw	cdnt_t7r4f1
+	dw	cdnt_t7r5f1
+	dw	cdnt_t7r10f1
+	dw	cdnt_t8r3f1
+	dw	cdnt_t8r6f1
+	dw	cdnt_t9r2f1
+	dw	cdnt_t9r4f1
+	dw	cdnt_t11r3f1
+	dw	cdnt_r4r1f1
+	dw	cdnt_r10r1f1
+	dw	cdnt_t0r1f1
+	dw	cdnt_t0r1f2
+	dw	cdnt_d1r1f1
+	dw	cdnt_d2r1f3
+	dw	cdnt_t10
+	dw	cdnt_r25
+	dw	cdnt_r9
+	dw	cdnt_d3r1f6
+	dw	cdnt_d3r1f10
+	dw	cdnt_d9r1f1
+	dw	cdnt_d9r1f3
+	dw	cdnt_d9r1f4
+;	dw	cdnt_t5r2f3
+	dw	cdnt_t11r7f1
+	dw	cdnt_t5r2f5
+	dw	cdnt_r13
+	dw	cdnt_t8r5f1
+	dw	cdnt_d12r1f3
+	dw	cdnt_d10r1f4
+	dw	cdnt_d10r1f8
+	dw	cdnt_t11r1f2
+	dw	cdnt_t4r7f1
+	dw	cdnt_d13r1f2
+	dw	cdnt_r10r3f1
+	dw	cdnt_d16r1f2
+	dw	cdnt_d16r1f4
+	dw	cdnt_t9r1f1
+	dw	cdnt_d11r1f2
+	dw	cdnt_r23
+	dw	cdnt_r23r1f1
+	dw	cdnt_d14r1f7
+;	dw	cdnt_t1r1f1
+	dw	cdnt_r25r1f1
+	dw	cdnt_t2
+	dw	cdnt_d12r1f7
+	dw	cdnt_d12r1f8
+	dw	cdnt_d12r1f9
+	dw	cdnt_r15r1f2
+;	dw	cdnt_d3r1f7
+	dw	cdnt_t5r3f1
+	dw	cdnt_t7r2f5
+	dw	cdnt_t11r2f1
+	dw	cdnt_r10
+	dw	cdnt_t10r1f1
+	dw	cdnt_t9r3f4
+	dw	cdnt_t4r5f1
+	dw	cdnt_r11
+	dw	cdnt_r12
+	dw	cdnt_d11r1f1
+	dw	cdnt_d11r1f3
+	dw	cdnt_d10r1f10
+	dw	cdnt_r17
+	dw	cdnt_d4
+	dw	cdnt_d6
+	dw	cdnt_t7
+	dw	cdnt_d16r1f3
+	dw	cdnt_t6
+	dw	cdnt_t4
+	dw	cdnt_r4
+
+
+
+
+
+
+
+;===============================================;
+; bottom of pointer table 			;
+;===============================================;
+
+;-----------------------------------------------------------------;
+; struct of detail as yx-coordinate, site, bank & program address ;
+;-----------------------------------------------------------------;
+
+cdnt_t0r1f1:
+	db	004h,005h,X_SITE
+	db	008h
+	dw	term_change_ko
+
+	db	004h,004h,X_SITE
+	db	008h
+	dw	term_change_oya
+
+	db	0ffh				; data end
+
+
+cdnt_t0r1f2:
+	db	004h,005h,X_SITE
+	db	008h
+	dw	term_change_ko
+
+	db	004h,004h,X_SITE
+	db	008h
+	dw	term_change_oya
+
+	db	0ffh				; data end
+
+
+cdnt_t1r1f2:
+	db	001h,000h,U_SITE
+	db	017h
+	dw	stock
+
+	db	005h,003h,X_SITE
+	db	017h
+	dw	super_famicom
+
+	db	0ffh				; data end
+
+
+cdnt_t1r2f1:
+	db	002h-1,000h,U_SITE
+	db	018h
+	dw	bookrack
+
+	db	002h-1,001h,U_SITE
+	db	018h
+	dw	bookrack
+
+	db	002h-1,007h,U_SITE
+	db	018h
+	dw	bookrack
+
+	db	0ffh				; data end
+
+
+cdnt_t1r3f1:
+	db	000h,004h,U_SITE
+	db	007h
+	dw	hanging_picture1
+
+	db	000h,005h,U_SITE
+	db	007h
+	dw	hanging_picture2
+
+	db	001h,000h,U_SITE
+	db	007h
+	dw	okido_laptop
+
+	db	001h,001h,U_SITE
+	db	007h
+	dw	okido_laptop
+
+	db	0ffh				; data end
+
+
+cdnt_t2r1f1:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t2r2f1:
+;	db	004h,004h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,005h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,006h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,007h,U_SITE
+;	db	018h
+;	dw	rack
+
+	db	0ffh
+
+
+cdnt_t2r3f1:
+	db	004h,003h,msg_notebook
+	db	014h
+	dw	note_book   
+
+	db	000h,003h,msg_blackboard
+	db	017h
+	dw	black_board
+
+	db	0ffh
+
+
+cdnt_t2r5f1:
+	db	00fh,00fh,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	00fh,012h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	0ffh				; data end
+
+
+cdnt_t3r1f1:
+	db	003h,002h,U_SITE
+	db	017h
+	dw	putera
+
+	db	006h,002h,U_SITE
+	db	017h
+	dw	kabuto
+
+	db	0ffh
+
+
+cdnt_t3r2f1:
+	db	0ah,03h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	0ah,06h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	0ffh
+
+
+cdnt_t3r4f1:
+;	db	004h,004h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,005h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,006h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,007h,U_SITE
+;	db	018h
+;	dw	rack
+
+	db	0ffh
+
+
+cdnt_t3r6f1:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t4r3f1:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t4r4f1:
+	db	00bh,003h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	00bh,006h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	0ffh
+
+
+cdnt_t4r6f1:
+;	db	004h,004h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,005h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,006h,U_SITE
+;	db	018h
+;	dw	rack
+
+;	db	004h,007h,U_SITE
+;	db	018h
+;	dw	rack
+
+	db	0ffh
+
+
+cdnt_t5r1f1:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t6r1f1:
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	004h,000h,U_SITE
+	db	018h
+	dw	all_using
+
+	db	0ffh
+
+
+cdnt_t6r4f1:
+	db	00eh,003h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	00eh,006h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	001h,006h,000h
+	db	017h
+	dw	trash				; trash
+
+	db	007h,001h,000h
+	db	017h
+	dw	trash_sw
+
+	db	009h,001h,001h
+	db	017h
+	dw	trash_sw
+
+	db	00bh,001h,002h
+	db	017h
+	dw	trash_sw
+
+	db	007h,003h,003h
+	db	017h
+	dw	trash_sw
+
+	db	009h,003h,004h
+	db	017h
+	dw	trash_sw
+
+	db	00bh,003h,005h
+	db	017h
+	dw	trash_sw
+
+	db	007h,005h,006h
+	db	017h
+	dw	trash_sw
+
+	db	009h,005h,007h
+	db	017h
+	dw	trash_sw
+
+	db	00bh,005h,008h
+	db	017h
+	dw	trash_sw
+
+	db	007h,007h,009h
+	db	017h
+	dw	trash_sw
+
+	db	009h,007h,00ah
+	db	017h
+	dw	trash_sw
+
+	db	00bh,007h,00bh
+	db	017h
+	dw	trash_sw
+
+	db	007h,009h,00ch
+	db	017h
+	dw	trash_sw
+
+	db	009h,009h,00dh
+	db	017h
+	dw	trash_sw
+
+	db	00bh,009h,00eh
+	db	017h
+	dw	trash_sw
+
+	db	0ffh
+
+
+cdnt_t7r2f2:
+	db	005h,000h,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t7r3f1:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t7r4f1:
+	db	00fh,003h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	00fh,006h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	0ffh
+
+
+cdnt_t7r5f1:
+	db	00fh,012h,X_SITE		; 1
+	db	00dh
+	dw	slot_control
+
+	db	00eh,012h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00dh,012h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ch,012h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00bh,012h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ah,012h,0ffh			; tag3
+	db	00dh
+	dw	slot_control
+
+	db	00ah,00dh,X_SITE		; 7
+	db	00dh
+	dw	slot_control
+
+	db	00bh,00dh,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ch,00dh,0feh			; tag2
+	db	00dh
+	dw	slot_control
+
+	db	00dh,00dh,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00eh,00dh,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00fh,00dh,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00fh,00ch,X_SITE		; 13
+	db	00dh
+	dw	slot_control
+
+	db	00eh,00ch,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00dh,00ch,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ch,00ch,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00bh,00ch,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ah,00ch,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ah,007h,X_SITE		; 19
+	db	00dh
+	dw	slot_control
+
+	db	00bh,007h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ch,007h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00dh,007h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00eh,007h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00fh,007h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00fh,006h,X_SITE		; 25
+	db	00dh
+	dw	slot_control
+
+	db	00eh,006h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00dh,006h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ch,006h,0fdh			; tag1
+	db	00dh
+	dw	slot_control
+
+	db	00bh,006h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ah,006h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ah,001h,X_SITE		; 31
+	db	00dh
+	dw	slot_control
+
+	db	00bh,001h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00ch,001h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00dh,001h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00eh,001h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	00fh,001h,X_SITE
+	db	00dh
+	dw	slot_control
+
+	db	008h,000h,59 + 10
+	db	01dh
+	dw	coin_pick
+
+	db	010h,001h,59 + 10
+	db	01dh
+	dw	coin_pick
+
+	db	00bh,003h,59 + 20
+	db	01dh
+	dw	coin_pick
+
+	db	00eh,003h,59 + 10
+	db	01dh
+	dw	coin_pick
+
+	db	00ch,004h,59 + 10
+	db	01dh
+	dw	coin_pick
+
+	db	00ch,009h,59 + 20
+	db	01dh
+	dw	coin_pick
+
+	db	00fh,009h,59 + 10
+	db	01dh
+	dw	coin_pick
+
+	db	00eh,010h,59 + 10
+	db	01dh
+	dw	coin_pick
+
+	db	010h,00ah,59 + 10
+	db	01dh
+	dw	coin_pick
+
+	db	007h,00bh,59 + 40
+	db	01dh
+	dw	coin_pick
+
+	db	008h,00fh,59 + 100
+	db	01dh
+	dw	coin_pick
+
+	db	00fh,00ch,59 + 10
+	db	01dh
+	dw	coin_pick
+
+	db	0ffh
+
+
+cdnt_t7r10f1:
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	0ffh
+
+
+cdnt_t8r3f1:
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	004h,000h,U_SITE
+	db	018h
+	dw	all_using
+
+	db	0ffh
+
+
+cdnt_t8r6f1:
+	db	00fh,003h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	00fh,006h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	0ffh
+
+
+cdnt_t9r2f1:
+	db	00dh,011h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	007h,00fh,001h + 000h			; door number 1
+	db	007h
+	dw	QuizMachine
+
+	db	001h,00ah,002h + 010h			; door number 2
+	db	007h
+	dw	QuizMachine
+
+	db	007h,009h,003h + 010h			; door number 3
+	db	007h
+	dw	QuizMachine
+
+	db	00dh,009h,004h + 010h			; door number 4
+	db	007h
+	dw	QuizMachine
+
+	db	00dh,001h,005h + 000h			; door number 5
+	db	007h
+	dw	QuizMachine
+
+	db	007h,001h,006h + 010h			; door number 6
+	db	007h
+	dw	QuizMachine
+
+	db	0ffh
+
+
+cdnt_t9r4f1:
+	db	004h,000h,U_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t11r3f1:
+	db	00fh,009h,U_SITE
+	db	018h
+	dw	pm_figure
+
+	db	0ffh
+
+
+cdnt_r4r1f1:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_r10r1f1:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_d1r1f1:
+	db	012h,001h,20			; "kizu-kusuri"
+	db	01dh
+	dw	item_pick
+
+	db	02ah,010h,11			; "doku-kesi"
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+
+cdnt_d2r1f3:
+	db	00ch,012h,10			; "moon-stone"
+	db	01dh
+	dw	item_pick
+
+	db	009h,021h,80
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t10:
+	db	00dh,008h,0ffh
+	db	014h
+	dw	nucleus
+
+	db	00dh,00bh,000h
+	db	014h
+	dw	nucleus
+
+	db	0ffh
+
+
+cdnt_r25:
+	db	003h,026h,80
+	db	01dh
+	dw	item_pick
+
+	db	001h,00ah,82
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_r9:
+	db	007h,00eh,80
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d3r1f6:
+	db	005h,00dh,0
+	db	017h
+	dw	trash
+
+	db	007h,00dh,0
+	db	017h
+	dw	trash
+
+	db	009h,00dh,3
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d3r1f10:
+;	db	003h,001h,18
+	db	001h,003h,18		;fixed tama 960925
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_r10:
+	db	011h,009h,19
+	db	01dh
+	dw	item_pick
+
+	db	035h,010h,81
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d9r1f1:
+	db	00fh,015h,79
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d9r1f3:
+	db	011h,01bh,49
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d9r1f4:
+	db	001h,019h,19
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t11r7f1:
+	db	004h,000h,U_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t5r2f5:
+	db	00ch,004h,82
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_r13:
+	db	00eh,001h,79
+	db	01dh
+	dw	item_pick
+
+	db	00dh,010h,39
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t8r5f1:
+	db	001h,00ah,49
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d12r1f3:
+	db	005h,006h,53
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d10r1f4:
+;	db	003h,00bh,82
+	db	003h,00ch,82		;tama 960925
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d10r1f8:
+	db	00fh,002h,17
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t11r1f2:
+;	db	006h,004h,49
+	db	001h,001h,49		;by tama 960925
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t4r7f1:
+	db	00bh,00eh,40
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d13r1f2:
+	db	003h,01bh,2
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_r10r3f1:
+	db	010h,011h,83
+	db	01dh
+	dw	item_pick
+
+	db	001h,00ch,79
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d16r1f2:
+	db	00fh,00fh,49
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d16r1f4:
+	db	011h,019h,2		;fixed by tama 96/07/05
+	;db	019h,011h,2
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t9r1f1:
+	db	010h,008h,10
+	db	01dh
+	dw	item_pick
+
+	db	005h,002h,U_SITE
+	db	011h
+	extern	sw_t9r1f1
+	dw	sw_t9r1f1
+
+	db	0ffh
+
+
+cdnt_d11r1f1:
+	db	00bh,002h,U_SITE
+	db	014h
+	extern	sw_d11r1f1
+	dw	sw_d11r1f1
+
+	db	0ffh
+
+
+cdnt_d11r1f2:
+	db	009h,001h,54
+	db	01dh
+	dw	item_pick
+
+	db	005h,00ah,U_SITE
+	db	014h
+	extern	sw_d11r1f2
+	dw	sw_d11r1f2
+
+	db	0ffh
+
+
+cdnt_d11r1f3:
+	db	009h,001h,40
+	db	01dh
+	dw	item_pick
+
+	db	003h,014h,U_SITE
+	db	014h
+	extern	sw_d11r1f3
+	dw	sw_d11r1f3
+
+	db	019h,012h,U_SITE
+	db	014h
+	dw	sw_d11r1f3
+
+	db	0ffh
+
+
+cdnt_r23:
+	db	02ch,009h,16
+	db	01dh
+	dw	item_pick
+
+	db	046h,013h,2
+	db	01dh
+	dw	item_pick
+
+	db	05ah,008h,81
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_r23r1f1:
+	db	002h,005h,2
+	db	01dh
+	dw	item_pick
+
+	db	007h,01ah,16
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d14r1f7:
+	db	00bh,00eh,83
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+
+cdnt_r25r1f1:
+	db	004h,001h,U_SITE
+	db	007h
+	dw	DimMachine
+
+	db	0ffh
+
+
+cdnt_t2:
+	db	004h,00eh,20
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d12r1f7:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_d12r1f8:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_d12r1f9:
+	db	004h,000h,L_SITE
+	db	018h
+	dw	all_using
+
+	db	003h,00dh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_r15r1f2:
+	db	002h,001h,U_SITE
+	db	017h
+	dw	freezer
+
+	db	0ffh
+
+
+
+cdnt_t5r3f1:
+	db	001h,000h,0
+	db	007h
+	dw	pm_book
+
+	db	001h,001h,0
+	db	007h
+	dw	pm_book
+
+	db	001h,007h,0
+	db	007h
+	dw	pm_book
+
+	db	0ffh
+
+
+cdnt_t7r2f5:
+	db	000h,003h,msg_omitoosi
+	db	017h
+	dw	black_board
+
+	db	000h,004h,msg_omitoosi
+	db	017h
+	dw	black_board
+
+	db	004h,003h,msg_unnya
+	db	014h
+	dw	note_book
+
+	db	0ffh
+
+
+cdnt_t11r2f1:
+	db	009h,003h,U_SITE
+	db	014h
+	dw	gym11_figure
+
+	db	009h,006h,U_SITE
+	db	014h
+	dw	gym11_figure
+
+	db	000h,004h,U_SITE
+	db	014h
+	dw	gym11_picture1
+
+	db	000h,005h,U_SITE
+	db	014h
+	dw	gym11_picture2
+
+	db	0ffh
+
+
+cdnt_t10r1f1:
+	db	007h,00fh,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t9r3f4:
+	db	004h,000h,U_SITE
+	db	018h
+	dw	laptop
+
+	db	004h,002h,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_t4r5f1:
+	db	000h,001h,X_SITE
+	db	007h
+	dw	mb
+
+	db	001h,002h,X_SITE
+	db	007h
+	dw	mb
+
+	db	002h,001h,X_SITE
+	db	007h
+	dw	mb
+
+	db	002h,003h,X_SITE
+	db	007h
+	dw	mb
+
+	db	004h,000h,X_SITE
+	db	007h
+	dw	mb
+
+	db	005h,001h,X_SITE
+	db	007h
+	dw	mb
+
+	db	0ffh
+
+
+cdnt_r11:
+	db	005h,030h,29
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_r12:
+	db	03fh,002h,18
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d10r1f10:
+	db	00ch,00ah,U_SITE
+	db	018h
+	dw	laptop
+
+	db	0ffh
+
+
+cdnt_r17:
+;	db	00fh,00fh,40
+	db	00eh,00fh,40
+	db	01dh
+	dw	item_pick
+
+	db	02dh,008h,16
+	db	01dh
+	dw	item_pick
+
+	db	048h,011h,79
+	db	01dh
+	dw	item_pick
+
+	db	05bh,004h,54
+	db	01dh
+	dw	item_pick
+
+	db	079h,008h,83
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d4:
+	db	004h,003h,16
+	db	01dh
+	dw	item_pick
+
+	db	022h,004h,68
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d6:
+	db	002h,00ch,49
+	db	01dh
+	dw	item_pick
+
+	db	005h,015h,82
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t7:
+	db	00fh,030h,79
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_d16r1f3:
+	db	010h,009h,83
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t6:
+	db	00bh,00eh,81
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_t4:
+	db	008h,00fh,40
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+cdnt_r4:
+	db	003h,028h,3
+	db	01dh
+	dw	item_pick
+
+	db	0ffh
+
+
+
+
+
+
+;===============================================;
+; bottom of element table 			;
+;===============================================;
+
+
+bank8	group	G_BANK8
+
+term_change_oya:
+	ld	a,(sio_oya_ko)
+	cp	OYA
+	ret	z
+	
+	ld	a,(actor_table + 09h)
+	cp	0ch
+	ret	nz
+
+	ld	a,(mapno)
+	cp	T0R1F1
+	ld	a,2
+	jr	z,pass1$
+
+	inc	a			; a = 3
+
+pass1$:
+	ld	(tuushin_flg),a
+
+	call	init_for_talkmap
+
+	ld	a,msg_term
+	jp	easy_talk
+
+
+
+term_change_ko:
+	ld	a,(sio_oya_ko)
+	cp	KO
+	ret	z
+	
+	ld	a,(actor_table + 09h)
+	cp	08h
+	ret	nz
+
+	ld	a,(mapno)
+	cp	T0R1F1
+	ld	a,2
+	jr	z,pass1$
+
+	inc	a			; a = 3
+pass1$:
+	ld	(tuushin_flg),a
+
+	call	init_for_talkmap
+
+	ld	a,msg_term
+	jp	easy_talk
+
+
+term_msg:
+	extern	term_msg_45_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw term_msg_45_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+;--------------------------------;
+; monster stock in terminal mode ;
+;--------------------------------;
+stock_term:
+	ld	a,(actor_table + 09h)
+	cp	04h
+	ret	nz
+
+	call	init_for_talkmap
+	ld	a,msg_mstock
+	jp	easy_talk
+
+;	ld	a,B_SAVE_MY_DATA
+;	call	bank2bank
+
+
+mstock:
+	db	MONSSTOCK
+
+
+bank14	group	G_BANK14
+
+;------------------;
+; note book system ;
+;------------------;
+note_book:
+	call	init_for_talkmap
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	a,(usr_buf + 0)
+	jp	easy_talk
+
+
+Unnya:
+	extern	Unnya_46_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw Unnya_46_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+
+notebook:
+	db	CALL_MSG
+
+	ld	hl,note_10$
+	call	put_win_msg			; page 1
+
+	call	check_next$
+	jr	nz,rts$
+
+	ld	hl,note_11$
+	call	put_win_msg			; page 2
+
+	call	check_next$
+	jr	nz,rts$
+
+	ld	hl,note_12$
+	call	put_win_msg			; page 3
+
+	call	check_next$
+	jr	nz,rts$
+
+	ld	hl,note_13$
+	call	put_win_msg			; page 4
+
+	ld	hl,note_2$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+check_next$:
+	ld	hl,note_1$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+
+	ret
+
+
+
+note_1$:
+	extern	note_1_47_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw note_1_47_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+note_2$:
+	extern	note_2_48_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw note_2_48_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+note_10$:
+	extern	note_10_49_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw note_10_49_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+note_11$:
+	extern	note_11_50_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw note_11_50_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+note_12$:
+	extern	note_12_51_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw note_12_51_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+note_13$:
+	extern	note_13_52_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw note_13_52_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+gym11_picture1:
+	call	init_for_talkmap
+
+	ld	a,MsgGym11Pic1
+	jp	easy_talk
+
+
+
+msg_gym11_pic1:
+	extern	msg_gym11_pic1_53_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw msg_gym11_pic1_53_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+gym11_picture2:
+	call	init_for_talkmap
+
+	ld	a,MsgGym11Pic2
+	jp	easy_talk
+
+
+msg_gym11_pic2:
+	extern	msg_gym11_pic2_54_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw msg_gym11_pic2_54_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+
+
+gym11_figure:
+	call	init_for_talkmap
+
+	ld	a,MsgGym11Figure
+	jp	easy_talk
+
+
+
+msg_gym11_figure:
+	extern	msg_gym11_figure_55_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw msg_gym11_figure_55_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+nucleus:
+	ld	a,(actor_table + 9)
+	cp	04h
+	ret	nz
+
+	call	init_for_talkmap
+
+	ld	a,msg_nucleus
+	jp	easy_talk
+
+
+nucleus_info:
+	extern	nucleus_info_56_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw nucleus_info_56_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+bank17	group	G_BANK17
+
+
+
+super_famicom:
+	call	init_for_talkmap
+
+	ld	a,msg_famicom
+	jp	easy_talk
+
+
+famicom:
+	extern	famicom_57_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw famicom_57_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+stock:
+	call	init_for_talkmap
+
+	ld	a,msg_stock_box
+	jp	easy_talk
+
+
+
+stock_box:
+	db	ITEMSTOCK
+
+
+
+	extern	gyaarth_play
+freezer:
+	ld	a,(actor_table + 009h)
+	cp	004h
+	ret	nz			; not front view
+
+	call	init_for_talkmap
+
+	ld	a,msg_freezer_info
+	call	easy_talk
+
+	ld	a,74
+	ld	(sel_item_no),a
+	call	gyaarth_play
+;	call	se_wait
+
+	jp	kaseki_same
+
+
+
+freezer_info:
+	extern	freezer_info_58_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw freezer_info_58_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+putera:
+	ld	a,183
+	ld	(sel_item_no),a
+	call	kaseki_same
+
+	call	init_for_talkmap
+
+	ld	a,msg_putera_info
+	call	easy_talk
+
+	ret
+
+
+putera_info:
+	extern	putera_info_59_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw putera_info_59_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kabuto:
+	ld	a,182
+	ld	(sel_item_no),a
+	call	kaseki_same
+
+	call	init_for_talkmap
+
+	ld	a,msg_kabuto_info
+	call	easy_talk
+
+	ret
+
+
+kabuto_info:
+	extern	kabuto_info_60_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw kabuto_info_60_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+kaseki_same:
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+
+	xor	a
+	ld	(window_y),a
+
+	call	push_vram
+
+	SET_WIN_MOD MONS_FRM_WIN
+	call	step_prn_win
+
+	call	actor_blanch
+
+	ld	a,(sel_item_no)
+	ld	(tbl_pos),a
+	call	get_monsadr
+
+	ld	de,08b10h
+	call	put_monschr
+
+	ld	a,080h
+	ld	(dmy_box1),a
+	S_POS	10,11
+	ld	a,B_BOWAWAN_READY
+	call	bank2bank
+
+	call	cont_abwait
+
+	call	pop_vram
+
+	call	put_wait
+
+	ld	a,144
+	ld	(window_y),a
+
+	ret
+
+
+
+;-------------------------;
+; kateikyousi ... kokuban ;
+;-------------------------;
+black_board:
+	call	init_for_talkmap
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	a,(usr_buf + 0)
+	call	easy_talk
+
+	ret
+
+
+Omitoosi:
+	db	CALL_MSG
+
+	call	push_vram
+
+	ld	hl,dict_info$
+	call	put_win_msg
+
+	xor	a
+	ld	(effect_no),a			; for element count
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+
+	ld	a,BT_A+BT_B
+	ld	(allow_msk),a			; assign key
+	ld	a,4 - 1
+	ld	(allow_max),a			; select elements
+	ld	a,2
+	ld	(allow_pos + 0),a		; 1st locate Y
+	ld	a,1
+	ld	(allow_pos + 1),a		; 1st locate X
+
+menu_loop$:
+	ld	hl,obs_system
+	set	6,(hl)
+
+  ifn	pm_jmsg
+	SET_WIN_POS	0,0,13,9
+  else
+	SET_WIN_POS	0,0,14,9
+  endif
+	call	put_window
+	
+	ld	hl,002h * 014h + 002h + dmy_vram
+	ld	de,dict_menu$
+	call 	put_msg
+
+	ld	hl,dict_select$
+	call	put_win_msg
+
+	call	allow
+	bit    	1,a				; check cancel request(b)
+	jr	nz,rts$
+
+	ld	a,(allow_cnt)
+	cp	4 - 1
+	jr	z,rts$				; "yameru" select
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	ld	hl,bb_table$
+	add	a,a				; twice ( for address value )
+	ld	d,00h
+	ld	e,a
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	call	put_win_msg
+
+	jp	menu_loop$
+
+
+rts$:
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	pop_vram
+
+	jp	msg_return
+
+
+
+dict_info$:
+	extern	dict_info_61_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_info_61_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+dict_select$:
+	extern	dict_select_62_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_select_62_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+dict_menu$:
+  ifn	pm_jmsg
+	db	ke__,bou@,bu__,ru__,de_,spc@,a_,so_,bu_,ni_,ha_,cr@
+	db	ko__,ro__,si__,a__,mu__,cr@
+	db	to__,re__,bou@,do__,spc@,se__,n__,ta__,bou@,cr@
+	db	yo_,mu_,spc@,no_,spc@,ya_,me_,ru_,EOM
+  else
+	db	usf_h,usf_o,usf_w,spc@,usf_t,usf_o,spc@,usf_l,usf_i,usf_n,usf_k,cr@
+	db	usf_c,usf_o,usf_l,usf_o,usf_s,usf_s,usf_e,usf_u,usf_m,cr@
+	db	usf_t,usf_r,usf_a,usf_d,usf_e,spc@,usf_c,usf_e,usf_n,usf_t,usf_e,usf_r,cr@
+	db	usf_s,usf_t,usf_o,usf_p,spc@,usf_r,usf_e,usf_a,usf_d,usf_i,usf_n,usf_g
+	db	EOM
+  endif
+
+bb_table$:
+	dw	dict_cable$
+	dw	dict_colosseum$
+	dw	dict_trade$
+
+
+dict_cable$:
+	extern	dict_cable_63_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_cable_63_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+dict_colosseum$:
+	extern	dict_colosseum_64_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_colosseum_64_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+dict_trade$:
+	extern	dict_trade_65_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_trade_65_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+blackboard:
+	db	CALL_MSG
+
+	call	push_vram
+
+	ld	hl,dict_info$
+	call	put_win_msg
+
+	xor	a
+	ld	(effect_no),a			; for element count
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+
+;	ld	a,BT_A+BT_B+BT_ST+BT_R+BT_L
+	ld	a,BT_A+BT_B+BT_R+BT_L
+	ld	(allow_msk),a			; assign key
+	ld	a,3 - 1
+	ld	(allow_max),a			; select elements
+	ld	a,2
+	ld	(allow_pos + 0),a		; 1st locate Y
+	ld	a,1
+	ld	(allow_pos + 1),a		; 1st locate X
+
+menu_loop$:
+	ld	hl,obs_system
+	set	6,(hl)
+
+	ld	hl,dmy_vram  
+  ifn	pm_jmsg
+	ld	bc,06h * 0100h + 009h		; window (y, x)
+  else
+	ld	bc,06h * 0100h + 00ah		; window (y, x)
+  endif
+	call	put_window
+	
+	ld	hl,02h * 014h + 01h + dmy_vram
+	ld	de,dict_menu_left$
+	call 	put_msg
+
+	ld	hl,02h * 014h + 06h + dmy_vram
+	ld	de,dict_menu_right$
+	call 	put_msg
+
+	ld	hl,dict_select$
+	call	put_win_msg
+
+	call	allow
+	bit    	1,a				; check cancel request(b)
+	jr	nz,rts$
+
+right_check$:
+	bit	4,a
+	jr	z,left_check$
+
+	ld	a,3 - 1
+	ld	(allow_max),a			; select elements
+	ld	a,2
+	ld	(allow_pos + 0),a		; 1st locate Y
+	ld	a,6
+	ld	(allow_pos + 1),a		; 1st locate X	
+
+	ld	a,3
+	ld	(effect_no),a			; map number offset(work)
+
+	jr	menu_loop$
+
+
+left_check$:
+	bit	5,a
+	jr	z,decide$
+
+	ld	a,3 - 1
+	ld	(allow_max),a			; select elements
+	ld	a,2
+	ld	(allow_pos + 0),a		; 1st locate Y
+	ld	a,1
+	ld	(allow_pos + 1),a		; 1st locate X
+
+	xor	a
+	ld	(effect_no),a			; map number offset(work)
+
+	jr	menu_loop$
+
+
+decide$:
+	ld	a,(allow_cnt)
+	ld	b,a
+	ld	a,(effect_no)
+	add	a,b				; selected element
+	cp	6 - 1
+	jr	z,rts$				; "yameru" select
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	ld	hl,bb_table$
+	add	a,a				; twice ( for address value )
+	ld	d,00h
+	ld	e,a
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	call	put_win_msg
+
+	jp	menu_loop$
+
+
+rts$:
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	pop_vram
+
+	jp	msg_return
+
+
+
+dict_info$:
+	extern	dict_info_66_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_info_66_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+dict_select$:
+	extern	dict_select_67_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_select_67_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+dict_menu_left$:
+  ifn	pm_jmsg
+	db	spc@,ne_,mu_,ri_,cr@
+	db	spc@,do_,ku_,cr@
+	db	spc@,ma__,hi__
+	db	EOM
+  else
+	db	spc@,usf_s,usf_l,usf_p,cr@
+	db	spc@,usf_p,usf_s,usf_n,cr@
+	db	spc@,usf_p,usf_a,usf_r
+	db	EOM
+  endif
+
+
+dict_menu_right$:
+  ifn	pm_jmsg
+	db	spc@,ya_,ke_,do_,cr@
+	db	spc@,ko_,o_,ri_,cr@
+	db	spc@,ya_,me_,ru_,EOM
+	db	EOM
+  else
+	db	spc@,usf_b,usf_r,usf_n,cr@
+	db	spc@,usf_f,usf_r,usf_z,cr@
+	db	spc@,usf_q,usf_u,usf_i,usf_t,EOM
+	db	EOM
+  endif
+
+bb_table$:
+	dw	dict_nemuri$
+	dw	dict_doku$
+	dw	dict_mahi$
+	dw	dict_yakedo$
+	dw	dict_koori$
+
+
+dict_nemuri$:
+	extern	dict_nemuri_68_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_nemuri_68_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+dict_doku$:
+	extern	dict_doku_69_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_doku_69_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+dict_mahi$:
+	extern	dict_mahi_70_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_mahi_70_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+dict_yakedo$:
+	extern	dict_yakedo_71_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_yakedo_71_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+dict_koori$:
+	extern	dict_koori_72_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw dict_koori_72_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+;----------------------------------------;
+; trash box system			 ;
+;----------------------------------------;
+trash:
+	call	init_for_talkmap
+
+	ld	a,msg_trash_box
+	jp	easy_talk
+
+
+trash_box:
+	extern	trash_box_73_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw trash_box_73_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+;------------;
+; for t6r4f1 ;
+;------------;
+trash_sw:
+	call	init_for_talkmap
+
+	ld	a,(usr_buf + 0)
+	ld	(usr_buf + FREE_AREA_@),a	; ld	(usr_buf + 20),a
+
+	ld	a,(ev_t6_4)
+	bit	0,a
+	jr	z,still$
+
+	ld	a,msg_trash_box
+	jp	easy_talk
+
+
+still$:
+	bit	1,a
+	jr	nz,z2nd$
+
+	ld	a,(trash_switch + 0)
+	ld	b,a
+	ld	a,(usr_buf + FREE_AREA_@)	; ld	a,(usr_buf + 20)
+	cp	b
+	jr	z,hit$
+
+	ld	a,msg_trash_box
+
+	jr	rts$
+
+
+hit$:
+	ld	hl,ev_t6_4
+	set	1,(hl)
+
+	ld	hl,trash_array$
+	ld	a,(usr_buf + FREE_AREA_@)	; ld	a,(usr_buf + 20)
+	ld	b,a
+	add	a,a
+	add	a,a				; *4
+	add	a,b
+	ld	d,0
+	ld	e,a
+	add	hl,de
+	ld	a,(hli)
+	ld	(DA_BUF + 0),a
+	push	hl
+	call	rnd
+	swap	a				; force data value
+	ld	b,a
+	ld	a,(DA_BUF + 0)
+	and	b
+	dec	a
+	pop	hl
+	ld	d,0
+	ld	e,a
+	add	hl,de
+	ld	a,(hl)
+	and	0fh				; forced value
+	ld	(trash_switch + 1),a
+
+	ld	a,MsgTrashHit1
+
+	jr	rts$
+
+
+z2nd$:
+	ld	a,(trash_switch + 1)
+	ld	b,a
+	ld	a,(usr_buf + FREE_AREA_@)	; ld	a,(usr_buf + 20)
+	cp	b
+	jr	z,hit2$
+
+	ld	hl,ev_t6_4
+	res	1,(hl)
+
+	call	rnd
+	and	00eh
+	ld	(trash_switch + 0),a
+
+	ld	a,MsgTrashOut
+
+	jr	rts$
+
+
+hit2$:
+	ld	hl,ev_t6_4
+	set	0,(hl)
+
+	ld	hl,ptn_data
+	set	6,(hl)
+
+	ld	a,MsgTrashHit2_1
+
+rts$:
+	jp	easy_talk
+
+
+trash_array$:
+	db	2,1,3,0,0
+	db	3,0,2,4,0
+	db	2,1,5,0,0
+
+	db	3,0,4,6,0
+	db	4,1,3,5,7
+	db	3,2,4,8,0
+
+	db	3,3,7,9,0
+	db	4,4,6,8,10
+	db	3,5,7,11,0
+
+	db	3,6,10,12,0
+	db	4,7,9,11,13
+	db	3,8,10,14,0
+
+	db	2,9,13,0,0
+	db	3,10,12,14,0
+	db	2,11,13,0,0
+
+
+
+trash_hit1:
+	extern	trash_hit1_74_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw trash_hit1_74_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+
+	db	CALL_MSG
+
+	call	se_wait
+	ld	a,< musswitch
+	call	play
+	call	se_wait
+
+	jp	msg_return
+
+
+trash_hit2_0:
+	extern	trash_hit2_0_75_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw trash_hit2_0_75_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+	db	CALL_MSG
+
+	call	se_wait
+	ld	a,< musswitch
+	call	play
+	call	se_wait
+
+	jp	msg_return
+
+
+trash_hit2_1:
+	extern	trash_hit2_1_76_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw trash_hit2_1_76_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+
+	db	CALL_MSG
+
+	call	se_wait
+	ld	a,< musdoor
+	call	play
+	call	se_wait
+
+	jp	msg_return
+
+
+
+trash_out:
+	extern	trash_out_77_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw trash_out_77_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+
+	db	CALL_MSG
+
+	call	se_wait
+	ld	a,< musboboo
+	call	play
+	call	se_wait
+
+	jp	msg_return
+
+
+
+
+
+
+bank1d	group	G_BANK1d
+
+
+
+item_pick:
+	ld	hl,item_bit
+	call	item2bit			; return c-regs (bit value)
+	ld	(usr_buf + 4),a
+
+	ld	hl,pick_flag
+	ld	a,(usr_buf + 4)
+	ld	c,a
+	ld	b,2
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+	ld	a,c
+	and	a
+	ret	nz				; yet pickup this item
+
+	call	init_for_talkmap
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	a,(usr_buf + 0)
+	ld	(in_dat),a
+	call	get_item_name
+
+	ld	a,msg_item_in
+	jp	easy_talk
+
+
+
+	public	item_bit
+item_bit:
+	db	D1R1F1,012h,001h		; 0
+	db	D1R1F1,02ah,010h
+	db	D2R1F3,00ch,012h
+	db	R25,003h,026h
+	db	R9,007h,00eh
+	db	D3R1F6,009h,00dh
+	;db	D3R1F10,006h,000h
+	;db	D3R1F10,003h,001h		; tama,96/07/16
+	db	D3R1F10,001h,003h		; fixed by tama,96/09/25
+	db	R10,011h,009h
+	db	R10,035h,010h			; 1
+	db	D9R1F1,00fh,015h
+	;db	D9R1F3,017h,016h		fixed by tama 96/07/05
+	db	D9R1F3,011h,01bh
+	db	D9R1F4,001h,019h
+;	db	T5R2F3,009h,00ah
+	db	T5R2F5,00ch,004h
+	db	R13,00eh,001h
+	;db	R13,008h,030h	 		 96/07/05
+	db	R13,00dh,010h
+	db	D11R1F3,009h,001h		;add by tama 96/07/05
+	db	T8R5F1,001h,00ah		; 2
+	db	D12R1F3,005h,006h
+	;db	D10R1F4,003h,00bh
+	db	D10R1F4,003h,00ch		;fixed tama 960925
+	db	D10R1F8,00fh,002h
+	;db	T11R1F2,001h,000h		 96/07/05
+	;db	T11R1F2,006h,000h
+	;db	T11R1F2,006h,004h		;fixed by tama 96/07/16
+	db	T11R1F2,001h,001h		;fixed by tama 96/07/16
+	;db	T4R7F1,00bh,00fh		 96/07/05
+	db	T4R7F1,00bh,00eh
+	;db	D13R1F2,016h,01dh		 96/07/05
+	db	D13R1F2,003h,01bh
+	db	R10R3F1,010h,011h
+	db	R10R3F1,001h,00ch		; 3
+	db	D16R1F2,00fh,00fh
+	db	D16R1F4,011h,019h		; 96/07/05
+	;db	D16R1F4,019h,011h
+	db	T9R1F1,010h,008h
+	db	D11R1F2,009h,001h
+	db	R23,02ch,009h
+	db	R23,046h,013h
+	db	R23,05ah,008h
+	db	R23R1F1,002h,005h		; 4
+	db	R23R1F1,007h,01ah
+	db	D14R1F7,00bh,00eh
+	db	T2,004h,00eh
+	db	R11,005h,030h
+	db	R12,03fh,002h
+;	db	R17,00fh,00fh
+	db	R17,00eh,00fh		;tama 960925
+	db	R17,02dh,008h
+	db	R17,048h,011h			; 5
+	db	R17,05bh,004h
+	db	R17,079h,008h
+	db	D4R1F1,004h,003h
+	db	D4R1F1,022h,004h
+	db	D6R1F1,002h,00ch
+	db	D6R1F1,005h,015h
+	db	T7,00fh,030h
+	db	R25,001h,00ah			; 6
+	db	D2R1F3,009h,021h
+	db	D16R1F3,010h,009h
+	db	T6,00bh,00eh
+	db	T4,008h,00fh
+	db	R4,003h,028h
+
+	db	0ffh
+
+
+
+
+item_in:
+	extern	item_in_78_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw item_in_78_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,(usr_buf + 0)
+	ld	b,a				; item number
+	ld	c,1
+	call	take_item
+	jr	nc,over$
+
+	ld	hl,pick_flag
+	ld	a,(usr_buf + 4)
+	ld	c,a
+	ld	b,1
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+
+	ld	a,< musfanfare5
+	call	se_play
+	call	se_wait
+
+	jp	msg_return
+
+
+over$:
+	call	cont_abwait
+
+	xor	a
+	ld	(wait_pass_flg),a
+
+	ld	hl,item_over
+	call	put_win_msg
+
+	jp	msg_return
+
+
+item_over:
+	extern	item_over_79_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw item_over_79_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+
+
+
+coin_pick:
+	ld	b,69				; coin case
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+	ld	a,b
+	and	a
+	ret	z
+
+	ld	hl,coin_bit
+	call	item2bit
+	ld	(usr_buf + 4),a
+
+	ld	hl,pick_flag + 14
+	ld	a,(usr_buf + 4)
+	ld	c,a
+	ld	b,2
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+	ld	a,c
+	and	a
+	ret	nz				; yet pickup this item
+
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 1),a
+	ld	(divwk1 + 2),a
+
+	ld	a,(usr_buf + 0)
+	sub	59
+	cp	10
+	jr	z,coin_10$
+
+	cp	20
+	jr	z,coin_20$
+
+	cp	40
+	jr	z,coin_20$
+
+	jr	coin_100$
+
+
+coin_10$:
+	ld	a,010h
+	ld	(divwk1 + 2),a
+
+	jr	add_in$
+
+
+coin_20$:
+	ld	a,020h
+	ld	(divwk1 + 2),a
+
+	jr	add_in$
+
+
+coin_40$:
+	ld	a,040h
+	ld	(divwk1 + 2),a
+
+	jr	add_in$
+
+
+coin_100$:
+	ld	a,001h
+	ld	(divwk1 + 1),a
+
+add_in$:
+	ld	de,coin + 1
+	ld	hl,divwk1 + 2
+	ld	c,2
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	ld	hl,pick_flag + 14
+	ld	a,(usr_buf + 4)
+	ld	c,a
+	ld	b,1
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+
+	call	init_for_talkmap
+
+	ld	a,(coin + 0)
+	cp	099h
+	jr	nz,ok$
+
+	ld	a,(coin + 1)
+	cp	099h
+	jr	nz,ok$
+
+	ld	a,msg_coin_over
+
+	jr	set$
+
+
+ok$:
+	ld	a,msg_coin_in
+
+set$:
+	jp	easy_talk
+
+
+coin_bit:
+	db	T7R5F1,008h,000h
+	db	T7R5F1,010h,001h
+	db	T7R5F1,00bh,003h
+	db	T7R5F1,00eh,003h
+	db	T7R5F1,00ch,004h
+	db	T7R5F1,00ch,009h
+	db	T7R5F1,00fh,009h
+	db	T7R5F1,00eh,010h
+	db	T7R5F1,010h,00ah
+	db	T7R5F1,007h,00bh
+	db	T7R5F1,008h,00fh
+	db	T7R5F1,00fh,00ch
+	db	0ffh
+	
+
+coin_in:
+	extern	coin_in_80_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw coin_in_80_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db	FANFARE5
+	db	EOM
+
+
+coin_over:
+	extern	coin_over_81_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw coin_over_81_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db	FANFARE5
+	extern	coin_over_82_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw coin_over_82_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+;========================================================;
+; item picking common tool for "item pick" & "coin pick" ;
+; <<in>>						 ;
+; hl-regs	search & observe table address		 ;
+;========================================================;
+item2bit:
+	ld	a,(usr_buf + 3)			; cordinate-y
+	ld	d,a
+	ld	a,(usr_buf + 4)			; cordinate-x
+	ld	e,a
+	ld	a,(mapno)
+	ld	b,a				; compare map-number
+	ld	c,0ffh				; bit counter
+
+loop$:
+	inc	c
+
+	ld	a,(hli)
+	cp	0ffh
+	ret	z
+
+	cp	b
+	jr	nz,next1$
+
+	ld	a,(hli)
+	cp	d
+	jr	nz,next2$
+
+	ld	a,(hli)
+	cp	e
+	jr	nz,loop$
+
+	ld	a,c
+
+	ret
+
+
+next1$:
+	inc	hl
+
+next2$:
+	inc	hl
+
+	jr	loop$
+
+
+
+
+
+bank3	group	G_BANK3
+
+	public	WhatIsThis
+
+WhatIsThis:
+	ld	a,(actor_table + 009h)
+	cp	004h
+	jr	nz,other_pat$			; no event
+
+	ld	a,(map_type)
+	ld	b,a
+	ld	a,(7*20 + 8 + dmy_vram)		; 094h
+	ld	c,a
+
+	ld	hl,BGtable
+
+lp$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,other_pat$			; no event
+
+	cp	b
+	jr	nz,next1$
+
+	ld	a,(hli)
+	cp	c
+	jr	nz,next2$
+
+	ld	a,(hl)
+	push	af
+	call	init_for_talkmap
+	pop	af
+	call	easy_talk
+ret$:
+	xor	a
+	ld	(DA_BUF + 0),a
+
+	ret
+
+
+next1$:
+	inc	hl
+
+next2$:
+	inc	hl
+
+	jr	lp$
+
+
+other_pat$:
+	ld	a,0ffh
+	ld	(DA_BUF + 0),a
+
+	extern	ObsDoorVanish
+	ld	b,014h
+	ld	hl,ObsDoorVanish
+	jp	bank_push_call
+
+
+
+;---------------------------------------------------------;
+; struct element : mapno, character code, message address ;
+;---------------------------------------------------------;
+BGtable:
+	db	CENTER_TYPE	,030h,MsgSekieiFigure
+	db	MINKA_TYPE	,03dh,Msgmap_msg
+	db	MINKA_TYPE	,01eh,Msgbook_msg
+	db	MANSHON_TYPE	,032h,Msgbook_msg
+	db	ROOM_TYPE	,032h,Msgbook_msg
+	db	KENKYUJO_TYPE	,028h,Msgbook_msg
+	db	DEPART_TYPE	,016h,Msgelev_msg
+	db	CHAMPCUP_TYPE	,01dh,Msgbook_msg
+	db	SCHOOL_TYPE	,01dh,Msgbook_msg
+	db	GATE_TYPE	,022h,Msgbook_msg
+	db	SHOP_TYPE	,054h,Msgshop_msg
+	db	SHOP_TYPE	,055h,Msgshop_msg
+	db	HOTEL_TYPE	,054h,Msgshop_msg
+	db	HOTEL_TYPE	,055h,Msgshop_msg
+	db	DEPART_TYPE	,050h,Msgshop_msg
+	db	DEPART_TYPE	,052h,Msgshop_msg
+	db	SHIP_TYPE	,036h,Msgbook_msg
+	db	0ffh
+
+
+SekieiFigure:
+	db	CALL_MSG
+
+	ld	hl,SFmsg0$
+	call	put_win_msg
+
+	ld	a,(mapscloll_x)
+	bit	0,a
+	ld	hl,SFmsg1$
+	jr	nz,oth$
+
+	ld	hl,SFmsg2$
+
+oth$:
+	call	put_win_msg
+	jp	msg_return
+
+
+SFmsg0$:
+	extern	SFmsg0_83_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw SFmsg0_83_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+SFmsg1$:
+	extern	SFmsg1_84_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw SFmsg1_84_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+SFmsg2$:
+	extern	SFmsg2_85_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw SFmsg2_85_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+book_msg:
+	db	CALL_MSG
+
+	ld	hl,book_msg_0
+	ld	a,(map_type)
+	cp	MANSHON_TYPE
+	jr	nz,exit$
+	ld	a,(6*20 + 8 + dmy_vram)		; 094h
+	cp	38h
+	jr	nz,exit$
+
+	ld	hl,butsudan_msg
+exit$:
+	call	put_win_msg
+	jp	msg_return
+
+book_msg_0:
+	extern	book_msg_0_86_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw book_msg_0_86_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+butsudan_msg:
+	extern	butsudan_msg_87_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw butsudan_msg_87_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+elev_msg:
+	extern	elev_msg_88_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw elev_msg_88_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+map_msg:
+	extern	map_msg_89_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw map_msg_89_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db	WAIT
+
+	db	CALL_MSG
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+	ld	hl,obs_system
+	set	6,(hl)
+	extern	pal_off_put_wait
+	call	pal_off_put_wait
+	xor	a
+	ld	(window_y),a
+	inc	a
+	ld	(all_put_req),a
+	call	set_kana
+	ld	b,1ch
+	extern	worldmap
+	ld	hl,worldmap
+	call	bank_push_call
+	ld	hl,obs_system
+	res	6,(hl)
+	ld	de,msg_return
+	push	de
+
+	ld	a,(rombankno)
+	push	af
+	extern	talk_200
+	jp	talk_200
+
+
+shop_msg:
+	extern	shop_msg_90_EV_TOOL
+	db I_MSG2	; mvmsg追加
+	dw shop_msg_90_EV_TOOL	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+
+
+
+
+

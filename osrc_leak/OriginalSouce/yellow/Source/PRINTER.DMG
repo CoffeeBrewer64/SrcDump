@@ -1,0 +1,780 @@
+;===============================================================
+;
+;	POCKET PRINTER DRIVER
+;			1998 Tetsu
+;
+;===============================================================
+	include	common.def
+	include	group.def
+	include macro.h
+	include printer.h
+
+bank3a	group	G_BANK3a
+
+	public	PrintSioMain
+
+	public	PrintOutInit
+ ifn	ASSEMBLE__ENGLISH
+	public	PrintOutInit_Line
+ endif
+	public	PrintOutMain
+
+	extern	chrmove
+	extern	ConnectCheckMSGNo
+	extern	DataTransMSGNo
+	extern	PrintOutMSGNo
+
+;===============================================================
+;
+;	INITIALIZE
+;
+;===============================================================
+ ifn	ASSEMBLE__ENGLISH
+PrintOutInit:
+	ld	a, 9
+
+PrintOutInit_Line:
+	push	af
+ else
+PrintOutInit:
+ endif
+	ld	hl,PrinterWorkTop
+	ld	bc,PrinterWorkEnd-PrinterWorkTop
+	xor	a
+	call	MemSet				; memset(PrinterWordTop, 0, PrinterWorkEnd - PrinterWorkTop)
+						; バッファを０クリア
+	xor	a
+	ld	(SB),a
+	ld	(SC),a				; (SC) = (SB) = 0
+	ld	(ext_system+1),a		; ext_system[1] = 0	Printer_SIO SeqNo
+
+	ld	hl,ext_system+0			; ext_system.<0> = 1	Printer Mode
+	set	0,(hl)				;
+
+	ld	a,(PrintContrast)		; 印字濃度をセット
+	ld	(PRT_Contrast),a		;  PRT_Contrast = PrintContrast
+
+ ifn	ASSEMBLE__ENGLISH
+	pop	af
+	ld	(TransMaxLine),a		; 転送ライン数をセット
+ endif
+	ret
+
+;===============================================================
+;
+;	MAIN
+;
+;===============================================================
+PrintOutMain:
+	ld	a,(SeqNo)
+	ld	e,a
+	ld	d,00h
+	ld	hl,SeqTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)				; jp	SeqTable$[SeqNo*2]
+SeqTable$:
+	ef_initndw
+
+	ef_ndw		PO_Initialize,PRTOUT_ConnectCheckNo		; 初期化・接続パケットを送信
+	ef_inc_ndw	PO_ConnectCheck					; 接続チェック
+	ef_inc_ndw	PO_Wait100ms					; １００ｍｓ待ち
+
+	ef_ndw		PO_PrintDataTrans,PRTOUT_PrintDataTransNo	; 横２０×縦２キャラ分データパケットを送信
+	ef_inc_ndw	PO_NextCheck					; エラーチェック
+	ef_inc_ndw	PO_DataTransWait100ms				; １００ｍｓ待ち
+
+	ef_ndw		PO_PrintDataTransEND,PRTOUT_PrintDataTransENDNo	; データエンドパケットを送信
+	ef_inc_ndw	PO_NextCheck					; エラーチェック
+	ef_inc_ndw	PO_Wait100ms					; １００ｍｓ待ち
+
+	ef_ndw		PO_PrintInstruct,PRTOUT_PrintInstructNo		; 印字指示パケットを送信
+	ef_inc_ndw	PO_NextCheck					; エラーチェック
+	ef_inc_ndw	PO_Wait100ms					; １００ｍｓ待ち
+
+	ef_ndw_g	PO_EndCheck,PO_EndCheckNo			; エラーチェック
+	ef_ndw		PO_END,PRTOUT_ENDNo				; 終了処理  SeqNo.<7> = 1
+
+	ef_ndw		PO_Retry,PRTOUT_RetryNo				; SeqNo++
+	ef_inc_ndw	PO_Wait100ms					; １００ｍｓ待ち
+	ef_inc_ndw	PO_RetryInit					;
+	ef_inc_ndw	PO_Loop						; SeqNo = 1
+
+	ef_ndw		PO_Error,PRTOUT_ErrorNo				; SeqNo++ , エラーチェック
+	ef_inc_ndw	PO_ErrorWait					; エラーチェック
+
+SeqNoInc:					;
+	ld	hl,SeqNo			; SeqNo++
+	inc	(hl)				;
+	ret					;
+
+
+SeqNoDec:					;
+	ld	hl,SeqNo			; SeqNo--
+	dec	(hl)				;
+	ret					;
+
+PO_END:
+	xor	a				;
+	ld	(PrinterStatus+1),a		; PrinterStatus[1] = 0
+	ld	hl,SeqNo			;
+	set	7,(hl)				; SeqNo.<7> = 1
+	ret
+
+PO_Retry:
+	call	SeqNoInc			; SeqNo++
+	ret					;
+
+PO_Loop:
+;	xor	a
+	ld	a,1				; SeqNo = 1
+	ld	(SeqNo),a			;
+	ret
+
+
+PO_Initialize:
+	call	ClearBuffer			; バッファを０クリアー
+
+	ld	hl,InitializeHeader		; 初期化パケットのヘッダ部をセット
+	call	HeaderSet			;
+
+	xor	a
+	ld	(PSIO_TransDataCounter+0),a	;
+	ld	(PSIO_TransDataCounter+1),a	; データバイト数 = 0
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(TransMaxLine)
+ else
+	ld	a,9				; (TransCounter) = 9 （転送データ１画面分のライン数)
+ endif
+	ld	(TransCounter),a		;DATA Lots(Use Next Sequence)
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+
+	ld	a,ConnectCheckMSGNo		; ”せつぞくかくにん ちゅう”
+	ld	(PrinterStatusMSGNo),a		;
+	ret
+
+PO_PrintDataTrans:
+	call	ClearBuffer			; バッファを０クリアー
+
+	ld	hl,TransCounter			;
+	ld	a,(hl)				; if (TransCounter == 0)
+	and	a				;   goto  PO_PrintDataTransEnd
+	jr	z,PO_PrintDataTransEnd		;
+
+	ld	hl,DataTransHeader		; データパケットのヘッダ部をセット
+	call	HeaderSet			;
+
+	call	MakeData			; 横２０×縦２キャラ分（２８０Ｈバイト）
+						; の転送データを作成する
+	ld	a,80h				;
+	ld	(PSIO_TransDataCounter+0),a	; データバイト数 = 0x280
+	ld	a,02h				;
+	ld	(PSIO_TransDataCounter+1),a	;
+	call	SumCheckCalc			; サムチェックの計算
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+
+	ld	a,DataTransMSGNo		; ”データてんそう ちゅう”
+	ld	(PrinterStatusMSGNo),a
+	ret
+
+PO_PrintDataTransEnd:
+	ld	a,PRTOUT_PrintDataTransENDNo	; SeqNo = PRTOUT_PrintDataTransENDNo
+	ld	(SeqNo),a			;
+
+	ld	hl,DataEndHeader		; データエンドパケットのヘッダ部をセット
+	call	HeaderSet
+
+	xor	a
+	ld	(PSIO_TransDataCounter+0),a	; データバイト数 = 0
+	ld	(PSIO_TransDataCounter+1),a	;
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+	ret
+
+PO_PrintInstruct:
+	call	ClearBuffer			; バッファを０クリアー
+
+	ld	hl,PrintOutHeader		; 印字指示パケットのヘッダ部をセット
+	call	HeaderSet			;
+
+	call	MakePrintData			; 印字指示データの作成
+	ld	a,04h				;（枚数、フィード数、パレット、印字濃度）
+	ld	(PSIO_TransDataCounter+0),a	;
+	ld	a,00h				; データバイト数 = 4
+	ld	(PSIO_TransDataCounter+1),a	;
+	call	SumCheckCalc			; サムチェックの計算
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+
+	ld	a,PrintOutMSGNo			;”プリントアウト ちゅう”
+	ld	(PrinterStatusMSGNo),a
+	ret
+
+PO_RetryInit:
+	call	ClearBuffer			; バッファを０クリアー
+
+	ld	hl,InitializeHeader		; 初期化パケットのヘッダ部をセット
+	call	HeaderSet			;
+
+	xor	a
+	ld	(PSIO_TransDataCounter+0),a	;
+	ld	(PSIO_TransDataCounter+1),a	; データバイト数 = 0
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(TransMaxLine)
+ else
+	ld	a,9				; (TransCounter) = 9 （転送データ１画面分のライン数)
+ endif
+	ld	(TransCounter),a		;DATA Lots(Use Next Sequence)
+
+	call	SeqNoInc			; SeqNo++
+	call	PO_TransStart			; プリアンブルデータ＄８８を送信
+	ret
+
+PO_Wait100ms:					; １００ｍｓ待ち
+	ld	hl,WaitCount			; if (WaitCount < 6)
+	inc	(hl)				;    return
+	ld	a,(hl)				; else {
+	cp	6				;    WaitCount = 0
+	ret	c				;    SeqNo++
+	xor	a				; }
+	ld	(hl),a				;
+	call	SeqNoInc			;
+	ret
+
+PO_DataTransWait100ms:
+	ld	hl,WaitCount
+	inc	(hl)
+	ld	a,(hl)
+	cp	6				; if (WaitCount < 6)
+	ret	c				;    return
+	xor	a				; else {
+	ld	(hl),a				;    WaitCount = 0
+						;
+	ld	hl,TransCounter			;    TransCounter--
+	dec	(hl)
+
+	call	SeqNoDec			;    SeqNo--
+	call	SeqNoDec			;    SeqNo--
+	ret					; }
+
+PO_ConnectCheck:
+	ld	a,(ext_system+1)		; if (パケット転送中)	In Trans
+	and	a				;	return
+	ret	nz
+
+	ld	a,(PrinterStatus+0)		;
+	cp	0ffh				; if (PrinterStatus == 0xFFFF){
+	jr	nz,pass$			;	PrinterStatus = 0xFFFF
+	ld	a,(PrinterStatus+1)		;	SeqNo = PRTOUT_RetryNo
+	cp	0ffh				;	return
+	jr	z,connect_error$		; }
+pass$:
+	ld	a,(PrinterStatus+0)		;
+	cp	081h				; if (PrinterStatus != 0x8100){
+	jr	nz,connect_error$		;	PrinterStatus = 0xFFFF
+	ld	a,(PrinterStatus+1)		;	SeqNo = PRTOUT_RetryNo
+	cp	000h				;	return
+	jr	nz,connect_error$		; }
+
+	ld	hl,ext_system+0			; Connect_Flag
+	set	1,(hl)				; ext_system.<1> = 1
+	ld	a,6-1
+	ld	(NULLcount),a			; NULLcount = 5
+
+	call	SeqNoInc			; SeqNo++
+	ret					; return
+connect_error$:
+	ld	a,0ffh
+	ld	(PrinterStatus+0),a
+	ld	(PrinterStatus+1),a
+
+	ld	a,PRTOUT_RetryNo
+	ld	(SeqNo),a
+	ret
+
+PO_NextCheck:
+	ld	a,(ext_system+1)		; if (パケット転送中)	;In Trans
+	and	a				;	return
+	ret	nz				;
+
+	ld	a,(PrinterStatus+1)		; どれかのエラービットが立って
+	and	11110000b			; いる場合
+	jr	nz,Error$			;	SeqNo = PRTOUT_ErrorNo
+
+	ld	a,(PrinterStatus+1)		; サムチェックエラーの場合
+	and	00000001b			;	SeqNo--
+	jr	nz,retry$			;
+
+	call	SeqNoInc			; 正常の場合
+	ret					;	SeqNo++
+retry$:
+	call	SeqNoDec
+	ret
+Error$:
+	ld	a,PRTOUT_ErrorNo
+	ld	(SeqNo),a
+	ret
+	
+PO_EndCheck:
+	ld	a,(ext_system+1)		; if (パケット転送中)	;In Trans
+	and	a				;	return
+	ret	nz				;
+
+	ld	a,(PrinterStatus+1)		; どれかのエラービットが立って
+	and	11110011b			; いる場合
+	ret	nz				;	return
+
+	call	SeqNoInc			; 正常の場合
+	ret					;	SeqNo++
+
+PO_Error:
+	call	SeqNoInc			; SeqNo++
+PO_ErrorWait:
+	ld	a,(ext_system+1)		; if (パケット転送中)	In Trans
+	and	a				;	return
+	ret	nz
+
+	ld	a,(PrinterStatus+1)		; どれかのエラービットが立って
+	and	11110000b			; いる場合
+	ret	nz				;	return
+
+	xor	a				; 正常の場合
+	ld	(SeqNo),a			;	SeqNo = 0
+	ret
+
+;===============================================================
+;
+;	SUB
+;
+;===============================================================
+PO_TransStart:
+	ld	a,(ext_system+1)		; while(パケット転送中)	;In Trans
+	and	a				; 	;
+	jr	nz,PO_TransStart		;
+
+	xor	a
+	ld	(PSIO_TransDataPointer+0),a	;
+	ld	(PSIO_TransDataPointer+1),a	; PSIO_TransDataPointer = 0x0000
+
+	ld	a,PSIO_StartNo			;
+	ld	(ext_system+1),a		; ext_system[1] = PSIO_StartNo
+
+	ld	a,PREAMBLE_1			; プリアンブルデータ＄８８を送信
+	ld	(SB),a				;
+	ld	a,00000001b			;
+	ld	(SC),a				;
+	ld	a,10000001b			;
+	ld	(SC),a				;
+	ret
+
+HeaderSet:
+	ld	a,(hli)				; for (i=0 ; i<4; i++)
+	ld	(HeaderBuffer+0),a		;   HeaderBuffer[i] = *HL++;
+	ld	a,(hli)
+	ld	(HeaderBuffer+1),a
+	ld	a,(hli)
+	ld	(HeaderBuffer+2),a
+	ld	a,(hli)
+	ld	(HeaderBuffer+3),a
+
+	ld	a,(hli)
+	ld	(CheckSumBuffer+0),a		; for (i=0 ; i<2; i++)
+	ld	a,(hl)				;   CheckSumBuffer[i] = *HL++;
+	ld	(CheckSumBuffer+1),a
+	ret
+
+ClearBuffer:
+	xor	a
+	ld	hl,HeaderBuffer			; for (i=0 ; i<4 ; i++)
+	ld	(hli),a				;   HeaderBuffer[i] = 0
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,CheckSumBuffer		; for (i=0 ; i<2 ; i++)
+	ld	(hli),a				;   CheckSumBuffer[i] = 0
+	ld	(hl),a
+
+	xor	a
+	ld	(PSIO_TransDataCounter+0),a	; PSIO_TransDataCounter[]w = 0
+	ld	(PSIO_TransDataCounter+1),a
+
+	ld	hl,TransDataBuffer
+	ld	bc,280h
+	call	MemSet				; memset(TransDataBuffer, 0, 0x280)
+	ret
+	
+SumCheckCalc:					; サムチェックの計算
+	ld	hl,00h				; HL = 0
+
+	ld	bc,004h				; for (BC=4 ; BC ; BC--)
+	ld	de,HeaderBuffer			;   HL += *(HeaderBuffer)++
+	call	calc$
+
+	ld	a,(PSIO_TransDataCounter+0)	; for (BC = PSIO_TransDataCounter[]w ; BC ; BC--)
+	ld	c,a				;   HL += *(TransDataBuffer)++
+	ld	a,(PSIO_TransDataCounter+1)
+	ld	b,a
+
+	ld	de,TransDataBuffer
+	call	calc$
+
+	ld	a,l				; CheckSumBuffer[]w = HL
+	ld	(CheckSumBuffer+0),a		;
+	ld	a,h
+	ld	(CheckSumBuffer+1),a
+	ret
+calc$:
+	ld	a,(de)				; for ( ; BC ; BC--)
+	inc	de				;   HL += *DE++
+	add	a,l				;
+	jr	nc,pass$
+	inc	h
+pass$:
+	ld	l,a
+
+	dec	bc
+	ld	a,c
+	or	b
+	jr	nz,calc$
+	ret
+
+MakePrintData:
+	ld	a,1			;枚数
+	ld	(TransDataBuffer+0),a	; TransDataBuffer[0] = 1
+	ld	a,(PRT_FeedCounter)	;フィード数
+	ld	(TransDataBuffer+1),a	; TransDataBuffer[1] = PRT_FeedCounter
+	ld	a,11100100b		;パレット値
+	ld	(TransDataBuffer+2),a	; TransDataBuffer[2] = $E4
+	ld	a,(PRT_Contrast)	;印字濃度
+	ld	(TransDataBuffer+3),a	; TransDataBuffer[3] =PRT_Contrast
+	ret
+
+MakeData:	; 横２０×縦２キャラ分（２８０Ｈバイト）の転送データを作成する
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(TransCounter)
+	ld	b,a
+	ld	a,(TransMaxLine)		; Y POS 算出
+	sub	b				; A = TransMaxLine - TransCounter
+ else
+	ld	a,(TransCounter)
+	xor	11111111b
+	add	a,9+1				;Y_Pos Calc
+ endif						; A = 9 - TransCounter  (9:=一画面９ライン)
+	ld	hl,PRTOUT_DmyVram
+	ld	de,20*2
+loop_y$:					; HL = PRTOUT_DmyVram[]
+	and	a				; for ( ; A ; A--)
+	jr	z,next$				;    HL += 40
+	add	hl,de				;
+	dec	a				;
+	jr	loop_y$				;
+next$:
+	ld	e,l				;
+	ld	d,h				; DE = &PRTOUT_DmyVram[40*A]
+
+	ld	hl,TransDataBuffer		; HL = &TransDataBuffer[0]
+	ld	c,20*2				; 転送個数：横２０×縦２キャラ分
+set_loop$:
+	ld	a,(de)				;
+	inc	de				; a = *(DE)++
+
+	push	bc
+	push	de
+	push	hl
+;	=================  BG ChrNo. から ＶＲＡＭのアドレスを求める 
+	swap	a			; BG ChrNo.と ＶＲＡＭアドレスは
+	ld	d,a			; ChrNo.80~FFh : $8800~8FFF
+	and	11110000b		; ChrNo.00~7Fh : $9000~97FF に対応する
+	ld	e,a			; e == (DE)下位４ビット
+	ld	a,d
+	and	00001111b
+	ld	d,a			; d == (DE)上位４ビット
+	and	00001000b
+	ld	a,d
+	jr	nz,set2$
+set1$:
+	or	10010000b			;ChrNo. 000h~07Fh = 09xxxh
+	jr	set$
+set2$:
+	or	10000000b			;ChrNo. 080h~0FFh = 08xxxh
+set$:
+	ld	d,a			; DE = VRAMｱﾄﾞﾚｽ(BG ChrNo.)
+;	=================
+	ld	bc,G_BANK3a*100h+001h		; B:バンク , C:キャラクタ個数
+	call	chrmove				; HL:転送先 , DE:転送元
+
+	pop	hl				;
+	ld	de,10h				; HL += 16  (16 byte/chr)
+	add	hl,de				;
+	pop	de
+	pop	bc
+	dec	c
+	jr	nz,set_loop$
+	ret
+	
+MemSet:
+	push	de				;
+	ld	e,a				; for ( ; BC ; BC--)
+loop$:						;	*HL++ = A
+	ld	(hl),e				;
+	inc	hl				;
+						;
+	dec	bc				;
+	ld	a,c				;
+	or	b				;
+	jr	nz,loop$			;
+
+	ld	a,e
+	pop	de
+	ret
+
+
+	
+
+;===============================================================
+;
+;	DATA
+;
+;===============================================================
+InitializeHeader:
+	db	001h,000h,000h,000h,001h,000h
+PrintOutHeader:
+	db	002h,000h,004h,000h,000h,000h
+DataTransHeader:
+	db	004h,000h,080h,002h,000h,000h
+DataEndHeader:
+	db	004h,000h,000h,000h,004h,000h
+BreakHeader:
+	db	008h,000h,000h,000h,008h,000h
+NULLHeader:
+	db	00Fh,000h,000h,000h,00Fh,000h
+
+
+
+
+
+
+;===============================================================
+;
+;	PRINTER_SIO MAIN
+;
+;===============================================================
+PrintSioMain:
+	ld	a,(ext_system+1)
+	ld	e,a
+	ld	d,00h
+	ld	hl,SeqTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)				; jp	SeqTable[(ext_system[1]*2)]
+SeqTable$:
+	ef_initndw
+	ef_inc_ndw	PSIO_CommandWait			; return のみ
+
+	ef_ndw		PSIO_PreambleTrans2,PSIO_StartNo	; プリアンブルデータ＄３３を送信
+	ef_inc_ndw	PSIO_HeaderTrans1			; HeaderBuffer[0] を送信
+	ef_inc_ndw	PSIO_HeaderTrans2			; HeaderBuffer[1] を送信
+	ef_inc_ndw	PSIO_HeaderTrans3			; HeaderBuffer[2] を送信
+	ef_inc_ndw	PSIO_HeaderTrans4			; HeaderBuffer[3] を送信
+	ef_inc_ndw	PSIO_DataTrans				; TransDataBuff[PSIO_TransDataPointer] を送信
+	ef_inc_ndw	PSIO_CheckSumTrans1			; CheckSumBuffer[0] を送信
+	ef_inc_ndw	PSIO_CheckSumTrans2			; CheckSumBuffer[1] を送信
+	ef_inc_ndw	PSIO_DummyTrans1			; DUMMY_DATA を送信
+	ef_inc_ndw	PSIO_DummyTrans2			; PrinterStatus[0]=(SB)の後 DUMMY_DATA を送信
+	ef_inc_ndw	PSIO_TransEnd				; PrinterStatus[1]=(SB) , ext_system[1]=0
+
+	ef_ndw_g	PSIO_PreambleTrans2,PSIO_NULLNo
+	ef_inc_ndw	PSIO_NULLTrans1				; NULL_DATA1 を送信
+	ef_inc_ndw	PSIO_NULLTrans2				; NULL_DATA2 を送信
+	ef_inc_ndw	PSIO_NULLTrans2				; NULL_DATA2 を送信
+	ef_inc_ndw	PSIO_NULLTrans2				; NULL_DATA2 を送信
+	ef_inc_ndw	PSIO_NULLTrans1				; NULL_DATA1 を送信
+	ef_inc_ndw	PSIO_NULLTrans2				; NULL_DATA2 を送信
+	ef_inc_ndw	PSIO_DummyTrans1			; DUMMY_DATA を送信
+	ef_inc_ndw	PSIO_DummyTrans2			; PrinterStatus[0]=(SB)の後 DUMMY_DATA を送信
+	ef_inc_ndw	PSIO_TransEnd2				; PrinterStatus[1]=(SB) , ext_system[1]=0
+
+	ef_ndw_g	PSIO_PreambleTrans2,PSIO_BREAKNo
+	ef_inc_ndw	PSIO_BREAKTrans				; BREAK_DATA を送信
+	ef_inc_ndw	PSIO_NULLTrans2				; NULL_DATA2 を送信
+	ef_inc_ndw	PSIO_NULLTrans2				; NULL_DATA2 を送信
+	ef_inc_ndw	PSIO_NULLTrans2				; NULL_DATA2 を送信
+	ef_inc_ndw	PSIO_BREAKTrans				; BREAK_DATA を送信
+	ef_inc_ndw	PSIO_NULLTrans2				; NULL_DATA2 を送信
+	ef_inc_ndw	PSIO_DummyTrans1			; DUMMY_DATA を送信
+	ef_inc_ndw	PSIO_DummyTrans2			; PrinterStatus[0]=(SB)の後 DUMMY_DATA を送信
+	ef_inc_ndw	PSIO_TransEnd				; PrinterStatus[1]=(SB) , ext_system[1]=0
+
+PSIO_SeqNoInc:				;
+	ld	hl,ext_system+1		; ext_system[1]++
+	inc	(hl)			;
+	ret
+
+PSIO_CommandWait:
+	ret
+
+PSIO_PreambleTrans2:
+	ld	a,PREAMBLE_2		; プリアンブルデータ＄３３
+	call	PSIO_TransStart		; (SB)= $33 , 通信スタート
+	call	PSIO_SeqNoInc		; ext_system[1]++
+	ret
+
+PSIO_HeaderTrans1:
+	ld	a,(HeaderBuffer+0)
+	call	PSIO_TransStart		; (SB)= HeaderBuffer[0] , 通信スタート
+	call	PSIO_SeqNoInc		; ext_system[1]++
+	ret
+
+PSIO_HeaderTrans2:
+	ld	a,(HeaderBuffer+1)
+	call	PSIO_TransStart		; (SB)= HeaderBuffer[1] , 通信スタート
+	call	PSIO_SeqNoInc		; ext_system[1]++
+	ret
+
+PSIO_HeaderTrans3:
+	ld	a,(HeaderBuffer+2)
+	call	PSIO_TransStart		; (SB)= HeaderBuffer[2] , 通信スタート
+	call	PSIO_SeqNoInc		; ext_system[1]++
+	ret
+
+PSIO_HeaderTrans4:
+	ld	a,(HeaderBuffer+3)
+	call	PSIO_TransStart		; (SB)= HeaderBuffer[3] , 通信スタート
+	call	PSIO_SeqNoInc		; ext_system[1]++
+	ret
+
+PSIO_DataTrans:
+	ld	hl,PSIO_TransDataCounter	;
+	ld	e,(hl)				;
+	inc	hl				;
+	ld	d,(hl)				;
+	ld	a,e				;
+	or	d				; if (PSIO_TransDataCounter[]w == 0x0000)
+	jr	z,next$				;	goto	next$
+	dec	de				; else
+	ld	(hl),d				;	--PSIO_TransDataCounter[]w
+	dec	hl				;
+	ld	(hl),e				;
+
+	ld	a,(PSIO_TransDataPointer+0)	;
+	ld	e,a				;
+	ld	a,(PSIO_TransDataPointer+1)	;
+	ld	d,a				;
+	ld	hl,TransDataBuffer		;
+	add	hl,de				; HL= &TransDataBuffer[PSIO_TransDataPointer]
+	inc	de
+	ld	a,e
+	ld	(PSIO_TransDataPointer+0),a	;
+	ld	a,d				; PSIO_TransDataPointer ++
+	ld	(PSIO_TransDataPointer+1),a	;
+
+	ld	a,(hl)
+	call	PSIO_TransStart			; (SB)= (HL) , 通信スタート
+	ret
+next$:
+	call	PSIO_SeqNoInc			; SeqNo++
+
+PSIO_CheckSumTrans1:
+	ld	a,(CheckSumBuffer+0)
+	call	PSIO_TransStart			; (SB)= CheckSumBuffer[0] , 通信スタート
+	call	PSIO_SeqNoInc			; SeqNo++
+	ret
+
+PSIO_CheckSumTrans2:
+	ld	a,(CheckSumBuffer+1)
+	call	PSIO_TransStart			; (SB)= CheckSumBuffer[1] , 通信スタート
+	call	PSIO_SeqNoInc			; SeqNo++
+	ret
+
+PSIO_DummyTrans1:
+	ld	a,DUMMY_DATA
+	call	PSIO_TransStart			; (SB)= DUMMY_DATA , 通信スタート
+	call	PSIO_SeqNoInc			; SeqNo++
+	ret
+
+PSIO_DummyTrans2:
+	ld	a,(SB)
+	ld	(PrinterStatus+0),a		; PrinterStatus[0] = (SB)
+	
+	ld	a,DUMMY_DATA
+	call	PSIO_TransStart			; (SB)= DUMMY_DATA , 通信スタート
+	call	PSIO_SeqNoInc			; SeqNo++
+	ret
+
+PSIO_TransEnd:
+	ld	a,(SB)
+	ld	(PrinterStatus+1),a		; PrinterStatus[1] = (SB)
+
+	xor	a
+	ld	(ext_system+1),a		; ext_system[1] = 0
+	ret
+
+PSIO_NULLTrans1:
+	ld	a,NULL_DATA1
+	call	PSIO_TransStart			; (SB)= NULL_DATA1 , 通信スタート
+	call	PSIO_SeqNoInc			; SeqNo++
+	ret
+
+PSIO_NULLTrans2:
+	ld	a,NULL_DATA2
+	call	PSIO_TransStart			; (SB)= NULL_DATA2 , 通信スタート
+	call	PSIO_SeqNoInc			; SeqNo++
+	ret
+
+PSIO_BREAKTrans:
+	ld	a,BREAK_DATA
+	call	PSIO_TransStart			; (SB)= BREAK_DATA , 通信スタート
+	call	PSIO_SeqNoInc			; SeqNo++
+	ret
+
+PSIO_TransStart:
+	ld	(SB),a				; (SB)= A
+	ld	a,00000001b			;
+	ld	(SC),a				;
+	ld	a,10000001b			; (SC)= $81  通信スタート
+	ld	(SC),a				;
+	ret
+
+	public	PSIO_TransEnd2
+PSIO_TransEnd2:
+	ld	a,(SB)
+	ld	(PrinterStatus+1),a		; PrinterStatus[1] = (SB)
+
+	xor	a
+	ld	(ext_system+1),a		; ext_system[1] = 0
+	ret
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

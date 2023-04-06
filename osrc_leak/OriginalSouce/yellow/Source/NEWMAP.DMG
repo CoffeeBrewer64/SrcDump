@@ -1,0 +1,4211 @@
+	include		pm_debug.def
+	include		common.def
+	include		fntequ.def
+	include		map.def
+	include		banktool.def
+	include		sgb_col.def
+	include		maptype.def
+	include		macro.h
+	include		group.def
+
+	include		pika.def
+	include		objbank.def
+;	include		objbank.def
+
+
+bank0	group	G_BANK0
+
+
+	public	lifting
+	public	mapper
+	public	mapper_init
+	public	put_map
+	public	put_map2
+	public	put_1cell
+	public	map_hit_chk
+	public	set_mapimg
+	public	set_map_bank
+	public	set_otokonoko
+	public	set_raplus
+	public	set_jiki
+	public	get_map_info
+	public	set_ram_map
+	public	maptype_check
+	public	game_over
+	public	warp
+	public	search_hit
+	public	search_hit1
+	public	search_hit1_0
+	public	derc_chk
+	public	puthaji_yoko
+	public	puthaji_tate
+	public	ride_check
+	public	over_music_fade
+	public	init_map
+	public	chk_ramp
+	public	chk_ramp3
+	public	raplus_tbl
+
+
+	extern	set_people
+
+	extern	bmusic
+	extern	se_wait
+	extern	color_reset
+
+	extern	mussyowan
+	extern	musboo
+	extern	muszazaza
+	extern	musdoor
+	extern	musmons
+
+	extern	mushometown
+	extern	muslabo
+	extern	mustown1
+	extern	mustown2
+	extern	mustown3
+	extern	mustown4
+	extern	mustown5
+	extern	mustown6
+	extern	musdungeon
+	extern	musdungeon2
+	extern	musdungeon3
+	extern	musdungeon4
+	extern	musasa
+	extern	musfield1
+	extern	musfield2
+	extern	musfield3
+	extern	musfield4
+	extern	musfield5
+	extern	muschari
+	extern	muscasino
+	extern	mussantoannu
+	extern	mustou1
+	extern	mustou2
+	extern	musshinka
+	extern	musgym
+	extern	muspmc
+	extern	musstartdemo
+
+
+	extern	load_data
+
+
+	extern	CheckSafari
+	extern	CheckSafariBall
+	extern	check_demo
+	extern	bank_push_call
+	extern	wait_vb
+	extern	put_wait
+	extern	wait_vb_s
+	extern	chrset
+	extern	set_objects
+	extern	set_serifu
+	extern	fnt_serifu
+	extern	cont
+	extern	cont_repeat
+	extern	cont_abwait
+	extern	div_direct
+	extern	actor_blanch
+	extern	chrmove
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	talk_map
+	extern	block_move
+	extern	fighter
+	extern	n_to_b
+	extern	w_to_n
+	extern	n_to_w
+	extern	cont1
+	extern	startmap_set
+	extern	memset
+	extern	get_mons_name
+	extern	check_life_all
+	extern	pickup_search
+	extern	color_set
+	extern	dvram_cls
+	extern	put_window
+	extern	put_msg
+	extern	allow
+
+	extern	bank2bank
+	extern	push_bank
+	extern	pop_bank
+	extern	act_demo
+	extern	encount
+	extern	check_out_limit2
+	extern	check_out_limit3
+	extern	check_out_limit4
+	extern	use_item2
+	extern	abs_ab
+	extern	check_money
+	extern	warp_ef_out
+	extern	warp_ef_in
+	extern	vanish_group_up
+	extern	table_search
+	extern	sea_check
+
+	extern	map_contact
+	extern	music_all_bank_init
+	extern	check_music_play
+	extern	music_skip
+	extern	set_now_music
+	extern	chk_one_way
+
+	extern	bank_change
+
+	extern	BGMplay
+	extern	SEplay
+	extern	MusicStop
+
+
+;	extern	objct
+;	extern	objct2
+;	extern	objct3
+;	extern	objct4
+;	extern	objct5
+;	extern	objct6
+;	extern	komono
+
+
+ACTSIZ		equ	0010h
+ACTOVL		equ	0010h * 2
+
+
+PIKA_KEY_WAIT		equ	08h
+
+
+
+
+
+
+mapper:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	call	init_map
+
+	ld	b,G_BANK3
+	ld	hl,mapper_init
+	call	bank_push_call
+
+	ld	hl,obs_walk_flag
+	bit	0,(hl)
+	jr	z,jump1$
+
+	ld	a,3
+	ld	(walking),a
+
+jump1$:
+	ld	hl,obs_player
+	bit	5,(hl)				; return from battle mode
+	res	5,(hl)
+	call	z,special_reset
+	call	nz,map_pal_set
+
+	ld	hl,game_mode + 0
+	ld	a,(hl)
+	and	18h				; 4th bit: pitfall effect
+	jr	z,z1$				; 3th bit: warp effect
+
+;	res	3,(hl)				; 下に移動 98/05/31
+
+	ld	b,G_BANK1c
+	ld	hl,warp_ef_in
+	call	bank_push_call
+
+	call	actor_blanch
+
+	ld	hl,game_mode + 0		; by tama,98/05/31
+	res	3,(hl)				; ワープリクエストフラグ
+
+	ld	hl,obs_player
+	res	4,(hl)
+
+z1$:
+	extern	PikatyuCheck
+	call	PikatyuCheck			;98/3/23 Tetsu
+
+	ld	b,G_BANK3
+	ld	hl,hero_form
+	call	bank_push_call
+
+	ld	hl,game_mode + 0		; by tama,98/05/31
+	bit	4,(hl)
+	res	4,(hl)				; 落し穴のeffectのリクエストフラグ
+  ifn	0					; かびしゃんの意見で凍結
+	call	nz,set_now_music
+  endif
+
+	ld	hl,event_flg
+	res	5,(hl)				; site change in conversation
+
+	call	actor_blanch
+
+	ld	hl,ptn_data
+	set	5,(hl)				; allow rewrite switch(door)
+	set	6,(hl)				; allow reset data(data)
+
+	xor	a
+	ld	(cancel_key),a
+
+
+maploop1:
+	call	wait_vb
+
+maploop2:
+	call	wait_vb				; step scroll wait(walking)
+
+	call	PikatyuCheck			;98/3/23 Tetsu
+	call	color_reset			; palet  recover
+
+	call	JumpEffect
+
+	ld	a,(scloll_cnt)
+	and	a
+	jp	nz,rewrite_scroll		; just scroll (key on)
+
+	call	cont_map			; animetion control ( hero )
+
+	ld	b,G_BANK7
+	ld	hl,CheckSafariBall
+	call	bank_push_call
+	ld	a,(CountDownTime)
+	and	a
+	jp	nz,exit_find
+
+	ld	hl,event_flg
+	bit	3,(hl)				; extra map transefer
+	res	3,(hl)
+	jp	nz,exit_find
+
+	ld	a,(game_mode + 0)
+	and	18h				; bit-3, bit-4
+	jp	nz,warp
+
+;------------------------------;
+; fight event emergency repair ;
+;------------------------------;
+	ld	a,(event_fight_no)
+	and	a
+	jp	nz,event_fight			; check request of event battle
+
+;----------------------;
+; system control check ;
+;----------------------;
+	ld	a,(obs_system)
+	bit	7,a
+	jr	z,no_autowalk$
+
+	ld	a,(joy_status)			; Auto Animation In
+
+	jr	start_check$
+
+
+no_autowalk$:
+	ld	a,(joy_on)
+
+start_check$:
+	bit	3,a				; start-button for system
+	jr	z,no_start$
+
+	xor	a
+	ld	(work1),a			; system mode (personal data)
+
+	jp	actor_talk$
+
+
+no_start$:
+	bit	0,a				; a-button for talking
+	jp	z,derc_chk
+
+;--------------------------------;
+; wait loop point in system loop ;
+;--------------------------------;
+	ld	a,(obs_system)
+	bit	2,a				; hook request
+	jp	nz,no_press_key
+
+;------------------------------;
+; open control menu or pick up ;
+;------------------------------;
+	call	check_demo
+	jr	nz,demo_hook$
+
+	call	pickup_search
+	ld	a,(sv_box01)
+	and	a
+	jp	z,maploop1			; after pick up event
+
+	xor	a
+	ld	(pika_hit_flag),a
+	call	search_hit			; check front of hero
+
+  ifn	YELLOW_VERSION
+	call	pika_talk_check
+  endif
+
+	ld	a,(work1)
+	and	a
+	jp	z,maploop1
+
+
+actor_talk$:
+	ld	a,B_GET_FLONTCHR
+	call	bank2bank
+
+	call	actor_blanch
+
+	ld	a,(obs_event + 0)
+	bit	2,a				; site change check
+	jr	nz,demo_hook$
+
+	bit	0,a				; talk_map hook switch
+	jr	nz,demo_hook$
+
+	ld	a,(dmy_vram + 0bch)		; 20 * 9 + 8 + dmy_vram
+	ld	(sv_under),a
+
+	call	talk_map
+
+	ld	a,(send_send_cnt)
+	and	a
+	jr	z,demo_hook$
+
+  ifn	1				; hook by tama 98/03/05
+	xor	a
+	ld	(send_send_cnt),a
+
+	jp	mapper
+
+  else
+	dec	a
+	ld	a,0
+	ld	(send_send_cnt),a
+	jr	z,pass1$
+
+	ld	a,B_LOAD_DATA
+	call	bank2bank
+
+	ld	a,(mapno)
+	ld	(ev_something + 2),a
+
+	call	startmap_set
+
+	ld	a,(mapno)
+	call	set_map_bank
+
+	ld	hl,map_type
+	set	7,(hl)
+
+pass1$:
+	jp	mapper
+  endif
+
+
+demo_hook$:
+	ld	a,(event_fight_no)
+	and	a
+	jp	nz,event_fight			; check request of event battle
+
+	jp	maploop1
+
+
+;-------------------;
+; no press site key ;
+;-------------------;
+no_press_key:
+	call	actor_blanch			; actor redraw
+
+	ld	hl,obs_event + 0
+	res	2,(hl)
+
+	xor	a
+	ld	(pika_hit_cnt),a
+
+	ld	a,1				; control
+	ld	(no_key_cnt),a
+
+	ld	a,(watashi_muki)
+	and	a
+	jr	z,to_top$
+
+	ld	(watashi_muki2),a
+
+	xor	a
+	ld	(watashi_muki),a
+
+to_top$:
+	jp	maploop1
+
+
+;-------------------------;
+; press check in site key ;
+;-------------------------;
+derc_chk:
+	ld	a,(joy_status)
+	bit	7,a				; down key press check
+	jr	z,chk_up$			; no press down key
+
+	ld	a,1
+	ld	(actor_table + 3),a		; set down step ratio
+
+	ld	a,004h
+
+	jr	turn_check$
+
+
+chk_up$:
+	bit	6,a				; upper key press check
+	jr	z,chk_left$			; no press upper key
+
+	ld	a,0ffh
+	ld	(actor_table + 3),a		; set up step ratio
+
+	ld	a,008h
+
+	jr	turn_check$
+
+
+chk_left$:
+	bit	5,a				; left key press check
+	jr	z,chk_right$			; no press all site key
+
+	ld	a,0ffh
+	ld	(actor_table + 5),a		; set left step ratio
+
+	ld	a,002h
+
+	jr	turn_check$
+
+
+chk_right$:
+	bit	4,a				; right key press check
+	jr	z,no_press_key			; no press right key
+
+	ld	a,01h
+	ld	(actor_table + 5),a		; set right step ratio
+
+	ld	a,001h
+
+turn_check$:
+	ld	(watashi_muki3),a
+
+	ld	a,(obs_system)
+	bit	7,a
+	jr	nz,no_scroll$			; no scroll in demonstration
+
+	ld	a,(no_key_cnt)
+	and	a
+	jr	z,no_scroll$
+
+	ld	a,(watashi_muki3)
+	ld	b,a
+	ld	a,(watashi_muki2)
+	cp	b
+	jr	z,no_scroll$
+
+				;------------------;
+				; turn site change ;
+				;------------------;
+  ifn	YELLOW_VERSION
+	ld	a,PIKA_KEY_WAIT			; wait for turning to pika
+	ld	(pika_hit_cnt),a
+  endif
+
+	ld	hl,obs_event + 0
+	set	2,(hl)
+
+	xor	a
+	ld	(no_key_cnt),a
+
+	ld	a,(watashi_muki3)
+	ld	(watashi_muki),a
+
+
+	call	fight_ready
+	jp	c,fight_break
+
+	jp	maploop1
+
+
+
+	public	check_walk		;for debug global label
+
+no_scroll$:
+check_walk:
+	ld	a,(watashi_muki3)
+	ld	(watashi_muki),a
+
+	call	actor_blanch
+
+	ld	a,(chyari_flg)
+	cp	2
+	jr	z,rap_walk			; raplus ride on mode
+
+
+	call	chk_aruki
+	jr	nc,ok_walk
+
+	push	hl
+	ld	hl,obs_map_step
+	bit	2,(hl)				; on exit mat
+;	res	2,(hl)
+	pop	hl
+	jp	z,maploop1
+
+	push	hl
+	call	maptype_check2
+	pop	hl
+	jp	c,ex_exit
+
+	jp	maploop1
+
+
+
+rap_walk:
+	call	raplus_step
+	jp	c,maploop1
+
+ok_walk:
+	ld	a,8
+	ld	(scloll_cnt),a
+
+	extern	set_buf_cmd		;
+	ld	hl,set_buf_cmd		; stock moving site
+	ld	b,G_BANK3f		;	for PIKACYU's animation 
+	call	bank_push_call		; by tama 98/01/23
+
+	jr	scroll_step
+
+
+
+rewrite_scroll:
+	call	KuruKuruEffect
+
+	call	actor_blanch
+
+scroll_step:
+	ld	hl,obs_event + 0
+	res	2,(hl)
+
+	xor	a
+	ld	(pika_hit_cnt),a
+
+	call	ctrl_scroller			; bicycle --> twice speed
+
+	call	scroller
+
+	ld	a,(scloll_cnt)
+	and	a
+	jp	nz,map2map
+
+
+	call	count_step
+
+	ld	a,(ev_t8_5 + 0)
+	bit	7,a				; request
+	jr	z,no_safari$
+
+	ld	b,G_BANK7
+	ld	hl,CheckSafari
+	call	bank_push_call
+	ld	a,(CountDownTime)
+	and	a
+	jp	nz,exit_find
+
+no_safari$:
+	ld	a,(fighting_flg)
+	and	a
+	jp	nz,not_fight
+
+	ld	a,B_DOKU_CHK
+	call	bank2bank			; calling "mapsub.src"
+	ld	a,(func_ret)
+	and	a
+	jp	nz,game_over
+
+event_fight:
+	call	fight_ready
+
+	ld	hl,obs_map_step			; exit bit clear
+	res	2,(hl)
+
+	jp	nc,not_fight			; not fight
+
+fight_break:
+	ld	hl,event_flg
+	res	6,(hl)				; battle mode off
+
+	ld	hl,game_mode + 1
+	res	3,(hl)				; battle invoke
+
+	ld	hl,ptn_data
+	set	5,(hl)				; allow rewrite bg-cell
+	set	6,(hl)				; allow reset some data
+
+	xor	a
+	ld	(joy_status),a
+
+;	call	actor_blanch
+
+	ld	a,(mapno)
+	cp	T9R2F1
+	jr	nz,NoT9R2F1$
+
+	ld	hl,ev_t9_2 + 1
+	set	7,(hl)				; bg change(door) switch(on)
+
+NoT9R2F1$:
+	ld	hl,obs_player
+	set	5,(hl)				; status of after battle
+
+	ld	a,(mapno)
+	cp	T1R3F1				; for rival
+	jp	z,to_mapper
+
+	ld	hl,check_life_all
+	ld	b,G_BANKf
+	call	bank_push_call
+	ld	a,d
+	and	a
+	jr	z,monsters_all_dead
+
+to_mapper:
+	ld	c,10
+	call	wait_vb_s
+
+	jp	mapper
+
+
+
+count_step:
+	ld	a,(obs_system)
+	bit	7,a
+	jr	nz,no_step_count$
+
+	ld	hl,stepping			; count down stepping always
+	dec	(hl)
+
+	ld	a,(obs_walk_flag)
+	bit	0,a
+	jr	z,no_step_count$		; observe stepping switch
+
+	ld	hl,walking			; count down stepping limited
+	dec	(hl)
+	jr	nz,no_step_count$		; count down end check
+
+	ld	hl,obs_walk_flag		; switching observe end
+	res	0,(hl)
+
+no_step_count$:
+	ret
+
+
+
+monsters_all_dead:
+	ld	a,0ffh
+	ld	(fighting_flg),a
+
+	call	event_call			; reset data after losing
+
+	jp	game_over
+
+
+fight_ready:
+	ld	a,(event_flg)
+	bit	4,a				; falling in hall
+	jr	nz,battle_cancel$
+
+	call	check_demo
+	jr	nz,battle_cancel$
+
+	ld	a,(obs_player)
+	bit	4,a
+	jr	nz,battle_cancel$		; no encount request
+
+	ld	b,G_BANK3d
+	ld	hl,fighter
+	jp	bank_push_call
+
+
+battle_cancel$:
+	and	a
+
+	ret
+
+
+
+
+
+	public	ctrl_scroller
+
+ctrl_scroller:
+;===============================================;
+  ifn	0					; Stamped. 1998/05/06
+	ld	a,(game_mode + 00h)
+	bit	1,a
+	jr	z,normal$
+
+	ld	a,(joy_status)
+	bit	1,a
+	jr	nz,pass$
+
+normal$:
+  endif
+;===============================================;
+
+	ld	a,(chyari_flg)			; not bicycle
+	dec	a
+	ret	nz
+
+	ld	a,(obs_map_step)		; jump down cliff
+	bit	6,a				; 	--> normal speed
+	ret	nz
+
+	ld	a,(demo_flag + 0)
+	and	a				; check demo mode
+	ret	nz
+
+	ld	a,(mapno)
+	cp	R17
+	jr	nz,pass$
+
+	ld	a,(joy_status)
+	and	01110000b
+	ret	nz
+
+
+pass$:
+	call	scroller
+
+	ret
+
+
+
+
+
+
+
+not_fight:
+;------------------------;
+; exit or entrance check ;
+;------------------------;
+	ld	a,(ie_cnt)
+	and	a
+	jp	z,map2map			; no house in this map
+
+
+	ld	b,0
+	ld	a,(ie_cnt)
+	ld	c,a				; BC = house lot in this map
+	ld	a,(mapscloll_y)
+	ld	d,a
+	ld	a,(mapscloll_x)
+	ld	e,a				; DE = mapscloll_y,mapscloll_x
+	ld	hl,ie_tbl
+
+exit_pos_check:
+	ld	a,(hli)				; exit position (y)
+	cp	d
+	jr	nz,next1$
+
+	ld	a,(hli)				; exit position (x)
+	cp	e
+	jr	nz,next2$
+
+	push	hl
+	push	bc
+
+	ld	hl,obs_map_step
+	set	2,(hl)				; on exit cell block
+
+	ld	b,G_BANK3
+	ld	hl,check_out_limit4		; check door chr
+	call	bank_push_call
+
+	pop	bc
+	pop	hl
+
+	jr	c,check_pass
+
+	push	hl
+	push	bc
+
+	call	maptype_check2
+
+	pop	bc
+	pop	hl
+
+	jr	nc,next2$
+
+	ld	a,(game_mode + 1)
+	bit	2,a
+	jr	nz,check_pass			; no_key_check
+
+	push	de
+	push	bc
+
+	call	cont
+
+	pop	bc
+	pop	de
+
+	ld	a,(joy_status)
+	and	0f0h
+	jr	z,next2$			; no exit on entrance area
+
+	jr	check_pass
+
+
+next1$:
+	inc	hl
+
+next2$:
+	inc	hl
+	inc	hl
+
+	inc	b				; room lots count up
+	dec	c				; room data count down
+	jp	nz,exit_pos_check
+
+	jp	map2map
+
+
+
+
+
+ex_exit:
+	ld	a,(ie_cnt)
+	ld	c,a
+
+	ld	hl,ie_tbl
+
+ex_exit_lp:
+	ld	a,(hli)
+	ld	b,a
+
+	ld	a,(mapscloll_y)
+	cp	b
+	jr	nz,next_exit_y$
+
+	ld	a,(hli)
+	ld	b,a
+
+	ld	a,(mapscloll_x)
+	cp	b
+	jr	nz,next_exit_x$
+
+	ld	a,(hli)
+	ld	(ram_map_id),a
+
+	ld	a,(hl)
+	ld	(work0),a
+
+	jr	exit_find			; map change line
+
+
+next_exit_y$:
+	inc	hl
+
+next_exit_x$:
+	inc	hl
+	inc	hl
+
+	dec	c
+	jr	nz,ex_exit_lp			; check all exit point in map
+
+	jp	maploop1
+
+
+
+
+check_pass:
+	ld	a,(hli)
+	ld	(ram_map_id),a			; id number
+
+	ld	a,(hli)
+	ld	(work0),a			; room number
+
+exit_find:
+	ld	a,(ie_cnt)
+	sub	c
+	ld	(elevator + 0),a
+	ld	a,(mapno)			; room number
+	ld	(elevator + 1),a
+
+	call	maptype_check
+	jr	nz,room2room$			; no town and road
+				
+;-----------------------------------------------;
+;		Field -> House			;
+;-----------------------------------------------;
+
+	ld	a,(mapno)
+	ld	(mapno_stack),a
+
+	ld	a,(mapxsize)
+	ld	(mapold_x),a
+
+	ld	a,(work0)
+	ld	(mapno),a
+	cp	R10R2F1
+	jr	nz,z1$
+
+	ld	a,6
+	ld	(base_color),a
+
+	call	n_to_b
+
+z1$:
+  ifn	YELLOW_VERSION
+	extern	appoint_pika_pos1		; set pika-hero position
+	ld	hl,appoint_pika_pos1		; for field -> room situation
+	ld	b,G_BANK3f			;
+	call	bank_push_call			;
+  endif
+
+	call	exit_se
+
+	jr	same_return
+
+
+
+
+
+;-----------------------------------------------;
+;		House -> House			;
+;-----------------------------------------------;
+room2room$:
+	ld	a,(work0)
+	cp	0ffh
+	jr	z,to_field
+
+	ld	(mapno),a			; ie -> ie
+
+	ld	b,G_BANK1c
+	extern	check_map
+	ld	hl,check_map
+	call	bank_push_call
+	ld	a,(usr_buf + FREE_AREA_@)	; ld	a,(usr_buf + 20)
+	dec	a
+	jr	nz,no_warp$
+
+	call	warp_effect
+
+	ld	hl,game_mode + 0		; Request Warp-In EFX
+	set	3,(hl)
+
+	jr	next$
+
+
+no_warp$:
+	call	exit_se
+
+next$:
+	ld	hl,obs_map_step
+	res	0,(hl)				; map exit for system
+	res	1,(hl)				; auto down step mode switch
+
+  ifn	YELLOW_VERSION
+	extern	appoint_pika_pos2		; set pika-hero position
+	ld	hl,appoint_pika_pos2		; for room->room situation
+	ld	b,G_BANK3f			;  by checking map number
+	call	bank_push_call			;
+  endif
+
+	jr	same_return
+
+
+;-----------------------------------------------;
+;		House -> Field			;
+;-----------------------------------------------;
+to_field:
+  ifn	YELLOW_VERSION
+	extern	appoint_pika_pos3		; set pika-hero position
+	ld	hl,appoint_pika_pos3		; for room->field situation
+	ld	b,G_BANK3f			;  by checking map number
+	call	bank_push_call			;
+  endif
+
+	ld	a,(mapno_stack)			; Map Data Stack Area Address
+	ld	(mapno),a			; Map Number Address
+
+	call	exit_se
+
+	xor	a
+	ld	(base_color),a
+
+same_return:
+	ld	hl,obs_map_step
+	set	0,(hl)				; 1 step forward (hero)
+
+	call	key_cancel_set
+
+	jp	mapper
+
+
+
+
+;--------------------------------------------;
+; road to road, road to field, field to road ;
+;--------------------------------------------;
+map2map:
+	ld	a,(mapscloll_x)
+	cp	0ffh
+	jr	nz,zaza10$
+
+	ld	a,(mapcat_l)
+	ld	(mapno),a
+
+	ld	a,(mapcat_l_x)
+	ld	(mapscloll_x),a
+
+	ld	a,(mapscloll_y)
+	ld	c,a
+	ld	a,(mapcat_l_y)
+	add	a,c
+	ld	c,a
+	ld	(mapscloll_y),a
+
+	ld	a,(mapcat_l_adr3)
+	ld	l,a
+	ld	a,(mapcat_l_adr3 + 1)
+	ld	h,a
+
+	srl	c
+	jr	z,zaza3$
+
+zaza2$:
+	ld	a,(mapcat_l_siz2)
+	add	a,6
+	ld	e,a
+	ld	d,0
+	ld	b,0
+	add	hl,de
+	dec	c
+	jr	nz,zaza2$
+
+zaza3$:
+	ld	a,l
+	ld	(mapadr2),a
+	ld	a,h
+	ld	(mapadr2 + 1),a
+
+	jp	map2map_same$
+
+
+zaza10$:
+	ld	b,a
+	ld	a,(mapxsize2)
+	cp	b
+	jr	nz,zaza20$
+
+	ld	a,(mapcat_r)
+	ld	(mapno),a
+
+	ld	a,(mapcat_r_x)
+	ld	(mapscloll_x),a
+
+	ld	a,(mapscloll_y)
+	ld	c,a
+	ld	a,(mapcat_r_y)
+	add	a,c
+	ld	c,a
+	ld	(mapscloll_y),a
+
+	ld	a,(mapcat_r_adr3)
+	ld	l,a
+	ld	a,(mapcat_r_adr3 + 1)
+	ld	h,a
+
+	srl	c
+	jr	z,zaza13$
+
+zaza12$:
+	ld	a,(mapcat_r_siz2)
+	add	a,6
+	ld	e,a
+	ld	d,0
+	ld	b,0
+	add	hl,de
+	dec	c
+	jr	nz,zaza12$
+
+zaza13$:
+	ld	a,l
+	ld	(mapadr2),a
+	ld	a,h
+	ld	(mapadr2 + 1),a
+
+	jp	map2map_same$
+
+
+zaza20$:
+	ld	a,(mapscloll_y)
+	cp	0ffh
+	jr	nz,zaza30$
+
+	ld	a,(mapcat_up)
+	ld	(mapno),a
+
+	ld	a,(mapcat_up_y)
+	ld	(mapscloll_y),a
+
+	ld	a,(mapscloll_x)
+	ld	c,a
+	ld	a,(mapcat_up_x)
+	add	a,c
+	ld	c,a
+	ld	(mapscloll_x),a
+
+	ld	a,(mapcat_up_adr3)
+	ld	l,a
+	ld	a,(mapcat_up_adr3 + 1)
+	ld	h,a
+
+	ld	b,0
+	srl	c
+	add	hl,bc
+	ld	a,l
+	ld	(mapadr2),a
+	ld	a,h
+	ld	(mapadr2 + 1),a
+
+	jp	map2map_same$
+
+
+zaza30$:
+	ld	b,a
+	ld	a,(mapysize2)
+	cp	b
+	jr	nz,zaza40$
+
+	ld	a,(mapcat_dw)
+	ld	(mapno),a
+
+	ld	a,(mapcat_dw_y)
+	ld	(mapscloll_y),a
+
+	ld	a,(mapscloll_x)
+	ld	c,a
+	ld	a,(mapcat_dw_x)
+	add	a,c
+	ld	c,a
+	ld	(mapscloll_x),a
+
+	ld	a,(mapcat_dw_adr3)
+	ld	l,a
+	ld	a,(mapcat_dw_adr3 + 1)
+	ld	h,a
+
+	ld	b,0
+	srl	c
+	add	hl,bc
+	ld	a,l
+	ld	(mapadr2),a
+	ld	a,h
+	ld	(mapadr2 + 1),a
+
+map2map_same$:
+  ifn	YELLOW_VERSION
+	ld	hl,pika_status
+	set	MAP2MAP_SW,(hl)
+	ld	a,AFTER_PIKA_SET
+	ld	(pika_set_pos),a
+  endif
+
+	call	get_map_info
+	call	check_music_play
+	ld	b,COL_TOWN
+	call	color_set
+
+  ifn	1
+	extern	new_obj_set
+	call	new_obj_set
+  else
+	ld	b,G_BANK5
+	ld	hl,set_objects
+	call	bank_push_call
+  endif
+
+	call	set_ram_map
+
+	jp	maploop2
+
+
+zaza40$:
+	jp	maploop1
+
+
+
+;-----------------------------------------------------------
+; 通常の出入り口でのエフェクトルーチン
+;-----------------------------------------------------------
+exit_se:
+	ld	a,(map_type)			; BLUIDING_TYPE(ロケット団アジト、シルフビル、
+						; ヤマブキジム、グレンジム、ポケモン屋敷、
+	cp	BUILDING_TYPE			; 無人発電所）ではドアの音は出さない。 
+	jr	z,no_door$			; by tama 98/05/22
+
+	cp	TOWER_TYPE			; ポケモンタワーではドアの音は出さない。
+	jr	z,no_door$			; （ただしキクコの部屋も同じタイプなので注意)
+
+	ld	a,(8 * 20 + 8 + dmy_vram)	;
+	cp	00bh				; door(00bh) check
+	jr	nz,no_door$			; ドアの効果音がなる出入り口キャラのコードは
+						; すべてのマップキャラで共通でなければならない。
+
+	ld	a,musdoor			; door open se
+
+	jr	set_se$
+
+no_door$:
+	ld	a,muszazaza			; walk se
+
+set_se$:
+	call	SEplay
+
+	ld	a,(base_color)
+	and	a
+	ret	nz
+
+	jp  	n_to_b
+
+
+;=======================;
+;   Map_type Check      ;
+;=======================;
+;
+;================================================
+; In	: map_type
+; Out	: Zero flag	ON
+;	:	--> field map(town/road)
+;================================================
+maptype_check:
+	ld	a,(map_type)
+	and	a
+	ret	z
+
+	cp	CENTER_TYPE
+
+	ret
+
+
+
+maptype_check2:
+	ld	a,(mapno)
+
+	cp	D3R1F3		; Ship
+	jr	z,z1$
+
+	cp	D9R1F1		; Azito
+	jr	z,z2$
+	cp	D9R1F2
+	jr	z,z2$
+	cp	D9R1F4
+	jr	z,z2$
+	cp	R10R2F1
+	jr	z,z2$
+
+	ld	a,(map_type)
+	and	a
+	jr	z,z2$
+	cp	SHIP_TYPE
+	jr	z,z2$
+	cp	PORT_TYPE
+	jr	z,z2$
+	cp	CENTER_TYPE
+	jr	z,z2$
+
+
+z1$:
+	ld	hl,check_out_limit2		; hanigai_check
+	jr	check$
+
+z2$:
+	ld	hl,check_out_limit3		; chr_check
+
+
+check$:
+	ld	b,G_BANK3
+	jp	bank_push_call
+
+
+;=======================;
+;   Map_type Check      ;
+;=======================;
+map_pal_set:
+	ld	b,G_BANK3
+	ld	hl,exit_check
+	call	bank_push_call
+
+	ld	a,(base_color)
+	and	a
+	jp	z,w_to_n
+	jp	color_reset
+
+
+
+;=======================;
+;			;
+;	game over	;
+;			;
+;=======================;
+game_over:
+	call	n_to_b
+;	ld	a,0ffh
+;	ld	(BGP),a
+;	ld	(OBP0),a
+;	ld	(OBP1),a
+
+	ld	a,08h				; Fadeout Speed
+	call	over_music_fade
+
+	ld	hl,obs_player
+	res	5,(hl)				; return from battle mode
+
+	ld	a,001h
+	call	bank_change
+
+	ld	hl,InitGameOver
+  ifn	ASSEMBLE__BANK_CHANGE
+	ld	b,G_BANK3c
+  else
+	ld	b,G_BANK30
+  endif
+	call	bank_push_call
+
+	call	startmap_set			; argument set in "hotel"
+	call	check_music_play		; Music Start!
+
+	jp	cont1
+
+
+
+;===============================================;
+;   Music Fadeout For Game Over And Warp Mode	;
+;						;
+;	IN Areg : Fade Out Speed		;
+;===============================================;
+over_music_fade:
+	ld	(fade_play_fg),a
+	call	MusicStop
+
+fade_loop$:
+	ld	a,(fade_play_fg)
+	and	a
+	jr	nz,fade_loop$
+
+	jp	music_all_bank_init
+
+
+;=======================;
+;			;
+;	warp !!		;
+;			;
+;=======================;
+warp:
+	call	actor_blanch
+
+	call	put_wait
+
+	xor	a
+	ld	(kachi_make),a
+
+;	ld 	(chyari_flg),a
+	ld	(fighting_flg),a		; rest of pocket monsters
+	ld	(base_color),a
+
+	ld	hl,game_mode + 00h
+	set	2,(hl)				; game over mode & warp mode
+	res	5,(hl)				; clear to bicycle mode
+
+	call	warp_effect
+
+	call	MusicCheck
+
+	ld	a,1
+	call	bank_change
+
+;	ld	a,(mapno)
+;	ld	(ev_something + 2),a
+	call	startmap_set			; argument set in "hotel"
+
+	jp	cont1
+
+
+warp_effect:
+	ld	b,G_BANK1c
+	ld	hl,warp_ef_out
+	jp	bank_push_call
+
+MusicCheck:
+	ld 	a,(chyari_flg)
+	and	a
+	ret	z
+	
+	xor	a
+	ld 	(chyari_flg),a
+	ld	hl,game_mode + 0		; by tama,98/05/31
+	bit	4,(hl)
+	ret	z
+
+	call	set_now_music
+	ret
+
+
+;===============================================;
+;		     Set jiki			;
+;===============================================;
+set_jiki:
+	ld	a,(chyari_flg)
+	dec	a				 ; == "cp 01h"
+	jr	z,charinko$
+
+	ld	a,(wave_flg)
+	and	a
+	jr	nz,jiki$
+
+	jr	set_otoko$
+
+
+charinko$:
+	call	ride_check
+	jr	c,jiki$				; Ride On!
+
+set_otoko$:
+	xor	a  
+	ld 	(chyari_flg),a
+	ld	(chyari_sv),a
+
+	jp	set_otokonoko
+
+
+jiki$:
+	ld	a,(chyari_flg)
+	and	a
+	jp	z,set_otokonoko
+
+	dec	a
+	jp	z,set_charinko
+
+	dec	a
+	jp	z,set_raplus
+
+	jp	set_otokonoko
+
+
+;===============================================;
+;		Charinko Ride Check		;
+;	Out Cy = 1 : Ride Ok			;
+;===============================================;
+ride_check:
+	ld	a,(mapno)
+	cp	R23
+	jr	z,ride_on$
+
+	cp	T10
+	jr	z,ride_on$
+
+	ld	a,(map_type)
+	ld	b,a
+	ld	hl,ride_on_tbl
+
+ride_loop$:
+	ld	a,(hli)
+	cp	b
+	jr	z,ride_on$			; Ride On!
+
+;	cp	0ffh				; End Mark
+	inc	a
+	jr	nz,ride_loop$
+
+	and	a				; Cy Reset
+
+	ret
+
+
+ride_on$:
+	scf					; can't walking
+
+	ret
+
+
+ride_on_tbl:
+	db	TOWN_ROAD_TYPE
+;	db	ROOM_TYPE
+;	db	SHOP_TYPE
+	db	DUNGEON_TYPE
+;	db	ROOM2F_TYPE
+;	db	SCHOOL_TYPE
+;	db	HOTEL_TYPE
+;	db	CHAMPCUP_TYPE
+;	db	MINKA_TYPE
+;	db	SEKISYO_TYPE
+;	db	HAKUBUTSU_TYPE
+	db	NUKEMICHI_TYPE
+;	db	GATE_TYPE
+;	db	SHIP_TYPE
+	db	PORT_TYPE
+;	db	TOWER_TYPE
+;	db	MANIA_TYPE
+	db	DOUKUTU_TYPE
+;	db	DEPART_TYPE
+;	db	MANSHON_TYPE
+;	db	KENKYUJO_TYPE
+;	db	CYCLE_TYPE
+;	db	BUILDING_TYPE
+;	db	CENTER_TYPE
+	db	0ffh				; End Mark
+
+
+
+;=======================;
+set_mapimg:
+  ifn 0
+	ld	a,(LCDC)
+	bit	7,a
+	jr	z,z1$
+	ld	a,(mapimgadr)
+	ld	e,a
+	ld	a,(mapimgadr + 1)
+	ld	d,a				; HL = map image data address
+	ld	hl,CHAR_BG			; DE = vram address
+	ld	c,96				; character count
+	ld	a,(map_data_bank)		; map image data bank number
+	ld	b,a
+	jp	chrmove
+z1$:
+  endif
+	ld	a,(mapimgadr)
+	ld	l,a
+	ld	a,(mapimgadr + 1)
+	ld	h,a				; HL = map image data address
+	ld	de,CHAR_BG			; DE = vram address
+	ld	bc,96*16			; character count
+	ld	a,(map_data_bank)		; map image data bank number
+	jp	chrset
+
+
+
+set_ram_map:
+	ld	hl,ram_map			; 0c7e8h
+	ld	bc,1300				; area size
+	ld	a,(mapclscell)			; cell block number(out of map)
+	call	memset
+
+	ld	hl,ram_map
+	ld	a,(mapxsize)
+	ld	(work1),a
+	add	a,6				; each side(+3,+3)
+
+	ld	(work0),a
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc				; ram_map += bc
+	ld	c,3
+	add	hl,bc
+
+	ld	a,(mapadr)
+	ld	e,a
+	ld	a,(mapadr + 1)
+	ld	d,a
+	ld	a,(mapysize)
+	ld	b,a
+
+z3$:
+	push	hl
+	ld	a,(work1)
+	ld	c,a
+
+z2$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz,z2$
+
+	pop	hl
+	ld	a,(work0)
+	add	a,l	
+	ld	l,a
+	jr	nc,z4$
+
+	inc	h
+
+z4$:
+	dec	b
+	jr	nz,z3$
+
+	ld	a,(mapcat_up)
+	cp	0ffh
+	jr	z,dwn1$
+
+	call	set_map_bank
+
+	ld	a,(mapcat_up_adr)		; bottom of upper map(3-line)
+	ld	l,a
+	ld	a,(mapcat_up_adr + 1)
+	ld	h,a				; hl = map adr
+
+	ld	a,(mapcat_up_adr2)		; ram_map + 3 adrs ( Min = 3 )
+	ld	e,a
+	ld	a,(mapcat_up_adr2 + 1)
+	ld	d,a				; de = ram_map adr
+	ld	a,(mapcat_up_siz)		; X Size
+	ld	(work0),a
+	ld	a,(mapcat_up_siz2)		; Hontai X Size
+	ld	(work1),a
+	call	ud1$			; Ram Map ni Up Map no 3Line(Cell) Add
+
+;------- 
+dwn1$:
+	ld	a,(mapcat_dw)		; Cont Down Map Flag Load
+	cp	0ffh			; No Map ?
+	jr	z,left1$		; Yes -> Cont Left Map
+
+	call	set_map_bank			; sita ni tunagaru map
+	ld	a,(mapcat_dw_adr)	; Down Map no ue kara 3 Line me no Adrs
+	ld	l,a
+	ld	a,(mapcat_dw_adr + 1)
+	ld	h,a				; hl = map adr
+	ld	a,(mapcat_dw_adr2)	; ram_map + 3 Address ( Min = 3 )
+	ld	e,a
+	ld	a,(mapcat_dw_adr2 + 1)
+	ld	d,a				; de = ram_map adr
+	ld	a,(mapcat_dw_siz)	; X Size  
+	ld	(work0),a
+	ld	a,(mapcat_dw_siz2)	; Hontai X Size
+	ld	(work1),a
+	call	ud1$			; Ram Map ni Up Map no 3Line(Cell) Add
+
+left1$:
+	ld	a,(mapcat_l)		; Cont Left Map Flag Load
+	cp	0ffh			; No Map ?
+	jr	z,right1$		; Yes -> Cont Right Map
+
+	call	set_map_bank			; hidari ni tunagaru map
+	ld	a,(mapcat_l_adr)	; Left Map no Right 3Line me no Adrs
+	ld	l,a
+	ld	a,(mapcat_l_adr + 1)
+	ld	h,a				; hl = map adr
+	ld	a,(mapcat_l_adr2)	; ram_map + 3 Address ( Min = 3 ?)
+	ld	e,a
+	ld	a,(mapcat_l_adr2 + 1)
+	ld	d,a				; de = ram_map adr
+	ld	a,(mapcat_l_siz)	; Y Size
+	ld	b,a				; b = y haba
+	ld	a,(mapcat_l_siz2)	; Hontai Y Size
+	ld	(work0),a
+	call	lr1$			; Ram Map ni Left Map no 3Line Add
+
+right1$:
+	ld	a,(mapcat_r)		; Cont Right Map Flag Load
+	cp	0ffh			; No Map?
+	jr	z,z99$			; Yes -> Return
+
+	call	set_map_bank			; migi ni tunagaru map
+	ld	a,(mapcat_r_adr)	; Right Map no Left 3Line me no Adrs
+	ld	l,a
+	ld	a,(mapcat_r_adr + 1)
+	ld	h,a				; hl = map adr
+	ld	a,(mapcat_r_adr2)	; ram_map + 3 Address ( Min = 3 ? )
+	ld	e,a
+	ld	a,(mapcat_r_adr2 + 1)
+	ld	d,a				; de = ram_map adr
+	ld	a,(mapcat_r_siz)	; Y Size
+	ld	b,a				; b = y haba
+	ld	a,(mapcat_r_siz2)	; Hontai Y Size
+	ld	(work0),a
+	call	lr1$			; Ram Map ni Left Map no 3Line Add
+
+z99$:
+	ret				; Return --- sonomanma
+
+ud1$:
+	ld	c,3
+
+dw1$:
+	push	de
+	push	hl
+
+	ld	a,(work0)
+	ld	b,a				; b = draw haba
+
+dw2$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	b
+	jr	nz,dw2$
+
+	pop	hl
+	pop	de
+
+	ld	a,(work1)
+	add	a,l
+	ld	l,a
+	jr	nc,dw3$
+
+	inc	h
+
+dw3$:
+	ld	a,(mapxsize)
+	add	a,6
+	add	a,e
+	ld	e,a
+	jr	nc,dw4$
+
+	inc	d
+
+dw4$:
+	dec	c
+	jr	nz,dw1$
+
+	ret
+
+lr1$:
+	push	hl
+	push	de
+
+	ld	c,3
+
+zl2$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,zl2$
+
+	pop	de
+	pop	hl
+
+	ld	a,(work0)
+	add	a,l
+	ld	l,a
+	jr	nc,zl3$
+
+	inc	h
+
+zl3$:
+	ld	a,(mapxsize)
+	add	a,6
+	add	a,e
+	ld	e,a
+	jr	nc,zl4$
+
+	inc	d
+
+zl4$:
+	dec	b
+	jr	nz,lr1$
+
+	ret
+
+
+;=======================================================;
+;							;
+;	cross switching for conversation to actor	;
+;							;
+;	OUT:						;
+;	work1						;
+;		actor entry number			;
+;		000h		no front actor & board	;
+;		001h -- 010h	front actor number	;
+;							;
+;	hl regs						;
+;		object "actor_table + 1" address	;
+;							;
+;=======================================================;
+search_hit:
+	xor	a
+	ld	(work1),a
+
+	ld	a,(kanban_cnt)
+	and	a
+	jr	z,next_step$
+
+
+	ld	a,B_GET_FLONTCHR
+	call	bank2bank
+
+	call	search_hit_kanban
+
+	ret	c
+	
+
+next_step$:
+	ld	a,B_GET_FLONTCHR
+	call	bank2bank
+
+	ld	hl,table_chrs
+	ld	b,3				; table character code lots
+
+	ld	d,020h				; 1 cell ahead
+
+before_chr$:
+	ld	a,(hli)
+	cp	c
+	jr	z,search_hit1
+
+	dec	b
+	jr	nz,before_chr$
+
+search_hit1_0:
+	ld	d,010h				; just ahead
+
+
+search_hit1:
+	ld	bc,03ch * 100h + 040h		; LCDC center position(y, x)
+
+	ld	a,(actor_table + 09h)		; hero's site
+
+	cp	04h
+	jr	nz,z1$
+
+	ld	a,b				; north
+	sub	d
+	ld	b,a				; 1 cell upper
+
+	ld	a,08h
+
+	jr	search1$
+
+
+z1$:
+	cp	00h
+	jr	nz,z2$
+
+	ld	a,b				; south
+	add	a,d
+	ld	b,a				; 1 cell lower
+
+	ld	a,04h
+
+	jr	search1$
+
+
+z2$:
+	cp	0ch
+	jr	nz,z3$
+
+	ld	a,c				; east
+	add	a,d
+	ld	c,a				; 1 cell right
+
+	ld	a,01h
+
+	jr	search1$
+
+
+z3$:
+	ld	a,c				; west
+	sub	d
+	ld	c,a				; 1 cell left
+
+	ld	a,02h
+
+search1$:
+	ld	(watashi_muki3),a
+
+  ifn	YELLOW_VERSION
+	ld	hl,actor_table + ACTSIZ
+	ld	e,1
+	ld	d,ACTOR_MAX - 1
+
+  else
+	ld	a,(murabito_cnt)
+	and	a
+	ret	z
+
+	ld	hl,actor_table + ACTOVL
+
+	ld	d,a				; actor check counter
+	ld	e,1				; actor entry number(counter)
+  endif
+
+loop1$:
+	push	hl
+
+	ld	a,(hli)
+	and	a
+	jr	z,skip1$			; actor code(valiable) check
+
+	inc	l
+	ld	a,(hli)	
+	inc	a				; = 0ffh = hide code
+	jr	z,skip1$			; actor vanish check
+
+	inc	l
+	ld	a,(hli)
+	cp	b
+	jr	nz,skip1$			; y-position cross check
+
+	inc	l
+	ld	a,(hl)
+	cp	c
+	jr	z,find1$			; x-position cross check
+
+skip1$:
+	pop	hl
+
+	ld	a,l
+	add	a,ACTSIZ
+	ld	l,a
+
+	inc	e
+
+	dec	d				; check actor rest check
+	jr	nz,loop1$
+
+	xor	a
+	ret
+
+
+find1$:
+	pop	hl
+
+	ld	a,l
+	and	0f0h
+
+	inc	a
+	ld	l,a
+	set	7,(hl)
+
+  ifn	1					; 1998/01/23
+	ld	a,e				; SXY-OBJ list number
+	ld	(work1),a
+  else
+	push	hl
+	push	de
+
+	ld	hl,hito_tbl
+	ld	d,0
+	ld	a,e				; SXY-OBJ list number
+	dec	a
+	add	a,a
+	ld	e,a
+	add	hl,de
+	ld	a,(hl)
+	ld	(work1),a			; number of looking borad
+
+	pop	de
+	pop	hl
+  endif
+
+  ifn	1					; 1998/03/23
+	ld	a,(work1)
+	cp	PIKA_ACT_NO
+	jr	nz,find_ret$
+	
+	ld	a,0ffh
+	ld	(pika_hit_flag),a
+find_ret$:
+  endif
+	scf
+	ret
+
+
+
+
+  ifn	1
+;--------------------------------------
+;Out:	carry ON	hit kanban!
+;--------------------------------------
+search_hit_kanban:
+	ld	hl,kanban_tbl
+	ld	a,(kanban_cnt)
+	ld	b,a
+	ld	c,0
+
+chk_pos_y$:
+	inc	c				; next board number
+
+	ld	a,(hli)
+	cp	d
+	jr	z,chk_pos_x$
+
+	inc	hl
+
+	jr	chk_again$
+
+
+chk_pos_x$:
+	ld	a,(hli)
+	cp	e
+	jr	nz,chk_again$
+
+	push	hl
+	push	bc
+
+	ld	hl,kanban_msg_no
+	ld	b,0
+	dec	c
+	add	hl,bc
+	ld	a,(hl)
+	ld	(work1),a			; number of looking borad
+
+	pop	bc
+	pop	hl
+
+	scf
+	ret
+
+
+chk_again$:
+	dec	b
+	jr	nz,chk_pos_y$
+
+	xor	a
+	ret
+  endif
+
+
+
+;----------------------------;
+; check walkable under place ;
+; C : not walk		     ;
+;----------------------------;
+	public	chk_aruki
+
+chk_aruki:
+	ld	a,(obs_map_step)
+	bit	6,a
+	jr	nz,hero_anime$
+
+	ld	a,(ctrl_move_cnt)
+	and	a
+	jr	nz,hero_anime$			; auto animetion ( hero )
+
+	ld	a,(watashi_muki3)
+	ld	d,a
+	ld	a,(actor_table + 00ch)		; object hit check
+	and	d				; site && hit check
+	nop
+	jr	nz,crossing$
+
+	xor	a
+	ld	(work1),a
+	call	search_hit1_0
+
+  ifn	YELLOW_VERSION
+	jr	nc,pass_chk$
+
+	res	7,(hl)			; talking bit off
+
+	ld	a,(work1)
+	and	a			; no OBJ 
+	jr	z,pass_chk$
+
+	cp	PIKA_ACT_NO		; other OBJ
+	jr	nz,crossing$
+
+	extern	chk_pika_sleep
+	call	chk_pika_sleep		; 1998/04/23 
+	jr	nz,crossing$		; sleeping pika not move away
+
+	ld	a,(joy_status)		; 1998/05/07
+	and	BT_B			;  --> no wait to move
+	jr	nz,pass_chk$		; push down B button
+
+	ld	hl,pika_hit_cnt
+	ld	a,(hl)
+	and	a
+	jr	z,pass_chk$
+
+	dec	(hl)			; wait counter decriment
+	jr	nz,crossing$
+
+pass_chk$:
+
+  else
+	ld	a,(work1)
+	and	a
+	jr	nz,crossing$
+  endif
+
+	ld	hl,ramp_tbl
+	call	chk_ramp			; ramp walk check
+	jr	c,crossing$
+
+	call	map_hit_chk			; normal walk check
+	jr	nc,hero_anime$
+
+crossing$:
+	ld	a,(condetion + 4)
+	cp	musboo
+	jr	z,pass1$
+
+	ld	a,musboo
+	call	SEplay
+
+pass1$:
+	scf					; can't walking
+
+;	jr	rts$
+	ret
+
+
+hero_anime$:
+	and	a
+
+rts$:
+	ret
+
+
+
+
+;----------------------------------------
+; Check CHR code in flont of HERO
+;Out:	Carry ON	not to walk
+;	Carry OFF	able to walk
+;----------------------------------------
+map_hit_chk:
+	ld	a,B_GET_FLONTCHR
+	call	bank2bank
+
+	ld	a,(flont_chr)
+	ld	c,a
+
+	extern	arukeru_tbl_check
+	call	arukeru_tbl_check
+	ret
+
+
+
+;---------------------------------------------;
+; check walking place for map of dungeon type ;
+;---------------------------------------------;
+	public	chk_ramp2
+
+chk_ramp:
+	push	hl
+
+	ld	a,B_GET_FLONTCHR
+	call	bank2bank
+
+	push	de
+	push	bc
+
+	ld	b,G_BANK6
+	ld	hl,chk_one_way
+	call	bank_push_call
+
+	pop	bc
+	pop	de
+
+	pop	hl
+
+	and	a
+	ld	a,(obs_map_step)
+	bit	6,a				; auto one step for only pass
+	ret	nz				; ok_walk
+;	jr	nz,walk$
+
+
+chk_ramp2:
+;--------------------- debug by Sige 96-9-17------------
+	ld	a,(dmy_vram + 0bch)
+	ld	(sv_under),a
+chk_ramp3:
+;--------------------- debug by Sige 96-9-17------------
+
+	ld	a,(flont_chr)
+	ld	c,a
+
+map_type_lp$:
+	ld	a,(map_type)
+	ld	b,a
+
+	ld	a,(hli)				; map-type (to code1)
+	cp	0ffh
+	jr	z,walk$				; not found map-type(eod)
+
+	cp	b
+	jr	z,check_code$
+
+	inc	hl				; code1 (to code2)
+
+lp_rts$:
+	inc	hl				; code2 (to next map-type)
+
+	jr	map_type_lp$
+
+
+check_code$:
+;--------------------- debug by Sige 96-9-17------------
+;	ld	a,(dmy_vram + 0bch)
+	ld	a,(sv_under)
+;--------------------- debug by Sige 96-9-17------------
+	ld	b,a				; check code under cell
+
+check_code_lp$:
+	ld	a,(hl)				; code1
+	cp	b
+	jr	z,even$
+
+	inc	hl
+
+	ld	a,(hl)				; code2
+	cp	b
+	jr	z,odd$
+
+	jr	lp_rts$
+
+
+even$:
+	inc	hl
+	ld	a,(hl)				; code2
+	cp	c				; check front character code
+	jr	z,stop$
+
+	jr	map_type_lp$
+
+
+odd$:
+	dec	hl
+
+	ld	a,(hli)
+	cp	c
+	inc	hl
+	jr	nz,map_type_lp$
+
+stop$:
+	scf
+
+	ret
+
+
+walk$:
+	and	a
+
+	ret
+
+
+;------------------------------------------------;
+; struct entry	map-type, cell-code1, cell-code2 ;
+;------------------------------------------------;
+	public	ramp_tbl
+ramp_tbl:
+	db	011h,020h,005h			; for "o-tukimi-yama"
+	db	011h,041h,005h			; for "o-tukimi-yama"
+	db	003h,030h,02eh			; for "safari"
+	db	011h,02ah,005h			; for "iwa-yama"
+	db	011h,005h,021h			; for "iwa-yama" exit point
+
+	db	003h,052h,02eh			; tori 
+	db	003h,055h,02eh			; tori
+	db	003h,056h,02eh			; tori
+	db	003h,020h,02eh			; safari
+	db	003h,05eh,02eh			; safari
+	db	003h,05fh,02eh			; safari
+
+	db	0ffh				; end mark
+
+
+raplus_tbl:
+	db	003h,014h,02eh			; safari
+	db	003h,048h,02eh			; wasurerareta doukutu
+	db	011h,014h,005h			; for "o-tukimi-yama"
+	db	0ffh				; end mark
+
+
+
+;*****************************************
+;*					*
+;*	redraw map for dmy_vram		*
+;*					*
+;*****************************************
+put_map:
+	ld	a,(rombankno)
+	push	af
+
+
+	ld	a,(map_data_bank)
+	call	bank_change
+
+put_map2:
+	ld	a,(mapadr2)		; Mapadr2 Address Load
+	ld	e,a			; DE Reg Load
+	ld	a,(mapadr2 + 1)
+	ld	d,a
+
+	ld	hl,dmy_map		; HL = dmy_map Address(24 * 20)
+
+	ld	b,5			; B = 5 , C = 6
+
+z2$:
+	push	hl			; Dmy Vram Address Push
+	push	de			; Map Address 2 Push
+
+	ld	c,6	
+
+z1$:
+	push	bc			; Counter(?) Push
+	push	de			; mapadr2 Push
+	push	hl			; Dmy Vram Address Push
+
+	ld	a,(de)			; Load Map Address 2 in Data
+	ld	c,a			;    
+	call	put_1cell
+
+	pop	hl			; Pop Dmy Vram Address
+	pop	de			; Pop mapadr2 
+	pop	bc			; Pop Counter
+
+	inc	hl			; dmy_map Address 4 skip 
+	inc	hl
+	inc	hl
+	inc	hl
+
+	inc	de			; mapadr2 Inc
+
+	dec	c			; Counter Low - 1 
+	jr	nz,z1$			; Continue
+
+	pop	de			; mapadr2 pop
+	ld	a,(mapxsize)
+	add	a,6			; Limit Over Cell(Right & Left) 
+	add	a,e
+	ld	e,a
+	jr	nc,z70$			; keta agari
+
+	inc	d
+
+z70$:
+	pop	hl			; Pop Dmy Vram Address
+	ld	a,96
+	add	a,l
+	ld	l,a
+	jr	nc,z80$
+
+	inc	h
+
+z80$:
+	dec	b
+	jr	nz,z2$
+
+	ld	hl,dmy_map		; dmy_map to dmy_vram
+	ld	bc,0
+	ld	a,(mapscloll_y4)
+	and	a
+	jr	z,mov1$
+
+	ld	bc,24*2
+	add	hl,bc
+
+mov1$:
+	ld	a,(mapscloll_x4)
+	and	a
+	jr	z,mov2$
+
+	ld	bc,2
+	add	hl,bc
+
+mov2$:
+	ld	de,dmy_vram		; Dummy Vram
+	ld	b,18
+
+mov3$:
+	ld	c,20
+mov4$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,mov4$
+
+	ld	a,4
+	add	a,l
+	ld	l,a
+	jr	nc,mov5$
+
+	inc	h
+
+mov5$:
+	dec	b
+	jr	nz,mov3$
+
+	pop	af
+	call	bank_change
+
+	ret
+
+
+;===============================;
+;				;
+;	map scroll control	;
+;				;
+;===============================;
+scroller:
+	ld	a,(oam_flg)			; 1998/05/07 by tama
+	push	af				; for cancel OAM data making
+	ld	a,0ffh				;  while map rewriting process
+	ld	(oam_flg),a			;
+
+	ld	hl,scroller_main
+  ifn	ASSEMBLE__BANK_CHANGE
+	ld	b,G_BANK3c
+  else
+	ld	b,G_BANK30
+  endif
+	call	bank_push_call
+
+	pop	af
+	ld	(oam_flg),a
+	ret
+
+
+;===================================================
+
+
+
+
+;*****************************************
+;*					*
+;*	haji put ue			*
+;*					*
+;*****************************************
+	public	uehaji_put
+uehaji_put:
+	ld	hl,dmy_vram
+	call	puthaji_yoko
+
+	ld	a,(mapvramadr)
+	ld	(haji_put_buf + 1),a
+	ld	a,(mapvramadr + 1)
+	ld	(haji_put_buf + 2),a
+	ld	a,2				; case of Up or Down
+	ld	(haji_put_buf),a
+
+	ret
+
+
+;*****************************************
+;*					*
+;*	haji put yoko			*
+;*					*
+;*****************************************
+puthaji_yoko:
+	ld	de,haji_buf		; haji_buf(2*20) address
+	ld	c,40
+
+z1$:
+	ld	a,(hli)			; dmy_vram data
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,z1$
+
+	ret
+
+
+;*****************************************
+;*					*
+;*	put haji sita			*
+;*					*
+;*****************************************
+sitahaji_put:
+	ld	hl,16*20 + dmy_vram	; dmy_vram Y = 16 no position
+	call	puthaji_yoko
+
+	ld	a,(mapvramadr)
+	ld	l,a
+	ld	a,(mapvramadr + 1)
+	ld	h,a
+	ld	bc,32*16		; BC = 00200h(16Block me)
+	add	hl,bc
+	ld	a,h
+	and	003h
+	or	098h
+
+	ld	(haji_put_buf + 2),a	; mapvramadrs Low  address 
+	ld	a,l
+	ld	(haji_put_buf + 1),a	; mapvramadrs High address
+	ld	a,2
+	ld	(haji_put_buf),a	; Use 'prt.src Func:haji_put'
+
+	ret
+
+;*****************************************
+;*					*
+;*	put haji migi			*
+;*					*
+;*****************************************
+	public	migihaji_put
+
+migihaji_put:
+	ld	hl,dmy_vram + 18	; dmy_vram  + (X = 18)
+	call	puthaji_tate
+	ld	a,(mapvramadr)		; mapvramadr Low  Address
+	ld	c,a
+	and	0e0h
+	ld	b,a
+	ld	a,c
+	add	a,18
+	and	01fh
+	or	b
+	ld	(haji_put_buf + 1),a
+	ld	a,(mapvramadr + 1)	; mapvramadr High Address
+	ld	(haji_put_buf + 2),a
+	ld	a,1			; case Left or Right only
+	ld	(haji_put_buf),a
+
+	ret
+
+;*****************************************
+;*					*
+;*	put haji tate			*
+;*					*
+;*****************************************
+puthaji_tate:
+	ld	de,haji_buf		; DE = haji_buf address
+	ld	c,18
+z1$:
+	ld	a,(hli)			; HL = dmy_vram in data
+	ld	(de),a			; haji_buf <- dmy_vram in data
+	inc	de			; haji_buf + 1
+	ld	a,(hl)			; dmy_vram + 1 in data 
+	ld	(de),a			;
+	inc	de			; haji_buf + 2
+
+	ld	a,19
+	add	a,l			; dmy_vram low address + 013h
+	ld	l,a
+	jr	nc,z2$			; keta agari check!
+
+	inc	h			; h ++
+z2$:
+	dec	c			; c --
+	jr	nz,z1$
+
+	ret
+
+;*****************************************
+;*					*
+;*	put haji hidari			*
+;*					*
+;*****************************************
+hidarihaji_put:
+	ld	hl,dmy_vram		; HL = dmy_vram address
+	call	puthaji_tate		; Tate Side
+	ld	a,(mapvramadr)		; Map Vram Address Data Load  
+	ld	(haji_put_buf + 1),a	; mapvramadr Low  Address
+	ld	a,(mapvramadr + 1)
+	ld	(haji_put_buf + 2),a	; mapvramadr High Address
+	ld	a,1			; case Left or Right only
+	ld	(haji_put_buf),a
+
+	ret
+
+;*****************************************
+;*					*
+;*	1 cell put			*
+;*   in: c = cell no			*
+;*	hl = put adrs			*
+;*					*
+;*****************************************
+put_1cell:
+	push	hl
+
+	ld	a,(mapcelladr)		; HL = mapcell address
+	ld	l,a
+	ld	a,(mapcelladr + 1)
+	ld	h,a
+
+	ld	a,c			; cell no
+	swap	a			; cell no * 010h
+	ld	b,a
+	and	0f0h
+	ld	c,a
+	ld	a,b
+	and	00fh
+	ld	b,a
+	add	hl,bc
+	ld	d,h
+	ld	e,l			; de = cell tbl adrs
+
+	pop	hl
+
+	ld	c,4			; C reg = counter
+loop$:
+	push	bc
+
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hl),a
+	inc	de
+
+	ld	bc,21
+	add	hl,bc
+
+	pop	bc
+	dec	c			; count down
+	jr	nz,loop$
+
+	ret
+
+
+;-----------------------;
+; control moving in map ;
+;-----------------------;
+cont_map:
+	xor	a
+	ld	(actor_table + 003h),a		; clear Y-step ratio for player
+	ld	(actor_table + 005h),a		; clear X-step ratio for player
+
+	call	event_call			; map event
+
+	call	cont
+	call	force_down_check$		; key input in "Cycling Road"
+
+	call	cont_map_main
+
+	ret
+
+
+force_down_check$:
+	ld	a,(game_mode + 1)
+	bit	3,a				; battle invoke
+	ret	nz
+
+	ld	a,(mapno)
+	cp	R17
+	ret	nz
+
+	ld	a,(joy_status)
+	and	0f3h
+	ret	nz
+
+	ld	a,80h				; No Key Input 
+	ld	(joy_status),a			;	--> Down Key Input
+						; in "Cycling Road"
+	ret
+
+
+
+cont_map_main:
+	ld	a,(obs_system)
+	bit	7,a				; check hero's stepping
+	ret	z
+
+	ld	a,(joy_status)
+	ld	b,a
+	ld	a,(auto_move_msk)		; mask key in animetion
+	and	b
+	ret	nz
+
+	call	get_hero_mv_cmd$
+	jr	nc,anime_end$
+
+	ld	(joy_status),a			; controled move site by key
+	and	a
+	ret	nz
+
+	ld	(joy_on),a
+	ld	(joy_off),a
+
+	ret
+
+
+anime_end$:
+	xor	a
+	ld	(auto_move_cnt),a
+	ld	(ctrl_move_cnt),a
+	ld	(ctrl_move_val + 0),a		; stop a step after animetion
+
+	ld	(cancel_key),a
+	ld	(joy_status),a
+
+	ld	hl,obs_map_step
+	ld	a,(hl)
+	and	0f8h
+	ld	(hl),a
+
+	ld	hl,obs_system
+	res	7,(hl)				; hero demonstration mode off
+
+	ret
+
+
+;-------------------------------------------------
+;get hero's demo move command
+;In	: ctrl_move_cnt		command counter
+;	: ctrl_move_val		command buffering area
+;Out	: Carry ON		get cmd success
+;	: a regs		move key value
+;-------------------------------------------------
+get_hero_mv_cmd$:
+	ld	hl,ctrl_move_cnt
+	dec	(hl)
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,end$
+
+	push	de
+	ld	e,a
+	ld	d,00h
+	ld	hl,ctrl_move_val
+	add	hl,de
+	ld	a,(hl)
+	pop	de
+	scf
+	ret
+end$:
+	and	a
+	ret
+
+
+
+
+;=======================================================================;
+; Category	: raplus ride mode move check routine
+; Bank-No.	: G_BANK0
+; Infomation	: Nothing
+;=======================================================================;
+
+raplus_step:
+	ld	a,(obs_system)			; no check
+	bit	7,a				; when auto move demo
+	jp	nz,sui_sui$
+
+
+	ld	a,(watashi_muki3)
+	ld	d,a
+	ld	a,(actor_table + 00ch)		; object hit check
+	and	d				; site && hit check
+;	jr	nz,boo_boo$
+	jr	nz,next$
+
+	ld	hl,raplus_tbl
+	call	chk_ramp			; ramp walk check
+	jr	c,next$
+
+
+	ld	a,B_GET_FLONTCHR
+	call	bank2bank
+
+  ifn 0
+	ld	a,(flont_chr)
+
+	cp	014h				; possible to take off(cliff)
+	jr	z,sui_sui$
+
+	cp	032h				; possible to take off(cliff)
+	jr	z,sui_sui2$
+
+	cp	048h				; possible to take off(cliff)
+	jr	z,sui_sui$
+  else
+	ld	hl,sea_check
+	ld	b,G_BANK3
+	call	bank_push_call
+	jr	c,sui_sui$
+
+	ld	a,(flont_chr)
+	ld	c,a				; for arukeru_tbl_check
+  endif
+
+boo_boo$:
+	call	arukeru_tbl_check
+	jr	nc,ride_off$
+
+next$:
+	ld	a,(condetion + 4)
+	cp	musboo
+	jr	z,boo_boo_boo$
+
+	ld	a,musboo
+	call	SEplay
+
+boo_boo_boo$:
+	scf					; cliff wall
+
+	jr	rts$
+
+
+
+sui_sui2$:			; 7/25 for debug
+	ld	a,(map_type)
+	cp	14		; port_type
+	jr	nz,sui_sui$
+
+	jr	ride_off$
+
+
+ride_off$:
+  ifn	YELLOW_VERSION
+	ld	a,EXIT_PIKA_SET			; by tama 98/05/31
+	ld	(pika_set_pos),a
+
+	ld	hl,pika_status			; not show pika
+	set	LANDING_SW,(hl)			;  until landing ends
+  endif
+	xor	a
+	ld	(chyari_flg),a
+
+	call	set_jiki
+
+	call	set_now_music
+
+	jr	sui_sui$
+
+
+sui_sui$:
+	and	a				; water & sea
+
+rts$:
+	ret
+
+
+;=======================================================;
+;							;
+;	event call sequence with address table		;
+;							;
+;=======================================================;
+	extern	rock
+	extern	rock_move
+
+	public	event_call
+
+event_call:
+	push	hl
+	push	de
+	push	bc
+
+	ld	b,G_BANK3
+	ld	hl,rock				; invoke rock-move
+	call	bank_push_call
+
+	ld	a,(obs_event + 0)
+	bit	1,a
+	jr	z,no_rock$
+
+	ld	b,G_BANK3
+	ld	hl,rock_move			; observe rock-move
+	call	bank_push_call
+
+no_rock$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	call	act_demo
+
+	ld	a,(mapno)
+	call	set_map_bank
+
+	ld	hl,map_event			; set in "get_map_info"
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,event_call_rts$
+	push	de
+
+	jp	(hl)				; calling
+
+
+event_call_rts$:
+	ret
+
+
+
+;*****************************************
+;*					*
+;*	onnanoko my chara set		*	CHECK! by sige 95-04-17
+;*					*
+;*****************************************
+set_otokonoko:				; otokonoko(my) chara set
+	xor	a
+	ld	(naminori_flg),a	;1=rap 2=pika
+
+	ld	b,CBANK_JIBUN
+	ld	de,OBJ_JIBUN
+;	ld	de,objct		; otokonoko data address 
+;	ld	hl,CHAR_DATA		; vram address
+	jr	obj_set
+
+set_raplus:
+	ld	a,(naminori_flg)	;1=rap 2=pika
+	and	a
+	jr	z,check$
+	dec	a
+	jr	z,rap$
+	dec	a
+	jr	z,pika$
+check$:
+	ld	a,(obs_pikachu)
+	bit	6,a
+	jr	z,rap$
+pika$:
+
+	ld	b,CBANK_SURFPIKA
+	ld	de,surfpikachr
+	jr	obj_set
+rap$:
+	ld	b,CBANK_UMIRYU
+	ld	de,OBJ_UMIRYU
+	jr	obj_set
+
+set_charinko:
+	ld	b,CBANK_CHARINKO
+	ld	de,charinko
+
+obj_set:
+	ld	hl,CHAR_DATA
+
+	push	de			; vram address save
+	push	hl			; data address save
+	push	bc
+
+	ld	c,12
+	call	chrmove
+
+	pop	bc
+	pop	hl			; vram address load
+	pop	de			; data address load 
+
+	ld	a,12*16			; A reg <- 0c0h(192)
+	add	a,e			; data low address + 0C0h
+	ld	e,a
+	jr	nc,z1$
+
+	inc	d
+
+z1$:
+	set	3,h			; Vram high address -> $?8??
+	ld	c,12
+	jp	chrmove
+
+
+;===============================================================;
+;								;
+;	get data for some setting on the map form sxy-data	;
+;								;
+;===============================================================;
+ENC_ITEM_NO	equ	2
+HOUSE_ITEM_NO	equ	4
+
+	extern	YellowPatchVanish
+
+get_map_info:
+	ld	b,G_BANK3
+	ld	hl,vanish_group_up
+	call	bank_push_call
+
+	jr	asp_01$
+
+; ビットずれしないようにするんだけどね、ちょっとめんどくさいぞ
+	ld	b,G_BANK3c
+	ld	hl,YellowPatchVanish
+	call	bank_push_call
+
+asp_01$:
+	ld	a,(map_type)
+	ld	(map_type_sv),a
+
+	ld	a,(mapno)
+	call	set_map_bank
+
+	ld	a,(map_type)
+	ld	b,a
+	res	7,a				; from continue mode
+	ld	(map_type),a
+
+	ld	(work0),a
+	bit	7,b
+	ret	nz
+
+	call	get_maptbl_adrs		; 98/01/22 
+
+	ld	de,map_type			; copy start address
+	ld	c,map_link_flg - map_type + 1	; copy length ( common.def )
+
+dat_loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,dat_loop$ 
+
+	ld	a,0ffh				; Set Data '0ffh'
+	ld	(mapcat_up),a			; Up    Side
+	ld	(mapcat_dw),a			; Down  Side
+	ld	(mapcat_l),a			; Left  Side
+	ld	(mapcat_r),a			; Right Side
+
+	ld	a,(map_link_flg)	
+	ld	b,a			
+
+	bit	3,b			
+	jr	z,link1$		
+
+	ld	de,mapcat_up		
+	call	linkmov1$
+
+link1$:					
+	bit	2,b			
+	jr	z,link2$		
+
+	ld	de,mapcat_dw		
+	call	linkmov1$
+
+link2$:
+	bit	1,b			
+	jr	z,link3$		
+
+	ld	de,mapcat_l		
+	call	linkmov1$
+
+link3$:
+	bit	0,b			
+	jr	z,link_map_struct$	
+
+	ld	de,mapcat_r		
+	call	linkmov1$
+
+link_map_struct$:
+	ld	a,(hli)			
+	ld	(maptbl2_adrs),a	
+	ld	a,(hli)
+	ld	(maptbl2_adrs+1),a	
+
+	push	hl
+
+	ld	a,(maptbl2_adrs)
+	ld	l,a
+	ld	a,(maptbl2_adrs+1)
+	ld	h,a
+
+	ld	de,mapclscell		; han-igai Cell
+	ld	a,(hli)
+	ld	(de),a
+
+
+init_house$:				;------ exit table set ----------
+	ld	a,(hli)
+	ld	(ie_cnt),a
+	and	a 
+	jr	z,init_kanban$
+
+	ld	c,a
+	ld	de,ie_tbl
+
+ie_loop$:
+	ld	b,HOUSE_ITEM_NO      
+
+ie_loop_in$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	b
+	jr	nz,ie_loop_in$
+
+	dec	c
+	jr	nz,ie_loop$
+
+
+init_kanban$:  				; - Kanban -----------------------
+	ld	a,(hli)
+	ld	(kanban_cnt),a
+	and	a
+	jr	z,init_murabito$
+
+	call	set_kanban
+
+
+init_murabito$:				; --- Character Data Define ---
+	ld	a,(obs_player)		; add by sige 95-07-03
+	bit	5,a			; return from battle mode
+	jr	nz,noset_obj$		;
+
+	call	set_people
+
+noset_obj$:
+	ld	a,B_INITMOVE
+	call	bank2bank
+
+
+  ifn	YELLOW_VERSION			; for pikacyu 
+	ld	a,(obs_player)		; 
+	bit	5,a			; return from battle mode
+	jr	nz,noset_pika$		;  --> not initialize pika pos
+
+	extern	set_pika
+	ld	hl,set_pika
+	ld	b,G_BANK3f
+	call	bank_push_call
+
+noset_pika$:
+  endif
+
+	ld	hl,encount
+	ld	b,G_BANK3
+	call	bank_push_call
+
+	pop	hl
+
+	ld	a,(mapysize)			
+	add	a,a				
+	ld	(mapysize2),a			
+
+	ld	a,(mapxsize)			
+	add	a,a				
+	ld	(mapxsize2),a			
+
+set_map_music$:
+	ld	a,(mapno)
+	ld	c,a
+	ld	b,00h
+
+	ld	a,(rombankno)
+	push	af
+	ld	a,G_BANK3f
+	call	bank_change
+
+	ld	hl,music_table			; Table Is "music.tbl"
+	add	hl,bc
+	add	hl,bc
+	ld	a,(hli)
+	ld	(map_music),a			; Set Map Music
+	ld	a,(hl)
+	ld	(map_music_bank),a		; Set Map Music
+
+	pop	af
+	call	bank_change
+
+	ret
+
+
+;---------------------------
+;  Get Map Table Data
+;---------------------------
+linkmov1$:				; Set Map Data From Map Link Data Table
+	ld	c,11			; counter (11Byte)
+
+linkmov2$:
+	ld	a,(hli)			; map table address
+	ld	(de),a			; mapcat_?? Top Address
+	inc	de			; Next Data Table
+	dec	c
+	jr	nz,linkmov2$		; if Counter != 0 then 'linkmov2$'
+
+	ret
+
+
+
+set_kanban:
+	ld	de,kanban_tbl
+	ld	bc,kanban_msg_no
+
+	ld	a,(kanban_cnt)
+loop$:
+	push	af
+
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hli)
+	ld	(bc),a
+	inc	bc
+
+	pop	af
+	dec	a
+	jr	nz,loop$
+	ret
+
+
+
+
+;********************************
+;*				*
+;*	mapper system		*
+;*  in : (mapno) = map no.	*
+;*				*
+;********************************
+init_map:
+	ld	a,(rombankno)
+	push	af
+
+	call	lcdc_stop
+
+  ifn	YELLOW_VERSION
+	call	init_map_wk
+  else
+	ld	a,098h				; 09800h = Back Ground
+	ld	(mapvramadr + 1),a		; mapvramadr = 09800h
+	xor	a
+	ld	(mapvramadr),a
+	ld	(headery),a
+	ld	(headerx),a
+	ld	(scloll_cnt),a
+	ld	(map_type_sv),a
+	ld	(map_obj_type),a
+	ld	(chyari_sv),a
+  endif
+
+	call	set_serifu
+	call	get_map_info			; Map Data Get 
+  ifn	1
+	call	new_obj_set
+  else
+	ld	b,G_BANK5
+	ld	hl,set_objects
+	call	bank_push_call
+  endif
+
+ ifn YELLOW_VERSION
+	call	MapDataAllSetMain
+ else
+	call	set_ram_map			; Ram Map data Set
+	call	set_mapimg			; Map Image Data Set
+	call	put_map
+ endif
+
+	call	Dvram_to_BG
+
+	ld	a,1
+	ld	(oam_flg),a
+
+	call	lcdc_on
+
+	ld	b,COL_TOWN
+	call	color_set
+
+	call	set_jiki			; jiki Char Select
+
+	ld	a,(game_mode + 0)
+	and	18h				; bit 3 and 4
+	jr	nz,no_music$
+
+music$:
+	ld	a,(game_mode + 1)
+	bit	1,a				; bit 1 : Music Cancel Mode
+	jr	nz,no_music$
+
+	call	music_skip
+	call	check_music_play
+
+no_music$:
+	pop	af
+
+	call	bank_change
+
+	ret
+
+
+MapDataAllSetMain:
+	call	set_ram_map			; Ram Map data Set
+	call	set_mapimg			; Map Image Data Set
+	call	put_map
+	ret
+
+	public	MapDataAllSet
+MapDataAllSet:
+	ld	a,(rombankno)
+	push	af
+
+	call	lcdc_stop
+
+	call	init_map_wk
+	ld	a,(mapno)
+	call	set_map_bank
+	call	MapDataAllSetMain
+
+	call	Dvram_to_BG
+	ld	de,9c00h
+	call	Dvram_to_BG2
+
+	call	lcdc_on
+
+	extern	set_objdata_main
+	call	set_objdata_main
+	pop	af
+	call	bank_change
+
+	jr	req_same
+;	ld	hl,ptn_data
+;	set	5,(hl)
+;	set	6,(hl)
+;	ret
+
+
+	public	RecoverRamMap
+RecoverRamMap:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,(mapno)
+	call	set_map_bank
+
+	call	set_ram_map
+
+	pop	af
+	call	bank_change
+
+req_same:
+	ld	hl,RequestPatch
+  ifn	ASSEMBLE__BANK_CHANGE
+	ld	b,G_BANK3c
+  else
+	ld	b,G_BANK30
+  endif
+	jp	bank_push_call
+
+;	ld	hl,ptn_data
+;	set	5,(hl)
+;	set	6,(hl)
+	ret
+
+
+
+  ifn	YELLOW_VERSION
+init_map_wk:
+	ld	a,098h				; 09800h = Back Ground
+	ld	(mapvramadr + 1),a		; mapvramadr = 09800h
+	xor	a
+	ld	(mapvramadr),a
+	ld	(headery),a
+	ld	(headerx),a
+	ld	(scloll_cnt),a
+	ld	(map_type_sv),a
+	ld	(map_obj_type),a
+	ld	(chyari_sv),a
+	ret
+  endif
+
+  ifn	YELLOW_VERSION
+Dvram_to_BG:
+	ld	de,09800h	       		; back ground data address
+Dvram_to_BG2:
+	S_POS	0,0				; dmy_vram address ==> HL
+	ld	b,18				; MAX_SCR_Y
+
+mapini1$:
+	ld	c,20				; MAX_SCR_X / LCD area 
+
+mapini2$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	e
+	dec	c
+	jr	nz,mapini2$
+
+	ld	a,12
+	add	a,e
+	ld	e,a
+	jr	nc,mapini3$
+
+	inc	d
+
+mapini3$:
+	dec	b
+	jr	nz,mapini1$
+
+	ret
+  endif
+
+
+;----------------------------------------;
+; set bank number of each map image data ;
+;	IN				 ;
+;	A regs			 	 ;
+;		map number		 ;
+;----------------------------------------;
+set_map_bank:
+	push	hl
+	push	bc
+
+	ld	c,a
+	ld	b,0
+
+;	ld	a,003h
+	ld	a,G_BANK3f			; 98/02/26 make spc to bank3
+	call	push_bank
+
+	ld	hl,map_bank_tbl
+	add	hl,bc
+
+	ld	a,(hl)
+	ld	(temp_box4),a
+
+	call	pop_bank
+
+	ld	a,(temp_box4)
+	call	bank_change
+
+	pop	bc
+	pop	hl
+
+	ret
+
+
+
+;---------------------------------------------------
+; In:	mapno
+; Out:	hl regs		map event program address
+;---------------------------------------------------
+get_maptbl_adrs:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,03fh
+	call	bank_change
+
+	push	de
+
+	ld	a,(mapno)
+	ld	e,a
+	ld	d,00h
+	ld	hl,maptbl			; event address table
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; HL = event table address
+
+	pop	de
+
+	pop	af
+	jp	bank_change
+
+
+
+
+key_cancel_set:
+	ld	a,30
+	ld	(tm_count),a			; wait to next talk_map
+
+	ld	hl,obs_system
+	ld	a,(hl)
+	or	26h				; bit-1,2,5 --> on
+	ld	(hl),a
+
+	ret
+
+
+special_reset:
+	ld	hl,ev_special + 0
+	res	0,(hl)				; "kairiki"
+
+	ret
+
+
+lifting:
+	ld	b,G_BANK5
+	ld	hl,set_jiki
+	call	bank_push_call
+
+	jp	set_now_music
+
+
+
+	extern	jump_effect
+	extern	kurukuru
+
+JumpEffect:
+	ld	a,(obs_map_step)
+	bit	6,a
+	ret	z
+
+	ld	b,G_BANK1c
+	ld	hl,jump_effect
+	call	bank_push_call
+
+	ret
+
+
+KuruKuruEffect:
+	ld	a,(obs_map_step)
+	bit	7,a
+	ret	z
+
+	ld	b,G_BANK11
+	ld	hl,kurukuru
+	jp	bank_push_call
+
+
+
+pika_talk_check:
+	extern	talk_with_pika
+	ld	hl,talk_with_pika
+	ld	b,G_BANK3f
+	jp	bank_push_call
+
+
+
+
+
+
+
+
+
+
+
+bank3	group	G_BANK3
+
+
+; バンク３ｆに移動 by tama 98/06/03
+;music_table:
+;	include music.tbl
+
+
+
+
+
+;-----------------------------------------------------------;
+; initialize map-event status & system status for new stage ;
+;-----------------------------------------------------------;
+mapper_init:
+	ld	a,144
+	ld	(window_y),a
+	ld	(WY),a
+
+	xor	a
+	ld	(all_put_req),a
+	ld	(stepping),a			; each time observed step
+;	ld	(walking),a			; switching observed step
+	ld	(championcap_no),a		; fight mode as hall
+	ld	(joy_on),a
+	ld	(joy_off),a
+	ld	(joy_status),a
+	ld	(work_event),a
+	ld	(dendou_no + 1),a 
+;	ld	(cancel_key),a
+	ld	hl,checker_flag + 0
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,usr_buf + 0
+	ld	bc,30
+	call	memset
+
+	ret
+
+
+exit_check:
+	ld	a,(ie_cnt)
+	and	a
+	ret	z
+
+	ld	c,a				; BC = house lot in this map
+	ld	hl,ie_tbl
+
+loop$:
+	ld	a,(mapscloll_y)
+	cp	(hl)				; exit position (y)
+	jr	nz,next1$
+
+	inc	hl
+	ld	a,(mapscloll_x)
+	cp	(hl)				; exit position (y)
+	jr	nz,next2$
+
+	inc	hl
+	ld	a,(hli)
+	ld	(ram_map_id),a
+	ld	a,(hl)
+	ld	(work0),a
+
+	ld	hl,obs_map_step
+	set	2,(hl)
+;	ld	hl,event_flg
+;	set	3,(hl)
+	ret
+
+next1$:
+	inc	hl
+next2$:
+	inc	hl
+	inc	hl
+	inc	hl
+
+	dec	c				; room data count down
+	jr	nz,loop$
+	ret
+
+
+
+
+
+;-----------------------------------------------------
+;Force Set Hero's Moving Form(walk/bicycle/raplus)
+;-----------------------------------------------------
+	public	hero_form
+
+hero_form:
+	ld	hl,game_mode
+	bit	5,(hl)
+	ret	nz
+
+	ld	hl,form_table$
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	a,(mapscloll_x)
+	ld	c,a
+	ld	a,(mapno)
+	ld	d,a
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	ret	z
+
+	cp	d
+	jr	nz,next1$
+
+	ld	a,(hli)
+	cp	b
+	jr	nz,next2$
+
+	ld	a,(hli)
+	cp	c
+	jr	nz,loop$
+
+	ld	a,(mapno)
+	cp	D16R1F3				; d16r0102 --> d16r0103
+	ld	a,2				; SeqFallRaplus
+	ld	(seq_ctrl_buf + 118),a
+	jr	z,InRaplus$
+
+	ld	a,(mapno)
+	cp	D16R1F4				; d16r0103 --> d16r0104
+	ld	a,2				; SeqFallRaplus
+	ld	(seq_ctrl_buf + 120),a
+	jr	z,InRaplus$
+
+	ld	hl,game_mode + 0
+	set	5,(hl)
+
+	ld	a,1
+	ld	(chyari_flg),a
+	ld	(chyari_sv),a
+	call	lifting
+	ret
+
+
+next1$:
+	inc	hl
+
+next2$:
+	inc	hl
+
+	jr	loop$
+
+
+InRaplus$:
+	ld	a,2
+	ld	(chyari_flg),a
+	ld	(chyari_sv),a
+	call	lifting
+	ret
+
+form_table$:
+	db	R16,00ah,011h
+	db	R16,00bh,011h
+	db	R18,008h,021h
+	db	R18,009h,021h
+	db	D16R1F3,007h,012h
+	db	D16R1F3,007h,013h
+	db	D16R1F4,00eh,004h
+	db	D16R1F4,00eh,005h
+	db	0ffh
+
+
+
+
+
+
+
+
+
+
+bank3f	group	03fh
+
+
+music_table:
+	include music.tbl
+
+
+maptbl:
+	include	..\mapdata\map_tbl.dat
+
+
+;----------------------------------------;
+; using "set_map_bank"			 ;
+; table format				 ;
+;	assigned map number, bank number ;
+;----------------------------------------;
+map_bank_tbl:
+	include	mapbank.dat
+
+
+
+
+
+  ifn	ASSEMBLE__BANK_CHANGE
+bank3c	group	G_BANK3c
+  else
+bank30	group	G_BANK30
+  endif
+
+
+scroller_main:
+	ld	a,(actor_table + 3)		; 001h:down, 0ffh:up
+	ld	b,a
+	ld	a,(actor_table + 5)		; 001h:right, 0ffh:left
+	ld	c,a
+
+	ld	hl,scloll_cnt			; starting value = 8
+	dec	(hl)
+	jr	nz,bg1$				; 8-dot unit scroll
+
+  ifn	YELLOW_VERSION
+	ld	hl,pika_status			;
+	res	LANDING_SW,(hl)
+  endif
+
+	ld	a,(mapscloll_y)
+	add	a,b
+	ld	(mapscloll_y),a			; renewal moving y-position
+
+	ld	a,(mapscloll_x)	
+	add	a,c
+	ld	(mapscloll_x),a			; renewal moving x-position
+
+bg1$:
+	ld	a,(scloll_cnt)
+	cp	7
+	jp	nz,screen1$
+
+scroll_start$:
+	ld	a,c				; horizontal move site
+	cp	001h 				; site is right
+	jr	nz,left_move$
+
+	ld	a,(mapvramadr)
+	ld	e,a
+	and	0e0h				; 11100000 & A reg 
+	ld	d,a
+	ld	a,e
+	add	a,2
+	and	01fh				; 00011111 & A reg
+	or	d
+	ld	(mapvramadr),a
+
+	jr	vram99$
+
+
+left_move$:
+	cp	0ffh
+	jr	nz,down_move$
+
+	ld	a,(mapvramadr)
+	ld	e,a
+	and	0e0h				; 11100000 & A reg
+	ld	d,a
+	ld	a,e
+	sub	2
+	and	01fh				; 00011111 & A reg
+	or	d
+	ld	(mapvramadr),a
+
+	jr	vram99$
+
+
+down_move$:
+	ld	a,b
+	cp	001h
+	jr	nz,up_move$
+
+	ld	a,(mapvramadr)
+	add	a,32 * 2			; 2 line 
+	ld	(mapvramadr),a
+	jr	nc,vram99$
+
+	ld	a,(mapvramadr + 1)
+	inc	a
+	and	003h
+	or	098h
+	ld	(mapvramadr + 1),a
+
+	jr	vram99$
+
+
+up_move$:
+	cp	0ffh
+	jr	nz,vram99$
+
+	ld	a,(mapvramadr)
+	sub	32 * 2				; 2 line
+	ld	(mapvramadr),a
+	jr	nc,vram99$
+
+	ld	a,(mapvramadr + 1)
+	dec	a
+	and	003h
+	or	098h
+	ld	(mapvramadr + 1),a
+
+vram99$:
+	ld	a,c
+	and	a				; moving check(0:non)
+	jr	z,no_change_x$
+
+no_change_x$:
+	ld	hl,mapscloll_x4			; 4 step scroll count
+	ld	a,(hl)
+	add	a,c
+	ld	(hl),a
+	cp	2
+	jr	nz,z10$
+
+	xor	a				; migi
+	ld	(hl),a
+
+	ld	hl,grobal_x
+	inc	(hl)
+
+	ld	de,mapadr2
+	call	add_x_sub1$
+
+	jr	z99$
+
+
+z10$:
+	cp	0ffh
+	jr	nz,z20$
+
+	ld	a,1				; hidari
+	ld	(hl),a
+
+	ld	hl,grobal_x
+	dec	(hl)
+
+	ld	de,mapadr2
+	call	sub_x_sub1$
+
+	jr	z99$
+
+
+z20$:
+no_change_y$:
+	ld	hl,mapscloll_y4
+	ld	a,(hl)
+	add	a,b
+	ld	(hl),a
+	cp	2
+	jr	nz,z30$
+
+	xor	a				; sita
+	ld	(hl),a
+
+	ld	hl,grobal_y
+	inc	(hl)
+
+	ld	de,mapadr2
+	ld	a,(mapxsize)
+	call	add_y_sub1$
+
+	jr	z99$
+
+
+z30$:
+	cp	0ffh
+	jr	nz,z99$
+
+	ld	a,1				; ue
+	ld	(hl),a
+
+	ld	hl,grobal_y
+	dec	(hl)
+
+	ld	de,mapadr2
+	ld	a,(mapxsize)
+	call	sub_y_sub1$
+
+z99$:
+	call	put_map
+
+	ld	a,(actor_table + 3)
+	cp	1
+	jr	nz,haji10$
+
+	call	sitahaji_put
+
+	jr	screen1$
+
+
+haji10$:
+	cp	0ffh
+	jr	nz,haji20$
+
+	call	uehaji_put
+
+	jr	screen1$
+
+
+haji20$:
+	ld	a,(actor_table + 5)
+	cp	1
+	jr	nz,haji30$
+
+	call	migihaji_put
+
+	jr	screen1$
+
+
+haji30$:
+	cp	0ffh
+	jr	nz,screen1$
+
+	call	hidarihaji_put
+
+
+screen1$:
+	ld	a,(actor_table + 3)		; 1:Down  FF:Up
+	add	a,a
+	ld	b,a
+	ld	a,(actor_table + 5)		; 1:Right FF:Left
+	add	a,a
+	ld	c,a
+
+
+	ld	hl,actor_table + ACTSIZ + 004h
+	ld	e,15		; by tama 97/01/26
+
+obj1$:	
+	ld	a,(hl)
+	sub	b
+	ld	(hli),a				; local y
+
+	inc	l
+	ld	a,(hl)
+	sub	c
+	ld	(hl),a				; local x
+
+	ld	a,14
+	add	a,l
+	ld	l,a
+
+	dec	e
+	jr	nz,obj1$
+
+
+	ld	a,(headery)			; screen scloll
+	add	a,b
+	ld	(headery),a
+
+	ld	a,(headerx)
+	add	a,c
+	ld	(headerx),a
+
+	ret
+
+
+
+
+add_x_sub1$:
+	ld	a,(de)
+	add	a,1
+	ld	(de),a
+
+	ret	nc
+
+
+	inc	de
+	ld	a,(de)
+	inc	a
+	ld	(de),a
+
+	ret
+
+
+sub_x_sub1$:
+	ld	a,(de)
+	sub	1
+	ld	(de),a
+
+	ret	nc
+
+
+	inc	de
+	ld	a,(de)
+	dec	a
+	ld	(de),a
+
+	ret
+
+
+add_y_sub1$:
+	add	a,6
+	ld	b,a
+	ld	a,(de)
+	add	a,b
+	ld	(de),a
+
+	ret	nc
+
+
+	inc	de
+	ld	a,(de)
+	inc	a
+	ld	(de),a
+
+	ret
+
+
+sub_y_sub1$:
+	add	a,6
+	ld	b,a
+	ld	a,(de)
+	sub	b
+	ld	(de),a
+
+	ret	nc
+
+	inc	de
+	ld	a,(de)
+	dec	a
+	ld	(de),a
+
+	ret
+
+
+
+
+
+  ifn	1
+InitGameOver:
+	xor	a
+	ld	(pika_hit_cnt),a
+
+	xor	a
+	ld	(kachi_make),a
+
+	ld 	(chyari_flg),a
+	ld	(fighting_flg),a		; rest of pocket monsters
+	ld	(base_color),a
+	ld	(seq_demo),a
+	ld	(joy_status),a
+	ld	(demo_flag + 0),a
+	ld	(obs_event),a
+
+
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 1),a
+	ld	(divwk1 + 2),a
+	call	check_money			; check take money
+	jr	c,no_money$
+
+	ld	a,(my_gold + 0)
+	ld	(divwk1 + 0),a
+	ld	a,(my_gold + 1)
+	ld	(divwk1 + 1),a
+	ld	a,(my_gold + 2)
+	ld	(divwk1 + 2),a
+	xor	a
+	ld	(divwk2 + 0),a
+	ld	(divwk2 + 1),a
+	ld	a,02h
+	ld	(divwk2 + 2),a
+	ld	a,B_BCD_DIV
+	call	bank2bank
+	ld	a,(divwk2 + 0)
+	ld	(my_gold + 0),a
+	ld	a,(divwk2 + 1)
+	ld	(my_gold + 1),a
+	ld	a,(divwk2 + 2)
+	ld	(my_gold + 2),a
+
+no_money$:
+	ld	hl,game_mode + 00h
+	set	2,(hl)				; game over mode & warp mode
+	res	3,(hl)				; game over mode
+	set	6,(hl)				; to last used pmc
+
+	ld	a,0ffh
+	ld	(cancel_key),a			; all key cancel mask
+
+	ld	a,B_KAIHUKU
+	jp	bank2bank
+
+  endif
+
+
+
+
+RequestPatch:
+	ld	a,(mapno)
+	cp	T6R4F1
+	jr	z,req_DATA_rewrite
+	ld	c,a
+	ld	hl,req_table
+loop$:
+	ld	a,(hli)
+	cp	c
+	jr	z,req_BG_rewrite
+	cp	0ffh
+	jr	nz,loop$
+
+	ret
+
+req_DATA_rewrite:
+	ld	hl,ptn_data
+	set	6,(hl)
+	ret
+
+req_BG_rewrite:
+	ld	hl,ptn_data
+	set	5,(hl)
+	ret
+
+req_table:
+	db	D10R1F1			; シルフビル
+	db	D10R1F2
+	db	D10R1F3
+	db	D10R1F4
+	db	D10R1F5
+	db	D10R1F6
+	db	D10R1F7
+	db	D10R1F8
+	db	D10R1F9
+	db	D10R1F10
+
+	db	D11R1F1			; ポケモン屋敷
+	db	D11R1F2
+	db	D11R1F3
+	db	T9R1F1
+
+	db	T9R2F1			; グレンジム
+
+	db	T7R5F1			; スロットコーナー
+	db	D9R1F1			; ロケット団アジト
+	db	D9R1F4			; ロケット団アジト
+
+	db	D8R1F1			; チャンピオンロード
+	db	D14R1F4			; チャンピオンロード
+	db	R23R1F1			; チャンピオンロード
+
+	db	D14R1F9
+	db	D14R1F16
+	db	D14R1F17
+	db	D14R1F18
+
+	db	0ffh
+

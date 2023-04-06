@@ -1,0 +1,569 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include	anime.def
+	include	dealer.def
+	include	pm_debug.def
+	include	macro.h
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	t5_room2_7f
+
+
+	extern	mk_trace_cmd
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position_s
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	capsule_item
+
+
+TOWER_TYPE	equ	15
+EXIT		=	0ffh
+
+
+seq_t5r2f7	equ	seq_ctrl_buf + 40h
+
+
+t5_room2_7f:
+ysiz	=	9
+xsiz	=	10
+	db	TOWER_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	tower7			; map data adrs
+	dw	msg_t5r2f7		; message tbl adrs
+	dw	ev_t5r2f7		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+ev_t5r2f7:
+	call	init_for_talkmap
+
+	ld	hl,t5r2f7_tbl
+	ld	a,(seq_t5r2f7)
+	call	table_jump			; event routine address (hl)
+
+	ret
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+
+set_seq:
+	ld	(seq_t5r2f7),a
+
+	ret
+
+
+t5r2f7_tbl:
+	initndw	Main,SeqMain
+
+	ndw	MusashiGo,SeqMusashiGo
+	ndw	MusashiStep,SeqMusashiStep
+	ndw	MusashiArrive,SeqMusashiArrive
+	ndw	KojiroGo,SeqKojiroGo
+	ndw	KojiroStep,SeqKojiroStep
+	ndw	KojiroArrive,SeqKojiroArrive
+	ndw	RocketBattle,SeqRocketBattle
+	ndw	BattleAfter,SeqBattleAfter
+	ndw	VanishReady,SeqVanishReady
+	ndw	VanishEnd,SeqVanishEnd
+
+	ndw	Fuji_rohjin,SeqFuji
+
+
+	extern	DebugKeyHook
+
+Main:
+  ifn	pm_debug
+	call	DebugKeyHook			; B-Button 
+	ret	nz
+  endif
+
+	ld	a,(ev_t5_2 + 05h)
+	bit	1,a
+	call	z,MuKo				; ムサシ\コジロウイベント
+
+	ret
+
+
+; ロケット団登場！！
+	extern	init_hero_anime
+	extern	set_now_music
+	extern	put_wait
+
+	extern	MusicStop
+	extern	direct_play
+	extern	musrocket
+	extern	musraibaru
+
+MuKo:
+	ld	a,(mapscloll_y)
+	cp	00ch
+	ret	nz
+
+	ld	hl,ev_t5_2 + 05h
+	res	2,(hl)				; default position(left)
+
+	ld	a,(mapscloll_x)
+	cp	00ah
+	jr	z,hit$
+
+	ld	a,(mapscloll_x)
+	cp	00bh
+	ret	nz
+
+	ld	hl,ev_t5_2 + 05h
+	set	2,(hl)				; position(right)
+
+hit$:
+	call	MusicStop
+	ld	c,MUSIC_BANK4_NO
+	ld	a,<musrocket
+	call	direct_play
+
+	xor	a
+	ld	(joy_status),a
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,<T5R2F7msg1			; Nusashi
+	call	appear
+
+	ld	a,<T5R2F7msg2			; Kojiro
+	call	appear
+
+	ld	a,01h
+	ld	(wait_pass_flg),a		; メッセージ強制解除オン
+
+	ld	a,MsgOmachi
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqMusashiGo
+	call	set_seq
+
+	ret
+
+
+StepMusashi:
+	db	A_D_RUN
+
+StepKojiro:
+	db	A_D_RUN
+	db	A_D_RUN
+	db	A_D_RUN
+	db	A_E
+
+
+MusashiGo:
+	ld	de,StepKojiro
+
+	ld	a,(ev_t5_2 + 05h)
+	bit	2,a				; default position(left)
+	jr	z,hero_left$
+
+	ld	de,StepMusashi
+
+hero_left$:
+	ld	a,MsgMusashi
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqMusashiStep
+	call	set_seq
+
+	ret
+
+
+MusashiStep:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+MusashiArrive:
+	ld	a,00h
+	ld	(actor_table + 019h),a
+
+	ld	a,(ev_t5_2 + 05h)
+	bit	2,a				; default position(left)
+	jr	z,hero_left$
+
+	ld	a,0ch
+	ld	(actor_table + 019h),a
+
+hero_left$:
+	ld	a,02h
+	ld	(actor_table + 011h),a
+
+KojiroGo:
+	ld	de,StepMusashi
+
+	ld	a,(ev_t5_2 + 05h)
+	bit	2,a				; default position(left)
+	jr	z,hero_left$
+
+	ld	de,StepKojiro
+
+hero_left$:
+	ld	a,MsgKojiro
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqKojiroStep
+	call	set_seq
+
+	ret
+
+
+KojiroStep:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+KojiroArrive:
+	ld	a,02h
+	ld	(actor_table + 021h),a
+	ld	a,08h
+	ld	(actor_table + 029h),a
+
+	ld	a,(ev_t5_2 + 05h)
+	bit	2,a				; default position(left)
+	jr	z,hero_left$
+
+	ld	a,00h
+	ld	(actor_table + 029h),a
+
+hero_left$:
+	call	put_wait
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,MsgRocketStart		; ロケット団バトル前
+	ld	(work1),a
+	call	talk_map
+
+RocketBattle:
+	ld	hl,event_flg
+	set	6,(hl)				; 特殊バトルモードを示唆
+	set	7,(hl)				; バトル直後にメッセージあり
+
+	ld	hl,msg1_win			; hero lose
+	ld	de,msg1_lose			; hero win
+	call	set_battle_msg
+
+	ld	a,d_member
+	ld	(event_fight_no),a
+	ld	a,44
+	ld	(take_mons_ptn),a
+
+	xor	a
+	ld	(joy_status),a
+	ld	(cancel_key),a
+
+	ld	a,SeqBattleAfter
+	call	set_seq
+
+	ret
+
+
+BattleAfter:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,02h
+	ld	(actor_table + 011h),a
+	ld	(actor_table + 021h),a
+	xor	a
+	ld	(actor_table + 019h),a
+	ld	(actor_table + 029h),a
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,01h
+	ld	(wait_pass_flg),a		; メッセージ強制解除オン
+
+	ld	a,MsgRocketAfter
+	ld	(work1),a			; msg_after
+	call	talk_map
+
+	xor	a
+	ld	(wait_pass_flg),a		; メッセージ強制解除オフ
+
+	call	MusicStop
+	ld	c,MUSIC_BANK4_NO
+	ld	a,<musrocket
+	call	direct_play
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqVanishReady
+	call	set_seq
+
+	ret
+
+
+VanishReady:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	call	n_to_b
+
+	ld	a,<T5R2F7msg1				; Nusashi
+	call	vanish
+	ld	a,<T5R2F7msg2				; Kojiro
+	call	vanish
+
+	call	actor_blanch
+	call	put_wait
+
+	call	b_to_n
+
+	ld	a,SeqVanishEnd
+	call	set_seq
+
+	ret
+
+
+VanishEnd:
+	call	set_now_music
+
+	xor	a
+	ld	(joy_status),a
+	ld	(cancel_key),a
+
+	ld	hl,ev_t5_2 + 05h
+	set	1,(hl)
+
+	ld	a,SeqMain
+	call	set_seq
+
+	ret
+
+
+appear:
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	call	actor_blanch
+	call	put_wait
+
+	ret
+
+
+vanish:
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ret
+
+
+
+
+Fuji_rohjin:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,T5R2F7msg3
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,004h
+	ld	(actor_table + 009h),a
+
+;-----------------------------------------------; warp for room to room
+	ld	a,T5R3F1
+	ld	(work0),a
+	ld	a,1
+	ld	(ram_map_id),a
+	ld	a,T5
+	ld	(mapno_stack),a
+
+	ld	hl,event_flg
+	set	3,(hl)				; warp to no connection map
+;-----------------------------------------------;
+
+	ld	a,SeqMain
+	ld	(seq_t5r2f7),a
+
+	ret
+
+
+
+
+msg_t5r2f7:
+	msgndw	msg1,MsgMusashi
+	ndw	msg2,MsgKojiro
+	ndw	msg3,msg_fuji
+
+	ndw	msg1_0,MsgOmachi
+	ndw	msg1_start,MsgRocketStart
+	ndw	msg1_after,MsgRocketAfter
+
+
+msg1:
+msg2:
+	db	EOM
+
+
+; ムサシ華麗に登場（ぱくり）
+;	ndw	msg2_0,MsgOmachi
+;	ndw	msg2_start,MsgRocketStart
+;	ndw	msg2_after,MsgRocketAfter
+
+
+msg1_0:
+	extern	msg1_0_0_T05R0207
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T05R0207	; mvmsg追加
+	db 02bh	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	c,0ah
+	call	wait_vb_s
+
+	ld	a,08h
+	ld	(watashi_muki),a		; look under
+
+	ld	a,00h				; hero
+	ld	(usr_buf + 18),a
+	ld	a,00h				; gyoe@
+	ld	(usr_buf + 19),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	ld	c,20
+	call	wait_vb_s
+
+	jp	msg_return
+
+
+msg1_start:
+	extern	msg1_start_1_T05R0207
+	db I_MSG2	; mvmsg追加
+	dw msg1_start_1_T05R0207	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+msg1_lose:
+	extern	msg1_lose_2_T05R0207
+	db I_MSG2	; mvmsg追加
+	dw msg1_lose_2_T05R0207	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_3_T05R0207
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_3_T05R0207	; mvmsg追加
+	db 02bh	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	c,040h
+	call	wait_vb_s
+
+	jp	msg_return
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	ld	hl,ev_r16 + 1
+	set	7,(hl)				; check help Mr.fuji
+
+	ld	hl,ev_t5_2 + 5
+	set	7,(hl)				; check help Mr.fuji
+
+	ld	a,T5R3F1msg5			; in fuji-labo
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call 	bank2bank
+
+	ld	a,T11msg14
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,T11msg15
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	ld	a,SeqFuji
+	ld	(seq_t5r2f7),a
+
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_4_T05R0207
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_4_T05R0207	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+room_str:
+	include	..\sxy\t05r0207.sxy
+
+
+tower7:
+	include	..\mapdata\nt_7f.map
+
+
+
+
+
+

@@ -1,0 +1,101 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+	public	r7_room3
+
+
+bank17	group	G_BANK17
+
+
+monschrcheck	=	1	;0 No check mode
+
+
+; Map Type Equal (Look! "mapper.src")
+ROOM_TYPE	equ	1
+SHOP_TYPE	equ	2
+DUNGEON_TYPE	equ	3
+ROOM2F_TYPE	equ	4
+SCHOOL_TYPE	equ	5
+HOTEL_TYPE	equ	6
+CHAMPCUP_TYPE	equ	7
+MINKA_TYPE	equ	8
+SEKISYO_TYPE	equ	9
+HAKUBUTSU_TYPE	equ	10
+NUKEMICHI_TYPE	equ	11
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+
+
+;********************************
+;*				*
+;*	road 7 room3  		*
+;*				*
+;********************************
+r7_room3:  
+
+ysiz	=	4
+xsiz	=	4
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	extern	nukemin		 	; map data adrs
+	dw	nukemin		 	; map data adrs
+	dw	msg_r7r3f1 		; message tbl adrs
+	dw	ev_r7r3f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r7r3f1
+
+ev_r7r3f1:
+	ld	a,R7
+	ld	(mapno_stack),a
+
+	ret
+
+msg_r7r3f1:
+;-----------;
+; R07R03F01 ;
+;-----------;
+	dw	msg1$
+	dw	msg2$
+
+
+msg1$:
+msg1_0$:
+	extern	msg1_0_0_R07R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_R07R0301	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_R07R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_R07R0301	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+msg2_0$:		; Under Ground 
+	extern	msg2_0_2_R07R0301
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_2_R07R0301	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg2_1$:		; Door
+	extern	msg2_1_3_R07R0301
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_3_R07R0301	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sxy_r7r3f1:
+	include	..\sxy\r07r0301.sxy
+

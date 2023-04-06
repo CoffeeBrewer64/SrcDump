@@ -1,0 +1,170 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	r12_room1_2f
+	public	bouen
+
+
+	extern	yes_no
+	extern	bank_push_call
+	extern	se_wait
+	extern	bikkuri
+	extern	init_for_talk2
+
+	extern	gate2f
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+r12_room1_2f:
+ysiz	=	4
+xsiz	=	4
+	db	GATE_TYPE
+	db	ysiz,xsiz		; yx size
+	dw	gate2f			; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	jp	init_for_talk2
+
+
+msg_tbl:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_r12 + 0)
+;	bit	0,a
+;	jr	nz,getting$
+	rrca	
+	jr	c,getting$
+
+	ld	hl,msg1_0_0
+	call	put_win_msg
+
+	ld	bc,239 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg1_0_1
+	call	put_win_msg
+
+	ld	hl,ev_r12 + 0
+	set	0,(hl)
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg1_2
+	call	put_win_msg
+
+	jr	rts$
+
+
+getting$:
+	ld	hl,msg1_1
+	call	put_win_msg
+
+rts$:
+;	call	cont_abwait
+	jp	msg_return
+
+
+
+msg1_0_0:
+	extern	msg1_0_0_0_R12R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_0_R12R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_0_1:
+	extern	msg1_0_1_1_R12R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_1_1_R12R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg1_1:
+	extern	msg1_1_2_R12R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_2_R12R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2:
+	extern	msg1_2_3_R12R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_3_R12R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+	ld	hl,msg2_1
+	jp	bouen
+
+
+msg2_1:
+	extern	msg2_1_4_R12R0102
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_4_R12R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg3:
+	db	CALL_MSG
+	ld	hl,msg3_1
+	jp	bouen
+
+msg3_1:
+	extern	msg3_1_5_R12R0102
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_5_R12R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+bouen:
+	ld	a,(actor_table + 009h)
+	cp	004h
+	jr	z,msg$
+
+	ld	a,1
+	jr	ret$
+
+msg$:
+	call	put_win_msg
+	xor	a
+ret$:
+	ld	(wait_pass_flg),a
+	jp	msg_return
+
+room_str:
+	include	..\sxy\r12r0102.sxy
+

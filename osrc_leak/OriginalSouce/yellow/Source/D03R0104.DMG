@@ -1,0 +1,44 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	d3_room4
+
+
+
+SHIP_TYPE	equ	13
+EXIT		=	0ffh
+
+
+d3_room4:
+ysiz	=	4
+xsiz	=	15
+	db	SHIP_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	dungeon3_4		; map data adrs
+	dw	msg_d3r1f4  		; message tbl adrs
+	dw	ev_d3r1f4     	 	; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d3r1f4  
+
+
+ev_d3r1f4:
+	jp	init_for_talkmap
+
+
+msg_d3r1f4:  
+	db	EOM
+
+
+sxy_d3r1f4:  
+	include	..\sxy\d03r0104.sxy
+
+
+dungeon3_4:
+	include	..\mapdata\stannu04.map   

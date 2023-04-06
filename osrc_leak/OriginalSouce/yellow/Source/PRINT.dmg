@@ -1,0 +1,1372 @@
+
+	include	common.def
+	include	fntequ.def
+	include	sgb_col.def
+	include	pm_debug.def
+
+
+bank0	group	0
+
+;*************************************************
+;*						*
+;*	print					*
+;*						*
+;*************************************************
+
+	public	put_window
+;	public	put_term_window0
+	public	put_msg
+	public	put_msg_s
+	public	put_block
+	public	put_all
+	public	dvram_cls
+	public	cls
+	public	block_cls
+
+	extern	wait_vb
+	extern	put_wait
+	extern	wait_vb_s
+	extern	cont
+	extern	put_bcd
+	extern	put_dec
+;;	extern	put_monsname
+	extern	okuri_chk
+	extern	cont_abwait
+	extern	cont_abwait_pi
+	extern	color_set
+	extern	memset
+	extern	se_wait
+	extern	gyaarth_play
+	extern	put_term_window
+
+	extern	musfanfare
+	extern	musfanfare3
+	extern	musfanfare42	; = musfanfare (Fight Music BANK)
+	extern	musfanfare5
+	extern	musfanfare6
+	extern	musfanfare82
+	extern	muszukan2
+	extern	muspi
+	extern	mussyu
+
+	extern	SEplay
+
+
+;*********************************
+;*				*
+;*	dmy vram block clear	*
+;*   in: hl = dvram adrs		*
+;*	bc = y,x cnt		*
+;*				*
+;*********************************
+block_cls:
+	ld	a,spc@			; SPC chara set
+	ld	de,20			; LCD 160 Dot(20Chara)
+
+z2$:
+	push	hl			; dvram address push
+	push	bc			; locate y,x    push
+
+z1$:
+	ld	(hli),a			; vram address <- SPC & HL++
+	dec	c			; locate X--
+	jr	nz,z1$
+
+	pop	bc			; dvram address pop
+	pop	hl			; locate data   pop
+
+	add	hl,de			; dvram address + 160 Dot
+	dec	b			; locate Y--
+	jr	nz,z2$
+
+	ret
+
+
+;*********************************
+;*				*
+;*	redraw all		*
+;*   in: b = 098h or 09ch		*
+;*				*
+;*********************************
+put_all:
+	ld	c,6			; Y length = 6
+
+	ld	hl,0			; Locate Y = 0 / X = 0
+	ld	de,dmy_vram		; Dvram Address
+	call	put_block
+	call	wait_vb
+
+	ld	hl,6*256 + 0		; Locate Y = 6 / X = 0
+	ld	de,6*20 + 0 + dmy_vram
+	call	put_block
+	call	wait_vb
+
+	ld	hl,12*256 + 0		; Locate Y = 12 / X = 0
+	ld	de,12*20 + 0 + dmy_vram
+	call	put_block
+	jp	wait_vb
+
+;*********************************
+;*				*
+;*   put from dvram		*
+;*   in: hl = yx			*
+;*	b  = 098h or 09ch		*
+;*	c  = y length		*
+;*	de = dvram adrs		*
+;*				*
+;*********************************
+put_block:
+	ld	a,d
+	ld	(b_prt_buf + 1),a	; DVRAM Address(high)
+	call	vcalc			; Vram Address Compute
+	ld	a,l
+	ld	(b_prt_buf + 2),a	; Back Screen hyouji Address(low) 
+	ld	a,h
+	ld	(b_prt_buf + 3),a	; Back Screen hyouji Address(high)
+	ld	a,c
+	ld	(b_prt_buf + 4),a	; Y length
+	ld	a,e
+	ld	(b_prt_buf + 0),a	; DVRAM Address(low)
+
+	ret
+
+;*********************************
+;*				*
+;*	dummy vram clear	*
+;*				*
+;*********************************
+dvram_cls:
+	ld	bc,20*18 		; BC = Counter set!
+	inc	b	
+	ld	hl,dmy_vram		; Dmy_vram Address Set
+	ld	a,spc@			; Space Character
+
+z1$:
+	ld	(hli),a
+	dec	c
+	jr	nz,z1$
+
+	dec	b
+	jr	nz,z1$
+
+	jp	put_wait
+
+  ifn 0
+;********************************
+;*	put_term_window		*
+;********************************
+put_term_window0:
+	ld	a,(rombankno)
+	push	af
+	ld	a,01h
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	put_term_window
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	ret
+  endif
+
+;*********************************
+;*				*
+;*    window write for dvram	*
+;*   in: hl = dvram adrs		*
+;*	bc = y,x length (-2)	*
+;*				*
+;*********************************
+put_window:
+  ifn 0
+	push	bc
+	push	hl
+  endif
+	push	hl
+
+	ld	a,waku0@		; top line
+	ld	(hli),a
+;	ld	a,waku1@
+	inc	a
+	call	mov0$			; locate X count down
+;	ld	a,waku2@
+	inc	a
+	ld	(hl),a
+
+	pop	hl
+	ld	de,20
+	add	hl,de			; next line position compute
+
+z1$:
+	push	hl			; cyuukan
+
+	ld	a,waku3@
+	ld	(hli),a
+	ld	a,spc@
+	call	mov0$			; locate X count down
+	ld	(hl),waku4@
+
+	pop	hl
+
+	ld	de,20
+	add	hl,de			; next line position compute
+	dec	b			; locate Y count down
+	jr	nz,z1$
+	
+	ld	a,waku5@		; botom line
+	ld	(hli),a
+	ld	a,waku6@
+	call	mov0$			; locate X count down
+	ld	(hl),waku7@
+	ret
+
+
+mov0$:
+	ld	d,c			; locate X -> Breg in data
+
+z2$:
+	ld	(hli),a			; Character Set
+	dec	d			; count down
+	jr	nz,z2$			; loop '2$'  if counter = 0 exit
+
+	ret
+
+
+;********************************
+;*				*
+;*  message set for dvram	*
+;*   in: hl = dvram adrs	*
+;*	de = msg adrs		*
+;*  out: bc = next dvram adrs	*
+;*				*
+;********************************
+put_msg:
+	push	hl
+
+loop1$:
+	ld	a,(de)			; Message Address nakami tensou
+	cp	EOM			; end of message
+	jr	nz,any_code$
+
+	ld	b,h			; dvram high Address set
+	ld	c,l			; dvram low  Address set
+
+	pop	hl
+
+	ret
+
+
+any_code$:
+	cp	cr@			; kaigyou
+	jr	nz,cr2_code$
+
+  ifn	ASSEMBLE__ENGLISH
+	ld	bc,40			; 次の行（通常）
+	ld	a,(us_display_flg)
+	bit	PUT_MSG_CR@_BIT,a
+	jr	z, _10$
+	ld	bc,20			; 次の行（戦闘画面のわざ名表示ウィンドウで使用）
+_10$:
+	pop	hl			; dvram address save
+	add	hl,bc
+	push	hl
+  else
+	pop	hl			; dvram address save
+	ld	bc,40			; next line
+	add	hl,bc
+	push	hl
+  endif
+	jp	msg_count$
+
+
+cr2_code$:
+	cp	home@			; kaigyou btm
+	jr	nz,sp_code$
+
+	pop	hl
+
+;	S_POS	1,16
+	ld	hl,20*16 + 1 + dmy_vram
+
+	push	hl
+
+	jp	msg_count$
+
+
+sp_code$:
+	and	a
+	jp	z,err$
+
+	cp	scr@			; scloll
+	jp	z,scroll1$
+
+	cp	scrwait@			; scloll & wait
+	jp	z,scrollwait1$
+
+	cp	normal@			; normal wait
+	jp	z,normalwait$
+
+  ifn	ASSEMBLE__ENGLISH
+	cp	zukan@			; 英語版 ずかん解説送り処理
+	jp	z,zukanwait$
+  endif
+
+	cp	myname@
+	jp	z,myname_put$
+
+	cp	rival@
+	jp	z,rivalname_put$
+
+	cp	poke@
+	jp	z,pokemon_put$
+
+	cp	paso@
+	jp	z,pasokon_put$
+
+	cp	rocket@
+	jp	z,rocket_put$
+
+	cp	skill@
+	jp	z,skill_put$
+
+	cp	trainer@
+	jp	z,trainer_put$
+
+	cp	gyo3@
+	jp	z,sangyo_scroll$
+
+	cp	tenten2@
+	jp	z,tenten2_put$
+
+	cp	EOMeom
+	jp	z,eomeom_put$
+
+	cp	EOMwaiteom
+	jp	z,eomwaiteom_put$
+
+; ---------------- add by Sige 96-9-24 --------------
+  ifn  pm_jmsg
+	cp	gaspc@
+	jp	z,gaspc_put$
+  else
+	cp	pkmn@
+	jp	z,pkmn_put$
+  endif
+
+	cp	ktenEOM
+	jp	z,kteneom_put$
+; ---------------- add by Sige 96-9-24 --------------
+
+	cp	monsname1@
+	jp	z,monsname1$
+
+	cp	monsname2@
+	jp	z,monsname2$
+
+  ifn  pm_jmsg	; 英語版は maru@, tem@ を apt_r_, apt_m_ に置き換える
+		; ;@@@ 囲みの以下の半濁音、濁音処理は全て削除する
+;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	cp	maru@			; maru
+	jr	z,upper_line$
+
+	cp	ten@			; ten
+	jr	nz,dakuon_chr$
+
+
+upper_line$:				; dakuten or handakuten
+	push	hl			; dvram address save
+
+	ld	bc,-20			; Before Msg Line 
+	add	hl,bc			
+	ld	(hl),a			; Character copy
+
+	pop	hl			; dvram address load
+
+	jr	msg_count$
+
+dakuon_chr$:
+	cp	060h			; c = dakuon or handakuon
+	jr	nc,normal_chr$
+
+	cp	040h			; nc = handakuon
+	jr	nc,handakuon_chr$
+
+	cp	020h
+	jr	nc,daku_hiragana$
+
+	add	a,80h
+	jr	ten$
+
+daku_hiragana$:
+	add	a,090h
+ten$:
+	push	af
+	ld	a,ten@
+	push	hl			; dvram address save
+	ld	bc,-20			; Before Msg Line 
+	add	hl,bc			
+	ld	(hl),a			; Character copy
+	pop	hl			; dvram address load
+	pop	af
+	jr	normal_chr$
+	
+handakuon_chr$:
+	cp	044h
+	jr	nc,han_hiragana$	
+
+	add	a,059h
+	jr	maru$
+
+han_hiragana$:
+	add	a,086h
+
+maru$:
+	push	af
+	ld	a,maru@
+	push	hl			; dvram address save
+	ld	bc,-20			; Before Msg Line 
+	add	hl,bc			
+	ld	(hl),a			; Character copy
+	pop	hl			; dvram address load
+	pop	af
+
+;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  endif		; 英語版は maru@, tem@ を apt_r_, apt_m_ に置き換える
+		; ;@@@ 囲みの上記の半濁音、濁音処理は全て削除する
+
+
+
+normal_chr$:
+	ld	(hli),a			; normal moji
+	call	okuri_chk
+
+msg_count$:
+	inc	de			; Counter up!
+
+	jp	loop1$
+
+err$:
+	ld	b,h			; dvram high Address set
+	ld	c,l			; dvram low  Address set
+
+	pop	hl
+	ld	de,err_msg$
+	dec	de
+
+	ret
+
+err_msg$:
+	extern	err_msg_0_PRINT
+	db I_MSG2	; mvmsg追加
+	dw err_msg_0_PRINT	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+;********************************
+; my_name  rival_name  pokemon	*
+;********************************
+myname_put$:
+	push	de
+	ld	de,my_name
+	jr	name_put$
+
+rivalname_put$:
+	push	de
+	ld	de,rival_name
+	jr	name_put$
+
+trainer_put$:
+	push	de
+	ld	de,trainer_str$
+	jr	name_put$
+
+skill_put$:
+	push	de
+	ld	de,skill_str$
+	jr	name_put$
+
+pasokon_put$:
+	push	de
+	ld	de,pasokon_str$
+	jr	name_put$
+
+rocket_put$:
+	push	de
+	ld	de,rocket_str$
+	jr	name_put$
+
+pokemon_put$:
+	push	de
+	ld	de,pokemon_str$
+	jr	name_put$
+
+tenten2_put$:
+	push	de
+	ld	de,tenten2_str$
+	jr	name_put$
+
+  ifn  pm_jmsg
+gaspc_put$:
+	push	de
+	ld	de,gaspc_str$
+	jr	name_put$
+ else
+pkmn_put$:
+	push	de
+	ld	de,pkmn_str$
+	jr	name_put$
+  endif
+
+monsname1$:
+	ld	a,(attack_turn)
+	xor	1
+
+	jr	jump1$
+
+
+monsname2$:
+	ld	a,(attack_turn)
+
+jump1$:
+	push	de
+	and	a
+	jr	nz,enemy_name_put$
+
+	ld	de,mymons_data
+	jr	name_put$
+
+
+enemy_name_put$:
+	ld	de,tekino_str$
+	call	put_msg
+
+	ld	h,b
+	ld	l,c
+	ld	de,enemy_data
+
+
+
+
+name_put$:
+	call	put_msg
+
+	ld	h,b
+	ld	l,c
+	pop	de
+	inc	de
+
+	jp	loop1$
+
+
+skill_str$:
+  ifn	pm_jmsg
+	db	wa_,za_,ma__,si__,n__
+	db	EOM
+  else
+	db	usf_t,usf_m			; TM
+	db	EOM
+  endif
+
+trainer_str$:
+  ifn	pm_jmsg
+	db	to__,re__,bou@,na__,bou@
+	db	EOM
+  else
+	db	usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r	; TRAINER
+	db	EOM
+  endif
+
+pasokon_str$:
+  ifn	pm_jmsg
+	db	pa__,so__,ko__,n__
+	db	EOM
+  else
+	db	usf_p,usf_c			; PC
+	db	EOM
+  endif
+
+rocket_str$:
+  ifn	pm_jmsg
+	db	ro__,ke__,ttu__,to__,da_,n_
+	db	EOM
+  else
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t	; ROCKET
+	db	EOM
+  endif
+
+pokemon_str$:
+  ifn	pm_jmsg
+	db	po__,ke__,mo__,n__
+	db	EOM
+  else
+	db	usf_p,usf_o,usf_k,acc_e_	; ＰＯＫｅ
+	db	EOM
+  endif
+
+tenten2_str$:
+	db	tenten@,tenten@
+	db	EOM
+
+tekino_str$:
+  ifn	pm_jmsg
+	db	te_,ki_,no_,spc@
+	db	EOM
+  else
+	db	usf_e,usf_n_,usf_e_,usf_m_,usf_y_,spc@		; ENEMY
+	db	EOM
+  endif
+
+  ifn  pm_jmsg
+gaspc_str$:
+	db	ga_,spc@	; が
+	db	EOM
+  else
+pkmn_str$:
+	db	pk@,mn@		; PkMn
+	db	EOM
+  endif
+
+
+
+sangyo_scroll$:
+	push	de
+
+	ld	b,h
+	ld	c,l
+	ld	hl,sangyo_scr_str$
+	call	put_msg_s
+
+	ld	h,b
+	ld	l,c
+
+	pop	de
+
+	inc	de
+
+	jp	loop1$
+
+
+sangyo_scr_str$:
+  ifn	0
+	db	E_WAIT
+	db	D_MSG
+	db	scr@
+	db	EOM,EOM
+  else
+;	db	WAIT
+	extern	sangyo_scr_str_1_PRINT
+	db I_MSG2	; mvmsg追加
+	dw sangyo_scr_str_1_PRINT	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+  endif
+
+
+; ---------------- add by Sige 96-9-24 --------------
+kteneom_put$:
+	ld	(hl),kten@
+	pop	hl
+	ret
+;	jr	eomeom_put$
+
+; ---------------- add by Sige 96-9-24 --------------
+
+	
+eomwaiteom_put$:
+	ld	a,(tuushin_flg)
+	cp	4
+	jp	z,allowd_pass$
+
+	ld	a,allowd@
+	ld	(16*20 + 18 + dmy_vram),a
+
+allowd_pass$:
+	call	msg_wait
+
+	call	cont_abwait_pi
+	ld	a,spc@
+	ld	(16*20 + 18 + dmy_vram),a
+
+eomeom_put$:
+	pop	hl
+	ld	de,msg_eom$
+	dec	de
+	ret
+
+msg_eom$:
+	db	EOM
+;-----------------------;
+; normal putout message ;
+;-----------------------;
+normalwait$:
+	push	de
+
+;	push	bc
+;	call	put_wait
+;	pop	bc
+
+	ld	a,allowd@
+	ld	(16*20 + 18 + dmy_vram),a	; yajirusi kaku 
+
+	call	msg_wait
+
+	call	cont_abwait_pi
+
+
+  ifn 0
+	ld	a,spc@
+	ld	bc,012h
+	ld	hl,13*20 + 1 + dmy_vram
+	call	memset
+
+	ld	a,spc@
+	ld	bc,012h
+	ld	hl,14*20 + 1 + dmy_vram
+	call	memset
+
+	ld	a,spc@
+	ld	bc,012h
+	ld	hl,15*20 + 1 + dmy_vram
+	call	memset
+
+	ld	a,spc@
+	ld	bc,012h
+	ld	hl,16*20 + 1 + dmy_vram
+	call	memset
+  endif
+
+  ifn 0
+	ld	hl,13*20 + 1 + dmy_vram
+	ld	d,4
+normalwaitloop$:
+	ld	bc,20
+	add	hl,bc
+	ld	bc,012h
+	ld	a,spc@
+	push	hl
+	call	memset
+	pop	hl
+	dec	d
+	jr	nz,normalwaitloop$
+  endif
+
+	ld	hl,20*13 + 1 + dmy_vram
+	ld	bc,4*256 + 18
+	call	block_cls
+
+	ld	c,20
+	call	wait_vb_s
+
+	pop	de
+
+	ld	hl,14*20 + 1 + dmy_vram
+
+	jp	msg_count$
+
+
+;---------------------------;
+; 英語版 ずかん解説送り処理
+;---------------------------;
+  ifn	ASSEMBLE__ENGLISH
+zukanwait$:
+	ld	a,(us_display_flg)
+	bit	PRINT_ZUKAN@_BIT,a
+	jr	z, zukanwait_key$
+	ld	a, cr@				; プリントアウトの場合は
+	jp	any_code$			; cr@ 改行処理にする
+
+zukanwait_key$:					; 通常の zukan@ 処理
+	push	de
+
+	ld	a,allowd@
+	ld	(16*20 + 18 + dmy_vram),a	; ”▲”矢印を描画
+
+	call	msg_wait			; ３フレーム待ち
+
+	call	cont_abwait_pi			; Ａ、Ｂボタン入力待ち
+
+;	S_POS	1,10
+	ld	hl,20*10 + 1 + dmy_vram
+	ld	bc,7*256 + 18			; (1,10)～(18,16) = spc@ クリア
+	call	block_cls			; 	block_cls(HL dvram, B y, C x)
+
+	ld	c,20
+	call	wait_vb_s			; ２０フレーム待ち
+
+	pop	de
+
+	pop	hl
+;	S_POS	1,11				; S_POS(1,11)に変更する
+	ld	hl,20*11 + 1 + dmy_vram
+	push	hl				; cr@用にpushされているHLをS_POS(1,11)に変更する
+	jp	msg_count$
+  endif
+;---------------------------;
+
+
+scrollwait1$:
+	ld	a,allowd@
+	ld	(16*20 + 18 + dmy_vram),a	; yajirusi kaku 
+
+	call	msg_wait
+	push	de			; address oboetoku
+
+	call	cont_abwait_pi		; message wait(push A,B)
+
+	pop	de			; address modosu 
+
+	ld	a,spc@
+	ld	(16*20 + 18 + dmy_vram),a	; yajirusi kesu
+
+scroll1$:
+	push	de
+
+	call	scroll2
+	call	scroll2
+;	S_POS	1,16
+	ld	hl,20*16 + 1 + dmy_vram
+
+	pop	de
+
+	jp	msg_count$
+
+
+scroll2:				; screen scroll
+;	S_POS	0,14
+	ld	hl,20*14 + 0 + dmy_vram
+	ld	de,20*13 + dmy_vram	; ue   no bunsyou
+	ld	b,20*3			; 3 Line bun
+
+scroll3$:				;--- Count Down Loop ---
+	ld	a,(hli)			; site no moji wo
+	ld	(de),a			; ue no gyou he utusu
+	inc	de
+	dec	b
+	jr	nz,scroll3$
+
+;	S_POS	1,16
+	ld	hl,20*16 + 1 + dmy_vram
+	ld	a,spc@
+	ld	b,18
+
+scroll4$:				;--- Count Down Loop ---
+	ld	(hli),a			; 1 Line Space Character Set
+	dec	b
+	jr	nz,scroll4$
+
+	ld	b,5			; wait
+
+scroll5$:				;--- Count Down Loop ---
+	call	wait_vb
+	dec	b
+	jr	nz,scroll5$
+
+	ret
+
+msg_wait:
+	push	bc
+	call	put_wait
+	pop	bc
+	ret
+
+
+;*********************************
+;*				*
+;*	put message super	*
+;*   in: hl = tbl top		*
+;*	bc = dvram adrs		*
+;*				*
+;*********************************
+put_msg_s:
+	ld	a,(msg_speed)		; msg_speed = 0:hayai 1:osoi
+
+	push	af
+
+	set	1,a
+	; 図鑑解説文表示時の送りキャンセル	23Apr,1998 村川追加変更 ここから
+  ifn	ASSEMBLE__ENGLISH
+	ld	e,a
+	ld	a,(okuri_cansel)
+	xor	e
+  endif
+	; 村川追加変更 ここまで
+	ld	(msg_speed),a		; msg okuri flg on
+
+	ld	a,c
+	ld	(msg_sv),a		; dvram low address save
+	ld	a,b
+	ld	(msg_sv + 1),a		; dvram high address load
+
+msg_s_loop1$:
+	ld	a,(hli)
+	cp	EOM			; End of message
+	jr	nz,loop2$
+
+	pop	af
+
+	ld	(msg_speed),a		; msg okuri flg off
+
+	ret
+
+
+loop2$:
+	push	hl			; table top address
+
+; -------------------- add by Sige 96-9-26 -----------------
+;***  ポケモン英語版  *****
+	cp	I_MSG2
+	jp	z, msg2$
+;**************************
+
+	cp	14
+	jp	nc,fanfare$	
+; -------------------- add by Sige 96-9-26 -----------------
+
+	ld	hl,tbl1$		; define tbl1$ address
+
+	push	bc			; dvram address save
+
+	add	a,a
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+
+	pop	bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	jp	(hl)			; kaku syori he tobe!
+
+
+waku1$:					; *** waku put ***
+	pop	hl
+
+	ld	a,(hli)			; de = dvram adrs
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)			; bc = yx
+	ld	b,a
+	ld	a,(hli)
+	ld	c,a
+
+	push	hl
+
+	ld	h,d
+	ld	l,e
+	call	put_window		; window hyouji
+
+	pop	hl
+
+	jr	msg_s_loop1$
+
+
+msg1$:				; *** dilect msg put *** : D_MSG
+	pop	hl
+
+	ld	d,h			; de = data adrs 
+	ld	e,l
+	ld	h,b			; hl = dvram adrs
+	ld	l,c
+	call	put_msg			; message hyouji
+	ld	h,d
+	ld	l,e
+	inc	hl
+
+	jr	msg_s_loop1$
+
+
+ind1$:				; *** indilect msg put *** : I_MSG
+	pop	hl
+
+	ld	a,(hli)			; de = data adrs
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+
+	push	hl
+
+	ld	h,b			; hl = dvram adrs 
+	ld	l,c
+	call	put_msg			; message hyouji
+
+	pop	hl
+
+	jr	msg_s_loop1$
+
+
+bcd1$:				; *** bcd put *** : B_MSG
+	pop	hl
+
+	ld	a,(hli)			; de = data adrs
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)
+
+	push	hl
+
+	ld	h,b			; hl = dvram adrs 
+	ld	l,c
+	ld	c,a			; c = keta/flg
+	call	put_bcd			; 10sin data hyouji
+	ld	b,h
+	ld	c,l
+
+	pop	hl
+
+	jr	msg_s_loop1$
+
+
+adr1$:				; *** dvram adrs set *** : ADRSET
+	pop	hl
+
+	ld	a,(hli)			; bc = dvram adrs
+	ld	(msg_sv),a
+	ld	c,a
+	ld	a,(hli)
+	ld	(msg_sv+1),a
+	ld	b,a
+
+	jp	msg_s_loop1$
+
+
+cr1$:				; *** cr *** : CR_MSG
+	pop	hl
+
+	ld	bc,16*20 + 1 + dmy_vram
+
+	jp	msg_s_loop1$
+
+
+wait1$:				; ***** wait key ***** : WAIT
+	ld	a,(tuushin_flg)
+	cp	4
+	jp	z,wait_np$
+
+	ld	a,allowd@
+	ld	(16*20 + 18 + dmy_vram),a
+
+	push	bc
+
+	call	cont_abwait_pi
+
+	pop	bc
+
+	ld	a,spc@
+	ld	(16*20 + 18 + dmy_vram),a
+
+	pop	hl
+
+	jp	msg_s_loop1$
+
+
+scroll1$:			; ***** scloll only ***** : SCR_MSG
+	ld	a,spc@
+	ld	(16*20 + 18 + dmy_vram),a
+	call	scroll2
+	call	scroll2
+
+	pop	hl
+
+	ld	bc,16*20 + 1 + dmy_vram
+
+	jp	msg_s_loop1$
+
+
+call1$:				; ***** event rtn call ***** : CALL_MSG
+	pop	hl
+
+	ld	de,msg_s_loop1$
+
+	push	de			; return adrs
+
+	jp	(hl)
+
+
+number1$:				; *** decimal number put *** : N_MSG
+	pop	hl
+
+	ld	a,(hli)			; de = data adrs
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)			; byte ketasuu
+
+	push	hl
+
+	ld	h,b			; hl = dvram adrs 
+	ld	l,c
+	ld	b,a			; byte ketasuu
+	and	00fh
+	ld	c,a			; ketasuu
+	ld	a,b
+	and	0f0h
+	swap	a
+	set	6,a			; hidariyose
+	ld	b,a			; byte
+
+	call	put_dec	
+	ld	b,h
+	ld	c,l
+
+	pop	hl
+
+	jp	msg_s_loop1$
+
+
+easywait$:
+	push	bc
+
+	call	cont
+	ld	a,(joy_status)
+
+;	bit	0,a
+;	jr	nz,no_wait$			; button-a wait cancel
+;	bit	1,a
+;	jr	nz,no_wait$			; button-b wait cancel
+	and	03h
+	jr	nz,no_wait$			; button a,b wait cancel
+
+
+	ld	c,30
+	call	wait_vb_s
+
+no_wait$:
+	pop	bc
+
+	pop	hl
+
+	jp	msg_s_loop1$
+
+
+
+
+
+
+
+fanfare$:
+	pop	hl
+
+	push	bc
+
+	dec	hl
+	ld	a,(hli)
+	ld	b,a			; FANFARE ~ FANFARE6
+
+	push	hl
+
+	ld	hl,fanfare_tbl$
+
+fanfare_loop$:
+	ld	a,(hli)
+	cp	b
+	jr	z,same$
+
+	inc	hl
+
+	jr	fanfare_loop$
+
+
+same$:
+	cp	NIDORIINA
+	jr	z,screaming$
+
+	cp	PJOTTO
+	jr	z,screaming$
+
+	cp	JUGON
+	jr	z,screaming$
+
+	ld	a,(hl)
+	call	SEplay
+	call	se_wait
+
+	pop	hl
+	pop	bc
+
+	jp	msg_s_loop1$
+
+
+screaming$:
+	push	de
+	ld	a,(hl)
+	call	gyaarth_play
+	pop	de
+
+	pop	hl
+	pop	bc
+
+	jp	msg_s_loop1$
+
+
+fanfare_tbl$:
+	db	FANFARE,musfanfare
+	db	FANFARE2,musfanfare82
+	db	FANFARE3,musfanfare3
+	db	FANFARE4,musfanfare42
+	db	FANFARE5,musfanfare5
+	db	FANFARE6,musfanfare6
+	db	FANFARE7,muszukan2
+	db	NIDORIINA,84			; nidoriina -> pikacyu
+	db	PJOTTO,151			; pjotto
+	db	JUGON,120			; jugon
+
+
+
+tenten$:
+	pop	hl
+	ld	a,(hli)
+	ld	d,a
+	push	hl
+	ld	h,b
+	ld	l,c
+
+tenten_loop$:
+	ld	a,tenten@
+	ld	(hli),a
+	
+	push	de
+	call	cont
+	pop	de
+	ld	a,(joy_status)
+
+;	bit	0,a
+;	jr	nz,tenten_wait_pass$		; button-a wait cancel
+;	bit	1,a
+;	jr	nz,tenten_wait_pass$		; button-b wait cancel
+	and	03h
+	jr	nz,tenten_wait_pass$		; button a,b wait cancel
+
+
+	ld	c,10
+	call	wait_vb_s
+
+
+tenten_wait_pass$:
+	dec	d
+	jr	nz,tenten_loop$
+
+	ld	b,h
+	ld	c,l
+
+	pop	hl
+
+	jp	msg_s_loop1$
+
+
+wait_np$:				; ***** wait no prompt ***** : WAIT_NP
+	push	bc
+
+	call	cont_abwait_pi
+
+	pop	bc
+	pop	hl
+
+	jp	msg_s_loop1$
+
+
+;--------------------------------------------------------
+;////  Ｄ、Ｉ，Ｂ，Ｎ＿ＭＳＧを抜き出したときの処理  ////
+;--------------------------------------------------------
+msg2$:
+	pop	hl
+
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,(hli)			; de = data adrs
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	push	hl
+	ld	l,e
+	ld	h,d
+	call	put_msg_s
+	pop	hl
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	jp	msg_s_loop1$
+
+;////////////////////////////////////////////////////////
+
+
+tbl1$:
+	dw	msg1$			; D_MSG		normal message
+	dw	ind1$			; I_MSG		indirect message
+	dw	bcd1$			; B_MSG		BCD data
+	dw	adr1$			; ADRSET	set dmy_vram address
+	dw	waku1$			; WAKU		drawing window
+	dw	cr1$			; CR_MSG	carriage return
+	dw	wait1$			; WAIT		waiting 'b' key
+	dw	scroll1$		; SCR_MSG	scrolling
+	dw	call1$			; CALL_MSG	event return call
+	dw	number1$		; N_MSG		decimal number 
+	dw	easywait$		; E_WAIT	easy wait
+	dw	fanfare$		; FANFARE	fanfare
+	dw	tenten$			; TENTEN	tenten
+	dw	wait_np$		; WAIT_NP	wait no prompt
+
+  ifn 0
+; -------------------- change by Sige 96-9-26 -----------------
+	dw	fanfare$		; FANFARE3      14
+	dw	fanfare$		; FANFARE4
+	dw	fanfare$		; FANFARE5
+	dw	fanfare$		; FANFARE6
+	dw	fanfare$		; FANFARE2
+	dw	fanfare$		; FANFARE7 (zukan)
+	dw	fanfare$		; NIDORIINA(168)
+	dw	fanfare$		; PJOTTO(151)
+	dw	fanfare$		; JUGON(120)
+; -------------------- change by Sige 96-9-26 -----------------
+  endif
+
+
+;*********************************
+;*				*
+;*	get vram adrs		*
+;*   in: hl = yx			*
+;*	b  = vram top		*
+;*  out: hl = vram adrs		*
+;*				*
+;*********************************
+vcalc:
+	xor	a			; A = 0
+	srl	h			; H / 2
+	rr	a			; A >> 1
+	srl	h			; H / 2
+	rr	a			; A >> 1
+	srl	h			; H / 2
+	rr	a			; A >> 1 
+	or	l
+	ld	l,a
+	ld	a,b			; vram top  098h or * 9c
+	or	h
+	ld	h,a
+	ret
+
+cls:					; 0400h bunn @spc de umeru
+	ld	a,spc@
+	jr	com
+clx:
+	ld	a,l
+com:
+	ld	de,0400h
+	ld	l,e
+z1$:
+	ld	(hli),a
+	dec	e
+	jr	nz,z1$
+	dec	d
+	jr	nz,z1$
+	ret
+

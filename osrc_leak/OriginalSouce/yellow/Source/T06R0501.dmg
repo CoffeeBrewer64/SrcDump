@@ -1,0 +1,80 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t6_room5
+
+	extern	minka_a			; map data adrs
+	extern	gyaarth_play
+	extern	se_wait
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t6_room5:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_a			; map data adrs
+	dw	msg_t6r5f1		; message tbl adrs
+	dw	ev_t6r5f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t6r5f1
+
+ev_t6r5f1:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t6r5f1:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+
+
+msg1$:
+	extern	msg1_0_T06R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T06R0501	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_T06R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T06R0501	; mvmsg追加
+	db 02bh	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,36
+	call	gyaarth_play
+	call	se_wait
+
+	jp	msg_return
+	
+
+msg3$:
+	extern	msg3_2_T06R0501
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T06R0501	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t6r5f1:
+	include	..\sxy\t06r0501.sxy
+
+
+

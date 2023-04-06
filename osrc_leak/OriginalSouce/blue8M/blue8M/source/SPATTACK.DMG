@@ -1,0 +1,3484 @@
+
+	include	common.def
+	include	fntequ.def
+	include	banktool.def
+	include	type.def
+	include	fight.def
+	include macro.h
+	include	pm_debug.def
+
+	public	sp_attack_main
+	public	sp_cond_up
+	public	cond_up_down_tbl
+	public	migawari_avoid
+
+	extern	fight_rnd
+	extern	rnd
+	extern	mul_direct
+	extern	mul_any
+	extern	div_direct
+	extern	discount_quick
+	extern	discount_attack
+	extern	badge_kouryoku
+	extern	put_win_msg
+	extern	block_move
+	extern	bank2bank
+	extern	renew_now_hp
+	extern	get_monsadr
+	extern	get_mons_name
+	extern	get_waza_name
+	extern	set_status_all
+	extern	status_sub_all
+	extern	wait_vb_s
+	extern	avoid_check
+	extern	waza_select
+	extern	pop_vram
+	extern	bank_push_call
+	extern	migawari
+	extern	hensin
+	extern	koukanaimsg
+	extern	table_jump
+	extern	migawari1
+	extern	migawari2
+
+
+bankf	group	15
+
+;********************************
+;*   sp_attack			*
+;*   1 : sleep ( 1wari )	*
+;*   2 : poison ( 1wari )	*
+;*   3 : suck 			*
+;*   4 : yakedo ( 1wari )	*
+;*   5 : ice ( 1wari )		*
+;*   6 : mahi ( 1wari )		*
+;*   7 : jibaku			*
+;*   8 : yumekui		*
+;*   9 : oomugaeshi		*
+;*  10 : attack up (25%)	*
+;*  11 : defence up (25%)	*
+;*  12 : quick up (25%)		*
+;*  13 : tokusyu up (25%)	*
+;*  14 : hit ritu up (25%)	*
+;*  15 : kaihi ritu up (25%)	*
+;*  16 : nekonikoban		*
+;*  17 : kanarazu ataru		*
+;*  18 : attack down (25%)	*
+;*  19 : defence down (25%)	*
+;*  20 : quick down (25%)	*
+;*  21 : tokusyu down (25%)	*
+;*  22 : hit ritu down (25%)	*
+;*  23 : kaihi ritu down (25%)	*
+;*  24 : texture mapping	*
+;*  25 : kuroikiri		*
+;*  26 : gaman			*
+;*  27 : abareru		*
+;*  28 : fukitobashi		*
+;*  29 : renzoku kougeki	*
+;*  30 : renzoku kougeki2	*
+;*  31 : kizetsu		*
+;*  32 : sleep ( 3wari )	*
+;*  33 : poison	( 3wari )	*
+;*  34 : yakedo ( 3wari )	*
+;*  35 : ice ( 3wari )		*
+;*  36 : mahi ( 3wari )		*
+;*  37 : kizetsu ( 3wari )	*
+;*  38 : sentou funou		*
+;*  39 : tame 			*
+;*  40 : hp hanbun 		*
+;*  41 : kotei damage 		*
+;*  42 : shimetsuke 		*
+;*  43 : sorawotobu(tame + hp/2)*
+;*  44 : nidogeri		*
+;*  45 : tobigeri		*
+;*  46 : effect gird		*
+;*  47 : kiaidame		*
+;*  48 : tossin			*
+;*  49 : konran			*
+;*  50 : attack up (50%)	*
+;*  51 : defence up (50%)	*
+;*  52 : quick up (50%)		*
+;*  53 : tokusyu up (50%)	*
+;*  54 : hit ritu up (50%)	*
+;*  55 : kaihi ritu up (50%)	*
+;*  56 : jikosaisei		*
+;*  57 : henshin		*
+;*  58 : attack down (50%)	*
+;*  59 : defence down (50%)	*
+;*  60 : quick down (50%)	*
+;*  61 : tokusyu down (50%)	*
+;*  62 : hit ritu down (50%)	*
+;*  63 : kaihi ritu down (50%)	*
+;*  64 : hikarinokabe		*
+;*  65 : refrector   		*
+;*  66 : poison only		*
+;*  67 : mahi only		*
+;*  68 : tuika attack down	* 
+;*  69 : tuika defence down	* 
+;*  70 : tuika quick down	* 
+;*  71 : tuika tokusyu down	* 
+;*  72 : tuika hit ritu down	* 
+;*  73 : tuika kaihi ritu  down	* 
+;*  74 :			* 
+;*  75 :			* 
+;*  76 : tuika konran		* 
+;*  77 : double neadle		* 
+;*  78 : deffence & quick down	*
+;*  79 : migawari		*
+;*  80 : katamaru		*
+;*  81 : ikari			*
+;*  82 : monomane		*
+;*  83 : yubifuri		*
+;*  84 : yadorigi		*
+;*  85 : haneru			*
+;*  86 : kanashibari		*
+;*				*
+;********************************
+
+;***********************************************;
+;  mymons_cond1 ( enemy_cond1 )			;
+;       bit0 on = attack up			;
+;       bit1 on = deffence up			;
+;       bit2 on = quick up			;
+;       bit3 on = tokusyu up			;
+;       bit4 on = hit ritu up			;
+;       bit5 on = kaihi ritu up			;
+;       bit6 on = not use			;
+;       bit7 on = not use			;
+;  mymons_cond2 ( enemy_cond2 )			;
+;       bit0 on = attack down			;
+;       bit1 on = deffence down			;
+;       bit2 on = quick down			;
+;       bit3 on = tokusyu down			;
+;       bit4 on = hit ritu down			;
+;       bit5 on = kaihi ritu down		;
+;       bit6 on = not use			;
+;       bit7 on = not use			;
+;  mymons_cond3 ( enemy_cond3 )			;
+;       bit0 on = gaman cyu			;
+;       bit1 on = abareru cyu 			;
+;       bit2 on = renzoku cyu 			;
+;       bit3 on = kizetsu cyu 			;
+;       bit4 on = tame cyu			;
+;       bit5 on = shimetsuke cyu		;
+;       bit6 on = kieteiru ( kougeki ataranai )	;
+;       bit7 on = konran cyu 			;
+;  mymons_cond4 ( enemy_cond4 )			;
+;       bit0 on = yokuataru			;
+;       bit1 on = effect gird 			;
+;       bit2 on = critical up  			;
+;       bit3 on = toumeika   			;
+;       bit4 on = migawari wo dashiteiru 	;
+;       bit5 on = katamatteiru 			;
+;       bit6 on = ikari  			;
+;       bit7 on = yadorigi no tane		;
+;  mymons_cond5 ( enemy_cond5 )			;
+;       bit0 on = doku doku			;
+;       bit1 on = hikari no kabe 		;
+;       bit2 on = refrector   			;
+;       bit3 on = henshin   			;
+;       bit4 on = no use	 	 	;
+;       bit5 on = no use 			;
+;       bit6 on = no use  			;
+;       bit7 on = no use 			;
+;  m_renzoku_cnt1 ( e_renzoku_cnt1 )		;	
+;       gaman,abareru,renzoku,shimetsuke	;
+;	nidogeri				;
+;  m_renzoku_cnt2 ( e_renzoku_cnt2 )		;	
+;	konran					;
+;  m_renzoku_cnt3 ( e_renzoku_cnt3 )		;	
+;	doku doku count				;
+;  m_renzoku_cnt4 ( e_renzoku_cnt4 )		;	
+;	fuujikome count				;
+;  m_renzoku_cnt5 ( e_renzoku_cnt5 )		;	
+;***********************************************;
+
+sp_attack_main:
+	call	sp_attack
+
+	ld	b,1			; not dead
+	ret
+
+sp_attack:
+	ld	a,(attack_turn)
+	and	a			; 0 = my turn
+
+	ld	a,(m_kougeki + 1)	; special attack kind
+	jr	z,z10$ 
+
+	ld	a,(e_kougeki + 1)	; special attack kind
+
+z10$:
+	dec	a
+	add	a,a			; * 2
+	ld	hl,sp_attack_tbl
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+sp_attack_tbl:
+	dw	sp_sleep		; 1 ( 1wari )
+	dw	sp_poison		; 2 ( 1wari )
+	dw	sp_suck			; 3
+	dw	sp_ability		; 4 yakedo ( 1wari )
+	dw	sp_ability		; 5 ice ( 1wari )
+	dw	sp_ability		; 6 mahi ( 1wari )
+	dw	sp_jibaku		; 7
+	dw	sp_suck			; 8 yumekui
+	dw	00			; 9
+	dw	sp_cond_up		; 10
+	dw	sp_cond_up		; 11
+	dw	sp_cond_up		; 12
+	dw	sp_cond_up		; 13
+	dw	sp_cond_up		; 14
+	dw	sp_cond_up		; 15
+	dw	sp_nekonikoban		; 16
+	dw	00			; 17
+	dw	sp_cond_down		; 18	
+	dw	sp_cond_down		; 19	
+	dw	sp_cond_down		; 20	
+	dw	sp_cond_down		; 21	
+	dw	sp_cond_down		; 22	
+	dw	sp_cond_down		; 23	
+	dw	sp_texture		; 24	
+	dw	sp_kuroikiri		; 25	
+	dw	sp_gaman		; 26
+	dw	sp_abareru		; 27
+	dw	sp_fukitobashi		; 28
+	dw	sp_renzoku		; 29
+	dw	sp_renzoku		; 30
+	dw	sp_kizetsu		; 31 ( 1wari )
+	dw	sp_sleep		; 32 ( 3wari )
+	dw	sp_poison		; 33 ( 3wari )
+	dw	sp_ability		; 34 yakedo ( 3wari )
+	dw	sp_ability		; 35 ice ( 3wari )
+	dw	sp_ability		; 36 mahi ( 3wari )
+	dw	sp_kizetsu		; 37 ( 3wari )
+	dw	sp_sentoufunou		; 38 
+	dw	sp_tame			; 39 
+	dw	00			; 40
+	dw	00			; 41
+	dw	sp_shimetsukeru		; 42 
+	dw	sp_tame			; 43
+	dw	sp_renzoku		; 44
+	dw	00			; 45
+	dw	sp_effect_gird		; 46
+	dw	sp_kiaidame		; 47
+	dw	sp_tossin		; 48
+	dw	sp_konran		; 49
+	dw	sp_cond_up		; 50
+	dw	sp_cond_up		; 51
+	dw	sp_cond_up		; 52
+	dw	sp_cond_up		; 53
+	dw	sp_cond_up		; 54
+	dw	sp_cond_up		; 55
+	dw	sp_jikosaisei		; 56
+	dw	sp_henshin		; 57
+	dw	sp_cond_down		; 58
+	dw	sp_cond_down		; 59
+	dw	sp_cond_down		; 60
+	dw	sp_cond_down		; 61
+	dw	sp_cond_down		; 62
+	dw	sp_cond_down		; 63
+	dw	sp_kabe			; 64
+	dw	sp_kabe   		; 65
+	dw	sp_poison		; 66 poison only
+	dw	sp_mahi_only		; 67
+	dw	sp_cond_down		; 68 tsuika kouka
+	dw	sp_cond_down		; 69 tsuika kouka
+	dw	sp_cond_down		; 70 tsuika kouka
+	dw	sp_cond_down		; 71 tsuika kouka
+	dw	sp_cond_down		; 72 tsuika kouka
+	dw	sp_cond_down		; 73 tsuika kouka
+	dw	sp_cond_down		; 74 tsuika kouka
+	dw	sp_cond_down		; 75 tsuika kouka
+	dw	sp_tsuika_konran	; 76 tsuika konran
+	dw	sp_renzoku		; 77 renzoku + doku
+;	dw	def_qui_down		; 78 mou nai
+	dw	00			; 78 
+	dw	sp_migawari		; 79 
+	dw	sp_katamaru		; 80 
+	dw	sp_ikari		; 81 
+	dw	sp_monomane		; 82 
+	dw	00			; 83 
+	dw	sp_yadorigi		; 84 
+	dw	sp_haneru		; 85 
+	dw	sp_kanashibari		; 86 
+
+;********************************
+;*   sp_sleep			*
+;*				*
+;*				*
+;********************************
+sp_sleep:
+	ld	de,enemy_data + 15
+	ld	bc,enemy_cond4
+	ld	a,(attack_turn)
+	and	a
+	jp	z,sleep_1$
+
+	ld	de,mymons_data + 15
+	ld	bc,mymons_cond4
+
+sleep_1$:
+	ld	a,(bc)
+	bit	5,a				; katamaru bit
+	res	5,a
+	ld	(bc),a
+	jr	nz,sleep_rnd$	
+
+	ld	a,(de)				; condition
+	ld	b,a
+	and	007h
+	jr	z,sleep_3$
+
+	ld	hl,already_sleep1$
+	jp	put_win_msg			; sudeni nemutte iru
+
+sleep_3$:
+	ld	a,b
+	and	a
+	jr	nz,not_sleep1$
+
+	push	de
+	call	avoid_check
+	pop	de
+
+	ld	a,(avoid_flg)
+	and	a
+	jr	nz,not_sleep1$
+
+sleep_rnd$:
+	call	fight_rnd
+	and	007h
+	jr	z,sleep_rnd$
+
+	ld	(de),a				; condition
+
+	call	sp_effect_call
+
+	ld	hl,sleep_msg1$			; ok
+	jp	put_win_msg
+
+not_sleep1$:
+	jp	sippai				; ng
+	
+sleep_msg1$:
+	extern	sleep_msg1_0_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw sleep_msg1_0_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+already_sleep1$:
+	extern	already_sleep1_1_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw already_sleep1_1_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+;********************************
+;*   sp_poison			*
+;*				*
+;*				*
+;********************************
+sp_poison:
+	ld	hl,enemy_data + 15
+	ld	de,m_kougeki + 1
+	ld	a,(attack_turn)
+	and	a
+	jr	z,poison_1$
+
+	ld	hl,mymons_data + 15
+	ld	de,e_kougeki + 1
+poison_1$:
+	call	migawari_avoid
+	jr	nz,sippai$
+
+	ld	a,(hli)			; condition
+	ld	b,a
+
+	and	a
+	jr	nz,sippai$	; sude ni nemu or doku or yake or hie or mahi
+
+	ld	a,(hli)			; zokusei1
+	cp	POISON_TYPE
+	jr	z,sippai$		; poison type no monster niha kikanai
+
+	ld	a,(hld)			; zokusei1
+	cp	POISON_TYPE
+	jr	z,sippai$		; poison type no monster niha kikanai
+
+	ld	a,(de)				; spattack kind
+	cp	2
+;	ld	b,26				; 1 wari
+	ld	b,52				; 2 wari
+	jr	z,pass1$
+	cp	33
+;	ld	b,77				; 3 wari
+	ld	b,103				; 4 wari
+	jr	z,pass1$
+
+	push	hl
+	push	de
+	call	avoid_check
+	pop	de
+	pop	hl
+
+	ld	a,(avoid_flg)
+	and	a
+	jr	nz,sippai2$
+	jr	pass2$
+
+pass1$:
+	call	fight_rnd
+	cp	b
+	ret	nc
+
+pass2$:
+	dec	hl
+	set	3,(hl)					; poison bit on	
+
+	push	de
+
+	dec	de
+	ld	a,(attack_turn)
+	and	a
+	ld	b,199
+	ld	hl,mymons_cond5
+	ld	a,(de)
+	ld	de,m_renzoku_cnt3
+	jr	nz,poison_2$
+
+	ld	b,169
+	ld	hl,enemy_cond5
+	ld	de,e_renzoku_cnt3
+poison_2$:
+	cp	92				; doku doku ?
+	jr	nz,pass3$
+
+	set	0,(hl)				; doku doku bit on
+	xor	a
+	ld	(de),a				; doku doku counter
+	ld	hl,poison_msg2$			; ok
+	jr	pass4$
+
+pass3$:
+	ld	hl,poison_msg1$			; ok
+pass4$:
+	pop	de
+	
+	ld	a,(de)				; spattack kind
+	cp	66				; poison only
+	jr	z,poison_3$
+
+	ld	a,b
+	call	sp_effect_call2
+	jp	put_win_msg
+
+poison_3$:
+	call	sp_effect_call
+	jp	put_win_msg
+
+sippai$:
+	ld	a,(de)				; spattack kind
+	cp	66				; poison only
+	ret	nz	
+
+sippai2$:
+	ld	c,50
+	call	wait_vb_s
+
+	jp	sippai				; ng
+
+
+poison_msg1$:
+	extern	poison_msg1_2_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw poison_msg1_2_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+poison_msg2$:
+	extern	poison_msg2_3_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw poison_msg2_3_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+;********************************
+;*   sp_suck ( kyuuketu	)	*
+;*				*
+;*				*
+;********************************
+sp_suck:
+	ld	hl,sp_suck_sub
+	ld	b,01h
+	jp	bank_push_call
+
+;********************************
+;*   sp_jibaku			*
+;*				*
+;*				*
+;********************************
+sp_jibaku:
+	ld	hl,mymons_data + 12		; nowHP (high)
+	ld	de,mymons_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,jibaku_1$
+	ld	hl,enemy_data + 12		; nowHP (high)
+	ld	de,enemy_cond4
+jibaku_1$:
+	xor	a
+	ld	(hli),a				; nowHP (high)
+	ld	(hli),a				; nowHP (low)
+	inc	hl
+	ld	(hl),a				; condition
+
+	ld	a,(de)
+	res	7,a				; yadorigi bit off
+	ld	(de),a
+
+	ret
+	
+;********************************
+;*   sp_ability			*
+;*				*
+;*				*
+;********************************
+sp_ability:
+	xor	a
+	ld	(anime_buf),a
+
+	call	migawari_avoid
+	ret	nz
+
+	ld	a,(attack_turn)
+	and	a
+	jp	nz,enemy_turn$
+
+	ld	a,(enemy_data + 15)		; condition
+	and	a
+	jp	nz,ice_melt_chk$
+
+	ld	a,(m_kougeki + 3)		; waza zokusei
+	ld	b,a
+	ld	a,(enemy_data + 16)		; zokusei1
+	cp	b
+	ret	z				; zokusei onaji
+
+	ld	a,(enemy_data + 17)		; zokusei2
+	cp	b
+	ret	z				; zokusei onaji
+
+	ld	a,(m_kougeki + 1)		; special attack kind
+	cp	7
+	ld	b,26				; 1wari
+	jr	c,rnd1$
+
+	ld	b,77				; 3wari
+	sub	30
+rnd1$:
+	push	af
+	call	fight_rnd
+	cp	b
+	pop	bc
+	ret	nc
+
+	ld	a,b
+	cp	4
+	jr	z,yakedo1$
+	cp	5
+	jr	z,ice1$
+
+
+mahi1$:
+	ld	a,040h
+	ld	(enemy_data + 15),a		; bit on
+	call	discount_quick
+	ld	a,169
+	call	sp_effect_call3
+;	ld	hl,mahi_msg1
+;	jp	put_win_msg
+	jp	mahi_msg_put
+
+yakedo1$:
+	ld	a,010h
+	ld	(enemy_data + 15),a		; bit on
+	call	discount_attack
+	ld	a,169
+	call	sp_effect_call3
+	ld	hl,yakedo_msg1$
+	jp	put_win_msg
+
+ice1$:
+	call	katamaru_bit_off
+
+	ld	a,020h
+	ld	(enemy_data + 15),a		; bit on
+	ld	a,169
+	call	sp_effect_call3
+	ld	hl,ice_msg1$
+	jp	put_win_msg
+
+enemy_turn$:
+	ld	a,(mymons_data + 15)		; condition
+	and	a
+	jp	nz,ice_melt_chk$
+
+	ld	a,(e_kougeki + 3)		; waza zokusei
+	ld	b,a
+	ld	a,(mymons_data + 16)		; zokusei1
+	cp	b
+	ret	z				; zokusei onaji
+
+	ld	a,(mymons_data + 17)		; zokusei2
+	cp	b
+	ret	z				; zokusei onaji
+
+	ld	a,(e_kougeki + 1)		; special attack kind
+	cp	7
+	ld	b,26				; 1wari
+	jr	c,rnd2$
+
+	ld	b,77				; 3wari
+	sub	30
+rnd2$:
+	push	af
+	call	fight_rnd
+	cp	b
+	pop	bc
+	ret	nc
+
+	ld	a,b
+	cp	4
+	jr	z,yakedo2$
+	cp	5
+	jr	z,ice2$
+
+mahi2$:
+	ld	a,040h
+	ld	(mymons_data + 15),a		; mahi bit on
+	call	discount_quick
+;	ld	hl,mahi_msg1
+;	jp	put_win_msg
+	jp	mahi_msg_put
+
+yakedo2$:
+	ld	a,010h
+	ld	(mymons_data + 15),a		; yakedo bit on
+	call	discount_attack
+	ld	hl,yakedo_msg1$
+	jp	put_win_msg
+
+ice2$:
+	ld	a,020h
+	ld	(mymons_data + 15),a		; ice bit on
+	ld	hl,ice_msg1$
+	jp	put_win_msg
+
+yakedo_msg1$:
+	extern	yakedo_msg1_4_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw yakedo_msg1_4_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+ice_msg1$:
+	extern	ice_msg1_5_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw ice_msg1_5_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+ice_melt_chk$:
+	and	020h
+	ret	z				; kootte nai
+
+	ld	a,(attack_turn)
+	and	a
+	jr	nz,my_ice_melt$
+	
+	ld	a,(m_kougeki + 3)		; waza zokusei
+	sub	FIRE_TYPE
+	ret	nz				; fire de nakereba tokenai 
+
+;	xor	a
+	ld	(enemy_data + 15),a
+
+	ld	hl,gein_cap_data + 4
+	ld	a,(enemy_data + 14)
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+	xor	a
+	ld	(hl),a
+
+	ld	hl,melt_msg$
+	jr	ret$
+
+my_ice_melt$:
+	ld	a,(e_kougeki + 3)		; waza zokusei
+	sub	FIRE_TYPE
+	ret	nz				; fire de nakereba tokenai 
+
+;	xor	a
+	ld	(mymons_data + 15),a
+	ld	hl,my_cap_data + 4
+	ld	a,(allow_sv_fight)
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+	xor	a
+	ld	(hl),a
+
+	ld	hl,melt_msg$
+ret$:
+	jp	put_win_msg
+
+melt_msg$:
+	extern	melt_msg_6_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw melt_msg_6_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+;************************
+;*   sp_cond_up		*
+;*   sp_cond_down	*
+;************************
+sp_cond_up:
+	ld	hl,auto_move_val + 11		; status counter
+	ld	de,m_kougeki + 1		; special attack kind
+	ld	a,(attack_turn)
+	and	a
+	jr	z,sp_cond_up1$
+	ld	hl,auto_move_val + 31		; status counter
+	ld	de,e_kougeki + 1		; special attack kind
+
+sp_cond_up1$:
+	ld	a,(de)
+	sub	10
+	cp	8
+	jr	c,sp_cond_up2$
+
+	sub	40				; 50%
+sp_cond_up2$:
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	b,(hl)
+	inc	b
+	ld	a,13
+	cp	b
+	jp	c,sippai$
+
+	ld	a,(de)
+	cp	18	
+	jr	c,sp_cond_up3$
+
+	inc	b
+	ld	a,13
+	cp	b
+	jr	nc,sp_cond_up3$
+	
+	ld	b,a			; b = 13
+
+sp_cond_up3$:
+	ld	(hl),b
+
+	ld	a,c
+	cp	4
+	jr	nc,sp_cond_up_ret$
+
+	push	hl
+
+	ld	hl,mymons_data + 29	; kougekiryoku address (low)
+	ld	de,auto_move_val + 3	; kougekiryoku address (high)
+
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,enemy_data + 29	; kougekiryoku address (low)
+	ld	de,auto_move_val + 23	; kougekiryoku address (high) 
+
+pass1$:
+	push	bc
+
+	sla	c
+	ld	b,0
+	add	hl,bc
+
+	ld	a,c
+	add	a,e
+	ld	e,a
+	jr	nc,pass2$
+	
+	inc	d
+pass2$:
+	pop	bc
+
+	ld	a,(hld)
+	sub	0e7h
+	jr	nz,pass3$
+
+	ld	a,(hl)
+	sbc	a,003h
+	jp	z,sippai0$		; nouryokuchi full (03e7h = 999)
+
+pass3$:
+	push	hl
+
+	push	bc
+	ld	hl,cond_up_down_tbl
+	dec	b
+	sla	b
+	ld	c,b
+	ld	b,0
+	add	hl,bc
+	pop	bc
+	
+	xor	a
+	ld	(calc_work1),a
+	ld	a,(de)
+	ld	(calc_work2),a
+	inc	de
+	ld	a,(de)
+	ld	(calc_work3),a
+	
+	ld	a,(hli)
+	ld	(calc_work4),a
+
+	call	mul_direct
+
+	ld	a,(hl)
+	ld	(calc_work4),a
+	ld	b,4			; 4byte
+	call	div_direct
+
+	pop	hl
+
+	ld	a,(calc_work3)
+	sub	0e7h
+	ld	a,(calc_work2)
+	sbc	a,003h
+	jp	c,pass4$		; syou < 999
+
+	ld	a,003h
+	ld	(calc_work2),a
+	ld	a,0e7h
+	ld	(calc_work3),a		; 999
+pass4$:
+	ld	a,(calc_work2)
+	ld	(hli),a
+	ld	a,(calc_work3)
+	ld	(hl),a
+
+	pop	hl
+
+sp_cond_up_ret$:
+	ld	b,c
+	inc	b
+	call	param_msg_set
+
+	ld	hl,mymons_cond4
+	ld	de,m_kougeki 
+	ld	bc,ctrl_move_val + MY_SMALL
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass5$	
+	ld	hl,enemy_cond4
+	ld	de,e_kougeki 
+	ld	bc,ctrl_move_val + ENEMY_SMALL
+pass5$:
+	ld	a,(de)
+	cp	107			; tiisakunaru
+	jr	nz,pass6$
+
+	bit	4,(hl)
+	push	af
+	push	bc
+	ld	hl,migawari1
+	ld	b,01eh
+	push	de
+	call	nz,bank_push_call
+	pop	de
+
+pass6$:
+	call	sp_effect_call4
+
+	ld	a,(de)
+	cp	107			; tiisakunaru
+	jr	nz,pass7$
+
+	pop	bc
+	ld	a,1
+	ld	(bc),a
+
+	ld	hl,migawari2
+	ld	b,01eh
+	pop	af
+	call	nz,bank_push_call
+
+pass7$:
+	ld	a,(attack_turn)
+	and	a
+	call	z,badge_kouryoku
+
+	ld	hl,seikou_msg$
+	call	put_win_msg
+
+	call	discount_quick
+	jp	discount_attack
+
+sippai0$:
+	pop	hl
+ 	dec	(hl)
+sippai$:
+	ld	hl,koukanashi_msg
+	jp	put_win_msg
+
+	
+seikou_msg$:
+	extern	seikou_msg_7_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw seikou_msg_7_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db	CALL_MSG
+
+	ld	hl,gunto_msg$
+	ld	a,(attack_turn)
+	and	a
+	ld	a,(m_kougeki + 1)		; special attack kind
+	jr	z,pass9$
+	ld	a,(e_kougeki + 1)		; special attack kind
+pass9$:
+	cp	18
+	ret	nc
+	ld	hl,agatta_msg$
+	ret
+
+gunto_msg$:
+	db	E_WAIT
+	extern	gunto_msg_8_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw gunto_msg_8_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+agatta_msg$:
+	extern	agatta_msg_9_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw agatta_msg_9_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sp_cond_down:
+	ld	hl,auto_move_val + 31		; status counter
+	ld	de,m_kougeki + 1		; special attack kind
+	ld	bc,enemy_cond3
+	ld	a,(attack_turn)
+	and	a
+	jr	z,sp_cond_down1$
+
+	ld	hl,auto_move_val + 11		; status counter
+	ld	de,e_kougeki + 1		; special attack kind
+	ld	bc,mymons_cond3
+
+	ld	a,(tuushin_flg)
+	cp	4
+	jr	z,sp_cond_down1$
+
+	call	fight_rnd
+	cp	40h
+	jp	c,sippai2$
+
+sp_cond_down1$:
+	call	migawari_avoid
+	jp	nz,sippai2$			; migawari ga dete iru
+	
+	ld	a,(de)
+	cp	68
+	jr	c,normal$
+
+	call	fight_rnd
+	cp	85
+	jp	nc,sippai$
+
+	ld	a,(de)
+	sub	68
+	jr	sp_cond_down2$
+
+normal$:
+	push	hl
+	push	de
+	push	bc
+	call	avoid_check
+	pop	bc
+	pop	de
+	pop	hl
+	ld	a,(avoid_flg)
+	and	a
+	jp	nz,sippai2$
+
+	ld	a,(bc)
+	bit	6,a
+	jp	nz,sippai2$			; kieteiru
+
+	ld	a,(de)
+	sub	18
+	cp	8
+	jr	c,sp_cond_down2$
+
+	sub	40				; 50%
+sp_cond_down2$:
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	b,(hl)
+	dec	b
+	
+	jp	z,sippai$
+
+	ld	a,(de)
+	cp	36	
+	jr	c,sp_cond_down3$
+	cp	68	
+	jr	nc,sp_cond_down3$
+
+	dec	b
+	jr	nz,sp_cond_down3$
+	
+	inc	b			; b = 1
+sp_cond_down3$:
+	ld	(hl),b
+
+	ld	a,c
+	cp	4
+	jr	nc,sp_cond_down_ret$
+
+	push	hl
+	push	de
+
+	ld	hl,enemy_data + 29	; kougekiryoku address (low)
+	ld	de,auto_move_val + 23	; kougekiryoku address (high) 
+
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,mymons_data + 29	; kougekiryoku address (low)
+	ld	de,auto_move_val + 3	; kougekiryoku address (high)
+
+pass1$:
+	push	bc
+
+	sla	c
+	ld	b,0
+	add	hl,bc
+
+	ld	a,c
+	add	a,e
+	ld	e,a
+	jr	nc,pass2$
+	
+	inc	d
+pass2$:
+	pop	bc
+
+	ld	a,(hld)
+	sub	001h
+	jr	nz,pass3$
+
+	ld	a,(hl)
+	and	a
+	jp	z,sippai0$		; nouryokuchi = 1
+
+pass3$:
+	push	hl
+
+	push	bc
+	ld	hl,cond_up_down_tbl
+	dec	b
+	sla	b
+	ld	c,b
+	ld	b,0
+	add	hl,bc
+	pop	bc
+	
+	xor	a
+	ld	(calc_work1),a
+	ld	a,(de)
+	ld	(calc_work2),a
+	inc	de
+	ld	a,(de)
+	ld	(calc_work3),a
+	
+	ld	a,(hli)
+	ld	(calc_work4),a
+
+	call	mul_direct
+
+	ld	a,(hl)
+	ld	(calc_work4),a
+	ld	b,4			; 4byte
+	call	div_direct
+
+	pop	hl
+
+	ld	a,(calc_work3)
+	ld	b,a
+	ld	a,(calc_work2)
+	or	b
+	jp	nz,pass4$		; syou > 0
+
+	ld	(calc_work2),a		; a = 0
+	ld	a,1
+	ld	(calc_work3),a		
+pass4$:
+	ld	a,(calc_work2)
+	ld	(hli),a
+	ld	a,(calc_work3)
+	ld	(hl),a
+
+	pop	de
+	pop	hl
+
+sp_cond_down_ret$:
+	ld	b,c
+	inc	b
+	push	de
+	call	param_msg_set
+	pop	de
+
+	ld	a,(de)
+	cp	68
+	jr	nc,effect_pass$
+
+	call	sp_effect_call
+
+effect_pass$:
+	ld	a,(attack_turn)
+	and	a
+	call	nz,badge_kouryoku
+
+	ld	hl,seikou_msg$
+	call	put_win_msg
+
+	call	discount_quick
+	jp	discount_attack
+
+
+sippai0$:
+	pop	de
+	pop	hl
+	inc	(hl)
+sippai$:
+	ld	a,(de)			; special attack kind
+	cp	68		
+	ret	nc			; tsuika kouka
+
+	ld	hl,koukanashi_msg
+	jp	put_win_msg
+
+
+sippai2$:
+	ld	a,(de)			; special attack kind
+	cp	68		
+	ret	nc			; tsuika kouka
+
+	jp	umakukimaran
+
+seikou_msg$:
+	extern	seikou_msg_10_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw seikou_msg_10_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db	CALL_MSG
+
+	ld	hl,sagatta_msg$
+	ld	a,(attack_turn)
+	and	a
+	ld	a,(m_kougeki + 1)		; special attack kind
+	jr	z,pass6$
+
+	ld	a,(e_kougeki + 1)		; special attack kind
+pass6$:
+	cp	26
+	ret	c
+	cp	68
+	ret	nc
+	ld	hl,gakutto_msg$
+	ret
+
+gakutto_msg$:
+	db	E_WAIT
+	extern	gakutto_msg_11_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw gakutto_msg_11_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+sagatta_msg$:
+	extern	sagatta_msg_12_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw sagatta_msg_12_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+param_msg_set:
+	ld	hl,attack$
+	ld	c,EOM
+
+loop1$:
+	dec	b
+	jr	z,copy$
+
+loop2$:
+	ld	a,(hli)
+	cp	c
+	jr	z,loop1$
+	jr	loop2$
+
+copy$:
+	ld	de,str_buf
+	ld	bc,10
+	jp	block_move
+
+attack$:
+  ifn	pm_jmsg
+	db	ko_,u_,ge_,ki_,ri_,yyo_,ku_
+	db	EOM
+  else
+	db	usf_a,usf_t,usf_t,usf_a,usf_c,usf_k
+	db	EOM
+  endif
+defence$:
+  ifn	pm_jmsg
+	db	bo_,u_,gi_,yyo_,ri_,yyo_,ku_
+	db	EOM
+  else
+	db	usf_d,usf_e,usf_f,usf_e,usf_n,usf_s,usf_e
+	db	EOM
+  endif
+quick$:
+  ifn	pm_jmsg
+	db	su_,ba_,ya_,sa_
+	db	EOM
+  else
+	db	usf_s,usf_p,usf_e,usf_e,usf_d
+	db	EOM
+  endif
+tokusyu$:
+  ifn	pm_jmsg
+	db	to_,ku_,si_,yyu_,no_,u_,ri_,yyo_,ku_
+	db	EOM
+  else
+	db	usf_s,usf_p,usf_e,usf_c,usf_i,usf_a,usf_l
+	db	EOM
+  endif
+hit$:
+  ifn	pm_jmsg
+	db	me_,i_,ti_,yyu_,u_,ri_,tu_
+	db	EOM
+  else
+	db	usf_a,usf_c,usf_c,usf_u,usf_r,usf_a,usf_c,usf_y
+	db	EOM
+  endif
+kaihi$:
+  ifn	pm_jmsg
+	db	ka_,i_,hi_,ri_,tu_
+	db	EOM
+  else
+	db	usf_e,usf_v,usf_a,usf_d,usf_e
+	db	EOM
+  endif
+
+
+cond_up_down_tbl:
+	db	25,100		; 0.25
+	db	28,100		; 0.28
+	db	33,100		; 0.33
+	db	40,100		; 0.33
+	db	50,100		; 0.50
+	db	66,100		; 0.66
+	db	1,1		; 1.00
+	db	15,10		; 1.50
+	db	2,1		; 2.00
+	db	25,10		; 2.50
+	db	3,1		; 3.00
+	db	35,10		; 3.50
+	db	4,1		; 4.00
+
+sp_gaman:
+	ld	hl,mymons_cond3
+	ld	de,m_gaman
+	ld	bc,m_renzoku_cnt1
+
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,enemy_cond3
+;	ld	de,e_gaman
+	ld	de,ctrl_move_val + 50
+	ld	bc,e_renzoku_cnt1
+pass1$:
+	set	0,(hl)				; gaman bit on
+	xor	a
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	ld	(m_kougeki + 1),a		; ???
+	ld	(e_kougeki + 1),a		; ???
+	call	fight_rnd
+	and	001h
+	inc	a
+	inc	a
+	ld	(bc),a				; gaman suru kaisuu (2-3)
+
+	ld	a,(attack_turn)
+	add	a,174
+pass2$:
+	jp	sp_effect_call2
+
+
+sp_abareru:
+	ld	hl,mymons_cond3
+	ld	de,m_renzoku_cnt1
+;	ld	bc,m_kougeki + 1
+
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,enemy_cond3
+	ld	de,e_renzoku_cnt1
+;	ld	bc,e_kougeki + 1
+pass1$:
+;	xor	a
+;	ld	(bc),a
+	set	1,(hl)				; abareru bit on
+	call	fight_rnd
+	and	001h
+	inc	a
+	inc	a
+	ld	(de),a				; abareru kaisuu (2-3)
+
+	ld	a,(attack_turn)
+	add	a,176				; effect_no
+	jp	sp_effect_call2
+
+
+sp_fukitobashi:
+	ld	a,(attack_turn)
+	and	a
+	jr	nz,enemy_turn$
+
+	ld	a,(fighting_flg)
+	dec	a
+	jr	nz,ene_heiki$
+
+	ld	a,(mons_level)			; enemy level
+	ld	b,a
+	ld	a,(mymons_data + 25)		; my mons level
+	cp	b
+	jr	nc,my_seikou$
+	
+	add	a,b
+	ld	c,a				; c = my level + ene level
+	inc	c
+my_loop1$:
+	call	fight_rnd
+	cp	c
+	jr	nc,my_loop1$
+
+	srl	b
+	srl	b				;  b = ene level / 4
+
+	cp	b
+	jr	nc,my_seikou$	
+
+my_sippai$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	a,(m_kougeki)			; waza No
+	cp	100				; teleport
+	jp	nz,sippai
+
+	jp	umakukimaran2
+
+my_seikou$:
+	call	renew_now_hp
+	xor	a
+	ld	(anime_buf),a			; window shake kind
+;	ld	a,1
+	inc	a
+	ld	(mogura_flg),a
+	ld	a,(m_kougeki)			; waza No
+	jr	effe_and_msg$
+
+ene_heiki$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,heiki_msg
+	ld	a,(m_kougeki)			; waza No
+	cp	100				; teleport
+	jp	nz,put_win_msg
+
+	jp	umakukimaran2
+
+enemy_turn$:
+	ld	a,(fighting_flg)
+	dec	a
+	jr	nz,my_heiki$
+
+	ld	a,(mymons_data + 25)		; my mons level
+	ld	b,a
+	ld	a,(mons_level)			; enemy level
+	cp	b
+	jr	nc,ene_seikou$
+	
+	add	a,b
+	ld	c,a				; c = my level + ene level
+	inc	c
+ene_loop1$:
+	call	fight_rnd
+	cp	c
+	jr	nc,ene_loop1$
+
+	srl	b
+	srl	b				;  b = my level / 4
+
+	cp	b
+	jr	nc,ene_seikou$	
+
+ene_sippai$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	a,(e_kougeki)			; waza No
+	cp	100				; teleport
+	jp	nz,sippai
+
+	jp	umakukimaran2
+
+ene_seikou$:
+	call	renew_now_hp
+	xor	a
+	ld	(anime_buf),a			; window shake kind
+;	ld	a,1
+	inc	a
+	ld	(mogura_flg),a
+	ld	a,(e_kougeki)			; waza No
+	jr	effe_and_msg$
+
+my_heiki$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,heiki_msg
+	ld	a,(e_kougeki)			; waza No
+	cp	100				; teleport
+	jp	nz,put_win_msg
+
+	jp	umakukimaran
+
+effe_and_msg$:
+	push	af
+	call	sp_effect_call3
+	ld	c,20
+	call	wait_vb_s
+	pop	af			; waza No
+
+	ld	hl,ridatsu_msg$
+	cp	100
+	jr	z,seikoumsg$
+
+	ld	hl,nigeru_msg$
+	cp	46
+	jr	z,seikoumsg$
+
+	ld	hl,fukitobasu_msg$
+
+seikoumsg$:
+	jp	put_win_msg
+
+ridatsu_msg$:
+	extern	ridatsu_msg_13_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw ridatsu_msg_13_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+nigeru_msg$:
+	extern	nigeru_msg_14_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw nigeru_msg_14_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+fukitobasu_msg$:
+	; 1996.10.04 by nori
+	; if monsname > 4 then 1 line ga moji over na no de.
+
+	extern	fukitobasu_msg_15_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw fukitobasu_msg_15_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sp_renzoku:
+	ld	hl,mymons_cond3
+	ld	de,m_renzoku_cnt1
+	ld	bc,m_gaman
+
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,enemy_cond3
+	ld	de,e_renzoku_cnt1
+;	ld	bc,e_gaman
+	ld	bc,ctrl_move_val + 50
+
+pass1$:
+	bit	2,(hl)
+	ret	nz				; sudeni renzoku cyuu
+
+	set	2,(hl)
+
+	ld	hl,m_kougeki + 1
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass2$
+
+	ld	hl,e_kougeki + 1
+
+pass2$:
+	ld	a,(hl)
+	cp	77
+	jr	z,pass4$
+
+	cp	44				; nidogeri
+	ld	a,2
+	jr	z,pass3$
+
+	call	fight_rnd
+	and	03h
+;	xor	03h				; 0,1 < - > 3,2 irekaete mita 
+	cp	2
+	jr	c,pass2_2$
+	
+	call	fight_rnd
+	and	03h
+pass2_2$:
+	inc	a
+	inc	a
+pass3$:
+	ld	(de),a
+	ld	(bc),a
+	
+	ret
+
+pass4$:
+	ld	a,2
+	ld	(hl),a				; sp_poison
+	jr	pass3$
+	
+
+sp_kizetsu:
+	call	migawari_avoid
+	ret	nz				; migawari ga dete iru
+	
+	ld	hl,enemy_cond3
+	ld	de,m_kougeki + 1
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,mymons_cond3
+	ld	de,e_kougeki + 1
+pass1$:
+;	========================	;（バグ修正！）call katamaru_bit_off をコメントアウトする
+					;「はかいこうせん」、「かみつく」の組み合わせで、相手が倒
+;;;	call	katamaru_bit_off	; れるまでコマンドを受け付けなくなってしまうことがあるバグ
+					; ゲームフリーク森本氏よりのメール('98 8/6 原田さん受け)
+;	========================	; に従って変更する
+
+	ld	a,(de)				; special attack kind
+	cp	31
+	ld	b,26				; 1wari
+	jr	z,pass2$
+
+	ld	b,77				; 3wari
+pass2$:
+	call	fight_rnd
+	cp	b
+	ret	nc
+
+	set	3,(hl)
+
+;	========================	;（バグ修正！上記の続き）call katamaru_bit_off を挿入
+					;
+	call	katamaru_bit_off	;
+					;
+;	========================	;
+
+	ret
+
+sp_sentoufunou:
+	ld	hl,sentoufunou_sub
+	ld	b,0ch
+	jp	bank_push_call
+
+
+sp_tame:
+	ld	hl,mymons_cond3
+	ld	de,m_kougeki + 1
+	ld	a,(attack_turn)
+	and	a
+	ld	b,174
+	jr	z,pass0$
+
+	ld	hl,enemy_cond3
+	ld	de,e_kougeki + 1
+	ld	b,175
+pass0$:
+	set	4,(hl)			; tame bit on
+	ld	a,(de)			; special attack kind
+	dec	de
+	cp	43
+	jr	nz,pass2$
+	
+	set	6,(hl)			; kieru bit on
+	ld	b,100
+pass2$:
+	ld	a,(de)
+	cp	91			; anawo horu
+	jr	nz,pass3$
+
+	set	6,(hl)			; kieru bit on
+	ld	b,192
+pass3$:
+	xor	a
+	ld	(anime_buf),a
+	ld	a,b
+	call	sp_effect_call3
+
+	ld	a,(de)			; waza No
+	ld	(usr_buf),a
+
+	ld	hl,message$
+	jp	put_win_msg
+
+message$:
+	extern	message_16_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw message_16_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db	CALL_MSG
+
+tame_msg$:
+	ld	a,(usr_buf)		; waza No
+	cp	13			; kamaitachi
+	ld	hl,kamaitachi_msg$
+	jr	z,msg$
+	cp	76			; solar	beam
+	ld	hl,solarbeam_msg$
+	jr	z,msg$
+	cp	130			; rocket zutsuki
+	ld	hl,rocketzutuki_msg$
+	jr	z,msg$
+	cp	143			; god bird
+	ld	hl,godbird_msg$
+	jr	z,msg$
+	cp	19			; kyuukouka
+	ld	hl,kyuukouka_msg$
+	jr	z,msg$
+	cp	91			; anawo horu
+	ld	hl,anawohoru_msg$
+
+msg$:
+	ret
+
+kamaitachi_msg$:
+	extern	kamaitachi_msg_17_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kamaitachi_msg_17_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+solarbeam_msg$:
+	extern	solarbeam_msg_18_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw solarbeam_msg_18_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+rocketzutuki_msg$:
+	extern	rocketzutuki_msg_19_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw rocketzutuki_msg_19_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+godbird_msg$:
+	extern	godbird_msg_20_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw godbird_msg_20_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+kyuukouka_msg$:
+	extern	kyuukouka_msg_21_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kyuukouka_msg_21_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+anawohoru_msg$:
+	extern	anawohoru_msg_22_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw anawohoru_msg_22_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sp_shimetsukeru:
+	ld	hl,mymons_cond3
+	ld	de,m_renzoku_cnt1
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,enemy_cond3
+	ld	de,e_renzoku_cnt1
+pass1$:
+	bit	5,(hl)
+	ret	nz				; sudeni renzoku cyuu
+
+	call	katamaru_bit_off
+
+	set	5,(hl)			; shimetsukeru bit on
+
+	call	fight_rnd
+	and	03h
+;	xor	03h				; 0,1 < - > 3,2 irekaete mita 
+	cp	2
+	jr	c,pass2$
+	
+	call	fight_rnd
+	and	03h
+pass2$:
+	inc	a
+	ld	(de),a
+
+	ret
+
+sp_effect_gird:
+	ld	hl,effect_gird_sub
+	ld	b,0ch
+	jp	bank_push_call
+
+
+sp_kiaidame:
+	ld	hl,kiaidame_sub
+	ld	b,09h
+	jp	bank_push_call
+
+
+sp_tossin:
+	ld	hl,sp_tossin_sub
+	ld	b,04h
+	jp	bank_push_call
+	
+sp_tsuika_konran:
+	call	fight_rnd
+	cp	25
+	ret	nc
+	jr	konran_seikou
+
+sp_konran:
+	call	migawari_avoid
+	jr	nz,konran_sippai
+	
+	call	avoid_check
+	ld	a,(avoid_flg)
+	and	a
+	jr	nz,konran_sippai
+
+konran_seikou:
+	ld	a,(attack_turn)
+	and	a
+	ld	hl,enemy_cond3
+	ld	bc,e_renzoku_cnt2
+	ld	a,(m_kougeki + 1)	; special attack kind
+	jr	z,pass1$
+	ld	hl,mymons_cond3
+	ld	bc,m_renzoku_cnt2
+	ld	a,(e_kougeki + 1)	; special attack kind
+pass1$:
+	bit	7,(hl)
+	jr	nz,konran_sippai
+
+	set	7,(hl)			; konran bit on
+
+	push	af
+	call	fight_rnd
+	and	003h
+	inc	a
+	inc	a
+	ld	(bc),a				; konran kaisuu (2-5)
+	pop	af
+	cp	76
+	call	nz,sp_effect_call
+
+	ld	hl,konran_msg$
+	jp	put_win_msg
+	
+konran_msg$:
+	extern	konran_msg_23_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw konran_msg_23_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+konran_sippai:
+	cp	76
+	ret	z
+
+	ld	c,50
+	call	wait_vb_s
+	jp	umakukimaran
+	
+sp_mahi_only:
+	ld	hl,mahi_only_sub
+	ld	b,014h
+	jp	bank_push_call
+
+sp_migawari:
+	ld	hl,migawari_sub
+	ld	b,05h
+	jp	bank_push_call
+
+
+sp_katamaru:
+	ld	hl,mymons_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+	ld	hl,enemy_cond4
+
+pass1$:
+	set	5,(hl)			; katamaru bit on
+	ret
+
+
+katamaru_bit_off:
+	push	hl
+	ld	hl,enemy_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+	ld	hl,mymons_cond4
+
+pass1$:
+	res	5,(hl)			; katamaru bit off
+	pop	hl
+	ret
+
+sp_ikari:
+	ld	hl,mymons_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+	ld	hl,enemy_cond4
+
+pass1$:
+	set	6,(hl)			; ikari bit on
+	ret
+
+sp_monomane:
+	ld	c,50
+	call	wait_vb_s
+
+	call	avoid_check
+
+	ld	a,(avoid_flg)
+	and	a
+	jr	nz,sippai$
+
+	ld	a,(attack_turn)
+	and	a
+
+	ld	hl,mymons_data + 19
+	ld	a,(mymons_cond3)
+	jr	nz,rnd$
+
+	ld	a,(tuushin_flg)
+	cp	4
+	jr	nz,normal$
+
+	ld	hl,enemy_data + 19
+	ld	a,(enemy_cond3)
+rnd$:
+	bit	6,a					; kieteiru bit
+	jr	nz,sippai$
+
+rnd2$:
+	push	hl
+	call	fight_rnd
+	and	03h
+	ld	c,a
+	ld	b,0
+	
+	add	hl,bc
+	ld	a,(hl)
+	pop	hl
+	and	a
+	jr	z,rnd2$
+	
+	ld	d,a
+
+	ld	a,(attack_turn)
+	and	a
+
+	ld	hl,mymons_data + 19
+	ld	a,(allow_sv_waza)
+	jr	z,copy$
+
+	ld	hl,enemy_data + 19
+	ld	a,(ctrl_move_val + ENE_WAZA_SE_POS)
+	jr	copy$
+
+normal$:
+	ld	a,(enemy_cond3)
+	bit	6,a					; kieteiru bit
+	jr	nz,sippai$
+
+	ld	a,(allow_cnt)
+	push	af
+
+	ld	a,1					; monomane mode
+	ld	(ctrl_move_val + WAZA_SELECT_MODE),a
+	call	waza_select
+
+	call	pop_vram
+
+	ld	hl,enemy_data + 19
+	ld	a,(allow_cnt)
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	d,(hl)
+
+	pop	af
+	ld	hl,mymons_data + 19
+copy$:
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,d
+	ld	(hl),a
+	ld	(in_dat),a
+	call	get_waza_name
+	
+	call	sp_effect_call4
+
+	ld	hl,monomane_msg$
+	jp	put_win_msg
+
+sippai$:
+	jp	umakukimaran2
+
+
+monomane_msg$:
+	extern	monomane_msg_24_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw monomane_msg_24_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sp_yadorigi:
+	ld	hl,yadorigi_sub
+	ld	b,0ah
+	jp	bank_push_call
+
+sp_haneru:
+	call	sp_effect_call4
+
+	jp	nanimookoran
+	
+sp_kanashibari:
+	call	avoid_check
+
+	ld	a,(avoid_flg)
+	and	a
+	jr	nz,sippai$
+
+	ld	de,e_renzoku_cnt4
+	ld	hl,enemy_data + 19
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	de,m_renzoku_cnt4
+	ld	hl,mymons_data + 19
+pass1$:
+	ld	a,(de)
+	and	a
+	jr	nz,sippai$
+
+loop$:
+	push	hl
+	call	fight_rnd
+	and	03h
+	
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	a,(hl)
+	pop	hl
+	and	a
+	jr	z,loop$
+
+	ld	(in_dat),a
+
+	push	hl
+
+	ld	a,(attack_turn)
+	and	a
+	ld	hl,mymons_data + 36		; pp
+	jr	nz,pass2$
+
+	ld	a,(tuushin_flg)
+	cp	4
+	pop	hl
+	jr	nz,pass3$
+	push	hl
+
+	ld	hl,enemy_data + 36		; pp
+pass2$:
+	push	hl
+	ld	a,(hli)
+	or	(hl)
+	inc	hl
+	or	(hl)
+	inc	hl
+	or	(hl)
+	and	03fh
+	pop	hl
+	jr	z,pop_sippai$
+
+	add	hl,bc
+	ld	a,(hl)
+	pop	hl
+	and	a
+	jr	z,loop$
+	
+pass3$:
+	call	fight_rnd
+	and	07h
+	inc	a
+	inc	c
+	swap	c
+	add	a,c	
+	ld	(de),a
+	
+	call	sp_effect_call
+
+	ld	hl,ctrl_move_val + M_KANASHIBARI
+	ld	a,(attack_turn)
+	and	a	
+	jr	nz,pass4$
+	inc	hl
+pass4$:
+	ld	a,(in_dat)
+	ld	(hl),a
+
+	call	get_waza_name
+	ld	hl,kanashibari_msg$
+	jp	put_win_msg
+
+pop_sippai$:
+	pop	hl
+sippai$:
+	jp	umakukimaran2
+
+
+kanashibari_msg$:
+	extern	kanashibari_msg_25_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kanashibari_msg_25_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sp_nekonikoban:
+	ld	hl,nekonikoban_sub
+	ld	b,0bh
+	jp	bank_push_call
+
+sp_texture:
+	ld	hl,texture_sub
+	ld	b,04h
+	jp	bank_push_call
+
+sp_kuroikiri:
+	ld	hl,kuroikiri_sub
+	ld	b,04h
+	jp	bank_push_call
+
+sp_jikosaisei:
+	ld	hl,jikosaisei_sub
+	ld	b,0eh
+	jp	bank_push_call
+
+sp_henshin:
+	ld	hl,henshin_sub
+	ld	b,0eh
+	jp	bank_push_call
+
+sp_kabe:
+	ld	hl,kabe_sub
+	ld	b,0eh
+	jp	bank_push_call
+
+;********************************
+;	same message		*
+;********************************
+koukanashi_msg:
+	extern	koukanashi_msg_26_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw koukanashi_msg_26_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+nanimookoran:
+	ld	hl,nanimookoran_msg
+	jp	put_win_msg
+
+nanimookoran_msg:
+	extern	nanimookoran_msg_27_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw nanimookoran_msg_27_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+umakukimaran:
+	ld	a,(ctrl_move_val +TSUIKA)
+	and	a
+	ret	nz
+
+umakukimaran2:
+	ld	hl,umakukimaran_msg
+	jp	put_win_msg
+
+umakukimaran_msg:
+	extern	umakukimaran_msg_28_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw umakukimaran_msg_28_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sippai:
+	ld	hl,sippai_msg
+	jp	put_win_msg
+
+sippai_msg:
+	extern	sippai_msg_29_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw sippai_msg_29_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+heiki_msg:
+	extern	heiki_msg_30_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw heiki_msg_30_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+mahi_msg_put:
+	ld	hl,mahi_msg1
+	jp	put_win_msg
+
+mahi_msg1:
+	extern	mahi_msg1_31_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw mahi_msg1_31_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+;************************
+;  migawari_avoid	*
+;************************
+migawari_avoid:
+	push	hl
+	ld	hl,enemy_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+	ld	hl,mymons_cond4
+
+pass1$:
+	bit	4,(hl)			; migawari bit check
+	pop	hl
+	ret
+
+;************************
+;  sp_effect_call	*
+;************************
+sp_effect_call:
+	ld	a,(attack_turn)
+	and	a
+	ld	a,(m_kougeki)			; waza no
+	jr	z,pass1$
+
+	ld	a,(e_kougeki)			; waza no
+pass1$:
+	and	a
+	ret	z
+
+sp_effect_call2:
+	ld	(effect_no),a
+	ld	a,(attack_turn)
+	and	a
+	ld	a,6
+	jr	z,pass1$
+
+	ld	a,3
+pass1$:
+	ld	(anime_buf),a			; window shake kind
+	jp	sp_effect
+
+
+sp_effect_call4:
+	xor	a
+	ld	(anime_buf),a
+	ld	a,(attack_turn)
+	and	a
+	ld	a,(m_kougeki)			; waza no
+	jr	z,pass1$
+
+	ld	a,(e_kougeki)			; waza no
+pass1$:
+	and	a
+	ret	z
+
+sp_effect_call3:
+	ld	(effect_no),a
+
+sp_effect:
+	push	hl
+	push	de
+	push	bc
+	ld	a,B_EFFECT_SELECT
+	call	bank2bank
+	pop	bc
+	pop	de
+	pop	hl
+	ret
+
+bank5	group	5
+	
+migawari_sub:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,mymons_data + 26
+	ld	de,ctrl_move_val + M_MIGAWARI_HP
+	ld	bc,mymons_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+	ld	hl,enemy_data + 26
+	ld	de,ctrl_move_val + E_MIGAWARI_HP
+	ld	bc,enemy_cond4
+
+pass1$:
+	ld	a,(bc)
+	bit	4,a
+	jr	nz,sippai1$
+	
+	push	bc
+
+	ld	a,(hli)			; maxHP (high)
+	ld	b,(hl)			; maxHP (low)
+	srl	a
+	rr	b
+	srl	a
+	rr	b				; 1 / 4
+
+	push	de
+	ld	de,-14
+	add	hl,de
+	pop	de
+
+	ld	a,b
+	ld	(de),a
+	ld	a,(hld)			; nowHP (low)
+	sub	b
+	ld	d,a
+	ld	a,(hl)			; nowHP (high)
+	sbc	a,0
+	pop	bc
+
+	jr	c,sippai2$
+
+	ld	(hli),a
+	ld	(hl),d
+
+	ld	h,b
+	ld	l,c
+	set	4,(hl)
+	
+	ld	a,(my_lvl)
+	bit	7,a
+
+	ld	hl,sp_effect_call4
+	ld	b,0fh
+	jr	z,pass2$
+
+	ld	hl,migawari
+	ld	b,01eh
+pass2$:
+	call	bank_push_call
+
+	ld	hl,migawari_msg$
+	call	put_win_msg
+
+	ld	hl,status_sub_all
+	ld	b,0fh
+	jp	bank_push_call
+
+sippai1$:
+	ld	hl,sippai_msg1$
+	jr	sippai3$
+
+sippai2$:
+	ld	hl,sippai_msg2$
+sippai3$:
+	jp	put_win_msg
+
+migawari_msg$:
+	extern	migawari_msg_32_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw migawari_msg_32_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+sippai_msg1$:
+	extern	sippai_msg1_33_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw sippai_msg1_33_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sippai_msg2$:
+	extern	sippai_msg2_34_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw sippai_msg2_34_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+bankb	group	11
+
+nekonikoban_sub:
+	xor	a
+	ld	hl,table_data
+	ld	(hli),a
+	ld	a,(attack_turn)
+	and	a
+	ld	a,(mymons_data + 25)			; level
+	jr	z,pass1$
+	ld	a,(enemy_data + 25)			; level
+pass1$:
+	add	a,a
+	ld	(calc_work3),a
+	xor	a
+	ld	(calc_work0),a
+	ld	(calc_work1),a
+	ld	(calc_work2),a
+	ld	a,100
+	ld	(calc_work4),a
+	ld	b,4
+	call	div_direct
+	ld	a,(calc_work3)
+	ld	(hli),a
+	
+	ld	a,(calc_work4)			; amari
+	ld	(calc_work3),a
+	ld	a,10
+	ld	(calc_work4),a
+	ld	b,4
+	call	div_direct
+	ld	a,(calc_work3)
+	swap	a
+	ld	b,a
+	ld	a,(calc_work4)
+	add	a,b
+	ld	(hl),a
+
+	ld	de,ctrl_move_val + NEKONIKOBAN + 2
+;	ld	hl,table_data + 2
+	ld	c,3
+
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	ld	hl,nekonikoban_msg$
+	jp	put_win_msg
+	
+nekonikoban_msg$:
+	extern	nekonikoban_msg_35_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw nekonikoban_msg_35_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+bank9	group	9
+
+kiaidame_sub:
+	ld	hl,mymons_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,enemy_cond4
+pass1$:
+	bit	2,(hl)
+	jr	nz,sippai$
+
+	set	2,(hl)
+
+	ld	hl,sp_effect_call4
+	ld	b,0fh
+	call	bank_push_call
+
+	ld	hl,kiaidame_msg$
+	jp	put_win_msg
+
+sippai$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,umakukimaran2
+	ld	b,0fh
+	jp	bank_push_call
+
+kiaidame_msg$:
+	db	E_WAIT
+	extern	kiaidame_msg_36_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kiaidame_msg_36_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+banka	group	10
+
+yadorigi_sub:
+	ld	hl,avoid_check
+	ld	b,0fh
+	call	bank_push_call
+
+	ld	a,(avoid_flg)
+	and	a
+	jr	nz,sippai$
+	
+	ld	hl,enemy_cond4
+	ld	de,enemy_data + 16
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+	ld	hl,mymons_cond4
+	ld	de,mymons_data + 16
+	
+pass1$:
+	ld	a,(de)
+	cp	KUSA_TYPE
+	jr	z,sippai$
+
+	inc	de
+	ld	a,(de)
+	cp	KUSA_TYPE
+	jr	z,sippai$
+
+	bit	7,(hl)
+	jr	nz,sippai$
+
+	set	7,(hl)
+
+	ld	hl,sp_effect_call4
+	ld	b,0fh
+	call	bank_push_call
+
+	ld	hl,yadorigi_msg$
+	jp	put_win_msg
+
+sippai$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,kawashita_msg$
+	jp	put_win_msg
+
+yadorigi_msg$:
+	extern	yadorigi_msg_37_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw yadorigi_msg_37_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+kawashita_msg$:
+	extern	kawashita_msg_38_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kawashita_msg_38_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+bank14	group	20
+
+mahi_only_sub:
+	ld	hl,enemy_data + 15		; condition
+	ld	de,m_kougeki + 3		; waza zokusei
+	ld	a,(attack_turn)
+	and	a
+	jp	z,pass1$
+
+	ld	hl,mymons_data + 15		; condition
+	ld	de,e_kougeki + 3		; waza zokusei
+pass1$:
+	ld	a,(hl)				; condition
+	and	a
+	jr	nz,sippai$
+
+	ld	a,(de)
+	cp	THUNDER_TYPE
+	jr	nz,pass2$
+
+	ld	b,h
+	ld	c,l
+
+	inc	bc
+	ld	a,(bc)
+	cp	JIMEN_TYPE
+	jr	z,sippai2$
+	inc	bc
+	ld	a,(bc)
+	cp	JIMEN_TYPE
+	jr	z,sippai2$
+
+pass2$:
+	push	hl
+	ld	hl,avoid_check
+	ld	b,0fh
+	call	bank_push_call
+	pop	hl
+	ld	a,(avoid_flg)
+	and	a
+	jr	nz,sippai$
+
+	set	6,(hl)				; mahi bit on
+
+	ld	hl,discount_quick
+	ld	b,0fh
+	call	bank_push_call
+
+	ld	c,30
+	call	wait_vb_s
+
+	ld	hl,sp_effect_call4
+	ld	b,0fh
+	call	bank_push_call
+
+	ld	hl,mahi_msg_put
+	ld	b,0fh
+	jp	bank_push_call
+
+sippai$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,sippai
+	ld	b,0fh
+	jp	bank_push_call
+
+sippai2$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,koukanaimsg	
+	ld	b,0fh
+	jp	bank_push_call
+
+bank4	group	4
+
+sp_tossin_sub:
+	ld	a,(attack_turn)
+	and	a
+	ld	a,(m_kougeki)
+	ld	hl,mymons_data + 26		; maxHP (high)
+	jr	z,z5$
+
+	ld	a,(e_kougeki)
+	ld	hl,enemy_data + 26		; maxHP (high)
+	
+z5$:
+	ld	d,a
+
+	ld	a,(power_value1)
+	ld	b,a
+	ld	a,(power_value1 + 1)
+	ld	c,a
+
+	srl	b
+	rr	c
+	ld	a,d
+	cp	165				; waruagaki
+	jr	z,z7$
+
+	srl	b
+	rr	c				; bc = bc / 4
+;	srl	b
+;	rr	c				; bc = bc / 8
+
+z7$:
+	ld	a,b	
+	or	c
+	jr	nz,z10$
+	
+	inc	c
+z10$:
+	ld	a,(hli)
+	ld	(yes_no_map + 1),a
+	ld	a,(hl)
+	ld	(yes_no_map),a
+
+	push	bc
+	ld	bc,-14
+	add	hl,bc				; nowHP (low)
+	pop	bc
+
+	ld	a,(hl)
+	ld	(yes_no_map + 2),a
+	sub	c
+	ld	(hld),a
+	ld	(yes_no_map + 4),a
+	
+	ld	a,(hl)
+	ld	(yes_no_map + 3),a
+	sbc	a,b
+	ld	(hl),a
+	ld	(yes_no_map + 5),a
+	jr	nc,z20$
+
+	xor	a
+	ld	(hli),a
+	ld	(hl),a
+	ld	hl,yes_no_map + 4
+	ld	(hli),a
+	ld	(hl),a
+	
+z20$:
+	S_POS	10,9
+	ld	a,(attack_turn)
+	and	a
+	ld	a,1
+	jr	z,z30$
+
+	S_POS	2,2
+	xor	a
+z30$:
+	ld	(mons_or_item),a
+	ld	a,B_HP_GRAPH_INCDEC
+	call	bank2bank
+
+	ld	hl,handou_msg$
+	jp	put_win_msg
+	
+handou_msg$:
+	extern	handou_msg_39_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw handou_msg_39_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+texture_sub:
+	ld	hl,enemy_data + 16
+	ld	de,mymons_data + 16
+	ld	a,(attack_turn)
+	and	a
+	ld	a,(enemy_cond3)
+	jr	z,pass1$
+	
+	push	hl
+	ld	h,d
+	ld	l,e
+	pop	de
+	ld	a,(mymons_cond3)
+
+pass1$:
+	bit	6,a				; kieteiru bit
+	jr	nz,sippai$
+
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hl)
+	ld	(de),a
+
+	ld	hl,sp_effect_call4
+;	ld	b,0fh
+;	call	bank_push_call
+	call	bank_push_call_f
+
+	ld	hl,harituke_msg$
+	jp	put_win_msg
+
+harituke_msg$:
+	extern	harituke_msg_40_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw harituke_msg_40_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sippai$:
+	ld	hl,umakukimaran2
+bank_push_call_f:
+	ld	b,0fh
+	jp	bank_push_call
+
+kuroikiri_sub:
+	ld	a,7
+	ld	hl,auto_move_val + 11		; status counter
+	call	seijochi$
+
+	ld	hl,auto_move_val + 31		; status counter
+	call	seijochi$
+
+	ld	hl,auto_move_val + 3	; kougekiryoku address (high)
+	ld	de,mymons_data + 28
+	call	seijochi2$
+
+	ld	hl,auto_move_val + 23	; kougekiryoku address (high) 
+	ld	de,enemy_data + 28
+	call	seijochi2$
+	
+	ld	hl,enemy_data + 15
+	ld	de,ctrl_move_val + ENE_WAZA_SE_NO
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+	ld	hl,mymons_data + 15
+	dec	de
+pass1$:
+	ld	a,(hl)
+	ld	(hl),0
+	and	027h		; sleep or ice
+	jr	z,pass2$
+
+	ld	a,0ffh
+	ld	(de),a
+pass2$:
+	
+	xor	a
+	ld	(m_renzoku_cnt4),a
+	ld	(e_renzoku_cnt4),a
+	ld	hl,ctrl_move_val + M_KANASHIBARI
+	ld	(hli),a
+	ld	(hl),a
+	
+	ld	hl,mymons_cond3
+;	res	7,(hl)				; konran bit off
+;	inc	hl
+;	ld	a,(hl)				; mymons_cond4
+;	and	078h				; yokuataru effect gird
+;	ld	(hli),a				; critical up ydorigi bit off
+;	ld	a,(hl)				; mymons_cond5
+;	and	0f8h				; doku doku hikari no kabe
+;	ld	(hl),a				; refrector bit off
+
+	call	bit_off$			; 1996 9-18 by Sige
+
+	ld	hl,enemy_cond3
+
+;	res	7,(hl)				; konran bit off
+;	inc	hl
+;	ld	a,(hl)				; enemy_cond4
+;	and	078h				; yokuataru effect gird
+;	ld	(hli),a				; critical up ydorigi bit off
+;	ld	a,(hl)				; enemy_cond5
+;	and	0f8h				; doku doku hikari no kabe
+;	ld	(hl),a				; refrector bit off
+	call	bit_off$			; 1996 9-18 by Sige
+
+	ld	hl,sp_effect_call4
+;	ld	b,0fh
+;	call	bank_push_call
+	call	bank_push_call_f
+
+	ld	hl,kuroikiri_msg$
+	jp	put_win_msg
+
+bit_off$:					; 1996 9-18 by Sige
+	res	7,(hl)				; konran bit off
+
+	inc	hl
+	ld	a,(hl)				; enemy_cond4
+	and	078h				; yokuataru effect gird
+	ld	(hli),a				; critical up ydorigi bit off
+
+	ld	a,(hl)				; enemy_cond5
+	and	0f8h				; doku doku hikari no kabe
+	ld	(hl),a				; refrector bit off
+	ret
+
+seijochi$:
+	ld	b,8
+loop$:
+	ld	(hli),a
+	dec	b
+	jr	nz,loop$
+
+	ret
+
+seijochi2$:
+	ld	b,8
+loop2$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	b
+	jr	nz,loop2$
+
+	ret
+
+kuroikiri_msg$:
+	extern	kuroikiri_msg_41_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kuroikiri_msg_41_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+banke	group	14
+
+jikosaisei_sub:
+	ld	a,(attack_turn)
+	and	a
+
+	ld	de,mymons_data + 12		; now HP pos (high)
+	ld	hl,mymons_data + 26		; max HP pos (high)
+	ld	a,(m_kougeki)
+	jr	z,pass00$
+
+	ld	de,enemy_data + 12		; now HP pos (high)
+	ld	hl,enemy_data + 26		; max HP pos (high)
+	ld	a,(e_kougeki)
+
+pass00$:
+	ld	b,a
+	
+	ld	a,(de)
+	cp	(hl)
+	inc	de
+	inc	hl
+	ld	a,(de)
+	sbc	a,(hl)
+	jp	z,sippai$
+
+	ld	a,b
+	cp	156				; nemuru?
+	jr	nz,pass2$	
+
+	push	hl
+	push	de
+	push	af
+
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,mymons_data + 15		; condition	
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass0$
+	ld	hl,enemy_data + 15		; condition	
+
+pass0$:
+	ld	a,(hl)
+	and	a
+	ld	(hl),2
+	
+	ld	hl,kaifuku_msg1$
+	jr	z,pass1$
+
+	ld	hl,kaifuku_msg2$
+
+pass1$:
+	call	put_win_msg
+
+	pop	af
+	pop	de
+	pop	hl
+
+pass2$:
+	ld	a,(hld)
+	ld	(yes_no_map),a
+	ld	c,a
+	ld	a,(hl)
+	ld	(yes_no_map + 1),a
+	ld	b,a
+	jr	z,pass3$			; nemuru
+
+	srl	b
+	rr	c				; 1 / 2
+pass3$:
+	ld	a,(de)
+	ld	(yes_no_map + 2),a
+	add	a,c
+	ld	(de),a
+	ld	(yes_no_map + 4),a
+	dec	de
+	ld	a,(de)
+	ld	(yes_no_map + 3),a
+	adc	a,b
+	ld	(de),a
+	ld	(yes_no_map + 5),a
+	
+	inc	hl
+	inc	de
+	ld	a,(de)
+	dec	de
+	sub	(hl)
+	dec	hl
+	ld	a,(de)
+	sbc	a,(hl)
+	jr	c,pass4$
+	
+	ld	a,(hli)
+	ld	(de),a
+	ld	(yes_no_map + 5),a
+	inc	de
+	ld	a,(hl)
+	ld	(de),a
+	ld	(yes_no_map + 4),a
+	
+pass4$:
+	ld	hl,sp_effect_call4
+	call	bank_push_callf
+	
+;	ld	hl,status_sub_all
+;	ld	b,0fh
+;	call	bank_push_call
+	
+	ld	a,(attack_turn)
+	and	a
+	S_POS	10,9
+	ld	a,1
+	jr	z,graph_inc$
+
+	S_POS	2,2
+	xor	a
+graph_inc$:
+	ld	(mons_or_item),a
+	ld	a,B_HP_GRAPH_INCDEC
+	call	bank2bank
+
+	ld	hl,status_sub_all
+	call	bank_push_callf
+	
+	ld	hl,kaifuku_msg3$
+	jp	put_win_msg
+	
+sippai$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,umakukimaran2
+	jp	bank_push_callf
+
+kaifuku_msg1$:
+	extern	kaifuku_msg1_42_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kaifuku_msg1_42_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+;------------------- for blue version by Sige 96-9-24 -----
+kaifuku_msg2$:
+	extern	kaifuku_msg2_43_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kaifuku_msg2_43_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+;------------------- for blue version by Sige 96-9-24 -----
+
+kaifuku_msg3$:
+	extern	kaifuku_msg3_44_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kaifuku_msg3_44_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+henshin_sub:
+	ld	hl,mymons_data + 11
+	ld	de,enemy_data + 11
+	ld	bc,enemy_cond5
+	ld	a,(enemy_cond3)
+	ld	a,(attack_turn)
+	and	a
+	jr	nz,pass1$
+
+	ld	hl,enemy_data + 11
+	ld	de,mymons_data + 11
+	ld	bc,mymons_cond5
+
+;	xor	a
+	ld	(allow_sv_waza),a	; a = 0
+
+	ld	a,(mymons_cond3)
+pass1$:
+	bit	6,a
+	jp	nz,sippai$
+
+	push	hl
+	push	de
+	push	bc
+
+	ld	hl,mymons_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,jump1$
+	ld	hl,enemy_cond4
+	
+jump1$:
+	bit	4,(hl)
+	push	af
+	ld	hl,migawari1
+	ld	b,01eh
+	call	nz,bank_push_call
+
+	ld	a,(my_lvl)
+	add	a,a
+	ld	hl,sp_effect_call4
+	ld	b,0fh
+	jr	nc,pass4$
+
+	ld	hl,hensin
+	ld	b,01eh
+pass4$:
+	call	bank_push_call
+
+	ld	hl,migawari2
+	ld	b,01eh
+	pop	af
+	call	nz,bank_push_call
+
+	pop	bc
+	ld	a,(bc)
+	set	3,a			; henshin bit on
+	ld	(bc),a
+
+	pop	de
+	pop	hl
+	push	hl
+
+	ld	a,(hl)
+	ld	(de),a			; monster No
+
+	ld	bc,5
+	add	hl,bc
+	inc	de
+	inc	de
+	inc	de
+	inc	de
+	inc	de
+;	ld	bc,7
+	inc	bc
+	inc	bc
+	call	block_move		; zokusei ~ waza4
+
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass2$
+
+	ld	a,(de)
+	ld	(ctrl_move_val + POWER_RND_SAVE),a
+	inc	de
+	ld	a,(de)
+	ld	(ctrl_move_val + POWER_RND_SAVE2),a
+	dec	de
+
+pass2$:
+	ld	a,(hli)			; power rnd (high)
+	ld	(de),a
+	inc	de
+	ld	a,(hli)			; power rnd (low)
+	ld	(de),a
+	inc	de
+
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	de
+	inc	de
+	inc	de
+
+	ld	bc,8
+	call	block_move		; attack value ~ special value
+
+	ld	bc,-17
+	add	hl,bc
+
+	ld	b,4
+loop$:
+	ld	a,(hli)
+	and	a
+	jr	z,pass3_0$
+
+	ld	a,5
+	ld	(de),a			; pp
+	inc	de
+	dec	b
+	jr	nz,loop$
+	jr	pass3$
+
+pass3_0$:
+	xor	a
+	ld	(de),a
+	inc	de
+	dec	b
+	jr	nz,pass3_0$
+
+pass3$:
+	pop	hl
+
+	ld	a,(hl)			; monster No
+	ld	(in_dat),a
+	call	get_mons_name
+
+	ld	hl,auto_move_val + 23	; kougekiryoku address (high) 
+	ld	de,auto_move_val + 3	; kougekiryoku address (high)
+	call	block_move$
+	
+	ld	hl,auto_move_val + 31		; status counter
+	ld	de,auto_move_val + 11		; status counter
+	call	block_move$
+
+	ld	hl,henshin_msg$
+	jp	put_win_msg
+	
+block_move$:
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass5$
+
+	push	hl
+	ld	h,d
+	ld	l,e
+	pop	de
+
+pass5$:
+	ld	bc,8
+	jp	block_move
+
+sippai$:
+	ld	hl,umakukimaran2
+	jp	bank_push_callf
+
+henshin_msg$:
+	extern	henshin_msg_45_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw henshin_msg_45_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+kabe_sub:
+	ld	hl,mymons_cond5
+	ld	de,m_kougeki + 1
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+	ld	hl,enemy_cond5
+	ld	de,e_kougeki + 1
+
+pass1$:
+	ld	a,(de)
+	cp	64			; hikari no kabe
+	jr	nz,pass2$
+
+	bit	1,(hl)
+	jr	nz,sippai$
+
+	set	1,(hl)
+	ld	hl,kabe_msg1$
+	jr	pass3$
+
+pass2$:
+	bit	2,(hl)
+	jr	nz,sippai$
+
+	set	2,(hl)
+
+	ld	hl,kabe_msg2$
+
+pass3$:
+	push	hl
+	ld	hl,sp_effect_call4
+	call	bank_push_callf
+	pop	hl
+
+	jp	put_win_msg
+
+sippai$:
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,umakukimaran2
+	jp	bank_push_callf
+
+kabe_msg1$:
+	extern	kabe_msg1_46_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kabe_msg1_46_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+kabe_msg2$:
+	extern	kabe_msg2_47_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw kabe_msg2_47_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+bank_push_callf:
+	ld	b,0fh
+	jp	bank_push_call
+
+bankc	group	12
+
+effect_gird_sub:
+	ld	hl,mymons_cond4
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$
+
+	ld	hl,enemy_cond4
+pass1$:
+	bit	1,(hl)
+	jr	nz,sippai$
+
+	set	1,(hl)
+
+	ld	hl,sp_effect_call4
+	ld	b,0fh
+	call	bank_push_call
+
+	ld	hl,effect_msg$
+	jp	put_win_msg
+
+sippai$:
+	ld	hl,umakukimaran2
+	ld	b,0fh
+	jp	bank_push_call
+
+
+
+effect_msg$:
+	extern	effect_msg_48_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw effect_msg_48_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+sentoufunou_sub:
+	ld	hl,power_value1
+	xor	a
+	ld	(hli),a
+	ld	(hl),a
+
+	dec	a
+	ld	(critical_flg),a
+
+	ld	hl,mymons_data + 33		; quick ( low )
+	ld	de,enemy_data + 33		; quick ( low )
+	ld	a,(attack_turn)
+	and	a
+	jr	z,pass1$			; my turn
+
+	ld	hl,enemy_data + 33		; quick ( low )
+	ld	de,mymons_data + 33		; quick ( low )
+pass1$:
+	ld	a,(de)
+	dec	de
+	ld	b,a
+	ld	a,(hld)
+	sub	b
+	ld	a,(de)
+	ld	b,a
+	ld	a,(hl)
+	sbc	a,b
+	jr	c,avoid$		; offence quick < deffence quick	
+	
+	ld	hl,power_value1
+	ld	a,0ffh
+	ld	(hli),a
+	ld	(hl),a
+	ld	a,2			; ichigeki hissatsu ! message mean
+	ld	(critical_flg),a
+
+	ret
+
+avoid$:
+	ld	a,1
+	ld	(avoid_flg),a
+	ret
+
+bank1	group	1
+
+sp_suck_sub:
+	ld	hl,power_value1
+	ld	a,(hl)
+	srl	a
+	ld	(hli),a
+	ld	a,(hl)
+	rr	a
+	ld	(hld),a
+	or	(hl)
+	jr	nz,suck_0$
+
+	inc	hl
+	inc	(hl)
+suck_0$:
+	ld	hl,mymons_data + 12	; nowHP (high)
+	ld	de,mymons_data + 26	; maxHP (high)
+	ld	a,(attack_turn)
+	and	a
+	jp	z,suck_1$
+
+	ld	hl,enemy_data + 12	; nowHP (high)
+	ld	de,enemy_data + 26	; maxHP (high)
+
+suck_1$:
+	ld	bc,yes_no_map + 3
+	ld	a,(hli)
+	ld	(bc),a
+	ld	a,(hl)
+	dec	bc
+	ld	(bc),a
+
+	ld	a,(de)
+	dec	bc
+	ld	(bc),a
+	inc	de
+	ld	a,(de)
+	dec	bc
+	ld	(bc),a
+
+	ld	a,(power_value1 + 1)
+	ld	b,(hl)			; nowHP (low)
+	add	a,b
+	ld	(hld),a
+	ld	(yes_no_map + 4),a
+	ld	a,(power_value1)
+	ld	b,(hl)			; nowHP (high)
+	adc	a,b
+	ld	(hli),a
+	ld	(yes_no_map + 5),a
+	jr	c,hp_max$
+
+	ld	a,(hld)			; nowHP (low)
+	ld	b,a
+	ld	a,(de)			; maxHP (low)
+	dec	de
+	sub	b
+	ld	a,(hli)			; nowHP (high)
+	ld	b,a
+	ld	a,(de)			; maxHP (high)
+	inc	de
+	sbc	a,b
+	jr	nc,suck_2$
+
+hp_max$:
+	ld	a,(de)			; maxHP (low)
+	ld	(hld),a			; nowHP (low)
+	ld	(yes_no_map + 4),a
+	dec	de
+	ld	a,(de)			; maxHP (high)
+	ld	(hli),a			; nowHP (high)
+	ld	(yes_no_map + 5),a
+	inc	de
+
+suck_2$:
+	ld	a,(attack_turn)
+	and	a
+	S_POS	10,9
+	ld	a,1
+	jr	z,suck_graph_inc$
+
+	S_POS	2,2
+;	ld	a,0
+	xor	a
+suck_graph_inc$:
+	ld	(mons_or_item),a
+	ld	a,B_HP_GRAPH_INCDEC
+	call	bank2bank
+
+	ld	a,B_STATUS_SUB1
+	call	bank2bank
+
+	ld	a,B_STATUS_SUB2
+	call	bank2bank
+
+;	call	renew_now_hp
+	ld	hl,renew_now_hp
+	ld	b,0fh
+	call	bank_push_call
+
+	ld	hl,suck_msg1$
+	ld	a,(attack_turn)
+	and	a
+	ld	a,(m_kougeki + 1)
+	jr	z,suck_3$
+
+	ld	a,(e_kougeki + 1)
+suck_3$:
+	cp	8
+	jr	nz,suck_4$
+
+	ld	hl,yumekui_msg1$
+suck_4$:
+	jp	put_win_msg
+
+suck_msg1$:
+	extern	suck_msg1_49_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw suck_msg1_49_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+yumekui_msg1$:
+	extern	yumekui_msg1_50_SPATTACK
+	db I_MSG2	; mvmsg追加
+	dw yumekui_msg1_50_SPATTACK	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+

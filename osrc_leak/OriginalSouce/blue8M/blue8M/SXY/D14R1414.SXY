@@ -1,0 +1,54 @@
+; 07/06/95		18:12:59
+dun_tbl$:
+	db	003h
+ie_tbl$:
+	db	001h
+	db	004h,018h,001h,D14R1F8
+kanban_tbl$:
+	db	001h
+	db	006h,004h,3
+hito_tbl$:
+	db	006h
+	db	KANNA
+	db	009h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	001h+040h			; battle type
+	db	0f4h				; dealer number
+	db	001h				; pattern of taking
+	db	SHIBA
+	db	007h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	002h+040h			; battle type
+	db	0e9h				; dealer number
+	db	001h				; pattern of taking
+	db	KIKUKO
+	db	005h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	003h+040h			; battle type
+	db	0f6h				; dealer number
+	db	001h				; pattern of taking
+	db	WATARU
+	db	003h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	004h+040h			; battle type
+	db	0f7h				; dealer number
+	db	001h				; pattern of taking
+	db	RIVAL
+	db	001h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	005h+040h			; battle type
+	db	0f3h				; dealer number
+	db	001h				; pattern of taking
+	db	OOKIDO
+	db	006h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	006h
+ram_map_tbl$:
+	dw	013h * 003h + 00dh + ram_map
+	db	004h,018h

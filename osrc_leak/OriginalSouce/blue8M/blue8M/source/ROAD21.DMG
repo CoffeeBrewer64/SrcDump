@@ -1,0 +1,458 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		macro.h
+	include		group.def
+
+
+bank15	group	G_BANK15
+
+
+	public	road21_event
+	public	road21_msg
+
+	
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+seq_r21		equ	seq_ctrl_buf + 2eh
+
+
+road21_event:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,r21_tbl
+	ld	a,(seq_r21)
+	call	battle_sequence
+	ld	(seq_r21),a
+
+	ret
+
+
+r21_tbl:
+	initndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+road21_msg:
+	msgndw	msg1,msg_turi1
+	ndw	msg2,msg_turi2
+	ndw	msg3,msg_kaipan1
+	ndw	msg4,msg_skin
+	ndw	msg5,msg_kaipan2
+	ndw	msg6,msg_kaipan3
+	ndw	msg7,msg_kaipan4
+	ndw	msg8,msg_turi3
+	ndw	msg9,msg_turi4
+
+
+
+dealer_talk:
+d_talk1:
+	db	msg_turi1,000h
+	dw	ev_r21 + 0
+	dw	msg1_0
+	dw	msg1_after
+	dw	msg1_win
+	dw	msg1_win
+
+d_talk2:
+	db	msg_turi2,000h
+	dw	ev_r21 + 0
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk3:
+	db	msg_kaipan1,040h
+	dw	ev_r21 + 0
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk4:
+	db	msg_skin,040h
+	dw	ev_r21 + 0
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk5:
+	db	msg_kaipan2,040h
+	dw	ev_r21 + 0
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+d_talk6:
+	db	msg_kaipan3,040h
+	dw	ev_r21 + 0
+	dw	msg6_0
+	dw	msg6_after
+	dw	msg6_win
+	dw	msg6_win
+
+d_talk7:
+	db	msg_kaipan4,030h
+	dw	ev_r21 + 0
+	dw	msg7_0
+	dw	msg7_after
+	dw	msg7_win
+	dw	msg7_win
+
+d_talk8:
+	db	msg_turi3,000h
+	dw	ev_r21 + 0
+	dw	msg8_0
+	dw	msg8_after
+	dw	msg8_win
+	dw	msg8_win
+
+d_talk9:
+	db	msg_turi4,000h
+	dw	ev_r21 + 0
+	dw	msg9_0
+	dw	msg9_after
+	dw	msg9_win
+	dw	msg9_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk5
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+
+msg6:
+	db	CALL_MSG
+
+	ld	hl,d_talk6
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg7:
+	db	CALL_MSG
+
+	ld	hl,d_talk7
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg8:
+	db	CALL_MSG
+
+	ld	hl,d_talk8
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg9:
+	db	CALL_MSG
+
+	ld	hl,d_talk9
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+
+msg1_0:
+	extern	msg1_0_0_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_1_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_2_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_2_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2_0:
+	extern	msg2_0_3_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_3_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_4_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_4_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_5_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_5_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_0:
+	extern	msg3_0_6_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_6_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_7_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_7_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_8_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_8_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_0:
+	extern	msg4_0_9_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_9_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_10_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_10_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_11_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_11_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg5_0:
+	extern	msg5_0_12_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_12_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_13_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_13_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_14_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_14_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg6_0:
+	extern	msg6_0_15_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg6_0_15_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_win:
+	extern	msg6_win_16_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg6_win_16_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_after:
+	extern	msg6_after_17_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg6_after_17_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg7_0:
+	extern	msg7_0_18_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg7_0_18_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_win:
+	extern	msg7_win_19_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg7_win_19_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_after:
+	extern	msg7_after_20_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg7_after_20_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg8_0:
+	extern	msg8_0_21_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg8_0_21_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_win:
+	extern	msg8_win_22_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg8_win_22_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_after:
+	extern	msg8_after_23_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg8_after_23_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg9_0:
+	extern	msg9_0_24_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg9_0_24_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_win:
+	extern	msg9_win_25_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg9_win_25_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_after:
+	extern	msg9_after_26_ROAD21
+	db I_MSG2	; mvmsg追加
+	dw msg9_after_26_ROAD21	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+

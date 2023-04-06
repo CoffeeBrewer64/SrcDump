@@ -1,0 +1,224 @@
+	include	pm_debug.def
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	vanish.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t2_room2
+
+
+	extern	table_jump
+	extern	mk_trace_cmd
+	extern	init_hero_anime
+	extern	bank2bank
+
+	extern	item_town_2A
+
+
+SHOP_TYPE	equ	2
+EXIT		=	0ffh
+
+
+seq_t2r2f1	equ	seq_ctrl_buf + 01dh
+
+
+t2_room2:
+ysiz	=	4
+xsiz	=	4
+	db	SHOP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	shop			; map data adrs
+	dw	msg1_t2r2f1		; message tbl adrs
+	dw	ev_t2r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+ev_t2r2f1:
+	call	set_msgtbl$
+
+	call	init_for_talkmap
+
+	ld	hl,ev_t2r2_tbl
+	ld	a,(seq_t2r2f1)    
+	call	table_jump			; event routine address (hl)
+
+	ret
+
+
+set_msgtbl$:
+	ld	a,(ev_t2_2)			; set in "t01r0301.src"
+	bit	0,a				; check event "otodoke-mono"
+	jr	nz,second$
+
+	ld	hl,msg1_t2r2f1
+
+	jr	set$
+
+
+second$:
+	ld	hl,msg2_t2r2f1
+
+set$:
+	ld	a,l
+	ld	(map_msg_tbl_adr + 0),a
+	ld	a,h
+	ld	(map_msg_tbl_adr + 1),a
+
+	ret
+
+
+
+ev_t2r2_tbl:
+	initndw	gogo,seq_gogo
+	ndw	obs_gogo,seq_obs_gogo
+	ndw	t2r2f1_main,seq_t2r2f1_main
+
+
+gogo:
+	call	actor_blanch
+
+	ld	a,msg_shopman1
+	ld	(work1),a
+	call	talk_map
+
+	ld	hl,ctrl_move_val
+	ld	de,cmd_gogo$
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	call	init_hero_anime
+
+	ld	a,seq_obs_gogo
+	ld	(seq_t2r2f1),a
+
+	ret
+
+
+cmd_gogo$:
+	db	020h,1				; W_L
+	db	040h,2				; W_U(bottom up command)
+	db	0ffh				; A_E
+
+
+obs_gogo:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	extern	put_wait
+	call	put_wait
+
+	ld	a,msg_shopman2
+	ld	(work1),a
+	call	talk_map
+
+	ld	bc,70 * 256 + 1
+	call	take_item
+
+	ld	hl,ev_t2_2
+	set	1,(hl)				; "otodokemono"
+
+	ld	a,seq_t2r2f1_main
+	ld	(seq_t2r2f1),a
+
+	ret
+
+
+t2r2f1_main:
+	ld	hl,ev_t2
+	bit	5,(hl)				; check Gsan4 event
+	ret	z
+
+	bit	4,(hl)				; check OBJ-Switching
+	set	4,(hl)
+	ret	nz
+
+	ld	a,T2msg8
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,T2msg7
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	ret
+
+
+
+
+msg1_t2r2f1:
+	msgndw	msg1,msg_shopman
+	ndw	msg2,msg_shounen1
+	ndw	msg3,msg_trainerm1
+	ndw	msg1_0,msg_shopman1
+	ndw	msg1_1,msg_shopman2
+
+
+msg2_t2r2f1:
+	msgndw	item_town_2A,msg_shop
+	ndw	msg2,msg_shounen21
+	ndw	msg3,msg_trainerm21
+
+
+msg1:
+	extern	msg1_0_T02R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T02R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_0:
+	extern	msg1_0_1_T02R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_1_T02R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1:
+	extern	msg1_1_2_T02R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_2_T02R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db	FANFARE6
+	db	EOM
+
+
+msg2:
+	extern	msg2_3_T02R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_3_T02R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_4_T02R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_4_T02R0201	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\t02r0201.sxy
+
+
+shop:
+	include	..\mapdata\shop_y.map
+
+
+
+

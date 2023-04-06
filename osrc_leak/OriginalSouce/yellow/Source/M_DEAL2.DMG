@@ -1,0 +1,148 @@
+
+	include		group.def
+
+bank1f	group	G_MUSIC3
+	;
+	;	Dealer02
+	;
+	;	Converting on Sat Mar  4 18:31:20 1995
+	;
+	;				by ver 1.02
+	;
+	public	Dealer21
+	public	Dealer22
+	public	Dealer23
+;----------------------------------------
+Dealer21:
+;----------------------------------------
+	db	0edh,000h,07ch
+	db	0f0h,077h
+	db	0ech,001h
+	db	0e8h
+	db	0dch,0b2h
+; P1-1
+	db	0e5h,085h
+	db	0e4h,041h
+	db	031h
+	db	011h
+	db	001h
+; P1-2
+	db	0dch,081h
+loop10$:
+	db	0e5h,043h
+	db	0feh,12
+	dw	loop10$
+;		tempo 4 		e
+;		tempo 4 		e
+;		tempo 4 		e
+; P1-3
+;		tempo 4 		e
+;		tempo 4 		e
+;		tempo 4 		e
+;		tempo 4 		e
+; P1-4
+;		tempo 4 		e
+;		tempo 4 		e
+;		tempo 4 		e
+;		tempo 4 		e
+; P1-5
+	db	043h
+	db	0e6h,0b3h
+	db	0b3h
+	db	0e5h,043h
+	db	0feh,0
+	dw	loop10$
+;----------------------------------------
+Dealer22:
+;----------------------------------------
+	db	0ech,002h
+; P2-1
+	db	0dch,0c2h
+	db	0e5h,0b1h
+	db	0dch,0c7h
+	db	0e4h,0bbh
+; P2-2
+loop20$:
+	db	0dch,0c2h
+	db	0e5h,0b3h
+	db	0e4h,033h
+	db	043h
+	db	033h
+; P2-3
+	db	011h
+	db	001h
+	db	0e5h,0b1h
+	db	091h
+	db	081h
+	db	091h
+	db	0a1h
+	db	0e4h,011h
+; P2-4
+	db	0e5h,0b3h
+	db	0e4h,013h
+	db	0e5h,0b3h
+	db	093h
+; P2-5
+	db	081h
+	db	061h
+	db	041h
+	db	031h
+	db	041h
+	db	061h
+	db	081h
+	db	091h
+	db	0feh,0
+	dw	loop20$
+;----------------------------------------
+Dealer23:
+;----------------------------------------
+	db	0dch,010h
+	db	0c7h
+; P3-1
+	db	0e3h,010h
+	db	0c0h
+	db	0e4h,0b0h
+	db	0c0h
+	db	090h
+	db	0c0h
+; P3-2
+loop30$:
+	db	0fdh
+	dw	sub31$
+; P3-3
+	db	080h
+	db	0c2h
+	db	040h
+	db	0c2h
+	db	080h
+	db	0c2h
+	db	040h
+	db	0c2h
+; P3-4
+	db	0fdh
+	dw	sub31$
+; P3-5
+	db	080h
+	db	0c2h
+	db	040h
+	db	0c2h
+	db	080h
+	db	0c2h
+	db	0b0h
+	db	0c2h
+	db	0feh,0
+	dw	loop30$
+sub31$:
+	db	080h
+	db	0c2h
+	db	040h
+	db	0c2h
+	db	080h
+	db	0c2h
+	db	040h
+	db	0c0h
+	db	060h
+	db	0c0h
+	db	0ffh
+
+

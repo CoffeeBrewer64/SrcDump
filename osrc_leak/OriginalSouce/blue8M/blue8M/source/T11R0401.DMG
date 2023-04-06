@@ -1,0 +1,86 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t11_room4
+
+	extern	minka_a
+	extern	gyaarth_play
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t11_room4:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_a			; map data adrs
+	dw	msg_t11r4f1		; message tbl adrs
+	dw	ev_t11r4f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t11r4f1
+
+
+ev_t11r4f1:
+	jp	init_for_talkmap
+
+
+msg_t11r4f1:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+	dw	msg4
+
+
+msg1:
+	extern	msg1_0_T11R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T11R0401	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_T11R0401
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T11R0401	; mvmsg追加
+	db 028h	; mvmsg追加
+
+
+	db	CALL_MSG
+
+	ld	a,36				; "poppo"
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+msg3:
+	extern	msg3_2_T11R0401
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T11R0401	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_3_T11R0401
+	db I_MSG2	; mvmsg追加
+	dw msg4_3_T11R0401	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t11r4f1:
+	include	..\sxy\t11r0401.sxy
+

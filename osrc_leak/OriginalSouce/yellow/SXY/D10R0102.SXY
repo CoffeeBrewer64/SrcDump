@@ -1,0 +1,65 @@
+; 06/06/98		01:32:16
+dun_tbl$:
+	db	02eh
+ie_tbl$:
+	db	00ah
+	db	000h,01ah,001h,D10R1F1
+	db	000h,018h,000h,D10R1F3
+	db	000h,014h,000h,D10R1F11
+	db	00bh,017h,009h,D10R1F2
+	db	003h,003h,005h,D10R1F4
+	db	00fh,003h,006h,D10R1F4
+	db	003h,01bh,003h,D10R1F1
+	db	00bh,003h,003h,D10R1F8
+	db	00bh,00bh,004h,D10R1F6
+	db	00fh,01bh,003h,D10R1F2
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	004h
+	db	SHAINM
+	db	008h+4,018h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	DANIN
+	db	007h+4,014h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	002h+040h			; battle type
+	db	0e6h				; dealer number
+	db	019h				; taking pattern 
+	db	KENKYUIN
+	db	009h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	003h+040h			; battle type
+	db	0e4h				; dealer number
+	db	004h				; taking pattern 
+	db	CAPSULE
+	db	005h+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h+080h			; capsule type
+	db	012h				; item number
+ram_map_tbl$:
+	dw	015h * 001h + 00eh + ram_map
+	db	000h,01ah
+	dw	015h * 001h + 00dh + ram_map
+	db	000h,018h
+	dw	015h * 001h + 00bh + ram_map
+	db	000h,014h
+	dw	015h * 006h + 00ch + ram_map
+	db	00bh,017h
+	dw	015h * 002h + 002h + ram_map
+	db	003h,003h
+	dw	015h * 008h + 002h + ram_map
+	db	00fh,003h
+	dw	015h * 002h + 00eh + ram_map
+	db	003h,01bh
+	dw	015h * 006h + 002h + ram_map
+	db	00bh,003h
+	dw	015h * 006h + 006h + ram_map
+	db	00bh,00bh
+	dw	015h * 008h + 00eh + ram_map
+	db	00fh,01bh

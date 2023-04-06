@@ -1,0 +1,47 @@
+; 11/01/95		19:40:51
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	009h
+	db	008h,000h,000h,EXIT
+	db	009h,000h,001h,EXIT
+	db	008h,007h,002h,EXIT
+	db	009h,007h,002h,EXIT
+	db	002h,000h,004h,EXIT
+	db	003h,000h,005h,EXIT
+	db	002h,007h,006h,EXIT
+	db	003h,007h,007h,EXIT
+	db	00ch,006h,000h,R16R1F2
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	KEIBI
+	db	005h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+	db	GSAN
+	db	003h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+ram_map_tbl$:
+	dw	00ah * 005h + 001h + ram_map
+	db	008h,000h
+	dw	00ah * 005h + 001h + ram_map
+	db	009h,000h
+	dw	00ah * 005h + 004h + ram_map
+	db	008h,007h
+	dw	00ah * 005h + 004h + ram_map
+	db	009h,007h
+	dw	00ah * 002h + 001h + ram_map
+	db	002h,000h
+	dw	00ah * 002h + 001h + ram_map
+	db	003h,000h
+	dw	00ah * 002h + 004h + ram_map
+	db	002h,007h
+	dw	00ah * 002h + 004h + ram_map
+	db	003h,007h
+	dw	00ah * 007h + 004h + ram_map
+	db	00ch,006h

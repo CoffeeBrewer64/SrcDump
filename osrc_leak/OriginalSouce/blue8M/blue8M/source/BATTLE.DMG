@@ -1,0 +1,1354 @@
+
+	include		common.def
+	include		fntequ.def
+	include		map.def
+	include		banktool.def
+	include		dealer.def
+	include		pm_debug.def
+	include		macro.h
+
+
+;--------;
+; bank 0 ;
+;--------;
+	public	DealerTalking
+	public	GetBattleData
+	public	battle_main
+	public	battle_missing
+	public	battle_ready
+	public	battle_after
+
+	public	missing
+	public	set_battle_data
+	public	obs_battler
+	public	set_battle_msg
+	public	set_battle
+	public	check_battle
+	public	check_cross_way
+
+	public	save_position
+	public	save_position_s
+	public	load_position
+	public	load_position_s
+
+
+;--------;
+; bank 3 ;
+;--------;
+	public	check_site
+
+
+	extern	set_d_shortname
+	extern	msg_return
+	extern	block_move
+	extern	put_win_msg
+	extern	put_window
+	extern	wait_vb_s
+	extern	cont_abwait
+	extern	talk_map
+	extern	bank2bank
+	extern	abs_ab
+	extern	actor_anime_set
+	extern	ActorAnimeSet
+	extern	bank_push_call
+;;	extern	anime_on
+	extern	memset
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	put_msg_s
+	extern	table_jump
+	extern	table_search
+;;	extern	dealer_talk
+	extern	t9r2f1_tbl
+	extern	put_wait
+
+	extern	play
+	extern	se_wait
+	extern	musfanfare82
+	extern	musdealer1
+	extern	musdealer2
+	extern	musdealer3
+
+
+
+D_ENTRY		equ		0
+D_EVENT		equ		2
+D_START		equ		4
+D_AFTER		equ		6
+D_WIN		equ		8
+D_LOSE		equ		10
+D_DUMMY1	equ		12
+D_DUMMY2	equ		14
+
+
+bank0	group	0
+
+
+	public	DebugKeyHook
+
+DebugKeyHook:
+  ifn	pm_debug
+	ld	a,(game_mode + 0)
+	bit	1,a
+	ret	z
+
+	ld	a,(joy_status)
+	bit	1,a
+	ret	nz
+
+	ld	a,(joy_on)
+	bit	1,a
+  endif
+
+	ret
+
+
+
+
+set_talk_data:
+	ld	a,h
+	ld	(AdrsDealerTalk + 0),a
+	ld	a,l
+	ld	(AdrsDealerTalk + 1),a
+
+	ret
+
+
+
+;-------------------------------------------------------;
+; switching for sequence routine with battle scene	;
+; <<in>>						;
+; hl-regs						;
+;	battle data table(top address)			;
+; de-regs						;
+;	sequence routine address table			;
+; a-regs						;
+;	sequence observe number				;
+; <<out>>						;
+; a-regs						;
+;	next sequence observe number			;
+; <<broken>>						;
+; AdrsDealerTalk + 0, + 1				;
+;	each battle data offset address			;
+; AdrsDealerTalk + 9					;
+;	inner observe sequence number			;
+;-------------------------------------------------------;
+	public	battle_sequence
+
+battle_sequence:
+	push	af
+	push	de
+
+	call	set_talk_data
+
+	pop	hl
+	pop	af
+
+	push	hl
+
+	ld	hl,game_mode + 1
+	bit	4,(hl)				; talking battle
+	res	4,(hl)
+	jr	z,normal$
+
+	ld	a,(AdrsDealerTalk + 9)
+
+normal$:
+	pop	hl
+
+	ld	(AdrsDealerTalk + 9),a		; sequence number(event work)
+	call	table_jump
+	ld	a,(AdrsDealerTalk + 9)
+
+	ret
+
+
+;--------------------------------------------;
+; <<in>>				     ;
+; hl-regs	address of town name strings ;
+; de-regs	address of leader's name     ;
+;--------------------------------------------;
+	public	gym_setting
+
+gym_setting:
+	push	de
+
+	ld	de,town_name
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,TOWN_NAME_LEN
+ else
+	ld	bc,5
+ endif
+	call	block_move
+
+	pop	hl
+
+	ld	de,leader_name
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,LEADER_NAME_LEN
+ else
+	ld	bc,6
+ endif
+	jp	block_move
+
+
+;-----------------------------------------------;
+; get each battle data in "dealer_talk" table	;
+; <<in>>					;
+;	AdrsDealerTalk + 0, + 1			;
+;		table address(h,l)		;
+; <<out>>					;
+;	hl-regs					;
+;		object address			;
+;-----------------------------------------------;
+GetBattleData:
+	push	de
+	push	af
+
+	ld	d,00h
+	ld	e,a
+
+	ld	hl,AdrsDealerTalk + 0
+	ld	a,(hli)
+	ld	l,(hl)
+	ld	h,a
+
+	add	hl,de
+
+	pop	af
+
+	and	a				; cp D_ENTRY
+	jr	nz,etc$
+
+	ld	a,(hl)
+	ld	(obs_actor),a			; entry number
+
+	jr	rts$
+
+
+etc$:
+	cp	D_EVENT
+	jr	z,hl2hl$
+
+	cp	D_START
+	jr	z,hl2hl$
+
+	cp	D_AFTER
+	jr	z,hl2hl$
+
+	cp	D_WIN
+	jr	z,hl2hl$
+
+	cp	D_LOSE
+	jr	nz,rts$
+
+	ld	a,(hli)
+	ld	d,(hl)
+	ld	e,a
+
+	jr	rts$
+
+
+hl2hl$:
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+rts$:
+	pop	de
+
+	ret
+
+
+
+BitControl:
+	ld	a,B_BIT_CONTROL
+	jp	bank2bank
+
+
+;---------------------------------------;
+; case of battle after conversation	;
+;---------------------------------------;
+DealerTalking:
+	call	set_talk_data
+
+	xor	a				; D_ENTRY
+	call	GetBattleData
+
+	ld	a,D_EVENT
+	call	GetBattleData
+	ld	a,(obs_actor)
+	ld	c,a				; bit field number
+	ld	b,2				; bit test mode
+	call	BitControl
+	ld	a,c
+	and	a
+	jr	z,battle$
+
+	ld	a,D_AFTER
+	call	GetBattleData
+	jp	put_win_msg
+
+
+battle$:
+	ld	a,D_START
+	call	GetBattleData
+	call	put_win_msg
+
+	ld	a,D_LOSE
+	call	GetBattleData
+
+	push	de
+	ld	a,D_WIN
+	call	GetBattleData
+	pop	de
+	call	set_battle_msg
+
+	ld	hl,game_mode + 1
+	set	4,(hl)				; talking battle
+
+	ld	hl,obs_event + 0
+	bit	0,(hl)				; invoke by site cross
+	ret	nz
+
+	call	set_battle
+
+	ld	hl,AdrsDealerTalk + 9
+	inc	(hl)
+
+	jp	battle_ready
+
+
+
+battle_main:
+  ifn	pm_debug
+	call	DebugKeyHook
+	jr	nz,no_hit$
+  endif
+
+	call	obs_battler
+	ld	a,(sv_msg_no)
+	cp	0ffh
+	jr	nz,hit$
+
+no_hit$:
+	xor	a
+	ld	(sv_msg_no),a
+	ld	(obs_actor),a
+
+	ret
+
+
+hit$:
+	ld	hl,game_mode + 1
+	set	3,(hl)				; battle invoke
+
+	ld	(usr_buf + 18),a
+	xor	a
+	ld	(usr_buf + 19),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	xor	a
+	ld	(joy_status),a
+
+	call	missing				; make animetion step command
+
+	ld	hl,AdrsDealerTalk + 9
+	inc	(hl)
+
+	ret
+
+
+battle_missing:
+	ld	a,(obs_system)
+	and	01h				; check end of animetion
+	ret	nz
+
+	ld	(cancel_key),a			; a = 0
+
+	ld	a,(sv_msg_no)
+	ld	(work1),a
+	call	talk_map			; talk & battle data set
+
+battle_ready:
+	xor	a
+	ld	(cancel_key),a
+
+	call	set_battle_data
+
+	ld	hl,event_flg
+	set	6,(hl)				; battle mode
+	set	7,(hl)				; after message in battle
+
+	ld	hl,obs_player
+	set	1,(hl)				; request for reset battle flag
+
+	ld	hl,AdrsDealerTalk + 9
+	inc	(hl)
+
+	ret
+
+
+battle_after:
+	ld	hl,ptn_data
+	set	5,(hl)
+	set	6,(hl)
+
+	ld	hl,event_flg
+	res	7,(hl)
+
+	ld	hl,obs_event + 0
+	res	0,(hl)				; battle by check of talk
+
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return
+
+	ld	a,D_EVENT
+	call	GetBattleData
+	ld	a,(obs_actor)			; set in message program
+	ld	c,a				; bit field number
+	ld	b,1
+	call	BitControl
+
+	ld	a,(save_event_flg + 8)
+	cp	200
+	jr	nc,set$
+
+mons$:
+	ld	hl,vanish_group
+	ld	de,2
+	ld	a,(sv_msg_no)
+	call	table_search
+
+	inc	hl
+	ld	a,(hl)
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+set$:
+	ld	hl,obs_system
+	bit	4,(hl)				; check next sequence routine
+	res	4,(hl)
+	ret	nz
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(joy_status),a
+	ld	(joy_on),a
+	ld	(joy_off),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+;----------------------------------------------------------;
+; make animetion step command for battle dealer		   ;
+; << in >>						   ;
+;	(sv_msg_no)	target actor number(010h --- 0f0h) ;
+;----------------------------------------------------------;
+missing:
+	ld	b,015h
+	ld	hl,missing_main
+	jp	bank_push_call
+
+
+set_battle_data:
+	ld	a,(auto_move_val + 30)
+	ld	(event_fight_no),a
+
+	ld	(save_event_flg + 8),a
+	cp	200
+	ld	a,(auto_move_val + 31)
+	jr	c,z1$	
+
+	ld	(take_mons_ptn),a
+
+	ret
+
+
+z1$:
+	ld	(mons_level),a
+
+	ret
+
+
+
+
+;---------------------------------------;
+; save the position for missing dealer  ;
+; <<in>>				;
+;	sv_msg_no			;
+;		actor number(00-0f)	;
+;---------------------------------------;
+save_position:
+	ld	hl,SavePosition
+
+	jr	lrp_same
+
+
+save_position_s:
+	ld	hl,SavePositionStart
+
+	jr	lrp_same
+
+
+;---------------------------------------;
+; load the position for missing dealer  ;
+; <<in>>				;
+;	sv_msg_no			;
+;		actor number(00-0f)	;
+;---------------------------------------;
+load_position:
+	ld	hl,LoadPosition
+
+	jr	lrp_same
+
+
+load_position_s:
+	ld	hl,LoadPositionStart
+
+lrp_same:
+	ld	b,015h
+	jp	bank_push_call
+
+
+
+;------------------------------------------------;
+; observe battle type obj as active status	 ;
+; << in >>					 ;
+; << out >>					 ;
+;	(sv_msg_no)	0ffh : table end	 ;
+;			value: battle invoke	 ;
+;	(obs_actor)	assigned bit number	 ;
+;------------------------------------------------;
+obs_battler:
+	xor	a				;ld	a,D_ENTRY
+	call	GetBattleData
+	ld	d,h
+	ld	e,l
+
+loop$:
+	call	set_talk_data
+
+	ld	a,(de)
+	ld	(sv_msg_no),a			; dealer number save
+	ld	(obs_actor),a
+	cp	0ffh
+	ret	z				; table check end
+
+	ld	a,D_EVENT
+	call	GetBattleData
+	ld	b,2				; bit test mode
+	ld	a,(obs_actor)
+	ld	c,a				; bit field number
+	call	BitControl
+	ld	a,c
+	and	a
+	jr	nz,yet_battle$
+
+	push	hl
+	push	de
+
+	push	hl
+
+	xor	a
+	call	GetBattleData
+
+	inc	hl	
+	ld	a,(hl)
+	pop	hl
+
+	ld	(usr_buf + 1),a			; view reach
+	ld	a,(sv_msg_no)
+	swap	a
+	ld	(usr_buf + 0),a			; target actor number * 010h
+	ld	a,B_CHECK_SITE
+	call	bank2bank
+
+	pop	de
+	pop	hl
+
+	ld	a,(usr_buf + 0)
+	and	a
+	ret	nz				; encount to dealer
+
+yet_battle$:
+	ld	hl,010h - 004h			; table size
+	add	hl,de
+	ld	d,h
+	ld	e,l				; next entry number
+
+	jr	loop$
+
+
+
+;-------------------------------------;
+; set address of message after battle ;
+;-------------------------------------;
+set_battle_msg:
+	ld	a,(rombankno)
+	ld	(msb_adrs4),a			; message bank
+
+	ld	a,h				; hl = message table address
+	ld	(msb_adrs1),a
+	ld	a,l
+	ld	(lsb_adrs1),a			; winning message address
+
+	ld	a,d				; de = message table address
+	ld	(msb_adrs2),a
+	ld	a,e
+	ld	(lsb_adrs2),a			; losing message address
+
+	ret
+
+
+;-----------------------------;
+; battle data setting & ready ;
+;-----------------------------;
+set_battle:
+	ld	hl,obj_attribute		; 2byte group table
+	ld	d,00h
+	ld	a,(sv_msg_no)
+	dec	a
+	add	a,a				; obj-code * 2
+	ld	e,a
+	add	hl,de
+
+	ld	a,(hli)
+	ld	(auto_move_val + 30),a		; "event_fight_no"
+
+	ld	a,(hl)
+	ld	(auto_move_val + 31),a		; "take_mons_ptn"
+
+	jp	cross_site_music
+
+
+;---------------------------------------------;
+; print message after battle on battle screen ;
+;---------------------------------------------;
+check_battle:
+	push	hl
+	ld	hl,event_flg
+	bit	7,(hl)
+	res	7,(hl)
+	pop	hl
+	ret	z
+
+	ld	a,(rombankno)
+	push	af
+	ld	a,(msb_adrs4)			; bank no (message = map)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	push	hl
+
+	ld	b,9
+	ld	hl,set_d_shortname
+	call	bank_push_call
+
+	ld	hl,check_battle_msg$
+	call	put_win_msg
+
+	pop	hl
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	b,006h
+	ld	hl,SetSiteChanger
+	call	bank_push_call
+
+	jp	se_wait
+
+
+battle_result$:
+	ld	a,(kachi_make)
+	and	a
+	jr	nz,lose$       			; hl: winning message
+
+	ld	a,(msb_adrs1)
+	ld	h,a
+	ld	a,(lsb_adrs1)			; winning message address
+	ld	l,a
+
+	ret
+
+
+lose$:
+	ld	a,(msb_adrs2)
+	ld	h,a
+	ld	a,(lsb_adrs2)			; losing message address
+	ld	l,a
+
+	ret
+
+
+check_battle_msg$:
+	extern	check_battle_msg_0_BATTLE
+	db I_MSG2	; mvmsg’Ç‰Á
+	dw check_battle_msg_0_BATTLE	; mvmsg’Ç‰Á
+	db 020h	; mvmsg’Ç‰Á
+	db	CALL_MSG
+
+	call	battle_result$
+	call	put_msg_s
+
+	jp	msg_return
+
+
+
+;-----------------------------------------------------------;
+; control invoke battle of pattern has missing & site check ;
+;-----------------------------------------------------------;
+check_cross_way:
+	ld	a,(obs_event + 0)
+	bit	0,a				; battle by check of site
+	ret	nz
+
+	call	set_battle			; battle data set
+
+	xor	a
+
+	ret
+
+
+;-------------------------------------------;
+; set & play music of crossing as much site ;
+;-------------------------------------------;
+cross_site_music:
+	ld	a,(auto_move_val + 30) 		; = 'event_fight_no'
+						; Dealer Number ("dealer.def")
+	cp	d_rival				; By Nori
+	ret	z
+
+	cp	d_rival2				; By Nori
+	ret	z
+
+	cp	d_rival3				; By Nori
+	ret	z
+
+	ld	a,(championcap_no)		; hall number
+	and	a
+	ret	nz
+
+	xor	a
+	ld	(fade_play_fg),a
+	ld	a,0ffh				; Town Bank Initialize
+	call	play
+
+	ld	a,MUSIC_BANK3_NO		; Set ETC Bank
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+
+	ld	a,(auto_move_val + 30)		; Dealer Number ("dealer.def")
+	ld	b,a
+
+	ld	hl,kowaikee_table$
+
+search_loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,lady$
+
+	cp	b
+	jr	nz,search_loop$
+
+	ld	a,musdealer1		; kowaikee Dealer Music
+
+	jr	set$
+
+
+lady$:
+	ld	hl,lady_table$
+
+search_loop2$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,boy$
+
+	cp	b
+	jr	nz,search_loop2$
+
+	ld	a,musdealer2		; Lady Dealer Music
+
+	jr	set$
+
+
+boy$:
+	ld	a,musdealer3		; Boy Dealer Music
+
+set$:
+	ld	(music_flag),a			; 0 : SE / !0 : Music
+
+	jp	play
+
+
+lady_table$:
+	db	d_mini
+	db	d_girlsc
+	db	d_lady
+	db	d_elite_w
+	db	0ffh
+
+
+kowaikee_table$:
+	db	d_jack
+	db	d_gamble
+	db	d_groove
+	db	d_gypsy
+	db	d_sylph_chief
+	db	d_sylph_worker
+	db	d_b_procket
+	db	d_member
+	db	0ffh			; End Mark
+
+
+
+bank15	group	21
+
+SavePosition:
+	ld	hl,actor_table
+	ld	de,004h
+	ld	a,(sv_msg_no)
+	ld	(work1),a
+	call	table_offset
+
+	ld	a,(hli)
+	ld	(sv_box01),a			; Y-cross dot position
+	inc	hl
+	ld	a,(hl)
+	ld	(sv_box02),a			; X-cross dot position
+
+	ld	de,0100h - 002h
+	add	hl,de
+	ld	a,(hli)
+	ld	(sv_box03),a			; Y-cross ram_map position
+	ld	a,(hl)
+	ld	(sv_box04),a			; X-cross ram_map position
+  
+	ret
+
+
+;-----------------------------------------------;
+; save the starting position for missing dealer ;
+;-----------------------------------------------;
+SavePositionStart:
+	ld	hl,actor_table
+	ld	de,004h
+	ld	a,(sv_msg_no)
+	ld	(work1),a
+	call	table_offset
+
+	ld	a,(hli)
+	ld	(temp_box_g + 0),a		; Y-cross dot position
+	inc	hl
+	ld	a,(hl)
+	ld	(temp_box_g + 1),a		; X-cross dot position
+
+	ld	de,0100h - 002h
+	add	hl,de
+	ld	a,(hli)
+	ld	(temp_box_g + 2),a		; Y-cross ram_map position
+	ld	a,(hl)
+	ld	(temp_box_g + 3),a		; X-cross ram_map position
+
+	ret
+
+
+LoadPosition:
+	ld	hl,actor_table
+	ld	de,004h
+	ld	a,(sv_msg_no)
+	ld	(work1),a
+	call	table_offset
+
+	ld	a,(sv_box01)			; Y-cross dot position
+	ld	(hli),a
+	inc	hl
+	ld	a,(sv_box02)			; X-cross dot position
+	ld	(hl),a
+
+	ld	de,0100h - 002h
+	add	hl,de
+	ld	a,(sv_box03)			; Y-cross ram_map position
+	ld	(hli),a
+	ld	a,(sv_box04)			; X-cross ram_map position
+	ld	(hl),a
+
+	ret
+
+
+;--------------------------------------;
+; load the position for missing dealer ;
+;--------------------------------------;
+LoadPositionStart:
+	ld	hl,actor_table
+	ld	de,004h
+	ld	a,(sv_msg_no)
+	ld	(work1),a
+	call	table_offset
+
+	ld	a,(temp_box_g + 0)		; Y-cross dot position
+	ld	(hli),a
+	inc	hl
+	ld	a,(temp_box_g + 1)		; X-cross dot position
+	ld	(hl),a
+
+	ld	de,0100h - 002h
+	add	hl,de
+	ld	a,(temp_box_g + 2)		; Y-cross ram_map position
+	ld	(hli),a
+	ld	a,(temp_box_g + 3)		; X-cross ram_map position
+	ld	(hl),a
+
+	ret
+
+
+missing_main:
+	ld	a,(sv_msg_no)
+	swap	a
+	ld	(usr_buf + 0),a
+	call	target_yx
+
+	ld	a,(usr_buf + 2)
+	and	a
+	jr	z,miss_north$
+
+	cp	04h
+	jr	z,miss_south$
+
+	cp	08h
+	jr	z,miss_east$
+
+	jr	miss_west$
+
+
+miss_north$:
+	ld	a,(usr_buf + 3)
+	ld	b,a
+	ld	a,03ch
+	call	abs_ab				; y-line offset
+	cp	010h				; next positioning
+	ret	z
+
+	swap	a
+	dec	a
+	ld	c,a				; padding counter(low)
+	xor	a				; A_D(padding)
+	ld	b,a				; padding counter(high)
+
+	jr	set_end$
+
+
+miss_south$:
+	ld	a,(usr_buf + 3)
+	ld	b,a
+	ld	a,03ch
+	call	abs_ab				; y-line offset
+	cp	010h				; next positioning
+	ret	z
+
+	swap	a
+	dec	a
+	ld	c,a				; padding counter(low)
+	ld	b,0				; padding counter(high)
+	ld	a,040h				; A_U(padding)
+
+	jr	set_end$
+
+
+miss_west$:
+	ld	a,(usr_buf + 4)
+	ld	b,a
+	ld	a,040h
+	call	abs_ab				; x-line offset
+	cp	010h				; next positioning
+	ret	z
+
+	swap	a
+	dec	a
+	ld	c,a				; padding counter(low)
+	ld	b,0				; padding counter(high)
+	ld	a,0c0h				; A_R(padding)
+
+	jr	set_end$
+
+
+miss_east$:
+	ld	a,(usr_buf + 4)
+	ld	b,a
+	ld	a,040h
+	call	abs_ab				; x-line offset
+	cp	010h				; next positioning
+	ret	z
+
+	swap	a
+	dec	a
+	ld	c,a				; padding counter(low)
+	ld	b,0				; padding counter(high)
+	ld	a,080h				; A_R(padding)
+
+set_end$:
+	ld	hl,work_anime_buf
+	ld	de,work_anime_buf		; for "actor_anime_set"
+	call	memset
+	ld	(hl),0ffh			; end of animetion
+
+	ld	a,(sv_msg_no)
+	ld	(work1),a
+	jp	ActorAnimeSet
+;	jp	actor_anime_set
+
+
+
+;--------------------------------------------------;
+; for table data loading for "actor_table"	   ;
+; << in >>					   ;
+;	hl-regs		data top		   ;
+;	de-regs		offset address		   ;
+;	(work1)		offset value(001h step)	   ;
+; << out >>					   ;
+;	hl-regs		object address		   ;
+;--------------------------------------------------;
+table_offset:
+	push	de
+
+	add	hl,de
+	ld	a,(work1)
+	swap	a				; *010h
+	ld	d,0
+	ld	e,a
+	add	hl,de
+
+	pop	de
+
+	ret
+
+
+;----------------------------------------------------------;
+; invoke switch in case of site on			   ;
+; << in >>						   ;
+;	(usr_buf + 0)	target actor number(10h -- f0h)	   ;
+;	(usr_buf + 1)	view reach	 	 	   ;
+; << out >>						   ;
+;	(usr_buf + 0)	000h:No encount			   ;
+;			0ffh:Encount to dealer		   ;
+;	(usr_buf + 2)	target actor site code		   ;
+;----------------------------------------------------------;
+check_site:
+	push	hl
+	push	de
+
+	ld	a,(usr_buf + 0)
+	add	a,002h
+	ld	d,0
+	ld	e,a
+	ld	hl,actor_table
+	add	hl,de
+	ld	a,(hl)				; actor pattern code
+	sub	0ffh
+	jr	nz,active$
+
+	jp	site_off$			; zero
+
+
+active$:
+	ld	a,(usr_buf + 0)
+	add	a,009h
+	ld	d,0
+	ld	e,a
+	ld	hl,actor_table
+	add	hl,de
+	ld	a,(hl)				; target site code
+	ld	(usr_buf + 2),a
+
+	call	target_yx
+
+	ld	a,(usr_buf + 3)			; target y-position
+	ld	b,a
+	ld	a,03ch
+	cp	b
+	jr	z,check_x$
+
+	ld	a,(usr_buf + 4)			; target x-position
+	ld	b,a
+	ld	a,040h
+	cp	b
+	jr	z,check_y$
+
+	xor	a
+
+	jp	site_off$
+
+
+check_x$:
+	ld	a,(usr_buf + 4)			; actor array value
+	ld	b,a
+	ld	a,040h
+	call	abs_ab
+	jr	z,site_off$			; 1995.11.18
+	call	check_face
+	jr	c,site_on$
+
+	xor	a
+
+	jr	site_off$
+
+
+check_y$:
+	ld	a,(usr_buf + 3)			; actor array value
+	ld	b,a
+	ld	a,03ch
+	call	abs_ab
+	jr	z,site_off$			; 1995.11.18
+	call	check_face
+	jr	c,site_on$
+
+	xor	a
+
+	jp	site_off$
+
+
+site_on$:
+	call	eye
+	ld	a,(usr_buf + 0)
+	and	a
+	jr	z,site_off$
+
+	ld	hl,obs_event + 0
+	set	0,(hl)				; battle by check of site
+
+	call	set_battle			; battle data set
+
+	ld	a,0ffh
+
+site_off$:
+	ld	(usr_buf + 0),a			; result as hit or not
+
+	pop	de
+	pop	hl
+
+	ret
+
+
+target_yx:
+	ld	a,(usr_buf + 0)
+	add	a,4
+	ld	d,0
+	ld	e,a
+	ld	hl,actor_table
+	add	hl,de
+	ld	a,(hl)				; target y-position
+	ld	(usr_buf + 3),a
+
+	ld	a,(usr_buf + 0)
+	add	a,6
+	ld	d,0
+	ld	e,a
+	ld	hl,actor_table
+	add	hl,de
+	ld	a,(hl)				; target x-position
+	ld	(usr_buf + 4),a
+
+	ret
+
+
+;----------------------------------;
+; check fase to fase		   ;
+;	east & west, north & south ;
+;----------------------------------;
+check_face:
+	ld	b,a				; result "abs_ab"
+
+	ld	a,(usr_buf + 1)			; reach limit value
+	cp	b
+	jr	nc,reach_on$
+
+	jr	site_off$
+
+	
+reach_on$:
+	ld	a,(usr_buf + 2)			; dealer site code
+	cp	000h
+	jr	z,x_check$
+
+	cp	004h
+	jr	z,x_check$
+
+	cp	008h
+	jr	z,y_check$
+
+	cp	00ch
+	jr	z,y_check$
+
+	jr	site_off$
+
+
+x_check$:
+	ld	a,(usr_buf + 4)			; target x-position
+	ld	b,a
+	cp	040h				; hero x-position
+	jr	z,site_on$
+
+	jr	site_off$
+
+
+y_check$:
+	ld	a,(usr_buf + 3)			; target x-position
+	ld	b,a
+	cp	03ch				; hero x-position
+	jr	nz,site_off$
+
+site_on$:
+	scf
+
+	ret
+
+
+site_off$:
+	and	a
+
+	ret
+
+
+;------------------------------------------------;
+; check position as away of face 		 ;
+; << in >>					 ;
+;	(usr_buf + 0)		010h --- 0f0h	 ;
+;	(usr_buf + 2)		object site code ;
+; << out >>					 ;
+;	(usr_buf + 0)		000h: far away	 ;
+;				0ffh: away	 ;
+;------------------------------------------------;
+eye:
+	ld	a,(mapno)
+	cp	83
+	jp	z,on$
+
+	ld	a,(usr_buf + 0)
+	add	a,4
+	ld	d,0
+	ld	e,a
+	ld	hl,actor_table
+	add	hl,de
+	ld	a,(hl)				; target y-position
+	cp	0fch
+	jr	nz,normal$
+
+	ld	a,00ch				; force change data
+
+normal$:
+	ld	(usr_buf + 3),a
+
+	ld	a,(usr_buf + 0)
+	add	a,6
+	ld	d,0
+	ld	e,a
+	ld	hl,actor_table
+	add	hl,de
+	ld	a,(hl)				; target x-position
+	ld	(usr_buf + 4),a
+
+	ld	a,(usr_buf + 2)			; site code
+	cp	000h				; look south
+	jr	nz,z100$
+
+	ld	a,(usr_buf + 3)
+	cp	03ch				; hero's y-position
+	jr	c,on$
+
+	jr	off$
+
+
+z100$:
+	cp	004h				; look north
+	jr	nz,z200$
+
+	ld	a,(usr_buf + 3)
+	cp	03ch				; hero's y-position
+	jr	nc,on$
+
+	jr	off$
+
+
+z200$:
+	cp	008h				; look west
+	jr	nz,z300$
+
+	ld	a,(usr_buf + 4)
+	cp	040h				; hero's x-position
+	jr	nc,on$
+
+	jr	off$
+
+
+z300$:
+	ld	a,(usr_buf + 4)
+	cp	040h				; hero's x-position
+	jr	nc,off$
+
+on$:
+	ld	a,0ffh
+
+	jr	rts$
+
+
+off$:
+	xor	a
+
+rts$:
+	ld	(usr_buf + 0),a
+
+	ret
+
+
+
+
+
+bank6	group	6
+
+
+
+SetSiteChanger:
+	ld	a,(mapno)
+	cp	T5R2F7
+	ret	z
+
+	ld	hl,dealer$
+	ld	a,(auto_move_val + 30)		; Dealer Number ("dealer.def")
+	ld	b,a
+
+lp$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,site$
+
+	cp	b
+	ret	z
+
+	jr	lp$
+
+
+site$:
+	ld	a,(sv_msg_no)
+	ld	(work1),a
+	jp	obj_stopping			; "hito_tbl" data rewrite
+
+
+
+dealer$:
+	db	d_rival
+	db	d_rival2
+	db	d_rival3
+	db	0ffh
+
+

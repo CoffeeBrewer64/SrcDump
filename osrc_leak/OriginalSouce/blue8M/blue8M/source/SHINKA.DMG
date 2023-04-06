@@ -1,0 +1,938 @@
+
+	include	common.def
+	include	fntequ.def
+	include	banktool.def
+	include	fight.def
+	include macro.h
+
+
+;banke
+	public	shinka_0
+	public	shinka_chk
+	public	shinka_1
+	public	shinka_tbl
+	public	waza_learn_chk
+	public	waza_set
+
+	extern	block_move
+	extern	set_now_music
+	extern	bank_chg_block_m
+	extern	dvram_cls
+	extern	block_cls
+	extern	map_rewrite
+	extern	map_rewrite2
+	extern	mul_any
+	extern	mul_6
+	extern	get_table
+	extern	put_msg_s
+	extern	put_win_msg
+	extern	set_monsdata_dmy
+	extern	set_status_all
+	extern	mons_tbl
+	extern	waza_tbl
+	extern	play
+	extern	se_play
+	extern	se_wait
+	extern	musfanfare52
+	extern	bank2bank 
+	extern	bank_push_call 
+	extern	str_cpy   
+	extern	get_waza_name
+	extern	get_pet_name
+	extern	get_monsadr
+	extern	put_nowin_msg
+	extern	ready2ready
+	extern	shinka_animetion
+	extern	wait_vb_s
+	extern	cont_abwait
+	extern	oam_clr
+	
+;bank0	group	0
+banke	group	14
+
+shinka_0:
+	ld	hl,ctrl_move_val + SHINKA_MAKE_FLG
+	xor	a
+	ld	(hl),a
+	ld	a,(sel_item_pos)
+	ld	c,a
+	ld	b,1			; bit set
+	call	call_b_ctrl
+
+;************************************************
+; shinka_chk					*
+;************************************************
+shinka_chk:
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(shinka_flg),a
+;	ld	a,0ffh
+	dec	a
+	ld	(sel_item_pos),a
+	push	hl
+	push	bc
+	push	de
+	ld	hl,my_cap_tbl
+
+shinka_1:					; in data : sel_item_pos
+	push	hl				; my_cap_tbl save
+
+loop1$:
+	ld	hl,sel_item_pos
+	inc	(hl)
+
+	pop	hl				; my_cap_tbl load
+	inc	hl
+	ld	a,(hl)				; monster number
+	cp	0ffh
+	jp	z,ret$
+
+	ld	(yes_no_map),a			;monster_no. save
+	
+	push	hl				; my_cap_tbl save
+
+	ld	a,(sel_item_pos)
+	ld	c,a
+	ld	hl,ctrl_move_val + SHINKA_MAKE_FLG
+	ld	b,2				; bit check
+	call	call_b_ctrl
+	ld	a,c
+	and	a
+	jp	z,loop1$
+	
+	ld	a,(yes_no_map)			; monster No
+	dec	a
+	ld	b,0
+	ld	hl,shinka_tbl
+	add	a,a
+	rl	b
+	ld	c,a
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	push	hl				; shinka data tbl address save
+	ld	a,(sel_item_no)
+	push	af
+
+	xor	a
+	ld	(my_or_gein),a
+	call	set_monsdata_dmy		; mons_tbl -> mons_data
+						; my_cap_data -> monsdata_dmy
+	pop	af
+	ld	(sel_item_no),a
+	pop	hl				; shinka data tbl address load
+loop2$:
+	ld	a,(hli)			; shinka data
+	and	a
+	jr	z,loop1$
+
+	ld	b,a
+	cp	3			; tuushin shinka
+	jr	z,tuushin_shinka$
+
+	ld	a,(tuushin_flg)
+	cp	50
+	jr	z,loop1$		; tuushin koukan chu
+
+	ld	a,b
+	cp	2			; item shinka
+	jr	z,item_shinka$
+
+	ld	a,(ctrl_move_val + CANCEL_OK_FLG)
+	and	a
+	jr	nz,loop1$		; item shinka check shika shinai
+
+	ld	a,b
+	cp	1			; tuujou shinka
+	jr	z,tuujou_shinka$
+
+tuushin_shinka$:
+	ld	a,(tuushin_flg)
+	cp	50
+	jp	nz,inc2_hl$		; tuushin koukan chuudenai
+
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(monsdata_dmy + 33)	; level
+	cp	b
+	jp	c,loop1$		; shinka shinai
+
+;	jr	do_shinka1$
+	jr	do_shinka$
+	
+item_shinka$:
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(sel_item_no)
+	cp	b
+	jp	nz,inc2_hl$		; item ga chigau
+	
+tuujou_shinka$:
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(monsdata_dmy + 33)	; level
+	cp	b
+	jp	c,inc_hl$		; shinka shinai
+
+do_shinka$:
+	ld	(mons_level),a
+;	ld	a,(shinka_flg)
+;	and	a
+;	jr	z,do_shinka2$
+
+do_shinka1$:
+	ld	a,1
+	ld	(shinka_flg),a
+
+do_shinka2$:
+	push	hl			; shinka data tbl address save
+	ld	a,(hl)
+	ld	(yes_no_map + 1),a
+
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_name
+	call	get_pet_name
+	call	str_cpy
+
+	ld	hl,shinka_msg100$
+	call	put_win_msg		; OYA? 
+	ld	c,50
+	call	wait_vb_s
+
+	xor	a
+	ld	(all_put_req),a
+	S_POS	0,0
+	E_POS	20,12
+	call	block_cls	
+	ld	a,1
+	ld	(all_put_req),a
+
+	ld	a,0ffh
+	ld	(oam_flg),a
+	call	oam_clr
+
+;	call	shinka_animetion
+	ld	hl,shinka_animetion
+	ld	b,01eh
+	call	bank_push_call
+
+;	push	af			; flg save
+;	ld	a,(sel_item_pos)
+;	ld	hl,my_cap_name
+;	call	get_pet_name
+;	call	str_cpy
+;	pop	af			; flg load
+
+	jp	c,shinka_cancel$	
+
+	ld	hl,shinka_msg1$
+	call	put_win_msg		; "ooooo ha" (use str_buf)
+
+	pop	hl			; shinka data tbl address load
+	ld	a,(hl)			; new monster number
+	ld	(tbl_pos),a
+	ld	(monsdata_dmy),a
+
+	ld	(yes_no_map + 1),a
+
+	ld	a,ASGN_MONS_NAME
+	ld	(tbl_number),a
+	ld	a,MONS_DATA_BANK
+	ld	(tbl_bank),a
+	call	get_table
+	push	hl			; shinka data tbl address save
+
+;	ld	hl,table_data
+;	ld	bc,MONS_NAME_LEN
+;	call	block_move		; set the new monster name
+
+	ld	hl,shinka_msg2$
+	call	put_nowin_msg
+
+	ld	a,musfanfare52
+	call	se_play
+	call	se_wait
+
+	ld	c,40
+	call	wait_vb_s
+
+	call	dvram_cls
+
+	call	chk_pet_name$
+
+	ld	a,(in_dat)
+	push	af
+
+	ld	a,(tbl_pos)		; new monster number
+	ld	(in_dat),a
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	ld	a,(in_dat)
+
+	dec	a
+	ld	hl,mons_tbl		; banke
+	ld	bc,MONS_TBL_SIZE
+	call	mul_any
+
+;	ld	bc,MONS_TBL_SIZE
+	ld	de,mons_data
+	call	block_move		; set mons_data
+
+	ld	a,(tbl_pos)		; new monster number
+	ld	(mons_data),a
+
+	pop	af
+	ld	(in_dat),a
+
+	ld	hl,monsdata_dmy + 16	; keikenchi address -1
+	ld	de,monsdata_dmy + 34	; status address
+	ld	b,1
+	call	set_status_all		; set new status
+	
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_data
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+	
+	ld	e,l
+	ld	d,h
+
+	push	hl
+	push	bc			; CAPDATA_LEN
+	ld	bc,34
+	add	hl,bc			; maxHP pos
+	ld	a,(hli)
+	ld	b,a
+	ld	c,(hl)
+	ld	hl,monsdata_dmy + 35	; maxHP pos
+	ld	a,(hld)
+	sub	c
+	ld	c,a
+	ld	a,(hl)
+	sbc	a,b
+	ld	b,a
+	ld	hl,monsdata_dmy + 2	; nowHP pos
+	ld	a,(hl)
+	add	a,c
+	ld	(hld),a
+	ld	a,(hl)
+	adc	a,b
+	ld	(hl),a			; nowHP = nowHP + HP zouka bun
+
+;	ld	hl,monsdata_dmy
+	dec	hl
+;	ld	bc,CAPDATA_LEN
+	pop	bc			; CAPDATA_LEN
+	call	block_move		; monsdata_dmy -> my_cap_data
+
+	ld	a,(tbl_pos)			; new monster number
+	ld	(in_dat),a
+
+	xor	a
+	ld	(my_or_gein),a
+
+	call	waza_learn_chk
+
+	pop	hl
+;	call	zokusei_harituke
+	ld	a,66
+	call	bank2bank
+
+	ld	a,(fighting_flg)
+	and	a
+	call	z,map_rewrite_chk
+
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	ld	a,(in_dat)
+	dec	a
+	ld	c,a
+	ld	b,1			; bit on
+	ld	hl,zukan_flg
+	push	bc
+	call	call_b_ctrl		; kaijyuu zukan check
+	pop	bc
+	ld	hl,zukan_flg2
+	call	call_b_ctrl		; kaijyuu zukan check
+	
+
+;	pop	hl			; shinka data tbl address load
+;	ld	e,l
+;	ld	d,h
+	pop	de			; hl -> de shinka data tbl address load
+	pop	hl			; my_cap_tbl load
+	ld	a,(monsdata_dmy)	; new monster number
+	ld	(hl),a
+	push	hl			; my_cap_tbl save
+	ld	l,e
+	ld	h,d
+	jr	inc_hl$
+inc2_hl$:
+	inc	hl
+inc_hl$:
+	inc	hl
+	jp	loop2$
+
+ret$:
+	pop	de
+	pop	bc
+	pop	hl
+	pop	af	
+	ld	(wave_flg),a
+
+	ld	a,(tuushin_flg)
+	cp	50
+	ret	z
+
+	ld	a,(fighting_flg)
+	and	a
+	ret	nz
+	
+	ld	a,(shinka_flg)
+	and	a
+	call	nz,set_now_music
+	ret
+
+chk_pet_name$:
+	ld	a,(tbl_pos)
+	push	af
+
+	ld	a,(mons_data)		; shinka mae no monster No
+	ld	(tbl_pos),a
+	call	get_table
+
+	pop	af
+	ld	(tbl_pos),a
+
+	ld	hl,table_data
+	ld	de,str_buf
+chk_pet_name_lp$:
+	ld	a,(de)
+	inc	de
+	cp	(hl)
+	inc	hl
+;	jr	nz,chk_pet_name_ret$
+	ret	nz
+	
+	cp	050h
+	jr	nz,chk_pet_name_lp$
+
+	ld	a,(sel_item_pos)
+	ld	bc,MONS_NAME_LEN
+	ld	hl,my_cap_name
+	call	mul_any
+
+;	ld	d,h
+;	ld	e,l
+;	push	de
+	push	hl			; hl -> de
+
+	call	get_table
+
+	ld	hl,table_data
+	pop	de			; hl -> de
+;	ld	bc,MONS_NAME_LEN
+
+	jp	block_move
+
+;chk_pet_name_ret$:
+;	ret
+
+shinka_cancel$:
+	ld	hl,cancel_msg1$
+	call	put_win_msg
+	call	dvram_cls
+
+	pop	hl
+
+	call	map_rewrite_chk
+
+	jp	loop1$
+
+shinka_msg1$:
+	extern	shinka_msg1_0_SHINKA
+	db I_MSG2	; mvmsg追加
+	dw shinka_msg1_0_SHINKA	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+shinka_msg2$:
+	extern	shinka_msg2_1_SHINKA
+	db I_MSG2	; mvmsg追加
+	dw shinka_msg2_1_SHINKA	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+cancel_msg1$:
+	extern	cancel_msg1_2_SHINKA
+	db I_MSG2	; mvmsg追加
+	dw cancel_msg1_2_SHINKA	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+shinka_msg100$:
+	extern	shinka_msg100_3_SHINKA
+	db I_MSG2	; mvmsg追加
+	dw shinka_msg100_3_SHINKA	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+map_rewrite_chk:
+	ld	a,(tuushin_flg)
+	cp	50
+	ret	z
+
+	jp	map_rewrite2
+
+
+;************************************************
+; waza_learn_chk				*
+;	in  :  in_dat				*
+;	       sel_item_pos			*
+;	       mons_level			*
+;	       my_or_gein			*
+;************************************************
+waza_learn_chk:
+	ld	hl,shinka_tbl
+	ld	a,(in_dat)		; monster number
+	ld	(sel_item_no),a
+
+	dec	a
+	ld	bc,0
+	ld	hl,shinka_tbl
+	add	a,a
+	rl	b
+	ld	c,a
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+shinka_pass$:
+	ld	a,(hli)
+	and	a
+	jr	nz,shinka_pass$
+
+level_check$:
+	ld	a,(hli)
+	and	a			; 00 = end mark
+	jr	z,ret$
+
+	ld	b,a
+	ld	a,(mons_level)
+	cp	b
+	ld	a,(hli)			; oboeru waza number
+	jr	nz,level_check$
+
+	ld	d,a
+
+	ld	a,(my_or_gein)
+	and	a
+;	ld	hl,benriya_mons + 8	; waza possition
+	jr	nz,old_chk$
+
+	ld	hl,my_cap_data + 8	; waza possition
+	ld	a,(sel_item_pos)
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+old_chk$:
+	ld	b,4
+old_chk_loop$:
+	ld	a,(hli)
+	cp	d
+	jr	z,ret$			; sudeni oboete iru
+	
+	dec	b
+	jr	nz,old_chk_loop$
+
+	ld	a,d
+	ld	(waza_swap + 4),a
+
+	ld	(in_dat),a
+	call	get_waza_name
+	call	str_cpy
+
+	ld	a,B_ADD_WAZA1
+	call	bank2bank
+	
+ret$:
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+
+	ret
+
+;************************************************
+; waza_set					*
+;	de = set address			*
+;	sel_item_no = monster No		*
+;	yes_no_map  = set mode			*
+;		      0 = normal 1 = set point	*
+;************************************************
+waza_set:
+	call	ready2ready
+	push	hl
+	push	de
+	push	bc
+	ld	hl,shinka_tbl
+	ld	b,0
+	ld	a,(sel_item_no)		; monster No
+	dec	a
+	add	a,a			; * 2
+	rl	b
+	ld	c,a
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+shinka_pass_loop$:
+	ld	a,(hli)
+	and	a
+	jr	nz,shinka_pass_loop$
+
+	jr	waza_chk_loop$
+	
+waza_chk_loop0$:
+	pop	de
+waza_chk_loop01$:
+	inc	hl
+waza_chk_loop$:
+	ld	a,(hli)
+	and	a
+	jp	z,ret$
+
+	ld	b,a
+
+	ld	a,(mons_level)
+	cp	b
+	jp	c,ret$
+
+	ld	a,(yes_no_map)
+	and	a
+	jr	z,pass2$
+
+	ld	a,(usr_buf)		; old level
+	cp	b
+	jr	nc,waza_chk_loop01$
+
+pass2$:
+	push	de
+
+	ld	c,4
+waza_add_loop1$:
+	ld	a,(de)
+	inc	de
+	cp	(hl)
+	jr	z,waza_chk_loop0$	; waza ga onaji
+	dec	c
+	jr	nz,waza_add_loop1$
+
+	pop	de
+	push	de
+
+	ld	c,4
+waza_add_loop2$:
+	ld	a,(de)
+	and	a
+	jr	z,do$
+
+	inc	de
+	dec	c
+	jr	nz,waza_add_loop2$
+
+	pop	de
+	push	de
+
+	push	hl			; waza ga full nanode ichiban ue
+	
+	ld	h,d		
+	ld	l,e
+	call	oshidashi$
+
+	ld	a,(yes_no_map)		; set mode
+	and	a
+	jr	z,oshidashi_end$
+
+	push	de
+	ld	bc,18
+	add	hl,bc
+	ld	d,h
+	ld	e,l
+	call	oshidashi$
+	pop	de
+
+oshidashi_end$:
+	pop	hl
+
+do$:
+	ld	a,(hl)
+	ld	(de),a
+
+	ld	a,(yes_no_map)		; set mode
+	and	a
+	jr	z,waza_chk_loop0$
+
+	push	hl
+
+	ld	a,(hl)
+	ld	hl,21
+	add	hl,de
+	push	hl
+
+	dec	a
+	ld	hl,waza_tbl
+	ld	bc,6
+	call	mul_any
+	ld	de,yes_no_map
+	ld	a,0eh
+	call	bank_chg_block_m
+	ld	a,(yes_no_map + 5)
+
+	pop	hl
+	ld	(hl),a
+	
+	pop	hl
+	jr	waza_chk_loop0$
+
+ret$:
+	pop	bc
+	pop	de
+	pop	hl
+	ret
+
+oshidashi$:
+	ld	c,3
+oshidashi_loop$:
+	inc	de
+	ld	a,(de)
+	ld	(hli),a
+	dec	c
+	jr	nz,oshidashi_loop$
+	ret
+
+
+call_b_ctrl:
+	ld	a,B_BIT_CONTROL
+	jp	bank2bank
+
+
+shinka_tbl:
+	dw	mons001$
+	dw	mons002$
+	dw	mons003$
+	dw	mons004$
+	dw	mons005$
+	dw	mons006$
+	dw	mons007$
+	dw	mons008$
+	dw	mons009$
+	dw	mons010$
+	dw	mons011$
+	dw	mons012$
+	dw	mons013$
+	dw	mons014$
+	dw	mons015$
+	dw	mons016$
+	dw	mons017$
+	dw	mons018$
+	dw	mons019$
+	dw	mons020$
+	dw	mons021$
+	dw	mons022$
+	dw	mons023$
+	dw	mons024$
+	dw	mons025$
+	dw	mons026$
+	dw	mons027$
+	dw	mons028$
+	dw	mons029$
+	dw	mons030$
+	dw	mons031$
+	dw	mons032$
+	dw	mons033$
+	dw	mons034$
+	dw	mons035$
+	dw	mons036$
+	dw	mons037$
+	dw	mons038$
+	dw	mons039$
+	dw	mons040$
+	dw	mons041$
+	dw	mons042$
+	dw	mons043$
+	dw	mons044$
+	dw	mons045$
+	dw	mons046$
+	dw	mons047$
+	dw	mons048$
+	dw	mons049$
+	dw	mons050$
+	dw	mons051$
+	dw	mons052$
+	dw	mons053$
+	dw	mons054$
+	dw	mons055$
+	dw	mons056$
+	dw	mons057$
+	dw	mons058$
+	dw	mons059$
+	dw	mons060$
+	dw	mons061$
+	dw	mons062$
+	dw	mons063$
+	dw	mons064$
+	dw	mons065$
+	dw	mons066$
+	dw	mons067$
+	dw	mons068$
+	dw	mons069$
+	dw	mons070$
+	dw	mons071$
+	dw	mons072$
+	dw	mons073$
+	dw	mons074$
+	dw	mons075$
+	dw	mons076$
+	dw	mons077$
+	dw	mons078$
+	dw	mons079$
+	dw	mons080$
+	dw	mons081$
+	dw	mons082$
+	dw	mons083$
+	dw	mons084$
+	dw	mons085$
+	dw	mons086$
+	dw	mons087$
+	dw	mons088$
+	dw	mons089$
+	dw	mons090$
+	dw	mons091$
+	dw	mons092$
+	dw	mons093$
+	dw	mons094$
+	dw	mons095$
+	dw	mons096$
+	dw	mons097$
+	dw	mons098$
+	dw	mons099$
+	dw	mons100$
+	dw	mons101$
+	dw	mons102$
+	dw	mons103$
+	dw	mons104$
+	dw	mons105$
+	dw	mons106$
+	dw	mons107$
+	dw	mons108$
+	dw	mons109$
+	dw	mons110$
+	dw	mons111$
+	dw	mons112$
+	dw	mons113$
+	dw	mons114$
+	dw	mons115$
+	dw	mons116$
+	dw	mons117$
+	dw	mons118$
+	dw	mons119$
+	dw	mons120$
+	dw	mons121$
+	dw	mons122$
+	dw	mons123$
+	dw	mons124$
+	dw	mons125$
+	dw	mons126$
+	dw	mons127$
+	dw	mons128$
+	dw	mons129$
+	dw	mons130$
+	dw	mons131$
+	dw	mons132$
+	dw	mons133$
+	dw	mons134$
+	dw	mons135$
+	dw	mons136$
+	dw	mons137$
+	dw	mons138$
+	dw	mons139$
+	dw	mons140$
+	dw	mons141$
+	dw	mons142$
+	dw	mons143$
+	dw	mons144$
+	dw	mons145$
+	dw	mons146$
+	dw	mons147$
+	dw	mons148$
+	dw	mons149$
+	dw	mons150$
+	dw	mons151$
+	dw	mons152$
+	dw	mons153$
+	dw	mons154$
+	dw	mons155$
+	dw	mons156$
+	dw	mons157$
+	dw	mons158$
+	dw	mons159$
+	dw	mons160$
+	dw	mons161$
+	dw	mons162$
+	dw	mons163$
+	dw	mons164$
+	dw	mons165$
+	dw	mons166$
+	dw	mons167$
+	dw	mons168$
+	dw	mons169$
+	dw	mons170$
+	dw	mons171$
+	dw	mons172$
+	dw	mons173$
+	dw	mons174$
+	dw	mons175$
+	dw	mons176$
+	dw	mons177$
+	dw	mons178$
+	dw	mons179$
+	dw	mons180$
+	dw	mons181$
+	dw	mons182$
+	dw	mons183$
+	dw	mons184$
+	dw	mons185$
+	dw	mons186$
+	dw	mons187$
+	dw	mons188$
+	dw	mons189$
+	dw	mons190$
+
+	include	..\data\shinka.dat
+
+bank17	group	23
+
+	public	zokusei_harituke
+zokusei_harituke:
+	call	ready2ready
+	ld	bc,5
+	add	hl,bc
+
+	ld	a,(in_dat)
+	ld	(tbl_pos),a
+
+	push	hl
+	call	get_monsadr
+	pop	hl
+
+	ld	a,(mons_data + 6)		; zokusei1
+	ld	(hli),a
+	ld	a,(mons_data + 7)		; zokusei2
+	ld	(hl),a
+	ret
+
+

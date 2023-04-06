@@ -1,0 +1,24 @@
+; 05/22/98		18:23:32
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	003h
+	db	000h,002h,009h,EXIT
+	db	007h,002h,008h,EXIT
+	db	007h,003h,008h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	001h
+	db	OSSAN
+	db	003h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	001h
+ram_map_tbl$:
+	dw	00ah * 001h + 002h + ram_map
+	db	000h,002h
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,002h
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,003h

@@ -1,0 +1,426 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+	include	pm_debug.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public  t9_room3_4f
+
+	extern	bank2bank		
+	extern	mul_any
+	extern	yes_no
+	extern	bank_push_call
+
+
+KENKYUJO_TYPE	equ	20
+EXIT		=	0ffh
+
+
+t9_room3_4f:
+ysiz	=	4
+xsiz	=	4
+	db	KENKYUJO_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	kenkyujo4		; map data adrs
+	dw	msg_t9r3f4		; message tbl adrs
+	dw	event_t9r3f4		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event_t9r3f4:
+	jp	init_for_talkmap
+
+
+
+
+
+msg_t9r3f4:
+	msgndw	msg1,MsgStudent1
+	ndw	msg2,MsgSwapper1
+
+
+
+ItemListCheck:
+	xor	a
+	ld	(anime_cnt),a
+
+	ld	de,anime_buf + 0
+
+	ld	hl,search$
+
+loop$:
+	ld	a,(hli)
+	and	a
+	jr	z,rts$				; end
+
+	push	hl				; base data address(save)
+	push	de
+
+	ld	(in_dat),a			; for "get_item_name"
+	ld	b,a
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+
+	pop	de
+	pop	hl				; base data address(load)
+
+	ld	a,b
+	and	a
+	jr	z,loop$
+
+	ld	a,(in_dat)
+	ld	(de),a
+	inc	de
+
+	push	hl
+
+	ld	hl,anime_cnt
+	inc	(hl)
+
+	pop	hl
+
+	jr	loop$
+
+
+rts$:
+	ld	a,0ffh
+	ld	(de),a
+
+	ret
+
+
+search$:
+	db	41,42,31
+	db	00h
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t9_3 + 6)
+	bit	0,a
+	jr	nz,z2nd$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	call	ItemListCheck			; search target item in list
+	ld	a,(anime_cnt)
+	and	a
+	jr	z,no_someone$
+
+	ld	b,018h
+	ld	hl,ListupItem
+	call	bank_push_call
+
+	jr	rts$
+
+
+no_someone$:
+	ld	hl,msg1_8$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+z2nd$:
+	bit	1,a
+	jr	z,event_ok$
+
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+	jr	rts$
+
+
+event_ok$:
+	call	num2name_0
+	ld	hl,msg1_4$
+	call	put_win_msg
+
+	ld	hl,ev_t9_3 + 6
+	set	2,(hl)				; allowed change
+
+	ld	a,(save_event_flg + 5)
+	ld	b,a
+	ld	c,30
+	extern	take_monster
+	call	take_monster
+	jr	nc,rts$
+
+	ld	hl,ev_t9_3 + 6
+	res	0,(hl)
+	res	1,(hl)
+	res	2,(hl)
+
+	jr	rts$
+
+
+msg1_0$:
+	extern	msg1_0_0_T09R0304
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T09R0304	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_8$:
+	extern	msg1_8_1_T09R0304
+	db I_MSG2	; mvmsg追加
+	dw msg1_8_1_T09R0304	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_2_T09R0304
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_2_T09R0304	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_4$:
+	extern	msg1_4_3_T09R0304
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_3_T09R0304	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,3
+	ld	(usr_buf),a
+	ld	a,B_MONSTER_TRADE
+	call	bank2bank
+	
+	jp	msg_return
+
+
+num2name_0:
+	ld	b,18h
+	ld	hl,num2name
+	jp	bank_push_call
+
+
+
+
+room_str:
+	include	..\sxy\t09r0304.sxy
+
+
+kenkyujo4:
+	include	..\mapdata\kenkyu_4.map
+
+
+
+
+bank18	group	G_BANK18
+
+
+ListupItem:
+	ld	hl,obs_system
+	set	6,(hl)				; system message speed mode
+
+	xor	a
+	ld	(allow_cnt),a
+
+	ld	a,BT_A + BT_B
+	ld	(allow_msk),a			; assign key
+	ld	a,(anime_cnt)
+	dec	a
+	ld	(allow_max),a			; select elements
+	ld	a,2
+	ld	(allow_pos + 0),a		; 1st locate Y
+	ld	a,1
+	ld	(allow_pos + 1),a		; 1st locate X
+
+loop$:
+	ld	a,(anime_cnt)
+	dec	a
+	ld	bc,002h
+	ld	hl,003h
+	call	mul_any				; hl = hl + a * bc
+	dec	l				; -1
+	ld	b,l				;ｳｨﾝﾄﾞｳの高さ（枠を含まず）
+  ifn	pm_jmsg			;ｳｨﾝﾄﾞｳの幅（枠を含まず）
+	ld	c,9 - 1
+  else
+	ld	c,13
+  endif
+	ld	hl,dmy_vram
+	call	put_window
+
+	call	actor_blanch
+
+	call	item_strings
+
+	ld	hl,obs_system
+	res	6,(hl)				; scenario message speed mode
+
+	call	allow
+	bit    	1,a
+	jr	nz,no_thankyou$			; b-button
+
+	ld	hl,anime_buf + 0
+	ld	a,(allow_cnt)
+	ld	d,0
+	ld	e,a
+	add	hl,de
+	ld	a,(hl)
+	ld	(DA_BUF + 0),a			; using item
+	cp	41
+	jr	z,kabuto$
+
+	cp	42
+	jr	z,omunaito$
+
+putera$:
+	ld	b,171
+
+	jr	set$
+
+
+omunaito$:
+	ld	b,98
+
+	jr	set$
+
+
+kabuto$:
+	ld	b,90
+
+set$:
+	ld	(save_event_flg + 4),a
+	ld	a,b
+	ld	(save_event_flg + 5),a
+
+	call	num2name
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no_thankyou$
+
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	ld	a,(save_event_flg + 4)
+	ld	(DA_BUF + 0),a
+	ld	b,005h
+	extern	remove_item
+	ld	hl,remove_item
+	call	bank_push_call
+
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+	ld	hl,ev_t9_3 + 6
+	set	0,(hl)				; leave switch
+	set	1,(hl)
+
+	ret
+
+
+no_thankyou$:
+	ld	hl,msg1_7$
+	call	put_win_msg
+
+	ret
+
+
+msg1_1$:
+	extern	msg1_1_4_T09R0304
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_4_T09R0304	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_5_T09R0304
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_5_T09R0304	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_6_T09R0304
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_6_T09R0304	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_7$:
+	extern	msg1_7_7_T09R0304
+	db I_MSG2	; mvmsg追加
+	dw msg1_7_7_T09R0304	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+DISP_LINE	equ	002h*014h + 002h + dmy_vram
+
+item_strings:
+	ld	hl,anime_buf + 0
+
+	xor	a
+	ld	(DA_BUF + 0),a
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	ret	z
+
+	push	hl
+
+	ld	(in_dat),a
+	call	get_item_name
+
+	ld	hl,DISP_LINE
+	ld	a,(DA_BUF + 0)
+	ld	bc,002h * 014h
+	call	mul_any
+	ld	de,table_data
+	call	put_msg
+
+	ld	hl,DA_BUF + 0
+	inc	(hl)
+
+	pop	hl
+
+	jr	loop$
+
+
+
+num2name:
+	ld	a,(save_event_flg + 5)
+	ld	(in_dat),a
+	call	get_mons_name
+	call	str_cpy				; monster name(str_buf)
+
+	ld	a,(save_event_flg + 4)
+	ld	(in_dat),a
+	call	get_item_name			; item name(table_data)
+
+	ret
+
+

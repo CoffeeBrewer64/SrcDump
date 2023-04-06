@@ -1,0 +1,34 @@
+; 04/28/98		00:44:19
+dun_tbl$:
+	db	017h
+ie_tbl$:
+	db	002h
+	db	007h,004h,003h,EXIT
+	db	007h,005h,003h,EXIT
+kanban_tbl$:
+	db	002h
+	db	003h,004h,4
+	db	003h,005h,5
+hito_tbl$:
+	db	003h
+	db	ENTHOU
+	db	003h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	CAPSULE
+	db	003h+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h+080h			; capsule type
+	db	028h				; item number
+	db	IWA
+	db	004h+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	003h
+ram_map_tbl$:
+	dw	00bh * 004h + 003h + ram_map
+	db	007h,004h
+	dw	00bh * 004h + 003h + ram_map
+	db	007h,005h

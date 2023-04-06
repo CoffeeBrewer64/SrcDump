@@ -1,0 +1,53 @@
+; 11/24/95		22:37:47
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	00bh
+	db	000h,01ah,001h,T6R6F1
+	db	000h,01bh,001h,T6R6F1
+	db	008h,01fh,000h,D3R1F8
+	db	008h,017h,001h,D3R1F8
+	db	008h,013h,002h,D3R1F8
+	db	008h,00fh,003h,D3R1F8
+	db	008h,00bh,004h,D3R1F8
+	db	008h,007h,005h,D3R1F8
+	db	006h,002h,006h,D3R1F2
+	db	00fh,025h,005h,D3R1F4
+	db	010h,003h,000h,D3R1F6
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	BOY
+	db	006h+4,00Ch+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	001h
+	db	FUNANORI
+	db	005h+4,01Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+ram_map_tbl$:
+	dw	01ah * 001h + 00eh + ram_map
+	db	000h,01ah
+	dw	01ah * 001h + 00eh + ram_map
+	db	000h,01bh
+	dw	01ah * 005h + 010h + ram_map
+	db	008h,01fh
+	dw	01ah * 005h + 00ch + ram_map
+	db	008h,017h
+	dw	01ah * 005h + 00ah + ram_map
+	db	008h,013h
+	dw	01ah * 005h + 008h + ram_map
+	db	008h,00fh
+	dw	01ah * 005h + 006h + ram_map
+	db	008h,00bh
+	dw	01ah * 005h + 004h + ram_map
+	db	008h,007h
+	dw	01ah * 004h + 002h + ram_map
+	db	006h,002h
+	dw	01ah * 008h + 013h + ram_map
+	db	00fh,025h
+	dw	01ah * 009h + 002h + ram_map
+	db	010h,003h

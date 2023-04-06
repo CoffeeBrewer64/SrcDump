@@ -1,0 +1,110 @@
+	include		group.def
+
+bank2	group	G_MUSIC1
+
+	public	Shinka1
+	public	Shinka2
+	public	Shinka3
+;----------------------------------------
+Shinka1:
+;----------------------------------------
+	db	0edh,000h,084h
+	db	0f0h,077h
+	db	0eah,06h,034h
+	db	0e8h
+	db	0ech,002h
+	db	0dch,092h
+	db	0e5h
+	db	0ebh,000h,049h,000h
+	db	0ebh,000h,049h,070h
+	db	0ebh,000h,049h,000h
+	db	0ebh,000h,049h,070h
+	db	0c3h
+	db	0ech,003h
+loop10$:
+	db	0fdh
+	dw	sub11$
+	db	0dch,0a4h
+	db	063h
+; P1-2
+	db	0fdh
+	dw	sub11$
+	db	0dch,0a4h
+	db	063h
+	db	0feh,0
+	dw	loop10$
+sub11$:
+	db	0dch,0a2h
+	db	0e5h,003h
+	db	073h
+	db	003h
+	db	073h
+	db	003h
+	db	073h
+	db	003h
+	db	0ffh
+;----------------------------------------
+Shinka2:
+;----------------------------------------
+	db	0ech,002h
+	db	0eah,08h,025h
+	db	0dch,0a2h
+	db	0e4h,070h
+	db	020h
+	db	070h
+	db	020h
+	db	0c3h
+	db	0ech,003h
+loop20$:
+	db	0fdh
+	dw	sub21$
+	db	0dch,0b5h
+	db	093h
+	db	0fdh
+	dw	sub21$
+	db	0dch,0b5h
+	db	0b3h
+	db	0feh,0
+	dw	loop20$
+sub21$:
+	db	0dch,0b2h
+	db	0e5h,073h
+	db	023h
+	db	073h
+	db	023h
+	db	073h
+	db	023h
+	db	073h
+	db	0ffh
+;----------------------------------------
+Shinka3:
+;----------------------------------------
+	db	0dch,010h
+	db	0c7h
+loop30$:
+	db	0fdh
+	dw	sub31$
+	db	0e4h,093h
+	db	0fdh
+	dw	sub31$
+	db	0e4h,0b3h
+	db	0feh,0
+	dw	loop30$
+sub31$:
+	db	0e5h,091h
+	db	0c1h
+	db	0e4h,021h
+	db	0c1h
+	db	0e5h,091h
+	db	0c1h
+	db	0e4h,021h
+	db	0c1h
+	db	0e5h,091h
+	db	0c1h
+	db	0e4h,021h
+	db	0c1h
+	db	0e5h,091h
+	db	0c1h
+	db	0ffh
+
+

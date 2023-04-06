@@ -1,0 +1,25 @@
+; 11/01/95		19:40:55
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	001h
+	db	007h,007h,008h,R16R1F1
+kanban_tbl$:
+	db	002h
+	db	002h,001h,3
+	db	002h,006h,4
+hito_tbl$:
+	db	002h
+	db	CHIKIN
+	db	002h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	LOLITA
+	db	005h+4,002h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	002h
+ram_map_tbl$:
+	dw	00ah * 004h + 004h + ram_map
+	db	007h,007h

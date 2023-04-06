@@ -1,0 +1,4100 @@
+Iso\common.iso:\
+	common.def
+
+Iso\header.iso:\
+	header.dmg\
+	pm_debug.def\
+	common.def\
+	group.def
+
+Iso\bank.iso:\
+	bank.dmg\
+	group.def
+
+Iso\mushead.iso:\
+	mushead.dmg\
+	pm_debug.def\
+	group.def\
+	mvoice.h\
+	mvoice.dat
+
+Iso\mushead2.iso:\
+	mushead2.dmg\
+	group.def\
+	mvoice.h\
+	mvoice.dat
+
+Iso\mushead3.iso:\
+	mushead3.dmg\
+	pm_debug.def\
+	group.def\
+	mvoice.h\
+	mvoice.dat
+
+Iso\mushead4.iso:\
+	mushead4.dmg\
+	pm_debug.def\
+	group.def\
+	mvoice.h\
+	mvoice.dat
+
+Iso\p_voice.iso:\
+	p_voice.dmg\
+	common.def\
+	group.def\
+	pika.def\
+	..\sound\pika01.dat\
+	..\sound\pika03.dat\
+	..\sound\pika07.dat\
+	..\sound\pika05.dat\
+	..\sound\pika06.dat\
+	..\sound\pika04.dat\
+	..\sound\pika09.dat\
+	..\sound\pika11.dat\
+	..\sound\pika02.dat\
+	..\sound\pika08.dat\
+	..\sound\pika10.dat\
+	..\sound\pika12.dat\
+	..\sound\pika13.dat\
+	..\sound\pika14.dat\
+	..\sound\pika15.dat\
+	..\sound\pika16.dat\
+	..\sound\pika17.dat\
+	..\sound\pika18.dat\
+	..\sound\pika19.dat\
+	..\sound\pika26.dat\
+	..\sound\pika20.dat\
+	..\sound\pika21.dat\
+	..\sound\pika24.dat\
+	..\sound\pika22.dat\
+	..\sound\pika23.dat\
+	..\sound\pika25.dat\
+	..\sound\pika27.dat
+
+Iso\pattern.iso:\
+	pattern.dmg
+
+Iso\cont.iso:\
+	cont.dmg\
+	common.def\
+	group.def
+
+Iso\waza.iso:\
+	waza.dmg\
+	fntequ.def\
+	type.def\
+	group.def\
+	pm_debug.def\
+	..\data\wazaname.dat\
+	..\data\waza_tbl.dat
+
+Iso\newmap.iso:\
+	newmap.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	map.def\
+	banktool.def\
+	sgb_col.def\
+	maptype.def\
+	macro.h\
+	group.def\
+	pika.def\
+	objbank.def\
+	music.tbl\
+	..\mapdata\map_tbl.dat\
+	mapbank.dat
+
+Iso\set_ppl.iso:\
+	set_ppl.dmg\
+	common.def\
+	fntequ.def\
+	map.def\
+	banktool.def\
+	sgb_col.def\
+	maptype.def\
+	macro.h\
+	group.def
+
+Iso\maporg.iso:\
+	maporg.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	pm_debug.def\
+	group.def\
+	..\sxy\town05.sxy\
+	..\mapdata\ntown_05.map\
+	..\sxy\town09.sxy\
+	..\mapdata\ntown_09.map\
+	..\sxy\road01.sxy\
+	..\mapdata\nroad_01.map\
+	..\sxy\town07.sxy\
+	..\mapdata\ntown_07.map\
+	..\sxy\town01.sxy\
+	..\mapdata\ntown_01.map\
+	..\sxy\town02.sxy\
+	..\mapdata\ntown_02.map\
+	..\sxy\town03.sxy\
+	..\mapdata\ntown_03.map\
+	..\sxy\town04.sxy\
+	..\mapdata\ntown_04.map\
+	..\sxy\town06.sxy\
+	..\mapdata\ntown_06.map\
+	..\sxy\town08.sxy\
+	..\mapdata\ntown_08.map\
+	..\sxy\road07.sxy\
+	..\mapdata\nroad_07.map\
+	..\sxy\road02.sxy\
+	..\mapdata\nroad_02.map\
+	..\sxy\road03.sxy\
+	..\mapdata\nroad_03.map\
+	..\sxy\road04.sxy\
+	..\mapdata\yroad_04.map\
+	..\mapdata\nroad_04.map\
+	..\sxy\road05.sxy\
+	..\mapdata\nroad_05.map\
+	..\sxy\road09.sxy\
+	..\mapdata\nroad_09.map\
+	..\sxy\road13.sxy\
+	..\mapdata\nroad_13.map\
+	..\sxy\road14.sxy\
+	..\mapdata\nroad_14.map\
+	..\sxy\road17.sxy\
+	..\mapdata\nroad_17.map\
+	..\sxy\road19.sxy\
+	..\mapdata\yroad_19.map\
+	..\sxy\road21.sxy\
+	..\mapdata\nroad_21.map\
+	..\sxy\road06.sxy\
+	..\mapdata\nroad_06.map\
+	..\sxy\road08.sxy\
+	..\mapdata\nroad_08.map\
+	..\sxy\road10.sxy\
+	..\mapdata\nroad_10.map\
+	..\sxy\road11.sxy\
+	..\mapdata\nroad_11.map\
+	..\sxy\road12.sxy\
+	..\mapdata\nroad_12.map\
+	..\sxy\road15.sxy\
+	..\mapdata\nroad_15.map\
+	..\sxy\road16.sxy\
+	..\mapdata\nroad_16.map\
+	..\sxy\road18.sxy\
+	..\mapdata\nroad_18.map\
+	..\sxy\road22.sxy\
+	..\mapdata\nroad_22.map\
+	..\sxy\road20.sxy\
+	..\mapdata\nroad_20.map\
+	..\sxy\road23.sxy\
+	..\mapdata\nroad_23.map\
+	..\sxy\road24.sxy\
+	..\mapdata\nroad_24.map\
+	..\sxy\road25.sxy\
+	..\mapdata\nroad_25.map\
+	..\sxy\town10.sxy\
+	..\mapdata\pokecen.map\
+	..\sxy\town11.sxy\
+	..\mapdata\ntown_t.map
+
+Iso\data_box.iso:\
+	data_box.dmg\
+	pm_debug.def\
+	group.def\
+	..\mapdata\nukemin.map\
+	..\mapdata\ohkido.map\
+	..\mapdata\minka_a.map\
+	..\mapdata\minka_b.map\
+	..\mapdata\minka_c.map\
+	..\mapdata\iwamin.map\
+	..\mapdata\hotel_y.map\
+	..\mapdata\hotel.map\
+	..\mapdata\skoya_1.map\
+	..\mapdata\hotel_y.map\
+	..\mapdata\hotel.map\
+	..\mapdata\11_18gat.map\
+	..\mapdata\gate2f.map\
+	..\mapdata\minka_a.map\
+	..\mapdata\turi.map\
+	..\mapdata\hotel_y.map\
+	..\mapdata\hotel.map\
+	..\mapdata\shop_y.map\
+	..\mapdata\shop.map\
+	..\mapdata\room2f.map\
+	..\mapdata\hakubu1f.map\
+	..\mapdata\hakubu2f.map\
+	..\mapdata\hotel_y.map\
+	..\mapdata\hotel.map\
+	..\mapdata\nukemin.map\
+	..\mapdata\sekisho.map\
+	..\mapdata\dgn01.map\
+	..\mapdata\nuke5_6.map\
+	..\mapdata\dgn06.map\
+	..\mapdata\iwanuke_.map\
+	..\mapdata\shroom2.map\
+	..\mapdata\room1f.map\
+	..\mapdata\shop_y.map\
+	..\mapdata\shop.map\
+	..\mapdata\minka_a.map\
+	..\mapdata\hotel_y.map\
+	..\mapdata\hotel.map\
+	..\mapdata\turi.map
+
+Iso\monster.iso:\
+	monster.dmg\
+	fntequ.def\
+	type.def\
+	voice.h\
+	pm_debug.def\
+	group.def\
+	common.def\
+	..\monsdata\monstbl.dat\
+	voice.dat\
+	..\monsdata\monsname.dat\
+	..\monsdata\pmyf_112.dat\
+	..\monsdata\monsbk01.dat\
+	..\monsdata\pmyf_115.dat\
+	..\monsdata\monsbk02.dat\
+	..\monsdata\pmyf_032.dat\
+	..\monsdata\monsbk03.dat\
+	..\monsdata\pmyf_035.dat\
+	..\monsdata\monsbk04.dat\
+	..\monsdata\pmyf_021.dat\
+	..\monsdata\monsbk05.dat\
+	..\monsdata\pmyf_100.dat\
+	..\monsdata\monsbk06.dat\
+	..\monsdata\pmyf_034.dat\
+	..\monsdata\monsbk07.dat\
+	..\monsdata\pmyf_080.dat\
+	..\monsdata\monsbk08.dat\
+	..\monsdata\pmyf_002.dat\
+	..\monsdata\monsbk09.dat\
+	..\monsdata\pmyf_103.dat\
+	..\monsdata\monsbk10.dat\
+	..\monsdata\pmyf_108.dat\
+	..\monsdata\monsbk11.dat\
+	..\monsdata\pmyf_102.dat\
+	..\monsdata\monsbk12.dat\
+	..\monsdata\pmyf_088.dat\
+	..\monsdata\monsbk13.dat\
+	..\monsdata\pmyf_094.dat\
+	..\monsdata\monsbk14.dat\
+	..\monsdata\pmyf_029.dat\
+	..\monsdata\monsbk15.dat\
+	..\monsdata\pmyf_031.dat\
+	..\monsdata\monsbk16.dat\
+	..\monsdata\pmyf_104.dat\
+	..\monsdata\monsbk17.dat\
+	..\monsdata\pmyf_111.dat\
+	..\monsdata\monsbk18.dat\
+	..\monsdata\pmyf_131.dat\
+	..\monsdata\monsbk19.dat\
+	..\monsdata\pmyf_059.dat\
+	..\monsdata\monsbk20.dat\
+	..\monsdata\pmyf_151.dat\
+	..\monsdata\monsbk21.dat\
+	..\monsdata\pmyf_130.dat\
+	..\monsdata\monsbk22.dat\
+	..\monsdata\pmyf_090.dat\
+	..\monsdata\monsbk23.dat\
+	..\monsdata\pmyf_072.dat\
+	..\monsdata\monsbk24.dat\
+	..\monsdata\pmyf_092.dat\
+	..\monsdata\monsbk25.dat\
+	..\monsdata\pmyf_123.dat\
+	..\monsdata\monsbk26.dat\
+	..\monsdata\pmyf_120.dat\
+	..\monsdata\monsbk27.dat\
+	..\monsdata\pmyf_009.dat\
+	..\monsdata\monsbk28.dat\
+	..\monsdata\pmyf_127.dat\
+	..\monsdata\monsbk29.dat\
+	..\monsdata\pmyf_114.dat\
+	..\monsdata\monsbk30.dat\
+	..\monsdata\pmyf_058.dat\
+	..\monsdata\monsbk33.dat\
+	..\monsdata\pmyf_095.dat\
+	..\monsdata\monsbk34.dat\
+	..\monsdata\pmyf_022.dat\
+	..\monsdata\monsbk35.dat\
+	..\monsdata\pmyf_016.dat\
+	..\monsdata\monsbk36.dat\
+	..\monsdata\pmyf_079.dat\
+	..\monsdata\monsbk37.dat\
+	..\monsdata\pmyf_064.dat\
+	..\monsdata\monsbk38.dat\
+	..\monsdata\pmyf_075.dat\
+	..\monsdata\monsbk39.dat\
+	..\monsdata\pmyf_113.dat\
+	..\monsdata\monsbk40.dat\
+	..\monsdata\pmyf_067.dat\
+	..\monsdata\monsbk41.dat\
+	..\monsdata\pmyf_122.dat\
+	..\monsdata\monsbk42.dat\
+	..\monsdata\pmyf_106.dat\
+	..\monsdata\monsbk43.dat\
+	..\monsdata\pmyf_107.dat\
+	..\monsdata\monsbk44.dat\
+	..\monsdata\pmyf_024.dat\
+	..\monsdata\monsbk45.dat\
+	..\monsdata\pmyf_047.dat\
+	..\monsdata\monsbk46.dat\
+	..\monsdata\pmyf_054.dat\
+	..\monsdata\monsbk47.dat\
+	..\monsdata\pmyf_096.dat\
+	..\monsdata\monsbk48.dat\
+	..\monsdata\pmyf_076.dat\
+	..\monsdata\monsbk49.dat\
+	..\monsdata\pmyf_126.dat\
+	..\monsdata\monsbk51.dat\
+	..\monsdata\pmyf_125.dat\
+	..\monsdata\monsbk53.dat\
+	..\monsdata\pmyf_082.dat\
+	..\monsdata\monsbk54.dat\
+	..\monsdata\pmyf_109.dat\
+	..\monsdata\monsbk55.dat\
+	..\monsdata\pmyf_056.dat\
+	..\monsdata\monsbk57.dat\
+	..\monsdata\pmyf_086.dat\
+	..\monsdata\monsbk58.dat\
+	..\monsdata\pmyf_050.dat\
+	..\monsdata\monsbk59.dat\
+	..\monsdata\pmyf_128.dat\
+	..\monsdata\monsbk60.dat\
+	..\monsdata\pmyf_083.dat\
+	..\monsdata\monsbk64.dat\
+	..\monsdata\pmyf_048.dat\
+	..\monsdata\monsbk65.dat\
+	..\monsdata\pmyf_149.dat\
+	..\monsdata\monsbk66.dat\
+	..\monsdata\pmyf_084.dat\
+	..\monsdata\monsbk70.dat\
+	..\monsdata\pmyf_060.dat\
+	..\monsdata\monsbk71.dat\
+	..\monsdata\pmyf_124.dat\
+	..\monsdata\monsbk72.dat\
+	..\monsdata\pmyf_146.dat\
+	..\monsdata\monsbk73.dat\
+	..\monsdata\pmyf_144.dat\
+	..\monsdata\monsbk74.dat\
+	..\monsdata\pmyf_145.dat\
+	..\monsdata\monsbk75.dat\
+	..\monsdata\pmyf_132.dat\
+	..\monsdata\monsbk76.dat\
+	..\monsdata\pmyf_052.dat\
+	..\monsdata\monsbk77.dat\
+	..\monsdata\pmyf_098.dat\
+	..\monsdata\monsbk78.dat\
+	..\monsdata\pmyf_037.dat\
+	..\monsdata\monsbk82.dat\
+	..\monsdata\pmyf_038.dat\
+	..\monsdata\monsbk83.dat\
+	..\monsdata\pmyf_025.dat\
+	..\monsdata\monsbk84.dat\
+	..\monsdata\pmyf_026.dat\
+	..\monsdata\monsbk85.dat\
+	..\monsdata\pmyf_147.dat\
+	..\monsdata\monsbk88.dat\
+	..\monsdata\pmyf_148.dat\
+	..\monsdata\monsbk89.dat\
+	..\monsdata\pmyf_140.dat\
+	..\monsdata\monsbk90.dat\
+	..\monsdata\pmyf_141.dat\
+	..\monsdata\monsbk91.dat\
+	..\monsdata\pmyf_116.dat\
+	..\monsdata\monsbk92.dat\
+	..\monsdata\pmyf_117.dat\
+	..\monsdata\monsbk93.dat\
+	..\monsdata\pmyf_027.dat\
+	..\monsdata\monsbk96.dat\
+	..\monsdata\pmyf_028.dat\
+	..\monsdata\monsbk97.dat\
+	..\monsdata\pmyf_138.dat\
+	..\monsdata\monsbk98.dat\
+	..\monsdata\pmyf_139.dat\
+	..\monsdata\monsbk99.dat\
+	..\monsdata\pmyf_039.dat\
+	..\monsdata\monsb100.dat\
+	..\monsdata\pmyf_040.dat\
+	..\monsdata\monsb101.dat\
+	..\monsdata\pmyf_133.dat\
+	..\monsdata\monsb102.dat\
+	..\monsdata\pmyf_136.dat\
+	..\monsdata\monsb103.dat\
+	..\monsdata\pmyf_135.dat\
+	..\monsdata\monsb104.dat\
+	..\monsdata\pmyf_134.dat\
+	..\monsdata\monsb105.dat\
+	..\monsdata\pmyf_066.dat\
+	..\monsdata\monsb106.dat\
+	..\monsdata\pmyf_041.dat\
+	..\monsdata\monsb107.dat\
+	..\monsdata\pmyf_023.dat\
+	..\monsdata\monsb108.dat\
+	..\monsdata\pmyf_046.dat\
+	..\monsdata\monsb109.dat\
+	..\monsdata\pmyf_061.dat\
+	..\monsdata\monsb110.dat\
+	..\monsdata\pmyf_062.dat\
+	..\monsdata\monsb111.dat\
+	..\monsdata\pmyf_013.dat\
+	..\monsdata\monsb112.dat\
+	..\monsdata\pmyf_014.dat\
+	..\monsdata\monsb113.dat\
+	..\monsdata\pmyf_015.dat\
+	..\monsdata\monsb114.dat\
+	..\monsdata\kabubone.dat\
+	..\monsdata\pmyf_085.dat\
+	..\monsdata\monsb116.dat\
+	..\monsdata\pmyf_057.dat\
+	..\monsdata\monsb117.dat\
+	..\monsdata\pmyf_051.dat\
+	..\monsdata\monsb118.dat\
+	..\monsdata\pmyf_049.dat\
+	..\monsdata\monsb119.dat\
+	..\monsdata\pmyf_087.dat\
+	..\monsdata\monsb120.dat\
+	..\monsdata\pmyf_010.dat\
+	..\monsdata\monsb123.dat\
+	..\monsdata\pmyf_011.dat\
+	..\monsdata\monsb124.dat\
+	..\monsdata\pmyf_012.dat\
+	..\monsdata\monsb125.dat\
+	..\monsdata\pmyf_068.dat\
+	..\monsdata\monsb126.dat\
+	..\monsdata\pmyf_055.dat\
+	..\monsdata\monsb128.dat\
+	..\monsdata\pmyf_097.dat\
+	..\monsdata\monsb129.dat\
+	..\monsdata\pmyf_042.dat\
+	..\monsdata\monsb130.dat\
+	..\monsdata\pmyf_150.dat\
+	..\monsdata\monsb131.dat\
+	..\monsdata\pmyf_143.dat\
+	..\monsdata\monsb132.dat\
+	..\monsdata\pmyf_129.dat\
+	..\monsdata\monsb133.dat\
+	..\monsdata\pmyf_089.dat\
+	..\monsdata\monsb136.dat\
+	..\monsdata\pmyf_099.dat\
+	..\monsdata\monsb138.dat\
+	..\monsdata\pmyf_091.dat\
+	..\monsdata\monsb139.dat\
+	..\monsdata\pmyf_101.dat\
+	..\monsdata\monsb141.dat\
+	..\monsdata\pmyf_036.dat\
+	..\monsdata\monsb142.dat\
+	..\monsdata\pmyf_110.dat\
+	..\monsdata\monsb143.dat\
+	..\monsdata\pmyf_053.dat\
+	..\monsdata\monsb144.dat\
+	..\monsdata\pmyf_105.dat\
+	..\monsdata\monsb145.dat\
+	..\monsdata\pmyf_093.dat\
+	..\monsdata\monsb147.dat\
+	..\monsdata\pmyf_063.dat\
+	..\monsdata\monsb148.dat\
+	..\monsdata\pmyf_065.dat\
+	..\monsdata\monsb149.dat\
+	..\monsdata\pmyf_017.dat\
+	..\monsdata\monsb150.dat\
+	..\monsdata\pmyf_018.dat\
+	..\monsdata\monsb151.dat\
+	..\monsdata\pmyf_121.dat\
+	..\monsdata\monsb152.dat\
+	..\monsdata\pmyf_001.dat\
+	..\monsdata\monsb153.dat\
+	..\monsdata\pmyf_003.dat\
+	..\monsdata\monsb154.dat\
+	..\monsdata\pmyf_073.dat\
+	..\monsdata\monsb155.dat\
+	..\monsdata\pmyf_118.dat\
+	..\monsdata\monsb157.dat\
+	..\monsdata\pmyf_119.dat\
+	..\monsdata\monsb158.dat\
+	..\monsdata\pmyf_077.dat\
+	..\monsdata\pmyf_078.dat\
+	..\monsdata\monsb163.dat\
+	..\monsdata\monsb164.dat\
+	..\monsdata\pmyf_019.dat\
+	..\monsdata\monsb165.dat\
+	..\monsdata\pmyf_020.dat\
+	..\monsdata\monsb166.dat\
+	..\monsdata\pmyf_033.dat\
+	..\monsdata\monsb167.dat\
+	..\monsdata\pmyf_030.dat\
+	..\monsdata\monsb168.dat\
+	..\monsdata\pmyf_074.dat\
+	..\monsdata\monsb169.dat\
+	..\monsdata\pmyf_137.dat\
+	..\monsdata\monsb170.dat\
+	..\monsdata\pmyf_142.dat\
+	..\monsdata\monsb171.dat\
+	..\monsdata\pmyf_081.dat\
+	..\monsdata\monsb173.dat\
+	..\monsdata\pmyf_004.dat\
+	..\monsdata\monsb176.dat\
+	..\monsdata\pmyf_007.dat\
+	..\monsdata\monsb177.dat\
+	..\monsdata\pmyf_005.dat\
+	..\monsdata\monsb178.dat\
+	..\monsdata\pmyf_008.dat\
+	..\monsdata\monsb179.dat\
+	..\monsdata\pmyf_006.dat\
+	..\monsdata\monsb180.dat\
+	..\monsdata\monsc182.dat\
+	..\monsdata\putebone.dat\
+	..\monsdata\monsc184.dat\
+	..\monsdata\pmyf_043.dat\
+	..\monsdata\monsb185.dat\
+	..\monsdata\pmyf_044.dat\
+	..\monsdata\monsb186.dat\
+	..\monsdata\pmyf_045.dat\
+	..\monsdata\monsb187.dat\
+	..\monsdata\pmyf_069.dat\
+	..\monsdata\monsb188.dat\
+	..\monsdata\pmyf_070.dat\
+	..\monsdata\monsb189.dat\
+	..\monsdata\pmyf_071.dat\
+	..\monsdata\monsb190.dat\
+	..\monsdata\pmyf_151.dat\
+	..\monsdata\monsbk21.dat
+
+Iso\fight.iso:\
+	fight.dmg\
+	common.def\
+	fntequ.def\
+	type.def\
+	fight.def\
+	effect.def\
+	banktool.def\
+	sgb_col.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\data\my_back.dat\
+	..\data\ji_back.dat\
+	..\data\okid_bak.dat
+
+Iso\zukan.iso:\
+	zukan.dmg\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	sgb_col.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	printer.h\
+	..\monsdata\pmfile.dat\
+	..\monsdata\pmfile.ov\
+	..\monsdata\order.dat
+
+Iso\dealer.iso:\
+	dealer.dmg\
+	common.def\
+	fntequ.def\
+	fight.def\
+	group.def\
+	pm_debug.def\
+	..\data\dealerai.dat\
+	..\data\dealertb.dat\
+	..\data\dealernm.dat\
+	..\data\dealer01.dat\
+	..\data\dealer02.dat\
+	..\data\dealer03.dat\
+	..\data\dealer04.dat\
+	..\data\dealer05.dat\
+	..\data\dealer06.dat\
+	..\data\dealer07.dat\
+	..\data\dealer08.dat\
+	..\data\dealer09.dat\
+	..\data\dealer10.dat\
+	..\data\dealer11.dat\
+	..\data\dealer12.dat\
+	..\data\dealer14.dat\
+	..\data\dealer15.dat\
+	..\data\dealer16.dat\
+	..\data\dealer17.dat\
+	..\data\dealer18.dat\
+	..\data\psy.dat\
+	..\data\dealer20.dat\
+	..\data\dealer21.dat\
+	..\data\dealer22.dat\
+	..\data\dealer23.dat\
+	..\data\dealer24.dat\
+	..\data\dealer25.dat\
+	..\data\dealer26.dat\
+	..\data\dealer28.dat\
+	..\data\dealer29.dat\
+	..\data\dealer30.dat\
+	..\data\dealer31.dat\
+	..\data\dealer32.dat\
+	..\data\boss02.dat\
+	..\data\nusi_02.dat\
+	..\data\nusi_03.dat\
+	..\data\nusi_04.dat\
+	..\data\nusi_05.dat\
+	..\data\nusi_06.dat\
+	..\data\dealer27.dat\
+	..\data\nusi_08.dat\
+	..\data\dealer41.dat\
+	..\data\dealer42.dat\
+	..\data\rival.dat\
+	..\data\boss01.dat\
+	..\data\dealer45.dat\
+	..\data\boss03.dat\
+	..\data\boss04.dat\
+	..\data\rockets.dat
+
+Iso\main.iso:\
+	main.dmg\
+	common.def\
+	fntequ.def\
+	pm_debug.def\
+	banktool.def\
+	sgb_col.def\
+	macro.h\
+	group.def\
+	..\data\logover.dat\
+	..\data\title_y.dat\
+	..\data\font.dat\
+	..\data\font_us.dat\
+	..\data\gauge_b.dat\
+	..\data\fight.dat\
+	..\data\marushiy.dat\
+	..\data\serifu_b.dat\
+	..\data\zukan.dat\
+	..\data\worldmap.dat\
+	..\data\jiki_blu.dat
+
+Iso\mapsub.iso:\
+	mapsub.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	map.def\
+	maptype.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\mapdata\ytown_b1.dat\
+	..\mapdata\town_b1.dat\
+	..\mapdata\town_b1.cel\
+	..\mapdata\room.dat\
+	..\mapdata\room2f.cel\
+	..\mapdata\minka_a.dat\
+	..\mapdata\minka_a.cel\
+	..\mapdata\mansho.dat\
+	..\mapdata\mansho.cel\
+	..\mapdata\port.dat\
+	..\mapdata\port.cel\
+	..\mapdata\daimania.dat\
+	..\mapdata\daimania.cel\
+	..\mapdata\pokecen.dat\
+	..\mapdata\pokecen.cel\
+	..\mapdata\gym.dat\
+	..\mapdata\gym_y.cel\
+	..\mapdata\shop_y.chr\
+	..\mapdata\miseyado.dat\
+	..\mapdata\shop_y.cel\
+	..\mapdata\miseyado.cel\
+	..\mapdata\gatehaku.dat\
+	..\mapdata\gatehaku.cel\
+	..\mapdata\dgn01.dat\
+	..\mapdata\dgn01.cel\
+	..\mapdata\building.dat\
+	..\mapdata\building.cel\
+	..\mapdata\ntower.dat\
+	..\mapdata\ntower.cel\
+	..\mapdata\dgn02.dat\
+	..\mapdata\dgn02.cel\
+	..\mapdata\dept.dat\
+	..\mapdata\dept.cel\
+	..\mapdata\stannu.dat\
+	..\mapdata\stannu.cel\
+	..\mapdata\kenkyu.dat\
+	..\mapdata\kenkyu.cel\
+	..\mapdata\cicle.dat\
+	..\mapdata\cicle.cel\
+	..\mapdata\nuke.dat\
+	..\mapdata\nuke.cel\
+	..\mapdata\umihouse.dat\
+	..\mapdata\umihouse.cel
+
+Iso\effecter.iso:\
+	effecter.dmg\
+	common.def\
+	se.def\
+	effect.def\
+	sgb_col.def\
+	effecter.h\
+	..\data\waza_se.h\
+	fntequ.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	pm_debug.def
+
+Iso\monslist.iso:\
+	monslist.dmg\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	sgb_col.def\
+	macro.h\
+	group.def\
+	pm_debug.def
+
+Iso\y_patch.iso:\
+	y_patch.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	pm_debug.def\
+	dealer.def\
+	vanish.def\
+	map.def\
+	macro.h\
+	group.def
+
+Iso\pikaact.iso:\
+	pikaact.dmg\
+	common.def\
+	banktool.def\
+	macro.h\
+	fntequ.def\
+	group.def\
+	maphead.def\
+	pika.def
+
+Iso\pikatalk.iso:\
+	pikatalk.dmg\
+	common.def\
+	banktool.def\
+	macro.h\
+	fntequ.def\
+	group.def\
+	maphead.def\
+	pm_debug.def\
+	pika.def
+
+Iso\pikaface.iso:\
+	pikaface.dmg\
+	common.def\
+	banktool.def\
+	macro.h\
+	fntequ.def\
+	group.def\
+	pika.def\
+	objbank.def\
+	pm_debug.def\
+	..\data\pika_01.dat\
+	..\data\pika_01a.dat\
+	..\data\pika_02.dat\
+	..\data\pika_02a.dat\
+	..\data\pika_03.dat\
+	..\data\pika_03a.dat\
+	..\data\pika_04.dat\
+	..\data\pika_04a.dat\
+	..\data\pika_05.dat\
+	..\data\pika_05a.dat\
+	..\data\pika_06.dat\
+	..\data\pika_06a.dat\
+	..\data\pika_07.dat\
+	..\data\pika_07a.dat\
+	..\data\pika_08.dat\
+	..\data\pika_08a.dat\
+	..\data\pika_09.dat\
+	..\data\pika_09a.dat\
+	..\data\pika_10.dat\
+	..\data\pika_10a.dat\
+	..\data\pika_10b.dat\
+	..\data\pika_11.dat\
+	..\data\pika_11a.dat\
+	..\data\pika_12.dat\
+	..\data\pika_12a.dat\
+	..\data\pika_13.dat\
+	..\data\pika_13a.dat\
+	..\data\pika_14.dat\
+	..\data\pika_14a.dat\
+	..\data\pika_15.dat\
+	..\data\pika_15a.dat\
+	..\data\pika_16.dat\
+	..\data\pika_16a.dat\
+	..\data\pika_17.dat\
+	..\data\pika_17a.dat\
+	..\data\pika_18.dat\
+	..\data\pika_18a.dat\
+	..\data\pika_19.dat\
+	..\data\pika_19a.dat\
+	..\data\pika_20.dat\
+	..\data\pika_20a.dat\
+	..\data\pika_21.dat\
+	..\data\pika_21a.dat\
+	..\data\pika_21b.dat\
+	..\data\pika_21c.dat\
+	..\data\pika_21d.dat\
+	..\data\pika_22.dat\
+	..\data\pika_22a.dat\
+	..\data\pika_23.dat\
+	..\data\pika_23a.dat\
+	..\data\pika_24.dat\
+	..\data\pika_24a.dat\
+	..\data\pika_25.dat\
+	..\data\pika_25a.dat\
+	..\data\pika_25b.dat\
+	..\data\pika_26.dat\
+	..\data\pika_26a.dat\
+	..\data\pika_27.dat\
+	..\data\pika_27a.dat\
+	..\data\pika_28.dat\
+	..\data\pika_28a.dat
+
+Iso\item.iso:\
+	item.dmg\
+	fntequ.def\
+	pm_debug.def\
+	..\data\itemgold.dat\
+	..\data\itemname.dat
+
+Iso\badge.iso:\
+	badge.dmg\
+	fntequ.def
+
+Iso\actput.iso:\
+	actput.dmg\
+	pm_debug.def\
+	common.def\
+	maphead.def
+
+Iso\dma.iso:\
+	dma.dmg\
+	common.def
+
+Iso\lcdc.iso:\
+	lcdc.dmg\
+	common.def\
+	laster.h
+
+Iso\chrset.iso:\
+	chrset.dmg\
+	common.def\
+	group.def
+
+Iso\print.iso:\
+	print.dmg\
+	common.def\
+	fntequ.def\
+	sgb_col.def\
+	pm_debug.def
+
+Iso\prt.iso:\
+	prt.dmg\
+	pm_debug.def\
+	common.def
+
+Iso\reset.iso:\
+	reset.dmg\
+	common.def\
+	banktool.def\
+	sgb_col.def\
+	group.def
+
+Iso\vblank.iso:\
+	vblank.dmg\
+	common.def\
+	fntequ.def\
+	macro.h\
+	group.def\
+	pm_debug.def
+
+Iso\sio.iso:\
+	sio.dmg\
+	common.def\
+	fntequ.def\
+	fight.def\
+	macro.h\
+	pm_debug.def
+
+Iso\timer.iso:\
+	timer.dmg\
+	common.def\
+	fntequ.def
+
+Iso\play.iso:\
+	play.dmg\
+	common.def\
+	group.def\
+	map.def
+
+Iso\actor.iso:\
+	actor.dmg\
+	pm_debug.def\
+	common.def\
+	macro.h\
+	few_mac.h\
+	pika.def
+
+Iso\hitcheck.iso:\
+	hitcheck.dmg\
+	pm_debug.def\
+	common.def\
+	macro.h\
+	pika.def
+
+Iso\itemmenu.iso:\
+	itemmenu.dmg\
+	fntequ.def\
+	..\data\itemmenu.dat
+
+Iso\vanish.iso:\
+	vanish.dmg\
+	common.def\
+	map.def\
+	banktool.def\
+	few_mac.h
+
+Iso\debug.iso:\
+	debug.dmg\
+	common.def\
+	fntequ.def\
+	pm_debug.def\
+	banktool.def\
+	sgb_col.def\
+	fight.def\
+	macro.h\
+	fntequ.def\
+	group.def
+
+Iso\commsg.iso:\
+	commsg.dmg\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	macro.h\
+	group.def
+
+Iso\uncomp.iso:\
+	uncomp.dmg\
+	common.def
+
+Iso\watashi.iso:\
+	watashi.dmg\
+	common.def\
+	banktool.def
+
+Iso\a_move.iso:\
+	a_move.dmg\
+	pm_debug.def\
+	common.def\
+	anime.def\
+	banktool.def\
+	macro.h
+
+Iso\play2.iso:\
+	play2.dmg\
+	common.def\
+	fntequ.def\
+	pm_debug.def\
+	banktool.def\
+	fight.def\
+	macro.h\
+	group.def\
+	maphead.def
+
+Iso\play1.iso:\
+	play1.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	pm_debug.def\
+	banktool.def\
+	sgb_col.def\
+	macro.h\
+	group.def\
+	objbank.def\
+	..\data\hero.dat\
+	..\data\kasya2.dat\
+	..\data\kasya3.dat
+
+Iso\fadeplay.iso:\
+	fadeplay.dmg\
+	common.def
+
+Iso\talkmap.iso:\
+	talkmap.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	sgb_col.def\
+	map.def\
+	maptype.def\
+	fight.def\
+	macro.h\
+	group.def\
+	pika.def\
+	..\effdata\statwaku.dat\
+	..\effdata\statname.dat\
+	..\effdata\statno.dat
+
+Iso\newobj.iso:\
+	newobj.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	pika.def\
+	..\data\chari.dat\
+	..\data\jibun.chr\
+	..\data\rival.chr\
+	..\data\ookido.chr\
+	..\data\shounen.chr\
+	..\data\monster.chr\
+	..\data\trainerw.chr\
+	..\data\trainerm.chr\
+	..\data\lolita.chr\
+	..\data\tori.chr\
+	..\data\ossan.chr\
+	..\data\gsan.chr\
+	..\data\niichyan.chr\
+	..\data\neechyan.chr\
+	..\data\morimori.chr\
+	..\data\hotelw.chr\
+	..\data\hotelm.chr\
+	..\data\ane.chr\
+	..\data\cycle.chr\
+	..\data\funanori.chr\
+	..\data\cook.chr\
+	..\data\chariya.chr\
+	..\data\fuji.chr\
+	..\data\boss.chr\
+	..\data\danin.chr\
+	..\data\kitoushi.chr\
+	..\data\boy.chr\
+	..\data\shainw.chr\
+	..\data\obasan.chr\
+	..\data\nanami.chr\
+	..\data\wataru.chr\
+	..\data\okaasan.chr\
+	..\data\ossan2.chr\
+	..\data\chikin.chr\
+	..\data\gamerm.chr\
+	..\data\marumon.chr\
+	..\data\kikuko.chr\
+	..\data\shiva.chr\
+	..\data\kanna.chr\
+	..\data\umiryu.chr\
+	..\data\kenkyuin.chr\
+	..\data\philip.chr\
+	..\data\swimmer.chr\
+	..\data\sylphman.chr\
+	..\data\danpei.chr\
+	..\data\gsan2.chr\
+	..\data\shopman.chr\
+	..\data\uminoie.chr\
+	..\data\basan.chr\
+	..\data\hotelman.chr\
+	..\data\depaga.chr\
+	..\data\shathou.chr\
+	..\data\shainm.chr\
+	..\data\enthou.chr\
+	..\data\senthou.chr\
+	..\data\seinen.chr\
+	..\data\kakutou.chr\
+	..\data\keibi.chr\
+	..\data\komono.dat\
+	..\data\testball.chr\
+	..\data\junsar.chr\
+	..\data\walkpika.chr\
+	..\data\sand.chr\
+	..\data\nazokusa.chr\
+	..\data\fushigi.chr\
+	..\data\purin.chr\
+	..\data\pippi.chr\
+	..\data\lucky.chr\
+	..\data\surfpika.dat\
+	..\data\musashi.chr\
+	..\data\kojiro.chr
+
+Iso\encount.iso:\
+	encount.dmg\
+	common.def\
+	pm_debug.def\
+	..\data\encounty.dat\
+	..\data\encountb.dat
+
+Iso\useitem.iso:\
+	useitem.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	fight.def\
+	map.def\
+	macro.h\
+	group.def\
+	pika.def\
+	maptype.def
+
+Iso\sfx.iso:\
+	sfx.dmg\
+	common.def\
+	banktool.def\
+	se.def\
+	pm_debug.def
+
+Iso\prt_sio.iso:\
+	prt_sio.dmg\
+	common.def\
+	group.def\
+	printer.h
+
+Iso\printer.iso:\
+	printer.dmg\
+	common.def\
+	group.def\
+	macro.h\
+	printer.h
+
+Iso\printer2.iso:\
+	printer2.dmg\
+	common.def\
+	group.def\
+	macro.h\
+	printer.h\
+	fntequ.def\
+	sgb_col.def\
+	banktool.def\
+	pm_debug.def
+
+Iso\turidata.iso:\
+	turidata.dmg\
+	common.def\
+	fntequ.def\
+	macro.h\
+	group.def\
+	map.def
+
+Iso\ending.iso:\
+	ending.dmg\
+	common.def\
+	se.def\
+	effect.def\
+	sgb_col.def\
+	effecter.h\
+	..\data\waza_se.h\
+	fntequ.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\data\theend.dat
+
+Iso\town01.iso:\
+	town01.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	pm_debug.def\
+	dealer.def\
+	vanish.def\
+	macro.h\
+	group.def
+
+Iso\town02.iso:\
+	town02.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	vanish.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	pikaanm.h
+
+Iso\town03.iso:\
+	town03.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	pm_debug.def\
+	macro.h\
+	group.def
+
+Iso\town04.iso:\
+	town04.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	anime.def\
+	vanish.def\
+	pm_debug.def\
+	macro.h\
+	group.def
+
+Iso\town05.iso:\
+	town05.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def
+
+Iso\town06.iso:\
+	town06.dmg\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	anime.def\
+	maphead.def\
+	vanish.def\
+	macro.h\
+	group.def
+
+Iso\town07.iso:\
+	town07.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def
+
+Iso\town08.iso:\
+	town08.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	dealer.def\
+	macro.h\
+	group.def
+
+Iso\town09.iso:\
+	town09.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\town11.iso:\
+	town11.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	vanish.def\
+	macro.h\
+	group.def
+
+Iso\road01.iso:\
+	road01.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road02.iso:\
+	road02.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	pika.def\
+	pikaanm.h
+
+Iso\road03.iso:\
+	road03.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road04.iso:\
+	road04.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road05.iso:\
+	road05.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def
+
+Iso\road06.iso:\
+	road06.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road07.iso:\
+	road07.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def
+
+Iso\road08.iso:\
+	road08.dmg\
+	common.def\
+	anime.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road09.iso:\
+	road09.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def
+
+Iso\road10.iso:\
+	road10.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def
+
+Iso\road11.iso:\
+	road11.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road12.iso:\
+	road12.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def
+
+Iso\road13.iso:\
+	road13.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road14.iso:\
+	road14.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road15.iso:\
+	road15.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road16.iso:\
+	road16.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def
+
+Iso\road17.iso:\
+	road17.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def
+
+Iso\road18.iso:\
+	road18.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road19.iso:\
+	road19.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road20.iso:\
+	road20.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def
+
+Iso\road21.iso:\
+	road21.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def
+
+Iso\road22.iso:\
+	road22.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	anime.def\
+	dealer.def\
+	vanish.def\
+	macro.h\
+	group.def
+
+Iso\road23.iso:\
+	road23.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	pm_debug.def
+
+Iso\road24.iso:\
+	road24.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	dealer.def\
+	vanish.def\
+	macro.h\
+	group.def
+
+Iso\road25.iso:\
+	road25.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def
+
+Iso\t00r0101.iso:\
+	t00r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t00r0101.sxy\
+	..\mapdata\trade.map
+
+Iso\t00r0102.iso:\
+	t00r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t00r0102.sxy\
+	..\mapdata\coloseum.map
+
+Iso\t01r0101.iso:\
+	t01r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t01r0101.sxy\
+	..\mapdata\room1f.map
+
+Iso\t01r0102.iso:\
+	t01r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	pm_debug.def\
+	macro.h\
+	group.def\
+	..\sxy\t01r0102.dbg\
+	..\sxy\t01r0102.sxy
+
+Iso\t01r0201.iso:\
+	t01r0201.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	pm_debug.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\t01r0201.sxy\
+	..\mapdata\minka_a.map
+
+Iso\t01r0301.iso:\
+	t01r0301.dmg\
+	common.def\
+	fntequ.def\
+	vanish.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	pm_debug.def\
+	pika.def\
+	macro.h\
+	few_mac.h\
+	group.def\
+	pikaanm.h\
+	..\sxy\t01r0301.sxy
+
+Iso\t02r0101.iso:\
+	t02r0101.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t02r0101.sxy
+
+Iso\t02r0201.iso:\
+	t02r0201.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	vanish.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t02r0201.sxy\
+	..\mapdata\shop_y.map
+
+Iso\t02r0301.iso:\
+	t02r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t02r0301.sxy
+
+Iso\t02r0401.iso:\
+	t02r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t02r0401.sxy
+
+Iso\t02r0501.iso:\
+	t02r0501.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t02r0501.sxy\
+	..\mapdata\gym_08.map
+
+Iso\t03r0101.iso:\
+	t03r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\t03r0101.sxy
+
+Iso\t03r0102.iso:\
+	t03r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t03r0102.sxy
+
+Iso\t03r0201.iso:\
+	t03r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t03r0201.sxy\
+	..\mapdata\gym_01.map
+
+Iso\t03r0301.iso:\
+	t03r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	pm_debug.def\
+	macro.h\
+	group.def\
+	..\sxy\t03r0301.sxy
+
+Iso\t03r0401.iso:\
+	t03r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t03r0401.sxy
+
+Iso\t03r0501.iso:\
+	t03r0501.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t03r0501.sxy
+
+Iso\t03r0601.iso:\
+	t03r0601.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t03r0601.sxy
+
+Iso\t04r0101.iso:\
+	t04r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t04r0101.sxy
+
+Iso\t04r0201.iso:\
+	t04r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\t04r0201.sxy
+
+Iso\t04r0301.iso:\
+	t04r0301.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t04r0301.sxy\
+	..\mapdata\hotel_y.map\
+	..\mapdata\hotel.map
+
+Iso\t04r0401.iso:\
+	t04r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t04r0401.sxy\
+	..\mapdata\gym_02.map
+
+Iso\t04r0501.iso:\
+	t04r0501.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t04r0501.sxy\
+	..\mapdata\cicle.map
+
+Iso\t04r0601.iso:\
+	t04r0601.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t04r0601.sxy
+
+Iso\t04r0701.iso:\
+	t04r0701.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	pm_debug.def\
+	..\sxy\t04r0701.sxy\
+	..\mapdata\yend_01.map\
+	..\mapdata\nend01.map
+
+Iso\t04r0801.iso:\
+	t04r0801.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t04r0801.sxy
+
+Iso\t05r0101.iso:\
+	t05r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t05r0101.sxy
+
+Iso\t05r0201.iso:\
+	t05r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t05r0201.sxy\
+	..\mapdata\nt_1f.map
+
+Iso\t05r0202.iso:\
+	t05r0202.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	vanish.def\
+	banktool.def\
+	dealer.def\
+	anime.def\
+	pm_debug.def\
+	macro.h\
+	group.def\
+	pikaanm.h\
+	..\sxy\t05r0202.sxy\
+	..\mapdata\nt_2f.map
+
+Iso\t05r0203.iso:\
+	t05r0203.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	..\sxy\t05r0203.sxy\
+	..\mapdata\nt_3f.map
+
+Iso\t05r0204.iso:\
+	t05r0204.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t05r0204.sxy\
+	..\mapdata\nt_4f.map
+
+Iso\t05r0205.iso:\
+	t05r0205.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t05r0205.sxy\
+	..\mapdata\nt_5f.map
+
+Iso\t05r0206.iso:\
+	t05r0206.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	vanish.def\
+	anime.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	..\sxy\t05r0206.sxy\
+	..\mapdata\nt_6f.map
+
+Iso\t05r0207.iso:\
+	t05r0207.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	anime.def\
+	dealer.def\
+	pm_debug.def\
+	macro.h\
+	group.def\
+	..\sxy\t05r0207.sxy\
+	..\mapdata\nt_7f.map
+
+Iso\t05r0301.iso:\
+	t05r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	group.def\
+	..\sxy\t05r0301.sxy
+
+Iso\t05r0401.iso:\
+	t05r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t05r0401.sxy
+
+Iso\t05r0501.iso:\
+	t05r0501.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t05r0501.sxy
+
+Iso\t05r0601.iso:\
+	t05r0601.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t05r0601.sxy
+
+Iso\t06r0101.iso:\
+	t06r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t06r0101.sxy
+
+Iso\t06r0201.iso:\
+	t06r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	anime.def\
+	macro.h\
+	group.def\
+	pika.def\
+	pm_debug.def\
+	pikaanm.h\
+	..\sxy\t06r0201.sxy\
+	..\mapdata\daisuki.map
+
+Iso\t06r0301.iso:\
+	t06r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t06r0301.sxy
+
+Iso\t06r0401.iso:\
+	t06r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	macro.h\
+	pm_debug.def\
+	group.def\
+	..\sxy\t06r0401.sxy\
+	..\mapdata\gym_03.map
+
+Iso\t06r0501.iso:\
+	t06r0501.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t06r0501.sxy
+
+Iso\t06r0601.iso:\
+	t06r0601.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	pm_debug.def\
+	..\sxy\t06r0601.sxy\
+	..\mapdata\port.map
+
+Iso\t06r0701.iso:\
+	t06r0701.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t06r0701.sxy\
+	..\mapdata\minka_a.map
+
+Iso\t06r0801.iso:\
+	t06r0801.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t06r0801.sxy
+
+Iso\t07r0101.iso:\
+	t07r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0101.sxy\
+	..\mapdata\dept1f.map
+
+Iso\t07r0102.iso:\
+	t07r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0102.sxy\
+	..\mapdata\dept2f.map
+
+Iso\t07r0103.iso:\
+	t07r0103.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	group.def\
+	..\sxy\t07r0103.sxy\
+	..\mapdata\dept3f.map
+
+Iso\t07r0104.iso:\
+	t07r0104.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0104.sxy\
+	..\mapdata\dept4f.map
+
+Iso\t07r0105.iso:\
+	t07r0105.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t07r0105.sxy\
+	..\mapdata\dept5f.map
+
+Iso\t07r0106.iso:\
+	t07r0106.dmg\
+	common.def\
+	pm_debug.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t07r0106.sxy\
+	..\mapdata\depelv.map
+
+Iso\t07r0201.iso:\
+	t07r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	pm_debug.def\
+	group.def\
+	..\sxy\t07r0201.sxy\
+	..\mapdata\mansh01.map
+
+Iso\t07r0202.iso:\
+	t07r0202.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0202.sxy\
+	..\mapdata\mansh02.map
+
+Iso\t07r0203.iso:\
+	t07r0203.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0203.sxy\
+	..\mapdata\mansh03.map
+
+Iso\t07r0204.iso:\
+	t07r0204.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0204.sxy\
+	..\mapdata\mansh04.map
+
+Iso\t07r0205.iso:\
+	t07r0205.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	vanish.def\
+	banktool.def\
+	group.def\
+	..\sxy\t07r0205.sxy
+
+Iso\t07r0301.iso:\
+	t07r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	pm_debug.def\
+	..\sxy\t07r0301.sxy
+
+Iso\t07r0401.iso:\
+	t07r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t07r0401.sxy\
+	..\mapdata\ygym_04.map\
+	..\mapdata\gym_04.map
+
+Iso\t07r0501.iso:\
+	t07r0501.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	maptype.def\
+	anime.def\
+	banktool.def\
+	dealer.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	pikaanm.h\
+	..\sxy\t07r0501.sxy\
+	..\mapdata\ypachnco.map\
+	..\mapdata\pachnco.map
+
+Iso\t07r0601.iso:\
+	t07r0601.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0601.sxy\
+	..\mapdata\dept6f.map
+
+Iso\t07r0701.iso:\
+	t07r0701.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0701.sxy\
+	..\mapdata\kokanjo.map
+
+Iso\t07r0801.iso:\
+	t07r0801.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	group.def\
+	pm_debug.def\
+	..\sxy\t07r0801.sxy\
+	..\mapdata\shokudo.map
+
+Iso\t07r0901.iso:\
+	t07r0901.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r0901.sxy\
+	..\mapdata\jimsho.map
+
+Iso\t07r1001.iso:\
+	t07r1001.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t07r1001.sxy\
+	..\mapdata\nhotel_y.map\
+	..\mapdata\nhotel.map
+
+Iso\t08r0101.iso:\
+	t08r0101.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t08r0101.sxy\
+	..\mapdata\shop_y.map
+
+Iso\t08r0201.iso:\
+	t08r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t08r0201.sxy
+
+Iso\t08r0301.iso:\
+	t08r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t08r0301.sxy
+
+Iso\t08r0401.iso:\
+	t08r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t08r0401.sxy\
+	..\mapdata\kaicho_5.map
+
+Iso\t08r0501.iso:\
+	t08r0501.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	anime.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t08r0501.sxy\
+	..\mapdata\5_6gate.map
+
+Iso\t08r0601.iso:\
+	t08r0601.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t08r0601.sxy\
+	..\mapdata\gym_05.map
+
+Iso\t08r0701.iso:\
+	t08r0701.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t08r0701.sxy\
+	..\mapdata\jimkyok.map
+
+Iso\t08r0801.iso:\
+	t08r0801.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t08r0801.sxy
+
+Iso\t09r0101.iso:\
+	t09r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t09r0101.sxy\
+	..\mapdata\poke_1f.map
+
+Iso\t09r0201.iso:\
+	t09r0201.dmg\
+	common.def\
+	pm_debug.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	anime.def\
+	macro.h\
+	group.def\
+	pikaanm.h\
+	..\sxy\t09r0201.sxy\
+	..\mapdata\gym_07.map
+
+Iso\t09r0301.iso:\
+	t09r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t09r0301.sxy\
+	..\mapdata\kenkyu_1.map
+
+Iso\t09r0302.iso:\
+	t09r0302.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	group.def\
+	..\sxy\t09r0302.sxy\
+	..\mapdata\kenkyu_2.map
+
+Iso\t09r0303.iso:\
+	t09r0303.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t09r0303.sxy\
+	..\mapdata\kenkyu_3.map
+
+Iso\t09r0304.iso:\
+	t09r0304.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t09r0304.sxy\
+	..\mapdata\kenkyu_4.map
+
+Iso\t09r0401.iso:\
+	t09r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t09r0401.sxy
+
+Iso\t09r0501.iso:\
+	t09r0501.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\t09r0501.sxy
+
+Iso\t10r0101.iso:\
+	t10r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t10r0101.sxy\
+	..\mapdata\preague.map
+
+Iso\t11r0101.iso:\
+	t11r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t11r0101.sxy
+
+Iso\t11r0102.iso:\
+	t11r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t11r0102.sxy
+
+Iso\t11r0201.iso:\
+	t11r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	..\sxy\t11r0201.sxy\
+	..\mapdata\donata.map
+
+Iso\t11r0301.iso:\
+	t11r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\t11r0301.sxy\
+	..\mapdata\gym_06.map
+
+Iso\t11r0401.iso:\
+	t11r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t11r0401.sxy
+
+Iso\t11r0501.iso:\
+	t11r0501.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t11r0501.sxy
+
+Iso\t11r0601.iso:\
+	t11r0601.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	vanish.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\t11r0601.sxy\
+	..\mapdata\silf_1f.map
+
+Iso\t11r0701.iso:\
+	t11r0701.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t11r0701.sxy
+
+Iso\t11r0801.iso:\
+	t11r0801.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\t11r0801.sxy
+
+Iso\r02r0101.iso:\
+	r02r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r02r0101.sxy
+
+Iso\r02r0201.iso:\
+	r02r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\r02r0201.sxy
+
+Iso\r02r0301.iso:\
+	r02r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	group.def\
+	..\sxy\r02r0301.sxy
+
+Iso\r02r0401.iso:\
+	r02r0401.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\r02r0401.sxy
+
+Iso\r02r0501.iso:\
+	r02r0501.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\r02r0501.sxy
+
+Iso\r04r0101.iso:\
+	r04r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	pm_debug.def\
+	group.def\
+	..\sxy\r04r0101.sxy
+
+Iso\r05r0101.iso:\
+	r05r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\r05r0101.sxy\
+	..\mapdata\5_6gate.map
+
+Iso\r05r0201.iso:\
+	r05r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	group.def\
+	..\sxy\r05r0201.sxy
+
+Iso\r05r0301.iso:\
+	r05r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	pika.def\
+	..\sxy\r05r0301.sxy
+
+Iso\r06r0101.iso:\
+	r06r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\r06r0101.sxy\
+	..\mapdata\5_6gate.map
+
+Iso\r06r0201.iso:\
+	r06r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r06r0201.sxy
+
+Iso\r07r0101.iso:\
+	r07r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\r07r0101.sxy\
+	..\mapdata\7_8gate.map
+
+Iso\r07r0201.iso:\
+	r07r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r07r0201.sxy
+
+Iso\r07r0301.iso:\
+	r07r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r07r0301.sxy
+
+Iso\r08r0101.iso:\
+	r08r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\r08r0101.sxy\
+	..\mapdata\7_8gate.map
+
+Iso\r08r0201.iso:\
+	r08r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r08r0201.sxy
+
+Iso\r10r0101.iso:\
+	r10r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\r10r0101.sxy
+
+Iso\r10r0201.iso:\
+	r10r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\r10r0201.sxy\
+	..\mapdata\new_iwa1.map
+
+Iso\r10r0301.iso:\
+	r10r0301.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\r10r0301.sxy\
+	..\mapdata\ydun_1.map
+
+Iso\r11r0101.iso:\
+	r11r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r11r0101.sxy
+
+Iso\r11r0102.iso:\
+	r11r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\r11r0102.sxy
+
+Iso\r11r0201.iso:\
+	r11r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r11r0201.sxy
+
+Iso\r12r0101.iso:\
+	r12r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r12r0101.sxy\
+	..\mapdata\12gate.map
+
+Iso\r12r0102.iso:\
+	r12r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r12r0102.sxy
+
+Iso\r12r0201.iso:\
+	r12r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r12r0201.sxy
+
+Iso\r15r0101.iso:\
+	r15r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r15r0101.sxy
+
+Iso\r15r0102.iso:\
+	r15r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r15r0102.sxy
+
+Iso\r16r0101.iso:\
+	r16r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\r16r0101.sxy\
+	..\mapdata\16_gate.map
+
+Iso\r16r0102.iso:\
+	r16r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r16r0102.sxy
+
+Iso\r16r0201.iso:\
+	r16r0201.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\r16r0201.sxy
+
+Iso\r18r0101.iso:\
+	r18r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\r18r0101.sxy
+
+Iso\r18r0102.iso:\
+	r18r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	group.def\
+	..\sxy\r18r0102.sxy
+
+Iso\r19r0101.iso:\
+	r19r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	maptype.def\
+	..\mapdata\umihouse.map\
+	..\sxy\r19r0101.sxy
+
+Iso\r20r0101.iso:\
+	r20r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\r20r0101.sxy\
+	..\mapdata\mdun_4.map
+
+Iso\r23r0101.iso:\
+	r23r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\r23r0101.sxy\
+	..\mapdata\iwa_1f.map
+
+Iso\r22r0101.iso:\
+	r22r0101.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\r22r0101.sxy\
+	..\mapdata\22gate.map
+
+Iso\r25r0101.iso:\
+	r25r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	vanish.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	pika.def\
+	pikaanm.h\
+	..\sxy\r25r0101.sxy\
+	..\mapdata\mania.map
+
+Iso\d01r0101.iso:\
+	d01r0101.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	macro.h\
+	few_mac.h\
+	group.def\
+	..\sxy\d01r0101.sxy
+
+Iso\d02r0101.iso:\
+	d02r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d02r0101.sxy\
+	..\mapdata\otuki_b1.map
+
+Iso\d02r0102.iso:\
+	d02r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d02r0102.sxy\
+	..\mapdata\otuki_b3.map
+
+Iso\d02r0103.iso:\
+	d02r0103.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	vanish.def\
+	anime.def\
+	macro.h\
+	pm_debug.def\
+	group.def\
+	pikaanm.h\
+	..\sxy\d02r0103.sxy\
+	..\mapdata\otuki_b2.map
+
+Iso\d03r0101.iso:\
+	d03r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d03r0101.sxy\
+	..\mapdata\stannu01.map
+
+Iso\d03r0102.iso:\
+	d03r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	vanish.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\d03r0102.sxy\
+	..\mapdata\stannu02.map
+
+Iso\d03r0103.iso:\
+	d03r0103.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d03r0103.sxy\
+	..\mapdata\stannu03.map
+
+Iso\d03r0104.iso:\
+	d03r0104.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d03r0104.sxy\
+	..\mapdata\stannu04.map
+
+Iso\d03r0105.iso:\
+	d03r0105.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d03r0105.sxy\
+	..\mapdata\stannu05.map
+
+Iso\d03r0106.iso:\
+	d03r0106.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d03r0106.sxy\
+	..\mapdata\shroom4.map
+
+Iso\d03r0107.iso:\
+	d03r0107.dmg\
+	common.def\
+	maphead.def\
+	se.def\
+	fntequ.def\
+	macro.h\
+	group.def\
+	..\sxy\d03r0107.sxy\
+	..\mapdata\shroom3.map
+
+Iso\d03r0108.iso:\
+	d03r0108.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d03r0108.sxy\
+	..\mapdata\shroom1.map
+
+Iso\d03r0109.iso:\
+	d03r0109.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d03r0109.sxy
+
+Iso\d03r0110.iso:\
+	d03r0110.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d03r0110.sxy
+
+Iso\d04r0101.iso:\
+	d04r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	few_mac.h\
+	macro.h\
+	group.def\
+	..\sxy\d04r0101.sxy
+
+Iso\d06r0101.iso:\
+	d06r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d06r0101.sxy
+
+Iso\d07r0101.iso:\
+	d07r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d07r0101.sxy\
+	..\mapdata\iwanuke_.map
+
+Iso\d08r0101.iso:\
+	d08r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\d08r0101.sxy\
+	..\mapdata\iwa_2f.map
+
+Iso\d09r0101.iso:\
+	d09r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d09r0101.sxy\
+	..\mapdata\azito_b1.map
+
+Iso\d09r0102.iso:\
+	d09r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\d09r0102.sxy\
+	..\mapdata\azito_b2.map
+
+Iso\d09r0103.iso:\
+	d09r0103.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\d09r0103.sxy\
+	..\mapdata\azito_b3.map
+
+Iso\d09r0104.iso:\
+	d09r0104.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	vanish.def\
+	dealer.def\
+	banktool.def\
+	pm_debug.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\d09r0104.sxy\
+	..\mapdata\azito_b4.map
+
+Iso\d09r0105.iso:\
+	d09r0105.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d09r0105.sxy\
+	..\mapdata\azito_el.map
+
+Iso\d10r0101.iso:\
+	d10r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0101.sxy\
+	..\mapdata\nsilf_1.map
+
+Iso\d10r0102.iso:\
+	d10r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0102.sxy\
+	..\mapdata\silf_2f.map
+
+Iso\d10r0103.iso:\
+	d10r0103.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0103.sxy\
+	..\mapdata\nsilf_2.map
+
+Iso\d10r0104.iso:\
+	d10r0104.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0104.sxy\
+	..\mapdata\silf_3f.map
+
+Iso\d10r0105.iso:\
+	d10r0105.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0105.sxy\
+	..\mapdata\nsilf_4.map
+
+Iso\d10r0106.iso:\
+	d10r0106.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0106.sxy\
+	..\mapdata\silf_4f.map
+
+Iso\d10r0107.iso:\
+	d10r0107.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0107.sxy\
+	..\mapdata\nsilf_3.map
+
+Iso\d10r0108.iso:\
+	d10r0108.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0108.sxy\
+	..\mapdata\silf_5f.map
+
+Iso\d10r0109.iso:\
+	d10r0109.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0109.sxy\
+	..\mapdata\nsilf_5.map
+
+Iso\d10r0110.iso:\
+	d10r0110.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	dealer.def\
+	pm_debug.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0110.sxy\
+	..\mapdata\silf_11f.map
+
+Iso\d10r0111.iso:\
+	d10r0111.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d10r0111.sxy\
+	..\mapdata\depelv.map
+
+Iso\d11r0101.iso:\
+	d11r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d11r0101.sxy\
+	..\mapdata\poke_2f.map
+
+Iso\d11r0102.iso:\
+	d11r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d11r0102.sxy\
+	..\mapdata\poke_3f.map
+
+Iso\d11r0103.iso:\
+	d11r0103.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\d11r0103.sxy\
+	..\mapdata\poke_b1.map
+
+Iso\d12r0101.iso:\
+	d12r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d12r0101.sxy\
+	..\mapdata\safari_2.map
+
+Iso\d12r0102.iso:\
+	d12r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d12r0102.sxy\
+	..\mapdata\safari_3.map
+
+Iso\d12r0103.iso:\
+	d12r0103.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d12r0103.sxy\
+	..\mapdata\safari_4.map
+
+Iso\d12r0104.iso:\
+	d12r0104.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d12r0104.sxy\
+	..\mapdata\safari_1.map
+
+Iso\d12r0105.iso:\
+	d12r0105.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	..\sxy\d12r0105.sxy
+
+Iso\d12r0106.iso:\
+	d12r0106.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	dealer.def\
+	vanish.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\d12r0106.sxy\
+	..\mapdata\kenkyu_s.map
+
+Iso\d12r0107.iso:\
+	d12r0107.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d12r0107.sxy
+
+Iso\d12r0108.iso:\
+	d12r0108.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d12r0108.sxy
+
+Iso\d12r0109.iso:\
+	d12r0109.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d12r0109.sxy
+
+Iso\d13r0101.iso:\
+	d13r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	group.def\
+	pm_debug.def\
+	..\sxy\d13r0101.sxy\
+	..\mapdata\yend_02.map\
+	..\mapdata\nend02.map
+
+Iso\d13r0102.iso:\
+	d13r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\sxy\d13r0102.sxy\
+	..\mapdata\yend_03.map\
+	..\mapdata\nend03.map
+
+Iso\d14r0104.iso:\
+	d14r0104.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d14r0104.sxy\
+	..\mapdata\silf_b4.map
+
+Iso\d14r0109.iso:\
+	d14r0109.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\d14r0109.sxy\
+	..\mapdata\lastboss.map
+
+Iso\d14r0114.iso:\
+	d14r0114.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d14r0114.sxy\
+	..\mapdata\dendou.map
+
+Iso\d14r0115.iso:\
+	d14r0115.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	dealer.def\
+	macro.h\
+	group.def\
+	..\sxy\d14r0115.sxy\
+	..\mapdata\dendou2.map
+
+Iso\d14r0116.iso:\
+	d14r0116.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d14r0116.sxy\
+	..\mapdata\honbu1.map
+
+Iso\d14r0117.iso:\
+	d14r0117.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d14r0117.sxy\
+	..\mapdata\honbu2.map
+
+Iso\d14r0118.iso:\
+	d14r0118.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	macro.h\
+	group.def\
+	..\sxy\d14r0118.sxy\
+	..\mapdata\honbu3.map
+
+Iso\d15r0101.iso:\
+	d15r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	macro.h\
+	group.def\
+	..\sxy\d15r0101.sxy\
+	..\mapdata\new_iwa2.map
+
+Iso\d16r0101.iso:\
+	d16r0101.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\d16r0101.sxy\
+	..\mapdata\mdun_3.map
+
+Iso\d16r0102.iso:\
+	d16r0102.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\d16r0102.sxy\
+	..\mapdata\mdun_2.map
+
+Iso\d16r0103.iso:\
+	d16r0103.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	anime.def\
+	macro.h\
+	group.def\
+	..\sxy\d16r0103.sxy\
+	..\mapdata\mdun_1.map
+
+Iso\d16r0104.iso:\
+	d16r0104.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	anime.def\
+	vanish.def\
+	macro.h\
+	group.def\
+	..\sxy\d16r0104.sxy\
+	..\mapdata\mdun_5.map
+
+Iso\effect.iso:\
+	effect.dmg\
+	common.def\
+	se.def\
+	effect.def\
+	banktool.def\
+	fntequ.def\
+	sgb_col.def\
+	pm_debug.def\
+	macro.h\
+	..\effdata\ef0.dat\
+	..\effdata\ef1.dat\
+	..\effdata\slotob_r.dat\
+	..\effdata\slotob_r.dat\
+	..\data\slot_bg.dat
+
+Iso\c_effect.iso:\
+	c_effect.dmg\
+	pm_debug.def\
+	common.def\
+	se.def\
+	effect.def\
+	banktool.def\
+	maptype.def\
+	fntequ.def\
+	fight.def\
+	sgb_col.def\
+	..\data\waza_se.h\
+	macro.h\
+	pika.def\
+	objbank.def\
+	group.def\
+	..\data\waza_se.dat\
+	..\effdata\turi.dat
+
+Iso\eff_tbl.iso:\
+	eff_tbl.dmg\
+	common.def\
+	se.def\
+	effect.def\
+	effecter.h\
+	macro.h\
+	..\data\waza_se.h
+
+Iso\fighter.iso:\
+	fighter.dmg\
+	common.def\
+	fntequ.def\
+	effect.def\
+	banktool.def\
+	sgb_col.def\
+	dealer.def\
+	fight.def\
+	maptype.def\
+	macro.h\
+	group.def\
+	pm_debug.def
+
+Iso\setdmons.iso:\
+	setdmons.dmg\
+	common.def\
+	pm_debug.def\
+	banktool.def\
+	..\data\dmons.sym\
+	..\data\dmons.dat
+
+Iso\d_action.iso:\
+	d_action.dmg\
+	common.def\
+	se.def\
+	effect.def\
+	banktool.def\
+	fntequ.def\
+	fight.def\
+	macro.h\
+	pm_debug.def
+
+Iso\useitem2.iso:\
+	useitem2.dmg\
+	common.def\
+	macro.h
+
+Iso\window.iso:\
+	window.dmg\
+	common.def\
+	fntequ.def\
+	macro.h\
+	pm_debug.def
+
+Iso\worldmap.iso:\
+	worldmap.dmg\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	sgb_col.def\
+	anime.def\
+	fight.def\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	objbank.def\
+	..\effdata\musi.dat\
+	..\effdata\marumaru.dat\
+	..\data\statusne.dat
+
+Iso\demo.iso:\
+	demo.dmg\
+	common.def\
+	se.def\
+	effect.def\
+	banktool.def\
+	sgb_col.def\
+	fntequ.def\
+	..\data\waza_se.h\
+	macro.h\
+	group.def\
+	pm_debug.def\
+	..\data\demo_tit.dat\
+	..\data\trade_an.dat
+
+Iso\shinka.iso:\
+	shinka.dmg\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	fight.def\
+	macro.h\
+	group.def\
+	..\data\shinka.dat
+
+Iso\spattack.iso:\
+	spattack.dmg\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	type.def\
+	fight.def\
+	macro.h\
+	group.def\
+	pm_debug.def
+
+Iso\sgb_col.iso:\
+	sgb_col.dmg\
+	common.def\
+	banktool.def\
+	sgb_col.def\
+	maptype.def\
+	pm_debug.def\
+	group.def\
+	..\effdata\pf_y_map.dat\
+	..\effdata\pf_y_cgx.dat
+
+Iso\naminori.iso:\
+	naminori.dmg\
+	common.def\
+	group.def\
+	laster.h\
+	ex_actor.h\
+	pm_debug.def
+
+Iso\opening.iso:\
+	opening.dmg\
+	common.def\
+	group.def\
+	laster.h\
+	ex_actor.h\
+	pm_debug.def
+
+Iso\ex_actor.iso:\
+	ex_actor.dmg\
+	common.def\
+	group.def\
+	ex_actor.h\
+	pm_debug.def
+
+Iso\saveload.iso:\
+	saveload.dmg\
+	common.def\
+	fntequ.def\
+	banktool.def\
+	macro.h\
+	pm_debug.def
+
+Iso\a_demo.iso:\
+	a_demo.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	macro.h
+
+Iso\actsub.iso:\
+	actsub.dmg\
+	common.def\
+	map.def\
+	anime.def\
+	fntequ.def\
+	banktool.def\
+	macro.h\
+	few_mac.h
+
+Iso\battle.iso:\
+	battle.dmg\
+	common.def\
+	fntequ.def\
+	map.def\
+	banktool.def\
+	dealer.def\
+	pm_debug.def\
+	macro.h\
+	group.def
+
+Iso\observe.iso:\
+	observe.dmg\
+	common.def\
+	fntequ.def\
+	anime.def\
+	maphead.def\
+	banktool.def\
+	maptype.def\
+	pm_debug.def\
+	sgb_col.def\
+	macro.h\
+	few_mac.h\
+	group.def
+
+Iso\tools.iso:\
+	tools.dmg\
+	pm_debug.def\
+	common.def\
+	anime.def\
+	fntequ.def\
+	banktool.def\
+	map.def\
+	dealer.def\
+	macro.h\
+	group.def
+
+Iso\banktool.iso:\
+	banktool.dmg\
+	pm_debug.def\
+	common.def\
+	fntequ.def\
+	map.def\
+	banktool.def\
+	group.def
+
+Iso\ev_tool.iso:\
+	ev_tool.dmg\
+	common.def\
+	fntequ.def\
+	maphead.def\
+	banktool.def\
+	vanish.def\
+	maptype.def\
+	pm_debug.def\
+	macro.h\
+	few_mac.h\
+	group.def\
+	..\data\itembit.dat\
+	..\data\coinbit.dat\
+	..\data\pickmap.dat\
+	..\data\picktbl.dat
+
+Iso\bmusic.iso:\
+	bmusic.dmg\
+	common.def\
+	group.def
+
+Iso\bmusic2.iso:\
+	bmusic2.dmg\
+	common.def\
+	group.def
+
+Iso\bmusic3.iso:\
+	bmusic3.dmg\
+	common.def\
+	group.def
+
+Iso\bmusic4.iso:\
+	bmusic4.dmg\
+	common.def\
+	group.def
+
+Iso\m_asa.iso:\
+	m_asa.dmg\
+	group.def
+
+Iso\m_chari.iso:\
+	m_chari.dmg\
+	group.def
+
+Iso\m_dung.iso:\
+	m_dung.dmg\
+	group.def
+
+Iso\m_field1.iso:\
+	m_field1.dmg\
+	group.def
+
+Iso\m_field2.iso:\
+	m_field2.dmg\
+	group.def
+
+Iso\m_field3.iso:\
+	m_field3.dmg\
+	group.def
+
+Iso\m_field4.iso:\
+	m_field4.dmg\
+	group.def
+
+Iso\m_field5.iso:\
+	m_field5.dmg\
+	group.def
+
+Iso\m_htown.iso:\
+	m_htown.dmg\
+	group.def
+
+Iso\m_casino.iso:\
+	m_casino.dmg\
+	group.def
+
+Iso\m_kokan1.iso:\
+	m_kokan1.dmg\
+	group.def
+
+Iso\m_kokan2.iso:\
+	m_kokan2.dmg\
+	group.def
+
+Iso\m_title.iso:\
+	m_title.dmg\
+	group.def
+
+Iso\m_town1.iso:\
+	m_town1.dmg\
+	group.def
+
+Iso\m_fan1.iso:\
+	m_fan1.dmg\
+	group.def
+
+Iso\m_fan2.iso:\
+	m_fan2.dmg\
+	group.def
+
+Iso\m_dung2.iso:\
+	m_dung2.dmg\
+	group.def
+
+Iso\m_awalk.iso:\
+	m_awalk.dmg\
+	group.def
+
+Iso\m_ohkido.iso:\
+	m_ohkido.dmg\
+	group.def
+
+Iso\m_fight1.iso:\
+	m_fight1.dmg\
+	group.def
+
+Iso\m_fight3.iso:\
+	m_fight3.dmg\
+	group.def
+
+Iso\m_fight4.iso:\
+	m_fight4.dmg\
+	group.def
+
+Iso\m_fight5.iso:\
+	m_fight5.dmg\
+	group.def
+
+Iso\m_dung3.iso:\
+	m_dung3.dmg\
+	group.def
+
+Iso\m_dung4.iso:\
+	m_dung4.dmg\
+	group.def
+
+Iso\m_rival.iso:\
+	m_rival.dmg\
+	group.def
+
+Iso\m_fan3.iso:\
+	m_fan3.dmg\
+	group.def
+
+Iso\m_fan4.iso:\
+	m_fan4.dmg\
+	group.def
+
+Iso\m_fan5.iso:\
+	m_fan5.dmg\
+	group.def
+
+Iso\m_fan6.iso:\
+	m_fan6.dmg\
+	group.def
+
+Iso\m_fan8.iso:\
+	m_fan8.dmg\
+	group.def
+
+Iso\m_santo.iso:\
+	m_santo.dmg\
+	group.def
+
+Iso\m_town2.iso:\
+	m_town2.dmg\
+	group.def
+
+Iso\m_town3.iso:\
+	m_town3.dmg\
+	group.def
+
+Iso\m_town4.iso:\
+	m_town4.dmg\
+	group.def
+
+Iso\m_town5.iso:\
+	m_town5.dmg\
+	group.def
+
+Iso\m_town6.iso:\
+	m_town6.dmg\
+	group.def
+
+Iso\m_labo.iso:\
+	m_labo.dmg\
+	group.def
+
+Iso\m_tou1.iso:\
+	m_tou1.dmg\
+	group.def
+
+Iso\m_tou2.iso:\
+	m_tou2.dmg\
+	group.def
+
+Iso\m_deal1.iso:\
+	m_deal1.dmg\
+	group.def
+
+Iso\m_deal2.iso:\
+	m_deal2.dmg\
+	group.def
+
+Iso\m_deal3.iso:\
+	m_deal3.dmg\
+	group.def
+
+Iso\m_start.iso:\
+	m_start.dmg\
+	group.def
+
+Iso\m_sea.iso:\
+	m_sea.dmg\
+	group.def
+
+Iso\m_vic1.iso:\
+	m_vic1.dmg\
+	group.def
+
+Iso\m_vic2.iso:\
+	m_vic2.dmg\
+	group.def
+
+Iso\m_vic3.iso:\
+	m_vic3.dmg\
+	group.def
+
+Iso\m_purin.iso:\
+	m_purin.dmg\
+	group.def
+
+Iso\m_shinka.iso:\
+	m_shinka.dmg\
+	group.def
+
+Iso\m_gym.iso:\
+	m_gym.dmg\
+	group.def
+
+Iso\m_pmc.iso:\
+	m_pmc.dmg\
+	group.def
+
+Iso\m_dendou.iso:\
+	m_dendou.dmg\
+	group.def
+
+Iso\m_ending.iso:\
+	m_ending.dmg\
+	group.def
+
+Iso\m_pika.iso:\
+	m_pika.dmg\
+	group.def
+
+Iso\m_nami.iso:\
+	m_nami.dmg\
+	group.def
+
+Iso\m_sakaki.iso:\
+	m_sakaki.dmg\
+	group.def
+
+Iso\m_rocket.iso:\
+	m_rocket.dmg\
+	group.def
+
+Iso\yelmsg_0.iso:\
+	yelmsg_0.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_1.iso:\
+	yelmsg_1.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_2.iso:\
+	yelmsg_2.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pika.def\
+	pm_debug.def
+
+Iso\yelmsg_3.iso:\
+	yelmsg_3.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_4.iso:\
+	yelmsg_4.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_5.iso:\
+	yelmsg_5.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_6.iso:\
+	yelmsg_6.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_7.iso:\
+	yelmsg_7.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_8.iso:\
+	yelmsg_8.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_9.iso:\
+	yelmsg_9.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\yelmsg_a.iso:\
+	yelmsg_a.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+
+Iso\zukanmsg.iso:\
+	zukanmsg.dmg\
+	fntequ.def\
+	group.def\
+	common.def\
+	fight.def\
+	pm_debug.def
+

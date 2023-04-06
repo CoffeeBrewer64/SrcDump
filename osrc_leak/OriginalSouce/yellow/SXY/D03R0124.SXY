@@ -1,0 +1,26 @@
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	002h
+	db	005h,002h,004h,D3R1F4
+	db	005h,003h,004h,D3R1F4
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	FUNANORI
+	db	003h+4,002h+4			; Y, X
+	db	0ffh				; Anime OFF
+	db	000h
+	db	001h
+;	db	TRAINERM
+	db	OSSAN     
+	db	005h+4,000h+4			; Y, X
+	db	0ffh				; Anime OFF
+	db	000h
+	db	002h
+ram_map_tbl$:
+	dw	008h * 003h + 002h + ram_map
+	db	005h,002h
+	dw	008h * 003h + 002h + ram_map
+	db	005h,003h

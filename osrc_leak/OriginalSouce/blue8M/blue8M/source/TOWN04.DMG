@@ -1,0 +1,817 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		banktool.def
+	include		dealer.def
+	include		anime.def
+	include		vanish.def
+	include		pm_debug.def
+	include		macro.h
+	include		group.def
+
+
+bank6	group	G_BANK6
+
+	
+	public	town4_event
+	public	town4_msg
+
+
+	extern	SetActorSite
+	extern	put_wait
+	extern	table_jump
+	extern	bank2bank
+	extern	bank_push_call
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stopping
+	extern	capsule_item
+	extern	acttbl_h_adrs
+	extern	acttbl_l_adrs
+	extern	mk_trace_cmd
+	extern	CheckAssignPos
+	extern	GetAnimeStatus
+	extern	GetMoveStatus
+
+	extern	musraibaru
+;;	extern	musraibaru2
+	extern	set_now_music
+	extern	direct_play
+
+	extern	pf_kanban
+	extern	hotel_kanban
+
+
+
+HITOKAGE		equ	176
+ZENIGAME		equ	177
+FUSIGIDANE		equ	153
+
+
+seq_t4		equ	seq_ctrl_buf + 01fh
+
+
+town4_event:
+	call	init_for_talkmap
+
+	ld	hl,t4_tbl
+	ld	a,(seq_t4)
+	jp	table_jump
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_t4),a
+
+	ld	a,< T4msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	jp	bank2bank
+
+
+
+t4_tbl:
+	initndw	t4_normal,seq_t4_normal
+	ndw	step,seq_step
+	ndw	after_battle,seq_after_battle
+	ndw	away,seq_away
+	ndw	vs_after,seq_vs_after
+
+
+vs_after:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	hl,ev_t4_1 + 0
+	set	7,(hl)
+
+	ld	a,msg_danin1
+	ld	(work1),a
+	call	talk_map
+
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_t4),a
+
+	ret
+
+
+t4_normal:
+;-----------------------------------------------;
+  ifn	pm_debug
+	extern	DebugKeyHook
+	call	DebugKeyHook
+	ret	nz
+  endif
+;-----------------------------------------------;
+
+	ld	a,(ev_t4_1)
+	bit	7,a
+	jr	nz,no_member$
+
+	ld	hl,event_danin
+	call	CheckAssignPos
+	jr	nc,no_member$
+
+	ld	a,(usr_buf + 0)
+	cp	1
+	ld	a,008h
+	ld	b,0
+	jr	nz,under$
+
+	ld	a,004h
+	ld	b,4
+
+under$:
+	ld	(watashi_muki),a
+	ld	a,b
+	ld	(actor_table + 029h),a
+
+	call	put_wait
+
+	ld	a,msg_danin1
+	ld	(work1),a
+	jp	talk_map
+
+
+
+no_member$:
+	ld	a,(ev_t4)
+	bit	0,a
+	ret	nz
+
+	ld	hl,event_invoke
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,(chyari_flg)
+	and	a
+	jr	z,no_bank_change$
+
+	ld	a,0ffh
+	ld	(music_flag),a
+	call	play
+
+no_bank_change$:
+	ld	c,MUSIC_BANK1_NO
+	ld	a,< musraibaru
+	call	direct_play
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,(mapscloll_x)
+	cp	014h
+	jr	z,left$
+
+	ld	a,msg_d_rival
+	ld	(work1),a
+	ld	a,05h
+	ld	(work0),a
+	call	acttbl_h_adrs
+	ld	(hl),019h
+
+left$:
+	ld	a,< T4msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	ld	de,near_step
+	ld	a,msg_d_rival
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,seq_step
+	ld	(seq_t4),a
+
+	ret
+
+
+event_danin:
+	db	007h,01eh
+	db	009h,01eh
+	db	0ffh
+
+
+event_invoke:
+	db	006h,014h
+	db	006h,015h
+	db	0ffh
+
+
+near_step:
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_E
+
+
+set_site:
+	ld	a,msg_d_rival
+	ld	(work1),a			; msg_after
+	xor	a
+	ld	(work2),a
+	jp	SetActorSite
+
+
+
+step:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,msg_d_rival
+	ld	(work1),a			; msg_after
+	call	talk_map
+
+;	ld	a,msg_d_rival
+;	ld	(sv_msg_no),a
+;	call	save_position
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg1_win			; hero lose
+	ld	de,msg1_lose			; hero win
+	call	set_battle_msg
+
+	ld	a,d_rival
+	ld	(event_fight_no),a
+
+	ld	a,(rival_monster)
+	cp	ZENIGAME
+	jr	nz,z100$
+
+	ld	a,007h
+
+	jr	patern$
+
+
+z100$:
+	cp	FUSIGIDANE
+	jr	nz,z200$
+
+	ld	a,008h
+
+	jr	patern$
+
+
+z200$:
+	ld	a,009h
+
+patern$:
+	ld	(take_mons_ptn),a
+
+	xor	a
+	ld	(joy_status),a
+
+	call	set_site
+
+	ld	a,seq_after_battle
+	ld	(seq_t4),a
+
+	ret
+
+
+after_battle:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+;	ld	a,msg_d_rival
+;	ld	(work1),a			; msg_after
+;	call	load_position
+
+	call	set_site
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	hl,ev_t4
+	set	0,(hl)
+
+	ld	a,msg_d_rival
+	ld	(work1),a			; msg_after
+	call	talk_map
+
+	ld	a,0ffh
+	ld	(music_flag),a
+	call	play
+
+	ld	b,2
+	extern	set_rival_leave_music
+	ld	hl,set_rival_leave_music
+	call	bank_push_call
+
+	ld	a,msg_d_rival
+	ld	(work1),a
+	call	obj_stopping
+
+	ld	a,(mapscloll_x)
+	cp	014h
+	jr	nz,dr$
+
+	ld	de,near_step_dl
+
+	jr	set$
+
+
+dr$:
+	ld	de,near_step_dr
+
+set$:
+	ld	a,msg_d_rival
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,seq_away
+	ld	(seq_t4),a
+
+	ret
+
+
+near_step_dr:
+	db	A_L
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_E
+
+
+near_step_dl:
+	db	A_R
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_D
+	db	A_E
+
+
+away:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,< T4msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	xor	a
+	ld	(cancel_key),a
+
+	call	set_now_music
+
+	ld	a,seq_t4_normal
+	ld	(seq_t4),a
+
+	ret
+
+
+town4_msg:
+	msgndw	msg1,msg_d_rival
+	ndw	msg2,msg_danin1
+	ndw	msg3,msg_ossan1
+	ndw	msg4,msg_ossan2
+	ndw	msg5,msg_niichyan1
+	ndw	msg6,msg_keibi10
+	ndw	msg7,msg_neechyan2
+	ndw	msg8,msg_monster1
+	ndw	msg9,msg_neechyan1
+	ndw	msg10,msg_ossan3
+	ndw	msg11,msg_keibi11
+
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+	ndw	pf_kanban,msg_kanban3
+	ndw	hotel_kanban,msg_kanban4
+	ndw	kanban5,msg_kanban5
+	ndw	kanban6,msg_kanban6
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t4)
+	bit	0,a
+	jr	z,battle$
+
+	ld	hl,msg1_after
+	call	put_win_msg
+
+	jr	rts$
+
+
+battle$:
+	ld	hl,msg1_0
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0:
+	extern	msg1_0_0_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_1_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_lose:
+	extern	msg1_lose_2_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg1_lose_2_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_3_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_3_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,(ev_t4_1)
+	bit	7,a
+	jr	nz,hero_win$
+
+	ld	hl,msg2_0
+	call	put_win_msg
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg2_win			; hero lose
+	ld	de,msg2_win			; hero win
+	call	set_battle_msg
+
+	ld	a,(work1)
+	ld	(sv_msg_no),a
+	call	set_battle
+	call	set_battle_data
+
+	ld	a,seq_vs_after
+	ld	(seq_t4),a
+
+	jp	msg_return
+
+
+hero_win$:
+	ld	hl,msg2_after
+	call	put_win_msg
+
+	ld	bc,228 * 256 + 1
+	call	take_item
+	jr	c,empty$
+
+	ld	hl,msg2_2
+	call	put_win_msg
+
+	jr	rts$
+
+
+empty$:
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg2_1
+	call	put_win_msg
+
+	ld	b,01dh
+	ld	hl,T4obj_reset
+	call	bank_push_call
+
+rts$:
+	jp	msg_return
+
+
+msg2_0:
+	extern	msg2_0_4_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_4_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1:
+	extern	msg2_1_5_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_5_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db	FANFARE
+	extern	msg2_1_6_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_6_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg2_2:
+	extern	msg2_2_7_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_7_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_8_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_8_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_9_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_9_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_10_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg3_10_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_11_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg4_11_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	extern	msg5_12_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg5_12_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+msg11:
+	extern	msg11_13_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg11_13_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg7:
+	db	CALL_MSG
+
+	ld	a,(random + 0)
+	cp	180
+	jr	c,z100$
+
+	ld	hl,msg7_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+z100$:
+	cp	100
+	jr	c,z200$
+
+	ld	hl,msg7_1$
+	call	put_win_msg
+
+	jr	rts$
+
+
+z200$:
+	ld	hl,msg7_2$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg7_0$:
+	extern	msg7_0_14_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg7_0_14_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_1$:
+	extern	msg7_1_15_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg7_1_15_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_2$:
+	extern	msg7_2_16_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg7_2_16_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg8:
+	db	CALL_MSG
+
+	ld	a,(random + 0)
+	cp	180
+	jr	c,z100$
+
+	ld	hl,msg8_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+z100$:
+	cp	120
+	jr	c,z200$
+
+	ld	hl,msg8_1$
+	call	put_win_msg
+
+	jr	rts$
+
+
+z200$:
+	cp	60
+	jr	c,z300$
+
+	ld	hl,msg8_2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+z300$:
+	ld	hl,msg8_3$
+	call	put_win_msg
+
+
+rts$:
+	jp	msg_return
+
+
+
+msg8_0$:
+	extern	msg8_0_17_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg8_0_17_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_1$:
+	extern	msg8_1_18_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg8_1_18_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_2$:
+	extern	msg8_2_19_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg8_2_19_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_3$:
+	extern	msg8_3_20_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg8_3_20_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9:
+	extern	msg9_21_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg9_21_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg10:
+	extern	msg10_22_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw msg10_22_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	extern	kanban1_23_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw kanban1_23_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_24_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw kanban2_24_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban5:
+	extern	kanban5_25_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw kanban5_25_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban6:
+	extern	kanban6_26_TOWN04
+	db I_MSG2	; mvmsg追加
+	dw kanban6_26_TOWN04	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+bank1d	group	G_BANK1d
+
+
+T4obj_reset:
+	call	n_to_b
+
+;-----------------------------------------------; 1996.01.04
+	extern	T4msg6
+	ld	a,< T4msg6
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	extern	T4msg11
+	ld	a,< T4msg11
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+;-----------------------------------------------; 1996.01.04
+
+	ld	a,< T4msg2
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	call	b_to_n
+
+	ret
+

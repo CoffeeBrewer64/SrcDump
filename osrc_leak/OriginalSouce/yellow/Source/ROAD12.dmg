@@ -1,0 +1,484 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		banktool.def
+	include		vanish.def
+	include		macro.h
+	include		group.def
+
+
+bank16	group	G_BANK16
+
+
+	public	road12_event
+	public	road12_msg
+
+	
+	extern	search_hit
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+	extern	put_wait
+
+
+seq_r12		equ	seq_ctrl_buf + 34h
+
+
+road12_event:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,r12_tbl
+	ld	a,(seq_r12)
+	call	battle_sequence
+	ld	(seq_r12),a
+
+	ret
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_r12),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+r12_tbl:
+	initndw	R12main,SeqR12main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+	ndw	AfterKabigon,SeqAfterKabigon
+
+
+R12main:
+	ld	hl,ev_r12 + 1
+	bit	7,(hl)				; check finish of event
+	jp	nz,battle_main
+
+	bit	6,(hl)				; check invoke
+	res	6,(hl)
+	jp	z,battle_main
+
+	ld	a,MsgVsKabigon
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,132				; "kabigon"
+	ld	(event_fight_no),a
+	ld	a,30
+	ld	(mons_level),a
+
+	ld	a,R12msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,SeqAfterKabigon
+	ld	(seq_r12),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+AfterKabigon:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jr	z,return			; to okido school(losing)
+
+	call	actor_blanch
+
+	ld	a,(kachi_make)
+	cp	2
+	jr	z,take$
+
+	ld	a,MsgKabiAfter
+	ld	(work1),a
+	call	talk_map
+
+take$:
+	ld	hl,ev_r12 + 1
+	set	7,(hl)				; finish of event
+
+	call	put_wait
+
+	ld	a,SeqR12main
+	ld	(seq_r12),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+road12_msg:
+	msgndw	msg1,msg_kabigon
+	ndw	msg2,msg_fish1
+	ndw	msg3,msg_fish2
+	ndw	msg5,msg_boysc2
+	ndw	msg6,msg_groove1
+	ndw	msg8,msg_fish3
+	ndw	msg9,msg_fish4
+	ndw	msg10,msg_jack
+
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+
+	ndw	msg1_kabigon,MsgVsKabigon
+	ndw	msg1_after,MsgKabiAfter
+
+
+dealer_talk:
+d_talk1:
+	db	msg_fish1,040h
+	dw	ev_r12 + 0
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk2:
+	db	msg_fish2,040h
+	dw	ev_r12 + 0
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk4:
+	db	msg_boysc2,040h
+	dw	ev_r12 + 0
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+d_talk5:
+	db	msg_groove1,040h
+	dw	ev_r12 + 0
+	dw	msg6_0
+	dw	msg6_after
+	dw	msg6_win
+	dw	msg6_win
+
+d_talk7:
+	db	msg_fish3,040h
+	dw	ev_r12 + 0
+	dw	msg8_0
+	dw	msg8_after
+	dw	msg8_win
+	dw	msg8_win
+
+d_talk8:
+	db	msg_fish4,040h
+	dw	ev_r12 + 0
+	dw	msg9_0
+	dw	msg9_after
+	dw	msg9_win
+	dw	msg9_win
+
+d_talk9:
+	db	msg_jack,010h
+	dw	ev_r12 + 0
+	dw	msg10_0
+	dw	msg10_after
+	dw	msg10_win
+	dw	msg10_win
+
+	db	0ffh
+
+
+msg1:
+	extern	msg1_0_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_kabigon:
+	extern	msg1_kabigon_1_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg1_kabigon_1_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_2_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_2_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg2_0:
+	extern	msg2_0_3_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_3_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_4_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_4_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_5_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_5_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg3_0:
+	extern	msg3_0_6_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_6_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_7_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_7_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_8_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_8_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg5_0:
+	extern	msg5_0_9_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_9_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_10_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_10_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_11_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_11_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	db	CALL_MSG
+
+	ld	hl,d_talk5
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg6_0:
+	extern	msg6_0_12_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg6_0_12_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_win:
+	extern	msg6_win_13_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg6_win_13_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_after:
+	extern	msg6_after_14_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg6_after_14_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg8:
+	db	CALL_MSG
+
+	ld	hl,d_talk7
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg8_0:
+	extern	msg8_0_15_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg8_0_15_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_win:
+	extern	msg8_win_16_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg8_win_16_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_after:
+	extern	msg8_after_17_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg8_after_17_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg9:
+	db	CALL_MSG
+
+	ld	hl,d_talk8
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg9_0:
+	extern	msg9_0_18_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg9_0_18_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_win:
+	extern	msg9_win_19_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg9_win_19_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_after:
+	extern	msg9_after_20_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg9_after_20_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg10:
+	db	CALL_MSG
+
+	ld	hl,d_talk9
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg10_0:
+	extern	msg10_0_21_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg10_0_21_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg10_win:
+	extern	msg10_win_22_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg10_win_22_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg10_after:
+	extern	msg10_after_23_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw msg10_after_23_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+kanban1:
+	extern	kanban1_24_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw kanban1_24_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_25_ROAD12
+	db I_MSG2	; mvmsg追加
+	dw kanban2_25_ROAD12	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+

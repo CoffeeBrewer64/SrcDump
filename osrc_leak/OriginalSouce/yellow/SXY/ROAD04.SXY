@@ -1,0 +1,40 @@
+; 11/15/95		16:53:38
+michi_tbl$:
+	db	02ch
+ie_tbl$:
+	db	003h
+	db	005h,00bh,000h,R4R1F1
+	db	005h,012h,000h,D2R1F1
+	db	005h,018h,007h,D2R1F2
+kanban_tbl$:
+	db	003h
+	db	005h,00Ch,4
+	db	007h,011h,5
+	db	007h,01Bh,6
+hito_tbl$:
+	db	003h
+	db	TRAINERW
+	db	008h+4,009h+4			; Y, X
+	db	0feh				; random move mode
+	db	000h				; moving site
+	db	001h
+	db	TRAINERW
+	db	003h+4,03Fh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	002h+040h			; battle type
+	db	0cbh				; dealer number
+	db	004h				; taking pattern 
+	db	CAPSULE
+	db	003h+4,039h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	003h+080h			; capsule type
+	db	0cch				; item number
+ram_map_tbl$:
+	dw	033h * 003h + 006h + ram_map
+	db	005h,00bh
+	dw	033h * 003h + 00ah + ram_map
+	db	005h,012h
+	dw	033h * 003h + 00dh + ram_map
+	db	005h,018h

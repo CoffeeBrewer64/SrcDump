@@ -1,0 +1,84 @@
+; 04/10/98		21:19:22
+michi_tbl$:
+	db	043h
+ie_tbl$:
+	db	001h
+	db	009h,005h,000h,R19R1F1
+kanban_tbl$:
+	db	001h
+	db	00Bh,00Bh,11
+hito_tbl$:
+	db	00ah
+	db	TRAINERM
+	db	007h+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	001h+040h			; battle type
+	db	0d7h				; dealer number
+	db	002h				; taking pattern 
+	db	TRAINERM
+	db	009h+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	002h+040h			; battle type
+	db	0d7h				; dealer number
+	db	003h				; taking pattern 
+	db	SWIMMER
+	db	019h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	003h+040h			; battle type
+	db	0d7h				; dealer number
+	db	004h				; taking pattern 
+	db	SWIMMER
+	db	01Bh+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	004h+040h			; battle type
+	db	0d7h				; dealer number
+	db	005h				; taking pattern 
+	db	SWIMMER
+	db	01Fh+4,010h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	005h+040h			; battle type
+	db	0d7h				; dealer number
+	db	006h				; taking pattern 
+	db	SWIMMER
+	db	00Dh+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	006h+040h			; battle type
+	db	0d7h				; dealer number
+	db	007h				; taking pattern 
+	db	SWIMMER
+	db	02Bh+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	007h+040h			; battle type
+	db	0dah				; dealer number
+	db	00ch				; taking pattern 
+	db	SWIMMER
+	db	02Bh+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	008h+040h			; battle type
+	db	0dah				; dealer number
+	db	00dh				; taking pattern 
+	db	SWIMMER
+	db	02Ah+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	009h+040h			; battle type
+	db	0d7h				; dealer number
+	db	008h				; taking pattern 
+	db	SWIMMER
+	db	02Ch+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	00ah+040h			; battle type
+	db	0dah				; dealer number
+	db	00eh				; taking pattern 
+ram_map_tbl$:
+	dw	010h * 005h + 003h + ram_map
+	db	009h,005h

@@ -1,0 +1,121 @@
+; 11/24/95		22:38:04
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	00ch
+	db	005h,002h,000h,D3R1F2
+	db	005h,003h,000h,D3R1F2
+	db	005h,00ch,001h,D3R1F2
+	db	005h,00dh,001h,D3R1F2
+	db	005h,016h,002h,D3R1F2
+	db	005h,017h,002h,D3R1F2
+	db	00fh,002h,003h,D3R1F2
+	db	00fh,003h,003h,D3R1F2
+	db	00fh,00ch,004h,D3R1F2
+	db	00fh,00dh,004h,D3R1F2
+	db	00fh,016h,005h,D3R1F2
+	db	00fh,017h,005h,D3R1F2
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	00dh
+	db	HOTELM
+	db	002h+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	001h+040h			; battle type
+	db	0f1h				; dealer number
+	db	003h				; taking pattern 
+	db	SEINEN
+	db	004h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	002h+040h			; battle type
+	db	0d6h				; dealer number
+	db	001h				; taking pattern 
+	db	HOTELM
+	db	00Eh+4,000h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	003h+040h			; battle type
+	db	0f1h				; dealer number
+	db	005h				; taking pattern 
+	db	TRAINERW
+	db	00Bh+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	004h+040h			; battle type
+	db	0cbh				; dealer number
+	db	00ch				; taking pattern 
+	db	HOTELM
+	db	002h+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	005h
+	db	CAPSULE
+	db	001h+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	006h+080h			; capsule type
+	db	051h				; item number
+	db	HOTELM
+	db	002h+4,015h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	007h
+	db	GSAN2
+	db	001h+4,016h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	008h
+	db	CAPSULE
+	db	00Ch+4,000h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	009h+080h			; capsule type
+	db	028h				; item number
+	db	HOTELM
+	db	00Ch+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	00ah
+	db	CHIKIN
+	db	00Eh+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00bh
+	db	NANAMI
+	db	00Ch+4,016h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	00ch
+	db	HOTELW
+	db	00Ch+4,014h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	00dh
+ram_map_tbl$:
+	dw	012h * 003h + 002h + ram_map
+	db	005h,002h
+	dw	012h * 003h + 002h + ram_map
+	db	005h,003h
+	dw	012h * 003h + 007h + ram_map
+	db	005h,00ch
+	dw	012h * 003h + 007h + ram_map
+	db	005h,00dh
+	dw	012h * 003h + 00ch + ram_map
+	db	005h,016h
+	dw	012h * 003h + 00ch + ram_map
+	db	005h,017h
+	dw	012h * 008h + 002h + ram_map
+	db	00fh,002h
+	dw	012h * 008h + 002h + ram_map
+	db	00fh,003h
+	dw	012h * 008h + 007h + ram_map
+	db	00fh,00ch
+	dw	012h * 008h + 007h + ram_map
+	db	00fh,00dh
+	dw	012h * 008h + 00ch + ram_map
+	db	00fh,016h
+	dw	012h * 008h + 00ch + ram_map
+	db	00fh,017h

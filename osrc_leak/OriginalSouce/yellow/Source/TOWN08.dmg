@@ -1,0 +1,355 @@
+
+	include		common.def	
+	include		fntequ.def
+	include		maphead.def	
+	include		dealer.def	
+	include		macro.h
+	include		group.def
+
+
+bank6	group	G_BANK6
+
+
+	public	town8_event
+	public	town8_msg
+
+
+	extern	look_guide
+	extern	gym_setting
+	extern	table_jump
+	extern	actor_anime_set   
+	extern	yes_no
+	extern	search_hit
+	extern	game_over
+;;	extern	gym_judge
+	extern	set_battle
+	extern	set_battle_data
+	extern	set_battle_msg
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	pf_kanban
+	extern	hotel_kanban
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+
+town8_event:
+	jp	init_for_talkmap
+
+
+town8_msg:
+	msgndw	msg1,msg_shounen1
+	ndw	msg2,msg_gsan1
+	ndw	msg3,msg_seinen1
+	ndw	msg4,msg_shounen2
+
+	ndw	pokemon,msg_lacky1
+	ndw	pokemon,msg_biriridama1
+	ndw	pokemon,msg_garula1
+	ndw	pokemon,msg_pjyote1
+	ndw	pokemon,msg_raplus1
+	ndw	pokemon,msg_kabuto1
+
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+	ndw	kanban3,msg_kanban3
+	ndw	pf_kanban,msg_kanban4
+	ndw	hotel_kanban,msg_kanban5
+	ndw	kanban6,msg_kanban6
+	ndw	kanban7,msg_kanban7
+	ndw	kanban8,msg_kanban8
+
+	ndw	guide1,msg_kanban9
+	ndw	guide2,msg_kanban10
+	ndw	guide3,msg_kanban11
+	ndw	guide4,msg_kanban12
+	ndw	guide5,msg_kanban13
+	ndw	guide6,msg_kanban14
+
+msg1:
+	extern	msg1_0_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_2_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_3_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw msg4_3_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+pokemon:
+	extern	pokemon_4_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw pokemon_4_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+kanban2:
+	extern	kanban2_5_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban2_5_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+;kanban2:
+  ifn 0
+	db	D_MSG
+	db	i_,ro_,n_,na_,spc@,poke@,spc@,i_,ttu_,pa_,i_,gyoe@
+	db	home@
+	db	tenten2@,spc@,sa__,hu__,aa__,ri__,spc@
+	db	zo__,bou@,n__,ni_,spc@,yo_,u_,ko_,so_,gyoe@
+	db	EOMeom
+  endif
+
+
+kanban3:
+	extern	kanban3_6_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban3_6_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban6:
+	extern	kanban6_7_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban6_7_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban7:
+	extern	kanban7_8_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban7_8_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+  ifn 0
+	db	D_MSG
+	db	sa__,hu__,aa__,ri__,spc@,zo__,bou@,n__,spc@
+	db	zi_,mu_,spc@,ki_,yyo_,ku_
+	db	EOMeom
+  endif
+
+
+kanban8:
+	extern	kanban8_9_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban8_9_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+guide1:
+	db	CALL_MSG
+
+	ld	hl,kanban9_0$
+	call	put_win_msg
+
+	ld	a,40
+	call	look_guide
+
+	jp	msg_return
+
+
+kanban9_0$:
+	extern	kanban9_0_10_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban9_0_10_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+guide2:
+	db	CALL_MSG
+
+	ld	hl,kanban10_0$
+	call	put_win_msg
+
+	ld	a,6
+	call	look_guide
+
+	jp	msg_return
+
+
+kanban10_0$:
+	extern	kanban10_0_11_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban10_0_11_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+guide3:
+	db	CALL_MSG
+
+	ld	hl,kanban11_0$
+	call	put_win_msg
+
+	ld	a,2
+	call	look_guide
+
+	jp	msg_return
+
+
+kanban11_0$:
+	extern	kanban11_0_12_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban11_0_12_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+guide4:
+	db	CALL_MSG
+
+ ifn 0
+	push	hl
+	push	bc
+	push	de
+	push	af
+
+	extern	NaminoriPikatyu
+	ld	hl,NaminoriPikatyu
+	ld	b,G_BANK3e
+	extern	bank_push_call
+	call	bank_push_call
+
+	pop	af
+	pop	de
+	pop	bc
+	pop	hl
+ endif
+	ld	hl,kanban12_0$
+	call	put_win_msg
+
+	ld	a,37
+	call	look_guide
+
+	jp	msg_return
+
+
+kanban12_0$:
+	extern	kanban12_0_13_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban12_0_13_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+guide5:
+	db	CALL_MSG
+
+	ld	hl,kanban13_0$
+	call	put_win_msg
+
+	ld	a,19
+	call	look_guide
+
+	jp	msg_return
+
+
+kanban13_0$:
+	extern	kanban13_0_14_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban13_0_14_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+guide6:
+	db	CALL_MSG
+
+	ld	a,(ev_d2 + 1)
+;	bit	6,a
+	bit	0,a			; オツキミ山にロケット団イベントが追加、
+					; それに伴うフラグ変更があったので。
+					; debug by tama 98/06/05
+	jr	nz,koura$
+
+	bit	7,a
+	jr	nz,kai$
+
+	ld	hl,kanban14_no$
+	call	put_win_msg
+
+	jr	rts$
+
+
+koura$:
+	ld	hl,kanban14_0$
+	call	put_win_msg
+
+	ld	a,98
+
+	jr	look$
+
+
+kai$:
+	ld	hl,kanban14_1$
+	call	put_win_msg
+
+	ld	a,90
+
+look$:
+	call	look_guide
+
+rts$:
+	jp	msg_return
+
+
+
+kanban14_0$:
+	extern	kanban14_0_15_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban14_0_15_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban14_1$:
+	extern	kanban14_1_16_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban14_1_16_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban14_no$:
+	extern	kanban14_no_17_TOWN08
+	db I_MSG2	; mvmsg追加
+	dw kanban14_no_17_TOWN08	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+

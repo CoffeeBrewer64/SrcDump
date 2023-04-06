@@ -1,0 +1,92 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	pm_debug.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t3_room3
+
+
+	extern	gyaarth_play
+	extern	se_wait
+	extern	minka_a
+	extern	SetActorSite
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t3_room3:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_a			; map data adrs
+	dw	msg_t3r3f1		; message tbl adrs
+	dw	event_t3r3f1		; event routine adrs
+	db	0			; map link flg
+	dw	room_str		;
+
+
+event_t3r3f1:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t3r3f1:
+	msgndw	msg1,msg_monster1
+	ndw	msg2,msg_chikin1
+	ndw	msg3,msg_ossan1
+
+
+msg1:
+	extern	msg1_0_T03R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T03R0301	; mvmsg追加
+	db 02ah	; mvmsg追加
+
+	db	CALL_MSG
+
+  ifn	pokemon_type
+	ld	a,3
+  else
+	ld	a,15
+  endif
+
+	call	gyaarth_play
+	call	se_wait
+	
+	jp	msg_return	
+
+
+msg2:
+	extern	msg2_1_T03R0301
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T03R0301	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_2_T03R0301
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T03R0301	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+room_str:
+	include	..\sxy\t03r0301.sxy
+
+
+
+
+

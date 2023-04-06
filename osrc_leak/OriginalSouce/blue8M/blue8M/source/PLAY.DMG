@@ -1,0 +1,379 @@
+
+	include	common.def
+	include	group.def
+
+bank0	group	G_BANK0
+
+	public	play
+	public	direct_play
+	public	check_music_play
+	public	music_skip
+	public	set_now_music
+	public	check_pinchi_sound
+
+
+	extern	bmusic
+	extern	bmusic2
+	extern	bmusic3
+	extern	bank_push_call
+	extern	initialize
+	extern	initialize2
+	extern	initialize3
+	extern	se_wait
+	extern	monsend2
+
+	extern	musautowalk
+	extern	muschari
+	extern	mussea
+
+
+
+;-------------------------------------------------------;
+;							;
+;		  Check Play The Music			;
+;							;
+;      Music Change Status (All Status For Play)	;
+;							;
+;	(1) Fight -> Town, Field Or Dungeon		;
+;	(2) Town -> Field				;
+;	(3) Town -> Cyarinko				;
+;	(4) Town -> Home (Wait Recover Function)	;
+;							;
+;		   From "mapper.src"			;
+;-------------------------------------------------------;
+set_now_music:
+	call	se_wait
+	xor	a
+	ld	c,a				; Music Fade Out Counter
+	ld	d,a				; Chari Fade
+	ld	(now_music),a
+	jr	no_after_fight
+check_music_play:
+	ld	c,0ah				; Music Fade Out Counter
+	ld	d,00h				; Chari Fade
+
+	ld	a,(obs_player)			; After Fight
+	bit	5,a
+	jr	z,no_after_fight
+
+	xor	a
+	ld	(now_music),a
+	ld	c,08h				; Music Fade Out Counter
+	ld	d,c				; Chari Fade
+no_after_fight:
+	ld	a,(chyari_flg)			; player visual status
+	and	a
+	jr	z,map_sound$			; check walking status
+	cp	2				; On Raplus
+	jr	z,on_raplus$
+on_chari$:
+	ld	a,muschari			; Music (chyari)
+	jr	set_chari_rap$
+
+on_raplus$:
+	ld	a,mussea			; Music (Sea)
+set_chari_rap$:
+	ld	b,a
+	ld	a,d				; Music Fade Out Reset
+	and	a
+	ld	a,MUSIC_BANK3_NO		; Music Bank 3
+	jr	nz,chari_fade$
+
+	ld	(music_bank_flg),a
+chari_fade$:
+	ld	(music_bank_flg_back),a
+	jr	now_check$			; check walking status
+map_sound$:
+	ld	a,(map_music)			; bgm of walking on map
+	ld	b,a
+
+	call	check_music_bank
+	jr	c,bgm_set$
+
+now_check$:
+	ld	a,(now_music)
+	cp	b
+	ret	z
+
+bgm_set$:
+	ld	a,c
+	ld	(fade_play_fg),a
+	ld	a,b
+	ld	(now_music),a
+
+	ld	(music_flag),a			; 0 : SE / !0 : Music
+	jp	play
+
+
+;-------------------------------------------------------;
+;							;
+;		  Music Skip Function			;
+;							;
+;	      From "mapper.src" (init_map)		;
+;-------------------------------------------------------;
+music_skip:
+	ld	a,(music_bank_flg)
+	ld	b,a
+
+	cp	MUSIC_BANK1_NO		; Bank 2
+	jr	nz,not_bank1$
+
+	ld	hl,bmusic
+	jr	music_skiping$
+not_bank1$:
+	cp	MUSIC_BANK2_NO		; Bank 8
+	jr	nz,not_bank2$
+	ld	hl,bmusic2
+
+	jr	music_skiping$
+not_bank2$:
+	ld	hl,bmusic3		; Bank 1F
+
+music_skiping$:
+	ld	c,06h				; Skip Counter
+music_skip1$:
+	push	bc				; Breg = Bank Number
+	push	hl				; Jump Address
+	call	bank_push_call
+	pop	hl
+	pop	bc
+
+	dec	c
+	jr	nz,music_skip1$
+	ret
+
+
+
+;-------------------------------------------------------;
+;							;
+;	Check Music Bank And Auto Bank Setting		;
+;							;
+;	IN : Creg   Fade Play Use(!0) Or No Use(0)	;
+;-------------------------------------------------------;
+check_music_bank:
+	ld	a,(map_music_bank)
+	ld	e,a
+	ld	a,(music_bank_flg)
+	cp	e
+	jr	nz,bank_change$
+	ld	(music_bank_flg_back),a		; "fadeplay.src" Used
+	and	a				; Reset Cy
+	ret
+
+bank_change$:
+	ld	a,c				; Check Fade Play Counter
+	and	a
+	ld	a,e
+	jr	nz,bank_back$
+
+	ld	(music_bank_flg),a
+bank_back$:
+	ld	(music_bank_flg_back),a		; "fadeplay.src" Used
+	scf					; Set Cy
+	ret
+
+
+;-------------------------------------------------------;
+;							;
+;		   Direct Play The Music		;
+;							;
+;	In	Areg : Music Number			;
+;		Creg : Bank Number (MUSIC_BANK1_NO etc)	;
+;-------------------------------------------------------;
+direct_play:
+	ld	b,a
+	ld	(music_flag),a
+	xor	a
+	ld	(fade_play_fg),a
+	ld	a,c
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+	ld	a,b
+
+;-------------------------------------------------------;
+;							;
+;		    Play The Music			;
+;							;
+;    Note!   Set Music Number With "music_flag"		;
+;	     This Function Is "music_flag" ZERO Clear	;
+;	     "music_flag"  (0:SE / !0:Music)		;
+;-------------------------------------------------------;
+play:
+	push	hl
+	push	de
+	push	bc
+
+	ld	b,a
+;	cp	0ffh
+;	jr	z,next$
+
+	ld	a,(music_flag)
+	and	a
+	jr	z,se$
+music$:
+;	call	check_condition
+;next$:
+	xor	a
+	ld	(condetion+4),a		; Music Then SE Condition Clear
+	ld	(condetion+5),a
+	ld	(condetion+6),a
+	ld	(condetion+7),a
+se$:
+	ld	a,(fade_play_fg)	; Look! fadeplay.src 
+	and	a
+	jr	z,set_music_init$
+
+	ld	a,(music_flag)
+	and	a
+	jr	z,play_ret$		; SE Then No Check (Fadeout On)
+
+	xor	a
+	ld	(music_flag),a
+
+	ld	a,(now_music)
+	cp	0ffh			; Music Stop Mark
+	jr	nz,set_fade_play$
+
+	xor	a
+	ld	(fade_play_fg),a
+
+set_music_init$:
+	xor	a
+	ld	(music_flag),a
+
+	ld	a,(rombankno)		; Now Rom Bank number save
+	ld	(bankst),a
+
+	ld	a,(music_bank_flg)	; 2:City / 8:Fight / 1f:ETC
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	cp	MUSIC_BANK1_NO		; Bank 2
+	jr	nz,b2$
+
+	ld	a,b
+	call	initialize		; Music Initialize For Bank 2
+	jr	end$
+b2$:
+	cp	MUSIC_BANK2_NO
+	jr	nz,b3$
+
+	ld	a,b
+	call	initialize2		; Music Initialize For Bank 8
+	jr	end$
+b3$:
+	ld	a,b
+	call	initialize3		; Music Initialize For Bank 1f
+end$:
+	ld	a,(bankst)		; save rom bank number rewrite
+	ld	(rombankno),a
+	ld	(ROMBANK),a		; bank change
+
+	jr	play_ret$
+
+set_fade_play$:
+	ld	a,b
+	ld	(now_music),a
+
+	ld	a,(fade_play_fg)
+	ld	(fade_play_wait),a
+	ld	(fade_play_cou),a
+	ld	a,b
+	ld	(fade_play_fg),a	; = Music Number
+
+play_ret$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+
+bank8	group	G_MUSIC2
+
+;-----------------------------------------------;
+;	   Check Pinchi Sound "PinKon!"		;
+;-----------------------------------------------;
+check_pinchi_sound:
+;	ld	a,(fighting_flg)
+;	and	a
+;	jr	z,not_fight$
+
+	ld	a,(pinchi_flg)		; 0:No Use / MSB:On / ff:Init
+	cp	0ffh
+	jr	z,direct_stop
+	bit	7,a
+	ret	z
+
+	and	07fh
+	jr	nz,kon_check$
+
+	call	direct_sound1		; Pin!
+
+	ld	a,30			; = Pin-Kon Counter!
+	jr	set_pinchi$
+kon_check$:
+	cp	20			; = Kon! Check (30-21:Pin!, 20-1:Kon!)
+	jr	nz,pinchi_next$
+
+	call	direct_sound2		; Kon!
+pinchi_next$:
+	ld	a,monsend2
+	ld	(condetion+4),a		; !0 : Pinchi! (Used "bmusic2.src")
+
+	ld	a,(pinchi_flg)
+	and	07fh			; MSB Cut
+	dec	a
+set_pinchi$:
+	set	7,a
+not_fight$:
+	ld	(pinchi_flg),a
+	ret
+
+
+;=======================================;
+;	    Direct Sound Play		;
+;=======================================;
+direct_stop:
+	xor	a
+	ld	(pinchi_flg),a
+	ld	(condetion+4),a		; !0 : Pinchi! (Used "bmusic2.src")
+	ld	de,pinchi_stop
+	jr	set_direct_sound
+direct_sound1:
+	ld	de,pinchi_tone1
+	jr	set_direct_sound
+direct_sound2:
+	ld	de,pinchi_tone2
+set_direct_sound:
+	ld	hl,NR10
+	ld	c,05h
+	xor	a			; FF10 (Sweep Off)
+set_sound_io_loop:
+	ld	(hli),a			; Set FF10-FF14
+	ld	a,(de)			; Get Direct Sound Data
+	inc	de
+	dec	c
+	jr	nz,set_sound_io_loop
+	ret
+
+
+;-----< Direct Sound Data >-----;
+
+pinchi_tone1:
+	db	080h+020h	; FF11 (Duty : 2, Length : 20h
+	db	0e2h		; FF12 (Envelope)
+	db	050h		; FF13 (Tone Low)
+	db	087h		; FF14 (Init On, Counter NR11, Tone High)
+pinchi_tone2:
+	db	080h+030h	; FF11 (Duty : 2, Length : 30h
+	db	0e2h		; FF12 (Envelope)
+	db	0eeh		; FF13 (Tone Low)
+	db	086h		; FF14 (Init On, Counter NR11, Tone High)
+pinchi_stop:
+	db	000h+000h	; FF11 (Duty : 2, Length : 30h
+	db	000h		; FF12 (Envelope)
+	db	000h		; FF13 (Tone Low)
+	db	080h		; FF14 (Init On, Counter NR11, Tone High)
+

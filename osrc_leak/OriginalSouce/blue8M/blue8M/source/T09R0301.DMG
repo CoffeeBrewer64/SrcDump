@@ -1,0 +1,92 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t9_room3
+
+
+KENKYUJO_TYPE	equ	20
+EXIT		=	0ffh
+
+
+t9_room3:
+ysiz	=	4
+xsiz	=	9
+	db	KENKYUJO_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	kenkyujo1		; map data adrs
+	dw	msg_tbl$		; message tbl adrs
+	dw	event$			; event routine adrs
+	db	0			; map link flg
+	dw	room_str$
+
+
+event$:
+	call	init_for_talkmap
+
+	ret
+	
+
+msg_tbl$:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+	dw	msg4$
+	dw	msg5$
+
+
+msg1$:
+	extern	msg1_0_T09R0301
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T09R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_T09R0301
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T09R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:	
+	extern	msg3_2_T09R0301
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T09R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4$:
+	extern	msg4_3_T09R0301
+	db I_MSG2	; mvmsg追加
+	dw msg4_3_T09R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5$:
+	extern	msg5_4_T09R0301
+	db I_MSG2	; mvmsg追加
+	dw msg5_4_T09R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+room_str$:
+	include	..\sxy\t09r0301.sxy
+
+
+kenkyujo1:
+	include	..\mapdata\kenkyu_1.map
+
+

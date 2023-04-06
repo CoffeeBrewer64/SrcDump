@@ -1,0 +1,521 @@
+
+	include	common.def
+	include	fntequ.def
+	include	fight.def
+	include macro.h
+	include	pm_debug.def
+
+bank0	group	0
+
+;************************************************
+;*						*
+;*		sio process			*
+;*						*
+;************************************************
+
+	public	sio
+	public	hotel_sio
+	public	send_byt
+	public	send_byt2
+	public	send_byts
+	public	send_send_buf
+	public	send_send_buf2_0
+	public	send_send_buf2
+	public	send_dmy
+
+	public	taiki2
+
+	extern	wait_vb
+	extern	wait_vb_s
+	extern	push_vram
+	extern	pop_vram
+	extern	put_window
+	extern	put_term_window
+	extern	put_msg
+	extern	bank_push_call
+
+
+	extern	PrinterSio
+
+;********************************
+;*				*
+;*	from sio interrupt	*
+;*				*
+;********************************
+sio:
+	push    af
+        push    bc
+        push    de
+        push    hl
+
+	ld	a,(ext_system)
+	bit	0,a
+	jp	nz,PrinterUse
+
+	ld	a,(sio_oya_ko)
+	inc	a
+	jr	z,title_sio		; not decide OYA or KO
+
+	ld	a,(SB)
+	ld	(RD),a
+	ld	a,(TD)
+	ld	(SB),a
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	z,ret_sio
+
+	ld	a,080h
+	ld	(SC),a
+
+	jr	ret_sio
+
+title_sio:				; dicide OYA or KO
+	ld	a,(SB)
+	ld	(RD),a
+	ld	(sio_oya_ko),a
+
+	cp	KO
+	jr	z,parent1$
+
+	xor	a
+	ld	(SB),a
+
+	ld	a,03h			;1 msec
+        ld      (DIV),a                 ; wait cyotto
+wait1$:					;1 msec wait
+        ld      a,(DIV)
+        bit     7,a
+        jr      nz,wait1$
+	
+	ld	a,080h
+	ld	(SC),a
+	jr	ret_sio
+
+parent1$:
+        xor     a
+        ld      (SB),a
+	
+ret_sio:
+	ld	a,1
+	ld	(sio_flg),a
+
+	ld	a,0feh			; non data code
+	ld	(TD),a
+
+	pop	hl
+	pop	de
+	pop	bc
+	pop	af
+	reti
+
+
+
+;****************************************
+;* 	send_byts			*
+;* IN  :  hl = send data address	*
+;*	  de = read data address 	*
+;*        bc = byte			*
+;****************************************
+send_byts:
+	ld	a,1
+	ld	(sio_init_flg),a
+loop1$:
+	ld	a,(hl)			; send data
+	ld	(TD),a
+	call	send_byt		; send and receive 1 byte
+
+	push	bc			; byte counter save
+	ld	b,a		 	; receive data
+
+	inc	hl			; next data address
+
+	ld	a,030h			; easy wait
+loop2$:					;
+	dec	a			; 
+	jr	nz,loop2$		;
+
+	ld	a,(sio_init_flg)
+	and	a
+	ld	a,b			; receive data
+	pop	bc			; byte counter load
+	jr	z,pass1$
+
+	dec	hl			; last data address 
+
+	cp	0fdh			; front dummy code ?
+	jr	nz,loop1$
+	
+	xor	a
+	ld	(sio_init_flg),a	; read start
+	jr	loop1$
+	
+pass1$:
+	ld	(de),a			; receive data
+	inc	de			; next data address
+	dec	bc			; byte counter dec
+	ld	a,b
+	or	c
+	jr	nz,loop1$		; bc (counter) > 0
+
+	ret
+
+
+;****************************************
+;* 	send_byt			*
+;* IN  :  hl = send data address	*
+;* OUT     a = receive data		*
+;****************************************
+send_byt:
+	xor	a			;
+	ld	(sio_flg),a		; sio
+
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	nz,ko1$			; aite ga OYA
+
+	ld	a,081h
+	ld	(SC),a
+ko1$:
+	ld	a,(sio_flg)
+	and	a
+	jr	nz,pass1$		; passed ret_sio ( the end of sio )
+
+	ld	a,(sio_oya_ko)
+	cp	OYA
+	jr	nz,pass0$		; jibun ga OYA
+
+	call	send_cnt_chk		; send_send_cnt+0,+1 = 0 ?
+	jr	z,pass0$		; not use time over
+
+	call	easy_wait$		; a = 15 -> 0  dec
+
+	push	hl			; counter inc
+	ld	hl,send_send_cnt + 1	;
+	inc	(hl)			;
+	jr	nz,pass00$		;
+					;
+	dec	hl			;
+	inc	(hl)			;
+pass00$:				;
+	pop	hl			;
+
+	call	send_cnt_chk		; send_send_cnt+0,+1 = 0 ?
+	jr	nz,ko1$
+	
+	jp	send_time_over		; counter (send_send_cnt+0,+1) over
+
+pass0$:
+	ld	a,(IE)
+	and	00fh
+	cp	008h
+	jr	nz,ko1$			; not data transmit mode
+
+	ld	a,(m_gaman)
+	dec	a
+	ld	(m_gaman),a
+	jr	nz,ko1$
+
+	ld	a,(m_gaman + 1)
+	dec	a
+	ld	(m_gaman + 1),a
+	jr	nz,ko1$
+
+	ld	a,(sio_oya_ko)
+	cp	OYA
+	jr	z,pass1$		; aite ga OYA
+
+	ld	a,0ffh			; timing zurasu
+loop$:					;
+	dec	a			;
+	jr	nz,loop$		;
+
+pass1$:
+	xor	a
+	ld	(sio_flg),a
+
+	ld	a,(IE)
+	and	00fh
+	sub	008h
+	jr	nz,pass2$		; not data transmit mode
+
+	ld	(m_gaman),a		; a = 0
+	ld	a,050h
+	ld	(m_gaman + 1),a
+
+pass2$:
+	ld	a,(RD)
+
+	cp	0feh			; non data code ?
+
+	ret	nz			
+
+retry1$:
+	call	send_cnt_chk		; send_send_cnt+0,+1 = 0 ?
+	jr	z,retry4$
+
+	push	hl
+	ld	hl,send_send_cnt + 1
+	ld	a,(hl)
+	dec	a
+	ld	(hld),a
+	inc	a
+	jr	nz,retry3$
+
+	dec	(hl)
+	
+retry3$:
+	pop	hl
+
+	call	send_cnt_chk		; send_send_cnt+0,+1 = 0 ?
+	jr	z,send_time_over
+
+retry4$:
+	ld	a,(IE)
+	and	00fh
+	cp	008h
+	ld	a,0feh			; non data code
+	ret	z			; data transmit mode (don't retry)
+
+	ld	a,(hl)
+	ld	(TD),a
+
+	call	wait_vb			; wait vblank
+
+	jp	send_byt
+
+
+easy_wait$:				; a = 15 -> 0  dec
+	ld	a,15
+easy_loop$:
+	dec	a
+	jr	nz,easy_loop$
+	ret
+
+send_cnt_chk:				; send_send_cnt+0,+1 = 0 ?
+	push	hl
+	ld	hl,send_send_cnt
+	ld	a,(hli)
+	or	(hl)
+	pop	hl
+	ret
+
+send_time_over:
+	dec	a
+	ld	(send_send_cnt),a		; 0ffh (time over sign)
+	ld	(send_send_cnt + 1),a		; 0ffh
+	ret
+
+
+
+;****************************************
+;* 	send_send_buf			*
+;* IN  :  send_buf+0,+1  send data	*
+;* OUT :  read_buf+0,+1	 read data	*
+;****************************************
+send_send_buf:					; send data 2byte
+	ld	hl,send_buf
+	ld	de,read_buf
+	ld	c,2
+
+send_byts_wait:
+	ld	a,1
+	ld	(sio_init_flg),a
+loop1$:
+	call	wait_vb			; wait vblank
+
+	ld	a,(hl)
+	ld	(TD),a
+	call	send_byt
+	ld	b,a
+
+	inc	hl
+
+	ld	a,(sio_init_flg)
+	and	a
+	ld	a,0
+	ld	(sio_init_flg),a
+	jr	nz,loop1$
+
+	ld	a,b
+	ld	(de),a
+	inc	de
+
+	dec	c
+	jr	nz,loop1$
+
+	ret
+
+;****************************************
+;* 	send_send_buf2			*
+;* IN  :  send_buf 	  send data	*
+;* OUT :  read_buf+0,+1   read data	*
+;****************************************
+send_send_buf2_0:
+	call	push_vram
+
+	ld	hl,taiki2
+	ld	b,01h
+	call	bank_push_call
+
+	call	send_send_buf2
+
+	jp	pop_vram
+
+
+send_send_buf2:
+	ld	a,0ffh
+	ld	(read_buf + 1),a
+
+wait$:
+	call	send_byt2
+	call	wait_vb			; wait vblank
+	
+	call	send_cnt_chk		; send_send_cnt+0,+1 = 0 ?
+	jr	z,pass0$
+
+	push	hl
+	ld	hl,send_send_cnt + 1
+	dec	(hl)
+	jr	nz,pass00$
+
+	dec	hl
+	dec	(hl)
+	jr	nz,pass00$
+	
+	pop	hl
+	xor	a
+	jp	send_time_over
+
+pass00$:
+	pop	hl
+	
+pass0$:
+	ld	a,(read_buf + 1)
+	inc	a
+	jr	z,wait$
+
+	ld	b,10
+loop1$:
+	call	wait_vb			; wait vblank
+	call	send_byt2
+	dec	b
+	jr	nz,loop1$
+	
+	ld	b,10
+loop2$:
+	call	wait_vb			; wait vblank
+	call	send_dmy
+	dec	b
+	jr	nz,loop2$
+	
+	ld	a,(read_buf + 1)
+	ld	(read_buf),a
+
+	ret
+
+
+;****************************************
+;*	send_byt2			*
+;*  IN  :  send_buf	send data	*
+;*  OUT :  read_buf + 1  read data	*
+;****************************************
+send_byt2:
+	call	read$
+
+	ld	a,(send_buf)		; send data (4bit)
+	add	a,060h			; send_byt2 sign
+	ld	(TD),a
+
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	nz,read$		; aite ga OYA
+
+	ld	a,081h
+	ld	(SC),a
+
+read$:
+	ld	a,(RD)
+	ld	(read_buf),a
+	and	0f0h
+	cp	060h			; send_byt2 sign
+	ret	nz
+
+	xor	a
+	ld	(RD),a
+
+	ld	a,(read_buf)
+	and	0fh
+	ld	(read_buf + 1),a 	; read data (4bit)
+
+	ret
+
+send_dmy:
+	xor	a
+	ld	(TD),a
+
+	ld	a,(sio_oya_ko)
+	cp	KO
+	ret	nz			; aite ga OYA
+
+	ld	a,081h
+	ld	(SC),a
+	ret
+
+;*********************************
+;*	hotel_sio		*
+;*********************************
+hotel_sio:
+	ld	a,KO
+	ld	(SB),a	
+	xor	a
+	ld	(RD),a
+	ld	a,080h	
+	ld	(SC),a
+	ret
+
+;=======================================================;
+;	POCKET PRINTER USE				;
+;=======================================================;
+PrinterUse:
+	call	PrinterSio
+        pop	hl
+        pop	de
+        pop	bc
+	pop	af
+	reti
+
+
+;=======================================================;
+;							;
+;=======================================================;
+bank1	group	1
+
+taiki2:
+	SET_WIN_POS 3,10,15,12
+	ld	a,(fighting_flg)
+	and	a
+	jr	z,pass1$			; not fight
+
+	call	put_window			; normal window
+	jr	pass2$
+
+pass1$:
+	call	put_term_window			; terminal window
+pass2$:
+	S_POS	4,11
+	ld	de,taiki_msg$
+	call	put_msg
+
+	ld	c,50
+	jp	wait_vb_s			; wait vblank * 50
+
+taiki_msg$:
+ ifn  pm_jmsg
+	db	tu_,u_,si_,n_,ta_,i_,ki_,ti_,yyu_,u_,gyoe@,EOM	; Ç¬Ç§ÇµÇÒÇΩÇ¢Ç´ÇøÇ„Ç§ÅI
+ else
+	db	usf_w,usf_a_,usf_i_,usf_t_,usf_i_,usf_n_,usf_g_,kten@,kten@,kten@,gyoe@,EOM
+ endif
+
+
+
+

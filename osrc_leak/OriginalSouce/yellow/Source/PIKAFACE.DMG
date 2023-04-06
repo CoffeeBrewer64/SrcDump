@@ -1,0 +1,3394 @@
+
+
+	include	common.def
+	include	banktool.def
+	include	macro.h
+
+	include	fntequ.def
+	include	group.def
+
+	include	pika.def
+	include	objbank.def
+	include	pm_debug.def
+
+
+
+;======= MACRO DEFINE =====================================
+
+init_g_ndw	macro	mroutine,mseqno
+mcount	=	-1
+	dw	mroutine
+	public	mseqno
+	ndwequ	mseqno
+	endm
+
+g_ndw	macro	mroutine,mseqno
+	public	mroutine		; for debug,98/05/07
+	dw	mroutine
+	public	mseqno
+	ndwequ	mseqno
+	endm
+
+
+
+INITNUMBERING	macro	m_label
+macro_counter	=	0
+	NUMBERING	m_label
+	endm
+
+NUMBERING	macro	m_label
+m_label		equ	macro_counter
+macro_counter	=	macro_counter + 1
+	endm
+
+INITGLOBALNUM	macro	m_label
+macro_counter	=	0
+	GLOBALNUM	m_label
+	endm
+
+GLOBALNUM	macro	m_label
+	public	m_label
+m_label		equ	macro_counter
+macro_counter	=	macro_counter + 1
+	endm
+
+;==========================================================
+
+
+	extern	put_window
+	extern	actor_blanch
+	extern	block_move
+	extern	get_img_direct
+	extern	put_monschr2
+	extern	put_wait
+	extern	open_ram_bank
+	extern	close_ram_bank
+	extern	set_monsimg
+	extern	memset
+	extern	cont_repeat
+	extern	mul_any
+	extern	set_chr_sub
+	extern	change_cgb_bgp
+
+
+;=================================================================
+; BG Animation Work Area Define
+;-----------------------------------------------------------------
+
+	INITNDS	PikaDemoWork
+
+	NDS	2	,DemoPrgCounter
+	NDS	1	,DecodeStatus
+	NDS	1	,RequestNumber
+	NDS	2	,MainTimer
+	NDS	1	,P_SeqWait
+
+	NDS	1	,P_GlobalX
+	NDS	1	,P_GlobalY
+	NDS	1	,P_BGChrCode
+	NDS	1	,P_CGPosX
+	NDS	1	,P_CGPosY
+	NDS	1	,P_AnmNo
+	NDS	1	,P_AnmCnt
+	NDS	1	,P_AnmWait
+	NDS	1	,P_AnmWork
+
+	NDS	0	,P_WorkEnd
+	
+
+
+;--------- BG Anime Table Offset Define -------------
+	INITNDS		0000h
+
+	NDS	1	,BG_ANM_NO
+	NDS	1	,BG_ANM_CODE
+	NDS	1	,BG_ANM_CNT
+	NDS	1	,BG_ANM_WAIT
+	NDS	1	,BG_ANM_CHR
+	NDS	1	,BG_ANM_X
+	NDS	1	,BG_ANM_Y
+	NDS	1	,BG_ANM_WORK
+
+	NDS	0	,BG_ANM_SIZE
+;----------------------------------------------------
+
+
+BG_ENTRY_MAX	equ	4
+
+	INITNDS	work_anime_buf
+
+	NDS	1				,bg_anime_counter
+	NDS	BG_ANM_SIZE * BG_ENTRY_MAX	,bg_anime_table
+	NDS	0				,BG_AnimeEnd
+
+	public	bg_anime_counter
+	public	bg_anime_table
+	public	BG_AnimeEnd
+
+;=================================================================
+
+COMP_CODE	equ	0ffh			; 圧縮されたＣＧデータを示す
+
+CGXSIZE		equ	05h
+CGYSIZE		equ	05h
+WINXPOSs	equ	06h
+WINYPOSs	equ	05h
+WINXPOSe	equ	WINXPOSs + CGXSIZE + 1
+WINYPOSe	equ	WINYPOSs + CGYSIZE + 1
+
+
+
+
+bank3f	group	G_BANK3f
+
+
+
+
+;----------------------------------------------
+; Put Pika's Face Graphic
+;----------------------------------------------
+	public	PikaPicture
+
+PikaPicture:
+	ld	a,(all_put_req)
+	push	af
+	xor	a
+	ld	(all_put_req),a
+
+	ld	a,(de)
+	ld	(pika_face_work),a
+	inc	de
+	push	de
+
+	call	picture_main
+
+	pop	de
+
+	pop	af
+	ld	(all_put_req),a
+	ret
+
+
+
+
+;==================================================================
+; ピカチュウ表情グラフィック表示メインルーチン
+;
+; In	: pika_face_work		表情ナンバー
+;
+;
+;==================================================================
+	public	picture_main
+
+picture_main:
+	call	PutFaceWin
+
+	extern	PikaWindowColorTrans		; ピカチュウのカラーを転送
+	ld	hl,PikaWindowColorTrans		;
+	ld	b,G_BANK1c
+	extern	bank_push_call
+	call	bank_push_call
+
+	call	BGWorkInit
+
+	call	SetParam
+
+
+	call	BGAnimeMain
+
+
+	call	PutFaceWin
+
+	extern	color_rewrite
+	call	color_rewrite
+
+	ret
+
+
+
+
+
+
+;----------------------------------------------------
+; Initialize Pika Face Main
+;
+;
+;----------------------------------------------------
+	public	BGWorkInit		; for debyg global label
+BGWorkInit:
+	ld	hl,PikaDemoWork
+	ld	bc,P_WorkEnd - PikaDemoWork + 1
+	xor	a
+	call	memset
+
+	ld	hl,bg_anime_counter
+	ld	bc,BG_ANM_SIZE * BG_ENTRY_MAX + 1
+	xor	a
+	call	memset
+
+	call	ChrWorkInit
+
+	ld	hl,0100
+	ld	a,l
+	ld	(MainTimer),a
+	ld	a,h
+	ld	(MainTimer+1),a
+
+	ld	a,WINXPOSs + 1
+	ld	(P_GlobalX),a
+	ld	a,WINYPOSs + 1
+	ld	(P_GlobalY),a
+	ret
+
+
+;-------------------------------------------------------------
+; ピカチュウの表情表示のためのウィンドウを出す
+; Put Window For Pika's Face
+;
+;
+;-------------------------------------------------------------
+PutFaceWin:
+	xor	a
+	ld	(all_put_req),a
+	SET_WIN_POS	WINXPOSs,WINYPOSs,WINXPOSe,WINYPOSe
+	call	put_window
+	call	put_wait
+	call	actor_blanch
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	ret
+
+
+
+
+
+;-------------------------------------------------------------
+;
+; 表情指示データの先頭アドレスを登録
+;
+; In	: pika_face_work
+;-------------------------------------------------------------
+SetParam:
+	ld	a,(pika_face_work)
+	cp	FACE_END_Code
+	jr	c,calc$
+	
+	ld	a,DemoFace_dmy
+calc$:
+	ld	e,a
+	ld	d,00h
+	ld	hl,demotable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	call	SetDemoPrgCounter
+	ret
+
+demotable$:
+	init_g_ndw	PictDemoDummy,DemoFace_dmy
+	g_ndw		PictDemo01,FACE_01_Code
+	g_ndw		PictDemo02,FACE_02_Code
+	g_ndw		PictDemo03,FACE_03_Code
+	g_ndw		PictDemo04,FACE_04_Code
+	g_ndw		PictDemo05,FACE_05_Code
+	g_ndw		PictDemo06,FACE_06_Code
+	g_ndw		PictDemo07,FACE_07_Code
+	g_ndw		PictDemo08,FACE_08_Code
+	g_ndw		PictDemo09,FACE_09_Code
+	g_ndw		PictDemo10,FACE_10_Code
+	g_ndw		PictDemo11,FACE_11_Code
+	g_ndw		PictDemo12,FACE_12_Code
+	g_ndw		PictDemo13,FACE_13_Code
+	g_ndw		PictDemo14,FACE_14_Code
+	g_ndw		PictDemo15,FACE_15_Code
+	g_ndw		PictDemo16,FACE_16_Code
+	g_ndw		PictDemo17,FACE_17_Code
+	g_ndw		PictDemo18,FACE_18_Code
+	g_ndw		PictDemo19,FACE_19_Code
+	g_ndw		PictDemo20,FACE_20_Code
+	g_ndw		PictDemo21,FACE_21_Code
+	g_ndw		PictDemo22,FACE_22_Code
+	g_ndw		PictDemo23,FACE_23_Code
+	g_ndw		PictDemo24,FACE_24_Code
+	g_ndw		PictDemo25,FACE_25_Code
+	g_ndw		PictDemo26,FACE_26_Code
+	g_ndw		PictDemo27,FACE_27_Code
+	g_ndw		PictDemo28,FACE_28_Code
+
+	g_ndw		PictDemoDummy,FACE_END_Code
+
+
+
+
+
+	public	BGAnimeMain
+
+BGAnimeMain:
+
+BGAnimeMainLoop:
+	xor	a
+	ld	(all_put_req),a
+	call	CmdDecoder
+	call	PutOBJAnime
+	call	PutBGAnime
+	call	BGAnimeTask
+	ld	a,1
+	ld	(all_put_req),a
+
+	call	KeyAndWait
+	and	a
+	jr	z,BGAnimeMainLoop
+	ret
+
+
+KeyAndWait:
+	call	put_wait
+
+	call	MainTimerCount
+	and	a
+	ret	nz
+	
+	call	cont_repeat
+	ld	a,(joy_on)
+	and	BT_A + BT_B
+	ret
+
+MainTimerCount:
+	ld	hl,MainTimer
+	dec	(hl)
+	jr	nz,ret$
+
+	inc	hl
+	ld	a,(hl)
+	and	a
+	jr	z,fin$
+
+	dec	(hl)
+ret$:
+	xor	a
+	ret
+fin$:
+	ld	a,1
+	ret
+
+
+
+BGAnimeTask:
+PutOBJAnime:
+	ret
+
+
+
+PutBGAnime:
+	ld	bc,bg_anime_table
+	ld	a,BG_ENTRY_MAX
+loop$:
+	push	af
+	push	bc
+
+	LD_HL	bc,BG_ANM_NO
+	ld	a,(hli)
+	and	a
+	jr	z,next$
+
+	ld	a,(hli)			; BG_ANM_CODE
+	ld	(P_AnmNo),a
+	ld	a,(hli)			; BG_ANM_CNT
+	ld	(P_AnmCnt),a
+	ld	a,(hli)			; BG_ANM_WAIT
+	ld	(P_AnmWait),a
+	ld	a,(hli)			; BG_ANM_CHR
+	ld	(P_BGChrCode),a
+	ld	a,(hli)			; BG_ANM_X
+	ld	(P_CGPosX),a
+	ld	a,(hli)			; BG_ANM_Y
+	ld	(P_CGPosY),a
+	ld	a,(hli)			; BG_ANM_WORK
+	ld	(P_AnmWork),a
+
+	push	bc
+	call	BGsequence
+	pop	bc
+
+	LD_HL	bc,BG_ANM_CODE
+	ld	a,(P_AnmNo)
+	ld	(hli),a
+	ld	a,(P_AnmCnt)
+	ld	(hli),a			; BG_ANM_CNT
+	ld	a,(P_AnmWait)
+	ld	(hli),a			; BG_ANM_WAIT
+	ld	a,(P_BGChrCode)
+	ld	(hli),a			; BG_ANM_CHR
+	ld	a,(P_CGPosX)
+	ld	(hli),a			; BG_ANM_X
+	ld	a,(P_CGPosY)
+	ld	(hli),a			; BG_ANM_Y
+	ld	a,(P_AnmWork)
+	ld	(hl),a
+
+next$:
+	pop	bc
+	LD_HL	bc,BG_ANM_SIZE
+	ld	b,h
+	ld	c,l
+	pop	af
+	dec	a
+	jr	nz,loop$
+	ret
+
+
+
+;---------------------------------------------
+; BGアニメのテーブル登録
+; Structure of BG animation
+;
+;	db	Cmd_SetBGAnime
+;
+;	db	Animation Code
+;	db	parameter
+;	db	chr code
+;	db	x,y
+;---------------------------------------------
+SetBGAnime:
+	ld	hl,bg_anime_table
+	ld	de,BG_ANM_SIZE
+	ld	c,BG_ENTRY_MAX
+searchloop$:
+	ld	a,(hl)
+	and	a
+	jr	z,set$
+	add	hl,de
+	dec	c
+	jr	nz,searchloop$
+	scf
+	ret
+set$:
+	ld	a,(bg_anime_counter)
+	inc	a
+	ld	(bg_anime_counter),a
+	ld	(hli),a			; BG_ANM_NO
+	call	GetDemoData
+	ld	(hli),a			; BG_ANM_CODE
+	call	GetDemoData
+	ld	(hl),a			; BG_ANM_WORK
+	xor	a
+	ld	(hli),a			; BG_ANM_CNT
+	ld	(hli),a			; BG_ANM_WAIT
+	call	GetDemoData
+	ld	(hli),a			; BG_ANM_CHR
+	call	GetDemoData
+	ld	(hli),a			; BG_ANM_X
+	call	GetDemoData
+	ld	(hli),a			; BG_ANM_Y
+
+	and	a
+	ret
+
+
+;---------------------------------------------
+;
+; BGアニメのテーブルからの削除
+;
+; delete entried BG Animation
+;---------------------------------------------
+DelBGAnime:
+	call	GetDemoData
+	ld	b,a
+	ld	hl,bg_anime_table
+	ld	de,BG_ANM_SIZE
+	ld	c,BG_ENTRY_MAX
+loop$:
+	ld	a,(hl)
+	cp	b
+	jr	z,hit$
+	add	hl,de
+	dec	c
+	jr	nz,loop$
+	scf
+	ret
+hit$:
+	xor	a
+	ld	(hl),a
+	ret
+	
+
+
+	
+
+
+cmdLoop		equ	0e0h
+cmdEnd		equ	0e1h
+cmdCount	equ	0e2h
+cmdSet		equ	0e3h
+cmdBlanch	equ	0e4h
+
+;-----------------------------------
+; 各ＢＧアニメーションの処理
+;-----------------------------------
+	public	BGsequence
+
+BGsequence:
+	ld	a,(P_AnmNo)
+	cp	FaceAnmEndNo
+	jr	c,get$
+	ld	a,FaceAllwaysNo
+get$:
+	ld	e,a
+	ld	d,00h
+	ld	hl,BGAnimeTable
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	ld	a,(P_AnmCnt)
+	ld	e,a
+	ld	d,00h
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	cp	cmdLoop
+	jr	z,loop_mode$
+
+	jr	put_pattern
+
+loop_mode$:
+	xor	a
+	ld	(P_AnmCnt),a
+	ld	(P_AnmWait),a
+	jr	BGsequence
+
+
+put_pattern:
+	push	hl
+	call	put_BG_pat
+	pop	hl
+
+Count:
+	ld	a,(hl)
+	and	a
+	jr	z,ret$
+
+	ld	a,(P_AnmWait)
+	inc	a
+	ld	(P_AnmWait),a
+	cp	(hl)
+	jr	nz,ret$
+
+	xor	a
+	ld	(P_AnmWait),a
+
+	ld	a,(P_AnmCnt)
+	inc	a
+	ld	(P_AnmCnt),a
+
+ret$:
+	ret
+
+
+	public	BGAnimeTable
+BGAnimeTable:
+	initndw	DummyAnm	,DummyAnmNo
+	ndw	TestAnm		,TestAnmNo
+	ndw	TestOBJAnm1	,TestOBJAnm1No
+	ndw	TestOBJAnm2	,TestOBJAnm2No
+
+	ndw	FaceAllways	,FaceAllwaysNo
+	ndw	FaceBasic	,FaceBasicNo
+
+	ndw	FaceAnm01	,FaceAnm01No
+	ndw	FaceAnm02	,FaceAnm02No
+	ndw	FaceAnm03	,FaceAnm03No
+	ndw	FaceAnm04	,FaceAnm04No
+	ndw	FaceAnm05	,FaceAnm05No
+	ndw	FaceAnm06	,FaceAnm06No
+	ndw	FaceAnm07	,FaceAnm07No
+	ndw	FaceAnm08	,FaceAnm08No
+	ndw	FaceAnm09	,FaceAnm09No
+	ndw	FaceAnm10	,FaceAnm10No
+	ndw	FaceAnm10dash	,FaceAnm10dashNo
+	ndw	FaceAnm11	,FaceAnm11No
+	ndw	FaceAnm12	,FaceAnm12No
+	ndw	FaceAnm13	,FaceAnm13No
+	ndw	FaceAnm14	,FaceAnm14No
+	ndw	FaceAnm15	,FaceAnm15No
+	ndw	FaceAnm16	,FaceAnm16No
+	ndw	FaceAnm17	,FaceAnm17No
+	ndw	FaceAnm18	,FaceAnm18No
+	ndw	FaceAnm19	,FaceAnm19No
+	ndw	FaceAnm20	,FaceAnm20No
+	ndw	FaceAnm21	,FaceAnm21No
+	ndw	FaceAnm22	,FaceAnm22No
+	ndw	FaceAnm23	,FaceAnm23No
+	ndw	FaceAnm24	,FaceAnm24No
+	ndw	FaceAnm25	,FaceAnm25No
+	ndw	FaceAnm26	,FaceAnm26No
+	ndw	FaceAnm27	,FaceAnm27No
+	ndw	FaceAnm28	,FaceAnm28No
+	
+	ndw	FaceAllways	,FaceAnmEndNo
+
+DummyAnm:
+TestAnm:
+	db	FaceSizePatNo		,20
+	db	FaceSizeTestPatNo	,2
+	db	FaceSizePatNo		,1
+	db	FaceSizeTestPatNo	,2
+	db	FaceSizePatNo		,1
+	db	FaceSizeTestPatNo	,8
+	db	cmdLoop
+
+	db	FaceSize2PatNo	,2
+	db	FaceSizePatNo	,1
+	db	FaceSize2PatNo	,2
+	db	FaceSizePatNo	,1
+	db	FaceSize2PatNo	,8
+	db	cmdLoop
+
+
+TestOBJAnm1:
+	db	NothingPatNo	,8
+	db	OBJFrontPatNo	,8
+	db	NothingPatNo	,8
+	db	OBJFrontPatNo	,8
+	db	cmdLoop
+
+TestOBJAnm2:
+	db	OBJFrontPatNo	,8
+	db	NothingPatNo	,8
+	db	OBJFrontPatNo	,8
+	db	NothingPatNo	,8
+	db	cmdLoop
+
+FaceAllWays:
+	db	FaceSizePatNo	,0
+	db	cmdLoop
+
+FaceBasic:
+	db	FullSizeNo00	,0
+	db	cmdLoop
+
+FaceAnm01:
+	db	NothingPatNo	,2
+	db	Face_01aPatNo	,4
+	db	NothingPatNo	,8
+	db	Face_01aPatNo	,4
+	db	NothingPatNo	,40h
+	db	Face_01aPatNo	,4
+	db	NothingPatNo	,40h
+	db	cmdLoop
+
+FaceAnm02:
+	db	NothingPatNo	,4
+	db	Face_02aPatNo	,4
+	db	NothingPatNo	,4
+	db	Face_02aPatNo	,4
+	db	NothingPatNo	,8
+	db	Face_02aPatNo	,4
+	db	NothingPatNo	,8
+	db	Face_02aPatNo	,4
+	db	cmdLoop
+
+FaceAnm03:
+	db	Face_03aPatNo	,1
+	db	NothingPatNo	,1
+	db	Face_03aPatNo	,1
+	db	NothingPatNo	,40h
+	db	Face_03aPatNo	,1
+	db	NothingPatNo	,40h
+	db	cmdLoop
+
+FaceAnm04:
+	db	NothingPatNo	,8
+	db	Face_04aPatNo	,8
+	db	NothingPatNo	,20
+	db	Face_04aPatNo	,8
+	db	cmdLoop
+
+FaceAnm05:
+	db	NothingPatNo	,2
+	db	Face_05aPatNo	,2
+	db	NothingPatNo	,2
+	db	Face_05aPatNo	,40h
+	db	NothingPatNo	,3
+	db	Face_05aPatNo	,40h
+	db	cmdLoop
+
+FaceAnm06:
+	db	NothingPatNo	,8
+;	db	Face_06aPatNo	,4
+;	db	NothingPatNo	,4
+	db	Face_06aPatNo	,40h
+	db	NothingPatNo	,4
+	db	Face_06aPatNo	,40h
+	db	cmdLoop
+
+FaceAnm07:
+	db	Face_07aPatNo	,8
+	db	NothingPatNo	,2
+	db	Face_07aPatNo	,8
+	db	NothingPatNo	,2
+	db	Face_07aPatNo	,8
+	db	cmdLoop
+
+FaceAnm08:
+	db	Face_08aPatNo	,4
+	db	NothingPatNo	,8
+	db	Face_08aPatNo	,4
+	db	NothingPatNo	,40h
+	db	Face_08aPatNo	,4
+	db	NothingPatNo	,40h
+	db	cmdLoop
+
+FaceAnm09:
+	db	NothingPatNo	,2
+	db	Face_09aPatNo	,2
+	db	NothingPatNo	,2
+	db	Face_09aPatNo	,2
+	db	NothingPatNo	,20
+	db	Face_09aPatNo	,2
+	db	cmdLoop
+
+FaceAnm10:
+	db	NothingPatNo	,8
+	db	Face_10aPatNo	,8
+	db	cmdLoop
+	public	FaceAnm10dash		;for debug global
+FaceAnm10dash:
+	db	NothingPatNo	,8
+	db	Face_10aPatNo	,3
+	db	Face_10dashPatNo,5
+	db	Face_10aPatNo	,3
+	db	NothingPatNo	,5
+	db	cmdLoop
+
+	public	FaceAnm11		;for debug global
+FaceAnm11:
+	db	NothingPatNo	,20
+	db	Face_11aPatNo	,8
+	db	NothingPatNo	,20
+	db	Face_11aPatNo	,8
+	db	cmdLoop
+
+	public	FaceAnm12		;for debug global
+FaceAnm12:
+	db	NothingPatNo	,13
+	db	Face_12aPatNo	,12
+	db	NothingPatNo	,100
+	db	Face_12aPatNo	,8
+	db	cmdLoop
+
+	public	FaceAnm13		;for debug global
+FaceAnm13:
+	db	NothingPatNo	,5
+	db	Face_13aPatNo	,5
+	db	NothingPatNo	,5
+	db	Face_13aPatNo	,5
+	db	NothingPatNo	,100
+	db	cmdLoop
+
+	public	FaceAnm14		;for debug global
+FaceAnm14:
+	db	NothingPatNo	,2
+	db	Face_14aPatNo	,2
+	db	NothingPatNo	,2
+	db	Face_14aPatNo	,2
+	db	cmdLoop
+
+	public	FaceAnm15		;for debug global
+FaceAnm15:
+	db	NothingPatNo	,5
+	db	Face_15aPatNo	,5
+	db	NothingPatNo	,5
+	db	Face_15aPatNo	,5
+	db	cmdLoop
+
+	public	FaceAnm16		;for debug global
+FaceAnm16:
+	db	Face_16aPatNo	,8
+	db	NothingPatNo	,100
+	db	cmdLoop
+
+	public	FaceAnm17		;for debug global
+FaceAnm17:
+	db	NothingPatNo	,10
+	db	Face_17aPatNo	,3
+	db	NothingPatNo	,3
+	db	Face_17aPatNo	,3
+	db	NothingPatNo	,100
+	db	cmdLoop
+
+	public	FaceAnm18		;for debug global
+FaceAnm18:
+	db	NothingPatNo	,3
+	db	Face_18aPatNo	,100
+	db	NothingPatNo	,8
+	db	Face_18aPatNo	,8
+	db	cmdLoop
+
+	public	FaceAnm19		;for debug global
+FaceAnm19:
+	db	Face_19aPatNo	,6
+	db	NothingPatNo	,6
+	db	Face_19aPatNo	,6
+	db	NothingPatNo	,6
+	db	cmdLoop
+
+	public	FaceAnm20		;for debug global
+FaceAnm20:
+	db	NothingPatNo	,8
+	db	Face_20aPatNo	,12
+	db	NothingPatNo	,8
+	db	Face_20aPatNo	,12
+	db	cmdLoop
+
+	public	FaceAnm21		;for debug global
+FaceAnm21:
+	db	NothingPatNo	,8
+	db	FullSizeNo00	,2
+	db	FullSizeNo01	,1
+	db	FullSizeNo02	,1
+	db	FullSizeNo03	,100
+	db	cmdLoop
+
+	public	FaceAnm22		;for debug global
+FaceAnm22:
+	db	NothingPatNo	,8
+	db	Face_22aPatNo	,100
+	db	cmdLoop
+
+	public	FaceAnm23		;for debug global
+FaceAnm23:
+	db	NothingPatNo	,16
+	db	Face_23aPatNo	,16
+	db	NothingPatNo	,16
+	db	Face_23aPatNo	,16
+	db	cmdLoop
+
+	public	FaceAnm24		;for debug global
+FaceAnm24:
+	db	NothingPatNo	,6
+	db	Face_24aPatNo	,6
+	db	NothingPatNo	,6
+	db	Face_24aPatNo	,6
+	db	NothingPatNo	,100
+	db	cmdLoop
+
+	public	FaceAnm25		;for debug global
+FaceAnm25:
+	db	NothingPatNo	,6
+	db	FullSizeNo00	,6
+	db	FullSizeNo01	,100
+	db	cmdLoop
+
+	public	FaceAnm26		;for debug global
+FaceAnm26:
+	db	NothingPatNo	,20
+	db	FullSizeNo00	,8
+	db	NothingPatNo	,20
+	db	FullSizeNo00	,8
+	db	FullSizeNo01	,8
+	db	FullSizeNo02	,100
+	db	cmdLoop
+
+	public	FaceAnm27		;for debug global
+FaceAnm27:
+	db	NothingPatNo	,4
+	db	FullSizeNo00	,100
+	db	cmdLoop
+
+	public	FaceAnm28
+FaceAnm28:
+	db	NothingPatNo	,12
+	db	FullSizeNo00	,12
+	db	NothingPatNo	,12
+	db	FullSizeNo00	,100
+	db	cmdLoop
+;------------------------------------------------
+; In	: a regs		BG pattern Number
+;	: P_BGChrCode	
+;------------------------------------------------
+	public	put_BG_pat
+put_BG_pat:
+	and	a
+	ret	z
+
+	ld	e,a
+	ld	d,00h
+	ld	hl,BG_Pattern_Table
+	add	hl,de
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+
+	ld	a,(de)
+	ld	c,a
+	inc	de
+	ld	a,(de)
+	ld	b,a
+	inc	de
+
+	push	de
+	push	bc
+	call	GetDvramPos
+	pop	bc
+	pop	de
+
+loopy$:
+	push	bc
+	push	hl
+	ld	a,(P_BGChrCode)
+	ld	c,a
+loopx$:
+	ld	a,(de)
+	inc	de
+	cp	XX
+	jr	z,next$
+	add	a,c
+	ld	(hl),a
+next$:
+	inc	hl
+	dec	b
+	jr	nz,loopx$
+	pop	hl
+	ld	bc,20
+	add	hl,bc
+	pop	bc
+	dec	c
+	jr	nz,loopy$
+	ret
+
+
+;----------------------------------------
+; In	: P_CGPosX
+;	: P_CGPosY
+;	: P_GlobalX
+;	: P_GlobalY
+; Out	: hl regs
+;----------------------------------------
+GetDvramPos:
+	push	bc
+
+	ld	a,(P_CGPosY)
+	ld	b,a
+	ld	a,(P_GlobalY)
+	add	a,b
+	ld	hl,dmy_vram
+	ld	bc,20
+	call	mul_any
+
+	ld	a,(P_CGPosX)
+	ld	c,a
+	ld	a,(P_GlobalX)
+	add	a,c
+	ld	c,a
+	ld	b,00h
+	add	hl,bc
+
+	pop	bc
+	ret
+
+
+
+;-------------------------------------------------------
+; Pattern Table of BG BOX SIZE CG
+;-------------------------------------------------------
+XX	equ	0ffh
+
+BG_Pattern_Table:
+	initndw	BGPat_Nothing	,NothingPatNo
+
+	ndw	BGPat_FaceSize	,FaceSizePatNo
+	ndw	BGPat_FaceSize2	,FaceSize2PatNo
+
+	ndw	BGPat_Single	,SinglePatNo
+	ndw	BGPat_DoubleH	,DoubleHPatNo
+	ndw	BGPat_DoubleV	,DoubleVPatNo
+	ndw	BGPat_2by2	,Square22PatNo
+	ndw	BGPat_FaceSizeTest,FaceSizeTestPatNo
+	ndw	OBJFrontPat	,OBJFrontPatNo
+
+	ndw	FacePat_00	,FullSizeNo00
+	ndw	FacePat_01	,FullSizeNo01
+	ndw	FacePat_02	,FullSizeNo02
+	ndw	FacePat_03	,FullSizeNo03
+	ndw	FacePat_04	,FullSizeNo04
+
+	ndw	BGPat_01a	,Face_01aPatNo
+	ndw	BGPat_02a	,Face_02aPatNo
+	ndw	BGPat_03a	,Face_03aPatNo
+	ndw	BGPat_04a	,Face_04aPatNo
+	ndw	BGPat_05a	,Face_05aPatNo
+	ndw	BGPat_06a	,Face_06aPatNo
+	ndw	BGPat_07a	,Face_07aPatNo
+	ndw	BGPat_08a	,Face_08aPatNo
+	ndw	BGPat_09a	,Face_09aPatNo
+	ndw	BGPat_10a	,Face_10aPatNo
+	ndw	BGPat_10dash	,Face_10dashPatNo
+	ndw	BGPat_11a	,Face_11aPatNo
+	ndw	BGPat_12a	,Face_12aPatNo
+	ndw	BGPat_13a	,Face_13aPatNo
+	ndw	BGPat_14a	,Face_14aPatNo
+	ndw	BGPat_15a	,Face_15aPatNo
+	ndw	BGPat_16a	,Face_16aPatNo
+	ndw	BGPat_17a	,Face_17aPatNo
+	ndw	BGPat_18a	,Face_18aPatNo
+	ndw	BGPat_19a	,Face_19aPatNo
+	ndw	BGPat_20a	,Face_20aPatNo
+	ndw	BGPat_21a	,Face_21aPatNo
+	ndw	BGPat_22a	,Face_22aPatNo
+	ndw	BGPat_23a	,Face_23aPatNo
+	ndw	BGPat_24a	,Face_24aPatNo
+	ndw	BGPat_25a	,Face_25aPatNo
+	ndw	BGPat_26	,Face_26PatNo
+	ndw	BGPat_26a	,Face_26aPatNo
+
+	ndw	BGPat_Dummy	,BG_Dummy_No
+
+BGPat_Nothing:
+	db	0ffh
+BGPat_Dummy:
+BGPat_FaceSize:
+	db	5,5
+	db	00,05,10,15,20
+	db	01,06,11,16,21
+	db	02,07,12,17,22
+	db	03,08,13,18,23
+	db	04,09,14,19,24
+
+BGPat_FaceSize2:
+	db	5,5
+	db	25,30,35,40,45
+	db	26,31,36,41,46
+	db	27,32,37,42,47
+	db	28,33,38,43,48
+	db	29,34,39,44,49
+
+BGPat_FaceSizeTest:
+	db	5,5
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+	db	XX,32,37,XX,XX
+	db	XX,33,38,XX,XX
+	db	XX,XX,XX,XX,XX
+
+BGPat_Single:
+	db	1,1
+	db	00
+
+BGPat_DoubleH:
+	db	2,1
+	db	00,01
+
+BGPat_DoubleV:
+	db	1,2
+	db	00,01
+
+OBJFrontPat:
+BGPat_2by2:
+	db	2,2
+	db	00,01
+	db	02,03
+
+BGPat_3by2:
+	db	3,2
+	db	00,01,02
+	db	03,04,05
+
+BGPat_2by3:
+	db	2,3
+	db	00,01
+	db	02,03
+	db	04,05
+
+
+; (0,2) 5*1
+BGPat_01a:
+	db	5,5
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+	db	00,01,02,03,04
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+; (0,3) 5*2
+BGPat_02a:
+	db	5,5
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+	db	00,01,02,03,04
+	db	05,06,07,08,09
+; (0,0) 2*3
+BGPat_03a:
+	db	5,5
+	db	00,01,XX,XX,XX
+	db	02,03,XX,XX,XX
+	db	04,05,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+; (0,1) 5*3
+BGPat_04a:
+	db	5,5
+  ifn	1
+	db	XX,XX,XX,XX,XX
+	db	00,01,02,03,04
+	db	05,06,07,08,09
+	db	10,11,12,13,14
+	db	15,16,17,18,19
+  else
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,00,01
+	db	02,03,04,05,06
+	db	07,08,09,10,11
+	db	XX,XX,XX,XX,XX
+  endif
+; (3,1) 2*2
+BGPat_05a:
+	db	5,5
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,00,01
+	db	XX,XX,XX,02,03
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+; (0,2) 2*2
+BGPat_06a:
+	db	5,5
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+	db	00,01,XX,XX,XX
+	db	02,03,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+; (0,0) 5*5
+BGPat_07a:
+	db	5,5
+	db	00,01,02,03,04
+	db	05,06,07,08,09
+	db	10,11,12,13,14
+	db	15,16,17,18,19
+	db	20,21,22,23,24
+BGPat_08a:
+	db	5,5
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+	db	00,01,02,03,04
+	db	05,06,07,08,09
+	db	XX,XX,XX,XX,XX
+; (0,2) 2*3
+BGPat_09a:
+	db	5,5
+	db	XX,XX,XX,XX,XX
+	db	XX,XX,XX,XX,XX
+	db	00,01,XX,XX,XX
+	db	02,03,XX,XX,XX
+	db	04,05,XX,XX,XX
+; (0,0) 5*5
+BGPat_10a:
+	db	5,5
+	db	00,01,02,03,04
+	db	05,06,07,08,09
+	db	10,11,12,13,14
+	db	15,16,17,18,19
+	db	20,21,22,23,24
+; (0,0) 5*5
+BGPat_10dash:
+	db	5,5
+	db	25,26,27,28,29
+	db	30,31,32,33,34
+	db	35,36,37,38,39
+	db	40,41,42,43,44
+	db	45,46,47,48,49
+; (0,0) 5*5
+BGPat_11a:
+BGPat_12a:
+BGPat_13a:
+BGPat_14a:
+BGPat_15a:
+BGPat_16a:
+BGPat_17a:
+BGPat_18a:
+BGPat_19a:
+BGPat_20a:
+BGPat_21a:
+BGPat_22a:
+BGPat_23a:
+BGPat_24a:
+BGPat_25a:
+FacePat_00:
+	db	5,5
+	db	00,01,02,03,04
+	db	05,06,07,08,09
+	db	10,11,12,13,14
+	db	15,16,17,18,19
+	db	20,21,22,23,24
+
+BGPat_26:
+FacePat_01:
+	db	5,5
+	db	25,26,27,28,29
+	db	30,31,32,33,34
+	db	35,36,37,38,39
+	db	40,41,42,43,44
+	db	45,46,47,48,49
+
+BGPat_26a:
+FacePat_02:
+	db	5,5
+	db	50,51,52,53,54
+	db	55,56,57,58,59
+	db	60,61,62,63,64
+	db	65,66,67,68,69
+	db	70,71,72,73,74
+
+FacePat_03:
+	db	5,5
+	db	75,76,77,78,79
+	db	80,81,82,83,84
+	db	85,86,87,88,89
+	db	90,91,92,93,94
+	db	95,96,97,98,99
+
+FacePat_04:
+	db	5,5
+	db	100,101,102,103,104
+	db	105,106,107,108,109
+	db	110,111,112,113,114
+	db	115,116,117,118,119
+	db	120,121,122,123,124
+
+
+
+;------------------------------------------------
+; In	: a regs	picture number
+; Out	: c regs	code/num of chr
+;	: b regs	data bank number
+; 	: de regs	data address
+;------------------------------------------------
+ReadPictData:
+	push	hl
+
+	ld	e,a
+	ld	d,00h
+	ld	hl,pika_picture_table
+	add	hl,de
+	add	hl,de
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	c,a			; code/num of chr
+	ld	a,(hli)
+	ld	b,a			; bank number
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a			; de = data address
+
+	pop	hl
+	ret
+
+
+
+;====================================================
+; BG Animation Command Interpriter
+;====================================================
+CmdDecoder:
+	call	TimingChecker
+	ret	c
+
+	xor	a
+	ld	(DecodeStatus),a
+
+DecodeLoop$:
+	call	GetDemoData
+	ld	e,a
+	ld	d,00h
+	ld	hl,CmdBlanchTable
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	extern	jump_hl
+	call	jump_hl
+
+	ld	a,(DecodeStatus)
+	and	a
+	jr	z,DecodeLoop$
+
+	ret
+	
+TimingChecker:
+	ld	a,(P_SeqWait)
+	and	a
+	ret	z
+
+	dec	a
+	ld	(P_SeqWait),a
+	scf
+	ret
+
+
+CmdBlanchTable:
+	initndw	DummySub	,Cmd_DummySub
+
+	ndw	SetSeqWait	,Cmd_SetSeqWait
+	ndw	SetChrData	,Cmd_SetChrData
+	ndw	SetBGAnime	,Cmd_SetBGAnime
+	ndw	SetOBJAnime	,Cmd_SetOBJAnime
+	ndw	SetTask		,Cmd_SetTask
+	ndw	DelBGAnime	,Cmd_DelBGAnime	
+	ndw	DelOBJAnime	,Cmd_DelOBJAnime
+	ndw	DelTask		,Cmd_DelTask
+	ndw	Blanch		,Cmd_Blanch
+	ndw	SetMainTimer	,Cmd_SetMainTimer
+	ndw	PlayVoice	,Cmd_PlayVoice
+	ndw	ThunderEffect	,Cmd_ThunderEffect
+	ndw	EndCommand	,Cmd_EndCommand
+
+	ndw	EndFaceMode	,Cmd_EndFaceMode
+
+
+DummySub:
+	ret
+
+EndFaceMode:
+	ld	a,1			; MainTimer = 1 
+	ld	(MainTimer),a		;  --> このループで終了
+	xor	a
+	ld	(MainTimer+1),a
+	jr	EndCommand
+	ret
+
+SetMainTimer:
+	call	GetDemoData
+	ld	(MainTimer),a
+	call	GetDemoData
+	ld	(MainTimer+1),a
+	ret
+
+EndCommand:
+	ld	a,0ffh
+	ld	(DecodeStatus),a
+	ret
+
+SetSeqWait:
+	call	GetDemoData
+	ld	(P_SeqWait),a
+	ret
+
+
+SetOBJAnime:
+DelOBJAnime:
+SetTask:
+DelTask:
+	ret
+
+;-----------------------------------
+; blanch to label
+;-----------------------------------
+Blanch:
+	call	GetDemoData
+	ld	l,a
+	call	GetDemoData
+	ld	h,a
+	call	SetDemoPrgCounter
+	ret
+	
+
+
+
+GetDemoData:
+	push	hl
+	ld	hl,DemoPrgCounter
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	ld	a,(hli)
+	call	SetDemoPrgCounter
+	pop	hl
+	ret
+
+SetDemoPrgCounter:
+	push	af
+	ld	a,l
+	ld	(DemoPrgCounter),a
+	ld	a,h
+	ld	(DemoPrgCounter+1),a
+	pop	af
+	ret
+	
+
+;-----------------------------------
+; キャラデータ書き込み
+;-----------------------------------
+
+SetChrData:
+	ld	a,(oam_flg)
+	push	af
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	ld	a,(all_put_req)
+	push	af
+	xor	a
+	ld	(all_put_req),a
+
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+
+
+	call	GetDemoData
+	ld	(RequestNumber),a
+
+	ld	a,(RequestNumber)
+	call	ReadPictData
+	ld	a,c
+	cp	COMP_CODE
+	jr	z,comp$
+
+	call	NotCompressedDataSet
+	jr	ret$
+
+comp$:
+	call	CompressedDataSet
+
+
+ret$:
+	pop	af
+	ld	(wave_flg),a
+
+	pop	af
+	ld	(all_put_req),a
+
+	pop	af
+	ld	(oam_flg),a
+
+	ret
+
+
+
+
+NotCompressedDataSet:
+	push	de
+	ld	a,(RequestNumber)
+	ld	d,a			; Data ID
+	ld	e,c			; Data Size
+	call	SetChrNumber
+	pop	de
+	jr	c,ret$
+
+	call	GetChrAddress
+	call	set_chr_sub
+	and	a
+
+ret$:
+	ret
+
+
+
+CompressedDataSet:
+	push	de
+	ld	a,(RequestNumber)
+	ld	d,a			; Data ID
+	ld	e,5 * 5			; Data Size
+	call	SetChrNumber
+	pop	de
+	jr	c,ret$
+
+	ld	a,b
+	call	get_img_direct
+
+	ld	a,0
+	call	open_ram_bank
+
+	ld	hl,plane0_area
+	ld	de,plane2_area
+	ld	bc,784
+	call	block_move
+
+	call	close_ram_bank
+
+	ld	a,(RequestNumber)
+	call	GetChrNumber
+	call	GetChrAddress
+	ld	d,h
+	ld	e,l
+	call	set_monsimg
+
+ret$:
+	ret
+
+
+
+;=================================================================
+; Character Data Entry Management
+;-------------------------------------------
+	public	GetChrAddress
+	public	SetChrNumber
+	public	GetChrNumber
+
+
+
+CHR_ENTRY_MAX	equ	8
+
+	INITNDS		anime_buf
+
+	NDS	1			,ChrCounter
+	NDS	CHR_ENTRY_MAX * 2	,ChrEntryTable
+	NDS	0			,ChrWorkEnd
+
+;=================================================================
+ChrWorkInit:
+	ld	hl,ChrCounter
+	ld	bc,CHR_ENTRY_MAX * 2 + 1
+	xor	a
+	call	memset
+	ret
+
+	
+;-----------------------------------------
+; In	: a regs	chr number
+; Out	: hl regs	chr entry address
+;	: 	= chr number * 10h + 8000h
+;-----------------------------------------
+GetChrAddress:
+	ld	hl,8000h
+calc$:
+	push	bc
+	ld	b,a
+	and	00fh
+	swap	a
+	ld	c,a
+	ld	a,b
+	and	0f0h
+	swap	a
+	ld	b,a
+	add	hl,bc
+	pop	bc
+	ret
+
+;-----------------------------
+; In	: d	Chr ID
+;	: e	Data Size
+;-----------------------------
+SetChrNumber:
+	push	bc
+	push	hl
+
+	ld	hl,ChrEntryTable
+	ld	c,CHR_ENTRY_MAX
+loop$:
+	ld	a,(hl)
+	and	a
+	jr	z,set$
+	cp	d
+	jr	z,same$
+	inc	hl
+	inc	hl
+	dec	c
+	jr	nz,loop$
+	scf
+	ret
+same$:
+	inc	hl
+	ld	a,(hl)
+	ret
+set$:
+	ld	(hl),d
+	inc	hl
+	ld	a,(ChrCounter)
+	add	a,80h
+	ld	(hl),a
+	ld	a,(ChrCounter)
+	add	a,e
+	ld	(ChrCounter),a
+	cp	80h
+	jr	z,ok$
+	jr	nc,error$
+
+ok$:
+	ld	a,(hl)
+	and	a
+	jr	ret$
+error$:
+	scf
+ret$:
+	pop	hl
+	pop	bc
+	ret
+
+
+;-------------------------------
+; In	: a regs	Chr ID
+; Out	: a regs	Chr Number
+;-------------------------------
+GetChrNumber:
+	push	bc
+	push	hl
+	ld	b,a
+	ld	hl,ChrEntryTable
+	ld	c,CHR_ENTRY_MAX
+searchloop$:
+	ld	a,(hli)
+	cp	b
+	jr	z,hit$
+	inc	hl
+	dec	c
+	jr	nz,searchloop$
+
+	scf
+	jr	ret$
+hit$:
+	ld	a,(hl)
+;	add	a,80h
+	and	a
+ret$:
+	pop	hl
+	pop	bc
+	ret
+	
+
+
+;=============================================================
+; ピカチュウの声を出すルーチン
+;=============================================================
+	public	PlayVoice
+PlayVoice:
+	call	GetDemoData
+	cp	0ffh				; dummy code
+
+	ret	z
+
+	ld	e,a
+	
+	extern	PikaVoicePlay
+	ld	hl,PikaVoicePlay
+	ld	b,BANK__PikaVoicePlay	;	ld	b,G_BANK3b
+	call	bank_push_call
+	ret
+
+;=============================================================
+; 
+;=============================================================
+  
+	extern	bank_chg_dt_get
+	extern	waza_se_tbl
+	extern	SEplay
+	extern	wait_vb_s
+	extern	se_wait
+	extern	wait_vb
+
+	public	ThunderEffect
+
+ThunderEffect:
+	ld	a,1
+	ld	(muspausefg),a
+	call	wait_vb
+
+	ld	a,(music_bank_flg)
+	push	af
+	ld	a,MUSIC_BANK2_NO
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+
+	call	set_se_data
+
+	call	SEplay
+	call	ThunderFlash
+	call	se_wait
+
+	pop	af
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+	xor	a
+	ld	(muspausefg),a
+
+	ret
+
+
+set_se_data:
+	ld	hl,waza_se_tbl
+	ld	e,85			; １０万ボルトのわざナンバー
+	ld	d,0
+
+	add	hl,de
+	add	hl,de
+	add	hl,de
+
+	ld	a,G_BANK1e
+	call	bank_chg_dt_get
+	ld	b,a			; Waza
+	inc	hl
+	ld	a,G_BANK1e
+	call	bank_chg_dt_get
+	inc	hl
+	ld	(mons_voice_offset),a	; Voice Tone Changer
+	ld	a,G_BANK1e
+	call	bank_chg_dt_get
+	ld	(mons_voice_tempo),a	; Voice Speed Changer
+	ld	a,b
+	ret
+
+
+
+
+
+ThunderFlash:
+	ld	hl,thunder_palette
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	ret	z
+	ld	c,a
+	ld	b,(hl)
+	inc	hl
+	push	hl
+	call	pal_chg$
+	pop	hl
+
+	jr	loop$
+
+pal_chg$:
+	ld	a,b
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	call	wait_vb_s
+	ret
+
+	public	thunder_palette
+thunder_palette:
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	4 ,	0c0h
+	db	4 ,	0e4h
+	db	0ffh
+
+;=============================================================
+; BG Animation Control Data Table
+;
+;
+;
+;
+;=============================================================
+
+
+
+DEMO1_data:
+	db	Cmd_SetChrData
+	db	FACE_01
+
+	db	Cmd_SetChrData
+	db	FACE_08
+
+	db	Cmd_SetChrData
+	db	TEST_PIKA_OBJ
+
+	db	Cmd_SetBGAnime
+	db	TestAnmNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	TestOBJAnm1No
+	db	00
+	db	80h + 25 + 25
+	db	5,5
+
+	db	Cmd_SetBGAnime
+	db	TestOBJAnm2No
+	db	00
+	db	80h + 25 + 25 + 4
+	db	5,5
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+;	db	Cmd_SetSeqWait,100
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemoDummy:
+PictDemo01:
+	db	Cmd_SetMainTimer
+	dw	40
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_01
+
+	db	Cmd_SetChrData
+	db	FACE_01a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm01No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	002h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemo02:
+	db	Cmd_SetMainTimer
+	dw	44
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_02
+
+	db	Cmd_SetChrData
+	db	FACE_02a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm02No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+;	db	022h
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo03:
+	db	Cmd_SetMainTimer
+	dw	80
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_03
+
+	db	Cmd_SetChrData
+	db	FACE_03a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm03No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	027h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemo04:
+	db	Cmd_SetMainTimer
+	dw	70
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_04
+
+	db	Cmd_SetChrData
+	db	FACE_04a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm04No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	01ch
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemo05:
+	db	Cmd_SetMainTimer
+	dw	32
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_05
+
+	db	Cmd_SetChrData
+	db	FACE_05a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm05No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+;	db	01eh
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemo06:
+	db	Cmd_SetMainTimer
+	dw	50
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_06
+
+	db	Cmd_SetChrData
+	db	FACE_06a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm06No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	025h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemo07:
+	db	Cmd_SetMainTimer
+	dw	58
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_07
+
+	db	Cmd_SetChrData
+	db	FACE_07a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm07No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	000h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemo08:
+	db	Cmd_SetMainTimer
+	dw	44
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_08
+
+	db	Cmd_SetChrData
+	db	FACE_08a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm08No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	026h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemo09:
+	db	Cmd_SetMainTimer
+	dw	56
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_09
+
+	db	Cmd_SetChrData
+	db	FACE_09a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm09No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	005h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+;--------------------------------------
+
+PictDemo10:
+	db	Cmd_SetMainTimer
+	dw	56
+;	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_10
+
+	db	Cmd_SetChrData
+	db	FACE_10a
+
+	db	Cmd_SetChrData
+	db	FACE_10b
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+;	db	FaceAnm10No
+	db	FaceAnm10dashNo
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	004h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo11:
+	db	Cmd_SetMainTimer
+	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_11
+
+	db	Cmd_SetChrData
+	db	FACE_11a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm11No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	024h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo12:
+	db	Cmd_SetMainTimer
+	dw	50
+
+	db	Cmd_SetChrData
+	db	FACE_12
+
+	db	Cmd_SetChrData
+	db	FACE_12a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm12No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	018h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo13:
+	db	Cmd_SetMainTimer
+	dw	50
+
+	db	Cmd_SetChrData
+	db	FACE_13
+
+	db	Cmd_SetChrData
+	db	FACE_13a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm13No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo14:
+	db	Cmd_SetMainTimer
+	dw	40
+
+	db	Cmd_SetChrData
+	db	FACE_14
+
+	db	Cmd_SetChrData
+	db	FACE_14a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm14No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	019h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo15:
+	db	Cmd_SetMainTimer
+	dw	50
+
+	db	Cmd_SetChrData
+	db	FACE_15
+
+	db	Cmd_SetChrData
+	db	FACE_15a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm15No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	021h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo16:
+	db	Cmd_SetMainTimer
+	dw	32
+
+	db	Cmd_SetChrData
+	db	FACE_16
+
+	db	Cmd_SetChrData
+	db	FACE_16a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm16No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	020h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo17:
+	db	Cmd_SetMainTimer
+	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_17
+
+	db	Cmd_SetChrData
+	db	FACE_17a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm17No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+;	db	00ch
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo18:
+	db	Cmd_SetMainTimer
+	dw	32
+
+	db	Cmd_SetChrData
+	db	FACE_18
+
+	db	Cmd_SetChrData
+	db	FACE_18a
+
+	db	Cmd_SetBGAnime
+	db	FaceBasicNo
+;	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm18No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	011h
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo19:
+	db	Cmd_SetMainTimer
+	dw	44
+
+	db	Cmd_SetChrData
+	db	FACE_19
+
+	db	Cmd_SetChrData
+	db	FACE_19a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm19No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo20:
+	db	Cmd_SetMainTimer
+	dw	50
+
+	db	Cmd_SetChrData
+	db	FACE_20
+
+	db	Cmd_SetChrData
+	db	FACE_20a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm20No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+; つり用、バケツをかぶったピカチュウ
+PictDemo21:
+	db	Cmd_SetMainTimer
+	dw	40
+
+	db	Cmd_SetChrData
+	db	FACE_21
+
+	db	Cmd_SetChrData
+	db	FACE_21a
+
+	db	Cmd_SetChrData
+	db	FACE_21b
+
+	db	Cmd_SetChrData
+	db	FACE_21c
+
+	db	Cmd_SetChrData
+	db	FACE_21d
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm21No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	013h			; べろべろばー
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo22:
+	db	Cmd_SetMainTimer
+	dw	40
+
+	db	Cmd_SetChrData
+	db	FACE_22
+
+	db	Cmd_SetChrData
+	db	FACE_22a
+
+	db	Cmd_SetBGAnime
+	db	FaceBasicNo
+;	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm22No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo23:
+	db	Cmd_SetMainTimer
+	dw	70
+
+	db	Cmd_SetChrData
+	db	FACE_23
+
+	db	Cmd_SetChrData
+	db	FACE_23a
+
+	db	Cmd_SetBGAnime
+	db	FaceBasicNo
+;	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm23No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo24:
+	db	Cmd_SetMainTimer
+	dw	60
+
+	db	Cmd_SetChrData
+	db	FACE_24
+
+	db	Cmd_SetChrData
+	db	FACE_24a
+
+	db	Cmd_SetBGAnime
+	db	FaceBasicNo
+;	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm24No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo25:
+	db	Cmd_SetMainTimer
+	dw	50
+
+	db	Cmd_SetChrData
+	db	FACE_25
+
+	db	Cmd_SetChrData
+	db	FACE_25a
+
+	db	Cmd_SetChrData
+	db	FACE_25b
+
+	db	Cmd_SetBGAnime
+;	db	FaceBasicNo
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm25No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+  ifn	0
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+  endif
+	db	Cmd_SetSeqWait
+	db	13
+	db	Cmd_EndCommand
+
+	db	Cmd_ThunderEffect
+
+	db	Cmd_EndFaceMode
+	db	Cmd_EndCommand
+
+
+;--------------------------------------
+
+PictDemo26:
+	db	Cmd_SetMainTimer
+	dw	100
+
+	db	Cmd_SetChrData
+	db	FACE_11
+
+	db	Cmd_SetChrData
+	db	FACE_11a
+
+	db	Cmd_SetChrData
+	db	FACE_26
+
+	db	Cmd_SetChrData
+	db	FACE_26a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm26No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo27:
+	db	Cmd_SetMainTimer
+	dw	1eh
+
+	db	Cmd_SetChrData
+	db	FACE_27
+
+	db	Cmd_SetChrData
+	db	FACE_27a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm27No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;--------------------------------------
+
+PictDemo28:
+	db	Cmd_SetMainTimer
+	dw	040h
+
+	db	Cmd_SetChrData
+	db	FACE_28
+
+	db	Cmd_SetChrData
+	db	FACE_28a
+
+	db	Cmd_SetBGAnime
+	db	FaceAllwaysNo
+	db	00
+	db	80h
+	db	0,0
+
+	db	Cmd_SetBGAnime
+	db	FaceAnm28No
+	db	00
+	db	80h + 25
+	db	0,0
+
+	db	Cmd_EndCommand
+	db	Cmd_PlayVoice
+	db	0ffh
+
+loop$:
+	db	Cmd_EndCommand
+	db	Cmd_blanch
+	dw	loop$
+
+
+;========================================================
+;
+; Pikachu Face Expression Animation
+; Graphic Data Table
+;
+;
+;
+;========================================================
+;-----------------------------------------
+; CG Data Table
+;-----------------------------------------
+pika_picture_table:
+
+	INITGLOBALNUM	FACE_DUMMY
+	db	01
+	db	G_BANK39
+	dw	0000
+
+	GLOBALNUM	FACE_01
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face01
+
+	GLOBALNUM	FACE_01a
+	db	5 * 1
+	db	G_BANK39
+	dw	CGData_Face01a
+
+
+	GLOBALNUM	FACE_02
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face02
+
+	GLOBALNUM	FACE_02a
+	db	5 * 2
+	db	G_BANK39
+	dw	CGData_Face02a
+
+
+	GLOBALNUM	FACE_03
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face03
+
+	GLOBALNUM	FACE_03a
+	db	2 * 3
+	db	G_BANK39
+	dw	CGData_Face03a
+
+
+	GLOBALNUM	FACE_04
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face04
+
+	GLOBALNUM	FACE_04a
+	db	5 * 4
+;	db	12			; 5 * 3 - 3
+	db	G_BANK39
+	dw	CGData_Face04a
+
+
+	GLOBALNUM	FACE_05
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face05
+
+	GLOBALNUM	FACE_05a
+	db	2 * 2
+	db	G_BANK39
+	dw	CGData_Face05a
+
+
+	GLOBALNUM	FACE_06
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face06
+
+	GLOBALNUM	FACE_06a
+	db	2 * 2
+	db	G_BANK39
+	dw	CGData_Face06a
+
+
+	GLOBALNUM	FACE_07
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face07
+
+	GLOBALNUM	FACE_07a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face07a
+
+
+	GLOBALNUM	FACE_08
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face08
+
+	GLOBALNUM	FACE_08a
+	db	5 * 2
+	db	G_BANK39
+	dw	CGData_Face08a
+
+
+	GLOBALNUM	FACE_09
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face09
+
+	GLOBALNUM	FACE_09a
+	db	2 * 3
+	db	G_BANK39
+	dw	CGData_Face09a
+
+
+	GLOBALNUM	FACE_10
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face10
+
+	GLOBALNUM	FACE_10a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face10a
+
+	GLOBALNUM	FACE_10b
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face10b
+
+
+	GLOBALNUM	FACE_11
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face11
+
+	GLOBALNUM	FACE_11a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face11a
+
+
+	GLOBALNUM	FACE_12
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face12
+
+	GLOBALNUM	FACE_12a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face12a
+
+
+	GLOBALNUM	FACE_13
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face13
+
+	GLOBALNUM	FACE_13a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face13a
+
+
+	GLOBALNUM	FACE_14
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face14
+
+	GLOBALNUM	FACE_14a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face14a
+
+
+	GLOBALNUM	FACE_15
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face15
+
+	GLOBALNUM	FACE_15a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face15a
+
+
+	GLOBALNUM	FACE_16
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face16
+
+	GLOBALNUM	FACE_16a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face16a
+
+
+	GLOBALNUM	FACE_17
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face17
+
+	GLOBALNUM	FACE_17a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face17a
+
+
+	GLOBALNUM	FACE_18
+	db	5 * 5
+;	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face18
+
+	GLOBALNUM	FACE_18a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face18a
+
+
+	GLOBALNUM	FACE_19
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face19
+
+	GLOBALNUM	FACE_19a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face19a
+
+
+	GLOBALNUM	FACE_20
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face20
+
+	GLOBALNUM	FACE_20a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face20a
+
+
+	GLOBALNUM	FACE_21
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face21
+
+	GLOBALNUM	FACE_21a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face21a
+
+	GLOBALNUM	FACE_21b
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face21b
+
+	GLOBALNUM	FACE_21c
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face21c
+
+	GLOBALNUM	FACE_21d
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face21d
+
+
+	GLOBALNUM	FACE_22
+	db	5 * 5
+;	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face22
+
+	GLOBALNUM	FACE_22a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face22a
+
+
+	GLOBALNUM	FACE_23
+	db	5 * 5
+;	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face23
+
+	GLOBALNUM	FACE_23a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face23a
+
+
+	GLOBALNUM	FACE_24
+	db	5 * 5
+;	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face24
+
+	GLOBALNUM	FACE_24a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face24a
+
+
+	GLOBALNUM	FACE_25
+	db	COMP_CODE
+	db	G_BANK39
+	dw	CGData_Face25
+
+	GLOBALNUM	FACE_25a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face25a
+
+	GLOBALNUM	FACE_25b
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face25b
+
+
+	GLOBALNUM	FACE_26
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face26
+
+	GLOBALNUM	FACE_26a
+	db	5 * 5
+	db	G_BANK39
+	dw	CGData_Face26a
+
+
+	GLOBALNUM	FACE_27
+	db	COMP_CODE
+  ifn	ASSEMBLE__BANK_CHANGE
+	db	G_BANK3c
+  else
+	db	G_BANK30
+  endif
+	dw	CGData_Face27
+
+	GLOBALNUM	FACE_27a
+	db	5 * 5
+  ifn	ASSEMBLE__BANK_CHANGE
+	db	G_BANK3c
+  else
+	db	G_BANK30
+  endif
+	dw	CGData_Face27a
+
+	GLOBALNUM	FACE_28
+	db	COMP_CODE
+  ifn	ASSEMBLE__BANK_CHANGE
+	db	G_BANK3c
+  else
+	db	G_BANK30
+  endif
+	dw	CGData_Face28
+
+	GLOBALNUM	FACE_28a
+	db	5 * 5
+  ifn	ASSEMBLE__BANK_CHANGE
+	db	G_BANK3c
+  else
+	db	G_BANK30
+  endif
+	dw	CGData_Face28a
+
+
+
+
+	GLOBALNUM	TEST_PIKA_OBJ
+	db	24
+	db	<CBANK_PIKACYU
+	dw	OBJ_PIKACYU
+
+
+
+
+
+
+bank39		group	G_BANK39
+
+
+CGData_Face01:
+	include	..\data\pika_01.dat
+CGData_Face01a:
+	include	..\data\pika_01a.dat
+
+CGData_Face02:
+	include	..\data\pika_02.dat
+CGData_Face02a:
+	include	..\data\pika_02a.dat
+
+CGData_Face03:
+	include	..\data\pika_03.dat
+CGData_Face03a:
+	include	..\data\pika_03a.dat
+
+CGData_Face04:
+	include	..\data\pika_04.dat
+CGData_Face04a:
+	include	..\data\pika_04a.dat
+
+CGData_Face05:
+	include	..\data\pika_05.dat
+CGData_Face05a:
+	include	..\data\pika_05a.dat
+
+CGData_Face06:
+	include	..\data\pika_06.dat
+CGData_Face06a:
+	include	..\data\pika_06a.dat
+
+CGData_Face07:
+	include	..\data\pika_07.dat
+CGData_Face07a:
+	include	..\data\pika_07a.dat
+
+CGData_Face08:
+	include	..\data\pika_08.dat
+CGData_Face08a:
+	include	..\data\pika_08a.dat
+
+CGData_Face09:
+	include	..\data\pika_09.dat
+CGData_Face09a:
+	include	..\data\pika_09a.dat
+
+CGData_Face10:
+	include	..\data\pika_10.dat
+CGData_Face10a:
+	include	..\data\pika_10a.dat
+CGData_Face10b:
+	include	..\data\pika_10b.dat
+
+CGData_Face11:
+	include	..\data\pika_11.dat
+CGData_Face11a:
+	include	..\data\pika_11a.dat
+
+CGData_Face12:
+	include	..\data\pika_12.dat
+CGData_Face12a:
+	include	..\data\pika_12a.dat
+
+CGData_Face13:
+	include	..\data\pika_13.dat
+CGData_Face13a:
+	include	..\data\pika_13a.dat
+
+CGData_Face14:
+	include	..\data\pika_14.dat
+CGData_Face14a:
+	include	..\data\pika_14a.dat
+
+CGData_Face15:
+	include	..\data\pika_15.dat
+CGData_Face15a:
+	include	..\data\pika_15a.dat
+
+CGData_Face16:
+	include	..\data\pika_16.dat
+CGData_Face16a:
+	include	..\data\pika_16a.dat
+
+CGData_Face17:
+	include	..\data\pika_17.dat
+CGData_Face17a:
+	include	..\data\pika_17a.dat
+
+CGData_Face18:
+	include	..\data\pika_18.dat
+CGData_Face18a:
+	include	..\data\pika_18a.dat
+
+
+CGData_Face19:
+	include	..\data\pika_19.dat
+CGData_Face19a:
+	include	..\data\pika_19a.dat
+
+CGData_Face20:
+	include	..\data\pika_20.dat
+CGData_Face20a:
+	include	..\data\pika_20a.dat
+
+CGData_Face21:
+	include	..\data\pika_21.dat
+CGData_Face21a:
+	include	..\data\pika_21a.dat
+CGData_Face21b:
+	include	..\data\pika_21b.dat
+CGData_Face21c:
+	include	..\data\pika_21c.dat
+CGData_Face21d:
+	include	..\data\pika_21d.dat
+
+CGData_Face22:
+	include	..\data\pika_22.dat
+CGData_Face22a:
+	include	..\data\pika_22a.dat
+
+CGData_Face23:
+	include	..\data\pika_23.dat
+CGData_Face23a:
+	include	..\data\pika_23a.dat
+
+CGData_Face24:
+	include	..\data\pika_24.dat
+CGData_Face24a:
+	include	..\data\pika_24a.dat
+
+CGData_Face25:
+	include	..\data\pika_25.dat
+CGData_Face25a:
+	include	..\data\pika_25a.dat
+CGData_Face25b:
+	include	..\data\pika_25b.dat
+
+CGData_Face26:
+	include	..\data\pika_26.dat
+CGData_Face26a:
+	include	..\data\pika_26a.dat
+
+
+
+  ifn	ASSEMBLE__BANK_CHANGE
+bank3c		group	G_BANK3c
+  else
+bank30		group	G_BANK30
+  endif
+
+
+CGData_Face27:
+	include	..\data\pika_27.dat
+CGData_Face27a:
+	include	..\data\pika_27a.dat
+
+
+CGData_Face28:
+	include	..\data\pika_28.dat
+CGData_Face28a:
+	include	..\data\pika_28a.dat
+
+
+
+
+
+

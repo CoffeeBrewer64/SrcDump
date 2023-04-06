@@ -1,0 +1,262 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	r8_room1
+
+
+	extern	CheckAssignPos
+	extern	drink_check
+	extern	bank_push_call
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+	extern	put_wait
+
+
+seq_r8r1f1	equ	seq_ctrl_buf + 71
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+r8_room1:
+ysiz	=	4
+xsiz	=	3
+	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gate7_8			; map data adrs
+	dw	msg_r8r1f1		; message tbl adrs
+	dw	ev_r8r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r8r1f1
+
+
+ev_r8r1f1:
+	call	init_for_talkmap
+
+	ld	hl,r8r1f1_tbl
+	ld	a,(seq_r8r1f1)
+	jp	table_jump
+
+
+
+r8r1f1_tbl:
+	initndw	gate_check,seq_gate_check
+	ndw	step,seq_step
+
+
+step_back:
+	ld	hl,obs_system
+	set	7,(hl)				; hero demonstration mode on
+
+	ld	a,W_R				; animetion pattern
+	ld	(ctrl_move_val),a
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	xor	a
+	ld	(actor_table + 106h),a		; animetion switch on
+	ld	(auto_move_msk),a		; key check off
+
+	ret
+
+
+gate_check:
+	ld	a,(ev_special + 0)
+	bit	6,a
+	ret	nz
+
+	ld	hl,stopper$
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,08h
+	ld	(watashi_muki),a
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	b,016h
+	ld	hl,drink_check
+	call	bank_push_call
+	ld	a,(DA_BUF + 0)
+	and	a
+	jr	nz,obtained$
+
+	ld	a,msg_keibi1
+	ld	(work1),a
+	call	talk_map
+
+	call	step_back
+
+	ld	a,seq_step
+	ld	(seq_r8r1f1),a
+
+	ret
+
+
+obtained$:
+	ld	hl,ev_special + 0
+	set	6,(hl)
+
+	ld	a,msg_keibi2
+	ld	(work1),a
+	jp	talk_map
+
+
+
+stopper$:
+	db	003h,002h
+	db	004h,002h
+	db	0ffh
+
+
+step:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	call	put_wait
+
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_r8r1f1),a
+
+	ret
+
+
+	extern	GateKeeper
+	extern	GK1_0
+	extern	GK1_1
+
+msg_r8r1f1:
+	msgndw	GateKeeper,msg_keibi
+	ndw	GK1_0,msg_keibi1
+	ndw	GK1_1,msg_keibi2
+
+
+  ifn	0
+msg_r8r1f1:
+	msgndw	msg1,msg_keibi
+	ndw	msg1_0,msg_keibi1
+	ndw	msg1_1,msg_keibi2
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_special + 0)
+	bit	6,a
+	jr	nz,pass$
+
+	ld	b,016h
+	ld	hl,drink_check
+	call	bank_push_call
+	ld	a,(DA_BUF + 0)
+	and	a
+	jr	nz,yet$
+
+	ld	hl,msg1_0
+	call	put_win_msg
+
+	call	step_back
+
+	ld	a,seq_step
+	ld	(seq_r8r1f1),a
+
+	jp	msg_return
+
+
+yet$:
+	ld	hl,msg1_1
+	call	put_win_msg
+
+	ld	hl,ev_special + 0
+	set	6,(hl)
+
+	jp	msg_return
+
+
+pass$:
+	ld	hl,msg1_2
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg1_0:
+	db	D_MSG
+	db	wa_,ta_,si_,ha_,spc@,ma_,zi_,me_,na_,spc@,ke_,i_,bi_,i_,n_
+	db	home@
+	db	ha_,bou@,spc@,no_,do_,ga_,spc@,ka_,wa_,i_,ta_,na_,bou@,gyoe@
+	db	normal@
+	db	o_,ttu_,to_,gyoe@
+	db	home@
+	db	so_,ttu_,ti_,ha_,spc@,tu_,u_,ko_,u_,spc@
+	db	ki_,n_,si_,spc@,da_,yo_,gyoe@
+	db	EOMeom
+
+
+msg1_1:
+	db	D_MSG
+	db	a_,spc@,so_,re_,ha_,gyoe@
+	db	home@
+	db	o_,i_,si_,so_,u_,na_,spc@,no_,mi_,mo_,no_,spc@
+	db	de_,su_,ne_,gyoe@
+	db	normal@
+	db	e_,bou@,gyoe@
+	db	home@
+	db	bo_,ku_,ni_,spc@,ku_,re_,ru_,no_,hate@
+	db	normal@
+	db	do_,u_,mo_,spc@,a_,ri_,ga_,to_,u_,gyoe@
+	db	normal@
+	db	tenten2@,spc@,tenten2@,spc@,tenten2@
+	db	home@
+	db	tenten2@,spc@,tenten2@,spc@,tenten2@
+	db	normal@
+	db	ya__,ma__,bu__,ki__,si__,te__,ii__,ni_,spc@,ha_,i_,ru_,na_,ra_
+	db	home@
+	db	tenten2@,spc@,tenten2@,spc@,tenten2@
+	db	do_,u_,zo_,gyoe@
+	db	EOMeom
+
+
+msg1_2:
+	db	D_MSG
+	db	a_,spc@,do_,bou@,mo_,spc@,do_,bou@,mo_,gyoe@
+	db	EOMeom
+  endif
+
+
+sxy_r8r1f1:
+	include	..\sxy\r08r0101.sxy
+
+gate7_8:
+	include	..\mapdata\7_8gate.map
+
+

@@ -1,0 +1,787 @@
+	include		group.def
+
+bank1f	group	G_MUSIC3
+	;
+	;	dungeon102t
+	;
+	;	Converting on Sun Feb 19 09:49:36 1995
+	;
+	;				by ver 1.02
+	;
+	public	Dungeon31
+	public	Dungeon32
+	public	Dungeon33
+	public	Dungeon34
+;----------------------------------------
+Dungeon31:
+;----------------------------------------
+	db	0edh,000h,0a0h
+	db	0f0h,077h
+	db	0ech,003h
+	db	0e8h
+	db	0eah,008h,014h
+loop10$:
+	db	0dch,0c3h
+; P1-1
+loop11$:
+	db	0fdh
+	dw	sub11$
+	db	0feh,3
+	dw	loop11$
+; P1-4
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	071h
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	071h
+	db	031h
+	db	041h
+; P1-5
+loop12$:
+	db	0fdh
+	dw	sub12$
+	db	0feh,4
+	dw	loop12$
+; P1-9
+loop13$:
+	db	0fdh
+	dw	sub11$
+	db	0feh,4
+	dw	loop13$
+; P1-13
+	db	0e4h,051h
+	db	051h
+	db	0c1h
+	db	051h
+	db	041h
+	db	041h
+	db	031h
+	db	031h
+	db	0c1h
+; P1-14 --- tied
+	db	031h
+	db	021h
+	db	021h
+	db	0fdh
+	dw	tararara
+	db	0e4h,021h
+	db	021h
+	db	0c1h
+	db	021h
+; P1-19
+	db	031h
+	db	031h
+	db	041h
+	db	041h
+	db	0c1h
+	db	041h
+	db	051h
+	db	051h
+; P1-20
+loop14$:
+	db	0fdh
+	dw	sub13$
+	db	0feh,4
+	dw	loop14$
+; P1-24
+loop15$:
+	db	0fdh
+	dw	sub14$
+	db	0feh,3
+	dw	loop15$
+; P1-27
+	db	0e5h,011h
+	db	0e6h,091h
+	db	051h
+	db	0e5h,011h
+	db	0e6h,091h
+	db	051h
+	db	0e5h,091h
+	db	051h
+; P1-28
+	db	0e4h,011h
+	db	0e5h,091h
+	db	051h
+	db	0e4h,011h
+	db	0e5h,091h
+	db	051h
+	db	091h
+	db	051h
+; P1-29
+	db	0e4h,011h
+	db	0e5h,091h
+	db	051h
+	db	0e4h,011h
+	db	0e5h,091h
+	db	051h
+	db	0e4h,011h
+	db	0e5h,091h
+; P1-30
+	db	051h
+	db	0e4h,011h
+	db	0e5h,091h
+	db	051h
+	db	0e4h,011h
+	db	0e5h,091h
+	db	051h
+	db	0e4h,011h
+; P1-31
+	db	0e5h,091h
+	db	051h
+	db	081h
+	db	041h
+	db	0e4h,001h
+	db	0e5h,081h
+	db	041h
+	db	0e4h,001h
+; P1-32
+	db	0fdh
+	dw	sub15$
+; P1-33
+	db	0fdh
+	dw	sub15$
+; P1-34
+	db	0e5h,081h
+	db	041h
+	db	0e4h,001h
+	db	0e5h,081h
+	db	041h
+	db	0e4h,001h
+	db	0e5h,081h
+	db	041h
+; P1-35 -
+	db	0cfh
+; P1-36 -
+	db	0c7h
+	db	0fdh
+	dw	sub16$
+; P1-37 --- tied
+	db	0fdh
+	dw	sub16$
+; P1-38
+	db	0fdh
+	dw	sub16$
+	db	0fdh
+	dw	sub16$
+	db	031h
+; P1-40 -
+	db	0cfh
+; P1-41 -
+	db	0cfh
+; P1-42 -
+	db	0feh,0
+	dw	loop10$
+sub11$:
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	071h
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	071h
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	0ffh
+sub12$:
+	db	041h
+	db	081h
+	db	0e4h,001h
+	db	0e5h,041h
+	db	081h
+	db	0e4h,001h
+	db	0e5h,041h
+	db	081h
+	db	0ffh
+sub13$:
+	db	0e5h,031h
+	db	0e6h,0b1h
+	db	0e5h,071h
+	db	031h
+	db	0e6h,0b1h
+	db	0e5h,071h
+	db	031h
+	db	0e6h,0b1h
+	db	0ffh
+sub14$:
+	db	091h
+	db	051h
+	db	0e5h,011h
+	db	0e6h,091h
+	db	051h
+	db	0e5h,011h
+	db	0e6h,091h
+	db	051h
+	db	0ffh
+sub15$:
+	db	0e5h,081h
+	db	041h
+	db	081h
+	db	041h
+	db	0e4h,001h
+	db	0e5h,081h
+	db	041h
+	db	0e4h,001h
+	db	0ffh
+sub16$:
+	db	031h
+	db	071h
+	db	031h
+	db	015h
+	db	0ffh
+tararara:
+	db	0edh,000h,0a8h
+	db	0e7h,0a0h
+	db	0b0h
+	db	0e6h,000h
+	db	010h
+	db	020h
+	db	030h
+	db	040h
+	db	050h
+	db	0edh,000h,0b0h
+; P1-15
+	db	0e7h,0a0h
+	db	0b0h
+	db	0e6h,000h
+	db	010h
+	db	020h
+	db	030h
+	db	040h
+	db	050h
+	db	0edh,000h,0b8h
+	db	0e7h,0a0h
+	db	0b0h
+	db	0e6h,000h
+	db	010h
+	db	020h
+	db	030h
+	db	040h
+	db	050h
+	db	0edh,000h,0c0h
+; P1-16
+	db	0e7h,090h
+	db	0a0h
+	db	0b0h
+	db	0e6h,000h
+	db	010h
+	db	020h
+	db	030h
+	db	040h
+	db	0edh,000h,0c8h
+	db	0e7h,080h
+	db	090h
+	db	0a0h
+	db	0b0h
+	db	0e6h,000h
+	db	010h
+	db	020h
+	db	030h
+	db	0edh,000h,0d0h
+; P1-17
+	db	0e7h,070h
+	db	080h
+	db	090h
+	db	0a0h
+	db	0b0h
+	db	0e6h,000h
+	db	010h
+	db	020h
+	db	0edh,000h,0d8h
+	db	0e7h,060h
+	db	070h
+	db	080h
+	db	090h
+	db	0a0h
+	db	0b0h
+	db	0e6h,000h
+	db	010h
+	db	0edh,000h,0e0h
+; P1-18
+	db	0e7h,050h
+	db	060h
+	db	070h
+	db	080h
+	db	090h
+	db	0a0h
+	db	0b0h
+	db	0e6h,000h
+	db	0edh,000h,0a0h
+	db	0ffh
+;----------------------------------------
+Dungeon32:
+;----------------------------------------
+	db	0eah,00bh,015h
+	db	0ech,003h
+loop20$:
+	db	0dch,0d3h
+; P2-1
+	db	0e4h,035h
+	db	015h
+	db	0e5h,0b1h
+	db	0e4h,011h
+; P2-2
+	db	031h
+	db	071h
+	db	031h
+	db	015h
+	db	0e5h,0b1h
+	db	0e4h,011h
+; P2-3
+	db	031h
+	db	071h
+	db	031h
+	db	015h
+	db	0e5h,0b1h
+	db	0a1h
+; P2-4
+	db	0b5h
+	db	0e4h,017h
+	db	0c1h
+; P2-5
+	db	085h
+	db	065h
+	db	041h
+	db	061h
+; P2-6
+	db	081h
+	db	0e3h,001h
+	db	0e4h,081h
+	db	065h
+	db	041h
+	db	061h
+; P2-7
+	db	081h
+	db	0e3h,001h
+	db	0e4h,081h
+	db	065h
+	db	041h
+	db	031h
+; P2-8
+	db	045h
+	db	065h
+	db	043h
+; P2-9
+	db	035h
+	db	015h
+	db	0e5h,0b1h
+	db	0e4h,011h
+; P2-10
+	db	031h
+	db	071h
+	db	031h
+	db	015h
+	db	0e5h,0b1h
+	db	0e4h,011h
+; P2-11
+	db	031h
+	db	071h
+	db	031h
+	db	015h
+	db	0e5h,0b1h
+	db	0a1h
+; P2-12
+	db	0b5h
+	db	0e4h,017h
+	db	0c1h
+; P2-13
+	db	081h
+	db	081h
+	db	0c1h
+	db	081h
+	db	091h
+	db	091h
+	db	0a1h
+	db	0a1h
+	db	0c1h
+; P2-14 --- tied
+	db	0a1h
+	db	0b1h
+	db	0b1h
+; P2-15 -
+	db	0c7h
+	db	0c7h
+; P2-16 -
+	db	0c7h
+	db	0c7h
+; P2-17 -
+	db	0c7h
+	db	0c7h
+; P2-18 -
+	db	0c7h
+	db	0c7h
+	db	0e4h,0b1h
+	db	0b1h
+	db	0c1h
+	db	0b1h
+; P2-19
+	db	0a1h
+	db	0a1h
+	db	091h
+	db	091h
+	db	0c1h
+	db	091h
+	db	081h
+	db	081h
+; P2-20
+	db	017h
+	db	0c1h
+	db	0e5h,0b5h
+; P2-21
+	db	0a1h
+	db	0b1h
+	db	0e4h,031h
+	db	071h
+	db	031h
+	db	015h
+; P2-22
+	db	0e5h,0b1h
+	db	0e4h,011h
+	db	031h
+	db	071h
+	db	031h
+	db	015h
+; P2-23
+	db	0e5h,0b1h
+	db	0e4h,011h
+	db	035h
+	db	075h
+; P2-24
+	db	0e5h,077h
+	db	0c1h
+	db	055h
+; P2-25
+	db	041h
+	db	051h
+	db	091h
+	db	0e4h,011h
+	db	0e5h,091h
+	db	075h
+; P2-26
+	db	051h
+	db	071h
+	db	091h
+	db	0e4h,011h
+	db	0e5h,091h
+	db	075h
+; P2-27
+	db	095h
+	db	0e4h,015h
+	db	077h
+	db	0c1h
+; P2-28 --- tied
+	db	055h
+	db	041h
+	db	051h
+; P2-29
+	db	091h
+	db	0e3h,011h
+	db	0e4h,091h
+	db	075h
+	db	091h
+	db	0e3h,011h
+; P2-30
+	db	0e4h,091h
+	db	075h
+	db	095h
+	db	0e3h,015h
+; P2-31 --- tied
+	db	0e4h,067h
+	db	0c1h
+	db	045h
+; P2-32 --- tied
+	db	031h
+	db	041h
+	db	081h
+	db	0e3h,001h
+	db	0e4h,081h
+	db	065h
+; P2-33 --- tied
+	db	041h
+	db	061h
+	db	081h
+	db	0e3h,001h
+	db	0e4h,081h
+	db	065h
+; P2-34 --- tied
+	db	085h
+	db	0e3h,005h
+; P2-35
+	db	0e5h,031h
+	db	071h
+	db	031h
+	db	015h
+	db	031h
+	db	071h
+; P2-36
+	db	031h
+	db	015h
+	db	0e6h,041h
+	db	081h
+	db	0e5h,001h
+	db	041h
+; P2-37
+	db	081h
+	db	0e4h,001h
+	db	041h
+	db	081h
+	db	001h
+	db	041h
+	db	081h
+	db	001h
+; P2-38
+	db	041h
+	db	081h
+	db	001h
+	db	041h
+	db	081h
+	db	001h
+	db	041h
+	db	081h
+; P2-39
+	db	001h
+	db	041h
+	db	081h
+	db	001h
+	db	031h
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	071h
+; P2-40
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	071h
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	071h
+; P2-41
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	071h
+	db	0e6h,0b1h
+	db	0e5h,031h
+	db	0feh,0
+	dw	loop20$
+;----------------------------------------
+Dungeon33:
+;----------------------------------------
+loop30$:
+	db	0dch,012h
+; P3-1 -
+	db	0cfh
+; P3-2 -
+	db	0cfh
+; P3-3 -
+	db	0cfh
+; P3-4 -
+	db	0cfh
+; P3-5 -
+	db	0cfh
+; P3-6 -
+	db	0cfh
+; P3-7 -
+	db	0cfh
+; P3-8 -
+	db	0cfh
+; P3-9 -
+	db	0cfh
+; P3-10 -
+	db	0cfh
+; P3-11 -
+	db	0cfh
+; P3-12 -
+	db	0cbh
+	db	0d6h,010h
+	db	0e5h,0b0h
+	db	0e4h,000h
+	db	010h
+	db	020h
+	db	030h
+	db	040h
+	db	0c1h
+; P3-13
+	db	000h
+	db	010h
+	db	020h
+	db	030h
+	db	040h
+	db	050h
+	db	0cfh
+; P3-14 -
+	db	0cfh
+	db	0c9h
+	db	0e3h,047h
+	db	0e4h,0b7h
+; P3-15
+	db	0e3h,037h
+	db	0e4h,0a7h
+	db	0e3h,027h
+	db	0e4h,097h
+; P3-16
+	db	0e3h,017h
+	db	0e4h,087h
+	db	0e3h,007h
+	db	0e4h,077h
+; P3-17
+	db	0b7h
+	db	067h
+	db	0a7h
+	db	057h
+; P3-18
+	db	097h
+	db	047h
+	db	0cfh
+; P3-19
+	db	0cfh
+	db	0c7h
+	db	050h
+	db	040h
+	db	030h
+	db	020h
+	db	010h
+	db	000h
+	db	0c1h
+; P3-20
+	db	040h
+	db	030h
+	db	020h
+	db	010h
+	db	000h
+	db	0e5h,0b0h
+	db	0c9h
+	db	0cfh
+; P3-21 -
+	db	0dch,010h
+	db	0cfh
+; P3-22 -
+	db	0cfh
+; P3-23 -
+	db	0cfh
+; P3-24 -
+	db	0cfh
+; P3-25 -
+	db	0cfh
+; P3-26 -
+	db	0cfh
+; P3-27 -
+	db	0cfh
+; P3-28 -
+	db	0cfh
+; P3-29 -
+	db	0cfh
+; P3-30 -
+	db	0cfh
+; P3-31 -
+	db	0cfh
+; P3-32 -
+	db	0cfh
+; P3-33 -
+	db	0cfh
+; P3-34 -
+	db	0cfh
+; P3-35 -
+	db	0cfh
+; P3-36 -
+	db	0cfh
+; P3-37 -
+	db	0cfh
+; P3-38 -
+	db	0cfh
+; P3-39 -
+	db	0cfh
+; P3-40 -
+	db	0cfh
+; P3-41 -
+	db	0c9h
+	db	0feh,0
+	dw	loop30$
+;----------------------------------------
+Dungeon34:
+;----------------------------------------
+	db	0dch
+; P4-1 -
+	db	0cfh
+; P4-2 -
+	db	0cfh
+; P4-3 -
+	db	0cfh
+; P4-4 -
+	db	0cfh
+; P4-5 -
+	db	0cfh
+; P4-6 -
+	db	0cfh
+; P4-7 -
+	db	0cfh
+; P4-8 -
+	db	0cfh
+; P4-9 -
+	db	0cfh
+; P4-10 -
+	db	0cfh
+; P4-11 -
+	db	0cfh
+; P4-12 -
+	db	0cfh
+; P4-13 -
+	db	0cfh
+; P4-14 -
+	db	0cfh
+; P4-15 -
+	db	0cfh
+; P4-16 -
+	db	0cfh
+; P4-17 -
+	db	0cfh
+; P4-18 -
+	db	0cfh
+; P4-19 -
+	db	0cfh
+; P4-20 -
+	db	0cfh
+; P4-21 -
+	db	0cfh
+; P4-22 -
+	db	0cfh
+; P4-23 -
+	db	0cfh
+; P4-24 -
+	db	0cfh
+; P4-25 -
+	db	0cfh
+; P4-26 -
+	db	0cfh
+; P4-27 -
+	db	0cfh
+; P4-28 -
+	db	0cfh
+; P4-29 -
+	db	0cfh
+; P4-30 -
+	db	0cfh
+; P4-31 -
+	db	0cfh
+; P4-32 -
+	db	0cfh
+; P4-33 -
+	db	0cfh
+; P4-34 -
+	db	0cfh
+; P4-35 -
+	db	0cfh
+; P4-36 -
+	db	0cfh
+; P4-37 -
+	db	0cfh
+; P4-38 -
+	db	0cfh
+; P4-39 -
+	db	0cfh
+; P4-40 -
+	db	0cfh
+; P4-41 -
+	db	0c9h
+	db	0ffh
+
+

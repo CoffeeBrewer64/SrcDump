@@ -1,0 +1,109 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	r16_room1_2f
+
+
+	extern	gate2f  	 	; map data adrs
+	extern	init_for_talk2
+	extern	bouen
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+
+r16_room1_2f:  
+ysiz	=	4
+xsiz	=	4
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gate2f  	 	; map data adrs
+	dw	msg_tbl 		; message tbl adrs
+	dw	event 			; event routine adrs
+	db	0			; map link flg
+	dw	room_str 
+
+
+event:
+	jp	init_for_talk2
+
+
+msg_tbl:
+	dw	msg1
+	dw	msg2
+	dw	scope1
+	dw	scope2
+
+
+msg1:
+	db	CALL_MSG
+	ld	hl,msg1_1
+	call	put_win_msg
+	jp	msg_return
+
+msg1_1:
+	extern	msg1_1_0_R16R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_0_R16R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+	ld	hl,msg1_2
+	call	put_win_msg
+	jp	msg_return
+
+msg1_2:
+	extern	msg1_2_1_R16R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_1_R16R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+scope1:
+	db	CALL_MSG
+	ld	hl,scope1_0$
+	jp	bouen
+
+
+scope1_0$:
+	extern	scope1_0_2_R16R0102
+	db I_MSG2	; mvmsg追加
+	dw scope1_0_2_R16R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+scope2:
+	db	CALL_MSG
+	ld	hl,scope2_0$
+	jp	bouen
+
+
+scope2_0$:
+	extern	scope2_0_3_R16R0102
+	db I_MSG2	; mvmsg追加
+	dw scope2_0_3_R16R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+room_str:
+	include	..\sxy\r16r0102.sxy
+
+

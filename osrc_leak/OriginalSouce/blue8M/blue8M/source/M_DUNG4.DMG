@@ -1,0 +1,178 @@
+	include		group.def
+
+bank1f	group	G_MUSIC3
+	;
+	;	Dungeon
+	;
+	public	Dungeon41
+	public	Dungeon42
+	public	Dungeon43
+	public	Dungeon44
+;----------------------------------------
+; ----- CODE -----
+Dungeon41:
+;----------------------------------------
+	db	0edh,000h,090h
+	db	0f0h,077h
+	db	0eah,00bh,025h
+	db	0ech,002h
+loop10$:
+	db	0dch,062h
+	db	0e3h,040h
+	db	040h
+	db	0e4h,0b0h
+	db	0b0h
+	db	000h
+	db	0c1h
+	db	0e3h,0b1h
+	db	041h
+	db	0e4h,001h
+	db	0b1h
+	db	041h
+	db	000h
+	db	0e3h,0b0h
+	db	0c1h
+	db	0feh,14
+	dw	loop10$
+	db	0dch,0a5h
+	db	0cfh
+	db	0cfh
+	db	0ceh
+	db	0e4h,000h
+	db	0e3h,0b0h
+	db	0b1h
+	db	0feh,0
+	dw	loop10$
+;----------------------------------------
+Dungeon42:
+;----------------------------------------
+	db	0ech,002h
+	db	0e8h
+	db	0eah,00ah,024h
+	db	0dch,0c2h
+loop201$:
+	db	0cfh
+	db	0cfh
+	db	0feh,4
+	dw	loop201$
+loop20$:
+	db	0dch,0c2h
+loop21$:
+	db	0fdh
+	dw	sub21$
+	db	0feh,3
+	dw	loop21$
+; P1-5
+	db	0e5h,043h
+	db	033h
+	db	0b3h
+	db	0a3h
+	db	073h
+	db	083h
+	db	0c3h
+	db	0a3h
+	db	043h
+	db	033h
+	db	0b3h
+	db	0a3h
+	db	073h
+	db	083h
+	db	073h
+	db	033h
+	db	0feh,0
+	dw	loop20$
+sub21$:
+	db	0e5h,043h
+	db	033h
+	db	0b3h
+	db	0a3h
+	db	073h
+	db	083h
+	db	093h
+	db	0a3h
+	db	043h
+	db	033h
+	db	0b3h
+	db	0a3h
+	db	073h
+	db	083h
+	db	0c3h
+	db	0a3h
+	db	0ffh
+;----------------------------------------
+Dungeon43:
+;----------------------------------------
+	db	0dch,011h
+loop30$:
+	db	0e6h,0b1h
+	db	0c1h
+	db	0e5h,041h
+	db	0c1h
+	db	041h
+	db	0c1h
+	db	041h
+	db	0c1h
+	db	041h
+	db	0c1h
+	db	041h
+	db	0c1h
+	db	041h
+	db	0c1h
+	db	041h
+	db	0c1h
+	db	001h
+	db	0c1h
+	db	0e5h,031h
+	db	0c1h
+	db	031h
+	db	0c1h
+	db	031h
+	db	0c1h
+	db	031h
+	db	0c1h
+	db	031h
+	db	0c1h
+	db	031h
+	db	0c1h
+	db	031h
+	db	0c1h
+	db	0feh,8
+	dw	loop30$
+	db	04fh
+	db	03fh
+	db	07fh
+	db	087h
+	db	037h
+	db	0feh,0
+	dw	loop30$
+;----------------------------------------
+Dungeon44:
+;----------------------------------------
+	db	0d6h
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+loop40$:
+	db	0b1h,0ch
+	db	0b1h,0ch
+	db	0b3h,0dh
+	db	0b1h,0ch
+	db	0b1h,0ch
+	db	0b3h,0dh
+	db	0b1h,0ch
+	db	0b1h,0ch
+	db	0b3h,0dh
+	db	0b1h,0ch
+	db	0b1h,0ch
+	db	0b3h,0eh
+	db	0b1h,0ch
+	db	0b1h,0ch
+	db	0c1h
+	db	0c9h
+	db	0c7h
+	db	0b7h,0eh
+	db	0feh,0
+	dw	loop40$
+
+

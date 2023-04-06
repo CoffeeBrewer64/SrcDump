@@ -1,0 +1,1250 @@
+
+	include	common.def
+	include	fntequ.def
+	include macro.h
+	include	pm_debug.def
+
+
+bank0	group	0
+
+
+	public  step_prn_win 
+	public	print_window
+	public	put_kane_window
+	public  yes_no_window
+	public	uru_kau_window
+
+	extern	bank_change
+	extern	put_window
+	extern	put_term_window
+	extern	put_msg
+	extern	actor_blanch
+	extern	block_cls
+	extern	put_bcd
+	extern	allow
+	extern	white_allow
+	extern	push_bank
+	extern	pop_bank
+	extern	div_direct
+	extern	mul_any
+	extern	wait_vb_s
+
+
+step_prn_win:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,01h
+	call	bank_change
+
+	call	print_window
+
+	pop	bc
+	ld	a,b
+	call	bank_change
+
+	ret
+
+
+
+bank1	group	1
+
+;************************************************
+;* Function : print_window		        *
+;* Comment : This Function is Frame only        *
+;*         	 or Frame in Message Display .  *
+;* Use Break Register			        *
+;*		HL,DE,BC,A		        *
+;* disp_win_mode...Window Locate Set Case Param *
+;*		 (0-25) Window Pattern Define   *
+;************************************************
+print_window:
+	ld	a,(disp_win_mode)	; Display Window Pattern load
+	cp	YES_NO_WIN
+	jp	z,yes_no_window
+	ld	c,a
+
+	ld	hl,winfunc_tbl
+	ld	de,3
+	call	wintype_cheak
+	jr	c,function_mode$
+
+	ld	hl,window_tbl
+	ld	de,5
+	call	wintype_cheak
+	jr	c,window_mode$
+
+	ld	hl,winmsg_tbl
+	ld	de,9
+	call	wintype_cheak
+	jr	c,winmsg_mode$
+
+exit$:
+	ret
+
+
+function_mode$:
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,exit$
+	push	de
+
+	jp	(hl)
+
+
+
+window_mode$:
+	call	winlen_set
+	call	dvrampos_set
+	call	put_window
+
+	ret
+
+
+;---------------------------------------  
+winmsg_mode$:
+	call	winlen_set
+
+	push	hl
+
+	call	dvrampos_set
+	call	put_window
+
+	pop	hl
+
+	call	msgpos_set
+
+	ld	a,(obs_system)
+	push	af
+	ld	a,(obs_system)
+	set	6,a				; system mode on 
+	ld	(obs_system),a
+
+	call	put_msg
+
+	pop	af
+	ld	(obs_system),a
+
+	call	actor_blanch
+
+	ret
+
+
+;=============================================================;
+;   WINDOW_TYPE CHEAK					      ;
+;         IN    HL = Window Type Table			      ;
+;		DE = 1Table Length		              ;
+;         OUT   C_flg  1 = this type		              ;
+;		       0 = not this type                      ;
+;=============================================================;
+wintype_cheak:
+	dec	de
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,not$
+
+	cp	c
+	jr	z,set$
+
+	add	hl,de
+
+	jr	loop$
+
+
+set$:
+	scf
+
+not$:
+	ret
+
+
+;=============================================================;
+;   WINDOW_LENGTH CHEAK					      ;
+;         IN    HL = Table Position			      ;
+;         OUT   B_reg = Y_length - 2 			      ;
+;		C_reg = X_length - 2   		              ;
+;=============================================================;
+winlen_set:
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+
+	ld	a,(hli)
+	sub	e
+	dec	a
+	ld	c,a
+	
+	ld	a,(hli)
+	sub	d
+	dec	a
+	ld	b,a
+
+	ret
+
+	
+;=============================================================;
+;   MSG_POSITION SET 					      ;
+;         IN    HL = Table Position			      ;
+;         OUT   DE = msg_address 			      ;
+;		HL = dvram_pos    		              ;
+;=============================================================;
+msgpos_set:
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	
+	push	de
+
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hl)
+	ld	d,a
+
+	call	dvrampos_set
+
+	pop	de
+
+	ret
+
+	
+;=============================================================;
+;   DVRAM_POSITION SET 					      ;
+;         IN    DE = Y,X  Position			      ;
+;	  OUT	HL = dvram_pos    		              ;
+;=============================================================;
+dvrampos_set:
+	push	bc
+	ld	hl,dmy_vram
+	ld	bc,20
+loop$:
+	ld	a,d
+	and	a
+	jr	z,z1$
+	add	hl,bc
+	dec	d
+	jr	loop$
+z1$:
+	pop	bc
+	add	hl,de
+	ret
+
+;=============================================================;
+;   WINDOW TYPE TABLE  					      ;
+;						              ;		
+;      winfunc_tbl:	1table length = 3	              ;
+;		db	disp_win_mode			      ;
+;		dw	call address			      ;
+;						              ;		
+;      window_tbl:      1table length = 5	              ;
+;		db	disp_win_mode			      ;
+;		db	window start pos X 		      ;
+;		db	window start pos Y 		      ;
+;		db	window end   pos X 		      ;
+;		db	window end   pos Y 		      ;
+;						              ;		
+;      winmsg_tbl:      1table length = 9	              ;
+;		db	disp_win_mode			      ;
+;		db	window start pos X 		      ;
+;		db	window start pos Y 		      ;
+;		db	window end   pos X 		      ;
+;		db	window end   pos Y 		      ;
+;		dw	msg address			      ;
+;		db	msg start pos X 		      ;
+;		db	msg start pos Y 		      ;
+;=============================================================;
+; --- Window Function Call Mode ----------------
+winfunc_tbl:
+	db	KANE_WIN		; 
+	dw	put_kane_window
+
+;	db	YES_NO_WIN
+;	dw	yes_no_window
+
+	db	URU_KAU_WIN
+	dw	uru_kau_window	;
+
+	db	STR_ESC_WIN		; tuyosa or nigasu Window
+	dw	str_esc_window
+
+	db	0ffh
+
+; --- Window Only Call Mode ------------
+window_tbl:
+	db	MESSAGE_WIN		; Message Window
+	db	0,12,19,17
+
+	db	CAP_WIN    		; Capsule name Window
+	db	0,0,19,14
+
+	db	STATUS_WIN		; Status Window
+	db	0,0,11,6
+
+	db	SHOP_WIN		; Shop Item Display Window
+	db	4,2,19,12
+
+	db	MAP_WIN			; Map Display Window (chizu)
+	db	7,0,19,17
+
+	db	MONS_FRM_WIN		; Monster Display Window      
+	db	6,4,14,13
+
+	db	0ffh
+
+; --- Window And Massage Call Mode ------------
+winmsg_tbl:
+	db	ITEM_WIN		; Item Window
+	db	0,0,14,17
+	dw	item_msg$
+	db	3,0
+
+  ifn	pm_jmsg
+	db	USE_SPLIT_WIN		; Use or Split Select Window
+	db	14,10,19,14
+	dw	use_throw_msg$
+	db	16,11
+  else
+	db	USE_SPLIT_WIN		; Use or Split Select Window
+	db	13,10,19,14
+	dw	use_throw_msg$
+	db	15,11
+  endif
+
+	db	CONFIG_WIN		; Config Select Window
+	db	0,0,7,5
+	dw	config_msg$
+	db	2,2
+
+	db	MES_SPEED_WIN		; Low or Hi Select Window
+	db	0,6,5,10
+	dw	mess_spd_msg$
+	db	2,7
+
+	db	BATTLE_COM_WIN		; Battle Command Display Window
+  ifn	pm_jmsg
+	db	9,12,19,17
+	dw	battle_msg$
+	db	11,14
+ else
+	db	8,12,19,17
+	dw	battle_msg$
+	db	10,14
+ endif
+
+;	db	BATTLE_COM_WIN2		; Battle Command Display Window
+	db	27			; Battle Command Display Window
+	db	0,12,19,17
+	dw	battle_msg2$
+	db	2,14
+
+	db	CHK_CHG_WIN		; Monster Status Check or Monster Change
+	db	11,11,19,17   
+	dw	chk_chg_msg$
+	db	13,12
+
+	db	SHOP_COM_WIN		; Shop Command Window(Uri or Kai)
+	db	0,0,10,6
+	dw	shop_com_msg$
+	db	2,1
+
+	db	MONEY_WIN		; Money Window
+	db	11,0,19,2
+	dw	kane_msg$
+  ifn	pm_jmsg
+	db	14,0
+  else
+	db	13,0
+  endif
+
+	db	ABORT_WIN		; Timer Abort Window
+	db	7,6,11,10
+	dw	boon_msg$
+	db	8,8
+
+	db	26			; zukan menu Window
+	db	11,8,19,17
+	dw	zukan_msg$
+	db	12,10
+
+
+;----------------------------------------------- Message Data --------------
+
+shop_com_msg$:
+  ifn	pm_jmsg
+	db	ka_,i_,ni_,spc@,ki_,ta_,cr@
+	db	u_,ri_,ni_,spc@,ki_,ta_,cr@
+	db	be_,tu_,ni_,spc@,i_,i_,de_,su_
+	db	EOM
+  else
+	db	usf_b,usf_u,usf_y,cr@
+	db	usf_s,usf_e,usf_l,usf_l,cr@
+	db	usf_q,usf_u,usf_i,usf_t
+	db	EOM
+  endif
+
+;str_esc_msg$:
+;	db	tu_,yo_,sa_,wo_,mi_,ru_,cr@
+;	db	ni_,ga_,su_,cr@
+;	db	ki__,yya__,n__,se__,ru__
+	db	EOM
+
+
+use_throw_msg$:
+  ifn	pm_jmsg
+	db	tu_,ka_,u_,cr@
+	db	su_,te_,ru_
+	db	EOM
+  else
+	db	usf_u,usf_s,usf_e,cr@
+	db	usf_t,usf_o,usf_s,usf_s
+	db	EOM
+  endif
+
+config_msg$:        
+	db	ki_,ro_,ku_,cr@
+	db	me__,ttu__,se__,bou@,zi__
+	db	EOM
+
+mess_spd_msg$:
+	db	ha_,ya_,i_,cr@
+	db	o_,so_,i_
+	db	EOM
+
+kane_msg$:
+  ifn	pm_jmsg
+	db	o_,ka_,ne_
+	db	EOM
+  else
+	db	usf_m,usf_o,usf_n,usf_e,usf_y
+	db	EOM
+  endif
+
+item_msg$:
+	db	mo_,ti_,mo_,no_
+	db	EOM
+
+select_msg$:
+	db	tu_,du_,ki_,ka_,ra_,cr@
+	db	sa_,i_,si_,yyo_,ka_,ra_
+	db	EOM
+
+battle_msg$:
+  ifn	pm_jmsg
+	db	ta_,ta_,ka_,u_,spc@,do_,u_,gu_,cr@
+	db	poke@,spc@,ni_,ge_,ru_
+	db	EOM
+  else
+	db	usf_f,usf_i,usf_g,usf_h,usf_t,spc@,pk@,mn@,cr@
+	db	usf_i,usf_t,usf_e,usf_m,spc@,spc@,usf_r,usf_u,usf_n
+	db	EOM
+  endif
+
+battle_msg2$:
+  ifn	pm_jmsg
+	db	sa__,hu__,aa__,ri__,bo__,bou@,ru__,batu@,spc@,spc@,spc@
+	db	e__,sa__,wo_,na_,ge_,ru_,cr@
+	db	i_,si_,wo_,na_,ge_,ru_,spc@,spc@,spc@,spc@,spc@
+	db	ni_,ge_,ru_
+	db	EOM
+  else
+	db	usf_b,usf_a,usf_l,usf_l,batu@,spc@,spc@,spc@,spc@,spc@,spc@,spc@
+	db	usf_b,usf_a,usf_i,usf_t,cr@
+	db	usf_t,usf_h,usf_r,usf_o,usf_w,spc@,usf_r,usf_o,usf_c,usf_k,spc@,spc@
+	db	usf_r,usf_u,usf_n
+	db	EOM
+  endif
+
+chk_chg_msg$:
+  ifn	pm_jmsg
+	db	to_,ri_,ka_,e_,ru_,cr@
+	db	tu_,yo_,sa_,wo_,mi_,ru_,cr@
+	db	ki__,yya__,n__,se__,ru__
+	db	EOM
+  else
+	db	usf_s,usf_w,usf_i,usf_t,usf_c,usf_h,cr@	; SWITCH
+	db	usf_s,usf_t,usf_a,usf_t,usf_s,cr@	; STATS (STATISTIC)	
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l	; CANCEL
+	db	EOM
+  endif
+
+boon_msg$:
+	db	a__,ttu__,gyoe@
+	db	EOM
+
+zukan_msg$:
+	db	de__,bou@,ta__,wo_,mi_,ru_,cr@
+	db	na_,ki_,go_,e_,cr@
+	db	bu_,n_,pu_,wo_,mi_,ru_,cr@
+	db	ki__,yya__,n__,se__,ru__
+	db	EOM
+
+
+;------------------------------------------------------ End Message ---
+;************************
+;* Display Money Window *
+;************************
+put_kane_window:
+	ld	hl,obs_system
+	set	6,(hl)
+
+	SET_WIN_MOD MONEY_WIN			; Display Fream Window
+	call	step_prn_win
+
+	SET_BLOCK 13,1,19,2
+	call	block_cls			; hyouji area clear
+
+  ifn	pm_jmsg
+	SET_MSG_POS 12,1,money_msg$		; Display Strings
+	call	put_msg
+  endif
+
+	S_POS	12,1
+	ld	de,my_gold			; temochi gold
+  ifn	pm_jmsg
+	ld	c,083h				; 3Byte & 0 suppress
+  else
+	ld	c,0a3h
+  endif
+	call	put_bcd				; put bcd 
+	
+	ld	hl,obs_system
+	res	6,(hl)
+
+	ret
+
+money_msg$:
+	db	spc@,spc@,spc@,spc@,spc@,spc@,yen@
+	db	EOM
+
+;*****************************************
+;*					*
+;*	uru kau yameru window		*
+;*  out: if cy then cancel		*
+;*	a = allow_cnt			*
+;*					*
+;*****************************************
+uru_kau_window:
+	ld	a,(obs_system)
+	set	6,a				; system mode on 
+	ld	(obs_system),a
+
+	xor	a
+	ld	(func_ret),a			; return param init
+
+	SET_WIN_MOD SHOP_COM_WIN		; Display Shopping Command
+	call	step_prn_win
+
+	ld	a,BT_A + BT_B
+	ld	(allow_msk),a			; use a,b key
+	ld	a,2
+	ld	(allow_max),a
+	ld	a,1				; 1994.04.22 By Ubu
+	ld	(allow_pos),a			; Set Locate Y
+	ld	a,1
+	ld	(allow_pos + 1),a		; Set Locate X
+	xor	a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+	ld	(scloll_sw),a
+
+	ld	a,(obs_system)
+	res	6,a				; system mode on 
+	ld	(obs_system),a
+
+	call	allow
+	call	white_allow
+
+	;PSH_BTN	0,a			; Check Push A Button
+	bit	0,a
+	jr	nz,a_btn$
+	;PSH_BTN	1,a			; Check Push B Button
+	bit	1,a
+	jr	z,a_btn$
+	ld	a,BT_B                 
+	ld	(push_btn),a  	
+	jr	cancel1$		; b key
+a_btn$:
+	ld	a,BT_A			; A Button Push
+	ld	(push_btn),a
+	ld	a,(allow_cnt)		; select position load
+	ld	(func_ret),a
+	ld	b,a
+	ld	a,(allow_max)
+	cp	b
+	jr	z,cancel1$		; yameru
+	ret
+cancel1$:
+	ld	a,BT_B                 
+	ld	(push_btn),a  	
+	ld	a,(allow_cnt)
+	ld	(func_ret),a
+	scf				; Set Carry Flag
+	ret
+
+
+
+; IN	HL	dmy_vram		 *
+;	BC	B = allow Ypos			 *
+;	C = allow Xpos			 *
+;		itwk0 ... 0 = Yes or No          *
+;                       1 = North or West      *
+;                       2 = South or East      *
+;			  3 = understand or Again*
+;		  4 = North or East      *
+;			  5 = koukan or yameru	 *
+; OUT	Carry		cancel			 *
+;
+;
+;
+yes_no_window:
+	push	hl
+
+	ld	a,(obs_system)
+	set	6,a
+	ld	(obs_system),a
+
+	xor	a
+	ld	(func_ret),a		; Return Param Init
+	ld	(push_btn),a
+
+	ld	a,BT_A + BT_B
+	ld	(allow_msk),a		; case of using 'A' & 'B'
+	ld	a,1
+	ld	(allow_max),a		; max value of selection as 0 to 1
+	ld	a,b
+	ld	(allow_pos),a		; Y position of allow
+	ld	a,c
+	ld	(allow_pos + 1),a	; X position of allow
+
+	xor	a
+	ld	(allow_old),a
+	ld	(scloll_sw),a
+
+	push	hl
+	ld	hl,itwk0
+	bit	7,(hl)
+	res	7,(hl)
+	jr	z,nor$
+
+	inc	a
+
+nor$:
+	ld	(allow_cnt),a		; value of selected list
+	pop	hl
+
+	push	hl			; push dmy_vram address
+	push	hl		
+	call	vram_save$
+
+	ld	a,(itwk0)
+	ld	hl,yesno_msg_tbl$
+	ld	e,a
+	ld	d,0
+	ld	a,5
+loop$:
+	add	hl,de
+	dec	a
+	jr	nz,loop$
+
+	ld	a,(hli)
+	ld	c,a
+	ld	a,(hli)
+	ld	b,a
+
+	ld	e,l
+	ld	d,h
+	pop	hl
+
+	push	de
+	ld	a,(itwk0)
+	cp	5
+	jr	nz,jump1$
+
+	call	put_term_window
+	jr	jump2$
+
+jump1$:
+	call	put_window
+jump2$:
+	call	actor_blanch		
+	pop	hl
+
+	ld	a,(hli)
+	and	a
+	ld	bc,22
+	jr	z,no_dakuten$
+	ld	bc,42
+no_dakuten$:
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+
+	pop	hl			; pop dmy_vram address
+	add	hl,bc
+
+	call	put_msg
+
+	xor	a
+	ld	(itwk0),a
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	allow
+
+	pop	hl
+
+	bit	1,a			; b-button push check
+	jr	nz,iie1$
+
+hai1$:
+	ld	a,(allow_cnt)
+	ld	(func_ret),a
+	and	a
+	jr	nz,iie1$		; cancel by selected 'no'
+
+	ld	a,BT_A
+	ld	(push_btn),a
+
+	ld	c,15
+	call	wait_vb_s
+
+	call	vram_load$	
+
+	and	a
+
+	ret
+
+
+iie1$:
+	ld	a,1			; change by sige 94_8_23
+	ld	(allow_cnt),a		; 
+	ld	(func_ret),a
+
+	ld	a,BT_B
+	ld	(push_btn),a
+
+	ld	c,15
+	call	wait_vb_s
+
+	call	vram_load$	
+
+	scf				; cancel by press 'B' button
+
+	ret
+
+
+vram_save$:
+	ld	de,yes_no_map
+	ld	bc,00506h		
+
+vram_save_loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,vram_save_loop$
+
+	push	bc
+
+	ld	bc,14
+	add	hl,bc
+
+	pop	bc
+
+	ld	c,6
+	dec	b
+	jr	nz,vram_save_loop$
+
+	ret
+
+
+vram_load$:
+	ld	de,yes_no_map
+	ld	bc,00506h		
+
+vram_load_loop$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz,vram_load_loop$
+
+	push	bc
+
+	ld	bc,14
+	add	hl,bc
+
+	pop	bc
+
+	ld	c,6
+	dec	b
+	jr	nz,vram_load_loop$
+
+	call	actor_blanch
+
+	ret
+
+;-----------------------------------------------------------;
+;   YES_NO MSG TABLE					    ;
+;       db	window_length X				    ;      
+;       db	window_length Y				    ;      
+;       db	1_gyoume  dakuten    ari = 1,nashi = 0 	    ;      
+;       dw	msg_no. 				    ;      
+;-----------------------------------------------------------;
+yesno_msg_tbl$:
+	db	4,3,0
+	dw	msg1$
+
+  ifn	pm_jmsg
+	db	4,3,0
+  else
+	db	6,3,0
+  endif
+	dw	msg2$
+
+  ifn	pm_jmsg
+	db	4,3,0
+  else
+	db	6,3,0
+  endif
+	dw	msg3$
+
+	db	6,3,0
+	dw	msg4$
+
+  ifn	pm_jmsg
+	db	4,3,0
+  else
+	db	6,3,0
+  endif
+	dw	msg5$
+
+  ifn	pm_jmsg
+	db	5,3,0
+  else
+	db	7,3,0
+  endif
+	dw	msg6$
+
+  ifn	pm_jmsg
+	db	5,4,1
+  else
+	db	7,4,1
+  endif
+	dw	msg7$
+
+	db	4,3,0
+	dw	msg0$
+
+msg0$:
+  ifn	pm_jmsg
+	db	i_,i_,e_,cr@
+	db	ha_,i_
+	db	EOM
+  else
+	db	usf_n,usf_o,cr@
+	db	usf_y,usf_e,usf_s
+	db	EOM
+  endif
+
+
+msg4$:
+msg1$:
+  ifn	pm_jmsg
+	db	ha_,i_,cr@
+	db	i_,i_,e_
+	db	EOM
+  else
+	db	usf_y,usf_e,usf_s,cr@
+	db	usf_n,usf_o
+	db	EOM
+  endif
+
+
+msg2$:
+  ifn	pm_jmsg
+	db	ki_,ta_,cr@
+	db	ni_,si_
+	db	EOM
+  else
+	db	usf_n,usf_o,usf_r,usf_t,usf_h,cr@
+	db	usf_w,usf_e,usf_s,usf_t
+	db	EOM
+  endif
+
+
+msg3$:
+  ifn	pm_jmsg
+	db	mi_,na_,mi_,cr@
+	db	hi_,ga_,si_
+	db	EOM
+  else
+	db	usf_s,usf_o,usf_u,usf_t,usf_h,cr@
+	db	usf_e,usf_a,usf_s,usf_t
+	db	EOM
+  endif
+
+
+;msg4$:
+;	db	_wa,_ka,_TU,_ta,@cr
+;	db	_mo,_u,_i,_ti,_do,@eom 
+
+
+msg5$:
+  ifn	pm_jmsg
+	db	ki_,ta_,cr@
+	db	hi_,ga_,si_
+	db	EOM
+  else
+	db	usf_n,usf_o,usf_r,usf_t,usf_h,cr@
+	db	usf_e,usf_a,usf_s,usf_t
+	db	EOM
+  endif
+
+
+msg6$:
+  ifn	pm_jmsg
+	db	ko_,u_,ka_,n_,cr@
+	db	ya_,me_,ru_
+	db	EOM
+  else
+	db	usf_t,usf_r,usf_a,usf_d,usf_e,cr@
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l
+	db	EOM
+  endif
+
+
+msg7$:
+  ifn	pm_jmsg
+	db	a_,zu_,ke_,ru_,cr@
+	db	ya_,me_,ru_
+	db	EOM
+  else
+	db	usf_h,usf_e,usf_a,usf_l,cr@
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l
+	db	EOM
+  endif
+
+
+;***************************************************************;
+;	str_esc_window						;
+;	IN  : sel_item_no ( monster No )			;
+;	OUT : usr_buf + 0 ~ usr_buf + 3 ( special command No )	;
+;	    : usr_buf + 4   ( a number of special command )	; 
+;***************************************************************;
+
+ESC_WND_CUR_XPOS	=	12
+
+str_esc_window:
+	xor	a
+	ld	hl,usr_buf
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+ ifn  pm_jmsg
+	ld	(hl),a
+	call	check_waza$
+ else
+	ld	(hli),a
+	ld	(hl), ESC_WND_CUR_XPOS
+	call	check_waza$
+ endif
+
+	ld	a,(usr_buf + 4)
+	and	a
+	jr	nz,sp_command$
+
+	SET_WIN_POS 11,11,19,17
+	call	put_window
+	call	actor_blanch
+
+ ifn  pm_jmsg
+	jr	ret$
+ else
+	ld	a, ESC_WND_CUR_XPOS
+	ld	(cursor_init_xpos),a
+
+	S_POS	13,12
+	ld	de,str_esc_str$
+	jp	put_msg
+ endif
+
+sp_command$:
+  ifn	pm_jmsg
+	SET_WIN_POS 11,11,19,17
+  else
+	push	af
+	ld	hl, 11*20 + dmy_vram
+	ld	a,(usr_buf + 5)
+	dec	a
+	ld	e,a
+	ld	d,0
+	add	hl,de			; S_POS(usr_buf[5]-1, 11)
+	ld	b,17-11-1		; B = eyy - syy -1
+	ld	a,19-1
+	sub	e
+	ld	c,a			; C = exx - sxx -1 (== 19 - usr_buf[5]-1 -1)
+	pop	af
+ endif
+
+	ld	de,-40
+sp_command_loop0$:
+	add	hl,de
+	inc	b
+	inc	b
+	dec	a
+	jr	nz,sp_command_loop0$
+
+	ld	de,-20				;by tetsu
+	add	hl,de
+	inc	b
+
+	call	put_window
+	call	actor_blanch
+
+  ifn	pm_jmsg
+;	S_POS	13,16
+	S_POS	13,12				;by tetsu
+  else
+	ld	hl, 12*20 + dmy_vram
+	ld	a,(usr_buf + 5)
+	inc	a
+	ld	e,a
+	ld	d,0
+	add	hl,de
+  endif
+
+	ld	de,-40
+	ld	a,(usr_buf + 4)
+sp_command_loop1$:
+	add	hl,de
+	dec	a
+	jr	nz,sp_command_loop1$
+
+	xor	a
+	ld	(usr_buf + 4),a
+
+;	push	hl
+	ld	de,usr_buf
+sp_command_loop2$:
+	push	hl
+	ld	hl,tokusyu_tbl$
+	ld	a,(de)
+	and	a
+	jr	z,put_special2$
+
+	inc	de
+	ld	b,a
+
+sp_command_loop3$:
+	dec	b
+	jr	z,put_special$
+
+sp_command_loop4$:
+	ld	a,(hli)
+	cp	EOM
+	jr	nz,sp_command_loop4$
+
+	jr	sp_command_loop3$
+	
+put_special$:
+	ld	b,h
+	ld	c,l
+	pop	hl
+
+	push	de
+	ld	d,b
+	ld	e,c
+	call	put_msg
+	ld	bc,40
+	add	hl,bc
+	pop	de
+
+	jr	sp_command_loop2$
+	
+put_special2$:
+	pop	hl
+;	pop	hl
+ret$:
+  ifn	pm_jmsg
+	S_POS	13,12
+ else
+	ld	a,(usr_buf + 5)
+	ld	(cursor_init_xpos),a
+
+	ld	hl, 12*20 + dmy_vram
+	ld	a,(usr_buf + 5)
+	inc	a
+	ld	e,a
+	ld	d,0
+	add	hl,de
+ endif
+
+	ld	de,str_esc_str$
+	jp	put_msg
+
+tokusyu_tbl$:
+  ifn	pm_jmsg
+	db	i_,a_,i_,gi_,ri_
+	db	EOM
+	db	so_,ra_,wo_,to_,bu_
+	db	EOM
+;	db	me__,ga__,hu__,re__,i__,mu__
+	db	EOM
+	db	na_,mi_,no_,ri_
+	db	EOM
+	db	ka_,i_,ri_,ki_
+	db	EOM
+	db	hu__,ra__,ttu__,si__,yyu__
+	db	EOM
+	db	a_,na_,wo_,ho_,ru_
+	db	EOM
+	db	te__,re__,po__,bou@,to__
+	db	EOM
+	db	ta__,ma__,go__,u_,mi_
+	db	EOM
+  else
+	db	usf_c,usf_u,usf_t,EOM
+	db	usf_f,usf_l,usf_y,EOM
+	db	EOM
+	db	usf_s,usf_u,usf_r,usf_f,EOM
+	db	usf_s,usf_t,usf_r,usf_e,usf_n,usf_g,usf_t,usf_h,EOM
+	db	usf_f,usf_l,usf_a,usf_s,usf_h,EOM
+	db	usf_d,usf_i,usf_g,EOM
+	db	usf_t,usf_e,usf_l,usf_e,usf_p,usf_o,usf_r,usf_t,EOM
+	db	usf_s,usf_o,usf_f,usf_t,usf_b,usf_o,usf_i,usf_l,usf_e,usf_d,EOM
+  endif
+
+str_esc_str$:
+  ifn	pm_jmsg
+	db	tu_,yo_,sa_,wo_,mi_,ru_,cr@
+	db	na_,ra_,bi_,ka_,e_,cr@
+	db	ki__,yya__,n__,se__,ru__
+	db	EOM
+  else
+	db	usf_s,usf_t,usf_a,usf_t,usf_s,cr@	; STATS ( STATISTIC )
+	db	usf_s,usf_w,usf_i,usf_t,usf_c,usf_h,cr@	; SWITCH
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l	; CANCEL
+	db	EOM
+  endif
+
+
+check_waza$:
+	ld	a,(sel_item_pos)	; select monster pos
+	ld	hl,my_cap_data + 8
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+;	ld	bc,8
+;	add	hl,bc
+	ld	d,h
+	ld	e,l
+	ld	c,5
+
+	ld	hl,usr_buf
+loop0$:
+	push	hl
+loop1$:
+	dec	c
+	jr	z,check_waza_ret$
+
+	ld	a,(de)
+	and	a
+	jr	z,check_waza_ret$
+
+	ld	b,a
+	inc	de
+	ld	hl,check_tbl$
+loop2$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,loop1$
+
+	cp	b
+	jr	z,get$
+
+ ifn	pm_jmsg
+	inc	hl
+ else
+	inc	hl
+	inc	hl
+ endif
+	jr	loop2$
+
+get$:
+  ifn	pm_jmsg
+	ld	a,(hl)
+	pop	hl
+	ld	(hli),a
+
+	ld	a,(usr_buf + 4)
+	inc	a
+	ld	(usr_buf + 4),a
+
+	jr	loop0$
+  else
+	ld	a,b
+	ld	(usr_buf + 6),a
+
+	ld	a,(hli)
+	ld	b,(hl)
+	pop	hl
+	ld	(hli),a
+
+	ld	a,(usr_buf + 4)
+	inc	a
+	ld	(usr_buf + 4),a
+
+	ld	a,(usr_buf + 5)
+	cp	b
+	jr	c, _10$
+	ld	a,b
+	ld	(usr_buf + 5),a
+_10$:
+	ld	a,(usr_buf + 6)
+	ld	b,a
+	jr	loop0$
+  endif
+
+
+check_waza_ret$:
+	pop	hl
+	ret
+
+check_tbl$:
+  ifn	pm_jmsg
+	db	15,1
+	db	19,2
+;	db	54,3
+	db	180,3   ; dummy
+	db	57,4
+	db	70,5
+	db	148,6
+	db	91,7
+	db	100,8
+	db	135,9
+	db	0ffh
+  else
+	db	15,  1,  ESC_WND_CUR_XPOS	;     "CUT   "
+	db	19,  2,  ESC_WND_CUR_XPOS	;     "FLY   "
+	db	180, 3,  ESC_WND_CUR_XPOS	;
+	db	57,  4,  ESC_WND_CUR_XPOS	;     "SURF  "
+	db	70,  5,  ESC_WND_CUR_XPOS -2	;   "STRENGTH"
+	db	148, 6,  ESC_WND_CUR_XPOS	;     "FLASH "
+	db	91,  7,  ESC_WND_CUR_XPOS	;     "DIG   "
+	db	100, 8,  ESC_WND_CUR_XPOS -2	;   "TELEPORT"
+	db	135, 9,  ESC_WND_CUR_XPOS -4	; "SOFTBOILED"
+	db	0ffh
+  endif
+
+
+
+

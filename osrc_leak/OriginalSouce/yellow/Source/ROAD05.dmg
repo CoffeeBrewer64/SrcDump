@@ -1,0 +1,34 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		group.def
+
+	
+bank15	group	G_BANK15
+
+
+	public	road5_event
+	public	road5_msg
+
+
+road5_event:
+	jp	init_for_talkmap
+
+
+road5_msg:
+	dw	kanban1$
+
+
+kanban1$:
+	extern	kanban1_0_ROAD05
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_ROAD05	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+

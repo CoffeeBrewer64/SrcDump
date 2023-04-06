@@ -1,0 +1,53 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	r12_room1
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+r12_room1:
+ysiz	=	4
+xsiz	=	5
+	db	GATE_TYPE
+	db	ysiz,xsiz		; yx size
+	dw	gate12			; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+
+event:
+	jp	init_for_talkmap
+
+
+
+msg_tbl:
+	dw	msg1$
+
+
+msg1$:
+	extern	msg1_0_R12R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_R12R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\r12r0101.sxy
+
+gate12:
+	include	..\mapdata\12gate.map
+

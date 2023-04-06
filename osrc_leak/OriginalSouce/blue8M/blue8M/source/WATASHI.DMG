@@ -1,0 +1,152 @@
+
+	include	common.def
+	include	banktool.def
+
+
+	extern	bank2bank
+	extern	hit_check
+;;	extern	actor_table_upper
+;;	extern	actor_table_lower
+
+
+
+bank1	group	1
+
+
+
+	public	watashi
+
+watashi:
+	ld	a,(actor_table + 100h)
+	and	a
+	jr	z,under_check$			; hidden timer check
+
+	cp	0ffh
+	jr	z,hidden$
+
+	dec	a
+	ld	(actor_table + 100h),a		; hidden timer count down
+
+	jr	hidden$
+
+
+under_check$:
+	ld	a,(9 * 20 + 8 + dmy_vram)
+	ld	(actwork4),a
+	cp	060h				; back the BG ( hide ) check
+	jr	c,no_hidden$
+
+hidden$:
+	ld	a,0ffh
+	ld	(actor_table + 2),a		; hidden mode set
+
+	ret
+
+
+no_hidden$:
+	call	hit_check
+
+	ld	h,> actor_table
+
+	ld	a,(scloll_cnt)
+	and	a
+	jr	nz,z85$
+
+	ld	a,(watashi_muki)
+	bit	2,a
+	jr	z,z10$
+
+	xor	a				; sita
+
+	jr	z80$
+
+
+z10$:
+	bit	3,a
+	jr	z,z20$
+
+	ld	a,4				; ue
+
+	jr	z80$
+
+
+z20$:
+	bit	1,a
+	jr	z,z30$
+
+	ld	a,8				; hidari
+
+	jr	z80$
+
+
+z30$:
+	bit	0,a
+	jr	z,z40$
+
+	ld	a,12				; migi
+
+	jr	z80$
+
+
+z40$:
+	xor	a				; no key
+	ld	(actor_table + 7),a
+	ld	(actor_table + 8),a
+
+	jr	z90$
+
+
+z80$:
+	ld	(actor_table + 9),a		; u,d,l,r
+
+	ld	a,(talking_flg)
+	bit	0,a				; check mode of talking
+	jr	nz,z40$
+
+z85$:
+	ld	a,(obs_map_step)
+	bit	7,a
+	jr	nz,no_pattern$
+
+	ld	a,(actlow)			; vblank cnt ++
+	add	a,7
+	ld	l,a
+	ld	a,(hl)				; pattern change count(0--3)
+
+	inc	a
+	ld	(hl),a				; character change count(0--3)
+	cp	4
+	jr	nz,z90$
+
+	xor	a
+	ld	(hl),a
+
+	inc	hl				; pattern ++
+	ld	a,(hl)
+	inc	a
+	and	003h
+	ld	(hl),a
+
+z90$:
+	ld	a,(actor_table + 8)		; actor = action + pattern
+	ld	b,a
+	ld	a,(actor_table + 9)
+	add	a,b
+	ld	(actor_table + 2),a
+
+no_pattern$:
+	ld	a,(actwork4)
+	ld	c,a
+	ld	a,(kusamura_chr)
+	cp	c
+	ld	a,0
+	jr	nz,z91$
+
+	ld	a,080h
+
+z91$:
+	ld	(actor_table + 107h),a		; encount character set
+
+	ret
+
+

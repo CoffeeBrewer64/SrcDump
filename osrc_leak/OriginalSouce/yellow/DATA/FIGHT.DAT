@@ -1,0 +1,25 @@
+ ifn	ASSEMBLE__ENGLISH
+	db	018h,018h,018h,098h	; 0	(.|) 戦闘中のゲージグラフの右端の絵
+	db	098h,018h,018h,018h	;	２ドット上にあげる
+	db	000h,000h,018h,058h	; 1	(:L) １ドット上にあげる
+	db	018h,058h,01Eh,000h
+ else
+	db	018h,018h,018h,018h	; 0
+	db	018h,098h,098h,018h
+	db	000h,000h,000h,018h	; 1
+	db	058h,018h,058h,01Eh
+ endif
+	db	000h,003h,00Fh,03Fh	; 2
+	db	0FFh,000h,000h,000h
+	db	018h,018h,018h,018h	; 3
+	db	018h,018h,018h,018h
+	db	018h,018h,018h,01Fh	; 4
+	db	00Fh,000h,000h,000h
+	db	000h,000h,000h,000h	; 5
+	db	092h,000h,000h,000h
+	db	000h,000h,000h,0FFh	; 6
+	db	0FFh,000h,000h,000h
+	db	018h,018h,018h,0F8h	; 7
+	db	0F0h,000h,000h,000h
+	db	000h,0C0h,0F0h,0FCh	; 8
+	db	0FFh,000h,000h,000h

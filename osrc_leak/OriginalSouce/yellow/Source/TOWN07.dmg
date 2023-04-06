@@ -1,0 +1,325 @@
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		banktool.def
+	include		macro.h
+	include		group.def
+
+
+bank6	group	G_BANK6
+
+
+	public	town7_event
+	public	town7_msg
+
+
+	extern	yes_no   
+	extern	table_jump   
+	extern	gyaarth_play
+
+	extern	hotel_kanban
+
+
+seq_t7		equ		seq_ctrl_buf + 051h
+
+
+town7_event:
+	call	init_for_talkmap
+
+	ld	hl,SeqTable
+	ld	a,(seq_t7)
+	call	table_jump
+
+	ret
+
+
+SeqTable:
+	initndw	t7_main,seq_t7_main
+
+
+t7_main:
+	ld	hl,ev_t7_5 + 0
+	res	0,(hl)				; ratio initialize switch
+	res	7,(hl)				; door initialize switch
+
+	ld	hl,ev_d9 + 1
+	res	7,(hl)				; hidden door(d09r0101)
+
+	ret
+
+
+town7_msg:
+	msgndw	msg1,msg_lolita1
+	ndw	msg2,msg_gsan1
+	ndw	msg3,msg_neechyan1
+	ndw	msg4,msg_gsan2
+	ndw	msg5,msg_gsan3
+	ndw	msg6,msg_seinen1
+	ndw	msg7,msg_monster1
+	ndw	msg8,msg_danin1
+	ndw	msg9,msg_danin2
+
+	dw	kanban1
+	dw	kanban2
+	dw	hotel_kanban
+	dw	kanban4
+	dw	kanban5
+	dw	kanban6
+	dw	kanban7
+	dw	kanban8
+	dw	kanban9
+
+
+msg1:
+	extern	msg1_0_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_2_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_3_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg4_3_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	a,(ev_t7)
+	bit	0,a
+	jr	nz,getting$
+
+	ld	hl,msg5_0$
+	call	put_win_msg
+
+	ld	bc,241 * 256 + 1
+	call	take_item
+	jr	c,empty$
+
+	ld	hl,msg5_3$
+	call	put_win_msg
+
+	jr	rts$
+
+
+empty$:
+	ld	hl,msg5_1$
+	call	put_win_msg
+
+	ld	hl,ev_t7
+	set	0,(hl)
+
+	jr	rts$
+
+
+getting$:
+	ld	hl,msg5_2$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg5_0$:
+	extern	msg5_0_4_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_4_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_1$:
+	extern	msg5_1_5_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg5_1_5_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+
+msg5_2$:
+	extern	msg5_2_6_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_6_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_3$:
+	extern	msg5_3_7_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg5_3_7_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	extern	msg6_8_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg6_8_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7:
+	extern	msg7_9_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg7_9_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,111
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+msg8:
+	extern	msg8_10_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg8_10_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9:
+	extern	msg9_11_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw msg9_11_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	db	CALL_MSG
+
+	ld	b,03ch
+	ld	hl,t07_kanban1
+	extern	bank_push_call
+	call	bank_push_call
+
+	jp	msg_return
+
+
+  ifn	0
+t07_kanban1:
+	db	D_MSG
+	db	tenten2@,spc@,o_,to_,ku_,na_,spc@,ke_,i_,zi_,ba_,n_,gyoe@
+	db	normal@
+	db	yo__,ku__,a__,ta__,bou@,ru__,ha_,spc@,wa_,za_,no_
+	db	home@
+	db	me_,i_,ti_,yyu_,u_,spc@,ri_,tu_,spc@,wo_,spc@,a_,ge_,ru_,gyoe@
+	db	normal@
+	db	ku__,ri__,te__,ii__,ka__,ttu__,ta__,bou@,ha_,spc@,wa_,za_,ga_
+	db	home@
+	db	ki_,yyu_,u_,si_,yyo_,ni_,spc@,a_,ta_,ri_,spc@
+	db	ya_,su_,ku_,na_,ru_
+	db	normal@
+	db	a__,i__,te__,mu__,no_,spc@,o_,ka_,i_,mo_,to_,me_,ha_
+	db	home@
+	db	ta__,ma__,mu__,si__,spc@,de__,pa__,bou@,to__,de_,spc@
+	db	do_,u_,zo_,gyoe@
+	db	EOMeom
+  endif
+
+
+kanban2:
+	extern	kanban2_12_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw kanban2_12_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban4:
+	extern	kanban4_13_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw kanban4_13_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban5:
+	extern	kanban5_14_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw kanban5_14_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban6:
+	extern	kanban6_15_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw kanban6_15_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban7:
+	extern	kanban7_16_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw kanban7_16_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban8:
+	extern	kanban8_17_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw kanban8_17_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban9:
+	extern	kanban9_18_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw kanban9_18_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+t07_kanban1:
+	ld	hl,t07_kanban1_01
+	call	put_win_msg
+
+	ret
+
+
+t07_kanban1_01:
+	extern	t07_kanban1_01_19_TOWN07
+	db I_MSG2	; mvmsg追加
+	dw t07_kanban1_01_19_TOWN07	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+

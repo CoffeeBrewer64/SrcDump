@@ -1,0 +1,16 @@
+dun_tbl$:
+	db	017h
+ie_tbl$:
+	db	002h
+	db	007h,002h,00ah,EXIT
+	db	007h,003h,00ah,EXIT
+kanban_tbl$:
+	db	001h
+	db	002h,00Eh,1
+hito_tbl$:
+	db	000h
+ram_map_tbl$:
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,002h
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,003h

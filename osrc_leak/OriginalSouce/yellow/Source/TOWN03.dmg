@@ -1,0 +1,542 @@
+	include		common.def
+	include		fntequ.def
+	include		anime.def
+	include		maphead.def
+	include		banktool.def
+	include		vanish.def
+	include		pm_debug.def
+	include		macro.h
+	include		group.def
+
+	
+bank6	group	G_BANK6
+
+
+	public	ev_town03
+	public	msg_town03
+
+
+	extern	acttbl2set
+	extern	ActPatSet
+	extern	put_wait
+	extern	SetActorSite
+	extern	set_now_music
+	extern	yes_no
+	extern	bank2bank
+	extern	table_jump
+	extern	actor_anime_set
+	extern	pf_kanban
+	extern	hotel_kanban
+	extern	acttbl_h_adrs
+	extern	acttbl_l_adrs
+	extern	obj_stopping
+
+	extern	save_position
+	extern	load_position
+	extern	save_position_s
+	extern	load_position_s
+
+
+seq_t3		equ	seq_ctrl_buf + 7	; event sequence number
+
+
+ev_town03:
+	call	init_for_talkmap
+
+	ld	hl,yellow_event + 00h
+	res	7,(hl)				; ピカチュウイベント発動取り消し
+
+	ld	hl,town03_tbl
+	ld	a,(seq_t3)
+	call	table_jump
+
+	ret
+
+
+
+town03_tbl:
+	initndw	t3_normal,seq_t3_normal		; common looping
+	ndw	demo3_after1,seq_demo3_after1	; demo-1 start
+	ndw	demo3_after2,seq_demo3_after2
+	ndw	demo3_after3,seq_demo3_after3
+	ndw	demo3_after4,seq_demo3_after4	; demo-2 start
+	ndw	demo3_after5,seq_demo3_after5
+	ndw	demo3_after6,seq_demo3_after6
+
+
+t3_normal:
+	xor	a
+	ld	(seq_ctrl_buf + 029h),a		; seq_t3r1f1(ticket center)
+
+	ld	hl,ev_t3_1
+	res	0,(hl)
+
+	call	CheckToR3
+
+	ret
+
+
+
+CheckToR3:
+	ld	a,(ev_t3_2)
+	bit	7,a
+	ret	nz
+
+;-----------------------------------------------;
+  ifn	pm_debug
+	extern	DebugKeyHook
+	call	DebugKeyHook
+	ret	nz
+  endif
+;-----------------------------------------------;
+
+	ld	hl,R3stopper$
+	extern	CheckAssignPos
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,msg_shounen1
+	ld	(work1),a
+	jp	talk_map
+
+
+R3stopper$:
+	db	011h,023h
+	db	011h,024h
+	db	012h,025h
+	db	013h,025h
+	db	0ffh
+
+
+
+demo3_after1:
+	ld	a,(demo_flag + 0)
+	and	a
+	ret	nz
+
+	ld	a,msg_ossan1
+	ld	(work1),a
+	ld	a,004h				; upper
+	ld	(work2),a
+	call	SetActorSite
+
+ ifn	YELLOW_VERSION
+	ld	a,004h			; site = up
+	ld	(work2),a
+	call	ActPatSet
+ else
+	ld	a,034h
+	ld	(work2),a
+	call	acttbl2set
+ endif
+
+	call	set_now_music
+
+	ld	hl,obs_event + 0
+	set	4,(hl)
+
+	ld	a,msg_returns1
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,03ch
+	ld	(sv_box01),a
+	ld	a,030h
+	ld	(sv_box02),a
+	ld	a,00ch
+	ld	(sv_box03),a
+	ld	a,011h
+	ld	(sv_box04),a
+	ld	a,msg_ossan1
+	ld	(sv_msg_no),a
+	call	load_position
+
+	ld	a,msg_ossan1
+	ld	(work1),a
+	ld	de,return$
+	call	actor_anime_set
+
+	ld	a,seq_demo3_after2
+	ld	(seq_t3),a
+
+	ret
+
+
+return$:
+	db	A_D,A_D,A_D,A_D
+	db	A_E
+
+
+demo3_after2:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,T3msg3
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,seq_demo3_after3
+	ld	(seq_t3),a
+
+	ret
+
+
+demo3_after3:
+	ld	a,msg_ossan1
+	ld	(sv_msg_no),a
+	call	load_position_s
+
+	ld	a,T3msg3
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,seq_t3_normal
+	ld	(seq_t3),a
+
+	ret
+
+
+demo3_after4:
+	ld	a,(demo_flag + 0)
+	and	a
+	ret	nz
+
+ ifn	YELLOW_VERSION
+	ld	a,msg_shounen1
+	ld	(work1),a
+	ld	a,008h			; site = left
+	ld	(work2),a
+	call	ActPatSet
+ else
+	ld	a,msg_shounen1
+	ld	(work1),a
+	ld	a,008h
+	ld	(work2),a
+	call	SetActorSite
+
+	ld	a,018h
+	ld	(work2),a
+	call	acttbl2set
+ endif
+
+	call	set_now_music
+
+	ld	hl,obs_event + 0
+	set	4,(hl)
+
+	ld	a,msg_returns2
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,03ch
+	ld	(sv_box01),a
+	ld	a,040h
+	ld	(sv_box02),a
+	ld	a,016h
+	ld	(sv_box03),a
+	ld	a,010h
+	ld	(sv_box04),a
+	ld	a,msg_shounen1
+	ld	(sv_msg_no),a
+	call	load_position
+
+	ld	a,msg_shounen1
+	ld	(work1),a
+	ld	de,return$
+	call	actor_anime_set
+
+	ld	a,seq_demo3_after5
+	ld	(seq_t3),a
+
+	ret
+
+
+return$:
+	db	A_R,A_R,A_R,A_R,A_R
+	db	A_E
+
+
+demo3_after5:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,T3msg5
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,seq_demo3_after6
+	ld	(seq_t3),a
+
+	ret
+
+
+demo3_after6:
+	ld	a,msg_shounen1
+	ld	(sv_msg_no),a
+	call	load_position_s
+
+	ld	a,T3msg5
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,seq_t3_normal
+	ld	(seq_t3),a
+
+	ret
+
+
+
+msg_town03:   
+	msgndw	msg1,msg_neechyan1
+	ndw	msg2,msg_niichyan1
+	ndw	msg3,msg_ossan1
+	ndw	msg4,msg_niichyan2
+	ndw	msg5,msg_shounen1
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+	ndw	pf_kanban,msg_kanban3
+	ndw	hotel_kanban,msg_kanban4
+	ndw	kanban5,msg_kanban5
+	ndw	kanban6,msg_kanban6
+	ndw	kanban7,msg_kanban7
+
+	ndw	msg3_3,msg_returns1
+	ndw	msg5_1,msg_returns2
+
+
+
+msg1:
+	extern	msg1_0_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	hl,msg3_1$			; following to museum
+	call	put_win_msg
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg3_2$			; no thankyou following
+	call	put_win_msg
+
+	xor	a
+	ld	(joy_on),a
+	ld	(joy_status),a
+	ld	(seq_demo),a			; step sequence number
+	ld	a,2
+	ld	(demo_flag + 0),a		; table sequence number
+	ld	a,(rombankno)
+	ld	(demo_flag + 1),a		; program assign bank number
+
+	ld	a,msg_ossan1
+	ld	(sv_msg_no),a
+	call	save_position_s			; starting position save
+
+	ld	a,seq_demo3_after1
+	ld	(seq_t3),a
+
+rts$:
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_2_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_2_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg3_1$:
+	extern	msg3_1_3_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_3_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg3_2$:
+	extern	msg3_2_4_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_4_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg3_3:
+	extern	msg3_3_5_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg3_3_5_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,msg4_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	cp	000h
+	jr	nz,no$
+
+	ld	hl,msg4_1$
+	call	put_win_msg
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg4_2$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg4_0$:
+	extern	msg4_0_6_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_6_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_1$:
+	extern	msg4_1_7_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg4_1_7_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_2$:
+	extern	msg4_2_8_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg4_2_8_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,msg5_0$
+	call	put_win_msg
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	(seq_demo),a			; step sequence number
+
+	ld	a,3
+	ld	(demo_flag + 0),a		; table sequence number
+	ld	a,(rombankno)
+	ld	(demo_flag + 1),a		; program assign bank number
+
+	ld	a,msg_shounen1
+	ld	(sv_msg_no),a
+	call	save_position_s			; starting position save
+
+	ld	a,seq_demo3_after4
+	ld	(seq_t3),a
+
+	jp	msg_return
+
+
+msg5_0$:
+	extern	msg5_0_9_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_9_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_1:
+	extern	msg5_1_10_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw msg5_1_10_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	extern	kanban1_11_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw kanban1_11_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_12_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw kanban2_12_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban5:
+	extern	kanban5_13_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw kanban5_13_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban6:
+	extern	kanban6_14_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw kanban6_14_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban7:
+	extern	kanban7_15_TOWN03
+	db I_MSG2	; mvmsg追加
+	dw kanban7_15_TOWN03	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+

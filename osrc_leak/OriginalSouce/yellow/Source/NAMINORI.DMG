@@ -1,0 +1,5552 @@
+;=======================================================================;
+; Category	:波乗りピカチュウ
+; Author	: Tetsu
+; Bank-No.	: 003eh
+;=======================================================================;
+	include		common.def
+	include		group.def
+	include		laster.h
+	include		ex_actor.h
+	include		pm_debug.def
+
+bank3e	group	G_BANK3e
+
+	public	NaminoriPikatyu
+
+	extern	lcdc_stop
+	extern	color_set
+	extern	chrset
+	extern	memset
+	extern	block_move
+	extern	wait_vb
+	extern	color_rewrite
+	extern	MapDataAllSet
+	extern	set_now_music
+	extern	palset
+	extern	oam_clr
+	extern	rnd
+	extern	cont
+	extern	bank_push_call
+	extern	sp_nami_pika_chk
+
+	extern	muspi4
+	extern	musnami4
+	extern	musnamijump4
+	extern	musnamifall4
+	extern	musnamicursor4
+	extern	musnamihold4
+	extern	musnamifanfare4
+	extern	SEplay
+	extern	muscasino2
+	extern	direct_play
+	extern	se_wait
+	extern	PikaVoicePlay
+
+	extern	EXActorInit
+	extern	EXActorJump
+	extern	EXAddActor
+	extern	EXDelActor
+	extern	EXActorAnmSet
+
+	extern	change_cgb_bgp
+	extern	change_cgb_obp0
+	extern	change_cgb_obp1
+
+SGBnamipikaNo	equ	14
+ ifn  ASSEMBLE__ENGLISH
+SGBnamipikaNo_Title	equ	15	; 新規に追加 (Pikachu's Beach タイトル用)
+ endif
+
+;=======================================================================;
+;
+;
+;	波乗りピカチュウ サブゲーム
+;
+;
+;=======================================================================;
+;=======================================;
+;	マクロ定義
+;=======================================;
+E_HL	macro	address
+	ld	hl,address
+	add	hl,bc
+	endm
+;---------------------------------------
+ef_initequ	macro
+mcount	=	0	
+	endm
+
+ef_equ		macro	mequno
+mequno	equ	mcount
+mcount	=	mcount + 1
+	endm
+
+ef_equ_g	macro	mequno
+mequno	equ	mcount
+mcount	=	mcount + 1
+	public	mequno
+	endm
+;---------------------------------------
+ef_initndb	macro
+mcount	=	0	
+	endm
+
+ef_ndb		macro	mdata,mequno
+	db	mdata
+mequno	equ	mcount
+mcount	=	mcount + 1
+	endm
+;---------------------------------------
+ef_initndw	macro
+mcount	=	0	
+	endm
+
+ef_initndw2	macro	mdata
+mcount	=	mdata	
+	endm
+
+ef_inc_ndw	macro	maddress
+	dw	maddress
+mcount	=	mcount + 1
+	endm
+
+ef_ndw_g	macro	maddress,mequno
+	dw	maddress
+mequno	equ	mcount
+mcount	=	mcount + 1
+	public	mequno
+	endm
+
+ef_ndw		macro	maddress,mequno
+	dw	maddress
+mequno	equ	mcount
+mcount	=	mcount + 1
+	endm
+
+;=======================================;
+;	ＲＡＭ定義
+;=======================================;
+NAMINORI_WORK_TOP	equ	dmy_map+200
+
+MAIN_SEQ		equ	1+NAMINORI_WORK_TOP	;メイン シーケンスナンバー	
+PIKA_SEQ		equ	1+MAIN_SEQ		;ピカチュウ シーケンスナンバー	
+MAP_SEQ			equ	1+PIKA_SEQ		;マップ表示 シーケンスナンバー	
+
+VBLANK_TIMING		equ	1+MAP_SEQ		;ＳＧＢ／ＢＧのＶＢＬＡＮＫ周期用ワーク
+
+WAVE_KIND		equ	1+VBLANK_TIMING		;波の種類
+TIMER_COUNT		equ	1+WAVE_KIND		;持ちタイム
+ROLLING_COUNT		equ	3+TIMER_COUNT		;空中回転数	
+BONUS_COUNT		equ	1+ROLLING_COUNT		;かっこよさ
+TOTAL_SCORE		equ	2+BONUS_COUNT		;総合得点
+
+PIKA_ANM_OFFSET		equ	2+TOTAL_SCORE		;揺れによるピカチュウのアニメオフセット	
+PIKA_ANM_DIRECT		equ	1+PIKA_ANM_OFFSET	;揺れの方向	
+PIKA_ANM_WORK		equ	1+PIKA_ANM_DIRECT	;揺れの周期用ワーク
+
+DEAD_WORK		equ	1+PIKA_ANM_WORK		;死にウェイト
+PAUSE_FLAG		equ	1+DEAD_WORK		;一時停止フラグ
+SPEED_COUNT		equ	1+PAUSE_FLAG		;現在スピード
+TOTAL_LENGTH		equ	2+SPEED_COUNT		;進行距離
+HIT_POINT		equ	3+TOTAL_LENGTH		;当たり判定取得用ワーク	
+WAVE_Y			equ	2+HIT_POINT		;波の高さ		
+SIBUKI_TIMER		equ	1+WAVE_Y		;水しぶきの表示周期用ワーク
+NAMIPIKA_WORK		equ	1+SIBUKI_TIMER		;ジャンプ軌道計算用ワーク
+FLOOR_CHR		equ	3+NAMIPIKA_WORK		;アトリビュートワーク
+SCROLL_WORK		equ	40+FLOOR_CHR		;ＢＧスクロール用ワーク		
+HITCHECK_BUFFER		equ	3+SCROLL_WORK		;当たり判定用ワーク
+MAP_WRITE_POS		equ	20+HITCHECK_BUFFER	;マップ表示位置
+ROLLING_STATUS		equ	1+MAP_WRITE_POS		;空中回転ステータス
+TIMEOVER_FLAG		equ	1+ROLLING_STATUS	;タイムオーバー処理用フラグ
+TIMEOVER_WORK		equ	1+TIMEOVER_FLAG		;タイムオーバー処理用ワーク
+WAIT_WORK		equ	1+TIMEOVER_WORK		;メインシーケンス ウェイト用ワーク
+TITLE_WORK		equ	1+WAIT_WORK		;タイトル表示時用ワーク
+TEMPO_CHANGE_REQ	equ	1+TITLE_WORK		;ＢＧＭテンポ変更リクエスト
+ACTSPEED_X		equ	1+TEMPO_CHANGE_REQ	;雲スクロール用ワーク
+
+NAMINORI_WORK_END	equ	2+ACTSPEED_X
+
+
+
+;=======================================;
+;
+;	サブゲームの 呼び出し
+;
+;=======================================;
+NaminoriPikatyu:
+	call	PaletteOFF		;パレットオフ（画面は白）
+	call	wait_vb
+	call	wait_vb
+	call	wait_vb
+
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+	ld	a,(oam_flg)
+	push	af
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	ld	a,(IE)
+	push	af
+	xor	a
+	ld	(IFL),a
+	ld	a,00001111b		;割り込み制御
+	ld	(IE),a
+	ld	a,00001000b
+	ld	(STAT),a
+
+	ld	a,(all_putadr_h)
+	push	af
+	ld	a,98h
+	ld	(all_putadr_h),a
+
+	call	NamiPikaTitle
+	call	NamiPikaSubGame
+
+	xor	a
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+
+	call	EXActorInit		;アクター終了イニシャライズ		
+	call	oam_clr			;ＯＡＭクリア
+	xor	a
+	ld	(LasterReq),a
+	ld	(headerx),a
+	ld	(headery),a
+	ld	a,90h
+	ld	(window_y),a
+	call	wait_vb
+
+	pop	af
+	ld	(all_putadr_h),a
+	xor	a
+	ld	(IFL),a
+	pop	af
+	ld	(IE),a
+	xor	a
+	ld	(STAT),a
+
+	call	color_rewrite		;ＳＧＢカラー再セット
+	call	MapDataAllSet		;マップデータ（ＢＧ＆ＯＢＪ）再セット
+	call	set_now_music		;ＢＧＭ再セット
+	call	palset			;フィールド画面でのＢＧ＆ＯＢＪパレットセット
+	pop	af
+	ld	(oam_flg),a
+	pop	af
+	ld	(wave_flg),a
+	ret
+
+
+
+
+
+;=======================================;
+;
+;	基幹ループ
+;
+;=======================================;
+NamiPikaSubGame:
+	call	NamiPikaInit		;イニシャライズ
+	call	wait_vb
+
+ ifn  ASSEMBLE__ENGLISH			; 変更したタイトル画面"Pikachu's Beach"
+	ld	b,<SGBnamipikaNo	; のアトリビュートを元に戻す
+	call	color_set		;ＳＧＢ用カラーセット
+ endif
+
+mainloop$:
+	ld	a,(MAIN_SEQ)
+	bit	7,a			;ゲーム終了フラグ
+	ret	nz
+
+	call	KeyStatus		;キーステータス取得
+
+	call	BreakCheck		;ゲーム中止チェック
+	ret	nz
+	
+;	call	PauseCheck		;ゲーム中断チェック
+;	ld	a,(PAUSE_FLAG)
+;	and	a			;０＝継続、１＝中断
+;	jr	nz,in_pause$
+
+	call	MainSeqence		;メインシーケンス
+
+	ld	a,< 15*4+oam_buf	;１５キャラ以降のＯＡＭをアクターで使用
+	ld	(OAM_Address),a
+	call	EXActorJump		;アクター処理
+
+	call	MoveSky
+in_pause$:
+	call	VblankWait
+
+	call	MusicTempoUpDown
+	jr	mainloop$
+
+;---------------------------------------;
+;	ＶＢＬＡＮＫ周期補正
+;---------------------------------------;
+VblankWait:
+	call	wait_vb			;ＶＢＬＡＮＫウェイト
+ ifn 0
+	ld	a,(sgb_flg)		;ＳＧＢ用周期
+	and	a
+	ret	nz
+
+	ld	a,(MAIN_SEQ)
+	cp	GameMainNo
+	jr	z,check$
+	cp	GameTimeOverNo
+	ret	nz
+check$:
+	ld	a,(VBLANK_TIMING)
+	xor	1
+	ld	(VBLANK_TIMING),a
+	ret	nz
+
+	call	wait_vb	
+ endif
+	ret
+
+;---------------------------------------;
+;	ゲーム中止チェック
+;---------------------------------------;
+BreakCheck:
+	ld	hl,yellow_event+00h	;波乗りゲームを遊んだか？フラグ
+	bit	1,(hl)			;遊んでなければ中止できない	
+	ret	z
+
+	ld	a,(joy_on)
+	and	BT_SE			;セレクトボタンで中止
+	ret
+
+;---------------------------------------;
+;	ゲーム中断チェック
+;---------------------------------------;
+PauseCheck:
+	ld	a,(joy_on)		;スタートボタンで中断＆継続
+	and	BT_ST
+	ret	z
+
+	ld	hl,PAUSE_FLAG
+	ld	a,(hl)
+	xor	1			;ボタンを押すたびに 中断、継続の切り替え
+	ld	(hl),a
+	ret
+
+;---------------------------------------;
+;	音楽テンポ変更
+;---------------------------------------;
+MusicTempoUpDown:
+	ld	a,(TEMPO_CHANGE_REQ)
+	and	a
+	ret	z
+
+	ld	hl,sound_len
+	ld	a,1
+	cp	(hl)
+	ret	nz
+	inc	hl
+	cp	(hl)
+	ret	nz
+	inc	hl
+	cp	(hl)
+	ret	nz
+
+	ld	a,(SPEED_COUNT+0)
+	ld	e,a
+	ld	a,(SPEED_COUNT+1)
+	and	00000011b
+	ld	d,a
+	sla	e
+	rl	d
+	ld	e,d
+	ld	d,00h
+	ld	hl,TempoTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	(bgm_tempo+1),a
+	ld	a,(hl)
+	ld	(bgm_tempo+0),a
+	ret
+TempoTable$:
+	dw	0075h
+	dw	006dh
+	dw	0065h
+	dw	005dh
+	dw	0055h
+	
+MusicTempoRecover:
+	ld	hl,sound_len
+	ld	a,1
+	cp	(hl)
+	ret	nz
+	inc	hl
+	cp	(hl)
+	ret	nz
+	inc	hl
+	cp	(hl)
+	ret	nz
+
+	ld	a,75h
+	ld	(bgm_tempo+1),a
+	xor	a
+	ld	(bgm_tempo+0),a
+	ret
+
+
+
+
+
+;=======================================;
+;
+;	イニシャライズ
+;
+;=======================================;
+NamiPikaInit:
+	call	DVRAMcls		;ダミーＶＲＡＭのクリア
+	call	oam_clr
+
+	call	lcdc_stop
+
+	ld	hl,NAMINORI_WORK_TOP
+	ld	bc,NAMINORI_WORK_END - NAMINORI_WORK_TOP
+	xor	a
+	call	memset			;ワークＲＡＭエリアのクリア
+
+	ld	hl,LasterBuffer
+	ld	bc,200h
+	xor	a
+	call	memset			;ラスターバッファのクリア
+
+	xor	a
+	ld	(all_put_req),a
+	call	EXActorInit		;アクターのイニシャライズ
+
+	ld	hl,NaminoriBG_CGX
+	ld	de,9000h
+	ld	bc,0500h
+	ld	a,G_BANK20
+	call	chrset			;ＢＧキャラデータ セット
+
+	ld	hl,NaminoriOBJ_CGX
+	ld	de,8000h
+	ld	bc,1000h
+	ld	a,G_BANK20
+	call	chrset			;ＯＢＪキャラデータ セット
+ 
+	ld	a,<HeaderTable		;アクターヘッダーアドレスをセット
+	ld	(A_Header+0),a
+	ld	a,>HeaderTable
+	ld	(A_Header+1),a
+
+	ld	a,<MoveTable		;アクター動作アドレスをセット
+	ld	(A_Move+0),a
+	ld	a,>MoveTable
+	ld	(A_Move+1),a
+
+	ld	a,<PatTable		;アクターＯＢＪ構成パターンアドレスをセット
+	ld	(A_Pat+0),a
+	ld	a,>PatTable
+	ld	(A_Pat+1),a
+
+	ld	a,<AnmTable		;アクターアニメパターンアドレスをセット
+	ld	(A_Animetion+0),a
+	ld	a,>AnmTable
+	ld	(A_Animetion+1),a
+
+	ld	hl,9800h		;ＢＧマップ（空＆海）セット
+	ld	bc,800h
+	ld	a,0
+	call	memset
+	ld	hl,20h*6+9800h
+	ld	bc,20h*12
+	ld	a,0bh
+	call	memset
+
+	ld	a,<NamiPikaActNo	;ピカチュウ セット
+	ld	de,7458h
+	call	EXAddActor
+	ld	a,74h
+	ld	(WAVE_Y),a
+
+	call	LasterSinSet		;ラスターデータ（波用）セット
+
+	xor	a
+	ld	(headerx),a		;スクロールレジスタ（Ｘ）初期設定
+	ld	(headery),a		;スクロールレジスタ（Ｙ）初期設定
+	ld	a,7eh			;ステータス用ウインドウ位置セット
+	ld	(window_y),a
+	ld	a,SCY
+	ld	(LasterReq),a		;ラスター（Ｙ方向）のリクエスト
+
+	ld	a,40h
+	ld	(SPEED_COUNT+0),a	;初期スピード（＝０）セット
+	xor	a
+	ld	(SPEED_COUNT+1),a
+
+;	xor	a
+;	ld	(TIMER_COUNT+0),a	;持ちタイムのセット
+;	ld	(TIMER_COUNT+1),a
+;	ld	a,2
+;	ld	(TIMER_COUNT+2),a
+	xor	a
+	ld	(TIMER_COUNT+0),a	;持ちタイムのセット
+	ld	a,60h
+	ld	(TIMER_COUNT+1),a
+
+	ld	hl,HITCHECK_BUFFER	;初期当たり判定セット
+	ld	bc,20
+	ld	a,074h
+	call	memset
+
+	call	StatusOBJset		;ステータス表示ＯＢＪセット
+	call	StatusBGset		;ステータス表示ＢＧセット
+
+; ifn  ASSEMBLE__ENGLISH		; 変更したタイトル画面"Pikachu's Beach"
+;	ld	b,<SGBnamipikaNo	; のアトリビュートを元に戻す
+;	call	color_set		;ＳＧＢ用カラーセット
+; endif
+	ld	a,11100011b
+	ld	(LCDC),a
+
+	call	BGPset
+;	ld	a,11100100b		;パレットセット
+;	ld	(BGP),a
+	ld	a,11100100b
+	ld	(OBP0),a
+	ld	a,11100000b
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+BGPset:
+	ld	a,(sgb_flg)
+	and	a
+	jr	nz,sgb$
+	ld	a,11010000b
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ret
+sgb$:
+	ld	a,11100100b
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ret
+
+;---------------------------------------;
+;	ステータス用ＯＢＪ＆ＢＧセット
+;---------------------------------------;
+StatusOBJset:
+	ld	hl,oam_buf
+ ifn 0
+	ld	de,TimerChrTable$	;タイム（分）
+	ld	b,97h
+	ld	c,68h
+	ld	a,1
+	call	set$
+	ld	de,TimerChrTable$	;タイム（秒）
+	ld	b,97h
+	ld	c,78h
+	ld	a,2
+	call	set$
+	ld	de,TimerChrTable$	;タイム
+	ld	b,97h
+	ld	c,90h
+	ld	a,2
+	call	set$
+ endif
+	ld	de,TimerChrTable$	;タイム（秒）
+	ld	b,97h
+	ld	c,80h
+	ld	a,4
+	call	set$
+
+	ld	de,PosChrTable$		;進行距離マーカー
+	ld	b,96h
+;	ld	c,48h
+	ld	c,50h
+	ld	a,1
+	call	set$
+
+	ld	de,Sky1ChrTable$	;雲（１） セット
+	ld	b,14h
+	ld	c,20h
+	ld	a,5
+	call	set$
+
+	ld	de,Sky2ChrTable$	;雲（２） セット
+	ld	b,20h
+	ld	c,80h
+	ld	a,4
+	call	set$
+	ret
+set$:
+	push	af
+	ld	(hl),b			;ＯＡＭ（Ｙ座標）
+	inc	hl
+	ld	(hl),c			;ＯＡＭ（Ｘ座標）
+	inc	hl
+	ld	a,(de)
+	ld	(hl),a			;ＯＡＭ（キャラナンバー）
+	inc	hl
+	ld	(hl),0			;ＯＡＭ（アトリビュート）
+	inc	hl
+
+	ld	a,c
+	add	a,8
+	ld	c,a
+
+	inc	de
+
+	pop	af
+	dec	a
+	jr	nz,set$
+	ret
+
+PosChrTable$:
+	db	0feh
+TimerChrTable$:
+	db	0d0h,0d0h,0d0h,0d0h
+Sky1ChrTable$:
+	db	0ech,0edh,0edh,0eeh,0efh
+Sky2ChrTable$:
+	db	0ech,0edh,0eeh,0efh
+
+StatusBGset:
+ ifn 0
+	ld	de,20h+9c00h
+	ld	hl,data$
+	ld	c,11
+loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,loop$
+
+;	ld	hl,20h+0dh+9c00h
+;	ld	(hl),0fdh
+;	ld	hl,20h+10h+9c00h
+;	ld	(hl),0fdh
+	ld	hl,20h+0dh+9c00h
+	ld	(hl),0fdh
+	ld	hl,20h+10h+9c00h
+	ld	(hl),0fdh
+	ret
+data$:
+	db	15h,16h,1ah,17h,17h,17h,17h,17h,1bh,18h,19h
+ endif
+	ld	de,20h+1+9c00h
+	ld	hl,data$
+	ld	c,9
+loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,loop$
+
+	ld	hl,9c00h+1
+	ld	(hl),015h
+	ld	hl,9c00h+2
+	ld	(hl),016h
+
+	ld	hl,20h+12+9c00h
+	ld	(hl),01bh
+	ld	hl,20h+13+9c00h
+	ld	(hl),01ch
+	ret
+data$:
+	db	17h,18h,19h,19h,19h,19h,19h,19h,19h
+
+
+
+
+
+;=======================================;
+;
+;	メインシーケンス
+;
+;=======================================;
+MainSeqence:
+	ld	a,(MAIN_SEQ)
+	ld	e,a
+	ld	d,00h
+	ld	hl,SeqTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+SeqTable$:
+	ef_initndw
+	ef_inc_ndw	GameInit
+	ef_ndw		GameMain,GameMainNo
+	ef_inc_ndw	GameGoalInit
+	ef_inc_ndw	GameGoal
+	ef_inc_ndw	GameScoreCalcInit
+	ef_inc_ndw	GameScorePutTime
+	ef_inc_ndw	GameScorePutBonus
+	ef_inc_ndw	GameScorePutTotal
+	ef_inc_ndw	GameScoreCalcTime
+	ef_inc_ndw	GameScoreCalcBonus
+	ef_inc_ndw	GameScoreCalcEnd
+	ef_ndw		GameEnd,GameEndNo
+	ef_ndw		GameTimeOver,GameTimeOverNo
+	
+GameInit:
+	ld	a,<StartActNo		;スタートサイン セット
+	ld	de,48e0h
+	call	EXAddActor
+
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+
+	ld	a,1
+	ld	(TEMPO_CHANGE_REQ),a
+	ret
+
+GameMain:
+	ld	a,(TOTAL_LENGTH)	;進行距離
+	cp	18h			;終了地点
+	jr	nc,next$
+
+	ld	hl,TIMER_COUNT+0	;持ちタイム
+	ld	a,(hli)
+	or	(hl)
+;	inc	hl
+;	or	(hl)
+	and	a			;終了
+	jr	z,time_over$
+
+	call	rnd
+	ld	(WAVE_KIND),a		;次の波の大きさを選択（ランダム）
+	call	LasterShift
+	call	FloorCheck
+	call	FloorChrSet
+	call	BGScroll
+
+	call	TotalLengthCalc		;進行距離の計算
+	call	TimerDec
+	call	TimerPut
+	ret
+next$:
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+
+;	ld	a,<GoalActNo		;ゴールサインセット
+;	ld	de,48e0h
+;	call	EXAddActor
+	xor	a
+	ld	(TEMPO_CHANGE_REQ),a
+
+	ld	a,0c0h
+	ld	(WAIT_WORK),a
+	ret
+time_over$:
+	ld	a,1
+	ld	(TIMEOVER_FLAG),a
+	ld	a,GameTimeOverNo
+	ld	(MAIN_SEQ),a
+	ld	a,80h
+	ld	(TIMEOVER_WORK),a
+
+	ld	a,<TimeOverActNo	;タイムオーバーサイン セット
+	ld	de,8858h
+	call	EXAddActor
+	E_HL	ACTOR_DY
+	ld	(hl),-80h
+	E_HL	ACTOR_WK0
+	ld	(hl),80h
+	E_HL	ACTOR_WK1
+	ld	(hl),30h
+	xor	a
+	ld	(TEMPO_CHANGE_REQ),a
+	ret
+
+GameGoalInit:
+	call	GoalWait
+	jr	c,next$
+
+	xor	a
+	ld	(WAVE_KIND),a		;次の波の大きさを選択（ランダム）
+	call	LasterShift
+	call	FloorCheck
+	call	FloorChrSet
+	call	BGScroll2
+	call	MusicTempoRecover
+	ret
+next$:
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+
+	ld	a,090h
+	ld	(headerx),a
+	ld	a,IslandNo
+	ld	(MAP_SEQ),a
+	ld	a,PikaEndWaitNo
+	ld	(PIKA_SEQ),a
+	xor	a
+	ld	(LasterReq),a
+	ld	(SCROLL_WORK+0),a
+	ld	(SCROLL_WORK+1),a
+	ld	(SCROLL_WORK+2),a
+	ret
+GameGoal:
+	ld	a,(headerx)
+	and	a
+	jr	z,next$
+
+	call	LasterShift
+	call	FloorCheck
+	call	FloorChrSet
+	ld	a,(headerx)
+	dec	a
+	dec	a
+	dec	a
+	dec	a
+	ld	(headerx),a
+	
+	ld	a,-20h
+	ld	(MAP_WRITE_POS),a
+	call	BGScrollMap
+	ret
+next$:
+	xor	a
+	ld	(SPEED_COUNT+0),a
+	ld	(SPEED_COUNT+1),a
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+	ld	a,PikaEndInitNo
+	ld	(PIKA_SEQ),a
+	ret
+
+GameScoreCalcInit:
+	call	ScoreCalcMapSet
+	ld	a,20h
+	ld	(WAIT_WORK),a
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+	ret
+
+GameScorePutTime:
+	call	ScorePutWait
+	ret	nc
+
+	call	PutTotalTime
+	ld	a,40h
+	ld	(WAIT_WORK),a
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+	ret
+	
+GameScorePutBonus:
+	call	ScorePutWait
+	ret	nc
+
+	call	PutBonusCount
+	ld	a,40h
+	ld	(WAIT_WORK),a
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+	ret
+	
+GameScorePutTotal:
+	call	ScorePutWait
+	ret	nc
+
+	call	PutTotalScore1
+	ld	a,40h
+	ld	(WAIT_WORK),a
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+	ret
+	
+GameScoreCalcTime:
+	call	ScorePutWait
+	ret	nc
+
+	call	CalcTotalTime
+	push	af
+	call	PutTotalScore
+	pop	af
+	ret	nc
+
+	ld	a,40h
+	ld	(WAIT_WORK),a
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+	ret
+	
+GameScoreCalcBonus:
+	call	ScorePutWait
+	ret	nc
+
+	call	CalcBonusCount
+	push	af
+	call	PutTotalScore
+	pop	af
+	ret	nc
+
+	ld	a,80h
+	ld	(WAIT_WORK),a
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+
+	call	HiScoreCheck
+	ret	nc
+
+	call	PutHiScoreMSG
+	ld	a,PikaEndJumpNo
+	ld	(PIKA_SEQ),a
+	ret
+	
+GameScoreCalcEnd:
+	call	ScorePutWait
+	ret	nc
+
+	ld	hl,MAIN_SEQ
+	inc	(hl)
+	ret
+
+GameEnd:
+	call	LasterShift
+	ld	a,(joy_on)		;Ａボタンで終了
+	and	BT_A
+	ret	z
+
+	ld	hl,MAIN_SEQ
+	set	7,(hl)
+	ret
+
+GameTimeOver:
+	call	LasterShift
+	call	FloorCheck
+	call	FloorChrSet
+	call	BGScroll
+	call	MusicTempoRecover
+
+	ld	hl,TIMEOVER_WORK
+	ld	a,(hl)
+	and	a
+	jr	z,end$
+	dec	(hl)
+	ret
+end$:
+	ld	a,(joy_on)		;Ａボタンで終了
+	and	BT_A
+	ret	z
+
+	ld	hl,MAIN_SEQ
+	set	7,(hl)
+	ret
+
+GoalWait:
+ScorePutWait:
+	ld	hl,WAIT_WORK
+	ld	a,(hl)
+	and	a
+	jr	z,next$
+	dec	(hl)
+	and	a
+	ret
+next$:
+	scf
+	ret
+
+;---------------------------------------;
+;	進行距離の計算			;
+;---------------------------------------;
+TotalLengthCalc:
+	ld	a,(TOTAL_LENGTH+1)
+	ld	h,a
+	ld	a,(TOTAL_LENGTH+2)
+	ld	l,a
+
+	ld	a,(SPEED_COUNT+0)
+	ld	e,a
+	ld	a,(SPEED_COUNT+1)
+	ld	d,a
+	add	hl,de
+
+	ld	a,h
+	ld	(TOTAL_LENGTH+1),a
+	ld	a,l
+	ld	(TOTAL_LENGTH+2),a
+
+	ret	nc
+
+	ld	hl,TOTAL_LENGTH+0
+	inc	(hl)
+;	ld	hl,5*4+1+oam_buf	;進行位置マーク（Ｘ座標）
+	ld	hl,4*4+1+oam_buf	;進行位置マーク（Ｘ座標）
+	dec	(hl)
+	dec	(hl)
+	ret
+
+
+
+
+
+
+;=======================================;
+;
+;	アクター
+;
+;=======================================;
+	public	MoveNamiPika
+;---------------------------------------;
+;	ピカチュウ
+;---------------------------------------;
+MoveNamiPika:
+	ld	a,(PIKA_SEQ)
+	ld	e,a
+	ld	d,00h
+	ld	hl,SeqTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+SeqTable$:
+	ef_initndw
+	ef_ndw		PikaOnWave,PikaOnWaveNo
+	ef_ndw		PikaJump,PikaJumpNo
+	ef_ndw		PikaJumpEnd,PikaJumpEndNo
+	ef_ndw		PikaDead,PikaDeadNo
+	ef_ndw		PikaEndWait,PikaEndWaitNo
+	ef_ndw		PikaEndJumpInit,PikaEndInitNo
+	ef_ndw		PikaEndJump,PikaEndJumpNo
+
+PikaOnWave:
+	ld	a,(TIMEOVER_FLAG)
+	and	a
+	jr	nz,time_over$
+ ifn 0
+	xor	a
+	E_HL	ACTOR_WK2
+	ld	(hl),a			;回転フラグ
+	E_HL	ACTOR_WK3
+	ld	(hl),a			;回転フラグ
+	ld	(ROLLING_COUNT),a	;回転数
+	ld	(ROLLING_STATUS),a
+ endif
+	call	ShibukiSet
+	ld	a,(WAVE_Y)
+	E_HL	ACTOR_Y
+	ld	(hl),a
+	call	JumpCheck
+	jr	c,jump$
+	call	PikaAnmSet
+	call	SpeedUp
+	ret
+jump$:
+	call	PikaAnmSet
+	ld	a,PikaJumpNo
+	ld	(PIKA_SEQ),a
+
+	xor	a
+	E_HL	ACTOR_WK1
+	ld	(hl),a
+	E_HL	ACTOR_WK2
+	ld	(hl),a			;回転フラグ
+	E_HL	ACTOR_WK3
+	ld	(hl),a			;回転フラグ
+	ld	(ROLLING_COUNT),a	;回転数
+	ld	(ROLLING_STATUS),a
+
+	xor	a
+	ld	(condetion+7),a
+	ld	a,<musnami4
+	call	SEplay
+	ret
+time_over$:
+	xor	a
+	ld	(SPEED_COUNT+0),a
+	ld	(SPEED_COUNT+1),a
+	ld	a,PikaEndWaitNo
+	ld	(PIKA_SEQ),a
+	call	PikaAnmSet
+	ret
+
+PikaJump:
+	call	KeyCheck
+	call	HoubutuCalc
+	ret	nc
+
+	call	JumpFaultDeadCheck
+	jr	c,dead$
+
+	call	RollingBonus
+
+	E_HL	ACTOR_WK1
+	ld	(hl),00h
+	ld	a,PikaJumpEndNo
+	ld	(PIKA_SEQ),a
+	ret
+dead$:
+	ld	a,PikaDeadNo
+	ld	(PIKA_SEQ),a
+	ld	a,60h
+	ld	(DEAD_WORK),a
+	ld	a,NamiPikaDeadAnmNo
+	call	EXActorAnmSet
+
+	xor	a
+	ld	(condetion+7),a
+	ld	a,<musnamifall4
+	call	SEplay
+	ret
+
+PikaJumpEnd:
+	E_HL	ACTOR_WK1
+	ld	a,(hl)
+	cp	20h
+	jr	nc,end$
+	inc	(hl)
+	inc	(hl)
+	inc	(hl)
+	inc	(hl)
+
+	ld	d,04h
+	call	IntSin
+	E_HL	ACTOR_DY
+	ld	(hl),a
+
+	call	ShibukiSet
+	ld	a,(WAVE_Y)
+	E_HL	ACTOR_Y
+	ld	(hl),a
+	ret
+end$:
+	E_HL	ACTOR_DY
+	ld	(hl),00h
+
+	ld	a,PikaOnWaveNo
+	ld	(PIKA_SEQ),a
+	ret
+
+PikaDead:
+	ld	hl,DEAD_WORK
+	ld	a,(hl)
+	and	a
+	jr	z,return$
+	dec	(hl)
+	ld	a,(WAVE_Y)
+	E_HL	ACTOR_Y
+	ld	(hl),a
+	ret
+return$
+	ld	a,PikaOnWaveNo
+	ld	(PIKA_SEQ),a
+	ld	a,NamiPikaAnm4No
+	call	EXActorAnmSet
+	ret
+
+PikaEndWait:
+	ld	a,(WAVE_Y)
+	E_HL	ACTOR_Y
+	ld	(hl),a
+	call	PikaAnmSet
+	ret
+
+PikaEndJumpInit:
+	ld	a,NamiPikaGoalAnmNo
+	call	EXActorAnmSet
+	E_HL	ACTOR_WK1
+	ld	(hl),00h
+	ret
+
+PikaEndJump:
+	E_HL	ACTOR_WK1
+	ld	a,(hl)
+	inc	(hl)
+	inc	(hl)
+	and	00111111b
+	cp	20h
+	jr	c,ret$
+
+	ld	d,10h
+	call	IntSin
+	E_HL	ACTOR_DY
+	ld	(hl),a
+	ret
+ret$:
+	E_HL	ACTOR_DY
+	ld	(hl),00h
+	ret
+
+
+KeyCheck:
+	ld	de,joy_repeat
+	ld	a,(de)
+	and	BT_L
+	jr	nz,left$
+	ld	a,(de)
+	and	BT_R
+	jr	nz,right$
+	ret
+left$:
+	E_HL	ACTOR_WK3			;右回転フラグ リセット
+	ld	(hl),00h
+
+	E_HL	ACTOR_WK2			;左回転フラグ
+	ld	a,(hl)
+	inc	(hl)
+	cp	13-2				;アニメ１回転分（＋補正分）
+	jr	c,left_pass$
+
+	call	BonusSet$
+	ld	hl,ROLLING_STATUS
+	set	0,(hl)
+left_pass$:
+	E_HL	ACTOR_ANM
+	ld	a,(hl)
+	cp	NamiPikaAnm7RevNo
+	jr	nc,left_reset$
+	inc	(hl)
+	ret
+left_reset$:
+	ld	(hl),NamiPikaAnm1No
+	ret
+right$:
+	E_HL	ACTOR_WK2			;左回転フラグ リセット
+	ld	(hl),00h
+
+	E_HL	ACTOR_WK3			;右回転フラグ
+	ld	a,(hl)
+	inc	(hl)
+	cp	13				;アニメ１回転分
+	jr	c,right_pass$
+
+	call	BonusSet$
+	ld	hl,ROLLING_STATUS
+	set	1,(hl)
+right_pass$:
+	E_HL	ACTOR_ANM
+	ld	a,(hl)
+	cp	NamiPikaAnm1No
+	jr	z,right_reset$
+	dec	(hl)
+	ret
+right_reset$:
+	ld	(hl),NamiPikaAnm7RevNo
+	ret
+
+BonusSet$:
+	call	RollingBonusUp
+
+	xor	a
+	E_HL	ACTOR_WK2			;左回転フラグ リセット
+	ld	(hl),a
+	E_HL	ACTOR_WK3			;右回転フラグ リセット
+	ld	(hl),a
+
+	ld	a,<musnamijump4
+	call	SEplay
+	ret
+
+JumpFaultDeadCheck:
+	E_HL	ACTOR_ANM
+
+	ld	a,(FLOOR_CHR)
+	cp	06h
+	jr	z,up$
+	cp	14h
+	jr	z,jump_point$
+	cp	12h
+	jr	z,jump_point$
+	cp	07h
+	jr	z,down$
+normal$:
+	ld	a,(hl)
+	cp	NamiPikaAnm1No
+	jp	z,dead$
+	cp	NamiPikaAnm2No
+	jr	z,sp_down2$
+	cp	NamiPikaAnm3No
+	jr	z,sp_down1$
+	cp	NamiPikaAnm4No
+	jr	z,ok$
+	cp	NamiPikaAnm5No
+	jr	z,sp_down1$
+	cp	NamiPikaAnm6No
+	jr	z,sp_down2$
+	cp	NamiPikaAnm7No
+	jr	z,dead$
+	jr	dead$
+up$:
+	ld	a,(hl)
+	cp	NamiPikaAnm1No
+	jr	z,dead$
+	cp	NamiPikaAnm2No
+	jr	z,dead$
+	cp	NamiPikaAnm3No
+	jr	z,dead$
+	cp	NamiPikaAnm4No
+	jr	z,sp_down2$
+	cp	NamiPikaAnm5No
+	jr	z,sp_down1$
+	cp	NamiPikaAnm6No
+	jr	z,ok$
+	cp	NamiPikaAnm7No
+	jr	z,sp_down1$
+	jr	dead$
+down$:
+	ld	a,(hl)
+	cp	NamiPikaAnm1No
+	jr	z,sp_down1$
+	cp	NamiPikaAnm2No
+	jr	z,ok$
+	cp	NamiPikaAnm3No
+	jr	z,sp_down1$
+	cp	NamiPikaAnm4No
+	jr	z,sp_down2$
+	cp	NamiPikaAnm5No
+	jr	z,dead$
+	cp	NamiPikaAnm6No
+	jr	z,dead$
+	cp	NamiPikaAnm7No
+	jr	z,dead$
+	jr	dead$
+jump_point$:
+	ld	a,(hl)
+	cp	NamiPikaAnm1No
+	jr	z,dead$
+	cp	NamiPikaAnm2No
+	jr	z,sp_down2$
+	cp	NamiPikaAnm3No
+	jr	z,sp_down1$
+	cp	NamiPikaAnm4No
+	jr	z,ok$
+	cp	NamiPikaAnm5No
+	jr	z,ok$
+	cp	NamiPikaAnm6No
+	jr	z,sp_down1$
+	cp	NamiPikaAnm7No
+	jr	z,sp_down2$
+	jr	dead$
+sp_down2$:
+	call	JumpFaultSpeedDown2
+	jr	ok$
+sp_down1$:
+	call	JumpFaultSpeedDown
+ok$:
+	xor	a
+	ld	(condetion+7),a
+	ld	a,<musnamihold4
+	call	SEplay
+	and	a
+	ret
+dead$:
+	ld	a,40h
+	ld	(SPEED_COUNT+0),a
+	xor	a
+	ld	(SPEED_COUNT+1),a
+	scf
+	ret
+
+SpeedUp:
+	ld	a,(SPEED_COUNT+1)
+	cp	2
+	ret	nc
+
+	ld	h,a
+	ld	a,(SPEED_COUNT+0)
+	ld	l,a
+	ld	de,2
+	add	hl,de
+
+	ld	a,h
+	ld	(SPEED_COUNT+1),a
+	ld	a,l
+	ld	(SPEED_COUNT+0),a
+	ret
+
+JumpFaultSpeedDown:
+	ld	a,(SPEED_COUNT+1)
+	and	a
+	jr	nz,down$
+	ld	a,(SPEED_COUNT+0)
+	cp	40h
+	jr	nc,down$
+	xor	a
+	ld	(SPEED_COUNT+0),a
+	ret
+down$:
+	ld	a,(SPEED_COUNT+1)
+	ld	h,a
+	ld	a,(SPEED_COUNT+0)
+	ld	l,a
+	ld	de,-40h
+	add	hl,de
+set$:
+	ld	a,h
+	ld	(SPEED_COUNT+1),a
+	ld	a,l
+	ld	(SPEED_COUNT+0),a
+	ret
+
+JumpFaultSpeedDown2:
+	ld	a,(SPEED_COUNT+1)
+	and	a
+	jr	nz,down$
+	ld	a,(SPEED_COUNT+0)
+	cp	80h
+	jr	nc,down$
+	xor	a
+	ld	(SPEED_COUNT+0),a
+	ret
+down$:
+	ld	a,(SPEED_COUNT+1)
+	ld	h,a
+	ld	a,(SPEED_COUNT+0)
+	ld	l,a
+	ld	de,-80h
+	add	hl,de
+set$:
+	ld	a,h
+	ld	(SPEED_COUNT+1),a
+	ld	a,l
+	ld	(SPEED_COUNT+0),a
+	ret
+
+JumpCheck:
+	ld	a,(headerx)
+	and	00000111b
+	cp	2+1
+	jr	c,no_jump$
+	cp	5
+	jr	nc,no_jump$
+
+	ld	a,(FLOOR_CHR)
+	cp	14h
+	jr	nz,no_jump$
+
+	call	JumpSpeedGet
+	cp	10
+	jr	c,no_jump$
+
+	ld	(NAMIPIKA_WORK+0),a
+	call	HoubutuCalcInit
+	scf
+	ret
+no_jump$:
+	and	a
+	ret
+
+PikaAnmSet:
+	ld	a,(headerx)
+	and	00000111b
+	cp	2+1
+	ret	c
+	cp	5
+	ret	nc
+
+	ld	a,(FLOOR_CHR)
+	cp	06h
+	jr	z,up$
+	cp	14h
+	jr	z,up$
+	cp	07h
+	jr	z,down$
+
+	call	PikaAnmOffsetGet
+
+	ld	a,NamiPikaAnm4No
+	E_HL	ACTOR_ANM
+	ld	(hl),a
+	ret
+up$:
+	ld	a,NamiPikaAnm6No
+	jr	ret$
+down$:
+	ld	a,NamiPikaAnm2No
+ret$:
+	ld	e,a
+	ld	a,(PIKA_ANM_OFFSET)
+	dec	a
+	add	a,e
+	E_HL	ACTOR_ANM
+	ld	(hl),a
+	ret
+
+PikaAnmOffsetGet:
+	ld	hl,PIKA_ANM_WORK
+	ld	a,(hl)
+	inc	(hl)
+	and	00000111b
+	ret	nz
+
+	ld	a,(PIKA_ANM_DIRECT)
+	and	a
+	jr	z,up$
+down$:
+	ld	a,(PIKA_ANM_OFFSET)
+	and	a
+	jr	z,down_over$
+	dec	a
+	ld	(PIKA_ANM_OFFSET),a
+	ret
+down_over$:
+	xor	a
+	ld	(PIKA_ANM_DIRECT),a
+	ret
+up$:
+	ld	a,(PIKA_ANM_OFFSET)
+	cp	2
+	jr	z,up_over$
+	inc	a
+	ld	(PIKA_ANM_OFFSET),a
+	ret
+up_over$:
+	ld	a,1
+	ld	(PIKA_ANM_DIRECT),a
+	ret
+	
+
+JumpSpeedGet:
+	ld	a,(SPEED_COUNT+0)
+	ld	l,a
+	ld	a,(SPEED_COUNT+1)
+	ld	h,a
+	add	hl,hl
+	add	hl,hl
+	add	hl,hl
+	ld	a,h
+	ret
+
+ShibukiSet:
+	ld	hl,SIBUKI_TIMER
+	ld	a,(hl)
+	inc	(hl)
+	and	00000011b
+	ret	nz
+
+	call	YposCalc$
+	ld	d,a
+	E_HL	ACTOR_X
+	ld	e,(hl)
+	ld	a,ShibukiActNo
+	push	bc
+	call	EXAddActor
+	pop	bc
+	ret
+YposCalc$:
+	ld	a,(headerx)
+	and	00001000b
+	jr	nz,pat2$
+pat1$:
+	ld	hl,HITCHECK_BUFFER+8
+	jr	next$
+pat2$:
+	ld	hl,HITCHECK_BUFFER+9
+next$:
+	ld	a,(FLOOR_CHR+1)
+	cp	06h
+	jr	z,up$
+	cp	14h
+	jr	z,up$
+	cp	07h
+	jr	z,down$
+
+	ld	a,(hl)
+	ret
+up$:
+	ld	a,(headerx)
+	and	00000111b
+	ld	e,a
+	ld	a,(hl)
+	sub	e
+	ret
+down$:
+	ld	a,(headerx)
+	and	00000111b
+	add	a,(hl)
+	ret
+
+;---------------------------------------;
+;	スタート＆ゴール
+;---------------------------------------;
+MoveSlide:
+	E_HL	ACTOR_X
+	ld	a,(hl)
+	cp	058h
+	ret	z
+	add	a,4
+	ld	(hl),a
+	ret
+del$:
+	call	EXDelActor
+	ret
+
+;---------------------------------------;
+;	タイムオーバー
+;---------------------------------------;
+MoveTimeOver:
+	E_HL	ACTOR_WK0
+	ld	a,(hl)
+	and	a
+	ret	z
+	dec	(hl)
+	dec	(hl)
+
+	ld	d,a
+	E_HL	ACTOR_WK1
+	ld	a,(hl)
+	inc	(hl)
+	call	IntSin
+	cp	80h
+	jr	nc,pass$
+	xor	11111111b
+	inc	a
+pass$:
+	E_HL	ACTOR_DY
+	ld	(hl),a
+	ret
+
+;---------------------------------------;
+;	タイトルピカチュウ
+;---------------------------------------;
+MoveTitlePika:
+	E_HL	ACTOR_WK0
+	ld	a,(hl)
+	inc	(hl)
+	and	00000001b
+	ret	z
+
+	E_HL	ACTOR_X
+	ld	a,(hl)
+;	cp	0e0h
+	cp	0c0h
+	jr	z,next$
+;	dec	(hl)
+	inc	(hl)
+	ret
+next$:
+	ld	a,1
+	ld	(TITLE_WORK),a
+	call	EXDelActor
+	ret
+
+
+
+
+
+;=======================================;
+;
+;	雲
+;
+;=======================================;
+MoveSky:
+	ld	a,(ACTSPEED_X+0)
+	ld	e,a
+	ld	d,00h
+
+	ld	a,(SPEED_COUNT+0)
+	ld	l,a
+	ld	a,(SPEED_COUNT+1)
+	ld	h,a
+	add	hl,de
+
+	ld	a,l
+	ld	(ACTSPEED_X+0),a
+	ld	d,h
+
+;	ld	hl,6*4+1+oam_buf
+	ld	hl,5*4+1+oam_buf
+	ld	e,9
+move_loop$:
+	ld	a,(hl)
+	add	a,d
+	ld	(hli),a
+	inc	hl
+	inc	hl
+	inc	hl
+	dec	e
+	jr	nz,move_loop$
+	ret
+
+
+
+
+
+;=======================================;
+;
+;	アトリビュート
+;
+;=======================================;
+;---------------------------------------;
+;	アトリビュートをＶＲＡＭより取得
+;---------------------------------------;
+FloorChrSet:
+	ld	a,(FLOOR_CHR)
+
+	ld	a,(headerx)		;Ｘ座標算出
+	add	a,48h
+	ld	e,a
+	srl	e
+	srl	e
+	srl	e
+	ld	d,00
+	ld	hl,9800h
+	add	hl,de
+
+	ld	a,(WAVE_Y)		;Ｙ座標算出
+	srl	a
+	srl	a
+	srl	a
+	ld	c,a
+y_loop$:
+	ld	a,c
+	and	a
+	jr	z,set$
+	dec	c
+
+	ld	de,20h
+	add	hl,de
+
+	ld	a,h
+	and	003h
+	or	098h
+	ld	h,a
+	jr	y_loop$
+set$:
+	ld	de,FLOOR_CHR
+
+	ld	a,e
+	ld	(chr_mv_buf + 3),a	;転送先アドレス ＬＯＷ
+	ld	a,d
+	ld	(chr_mv_buf + 4),a	;転送先アドレス ＨＩＧＨ
+
+	ld	a,l
+	ld	(chr_mv_buf + 1),a	;転送元アドレス ＬＯＷ
+	ld	a,h
+	ld	(chr_mv_buf + 2),a	;転送元アドレス ＨＩＧＨ
+
+	ld	a,1
+	ld	(chr_mv_buf + 0),a	;転送リクエスト
+	ret
+
+;---------------------------------------;
+;	アトリビュートチェック
+;---------------------------------------;
+FloorCheck:
+	ld	a,(headerx)
+	and	00001000b
+	jr	nz,pat2$
+pat1$:
+	ld	hl,HITCHECK_BUFFER+7
+	jr	next$
+pat2$:
+	ld	hl,HITCHECK_BUFFER+8
+next$:
+	ld	a,(FLOOR_CHR)
+	cp	06h
+	jr	z,up$
+	cp	14h
+	jr	z,up$
+	cp	07h
+	jr	z,down$
+
+	ld	a,(hl)
+	ld	(WAVE_Y),a
+	ret
+up$:
+	ld	a,(headerx)
+	and	00000111b
+	ld	e,a
+	ld	a,(hl)
+	sub	e
+	ld	(WAVE_Y),a
+	ret
+down$:
+	ld	a,(headerx)
+	and	00000111b
+	add	a,(hl)
+	ld	(WAVE_Y),a
+	ret
+
+
+
+
+
+;=======================================;
+;
+;	タイマー
+;
+;=======================================;
+TimerDec:
+	ld	hl,TIMER_COUNT+0
+
+	ld	e,99h
+	call	calc$
+	ret	nc
+
+	inc	hl
+	ld	e,99h
+calc$:
+	ld	a,(hl)
+	and	a
+	jr	z,over$
+	sub	1
+	daa
+	ld	(hl),a
+	and	a
+	ret
+over$:
+	ld	(hl),e
+	scf
+	ret
+ ifn 0
+	ld	hl,TIMER_COUNT+0
+	ld	e,98h
+	ld	d,2
+	call	calc$
+	ret	nc
+
+	inc	hl
+	ld	e,59h
+	ld	d,1
+	call	calc$
+	ret	nc
+
+	inc	hl
+	ld	e,59h
+	ld	d,1
+calc$:
+	ld	a,(hl)
+	and	a
+	jr	z,over$
+	sub	d
+	daa
+	ld	(hl),a
+	and	a
+	ret
+over$:
+	ld	(hl),e
+	scf
+	ret
+ endif
+
+TimerPut:
+	ld	de,TIMER_COUNT+1
+
+	ld	hl,0*4+2+oam_buf
+	ld	a,(de)
+;	call	set2$
+	call	set$
+
+	ld	hl,2*4+2+oam_buf
+	ld	a,(de)
+set$:
+	ld	c,a
+	swap	a
+	and	00001111b
+	add	a,0d0h
+	ld	(hli),a
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,c
+set2$:
+	and	00001111b
+	add	a,0d0h
+	ld	(hl),a
+	dec	de
+	ret
+ ifn 0
+	ld	de,TIMER_COUNT+2
+
+	ld	hl,0*4+2+oam_buf
+	ld	a,(de)
+	call	set2$
+
+	ld	hl,1*4+2+oam_buf
+	ld	a,(de)
+	call	set$
+
+	ld	hl,3*4+2+oam_buf
+	ld	a,(de)
+set$:
+	ld	c,a
+	swap	a
+	and	00001111b
+	add	a,0d0h
+	ld	(hli),a
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,c
+set2$:
+	and	00001111b
+	add	a,0d0h
+	ld	(hl),a
+	dec	de
+	ret
+ endif
+
+
+
+
+
+
+;=======================================;
+;
+;	得点計算
+;
+;=======================================;
+;---------------------------------------;
+;	得点計算画面 表示
+;---------------------------------------;
+ScoreCalcMapSet:
+	ld	hl,dmy_vram
+	ld	bc,20*18
+	xor	a
+	call	memset
+
+	ld	hl,MapData$
+;	ld	de,20*12+dmy_vram
+	ld	de,20*6+dmy_vram
+;	ld	bc,20*4
+	ld	bc,20*10
+	call	block_move
+
+	call	window$
+
+	ld	hl,5*4+1+oam_buf
+	ld	bc,4*9
+	xor	a
+	call	memset
+
+	ld	a,1
+	ld	(all_put_req),a
+	ret
+MapData$:
+	db	00Ch,00Ch,00Ch,00Ch,00Ch,00Ch,00Ch,00Ch,00Ch,00Ch
+	db	00Eh,00Fh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	010h,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	00Eh,00Fh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	010h,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	00Eh,00Fh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	010h,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	00Eh,00Fh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	010h,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	00Eh,00Fh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+	db	00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh,00Dh
+	db	010h,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh,00Bh
+window$:
+	ld	hl,20*1+1+dmy_vram
+	ld	de,03b3ch
+	ld	a,40h
+	call	put_line$
+
+	ld	hl,20*2+1+dmy_vram
+	ld	de,03f3fh
+	ld	a,0ffh
+	call	put_line$
+
+	ld	hl,20*3+1+dmy_vram
+	ld	de,03f3fh
+	ld	a,0ffh
+	call	put_line$
+
+	ld	hl,20*4+1+dmy_vram
+	ld	de,03f3fh
+	ld	a,0ffh
+	call	put_line$
+
+	ld	hl,20*5+1+dmy_vram
+	ld	de,03f3fh
+	ld	a,0ffh
+	call	put_line$
+
+	ld	hl,20*6+1+dmy_vram
+	ld	de,03f3fh
+	ld	a,0ffh
+	call	put_line$
+
+	ld	hl,20*7+1+dmy_vram
+	ld	de,03f3fh
+	ld	a,0ffh
+	call	put_line$
+
+	ld	hl,20*8+1+dmy_vram
+	ld	de,03f3fh
+	ld	a,0ffh
+	call	put_line$
+
+	ld	hl,20*9+1+dmy_vram
+	ld	de,03d3eh
+	ld	a,040h
+	call	put_line$
+	ret
+
+put_line$:
+	ld	(hl),d
+	inc	hl
+	ld	c,16
+loop1$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop1$
+	ld	(hl),e
+	ret
+
+	
+
+PutHiScoreMSG:
+ ifn  ASSEMBLE__ENGLISH
+	ld	hl,msg$			;”Hi-Score!!”を表示
+	ld	de,20*8+6+dmy_vram	; SPOS(6,8)
+	ld	bc,9
+	call	block_move
+	ret
+msg$:
+	db	020h,02eh,02fh,030h,031h,02ch,032h,023h,033h	; Hi-Score!!
+
+ else
+	ld	hl,msg$			;”ベストスコア！！”を表示
+;	ld	de,20*9+6+dmy_vram
+	ld	de,20*8+6+dmy_vram	; SPOS(6,8)
+	ld	bc,7
+	call	block_move
+	ret
+msg$:
+	db	030h,031h,032h,033h,034h,035h,036h
+ endif
+
+ ifn	ASSEMBLE__ENGLISH
+MACRO__DSP_POINT	MACRO
+
+	ld	(hl),021h		;”Pts”を表示
+	inc	hl
+	ld	(hl),025h
+	inc	hl
+	ld	(hl),026h
+
+
+;	ld	(hl),02ch		;”ポイント”を表示
+;	inc	hl
+;	ld	(hl),02dh
+;	inc	hl
+;	ld	(hl),02eh
+;	inc	hl
+;	ld	(hl),02fh
+	ENDM
+ endif
+
+;---------------------------------------;
+;	残り時間の得点計算＆表示
+;---------------------------------------;
+PutTotalTime:
+ ifn  ASSEMBLE__ENGLISH
+	ld	hl,msg$			;”HP Left”を表示
+	ld	de,20*2+2+dmy_vram	; SPOS(2,2)
+	ld	bc,7
+	call	block_move
+	call	TotalTimePutMain
+	ret
+msg$:
+	db	020h,021h,0FFh,022h,023h,024h,025h	; HP Left
+
+ else
+	ld	hl,msg$			;”のこりＨＰ”を表示
+;	ld	de,20*3+2+dmy_vram
+	ld	de,20*2+2+dmy_vram	; SPOS(2,2)
+;	ld	bc,6
+	ld	bc,5
+	call	block_move
+	call	TotalTimePutMain
+	ret
+msg$:
+;	db	020h,021h,022h,023h,024h,025h
+	db	020h,021h,022h,023h,024h
+ endif
+
+CalcTotalTime:
+	ld	c,99
+loop$:
+	push	bc
+	ld	hl,TIMER_COUNT+0	;持ちタイム
+	ld	a,(hli)
+	or	(hl)
+;	inc	hl
+;	or	(hl)
+	and	a
+	jr	z,end$
+
+	call	TimerDec
+
+	ld	e,1
+	call	CalcTotalScore
+;	call	TotalTimePutMain
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	ld	a,<muspi4
+	call	SEplay
+	and	a
+	ret
+end$:
+	pop	bc
+	scf
+	ret
+
+TotalTimePutMain:
+ ifn  ASSEMBLE__ENGLISH
+	ld	hl,20*2+10+dmy_vram	; SPOS(10,2)
+ else
+;	ld	hl,20*3+11+dmy_vram
+	ld	hl,20*2+9+dmy_vram	; SPOS(9,2)
+ endif
+	ld	de,TIMER_COUNT+1
+
+	ld	a,(de)
+	call	CounterPut
+	inc	hl
+	ld	a,(de)
+	call	CounterPut
+	inc	hl
+	inc	hl
+ ifn	ASSEMBLE__ENGLISH
+	MACRO__DSP_POINT
+ else
+	ld	(hl),02ch		;”ポイント”を表示
+	inc	hl
+	ld	(hl),02dh
+	inc	hl
+	ld	(hl),02eh
+	inc	hl
+	ld	(hl),02fh
+ endif
+	ret
+
+;---------------------------------------;
+;	かっこよさの得点計算＆表示
+;---------------------------------------;
+PutBonusCount:
+ ifn  ASSEMBLE__ENGLISH
+	ld	hl,msg$			;”Radness”を表示
+	ld	de,20*4+2+dmy_vram	; SPOS(2,4)
+	ld	bc,7
+	call	block_move
+	call	BonusCountPutMain
+	ret
+msg$:
+	db	027h,028h,029h,02ah,023h,026h,026h	; Radness
+
+ else
+	ld	hl,msg$			;”かっこよさ”を表示
+;	ld	de,20*5+2+dmy_vram
+	ld	de,20*4+2+dmy_vram	; SPOS(2,4)
+	ld	bc,5
+	call	block_move
+	call	BonusCountPutMain
+	ret
+msg$:
+;	db	029h,02ah,02bh,02ch,02dh
+	db	027h,028h,029h,02ah,02bh
+ endif
+
+CalcBonusCount:
+	ld	c,99
+loop$:
+	push	bc
+	ld	hl,BONUS_COUNT
+	ld	a,(hli)
+	ld	e,a
+	or	(hl)
+	jr	z,end$
+
+	ld	d,(hl)
+	ld	a,e
+	sub	1
+	daa
+	ld	e,a
+	ld	a,d
+	sbc	a,0
+	daa
+
+	ld	(hld),a
+	ld	(hl),e
+
+	ld	e,1
+	call	CalcTotalScore
+;	call	BonusCountPutMain
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	ld	a,<muspi4
+	call	SEplay
+	and	a
+	ret
+end$:
+	pop	bc
+	scf
+	ret
+
+BonusCountPutMain:
+ ifn  ASSEMBLE__ENGLISH
+	ld	a,(BONUS_COUNT+1)
+	ld	hl,20*4+10+dmy_vram	; SPOS(10,4)
+	call	CounterPut
+
+	ld	a,(BONUS_COUNT+0)
+	ld	hl,20*4+12+dmy_vram	; SPOS(12,4)
+	call	CounterPut
+ else
+	ld	a,(BONUS_COUNT+1)
+;	ld	hl,20*5+11+dmy_vram
+	ld	hl,20*4+9+dmy_vram	; SPOS(9,4)
+	call	CounterPut
+
+	ld	a,(BONUS_COUNT+0)
+;	ld	hl,20*5+13+dmy_vram
+	ld	hl,20*4+11+dmy_vram	; SPOS(11,4)
+	call	CounterPut
+ endif
+	inc	hl
+	inc	hl
+;	ld	(hl),2eh
+;	inc	hl
+;	ld	(hl),2fh
+
+ ifn	ASSEMBLE__ENGLISH
+	MACRO__DSP_POINT
+ else
+	ld	(hl),02ch		;”ポイント”を表示
+	inc	hl
+	ld	(hl),02dh
+	inc	hl
+	ld	(hl),02eh
+	inc	hl
+	ld	(hl),02fh
+ endif
+	ret
+
+;---------------------------------------;
+;	合計得点計算＆表示
+;---------------------------------------;
+CalcTotalScore:
+	ld	a,(TOTAL_SCORE+0)
+	add	a,e
+	daa
+	ld	(TOTAL_SCORE+0),a
+	ld	a,(TOTAL_SCORE+1)
+	adc	a,0
+	daa
+	ld	(TOTAL_SCORE+1),a
+;	jr	nc,PutTotalScore
+	ret	nc
+
+	ld	a,99h
+	ld	(TOTAL_SCORE+0),a
+	ld	(TOTAL_SCORE+1),a
+	ret
+
+PutTotalScore:
+ ifn  ASSEMBLE__ENGLISH
+	ld	a,(TOTAL_SCORE+1)
+	ld	hl,20*6+10+dmy_vram	; SPOS(10,6)
+	call	CounterPut
+
+	ld	a,(TOTAL_SCORE+0)
+	ld	hl,20*6+12+dmy_vram	; SPOS(12,6)
+	call	CounterPut
+ else
+	ld	a,(TOTAL_SCORE+1)
+;	ld	hl,20*7+11+dmy_vram
+	ld	hl,20*6+9+dmy_vram	; SPOS(9,6)
+	call	CounterPut
+
+	ld	a,(TOTAL_SCORE+0)
+;	ld	hl,20*7+13+dmy_vram
+	ld	hl,20*6+11+dmy_vram	; SPOS(11,6)
+	call	CounterPut
+ endif
+	inc	hl
+	inc	hl
+;	ld	(hl),2eh
+;	inc	hl
+;	ld	(hl),2fh
+
+ ifn	ASSEMBLE__ENGLISH
+	MACRO__DSP_POINT
+ else
+	ld	(hl),02ch		;”ポイント”を表示
+	inc	hl
+	ld	(hl),02dh
+	inc	hl
+	ld	(hl),02eh
+	inc	hl
+	ld	(hl),02fh
+ endif
+	ret
+
+PutTotalScore1:
+ ifn  ASSEMBLE__ENGLISH
+	ld	hl,msg$			;”Total”を表示
+	ld	de,20*6+2+dmy_vram	; SPOS(2,6)
+	ld	bc,5
+	call	block_move
+	call	BonusCountPutMain
+
+	call	PutTotalScore
+	ret
+msg$:
+	db	02bh,02ch,025h,028h,02dh  ; Total
+
+ else
+	ld	hl,msg$			;”ごうけい”を表示
+	ld	de,20*6+2+dmy_vram	; SPOS(2,6)
+	ld	bc,4
+	call	block_move
+	call	BonusCountPutMain
+
+	call	PutTotalScore
+	ret
+msg$:
+	db	037h,038h,039h,03ah
+ endif
+
+;---------------------------------------;
+;	ベストスコアの比較
+;---------------------------------------;
+HiScoreCheck:
+	ld	hl,high_score+1
+	ld	a,(TOTAL_SCORE+1)
+	cp	(hl)
+	jr	c,ret$
+	jr	nz,hiscore$
+
+	dec	hl
+	ld	a,(TOTAL_SCORE+0)
+	cp	(hl)
+	jr	c,ret$
+	jr	nz,hiscore$
+ret$:
+	call	se_wait
+	ld	e,27
+	call	VoicePlay
+	and	a
+	ret
+hiscore$:
+	ld	a,(TOTAL_SCORE+0)
+	ld	(high_score+0),a
+	ld	a,(TOTAL_SCORE+1)
+	ld	(high_score+1),a
+
+	call	se_wait
+	ld	e,33
+	call	VoicePlay
+
+	ld	a,<musnamifanfare4
+	call	SEplay
+	scf
+	ret
+
+VoicePlay:
+	push	de
+	ld	hl,sp_nami_pika_chk
+	ld	b,G_BANK3f
+	call	bank_push_call
+	pop	de
+	ret	nc			;ＮＣ＝自分のピカチュウじゃない
+
+	ld	hl,PikaVoicePlay
+	ld	b,BANK__PikaVoicePlay	;	ld	b,G_BANK3b
+	call	bank_push_call
+	ret
+	
+;---------------------------------------;
+;	空中回転のボーナス増加
+;---------------------------------------;
+RollingBonusUp:
+	ld	a,(ROLLING_COUNT)	;回転数（ＭＡＸ３回）
+	inc	a
+	cp	4
+	jr	c,pass$
+	ld	a,3
+pass$:
+	ld	(ROLLING_COUNT),a
+	ret
+
+RollingBonus:
+	ld	a,(ROLLING_COUNT)
+	and	a
+	ret	z
+
+	ld	a,(ROLLING_STATUS)
+	and	00000011b
+	cp	00000011b		;両方向に回転したか？
+	jr	z,special$	
+
+	ld	a,(ROLLING_COUNT)	;かっこよさプラス幅の計算
+	ld	d,a
+	ld	e,01h
+	ld	a,00h
+count_loop$:
+	add	a,e
+	sla	e
+	dec	d
+	jr	nz,count_loop$
+
+calc_loop$:
+	push	af
+
+	ld	e,50h
+	call	CalcBonusScore
+ 
+	pop	af
+	dec	a
+	jr	nz,calc_loop$
+	
+	E_HL	ACTOR_Y
+	ld	a,(hl)
+	sub	10h
+	ld	d,a
+	E_HL	ACTOR_X
+	ld	e,(hl)
+
+	ld	a,(ROLLING_COUNT)
+	add	a,Bonus50ActNo-1
+	push	bc
+	call	EXAddActor
+	pop	bc
+	ret
+
+special$:
+	ld	a,(ROLLING_COUNT)
+	cp	3			;３回転以上？
+	jr	c,special1$
+special2$
+	ld	a,10			;かっこよさ＋５００
+sp2_calc_loop$:
+	push	af
+	ld	e,50h
+	call	CalcBonusScore
+	pop	af
+	dec	a
+	jr	nz,sp2_calc_loop$
+
+	E_HL	ACTOR_Y
+	ld	a,(hl)
+	sub	10h
+	ld	d,a
+	E_HL	ACTOR_X
+	ld	e,(hl)
+
+	ld	a,Bonus500ActNo
+	push	bc
+	call	EXAddActor
+	pop	bc
+	ret
+
+special1$:
+	ld	e,50h			;かっこよさ＋１８０
+	call	CalcBonusScore
+	ld	e,50h
+	call	CalcBonusScore
+	ld	e,50h
+	call	CalcBonusScore
+	ld	e,30h
+	call	CalcBonusScore
+
+	E_HL	ACTOR_Y
+	ld	a,(hl)
+	sub	10h
+	ld	d,a
+	E_HL	ACTOR_X
+	ld	e,(hl)
+
+	ld	a,Bonus180ActNo
+	push	bc
+	call	EXAddActor
+	pop	bc
+	ret
+
+
+;---------------------------------------;
+;	かっこよさ増加
+;---------------------------------------;
+CalcBonusScore:
+	ld	a,(BONUS_COUNT+0)
+	add	a,e
+	daa
+	ld	(BONUS_COUNT+0),a
+	ld	a,(BONUS_COUNT+1)
+	adc	a,0
+	daa
+	ld	(BONUS_COUNT+1),a
+	ret	nc
+
+	ld	a,99h			;かっこよさＭＡＸ＝９９９９
+	ld	(BONUS_COUNT+0),a
+	ld	(BONUS_COUNT+1),a
+	ret
+
+
+
+;=======================================;
+;
+;	スクロール
+;
+;=======================================;
+BGScroll2:
+	ld	a,0a0h
+	ld	(MAP_WRITE_POS),a
+
+	ld	a,(headerx)
+	ld	h,a
+	ld	a,(SCROLL_WORK)		;スクロールＸ 少数値
+	ld	l,a
+
+	ld	de,900h
+	add	hl,de			;スピード加算
+
+	ld	a,l
+	ld	(SCROLL_WORK),a
+	ld	a,h
+	ld	(headerx),a
+	jr	BGScrollMap
+BGScroll:
+	ld	a,0a0h
+	ld	(MAP_WRITE_POS),a
+
+	ld	a,(headerx)
+	ld	h,a
+	ld	a,(SCROLL_WORK)		;スクロールＸ 少数値
+	ld	l,a
+
+	ld	de,180h
+	add	hl,de			;スピード加算
+
+	ld	a,l
+	ld	(SCROLL_WORK),a
+	ld	a,h
+	ld	(headerx),a
+BGScrollMap:
+	ld	hl,SCROLL_WORK+1	;スクロールＸ値
+	ld	a,(headerx)
+	cp	(hl)
+	ret	z			;Ｘ値が同じ時は次のマップを転送しない
+	ld	(hl),a
+
+	and	11110000b
+	ld	hl,SCROLL_WORK+2	;書き換えＸ値
+	cp	(hl)
+	ret	z			;書き換えＸ値が同じ時は次のマップを転送しない
+	ld	(hl),a
+set$:
+	call	MapSequence		;次のマップセルアドレスをセット
+	ld	a,b
+	ld	(HIT_POINT+0),a
+	ld	a,c
+	ld	(HIT_POINT+1),a
+
+	push	de
+	ld	hl,HITCHECK_BUFFER
+	ld	de,HITCHECK_BUFFER+2
+	ld	c,20-2
+loop$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+	ld	a,(HIT_POINT+0)
+	ld	(hli),a
+	ld	a,(HIT_POINT+1)
+	ld	(hl),a
+	pop	de
+
+	ld	hl,haji_buf
+	ld	c,8
+setloop$:				;次のマップキャラをセット
+	ld	a,(de)
+	call	hajicellset		;セル → キャラ
+	inc	de
+	dec	c
+	jr	nz,setloop$
+
+	ld	a,(MAP_WRITE_POS)
+	ld	e,a
+	ld	a,(headerx)		
+	add	a,e
+	and	11110000b
+	srl	a
+	srl	a
+	srl	a
+	ld	e,a
+	ld	d,00h
+	ld	hl,9800h
+	add	hl,de			;書き換えアドレスの算出
+	ld	a,l
+	ld	(haji_put_buf+1),a	;転送アドレス ＬＯＷ
+	ld	a,h
+	ld	(haji_put_buf+2),a	;転送アドレス ＨＩＧＨ
+	ld	a,1
+	ld	(haji_put_buf+0),a	;転送リクエスト
+	ret
+
+hajicellset:
+	push	de
+	push	hl
+	ld	l,a
+	ld	h,00h
+	ld	de,NaminoriBG_Cell
+	add	hl,hl
+	add	hl,hl
+	add	hl,de
+	ld	e,l
+	ld	d,h
+	pop	hl
+
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	pop	de
+	ret
+
+MapSequence:
+	ld	a,(MAP_SEQ)
+	ld	e,a
+	ld	d,00h
+	ld	hl,SeqTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+SeqTable$:
+	ef_initndw
+	
+	ef_inc_ndw	NextMapSelect
+
+	ef_ndw		Wave4_0,WavePattern01No
+	ef_inc_ndw	Wave4_1
+	ef_inc_ndw	Wave4_2
+	ef_inc_ndw	Wave4_3
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave5_0
+	ef_inc_ndw	Wave5_1
+	ef_inc_ndw	Wave5_2
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	WaveEnd
+
+	ef_ndw		Wave2_0,WavePattern02No
+	ef_inc_ndw	Wave2_1
+	ef_inc_ndw	Wave2_2
+	ef_inc_ndw	Wave2_3
+	ef_inc_ndw	Wave2_4
+	ef_inc_ndw	Wave2_5
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	WaveEnd
+
+	ef_ndw		Wave3_0,WavePattern03No
+	ef_inc_ndw	Wave3_1
+	ef_inc_ndw	Wave3_2
+	ef_inc_ndw	Wave3_3
+	ef_inc_ndw	Wave3_4
+	ef_inc_ndw	Wave3_0
+	ef_inc_ndw	Wave3_1
+	ef_inc_ndw	Wave3_2
+	ef_inc_ndw	Wave3_3
+	ef_inc_ndw	Wave3_4
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	WaveEnd
+
+	ef_ndw		Wave4_0,WavePattern04No
+	ef_inc_ndw	Wave4_1
+	ef_inc_ndw	Wave4_2
+	ef_inc_ndw	Wave4_3
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	WaveEnd
+
+	ef_ndw		Wave5_0,WavePattern05No
+	ef_inc_ndw	Wave5_1
+	ef_inc_ndw	Wave5_2
+	ef_inc_ndw	Wave5_0
+	ef_inc_ndw	Wave5_1
+	ef_inc_ndw	Wave5_2
+	ef_inc_ndw	Wave5_0
+	ef_inc_ndw	Wave5_1
+	ef_inc_ndw	Wave5_2
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	WaveEnd
+
+	ef_ndw		Wave6_0,WavePattern06No
+	ef_inc_ndw	Wave6_1
+	ef_inc_ndw	Wave3_0
+	ef_inc_ndw	Wave3_1
+	ef_inc_ndw	Wave3_2
+	ef_inc_ndw	Wave3_3
+	ef_inc_ndw	Wave3_4
+	ef_inc_ndw	Wave6_0
+	ef_inc_ndw	Wave6_1
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	WaveEnd
+
+	ef_ndw		Wave2_0,WavePattern07No
+	ef_inc_ndw	Wave2_1
+	ef_inc_ndw	Wave2_2
+	ef_inc_ndw	Wave2_3
+	ef_inc_ndw	Wave2_4
+	ef_inc_ndw	Wave2_5
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave6_0
+	ef_inc_ndw	Wave6_1
+	ef_inc_ndw	Wave6_0
+	ef_inc_ndw	Wave6_1
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	WaveEnd
+
+	ef_ndw		Wave3_0,WavePattern08No
+	ef_inc_ndw	Wave3_1
+	ef_inc_ndw	Wave3_2
+	ef_inc_ndw	Wave3_3
+	ef_inc_ndw	Wave3_4
+	ef_inc_ndw	Wave4_0
+	ef_inc_ndw	Wave4_1
+	ef_inc_ndw	Wave4_2
+	ef_inc_ndw	Wave4_3
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	Wave0_0
+	ef_inc_ndw	WaveEnd
+
+	ef_ndw		Wave1_0,WaveEndPatternNo
+	ef_inc_ndw	Wave1_1
+	ef_inc_ndw	Wave1_2
+	ef_inc_ndw	Wave1_3
+	ef_inc_ndw	Wave1_4
+	ef_inc_ndw	Wave1_5
+	ef_inc_ndw	Wave1_6
+	ef_inc_ndw	WaveGameEnd
+
+	ef_ndw		Wave0_0,IslandNo
+	ef_inc_ndw	Island1_0
+	ef_inc_ndw	Island1_1
+	ef_inc_ndw	Island1_1
+	ef_inc_ndw	Island1_1
+	ef_inc_ndw	Island1_1
+	ef_inc_ndw	Island1_1
+	ef_inc_ndw	Island1_1
+	ef_inc_ndw	Island1_1
+	ef_inc_ndw	Island1_2
+
+NextMapSelect:
+	ld	a,(TOTAL_LENGTH)
+	cp	16h
+	jr	c,calc$
+	jr	z,end$
+	jr	nc,ret$
+end$
+	ld	a,WaveEndPatternNo
+	jr	set$
+calc$:
+	ld	a,(WAVE_KIND)		;次の波の大きさを選択
+	and	a
+	jr	z,ret$
+	dec	a
+	and	00000111b
+	ld	e,a
+	ld	d,00h
+	ld	hl,NextMapPatTable$
+	add	hl,de
+	ld	a,(hl)
+set$:
+	ld	(MAP_SEQ),a
+ret$:
+	ld	bc,07474h
+	ld	de,NormalWavePat
+	ret
+
+NextMapPatTable$:
+	db	WavePattern01No
+	db	WavePattern02No
+	db	WavePattern03No
+	db	WavePattern04No
+	db	WavePattern05No
+	db	WavePattern06No
+	db	WavePattern07No
+	db	WavePattern08No
+
+Wave0_0:
+	ld	bc,07474h
+	ld	de,NormalWavePat
+	jp	MapContinue
+Wave1_0:
+	ld	bc,0746ch
+	ld	de,Wave1_0Pat
+	jp	MapContinue
+Wave1_1:
+	ld	bc,0645ch
+	ld	de,Wave1_1Pat
+	jp	MapContinue
+Wave1_2:
+	ld	bc,0544ch
+	ld	de,Wave1_2Pat
+	jp	MapContinue
+Wave1_3:
+	ld	bc,04444h
+	ld	de,Wave1_3Pat
+	jp	MapContinue
+Wave1_4:
+	ld	bc,0444ch
+	ld	de,Wave1_4Pat
+	jp	MapContinue
+Wave1_5:
+	ld	bc,0545ch
+	ld	de,Wave1_5Pat
+	jp	MapContinue
+Wave1_6:
+	ld	bc,0646ch
+	ld	de,Wave1_6Pat
+	jp	MapContinue
+Wave2_0:
+	ld	bc,0746ch
+	ld	de,Wave2_0Pat
+	jp	MapContinue
+Wave2_1:
+	ld	bc,0645ch
+	ld	de,Wave2_1Pat
+	jp	MapContinue
+Wave2_2:
+	ld	bc,0544ch
+	ld	de,Wave2_2Pat
+	jp	MapContinue
+Wave2_3:
+	ld	bc,04c4ch
+	ld	de,Wave2_3Pat
+	jp	MapContinue
+Wave2_4:
+	ld	bc,0545ch
+	ld	de,Wave2_4Pat
+	jp	MapContinue
+Wave2_5:
+	ld	bc,0646ch
+	ld	de,Wave2_5Pat
+	jp	MapContinue
+Wave3_0:
+	ld	bc,0746ch
+	ld	de,Wave3_0Pat
+	jp	MapContinue
+Wave3_1:
+	ld	bc,0645ch
+	ld	de,Wave3_1Pat
+	jp	MapContinue
+Wave3_2:
+	ld	bc,05454h
+	ld	de,Wave3_2Pat
+	jp	MapContinue
+Wave3_3:
+	ld	bc,0545ch
+	ld	de,Wave3_3Pat
+	jp	MapContinue
+Wave3_4:
+	ld	bc,0646ch
+	ld	de,Wave3_4Pat
+	jp	MapContinue
+Wave4_0:
+	ld	bc,0746ch
+	ld	de,Wave4_0Pat
+	jp	MapContinue
+Wave4_1:
+	ld	bc,0645ch
+	ld	de,Wave4_1Pat
+	jp	MapContinue
+Wave4_2:
+	ld	bc,05c5ch
+	ld	de,Wave4_2Pat
+	jp	MapContinue
+Wave4_3:
+	ld	bc,0646ch
+	ld	de,Wave4_3Pat
+	jp	MapContinue
+Wave5_0:
+	ld	bc,0746ch
+	ld	de,Wave5_0Pat
+	jp	MapContinue
+Wave5_1:
+	ld	bc,06464h
+	ld	de,Wave5_1Pat
+	jp	MapContinue
+Wave5_2:
+	ld	bc,0646ch
+	ld	de,Wave5_2Pat
+	jp	MapContinue
+Wave6_0:
+	ld	bc,0746ch
+	ld	de,Wave6_0Pat
+	jp	MapContinue
+Wave6_1:
+	ld	bc,06c6ch
+	ld	de,Wave6_1Pat
+	jp	MapContinue
+
+Island1_0:
+	ld	bc,07474h
+	ld	de,Island1_0Pat
+	jp	MapContinue
+Island1_1:
+	ld	bc,07474h
+	ld	de,Island1_1Pat
+	jp	MapContinue
+Island1_2:
+	ld	bc,07474h
+	ld	de,Island1_1Pat
+	jp	MapEnd
+
+WaveEnd:
+	ld	bc,07474h
+	ld	de,NormalWavePat
+	jp	MapEnd
+
+WaveGameEnd:
+	ld	bc,07474h
+	ld	de,NormalWavePat
+	ret
+
+MapWaveStart:
+	inc	a
+	ld	(MAP_SEQ),a
+	ret
+
+MapContinue:
+	ld	hl,MAP_SEQ
+	inc	(hl)
+	ret
+
+MapEnd:
+	xor	a
+	ld	(MAP_SEQ),a
+	ret
+
+
+
+
+
+;=======================================;
+;
+;	タイトル画面
+;
+;=======================================;
+NamiPikaTitle:
+	call	DVRAMcls		;ダミーＶＲＡＭのクリア
+	call	oam_clr
+
+	call	lcdc_stop
+
+	xor	a
+	ld	(all_put_req),a
+	call	EXActorInit		;アクターのイニシャライズ
+
+	ld	hl,NaminoriTitle_CGX
+	ld	de,8800h
+;	ld	bc,0800h
+	ld	bc,0900h
+	ld	a,G_BANK20
+	call	chrset			;ＢＧ＆ＯＢＪキャラデータ セット
+
+	ld	a,<HeaderTable		;アクターヘッダーアドレスをセット
+	ld	(A_Header+0),a
+	ld	a,>HeaderTable
+	ld	(A_Header+1),a
+
+	ld	a,<MoveTable		;アクター動作アドレスをセット
+	ld	(A_Move+0),a
+	ld	a,>MoveTable
+	ld	(A_Move+1),a
+
+	ld	a,<PatTable		;アクターＯＢＪ構成パターンアドレスをセット
+	ld	(A_Pat+0),a
+	ld	a,>PatTable
+	ld	(A_Pat+1),a
+
+	ld	a,<AnmTable		;アクターアニメパターンアドレスをセット
+	ld	(A_Animetion+0),a
+	ld	a,>AnmTable
+	ld	(A_Animetion+1),a
+
+	ld	a,<TitlePikaActNo	;ピカチュウ セット
+	ld	de,7458h
+	call	EXAddActor
+
+	call	TitleMapSet
+	xor	a
+	ld	(headerx),a		;スクロールレジスタ（Ｘ）初期設定
+	ld	(headery),a		;スクロールレジスタ（Ｙ）初期設定
+	ld	a,90h
+	ld	(window_y),a
+
+ ifn  ASSEMBLE__ENGLISH
+	ld	b,<SGBnamipikaNo_Title	;タイトル画面"Piakchu's Beach"
+ else					;のアトリビュートを変更する
+	ld	b,<SGBnamipikaNo
+ endif
+	call	color_set		;ＳＧＢ用カラーセット
+
+	ld	a,11100011b
+	ld	(LCDC),a
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	wait_vb
+	call	wait_vb
+	call	wait_vb
+
+	call	BGPset
+;	ld	a,11100100b		;パレットセット
+;	ld	(BGP),a
+	ld	a,11100100b
+	ld	(OBP0),a
+	ld	a,11100000b
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	call	wait_vb
+
+	ld	a,<muscasino2
+	ld	c,MUSIC_BANK4_NO
+	call	direct_play		;ＢＧＭセット
+
+	xor	a
+	ld	(TITLE_WORK),a
+mainloop$:
+	ld	a,(TITLE_WORK)
+	and	a
+	ret	nz
+
+	ld	a,< oam_buf		;ＯＡＭをアクターで使用
+	ld	(OAM_Address),a
+	call	EXActorJump		;アクター処理
+	call	wait_vb			;ＶＢＬＡＮＫウェイト
+	jr	mainloop$
+
+TitleMapSet:
+	ld	hl,dmy_vram
+	ld	bc,20*18
+	ld	a,0ffh
+	call	memset
+
+	ld	hl,MapData$
+;	ld	de,20*12+dmy_vram
+;	ld	bc,20*6
+	ld	de,20*6+dmy_vram
+	ld	bc,20*12
+	call	block_move
+
+ ifn  ASSEMBLE__ENGLISH
+	ld	de,MSG_PikachusBeach$	; タイトルロゴ  " Pikachu's "
+	ld	hl,20*0+4+dmy_vram	;               "  Beach    "
+	ld	bc,060ch
+	call	putsub$
+ else
+	ld	hl,20*0+7+dmy_vram	; タイトルロゴ  ”ピカチュウの”
+	ld	bc,0407h
+	ld	a,0c0h
+	call	putsub$
+	ld	hl,20*0+13+dmy_vram
+	ld	(hl),0ffh
+
+	ld	hl,20*4+6+dmy_vram	; タイトルロゴ  ”サマービーチ”
+	ld	bc,020ah
+	ld	a,0b6h
+	call	putsub$
+ endif
+	ld	hl,20*7+3+dmy_vram	; メッセージ表示部分をクリアー
+	ld	bc,030fh
+	call	clssub$
+
+	ld	hl,MSG1$		;”じゅうじキーで バランスをとり”
+;	ld	de,20*8+3+dmy_vram
+	ld	de,20*7+3+dmy_vram
+	ld	bc,15
+	call	block_move
+
+	ld	hl,MSG2$		;”かっこよく なみにのろう！”
+;	ld	de,20*10+4+dmy_vram
+	ld	de,20*9+4+dmy_vram
+	ld	bc,13
+	call	block_move
+
+	ret
+ ifn  ASSEMBLE__ENGLISH
+putsub$: ;(HL dvram, DE src, B y, C x)
+	push	bc
+	push	hl
+put_loop1$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz, put_loop1$
+	ld	bc, 20
+	pop	hl
+	add	hl,bc
+	pop	bc
+	dec	b
+	jr	nz, putsub$
+	ret
+ else
+putsub$:
+	push	bc
+	push	hl
+	push	af
+put_loop1$:
+	ld	(hli),a
+	inc	a
+	dec	c
+	jr	nz,put_loop1$
+	pop	af
+	add	a,10h
+	pop	hl
+	ld	bc,20
+	add	hl,bc
+	pop	bc
+	dec	b
+	jr	nz,putsub$
+	ret
+ endif
+
+clssub$:
+	push	bc
+	push	hl
+cls_loop1$:
+	ld	(hl),0ffh
+	inc	hl
+	dec	c
+	jr	nz,cls_loop1$
+	pop	hl
+	ld	bc,20
+	add	hl,bc
+	pop	bc
+	dec	b
+	jr	nz,clssub$
+	ret
+MapData$:
+	db	0b2h,000h,005h,005h,005h,005h,005h,005h,005h,005h
+	db	005h,005h,005h,005h,005h,005h,005h,005h,001h,0b3h
+
+	db	0b5h,004h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	db	0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,004h,0b3h
+
+	db	0b5h,004h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	db	0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,004h,0b3h
+
+	db	0b5h,004h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	db	0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,004h,0b3h
+
+	db	0b5h,002h,005h,005h,005h,005h,005h,005h,005h,005h
+	db	005h,005h,005h,005h,005h,005h,005h,005h,003h,0b3h
+
+	db	0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b4h,0b3h
+	db	0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h
+
+	db	0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b1h,0b0h
+	db	0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h
+
+	db	0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b4h,0b3h
+	db	0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h
+
+	db	0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b1h,0b0h
+	db	0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h
+
+	db	0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b4h,0b3h
+	db	0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h
+
+	db	0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b1h,0b0h
+	db	0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h
+
+	db	0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b5h,0b4h,0b3h
+	db	0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h,0b3h
+ ifn  pm_jmsg
+MSG1$:	;”じゅうじキーで バランスをとり”
+	db	0d7h,0d8h,0d9h,0dah,0dbh,0dch,0ddh,0ffh
+	db	0deh,0dfh,0e7h,0e8h,0e9h,0eah,0ebh
+MSG2$:	;”かっこよく なみにのろう！”
+	db	0ech,0edh,0eeh,0efh,0f7h,0ffh,0f8h
+	db	0f9h,0fah,0fbh,0fch,0fdh,0feh
+ else
+MSG1$:	;"Use Control Pad"
+;	db	0d7h,0d8h,0d9h, 0ffh, 0dah,0dbh,0dch,0ddh,0deh,0dfh,0e7h, 0ffh, 0e8h,0e9h,0eah
+	db	0edh,0eeh,0efh, 0ffh, 0f0h,0f1h,0f2h,0f3h,0f4h,0f5h,0f6h, 0ffh, 0f7h,0f8h,0f9h
+MSG2$:	;"to Surf Rad!"
+;	db	0ebh,0ech, 0ffh, 0edh,0eeh,0efh,0f7h, 0ffh, 0f8h,0f9h,0fah,0fbh, 0ffh
+	db	0fah,0fbh, 0ffh, 0fch,0fdh,0feh,006h, 0ffh, 007h,008h,009h,00ah, 0ffh
+ endif
+
+ ifn  ASSEMBLE__ENGLISH
+MSG_PikachusBeach$:
+	db	0b6h,0b7h,0b8h,0b9h,0ffh,0ffh,0ffh,0bah,0ffh,0ffh,0ffh,0ffh
+	db	0bbh,0bch,0bdh,0beh,0bfh,0c0h,0c1h,0c2h,0c3h,0c4h,0c5h,0ffh
+	db	0c6h,0c7h,0c8h,0c9h,0cah,0cbh,0cch,0cdh,0ceh,0cfh,0d0h,0d1h
+	db	0d2h,0d3h,0d4h,0d5h,0d6h,0d7h,0d8h,0d9h,0dah,0dbh,0dch,0ffh
+	db	0ffh,0ffh,0ddh,0deh,0dfh,0e0h,0e1h,0e2h,0e3h,0e4h,0ffh,0ffh
+	db	0ffh,0ffh,0e5h,0e6h,0e7h,0e8h,0e9h,0eah,0ebh,0ech,0ffh,0ffh
+ endif
+
+;=======================================;
+;
+;	ラスター
+;
+;=======================================;
+;---------------------------------------;
+;	ラスターシフト
+;---------------------------------------;
+LasterShift:
+	ld	hl,LasterBuffer+10h
+	ld	de,LasterBuffer+11h
+	ld	c,80h
+
+	ld	a,(hl)
+	push	af
+loop$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+
+	dec	c
+	jr	nz,loop$
+	pop	af
+	ld	(hl),a
+	ret
+	
+;---------------------------------------;
+;	ラスターセット
+;---------------------------------------;
+LasterSinSet:
+	ld	hl,LasterBuffer
+	ld	bc,100h
+	ld	de,000h
+loop$:
+	ld	a,e
+	and	00011111b
+	ld	e,a
+	push	hl
+	ld	hl,LasterDataTable
+	add	hl,de
+	ld	a,(hl)
+	pop	hl
+	ld	(hli),a
+	inc	e
+
+	dec	bc
+	ld	a,c
+	or	b
+	jr	nz,loop$
+	ret
+
+
+
+
+
+;=======================================;
+;
+;	サブルーチン
+;
+;=======================================;
+;---------------------------------------;
+;	キーステータス取得
+;---------------------------------------;
+KeyStatus:
+	call	cont
+
+	ld	a,(vb_count)
+	and	a
+	jr	nz,no_press$
+
+	ld	a,(joy_status)
+	ld	(joy_repeat),a 
+ ifn 0
+	ld	a,(sgb_flg)
+	and	a
+	jr	nz,for_SGB$
+for_GB$:
+	ld	a,3
+	ld	(vb_count),a		;ＧＢ用周期
+	ret
+for_SGB$:
+ endif
+	ld	a,2
+	ld	(vb_count),a		;ＳＧＢ用周期
+	ret
+no_press$:
+	xor	a
+	ld	(joy_repeat),a 
+	ret
+
+;---------------------------------------;
+;	ＢＧ＆ＯＢＪパレットＯＦＦ
+;---------------------------------------;
+PaletteOFF:
+	xor	a
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+;---------------------------------------;
+;	ＢＧ＆ＯＢＪパレットＯＮ
+;---------------------------------------;
+PaletteON:
+	ld	a,11100100b		;パレット階調
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	a,11100000b		;パレット階調
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+;---------------------------------------;
+;	ダミーＶＲＡＭのクリア
+;---------------------------------------;
+DVRAMcls:
+	ld	hl,dmy_vram
+	ld	bc,20*18
+	xor	a
+	call	memset
+	ret
+
+;---------------------------------------;
+;	ジャンプ軌道算出
+;---------------------------------------;
+HoubutuCalcInit:
+	xor	a
+	ld	(NAMIPIKA_WORK+1),a
+	ld	(NAMIPIKA_WORK+2),a
+	ret
+
+HoubutuCalc:
+	ld	a,(NAMIPIKA_WORK+1)
+	and	a
+	jr	nz,down$
+ 
+	ld	a,(NAMIPIKA_WORK+0)		;タイミングカウンターＨＩＧＨ
+	ld	d,a
+	ld	a,(NAMIPIKA_WORK+2)		;タイミングカウンターＬＯＷ
+	or	d
+	jr	z,top$
+
+	ld	a,(NAMIPIKA_WORK+2)
+	ld	e,a
+	ld	hl,-80h
+	add	hl,de
+	ld	a,l
+	ld	(NAMIPIKA_WORK+2),a
+	ld	a,h
+	ld	(NAMIPIKA_WORK+0),a
+ 
+	ld	e,a
+	ld	d,00h
+	call	mulcalc
+	ld	e,l
+	ld	d,h
+	ld	a,4
+	call	mulcalc
+	ld	a,l
+	xor	11111111b
+	inc	a
+	ld	l,a
+	ld	a,h
+	xor	11111111b
+	ld	h,a
+
+	push	hl
+	E_HL	ACTOR_Y
+	ld	d,(hl)
+	E_HL	ACTOR_WK1
+	ld	e,(hl)
+	pop	hl
+
+	add	hl,de
+	ld	e,l
+	ld	d,h
+
+	E_HL	ACTOR_Y
+	ld	(hl),d
+	E_HL	ACTOR_WK1
+	ld	(hl),e
+	and	a
+	ret
+top$:
+	ld	a,1
+	ld	(NAMIPIKA_WORK+1),a
+	and	a
+	ret
+down$:
+	ld	a,(WAVE_Y)
+	ld	e,a
+	E_HL	ACTOR_Y
+	ld	a,(hl)
+	cp	090h
+	jr	nc,calc$
+	cp	e
+	jr	nc,reset$
+calc$:
+	ld	a,(NAMIPIKA_WORK+0)
+	ld	d,a
+	ld	a,(NAMIPIKA_WORK+2)
+	ld	e,a
+	ld	hl,80h
+	add	hl,de
+
+	ld	a,l
+	ld	(NAMIPIKA_WORK+2),a
+	ld	a,h
+	ld	(NAMIPIKA_WORK+0),a
+ 
+	ld	e,a
+	ld	d,00h
+	call	mulcalc
+	ld	e,l
+	ld	d,h
+	ld	a,4
+	call	mulcalc
+
+	push	hl
+	E_HL	ACTOR_Y
+	ld	d,(hl)
+	E_HL	ACTOR_WK1
+	ld	e,(hl)
+	pop	hl
+
+	add	hl,de
+	ld	e,l
+	ld	d,h
+
+	E_HL	ACTOR_Y
+	ld	(hl),d
+	E_HL	ACTOR_WK1
+	ld	(hl),e
+	and	a
+	ret
+reset$:
+	E_HL	ACTOR_Y
+	ld	a,(WAVE_Y)
+	ld	(hl),a
+	E_HL	ACTOR_WK1
+	ld	(hl),00h
+	scf
+	ret
+	
+mulcalc:
+	ld	hl,000h
+calcloop1$:
+	srl	a
+	jr	nc,calcloop2$
+	add	hl,de
+calcloop2$:
+	sla	e
+	rl	d
+	and	a
+	jr	nz,calcloop1$
+	ret
+
+;---------------------------------------;
+;	数の表示
+;---------------------------------------;
+CounterPut:
+	ld	c,a
+	swap	a
+	and	00001111b
+	add	a,0d0h
+	ld	(hli),a
+	ld	a,c
+CounterPut2:
+	and	00001111b
+	add	a,0d0h
+	ld	(hl),a
+	dec	de
+	ret
+
+;---------------------------------------;
+;	ＳＩＮ＆ＣＯＳの計算
+;---------------------------------------;
+IntCos:
+	add	a,10h
+IntSin:
+	and	00111111b
+	cp	20h
+	jr	nc,minus$
+plus$:
+	call	SinCalc$
+	ld	a,h
+	ret
+minus$:
+	and	00011111b
+	call	SinCalc$
+	ld	a,h
+	xor	11111111b
+	inc	a
+	ret
+
+SinCalc$:
+	ld	e,a
+	ld	a,d
+	ld	d,00h
+	ld	hl,IntSinTable
+	add	hl,de
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+multi$:				; (i)a = A, (i)de = B, (i)l = float
+	ld	hl,000h		; (o)hl = A*B
+calcloop1$:
+	srl	a
+	jr	nc,calcloop2$
+	add	hl,de
+calcloop2$:
+	sla	e
+	rl	d
+	and	a
+	jr	nz,calcloop1$
+	ret
+
+IntSinTable:
+	dw	 00000h,00019h,00032h,0004Ah
+	dw	 00062h,00079h,0008Eh,000A2h
+	dw	 000B5h,000C6h,000D5h,000E2h
+	dw	 000EDh,000F5h,000FBh,000FFh
+
+	dw	 00100h,000FFh,000FBh,000F5h
+	dw	 000EDh,000E2h,000D5h,000C6h
+	dw	 000B5h,000A2h,0008Eh,00079h
+	dw	 00062h,0004Ah,00032h,00019h
+
+
+
+
+
+;=======================================;
+;
+;	データ
+;
+;=======================================;
+;---------------------------------------;
+;	アクターヘッダーデータ
+;---------------------------------------;
+HeaderTable:
+	ef_initequ
+
+	ef_equ		dummyActNo		;Dummy
+	db	000h
+	db	000h
+	db	000h
+
+	ef_equ	NamiPikaActNo		;NaminoriPika
+	db	NamiPikaAnm4No
+	db	MoveNamiPikaNo
+	db	000h
+
+	ef_equ	StartActNo		;Start Sign
+	db	StartAnmNo
+	db	MoveSlideNo
+	db	000h
+
+	ef_equ	GoalActNo		;Goal Sign
+	db	GoalAnmNo
+	db	MoveSlideNo
+	db	000h
+
+	ef_equ	Bonus50ActNo
+	db	Bonus50AnmNo
+	db	000h
+	db	000h
+
+	ef_equ	Bonus150ActNo
+	db	Bonus150AnmNo
+	db	000h
+	db	000h
+
+	ef_equ	Bonus350ActNo
+	db	Bonus350AnmNo
+	db	000h
+	db	000h
+
+	ef_equ	Bonus750ActNo
+	db	Bonus750AnmNo
+	db	000h
+	db	000h
+
+	ef_equ	Bonus180ActNo
+	db	Bonus180AnmNo
+	db	000h
+	db	000h
+
+	ef_equ	Bonus500ActNo
+	db	Bonus500AnmNo
+	db	000h
+	db	000h
+
+	ef_equ	ShibukiActNo
+	db	ShibukiAnmNo
+	db	000h
+	db	000h
+
+	ef_equ	TimeOverActNo
+	db	TimeOverAnmNo
+	db	MoveTimeOverNo
+	db	000h
+
+	ef_equ	TitlePikaActNo
+	db	TitlePikaAnmNo
+	db	MoveTitlePikaNo
+	db	000h
+
+;---------------------------------------;
+;	アクター動作テーブル
+;---------------------------------------;
+MoveTable:
+	ef_initndw
+	ef_inc_ndw	dummy$
+
+	ef_ndw		MoveNamiPika,MoveNamiPikaNo
+	ef_ndw		MoveSlide,MoveSlideNo
+	ef_ndw		MoveTimeOver,MoveTimeOverNo
+	ef_ndw		MoveTitlePika,MoveTitlePikaNo
+dummy$:
+	ret
+
+;---------------------------------------;
+;	アクターアニメーション
+;---------------------------------------;
+AnmTable:
+	ef_initndw
+	ef_inc_ndw	DummyAnm
+
+	ef_ndw	NamiPikaAnm1,NamiPikaAnm1No
+	ef_ndw	NamiPikaAnm2,NamiPikaAnm2No
+	ef_ndw	NamiPikaAnm3,NamiPikaAnm3No
+	ef_ndw	NamiPikaAnm4,NamiPikaAnm4No
+	ef_ndw	NamiPikaAnm5,NamiPikaAnm5No
+	ef_ndw	NamiPikaAnm6,NamiPikaAnm6No
+	ef_ndw	NamiPikaAnm7,NamiPikaAnm7No
+	ef_ndw	NamiPikaAnm1Rev,NamiPikaAnm1RevNo
+	ef_ndw	NamiPikaAnm2Rev,NamiPikaAnm2RevNo
+	ef_ndw	NamiPikaAnm3Rev,NamiPikaAnm3RevNo
+	ef_ndw	NamiPikaAnm4Rev,NamiPikaAnm4RevNo
+	ef_ndw	NamiPikaAnm5Rev,NamiPikaAnm5RevNo
+	ef_ndw	NamiPikaAnm6Rev,NamiPikaAnm6RevNo
+	ef_ndw	NamiPikaAnm7Rev,NamiPikaAnm7RevNo
+
+	ef_ndw	NamiPikaGoalAnm,NamiPikaGoalAnmNo
+	ef_ndw	NamiPikaDeadAnm,NamiPikaDeadAnmNo
+
+	ef_ndw	StartAnm,StartAnmNo
+	ef_ndw	GoalAnm,GoalAnmNo
+	ef_ndw	TimeOverAnm,TimeOverAnmNo
+	ef_ndw	ShibukiAnm,ShibukiAnmNo
+	ef_ndw	Bonus50Anm,Bonus50AnmNo
+	ef_ndw	Bonus150Anm,Bonus150AnmNo
+	ef_ndw	Bonus350Anm,Bonus350AnmNo
+	ef_ndw	Bonus750Anm,Bonus750AnmNo
+	ef_ndw	Bonus180Anm,Bonus180AnmNo
+	ef_ndw	Bonus500Anm,Bonus500AnmNo
+
+	ef_ndw	TitlePikaAnm,TitlePikaAnmNo
+
+DummyAnm:
+	db	DummyPatNo,20h
+	db	ANMstop
+NamiPikaAnm1:
+	db	NamiPikaPat1_1No,08h
+	db	NamiPikaPat1_2No,08h
+	db	ANMloop
+NamiPikaAnm2:
+	db	NamiPikaPat2_1No,08h
+	db	NamiPikaPat2_2No,08h
+	db	ANMloop
+NamiPikaAnm3:
+	db	NamiPikaPat3_1No,08h
+	db	NamiPikaPat3_2No,08h
+	db	ANMloop
+NamiPikaAnm4:
+	db	NamiPikaPat4_1No,08h
+	db	NamiPikaPat4_2No,08h
+	db	ANMloop
+NamiPikaAnm5:
+	db	NamiPikaPat5_1No,08h
+	db	NamiPikaPat5_2No,08h
+	db	ANMloop
+NamiPikaAnm6:
+	db	NamiPikaPat6_1No,08h
+	db	NamiPikaPat6_2No,08h
+	db	ANMloop
+NamiPikaAnm7:
+	db	NamiPikaPat7_1No,08h
+	db	NamiPikaPat7_2No,08h
+	db	ANMloop
+NamiPikaAnm1Rev:
+	db	NamiPikaPat1_1No,08h+ANM_HREV+ANM_VREV
+	db	NamiPikaPat1_2No,08h+ANM_HREV+ANM_VREV
+	db	ANMloop
+NamiPikaAnm2Rev:
+	db	NamiPikaPat2_1No,08h+ANM_HREV+ANM_VREV
+	db	NamiPikaPat2_2No,08h+ANM_HREV+ANM_VREV
+	db	ANMloop
+NamiPikaAnm3Rev:
+	db	NamiPikaPat3_1No,08h+ANM_HREV+ANM_VREV
+	db	NamiPikaPat3_2No,08h+ANM_HREV+ANM_VREV
+	db	ANMloop
+NamiPikaAnm4Rev:
+	db	NamiPikaPat4_1No,08h+ANM_HREV+ANM_VREV
+	db	NamiPikaPat4_2No,08h+ANM_HREV+ANM_VREV
+	db	ANMloop
+NamiPikaAnm5Rev:
+	db	NamiPikaPat5_1No,08h+ANM_HREV+ANM_VREV
+	db	NamiPikaPat5_2No,08h+ANM_HREV+ANM_VREV
+	db	ANMloop
+NamiPikaAnm6Rev:
+	db	NamiPikaPat6_1No,08h+ANM_HREV+ANM_VREV
+	db	NamiPikaPat6_2No,08h+ANM_HREV+ANM_VREV
+	db	ANMloop
+NamiPikaAnm7Rev:
+	db	NamiPikaPat7_1No,08h+ANM_HREV+ANM_VREV
+	db	NamiPikaPat7_2No,08h+ANM_HREV+ANM_VREV
+	db	ANMloop
+
+NamiPikaGoalAnm:
+	db	NamiPikaGoalPat1No,07h
+	db	NamiPikaGoalPat2No,07h
+	db	ANMloop
+NamiPikaDeadAnm:
+	db	NamiPikaDeadPat1No,02h
+	db	NamiPikaDeadPat2No,02h
+	db	ANMbanish,08h
+	db	NamiPikaDeadPat3No,02h
+	db	ANMstop
+
+StartAnm:
+	db	StartPatNo,20h
+	db	StartPatNo,20h
+	db	ANMdel
+GoalAnm:
+	db	GoalPatNo,20h
+	db	GoalPatNo,20h
+	db	ANMdel
+TimeOverAnm:
+	db	TimeOverPatNo,20h
+	db	ANMstop
+Bonus50Anm:
+	db	Bonus50PatNo,04h
+	db	ANMbanish,01h
+	db	Bonus50PatNo,03h
+	db	ANMbanish,01h
+	db	Bonus50PatNo,02h
+	db	ANMbanish,01h
+	db	Bonus50PatNo,01h
+	db	ANMdel
+Bonus150Anm:
+	db	Bonus150PatNo,04h
+	db	ANMbanish,01h
+	db	Bonus150PatNo,03h
+	db	ANMbanish,01h
+	db	Bonus150PatNo,02h
+	db	ANMbanish,01h
+	db	Bonus150PatNo,01h
+	db	ANMdel
+Bonus350Anm:
+	db	Bonus350PatNo,04h
+	db	ANMbanish,01h
+	db	Bonus350PatNo,03h
+	db	ANMbanish,01h
+	db	Bonus350PatNo,02h
+	db	ANMbanish,01h
+	db	Bonus350PatNo,01h
+	db	ANMdel
+Bonus750Anm:
+	db	Bonus750PatNo,04h
+	db	ANMbanish,01h
+	db	Bonus750PatNo,03h
+	db	ANMbanish,01h
+	db	Bonus750PatNo,02h
+	db	ANMbanish,01h
+	db	Bonus750PatNo,01h
+	db	ANMdel
+Bonus180Anm:
+	db	Bonus180PatNo,04h
+	db	ANMbanish,01h
+	db	Bonus180PatNo,03h
+	db	ANMbanish,01h
+	db	Bonus180PatNo,02h
+	db	ANMbanish,01h
+	db	Bonus180PatNo,01h
+	db	ANMdel
+Bonus500Anm:
+	db	Bonus500PatNo,04h
+	db	ANMbanish,01h
+	db	Bonus500PatNo,03h
+	db	ANMbanish,01h
+	db	Bonus500PatNo,02h
+	db	ANMbanish,01h
+	db	Bonus500PatNo,01h
+	db	ANMdel
+ShibukiAnm:
+	db	ShibukiPatNo,01h
+	db	ANMdel
+
+TitlePikaAnm:
+	db	TitlePikaPat1No,07h
+	db	TitlePikaPat2No,07h
+	db	TitlePikaPat3No,07h
+	db	TitlePikaPat4No,07h
+	db	ANMloop
+
+;---------------------------------------;
+;	アクター構成パターン
+;---------------------------------------;
+PatTable:
+	ef_initndw
+	db	0
+	ef_ndw	DummyPat,DummyPatNo
+
+	db	000h
+	ef_ndw	PatSize9,NamiPikaPat1_1No
+	db	036h
+	ef_ndw	PatSize9,NamiPikaPat1_2No
+	db	003h
+	ef_ndw	PatSize9,NamiPikaPat2_1No
+	db	039h
+	ef_ndw	PatSize9,NamiPikaPat2_2No
+	db	006h
+	ef_ndw	PatSize9,NamiPikaPat3_1No
+	db	03ch
+	ef_ndw	PatSize9,NamiPikaPat3_2No
+	db	009h
+	ef_ndw	PatSize9,NamiPikaPat4_1No
+	db	060h
+	ef_ndw	PatSize9,NamiPikaPat4_2No
+	db	00ch
+	ef_ndw	PatSize9,NamiPikaPat5_1No
+	db	063h
+	ef_ndw	PatSize9,NamiPikaPat5_2No
+	db	030h
+	ef_ndw	PatSize9,NamiPikaPat6_1No
+	db	066h
+	ef_ndw	PatSize9,NamiPikaPat6_2No
+	db	033h
+	ef_ndw	PatSize9,NamiPikaPat7_1No
+	db	069h
+	ef_ndw	PatSize9,NamiPikaPat7_2No
+	db	06ch
+	ef_ndw	PatSize9,NamiPikaPat8_1No
+	db	09ch
+	ef_ndw	PatSize9,NamiPikaPat8_2No
+
+	db	0a0h
+	ef_ndw	PatSize9,NamiPikaGoalPat1No
+	db	0a3h
+	ef_ndw	PatSize9,NamiPikaGoalPat2No
+
+	db	0a7h
+	ef_ndw	PatDead1,NamiPikaDeadPat1No
+	db	0a8h
+	ef_ndw	PatDead2,NamiPikaDeadPat2No
+	db	098h
+	ef_ndw	PatDead3,NamiPikaDeadPat3No
+
+	db	0e0h
+	ef_ndw	PatStartGoal,StartPatNo
+	db	0e6h
+	ef_ndw	PatStartGoal,GoalPatNo
+	db	0cah
+	ef_ndw	PatStartGoal,TimeOverPatNo
+	db	0a7h
+	ef_ndw	PatShibuki,ShibukiPatNo
+
+	db	000h
+	ef_ndw	PatBonus50,Bonus50PatNo
+	db	000h
+	ef_ndw	PatBonus150,Bonus150PatNo
+	db	000h
+	ef_ndw	PatBonus350,Bonus350PatNo
+	db	000h
+	ef_ndw	PatBonus750,Bonus750PatNo
+	db	000h
+	ef_ndw	PatBonus180,Bonus180PatNo
+	db	000h
+	ef_ndw	PatBonus500,Bonus500PatNo
+
+	db	080h
+	ef_ndw	PatTitlePika,TitlePikaPat1No
+	db	084h
+	ef_ndw	PatTitlePika,TitlePikaPat2No
+	db	088h
+	ef_ndw	PatTitlePika,TitlePikaPat3No
+	db	08ch
+	ef_ndw	PatTitlePika,TitlePikaPat4No
+
+DummyPat:
+PatSize1:
+	db	 001h
+	db	-004h,-004h,0,0
+PatSize9:
+	db	 009h
+	db	-00ch,-00ch,0,0
+	db	-00ch,-004h,1,0
+	db	-00ch, 004h,2,0
+	db	-004h,-00ch,16,0
+	db	-004h,-004h,17,0
+	db	-004h, 004h,18,0
+	db	 004h,-00ch,32,0
+	db	 004h,-004h,33,0
+	db	 004h, 004h,34,0
+PatStartGoal:
+	db	 00ch
+	db	-008h,-018h,0,0
+	db	-008h,-010h,1,0
+	db	-008h,-008h,2,0
+	db	-008h, 000h,3,0
+	db	-008h, 008h,4,0
+	db	-008h, 010h,5,0
+	db	 000h,-018h,16,0
+	db	 000h,-010h,17,0
+	db	 000h,-008h,18,0
+	db	 000h, 000h,19,0
+	db	 000h, 008h,20,0
+	db	 000h, 010h,21,0
+PatShibuki:
+	db	 003h
+	db	-004h, 00bh,0,PAL2
+	db	 004h, 003h,15,PAL2
+	db	 004h, 00bh,16,PAL2
+PatDead1:
+	db	 006h
+	db	-004h,-010h,0,PAL2+HREV
+	db	-004h, 008h,0,PAL2
+	db	 004h,-010h,16,PAL2+HREV
+	db	 004h,-008h,15,PAL2+HREV
+	db	 004h, 000h,15,PAL2
+	db	 004h, 008h,16,PAL2
+PatDead2:
+	db	 00ch
+	db	-00ch,-010h,0,PAL2
+	db	-00ch,-008h,1,PAL2
+	db	-00ch, 000h,1,PAL2+HREV
+	db	-00ch, 008h,0,PAL2+HREV
+	db	-004h,-010h,16,PAL2
+	db	-004h,-008h,17,PAL2
+	db	-004h, 000h,17,PAL2+HREV
+	db	-004h, 008h,16,PAL2+HREV
+	db	 004h,-010h,32,PAL2
+	db	 004h,-008h,33,PAL2
+	db	 004h, 000h,33,PAL2+HREV
+	db	 004h, 008h,32,PAL2+HREV
+PatDead3:
+	db	 003h
+	db	 004h,-00ch,0,0
+	db	 004h,-004h,1,0
+	db	 004h, 004h,2,0
+PatBonus50:
+	db	 003h
+	db	-004h,-00ch,0bfh,0
+	db	-004h,-004h,0d5h,0
+	db	-004h, 004h,0d0h,0
+PatBonus150:
+	db	 004h
+	db	-004h,-010h,0bfh,0
+	db	-004h,-008h,0d1h,0
+	db	-004h, 000h,0d5h,0
+	db	-004h, 008h,0d0h,0
+PatBonus350:
+	db	 004h
+	db	-004h,-010h,0bfh,0
+	db	-004h,-008h,0d3h,0
+	db	-004h, 000h,0d5h,0
+	db	-004h, 008h,0d0h,0
+PatBonus750:
+	db	 004h
+	db	-004h,-010h,0bfh,0
+	db	-004h,-008h,0d7h,0
+	db	-004h, 000h,0d5h,0
+	db	-004h, 008h,0d0h,0
+PatBonus180:
+	db	 004h
+	db	-004h,-010h,0bfh,0
+	db	-004h,-008h,0d1h,0
+	db	-004h, 000h,0d8h,0
+	db	-004h, 008h,0d0h,0
+PatBonus500:
+	db	 004h
+	db	-004h,-010h,0bfh,0
+	db	-004h,-008h,0d5h,0
+	db	-004h, 000h,0d0h,0
+	db	-004h, 008h,0d0h,0
+PatTitlePika:
+	db	 00ch
+	db	-00ch,-010h,3,HREV
+	db	-00ch,-008h,2,HREV
+	db	-00ch, 000h,1,HREV
+	db	-00ch, 008h,0,HREV
+	db	-004h,-010h,19,HREV
+	db	-004h,-008h,18,HREV
+	db	-004h, 000h,17,HREV
+	db	-004h, 008h,16,HREV
+	db	 004h,-010h,35,HREV
+	db	 004h,-008h,34,HREV
+	db	 004h, 000h,33,HREV
+	db	 004h, 008h,32,HREV
+
+;---------------------------------------;
+;	ラスターデータ
+;---------------------------------------;
+LasterDataTable:
+	db	000h,000h,000h,001h,001h,001h,001h,002h
+	db	002h,002h,001h,001h,001h,001h,000h,000h
+	db	000h,000h,000h,0FFh,0FFh,0FFh,0FFh,0FEh
+	db	0FEh,0FEh,0FFh,0FFh,0FFh,0FFh,000h,000h
+
+;---------------------------------------;
+;	ＢＧ＿ＣＥＬＬ
+;---------------------------------------;
+NaminoriBG_Cell:
+ ifn 0
+	db	$00,$00,$00,$00,$0B,$0B,$0B,$0B
+	db	$00,$02,$02,$06,$03,$00,$07,$03
+	db	$06,$06,$06,$06,$07,$07,$07,$07
+	db	$06,$04,$04,$08,$05,$07,$08,$05
+	db	$00,$00,$11,$12,$00,$00,$13,$03
+	db	$14,$12,$04,$08,$13,$07,$08,$05
+	db	$06,$14,$06,$14,$13,$07,$13,$07
+	db	$08,$08,$08,$08,$14,$12,$14,$12
+	db	$00,$11,$02,$14,$06,$14,$06,$14
+	db	$0C,$0C,$0D,$0D,$0D,$0D,$0D,$0D
+	db	$0E,$0F,$10,$0B,$12,$13,$12,$13
+ endif
+	db	$00,$00,$00,$00,$0B,$0B,$0B,$0B
+	db	$0B,$02,$02,$06,$03,$0B,$07,$03
+	db	$06,$06,$06,$06,$07,$07,$07,$07
+	db	$06,$04,$04,$08,$05,$07,$08,$05
+	db	$0B,$0B,$11,$12,$0B,$0B,$13,$03
+	db	$14,$12,$04,$08,$13,$07,$08,$05
+	db	$06,$14,$06,$14,$13,$07,$13,$07
+	db	$08,$08,$08,$08,$14,$12,$14,$12
+	db	$0B,$11,$02,$14,$06,$14,$06,$14
+	db	$0C,$0C,$0D,$0D,$0D,$0D,$0D,$0D
+	db	$0E,$0F,$10,$0B,$12,$13,$12,$13
+
+;---------------------------------------;
+;	ＢＧ＿ＭＡＰＤＡＴＡ
+;---------------------------------------;
+NaminoriBG_Map:
+
+NormalWavePat:
+	db	00h,00h,00h,01h,01h,01h,01h,01h
+
+Wave1_0Pat:
+	db	00h,00h,00h,01h,01h,02h,04h,06h
+Wave1_1Pat:
+	db	00h,00h,00h,01h,02h,04h,06h,0Eh
+Wave1_2Pat:
+	db	00h,00h,00h,10h,11h,06h,0Eh,0Eh
+Wave1_3Pat:
+	db	00h,00h,00h,15h,15h,0Eh,0Eh,0Eh
+Wave1_4Pat:
+	db	00h,00h,00h,03h,05h,07h,0Eh,0Eh
+Wave1_5Pat:
+	db	00h,00h,00h,01h,03h,05h,07h,0Eh
+Wave1_6Pat:
+	db	00h,00h,00h,01h,01h,03h,05h,07h
+
+Wave2_0Pat:
+	db	00h,00h,00h,01h,01h,02h,04h,06h
+Wave2_1Pat:
+	db	00h,00h,00h,01h,02h,04h,06h,0Eh
+Wave2_2Pat:
+	db	00h,00h,00h,08h,0Fh,0Ah,0Eh,0Eh
+Wave2_3Pat:
+	db	00h,00h,00h,09h,0Dh,0Bh,0Eh,0Eh
+Wave2_4Pat:
+	db	00h,00h,00h,01h,03h,05h,07h,0Eh
+Wave2_5Pat:
+	db	00h,00h,00h,01h,01h,03h,05h,07h
+
+Wave3_0Pat:
+	db	00h,00h,00h,01h,01h,02h,04h,06h
+Wave3_1Pat:
+	db	00h,00h,00h,01h,10h,11h,06h,0Eh
+Wave3_2Pat:
+	db	00h,00h,00h,01h,15h,15h,0Eh,0Eh
+Wave3_3Pat:
+	db	00h,00h,00h,01h,03h,05h,07h,0Eh
+Wave3_4Pat:
+	db	00h,00h,00h,01h,01h,03h,05h,07h
+
+Wave4_0Pat:
+	db	00h,00h,00h,01h,01h,02h,04h,06h
+Wave4_1Pat:
+	db	00h,00h,00h,01h,08h,0Fh,0Ah,0Eh
+Wave4_2Pat:
+	db	00h,00h,00h,01h,09h,0Dh,0Bh,0Eh
+Wave4_3Pat:
+	db	00h,00h,00h,01h,01h,03h,05h,07h
+
+Wave5_0Pat:
+	db	00h,00h,00h,01h,01h,10h,11h,06h
+Wave5_1Pat:
+	db	00h,00h,00h,01h,01h,15h,15h,0Eh
+Wave5_2Pat:
+	db	00h,00h,00h,01h,01h,03h,05h,07h
+
+Wave6_0Pat:
+	db	00h,00h,00h,01h,01h,08h,0Fh,0Ah
+Wave6_1Pat:
+	db	00h,00h,00h,01h,01h,09h,0Dh,0Bh
+
+Island1_0Pat:
+	db	00h,00h,00h,14h,14h,14h,14h,14h
+Island1_1Pat:
+	db	00h,00h,00h,12h,13h,13h,13h,13h
+
+ ifn 0
+NormalWavePat:
+	db	00h,00h,00h,00h,00h,00h,01h,01h
+
+Wave1_0Pat:
+	db	00h,00h,00h,00h,00h,02h,04h,06h
+Wave1_1Pat:
+	db	00h,00h,00h,00h,02h,04h,06h,0Eh
+Wave1_2Pat:
+	db	00h,00h,00h,10h,11h,06h,0Eh,0Eh
+Wave1_3Pat:
+	db	00h,00h,00h,15h,15h,0Eh,0Eh,0Eh
+Wave1_4Pat:
+	db	00h,00h,00h,03h,05h,07h,0Eh,0Eh
+Wave1_5Pat:
+	db	00h,00h,00h,00h,03h,05h,07h,0Eh
+Wave1_6Pat:
+	db	00h,00h,00h,00h,00h,03h,05h,07h
+
+Wave2_0Pat:
+	db	00h,00h,00h,00h,00h,02h,04h,06h
+Wave2_1Pat:
+	db	00h,00h,00h,00h,02h,04h,06h,0Eh
+Wave2_2Pat:
+	db	00h,00h,00h,08h,0Fh,0Ah,0Eh,0Eh
+Wave2_3Pat:
+	db	00h,00h,00h,09h,0Dh,0Bh,0Eh,0Eh
+Wave2_4Pat:
+	db	00h,00h,00h,00h,03h,05h,07h,0Eh
+Wave2_5Pat:
+	db	00h,00h,00h,00h,00h,03h,05h,07h
+
+Wave3_0Pat:
+	db	00h,00h,00h,00h,00h,02h,04h,06h
+Wave3_1Pat:
+	db	00h,00h,00h,00h,10h,11h,06h,0Eh
+Wave3_2Pat:
+	db	00h,00h,00h,00h,15h,15h,0Eh,0Eh
+Wave3_3Pat:
+	db	00h,00h,00h,00h,03h,05h,07h,0Eh
+Wave3_4Pat:
+	db	00h,00h,00h,00h,00h,03h,05h,07h
+
+Wave4_0Pat:
+	db	00h,00h,00h,00h,00h,02h,04h,06h
+Wave4_1Pat:
+	db	00h,00h,00h,00h,08h,0Fh,0Ah,0Eh
+Wave4_2Pat:
+	db	00h,00h,00h,00h,09h,0Dh,0Bh,0Eh
+Wave4_3Pat:
+	db	00h,00h,00h,00h,00h,03h,05h,07h
+
+Wave5_0Pat:
+	db	00h,00h,00h,00h,00h,10h,11h,06h
+Wave5_1Pat:
+	db	00h,00h,00h,00h,00h,15h,15h,0Eh
+Wave5_2Pat:
+	db	00h,00h,00h,00h,00h,03h,05h,07h
+
+Wave6_0Pat:
+	db	00h,00h,00h,00h,00h,08h,0Fh,0Ah
+Wave6_1Pat:
+	db	00h,00h,00h,00h,00h,09h,0Dh,0Bh
+
+Island1_0Pat:
+	db	00h,00h,00h,00h,00h,00h,14h,14h
+Island1_1Pat:
+	db	00h,00h,00h,00h,00h,00h,12h,13h
+ endif
+
+bank20	group	G_BANK20
+;---------------------------------------;
+;	ＢＧ＿ＣＧＸ
+;---------------------------------------;
+NaminoriBG_CGX:
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 0
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,055h,000h,0C3h,000h,085h,000h,08Bh	; 1
+	db	000h,005h,000h,08Bh,000h,000h,000h,082h
+	db	000h,0FCh,000h,0E1h,000h,0C5h,000h,08Bh	; 2
+	db	000h,085h,000h,0AFh,000h,037h,000h,07Fh
+	db	000h,03Fh,000h,087h,000h,0A3h,000h,0D1h	; 3
+	db	000h,0A1h,000h,0F5h,000h,0ECh,000h,0FEh
+	db	000h,0FCh,000h,0E1h,000h,0C5h,000h,08Bh	; 4
+	db	000h,085h,000h,0AFh,000h,037h,000h,07Fh
+	db	000h,03Fh,000h,087h,000h,0A3h,000h,0D1h	; 5
+	db	000h,0A1h,000h,0F5h,000h,0ECh,000h,0FEh
+	db	000h,0FCh,000h,0E1h,000h,0C5h,000h,08Bh	; 6
+	db	000h,085h,000h,0AFh,000h,037h,000h,07Fh
+	db	000h,03Fh,000h,087h,000h,0A3h,000h,0D1h	; 7
+	db	000h,0A1h,000h,0F5h,000h,0ECh,000h,0FEh
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	; 8
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	000h,0FEh,000h,0F9h,000h,0F7h,000h,0F7h	; 9
+	db	000h,0CDh,000h,0BBh,000h,0BFh,000h,07Fh
+	db	000h,07Fh,000h,09Fh,000h,0EFh,000h,0EFh	; a
+	db	000h,0F3h,000h,0DDh,000h,0EDh,000h,0FEh
+	db	000h,07Eh,000h,0FBh,000h,0DFh,000h,0FFh	; b
+	db	000h,0EFh,000h,0BFh,000h,0FFh,000h,0D3h
+	db	0FEh,0ABh,0FFh,000h,0BFh,040h,0FFh,000h	; c
+	db	0FBh,004h,0FFh,020h,0FFh,000h,0FFh,000h
+	db	0BFh,040h,0FFh,000h,0FFh,004h,0FFh,020h	; d
+	db	0FFh,000h,0F7h,008h,0FFh,000h,0FFh,001h
+	db	0E0h,0FEh,0EEh,01Fh,0FFh,001h,0FFh,080h	; e
+	db	0FFh,004h,0FFh,020h,0FFh,000h,0FFh,001h
+	db	000h,07Eh,000h,0FFh,0C0h,0FBh,0F8h,01Fh	; f
+	db	0FCh,007h,0F8h,00Fh,0E0h,03Fh,040h,0F9h
+	db	0FCh,007h,0F0h,01Fh,0C0h,07Fh,080h,0FFh	;10
+	db	0C0h,07Bh,0E0h,03Fh,0C0h,0FFh,000h,0F3h
+	db	000h,0F8h,000h,0F4h,000h,0D0h,000h,0A8h	;11
+	db	000h,0D0h,000h,0B8h,000h,030h,000h,078h
+	db	000h,000h,000h,020h,000h,058h,000h,0B8h	;12
+	db	000h,050h,000h,0B8h,000h,010h,000h,028h
+	db	000h,006h,000h,01Bh,000h,05Fh,000h,0BFh	;13
+	db	000h,04Fh,000h,0BFh,000h,01Fh,000h,033h
+	db	000h,0F5h,000h,0FCh,000h,0F8h,000h,0F8h	;14
+	db	000h,0D0h,000h,0B8h,000h,0F0h,000h,078h
+	db	000h,000h,000h,000h,01Ch,01Ch,00Eh,00Eh	;15
+	db	002h,002h,01Fh,01Fh,03Bh,03Bh,007h,007h
+	db	000h,000h,000h,000h,000h,000h,070h,070h	;16
+	db	0F8h,0F8h,080h,080h,0E0h,0E0h,070h,070h
+	db	006h,006h,00Eh,00Eh,00Eh,00Eh,0FFh,0FFh	;17
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	030h,030h,010h,010h,000h,000h,0C0h,0C0h	;18
+	db	0F8h,0F8h,0FEh,0FEh,0FFh,0FFh,0FFh,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;19
+	db	000h,018h,000h,07Eh,000h,0FFh,000h,0FFh
+	db	0C6h,0C6h,0FEh,0BAh,0FEh,082h,0FEh,0AAh	;1a
+	db	0FEh,082h,0FEh,082h,000h,0FEh,000h,000h
+	db	000h,000h,000h,000h,000h,000h,01Ah,01Ah	;1b
+	db	01Ah,01Ah,01Eh,01Eh,01Ah,01Ah,000h,000h
+	db	000h,000h,000h,000h,000h,000h,0F0h,0F0h	;1c
+	db	0D4h,0D4h,0F0h,0F0h,0C4h,0C4h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1d
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+ ifn  ASSEMBLE__ENGLISH
+	;	HP Left , Radness , Total , Pts , Hi-Score!! のキャラクタデータ
+	DB	$82,$82,$82,$82,$82,$82,$FE,$FE,$82,$82,$82,$82,$82,$82,$00,$00	; H
+	DB	$FC,$FC,$82,$82,$82,$82,$FC,$FC,$80,$80,$80,$80,$80,$80,$00,$00	; P
+	DB	$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$FE,$FE,$00,$00	; L
+	DB	$00,$00,$00,$00,$3C,$3C,$42,$42,$7E,$7E,$40,$40,$3E,$3E,$00,$00	; e
+	DB	$0C,$0C,$12,$12,$10,$10,$7E,$7E,$10,$10,$10,$10,$10,$10,$00,$00	; f
+	DB	$00,$00,$10,$10,$7C,$7C,$10,$10,$10,$10,$10,$10,$0C,$0C,$00,$00	; t
+	DB	$00,$00,$00,$00,$3C,$3C,$40,$40,$3C,$3C,$02,$02,$7C,$7C,$00,$00	; s
+	DB	$FC,$FC,$82,$82,$82,$82,$FC,$FC,$88,$88,$84,$84,$82,$82,$00,$00	; R
+	DB	$00,$00,$00,$00,$38,$38,$04,$04,$3C,$3C,$44,$44,$3E,$3E,$00,$00	; a
+	DB	$02,$02,$02,$02,$02,$02,$3E,$3E,$42,$42,$42,$42,$3E,$3E,$00,$00	; d
+	DB	$00,$00,$00,$00,$3C,$3C,$22,$22,$22,$22,$22,$22,$22,$22,$00,$00	; n
+	DB	$FE,$FE,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$00,$00	; T
+	DB	$00,$00,$00,$00,$3C,$3C,$42,$42,$42,$42,$42,$42,$3C,$3C,$00,$00	; o
+	DB	$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$00,$00	; l
+	DB	$00,$00,$10,$10,$00,$00,$10,$10,$10,$10,$10,$10,$10,$10,$00,$00	; i
+	DB	$00,$00,$00,$00,$00,$00,$00,$00,$7E,$7E,$00,$00,$00,$00,$00,$00	; -
+	DB	$78,$78,$84,$84,$80,$80,$7C,$7C,$02,$02,$82,$82,$7C,$7C,$00,$00	; S
+	DB	$00,$00,$00,$00,$3C,$3C,$42,$42,$40,$40,$42,$42,$3C,$3C,$00,$00	; c
+	DB	$00,$00,$00,$00,$4E,$4E,$50,$50,$60,$60,$40,$40,$40,$40,$00,$00	; r
+	DB	$00,$00,$66,$66,$66,$66,$66,$66,$66,$66,$00,$00,$66,$66,$66,$66	; !!
+ else
+	;	のこりＨＰん：かっこよさポイントベストス
+	db	000h,000h,038h,038h,054h,054h,092h,092h	;20
+	db	092h,092h,092h,092h,092h,092h,064h,064h
+	db	000h,000h,03Eh,03Eh,002h,002h,000h,000h	;21
+	db	000h,000h,000h,000h,040h,040h,03Eh,03Eh
+	db	000h,000h,042h,042h,042h,042h,042h,042h	;22
+	db	042h,042h,002h,002h,004h,004h,038h,038h
+	db	000h,000h,063h,063h,063h,063h,063h,063h	;23
+	db	07Fh,07Fh,063h,063h,063h,063h,063h,063h
+	db	000h,000h,07Eh,07Eh,063h,063h,063h,063h	;24
+	db	063h,063h,07Eh,07Eh,060h,060h,060h,060h
+	db	000h,000h,010h,010h,020h,020h,020h,020h	;25
+	db	070h,070h,048h,048h,089h,089h,086h,086h
+	db	000h,000h,000h,000h,018h,018h,018h,018h	;26
+	db	000h,000h,018h,018h,018h,018h,000h,000h
+	db	000h,000h,044h,044h,0F2h,0F2h,04Ah,04Ah	;27
+	db	04Ah,04Ah,048h,048h,008h,008h,030h,030h
+	db	000h,000h,000h,000h,000h,000h,078h,078h	;28
+	db	004h,004h,004h,004h,008h,008h,030h,030h
+	db	000h,000h,07Ch,07Ch,004h,004h,000h,000h	;29
+	db	000h,000h,000h,000h,080h,080h,07Ch,07Ch
+	db	000h,000h,008h,008h,00Eh,00Eh,008h,008h	;2a
+	db	008h,008h,0FCh,0FCh,08Ah,08Ah,070h,070h
+	db	000h,000h,008h,008h,07Eh,07Eh,004h,004h	;2b
+	db	03Eh,03Eh,040h,040h,040h,040h,03Eh,03Eh
+	db	017h,017h,0FDh,0FDh,017h,017h,010h,010h	;2c
+	db	054h,054h,092h,092h,092h,092h,010h,010h
+	db	002h,002h,004h,004h,008h,008h,038h,038h	;2d
+	db	0C8h,0C8h,008h,008h,008h,008h,008h,008h
+	db	060h,060h,010h,010h,009h,009h,001h,001h	;2e
+	db	002h,002h,004h,004h,018h,018h,060h,060h
+	db	040h,040h,040h,040h,040h,040h,078h,078h	;2f
+	db	046h,046h,040h,040h,040h,040h,040h,040h
+	db	000h,000h,005h,005h,036h,036h,078h,078h	;30
+	db	0FCh,0FCh,04Eh,0CEh,007h,007h,002h,003h
+	db	000h,000h,0BFh,0BFh,0BFh,0BFh,007h,007h	;31
+	db	00Eh,00Eh,01Fh,01Fh,03Bh,03Bh,011h,031h
+	db	000h,000h,030h,030h,030h,030h,038h,038h	;32
+	db	03Fh,03Fh,037h,037h,0B0h,0B0h,030h,0B0h
+	db	000h,000h,07Eh,07Eh,07Eh,07Eh,00Eh,00Eh	;33
+	db	01Ch,01Ch,03Eh,03Eh,077h,077h,022h,063h
+ endif
+	; コア!!ごうけい
+	db	000h,000h,07Eh,07Eh,07Eh,07Eh,006h,006h	;34
+	db	006h,006h,006h,006h,07Eh,07Eh,07Eh,07Eh
+	db	000h,000h,0FEh,0FEh,0FEh,0FEh,006h,006h	;35
+	db	03Eh,03Eh,03Ch,03Ch,070h,070h,020h,060h
+	db	000h,000h,066h,066h,066h,066h,066h,066h	;36
+	db	066h,066h,000h,000h,066h,066h,066h,066h
+	db	005h,005h,07Dh,07Dh,005h,005h,000h,000h	;37
+	db	000h,000h,000h,000h,080h,080h,07Ch,07Ch
+	db	03Ch,03Ch,000h,000h,03Ch,03Ch,042h,042h	;38
+	db	002h,002h,002h,002h,004h,004h,018h,018h
+	db	002h,002h,042h,042h,05Fh,05Fh,042h,042h	;39
+	db	042h,042h,042h,042h,062h,062h,00Ch,00Ch
+	db	000h,000h,044h,044h,042h,042h,042h,042h	;3a
+	db	042h,042h,042h,042h,042h,042h,020h,020h
+	; 枠
+	db	000h,000h,000h,000h,00Fh,00Fh,01Fh,010h	;3b
+	db	03Fh,020h,03Fh,023h,03Ch,024h,03Ch,024h
+	db	000h,000h,000h,000h,0F0h,0F0h,0F8h,008h	;3c
+	db	0FCh,004h,0FCh,0C4h,03Ch,024h,03Ch,024h
+	db	03Ch,024h,03Ch,024h,03Fh,023h,03Fh,020h	;3d
+	db	01Fh,010h,00Fh,00Fh,000h,000h,000h,000h
+	db	03Ch,024h,03Ch,024h,0FCh,0C4h,0FCh,004h	;3e
+	db	0F8h,008h,0F0h,0F0h,000h,000h,000h,000h
+	db	03Ch,024h,03Ch,024h,03Ch,024h,03Ch,024h	;3f
+	db	03Ch,024h,03Ch,024h,03Ch,024h,03Ch,024h
+	db	000h,000h,000h,000h,0FFh,0FFh,0FFh,000h	;40
+	db	0FFh,000h,0FFh,0FFh,000h,000h,000h,000h
+ ifn 0
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 0
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,055h,000h,0C3h,000h,085h,000h,08Bh	; 1
+	db	000h,005h,000h,08Bh,000h,000h,000h,082h
+	db	000h,0FCh,000h,0E1h,000h,0C5h,000h,08Bh	; 2
+	db	000h,085h,000h,0AFh,000h,037h,000h,07Fh
+	db	000h,03Fh,000h,087h,000h,0A3h,000h,0D1h	; 3
+	db	000h,0A1h,000h,0F5h,000h,0ECh,000h,0FEh
+	db	000h,0FCh,000h,0E1h,000h,0C5h,000h,08Bh	; 4
+	db	000h,085h,000h,0AFh,000h,037h,000h,07Fh
+	db	000h,03Fh,000h,087h,000h,0A3h,000h,0D1h	; 5
+	db	000h,0A1h,000h,0F5h,000h,0ECh,000h,0FEh
+	db	000h,0FCh,000h,0E1h,000h,0C5h,000h,08Bh	; 6
+	db	000h,085h,000h,0AFh,000h,037h,000h,07Fh
+	db	000h,03Fh,000h,087h,000h,0A3h,000h,0D1h	; 7
+	db	000h,0A1h,000h,0F5h,000h,0ECh,000h,0FEh
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	; 8
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	000h,0FEh,000h,0F9h,000h,0F7h,000h,0F7h	; 9
+	db	000h,0CDh,000h,0BBh,000h,0BFh,000h,07Fh
+	db	000h,07Fh,000h,09Fh,000h,0EFh,000h,0EFh	; a
+	db	000h,0F3h,000h,0DDh,000h,0EDh,000h,0FEh
+	db	000h,07Eh,000h,0FBh,000h,0DFh,000h,0FFh	; b
+	db	000h,0EFh,000h,0BFh,000h,0FFh,000h,0D3h
+	db	0FEh,0ABh,0FFh,000h,0BFh,040h,0FFh,000h	; c
+	db	0FBh,004h,0FFh,020h,0FFh,000h,0FFh,000h
+	db	0BFh,040h,0FFh,000h,0FFh,004h,0FFh,020h	; d
+	db	0FFh,000h,0F7h,008h,0FFh,000h,0FFh,001h
+	db	0E0h,0FEh,0EEh,01Fh,0FFh,001h,0FFh,080h	; e
+	db	0FFh,004h,0FFh,020h,0FFh,000h,0FFh,001h
+	db	000h,07Eh,000h,0FFh,0C0h,0FBh,0F8h,01Fh	; f
+	db	0FCh,007h,0F8h,00Fh,0E0h,03Fh,040h,0F9h
+	db	0FCh,007h,0F0h,01Fh,0C0h,07Fh,080h,0FFh	;10
+	db	0C0h,07Bh,0E0h,03Fh,0C0h,0FFh,000h,0F3h
+	db	000h,0F8h,000h,0F4h,000h,0D0h,000h,0A8h	;11
+	db	000h,0D0h,000h,0B8h,000h,030h,000h,078h
+	db	000h,000h,000h,020h,000h,058h,000h,0B8h	;12
+	db	000h,050h,000h,0B8h,000h,010h,000h,028h
+	db	000h,006h,000h,01Bh,000h,05Fh,000h,0BFh	;13
+	db	000h,04Fh,000h,0BFh,000h,01Fh,000h,033h
+	db	000h,0F5h,000h,0FCh,000h,0F8h,000h,0F8h	;14
+	db	000h,0D0h,000h,0B8h,000h,0F0h,000h,078h
+	db	000h,000h,000h,000h,01Ch,01Ch,00Eh,00Eh	;15
+	db	002h,002h,01Fh,01Fh,03Bh,03Bh,007h,007h
+	db	000h,000h,000h,000h,000h,000h,070h,070h	;16
+	db	0F8h,0F8h,080h,080h,0E0h,0E0h,070h,070h
+	db	006h,006h,00Eh,00Eh,00Eh,00Eh,0FFh,0FFh	;17
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	030h,030h,010h,010h,000h,000h,0C0h,0C0h	;18
+	db	0F8h,0F8h,0FEh,0FEh,0FFh,0FFh,0FFh,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;19
+	db	000h,018h,000h,07Eh,000h,0FFh,000h,0FFh
+	db	0C6h,0C6h,0FEh,0BAh,0FEh,082h,0FEh,0AAh	;1a
+	db	0FEh,082h,0FEh,082h,000h,0FEh,000h,000h
+	db	000h,000h,000h,000h,000h,000h,01Ah,01Ah	;1b
+	db	01Ah,01Ah,01Eh,01Eh,01Ah,01Ah,000h,000h
+	db	000h,000h,000h,000h,000h,000h,0F0h,0F0h	;1c
+	db	0D4h,0D4h,0F0h,0F0h,0C4h,0C4h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1d
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,038h,038h,054h,054h,092h,092h	;20
+	db	092h,092h,092h,092h,092h,092h,064h,064h
+	db	000h,000h,03Eh,03Eh,002h,002h,000h,000h	;21
+	db	000h,000h,000h,000h,040h,040h,03Eh,03Eh
+	db	000h,000h,042h,042h,042h,042h,042h,042h	;22
+	db	042h,042h,002h,002h,004h,004h,038h,038h
+	db	000h,000h,063h,063h,063h,063h,063h,063h	;23
+	db	07Fh,07Fh,063h,063h,063h,063h,063h,063h
+	db	000h,000h,07Eh,07Eh,063h,063h,063h,063h	;24
+	db	063h,063h,07Eh,07Eh,060h,060h,060h,060h
+	db	000h,000h,010h,010h,020h,020h,020h,020h	;25
+	db	070h,070h,048h,048h,089h,089h,086h,086h
+	db	000h,000h,000h,000h,018h,018h,018h,018h	;26
+	db	000h,000h,018h,018h,018h,018h,000h,000h
+	db	000h,000h,044h,044h,0F2h,0F2h,04Ah,04Ah	;27
+	db	04Ah,04Ah,048h,048h,008h,008h,030h,030h
+	db	000h,000h,000h,000h,000h,000h,078h,078h	;28
+	db	004h,004h,004h,004h,008h,008h,030h,030h
+	db	000h,000h,07Ch,07Ch,004h,004h,000h,000h	;29
+	db	000h,000h,000h,000h,080h,080h,07Ch,07Ch
+	db	000h,000h,008h,008h,00Eh,00Eh,008h,008h	;2a
+	db	008h,008h,0FCh,0FCh,08Ah,08Ah,070h,070h
+	db	000h,000h,008h,008h,07Eh,07Eh,004h,004h	;2b
+	db	03Eh,03Eh,040h,040h,040h,040h,03Eh,03Eh
+	db	017h,017h,0FDh,0FDh,017h,017h,010h,010h	;2c
+	db	054h,054h,092h,092h,092h,092h,010h,010h
+	db	002h,002h,004h,004h,008h,008h,038h,038h	;2d
+	db	0C8h,0C8h,008h,008h,008h,008h,008h,008h
+	db	060h,060h,010h,010h,009h,009h,001h,001h	;2e
+	db	002h,002h,004h,004h,018h,018h,060h,060h
+	db	040h,040h,040h,040h,040h,040h,078h,078h	;2f
+	db	046h,046h,040h,040h,040h,040h,040h,040h
+	db	000h,000h,005h,005h,036h,036h,078h,078h	;30
+	db	0FCh,0FCh,04Eh,0CEh,007h,007h,002h,003h
+	db	000h,000h,0BFh,0BFh,0BFh,0BFh,007h,007h	;31
+	db	00Eh,00Eh,01Fh,01Fh,03Bh,03Bh,011h,031h
+	db	000h,000h,030h,030h,030h,030h,038h,038h	;32
+	db	03Fh,03Fh,037h,037h,0B0h,0B0h,030h,0B0h
+	db	000h,000h,07Eh,07Eh,07Eh,07Eh,00Eh,00Eh	;33
+	db	01Ch,01Ch,03Eh,03Eh,077h,077h,022h,063h
+	db	000h,000h,07Eh,07Eh,07Eh,07Eh,006h,006h	;34
+	db	006h,006h,006h,006h,07Eh,07Eh,07Eh,07Eh
+	db	000h,000h,0FEh,0FEh,0FEh,0FEh,006h,006h	;35
+	db	03Eh,03Eh,03Ch,03Ch,070h,070h,020h,060h
+	db	000h,000h,066h,066h,066h,066h,066h,066h	;36
+	db	066h,066h,000h,000h,066h,066h,066h,066h
+	db	005h,005h,07Dh,07Dh,005h,005h,000h,000h	;37
+	db	000h,000h,000h,000h,080h,080h,07Ch,07Ch
+	db	03Ch,03Ch,000h,000h,03Ch,03Ch,042h,042h	;38
+	db	002h,002h,002h,002h,004h,004h,018h,018h
+	db	002h,002h,042h,042h,05Fh,05Fh,042h,042h	;39
+	db	042h,042h,042h,042h,062h,062h,00Ch,00Ch
+	db	000h,000h,044h,044h,042h,042h,042h,042h	;3a
+	db	042h,042h,042h,042h,042h,042h,020h,020h
+ endif
+
+;---------------------------------------;
+;	ＯＢＪ＿ＣＧＸ
+;---------------------------------------;
+NaminoriOBJ_CGX:
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 0
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,006h,006h,00Eh,00Eh	; 1
+	db	00Eh,00Ah,01Eh,012h,03Fh,03Fh,03Fh,020h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 2
+	db	000h,000h,01Fh,01Fh,07Fh,063h,0FEh,082h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 3
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,00Ch,00Ch,01Ch,01Ch,01Ch,014h	; 4
+	db	03Ch,024h,03Fh,03Fh,03Fh,020h,07Fh,040h
+	db	000h,000h,000h,000h,006h,006h,00Eh,00Eh	; 5
+	db	01Eh,016h,07Eh,062h,0FEh,082h,0FCh,004h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 6
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	00Ch,00Ch,01Ch,01Ch,01Ch,014h,03Ch,024h	; 7
+	db	03Fh,03Fh,03Fh,020h,07Fh,040h,07Fh,060h
+	db	000h,000h,006h,006h,00Eh,00Eh,01Eh,016h	; 8
+	db	07Eh,062h,0FEh,082h,0FCh,004h,0FCh,004h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 9
+	db	000h,000h,001h,001h,003h,002h,003h,003h
+	db	000h,000h,030h,030h,070h,070h,0F0h,090h	; a
+	db	0F9h,0F9h,0FFh,006h,0FFh,000h,0FFh,000h
+	db	000h,000h,000h,000h,000h,000h,078h,078h	; b
+	db	0F8h,0B8h,0F0h,030h,0E0h,020h,0E0h,020h
+	db	000h,000h,001h,001h,003h,003h,003h,002h	; c
+	db	007h,004h,007h,007h,007h,004h,00Fh,008h
+	db	000h,000h,080h,080h,080h,080h,081h,081h	; d
+	db	083h,082h,0E7h,0E4h,0FFh,018h,0FFh,000h
+	db	000h,000h,000h,000h,0C0h,0C0h,0C0h,0C0h	; e
+	db	0C0h,0C0h,0C0h,040h,080h,080h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	018h,018h,024h,03Ch,022h,03Eh,011h,01Fh	;10
+	db	011h,01Fh,008h,00Fh,008h,00Fh,004h,007h
+	db	07Fh,040h,07Fh,060h,07Fh,063h,0FFh,083h	;11
+	db	0FFh,030h,0EEh,099h,0FEh,081h,07Fh,0C0h
+	db	0FCh,004h,0FCh,004h,0F8h,008h,0FEh,00Eh	;12
+	db	0FFh,009h,07Fh,089h,07Eh,09Ah,0FCh,004h
+	db	000h,000h,000h,000h,030h,030h,04Dh,07Dh	;13
+	db	043h,07Eh,021h,03Fh,020h,03Fh,010h,01Fh
+	db	07Fh,060h,0FFh,0E3h,0FFh,083h,0FFh,0B0h	;14
+	db	0EEh,099h,0FEh,041h,0FFh,080h,07Fh,0C0h
+	db	0FCh,004h,0F8h,008h,0FEh,00Eh,0FFh,009h	;15
+	db	07Fh,089h,07Eh,09Ah,0FCh,004h,0FEh,002h
+	db	000h,000h,001h,001h,003h,002h,003h,002h	;16
+	db	003h,002h,001h,001h,001h,001h,001h,001h
+	db	0FFh,0E3h,0FFh,083h,0FFh,0B0h,0EEh,099h	;17
+	db	0FEh,041h,0FFh,000h,0FFh,000h,03Fh,0C0h
+	db	0F8h,008h,0FEh,00Eh,0FFh,009h,07Fh,089h	;18
+	db	07Eh,09Ah,0FCh,004h,0FEh,002h,0FCh,01Ch
+	db	007h,007h,007h,004h,007h,005h,01Fh,01Ch	;19
+	db	01Fh,012h,00Fh,008h,007h,004h,007h,004h
+	db	0FFh,018h,0FFh,018h,0FFh,080h,073h,0ECh	;1a
+	db	0F3h,00Ch,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0CCh,04Ch,0DEh,052h,0FFh,061h,0FEh,042h	;1b
+	db	0FCh,0C4h,0F8h,028h,0FCh,014h,0FEh,0F2h
+	db	00Fh,00Ch,01Fh,01Ch,01Fh,010h,01Fh,016h	;1c
+	db	01Dh,013h,03Fh,028h,03Fh,024h,03Fh,024h
+	db	0FFh,001h,0FFh,061h,0FFh,061h,0FFh,000h	;1d
+	db	0CFh,030h,0CFh,031h,0FFh,000h,0FFh,000h
+	db	000h,000h,070h,070h,0F8h,088h,0FCh,044h	;1e
+	db	0F8h,048h,0F0h,090h,0E0h,0A0h,0F0h,0B0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	004h,007h,002h,003h,002h,003h,001h,001h	;20
+	db	001h,001h,000h,000h,000h,000h,000h,000h
+	db	07Fh,0C0h,03Fh,0E0h,01Fh,0F0h,01Fh,0F0h	;21
+	db	00Fh,0F8h,08Fh,0F9h,04Fh,07Fh,030h,030h
+	db	0FEh,002h,0ECh,01Ch,0F4h,03Ch,0ECh,03Ch	;22
+	db	0F0h,070h,0C0h,0C0h,000h,000h,000h,000h
+	db	008h,00Fh,004h,007h,002h,003h,001h,001h	;23
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	03Fh,0E0h,01Fh,0F0h,00Fh,0FCh,083h,0FFh	;24
+	db	041h,07Fh,030h,03Fh,00Ch,00Fh,003h,003h
+	db	0FCh,01Ch,0EEh,01Eh,0CAh,03Eh,0FCh,01Ch	;25
+	db	0F8h,018h,060h,0E0h,020h,0E0h,0C0h,0C0h
+	db	07Bh,07Ah,0C7h,0BFh,040h,07Fh,030h,03Fh	;26
+	db	00Ch,00Fh,003h,003h,000h,000h,000h,000h
+	db	0DFh,020h,0FFh,080h,07Fh,0F8h,00Fh,0FFh	;27
+	db	000h,0FFh,0C0h,0FFh,03Ch,03Fh,003h,003h
+	db	0EEh,01Eh,0CAh,03Eh,0FCh,01Ch,0F8h,018h	;28
+	db	0E0h,0E0h,010h,0F0h,010h,0F0h,0E0h,0E0h
+	db	007h,004h,00Fh,008h,00Fh,008h,07Fh,07Ch	;29
+	db	0C3h,0BFh,070h,07Fh,00Fh,00Fh,000h,000h
+	db	0FFh,000h,0FEh,001h,0FFh,000h,0FFh,0FCh	;2a
+	db	003h,0FFh,000h,0FFh,0C0h,0FFh,03Fh,03Fh
+	db	06Ch,0FCh,050h,0F0h,0E0h,060h,0F0h,070h	;2b
+	db	08Eh,0FEh,001h,0FFh,001h,0FFh,0FEh,0FEh
+	db	01Fh,018h,01Fh,010h,01Fh,010h,01Fh,010h	;2c
+	db	01Fh,018h,067h,07Fh,0C0h,0BFh,07Fh,07Fh
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,039h	;2d
+	db	0C6h,0FFh,001h,0FFh,03Eh,0FEh,0C0h,0C0h
+	db	0F8h,088h,0FCh,0BCh,0C2h,0FEh,002h,0FEh	;2e
+	db	01Ch,0FCh,0E0h,0E0h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;2f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,003h,003h	;30
+	db	007h,007h,00Fh,009h,00Fh,00Fh,00Fh,010h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;31
+	db	007h,007h,01Fh,01Bh,0FFh,0E3h,0FFh,003h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;32
+	db	080h,080h,080h,080h,000h,000h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,006h,006h	;33
+	db	00Eh,00Eh,01Eh,012h,01Fh,01Fh,01Fh,020h
+	db	000h,000h,030h,030h,078h,048h,07Ch,044h	;34
+	db	0FFh,08Fh,0FFh,0B7h,0FEh,0C6h,0FFh,007h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;35
+	db	000h,000h,000h,000h,000h,000h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;36
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,006h,006h,00Eh,00Eh	;37
+	db	00Eh,00Ah,01Eh,012h,03Fh,03Fh,03Fh,020h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;38
+	db	000h,000h,01Fh,01Fh,07Fh,063h,0FEh,082h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;39
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,00Ch,00Ch,01Ch,01Ch,01Ch,014h	;3a
+	db	03Ch,024h,03Fh,03Fh,03Fh,020h,07Fh,040h
+	db	000h,000h,000h,000h,006h,006h,00Eh,00Eh	;3b
+	db	01Eh,016h,07Eh,062h,0FEh,082h,0FCh,004h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;3c
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,006h,006h,00Eh,00Eh,01Eh,012h	;3d
+	db	01Fh,01Fh,01Fh,020h,03Fh,040h,07Fh,060h
+	db	000h,000h,000h,000h,000h,000h,007h,007h	;3e
+	db	03Fh,03Bh,0FFh,0C3h,0FEh,006h,0FCh,004h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;3f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	01Fh,020h,03Fh,030h,03Fh,071h,07Fh,041h	;40
+	db	07Fh,058h,07Fh,044h,03Fh,040h,07Fh,048h
+	db	0FFh,006h,0FDh,004h,0FFh,086h,0FFh,080h	;41
+	db	09Fh,061h,09Fh,063h,0FFh,001h,0FFh,001h
+	db	0C0h,040h,0E0h,020h,0C0h,040h,0E0h,0E0h	;42
+	db	0D0h,070h,090h,0F0h,020h,0E0h,020h,0E0h
+	db	03Fh,040h,07Fh,060h,07Fh,0E3h,0FFh,083h	;43
+	db	0FFh,0B0h,0FFh,088h,07Fh,040h,03Fh,046h
+	db	0FCh,00Fh,0F8h,00Fh,0FCh,00Fh,0FEh,003h	;44
+	db	03Eh,0C3h,03Dh,0C7h,0FDh,00Fh,0FEh,006h
+	db	040h,0C0h,040h,0C0h,040h,0C0h,080h,080h	;45
+	db	080h,080h,000h,000h,000h,000h,000h,000h
+	db	018h,018h,024h,03Ch,022h,03Eh,011h,01Fh	;46
+	db	011h,01Fh,008h,00Fh,008h,00Fh,004h,007h
+	db	07Fh,040h,07Fh,060h,07Fh,063h,0FFh,083h	;47
+	db	0FFh,030h,0EEh,099h,0FEh,081h,07Fh,0C0h
+	db	0FCh,004h,0FCh,004h,0F8h,008h,0FEh,00Eh	;48
+	db	0FFh,009h,07Fh,089h,07Eh,09Ah,0FCh,004h
+	db	000h,000h,000h,000h,030h,030h,04Dh,07Dh	;49
+	db	043h,07Eh,021h,03Fh,020h,03Fh,010h,01Fh
+	db	07Fh,060h,0FFh,0E3h,0FFh,083h,0FFh,0B0h	;4a
+	db	0EEh,099h,0FEh,041h,0FFh,080h,07Fh,0C0h
+	db	0FCh,004h,0F8h,008h,0FEh,00Eh,0FFh,009h	;4b
+	db	07Fh,089h,07Eh,09Ah,0FCh,004h,0FEh,002h
+	db	000h,000h,001h,001h,001h,002h,003h,002h	;4c
+	db	003h,002h,001h,001h,001h,001h,001h,001h
+	db	07Fh,0E3h,0FFh,083h,0FFh,0B0h,0EEh,099h	;4d
+	db	0FEh,041h,0FFh,000h,0FFh,000h,03Fh,0C0h
+	db	0F8h,008h,0F8h,008h,0FEh,00Eh,07Fh,089h	;4e
+	db	07Fh,099h,0FEh,006h,0FEh,002h,0FCh,01Ch
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;4f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	07Fh,044h,03Eh,025h,03Fh,038h,03Fh,020h	;50
+	db	01Fh,019h,026h,03Fh,020h,03Fh,01Fh,01Fh
+	db	0FEh,003h,0FCh,00Fh,073h,0BFh,0C2h,0FEh	;51
+	db	00Ch,0FCh,030h,0F0h,0C0h,0C0h,000h,000h
+	db	040h,0C0h,080h,080h,000h,000h,000h,000h	;52
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	07Fh,041h,07Fh,041h,03Fh,026h,03Fh,020h	;53
+	db	01Fh,019h,016h,01Fh,010h,01Fh,00Fh,00Fh
+	db	0FEh,006h,0FCh,01Ch,0E4h,03Ch,0C8h,0F8h	;54
+	db	010h,0F0h,020h,0E0h,0C0h,0C0h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;55
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	004h,007h,002h,003h,002h,003h,001h,001h	;56
+	db	001h,001h,000h,000h,000h,000h,000h,000h
+	db	07Fh,0C0h,03Fh,0E0h,01Fh,0F0h,01Fh,0F0h	;57
+	db	00Fh,0F8h,08Fh,0F9h,04Fh,07Fh,030h,030h
+	db	0FEh,002h,0ECh,01Ch,0F4h,03Ch,0ECh,03Ch	;58
+	db	0F0h,070h,0C0h,0C0h,000h,000h,000h,000h
+	db	008h,00Fh,004h,007h,002h,003h,001h,001h	;59
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	03Fh,0E0h,01Fh,0F0h,00Fh,0FCh,083h,0FFh	;5a
+	db	041h,07Fh,030h,03Fh,00Ch,00Fh,003h,003h
+	db	0FCh,01Ch,0EEh,01Eh,0CAh,03Eh,0FCh,01Ch	;5b
+	db	0F8h,018h,060h,0E0h,020h,0E0h,0C0h,0C0h
+	db	07Bh,07Ah,0E7h,09Fh,0C0h,0BFh,060h,07Fh	;5c
+	db	01Ch,01Fh,003h,003h,000h,000h,000h,000h
+	db	0DFh,020h,0FFh,080h,07Fh,0F8h,00Fh,0FFh	;5d
+	db	000h,0FFh,0C0h,0FFh,03Ch,03Fh,003h,003h
+	db	0E8h,018h,0CCh,03Ch,0F4h,01Ch,0F8h,018h	;5e
+	db	0E0h,0E0h,010h,0F0h,010h,0F0h,0E0h,0E0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;5f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;60
+	db	000h,000h,000h,001h,001h,002h,003h,003h
+	db	000h,000h,000h,000h,018h,018h,038h,038h	;61
+	db	078h,0F8h,0FFh,007h,0FFh,000h,0FFh,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;62
+	db	0FCh,0FCh,0FCh,01Ch,0F8h,018h,0E0h,020h
+	db	000h,000h,000h,000h,000h,000h,001h,001h	;63
+	db	003h,002h,003h,003h,003h,004h,007h,008h
+	db	000h,000h,000h,000h,0C0h,0C0h,0C0h,0C0h	;64
+	db	0C1h,041h,0E7h,0E6h,0FFh,018h,0FFh,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;65
+	db	0E0h,0E0h,0E0h,0E0h,0C0h,0C0h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,003h,003h	;66
+	db	007h,007h,00Fh,009h,00Fh,00Fh,00Fh,010h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;67
+	db	007h,007h,01Fh,01Bh,0FFh,0E3h,0FFh,003h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;68
+	db	080h,080h,080h,080h,000h,000h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,006h,006h	;69
+	db	00Eh,00Eh,01Eh,012h,01Fh,01Fh,01Fh,020h
+	db	000h,000h,030h,030h,078h,048h,07Ch,044h	;6a
+	db	0FFh,08Fh,0FFh,0B7h,0FEh,0C6h,0FFh,007h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;6b
+	db	000h,000h,000h,000h,000h,000h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,03Ch,03Ch	;6c
+	db	03Fh,03Fh,01Fh,01Ch,00Fh,00Ch,003h,002h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;6d
+	db	007h,007h,0FFh,0F8h,0FFh,000h,0FFh,003h
+	db	000h,000h,030h,030h,0F0h,0F0h,0E0h,0E0h	;6e
+	db	0E0h,020h,0E0h,020h,0C0h,040h,0E0h,060h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;6f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	003h,007h,007h,004h,007h,005h,00Fh,01Ch	;70
+	db	01Fh,012h,00Fh,008h,007h,004h,007h,004h
+	db	0FFh,018h,0FFh,018h,0FFh,080h,073h,0ECh	;71
+	db	0F3h,00Ch,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0C0h,040h,0CCh,04Ch,0DEh,052h,0FFh,061h	;72
+	db	0FFh,0C1h,0FEh,026h,0F8h,018h,0FCh,0F4h
+	db	00Fh,00Ch,00Fh,01Ch,01Fh,010h,01Fh,016h	;73
+	db	01Dh,013h,01Fh,028h,03Fh,024h,03Fh,024h
+	db	0FFh,001h,0FFh,061h,0FFh,061h,0FFh,000h	;74
+	db	0CFh,030h,0CFh,031h,0FFh,000h,0FFh,000h
+	db	080h,080h,018h,018h,0BCh,0A4h,0FEh,042h	;75
+	db	0FCh,044h,0F8h,088h,0F0h,090h,0E0h,0A0h
+	db	01Fh,020h,03Fh,030h,03Fh,071h,07Fh,041h	;76
+	db	07Fh,058h,07Fh,044h,03Fh,040h,07Fh,048h
+	db	0FFh,006h,0FDh,004h,0FFh,086h,0FFh,080h	;77
+	db	09Fh,061h,09Fh,063h,0FFh,001h,0FFh,001h
+	db	0C0h,040h,0E0h,020h,0C0h,040h,0E0h,0E0h	;78
+	db	0D0h,070h,090h,0F0h,020h,0E0h,020h,0E0h
+	db	03Fh,040h,07Fh,060h,07Fh,0E3h,0FFh,083h	;79
+	db	0FFh,0B0h,0FFh,088h,07Fh,040h,03Fh,046h
+	db	0FCh,00Fh,0F8h,00Fh,0FCh,00Fh,0FEh,003h	;7a
+	db	03Eh,0C3h,03Dh,0C7h,0FDh,00Fh,0FEh,006h
+	db	040h,0C0h,040h,0C0h,040h,0C0h,080h,080h	;7b
+	db	080h,080h,000h,000h,000h,000h,000h,000h
+	db	003h,002h,007h,004h,007h,004h,006h,005h	;7c
+	db	006h,005h,007h,006h,00Fh,009h,00Fh,008h
+	db	0FFh,0C3h,0FFh,0C0h,0FFh,008h,07Fh,0BEh	;7d
+	db	077h,09Ch,0FFh,008h,0FFh,000h,0FFh,000h
+	db	0E0h,020h,0F0h,010h,030h,0D0h,030h,0D0h	;7e
+	db	0E0h,020h,0E0h,020h,0F0h,030h,0F8h,008h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	003h,004h,00Fh,008h,07Fh,078h,0EFh,09Ch	;80
+	db	073h,07Fh,00Fh,00Fh,000h,000h,000h,000h
+	db	0FFh,000h,0FEh,001h,0FFh,000h,0FFh,0FCh	;81
+	db	003h,0FFh,000h,0FFh,0F8h,0FFh,007h,007h
+	db	06Eh,0F2h,05Ch,0FCh,0E0h,060h,0E0h,060h	;82
+	db	09Ch,0FCh,002h,0FEh,002h,0FEh,0FCh,0FCh
+	db	01Fh,018h,01Fh,010h,01Fh,010h,01Fh,010h	;83
+	db	01Fh,018h,067h,07Fh,0E0h,09Fh,07Fh,07Fh
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,039h	;84
+	db	0C6h,0FFh,001h,0FFh,03Eh,0FEh,0C0h,0C0h
+	db	0F0h,090h,0FCh,09Ch,0E2h,0FEh,002h,0FEh	;85
+	db	01Ch,0FCh,0E0h,0E0h,000h,000h,000h,000h
+	db	07Fh,044h,03Fh,024h,03Fh,038h,03Fh,020h	;86
+	db	01Fh,019h,026h,03Fh,020h,03Fh,01Fh,01Fh
+	db	0FEh,003h,0FCh,00Fh,0F3h,03Fh,0C2h,0FEh	;87
+	db	00Ch,0FCh,030h,0F0h,0C0h,0C0h,000h,000h
+	db	040h,0C0h,080h,080h,000h,000h,000h,000h	;88
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	07Fh,041h,07Fh,041h,03Fh,026h,03Fh,020h	;89
+	db	01Fh,019h,016h,01Fh,010h,01Fh,00Fh,00Fh
+	db	0FEh,006h,0FCh,01Ch,0E4h,03Ch,0C8h,0F8h	;8a
+	db	010h,0F0h,020h,0E0h,0C0h,0C0h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;8b
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	00Fh,008h,007h,006h,003h,002h,003h,002h	;8c
+	db	00Fh,00Fh,010h,01Fh,010h,01Fh,00Fh,00Fh
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,0FFh	;8d
+	db	080h,0FFh,03Ch,0C3h,03Ch,0C3h,0FFh,0FFh
+	db	0F8h,008h,0F0h,030h,0E0h,020h,0E0h,020h	;8e
+	db	0F0h,0F0h,008h,0F8h,008h,0F8h,0F0h,0F0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;8f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,03Eh,03Eh,070h,070h,06Eh,06Eh	;90
+	db	066h,066h,076h,076h,03Eh,03Eh,000h,000h
+	db	000h,000h,078h,078h,0CDh,0CDh,0CDh,0CDh	;91
+	db	0CDh,0CDh,0CDh,0CDh,078h,078h,000h,000h
+	db	000h,000h,0F3h,0F3h,09Bh,09Bh,09Bh,09Bh	;92
+	db	09Bh,09Bh,09Bh,09Bh,0F3h,0F3h,000h,000h
+	db	000h,000h,0C6h,0C6h,066h,066h,036h,036h	;93
+	db	036h,036h,060h,060h,0C6h,0C6h,000h,000h
+	db	000h,000h,066h,066h,066h,066h,066h,066h	;94
+	db	03Ch,03Ch,018h,018h,018h,018h,000h,000h
+	db	000h,000h,0FCh,0FCh,0C0h,0C0h,0C1h,0C1h	;95
+	db	0F9h,0F9h,0C1h,0C1h,0FDh,0FDh,000h,000h
+	db	000h,000h,063h,063h,0F3h,0F3h,09Bh,09Bh	;96
+	db	09Bh,09Bh,0FBh,0FBh,09Bh,09Bh,000h,000h
+	db	000h,000h,030h,030h,030h,030h,030h,030h	;97
+	db	0F7h,0F7h,030h,030h,030h,030h,000h,000h
+	db	007h,007h,038h,03Fh,040h,07Fh,040h,07Fh	;98
+	db	030h,03Fh,00Fh,00Fh,000h,000h,000h,000h
+	db	0F8h,0F8h,007h,0FFh,000h,0FFh,000h,0FFh	;99
+	db	000h,0FFh,000h,0FFh,0F8h,0FFh,007h,007h
+	db	030h,030h,0C8h,0F8h,04Eh,0FEh,089h,0FFh	;9a
+	db	079h,0FFh,002h,0FEh,00Ch,0FCh,0F0h,0F0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;9b
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,00Ch,00Ch,00Fh,00Fh,007h,007h	;9c
+	db	007h,004h,007h,004h,003h,002h,007h,006h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;9d
+	db	0E0h,0E0h,0FFh,01Fh,0FFh,000h,0FFh,01Ch
+	db	000h,000h,000h,000h,000h,000h,03Ch,03Ch	;9e
+	db	0FCh,0FCh,0F8h,038h,0F0h,030h,0C0h,040h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;9f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;a0
+	db	0F0h,0F0h,0FCh,0FCh,07Fh,073h,03Fh,030h
+	db	000h,000h,000h,000h,000h,000h,003h,003h	;a1
+	db	003h,003h,01Fh,01Ch,0FFh,0E0h,0FFh,001h
+	db	010h,010h,028h,038h,044h,07Ch,044h,07Ch	;a2
+	db	082h,0FEh,082h,0FEh,082h,0FEh,082h,0FEh
+	db	000h,000h,000h,000h,000h,000h,0F0h,0F0h	;a3
+	db	0FCh,0FCh,07Fh,073h,03Fh,030h,00Fh,008h
+	db	000h,000h,000h,000h,003h,003h,003h,003h	;a4
+	db	01Fh,01Ch,0FFh,0E0h,0FFh,001h,0FFh,00Dh
+	db	010h,010h,028h,038h,044h,07Ch,0C4h,0FCh	;a5
+	db	082h,0FEh,082h,0FEh,082h,0FEh,082h,0FEh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;a6
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;a7
+	db	00Ch,000h,01Ch,000h,03Ch,000h,07Ch,000h
+	db	060h,000h,0F0h,000h,0F1h,000h,063h,000h	;a8
+	db	00Bh,000h,01Fh,000h,01Fh,000h,00Fh,000h
+	db	004h,000h,00Eh,000h,00Eh,000h,0AEh,000h	;a9
+	db	0FEh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;aa
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;ab
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	007h,004h,00Fh,008h,00Fh,008h,00Fh,009h	;ac
+	db	007h,005h,007h,004h,00Fh,00Ch,01Fh,010h
+	db	0FFh,064h,0FFh,084h,0FFh,088h,0FFh,008h	;ad
+	db	0FFh,086h,0FFh,0F1h,0FFh,012h,0FFh,03Ch
+	db	0C0h,040h,0E0h,020h,0E0h,020h,0E0h,020h	;ae
+	db	0E0h,020h,0E0h,060h,0F0h,010h,0F0h,010h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;af
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	00Fh,008h,00Fh,00Bh,01Fh,013h,01Fh,010h	;b0
+	db	039h,036h,0F9h,0D6h,0FFh,088h,0FFh,08Ch
+	db	0FFh,00Dh,0FFh,00Ch,0FFh,000h,0FCh,023h	;b1
+	db	0FCh,0FBh,0DFh,071h,0FFh,020h,0FFh,000h
+	db	082h,0FEh,081h,0FFh,081h,0FFh,081h,0FFh	;b2
+	db	081h,0FFh,081h,0FFh,081h,0FFh,081h,0FFh
+	db	00Fh,00Bh,01Fh,013h,01Fh,010h,039h,036h	;b3
+	db	0F9h,0D6h,0FFh,098h,0FFh,0A4h,07Fh,060h
+	db	0FFh,00Ch,0FFh,000h,0FCh,023h,0FCh,0FBh	;b4
+	db	0DFh,071h,0FFh,020h,0FFh,000h,0FFh,001h
+	db	082h,0FEh,081h,0FFh,081h,0FFh,081h,0FFh	;b5
+	db	081h,0FFh,081h,0FFh,081h,0FFh,081h,0FFh
+	db	010h,000h,03Bh,000h,03Fh,000h,07Fh,000h	;b6
+	db	07Fh,000h,07Fh,000h,0FFh,000h,0FFh,000h
+	db	0FCh,000h,0F8h,000h,0FAh,000h,0FFh,000h	;b7
+	db	0FFh,000h,0FEh,000h,0FEh,000h,0FCh,000h
+	db	00Fh,000h,00Fh,000h,01Fh,000h,01Fh,000h	;b8
+	db	05Fh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;b9
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;ba
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;bb
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	01Fh,010h,00Fh,00Ch,007h,004h,007h,004h	;bc
+	db	00Fh,00Fh,010h,01Fh,010h,01Fh,00Fh,00Fh
+	db	0CFh,078h,0E7h,03Ch,0FFh,000h,0FFh,0FFh	;bd
+	db	001h,0FFh,03Ch,0C3h,03Ch,0C3h,0FFh,0FFh
+	db	0F0h,010h,0E0h,060h,0C0h,040h,0C0h,040h	;be
+	db	0F0h,0F0h,008h,0F8h,008h,0F8h,0F0h,0F0h
+	db	000h,000h,018h,018h,018h,018h,07Eh,07Eh	;bf
+	db	07Eh,07Eh,018h,018h,018h,018h,000h,000h
+	db	07Fh,048h,03Fh,028h,07Fh,052h,0FFh,091h	;c0
+	db	07Fh,050h,03Fh,03Ch,00Fh,008h,007h,007h
+	db	0FFh,081h,0FFh,040h,0FFh,040h,0FFh,080h	;c1
+	db	0FFh,000h,0FFh,003h,0FFh,0F1h,00Eh,00Eh
+	db	081h,0FFh,08Ah,0FEh,096h,0FEh,092h,0FEh	;c2
+	db	092h,0FEh,04Ch,07Ch,044h,07Ch,038h,038h
+	db	03Fh,020h,07Fh,058h,0FFh,090h,07Fh,050h	;c3
+	db	03Fh,038h,00Fh,008h,00Fh,009h,006h,006h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;c4
+	db	0FFh,001h,0FFh,07Dh,08Fh,089h,006h,006h
+	db	081h,0FFh,08Ah,0FEh,096h,0FEh,092h,0FEh	;c5
+	db	012h,07Eh,04Ch,07Ch,044h,07Ch,038h,038h
+	db	000h,000h,000h,000h,001h,000h,003h,000h	;c6
+	db	063h,000h,0F1h,000h,0F0h,000h,060h,000h
+	db	000h,000h,000h,000h,080h,000h,0C0h,000h	;c7
+	db	0C0h,000h,080h,000h,000h,000h,000h,000h
+	db	07Fh,000h,07Fh,000h,07Fh,000h,07Fh,000h	;c8
+	db	07Fh,000h,03Fh,000h,03Fh,000h,03Fh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;c9
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+
+ ifn  ASSEMBLE__ENGLISH
+	DB	$00,$00,$03,$03,$0F,$0C,$1F,$10,$3F,$23,$7C,$44,$78,$48,$F0,$90	; Oh no..
+	DB	$06,$06,$8F,$89,$CF,$49,$EF,$29,$FF,$19,$FF,$99,$7F,$49,$7F,$48	;（上半分）
+	DB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$E0,$E0,$F1,$11,$F9,$09
+	DB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$CC,$CC,$FE,$32,$FF,$01
+	DB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$1E,$1E,$3F,$21,$7F,$40
+	DB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$80
+ else
+	db	018h,018h,07Eh,07Eh,0FFh,0FFh,0FFh,0FCh	;ca  ざんねん（上半分）
+	db	0FFh,0C0h,0FFh,0FCh,0FFh,0FCh,0FFh,0FEh
+	db	018h,018h,07Eh,07Eh,0FFh,0D7h,0FFh,0D6h	;cb
+	db	0FFh,056h,0FFh,0FCh,0FFh,0FCh,0FFh,078h
+	db	018h,018h,07Eh,07Eh,0FFh,0FFh,0FFh,07Fh	;cc
+	db	0FFh,07Ch,0FFh,0FFh,0FFh,0FEh,0FFh,03Eh
+	db	018h,018h,07Eh,07Eh,0FFh,0FFh,0FFh,03Fh	;cd
+	db	0FFh,023h,0FFh,019h,0FFh,039h,0FFh,039h
+	db	018h,018h,07Eh,07Eh,0FFh,0FFh,0FFh,0F9h	;ce
+	db	0FFh,0F9h,0FFh,0F3h,0FFh,0F3h,0FFh,0E0h
+	db	018h,018h,07Eh,07Eh,0FFh,0FFh,0FFh,0FFh	;cf
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0F5h
+ endif
+	db	000h,000h,038h,038h,04Ch,04Ch,0C6h,0C6h	;d0
+	db	0C6h,0C6h,064h,064h,038h,038h,000h,000h
+	db	000h,000h,018h,018h,038h,038h,018h,018h	;d1
+	db	018h,018h,018h,018h,07Eh,07Eh,000h,000h
+	db	000h,000h,07Ch,07Ch,0C6h,0C6h,00Eh,00Eh	;d2
+	db	078h,078h,0E0h,0E0h,0FEh,0FEh,000h,000h
+	db	000h,000h,07Eh,07Eh,00Ch,00Ch,038h,038h	;d3
+	db	006h,006h,0C6h,0C6h,07Ch,07Ch,000h,000h
+	db	000h,000h,01Ch,01Ch,03Ch,03Ch,06Ch,06Ch	;d4
+	db	0CCh,0CCh,0FEh,0FEh,00Ch,00Ch,000h,000h
+	db	000h,000h,0FCh,0FCh,0C0h,0C0h,0FCh,0FCh	;d5
+	db	006h,006h,0C6h,0C6h,07Ch,07Ch,000h,000h
+	db	000h,000h,07Ch,07Ch,0C0h,0C0h,0FCh,0FCh	;d6
+	db	0C6h,0C6h,0C6h,0C6h,07Ch,07Ch,000h,000h
+	db	000h,000h,0FEh,0FEh,0C6h,0C6h,00Ch,00Ch	;d7
+	db	018h,018h,030h,030h,030h,030h,000h,000h
+	db	000h,000h,07Ch,07Ch,0C6h,0C6h,07Ch,07Ch	;d8
+	db	0C6h,0C6h,0C6h,0C6h,07Ch,07Ch,000h,000h
+	db	000h,000h,07Ch,07Ch,0C6h,0C6h,0C6h,0C6h	;d9
+	db	07Eh,07Eh,006h,006h,07Ch,07Ch,000h,000h
+
+ ifn  ASSEMBLE__ENGLISH
+	DB	$F0,$90,$F0,$90,$F0,$90,$F8,$88,$7F,$47,$7F,$40,$3F,$30,$0F,$0F	; Oh no..
+	DB	$7F,$48,$7F,$49,$7F,$49,$FF,$89,$FF,$19,$EF,$29,$CF,$49,$87,$87	;（下半分）
+	DB	$F9,$C9,$79,$49,$79,$49,$79,$49,$79,$49,$79,$49,$79,$49,$30,$30
+	DB	$FF,$09,$FF,$19,$EF,$29,$EF,$29,$EF,$29,$EF,$29,$EF,$29,$C6,$C6
+	DB	$7F,$48,$F7,$94,$F7,$94,$F7,$94,$FF,$88,$FF,$80,$7F,$41,$3E,$3E
+	DB	$80,$80,$C0,$40,$C0,$40,$C0,$40,$E6,$E6,$FF,$99,$FF,$99,$66,$66
+
+	DEFB	$03,$03,$0F,$0C,$1F,$10,$3F,$22,$7D,$45,$7F,$4F,$7F,$40,$3F,$30 ; start
+	DEFB	$80,$80,$C1,$41,$C3,$42,$C3,$42,$83,$82,$07,$06,$CF,$C8,$FF,$38 ;（上半分）
+	DEFB	$00,$00,$80,$80,$C0,$40,$C0,$40,$C3,$43,$EF,$6C,$FF,$10,$FF,$13
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$80,$80,$CD,$4D,$FF,$32,$FF,$30
+	DEFB	$00,$00,$03,$03,$07,$04,$07,$04,$07,$04,$CF,$CC,$FF,$30,$FF,$90
+	DEFB	$00,$00,$00,$00,$80,$80,$80,$80,$80,$80,$C0,$C0,$E0,$20,$E0,$20
+
+	DEFB	$01,$01,$03,$02,$07,$04,$0F,$08,$1F,$11,$1E,$12,$3C,$24,$3C,$24 ; goal
+	DEFB	$80,$80,$C0,$40,$E0,$20,$E0,$A0,$40,$40,$00,$00,$00,$00,$1E,$1E ;（上半分）
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$3C,$3C,$7E,$42,$FF,$81
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$0E,$0E,$3F,$31,$7F,$40,$7F,$4C
+	DEFB	$38,$38,$7C,$44,$7C,$44,$7C,$44,$7C,$44,$7C,$44,$FC,$C4,$FC,$C4
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+ else
+	db	0FFh,0CFh,0FFh,0C7h,0FFh,0E0h,0FFh,0FFh	;da  ざんねん（下半分）
+	db	0FFh,0FFh,07Eh,07Eh,018h,018h,000h,000h
+	db	0FFh,0F9h,0FFh,0F1h,0FFh,073h,0FFh,0FFh	;db
+	db	0FFh,0FFh,07Eh,07Eh,018h,018h,000h,000h
+	db	0FFh,0B4h,0FFh,097h,0FFh,0CFh,0FFh,0FFh	;dc
+	db	0FFh,0FFh,07Eh,07Eh,018h,018h,000h,000h
+	db	0FFh,021h,0FFh,028h,0FFh,022h,0FFh,0FFh	;dd
+	db	0FFh,0FFh,07Eh,07Eh,018h,018h,000h,000h
+	db	0FFh,0E6h,0FFh,0C6h,0FFh,0CFh,0FFh,0FFh	;de
+	db	0FFh,0FFh,07Eh,07Eh,018h,018h,000h,000h
+	db	0FFh,0DFh,0FFh,05Fh,0FFh,03Fh,0FFh,0FFh	;df
+	db	0FFh,0FFh,07Eh,07Eh,018h,018h,000h,000h
+
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0C0h,0FFh,0C0h	;e0  スタート（上半分）
+	db	0FFh,0FCh,0FFh,0FCh,00Fh,00Ch,00Fh,00Ch
+	db	0F8h,0F8h,0F8h,0F8h,0F9h,019h,0FBh,01Bh	;e1
+	db	0FBh,01Bh,0FFh,01Fh,0FFh,01Eh,0FFh,01Eh
+	db	03Eh,03Eh,0FFh,0FFh,0FFh,0E3h,0FFh,080h	;e2
+	db	0FFh,000h,0FFh,01Ch,0FFh,000h,0FFh,000h
+	db	000h,000h,080h,080h,0C0h,0C0h,0E0h,0E0h	;e3
+	db	0E1h,061h,0FFh,07Fh,0FFh,03Fh,0FFh,038h
+	db	00Fh,00Fh,00Fh,00Fh,00Fh,00Ch,00Fh,00Ch	;e4
+	db	0FFh,0FCh,0FFh,0FCh,0FFh,01Ch,0FFh,01Ch
+	db	0E0h,0E0h,0E0h,0E0h,0E0h,060h,0E0h,060h	;e5
+	db	0E0h,060h,0FFh,07Fh,0FFh,07Fh,0FFh,003h
+
+	db	003h,003h,00Fh,00Fh,01Fh,01Eh,03Fh,038h	;e6  ゴール（上半分）
+	db	03Fh,030h,07Fh,07Fh,07Fh,07Fh,000h,000h
+	db	0F3h,0F3h,0FFh,0FFh,0FFh,01Eh,0FFh,006h	;e7
+	db	0FFh,003h,0FFh,0E3h,0FFh,0E1h,07Fh,061h
+	db	0C0h,0C0h,0E0h,0E0h,0F8h,078h,0FCh,07Ch	;e8
+	db	0FCh,0CCh,0FDh,0CDh,0FFh,0FFh,0FFh,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;e9
+	db	003h,003h,0FBh,0FBh,0FBh,0FBh,0FBh,01Bh
+	db	00Fh,00Fh,00Fh,00Fh,00Fh,00Ch,00Fh,00Ch	;ea
+	db	0FFh,0FCh,0FFh,0FCh,0FFh,03Ch,0FFh,03Ch
+	db	0C0h,0C0h,0C0h,0C0h,0C0h,0C0h,0C0h,0C0h	;eb
+	db	0C0h,0C0h,0C0h,0C0h,0C0h,0C0h,0FEh,0FEh
+ endif
+	db	000h,000h,000h,000h,000h,003h,002h,01Ch	;ec
+	db	01Fh,020h,001h,01Eh,000h,001h,000h,000h
+	db	000h,000h,000h,079h,000h,086h,000h,000h	;ed
+	db	00Fh,000h,0F9h,006h,000h,0F9h,000h,000h
+	db	000h,03Fh,000h,0C0h,000h,000h,000h,000h	;ee
+	db	0C0h,000h,0FFh,000h,03Fh,0C0h,000h,03Fh
+	db	000h,0C0h,000h,038h,000h,004h,000h,002h	;ef
+	db	004h,002h,0F8h,004h,0C0h,038h,000h,0C0h
+
+ ifn  ASSEMBLE__ENGLISH
+	DEFB	$0F,$0F,$0C,$0C,$1E,$12,$1E,$12,$1F,$13,$1F,$10,$0F,$08,$07,$07 ; start
+	DEFB	$FF,$1E,$FB,$8A,$7B,$4A,$7B,$4A,$FB,$8A,$F3,$12,$E3,$22,$C1,$C1 ;（下半分）
+	DEFB	$FF,$7E,$CF,$4C,$DF,$51,$FF,$63,$FF,$67,$FF,$60,$DF,$50,$8F,$8F
+	DEFB	$FF,$31,$FF,$11,$FF,$19,$FF,$19,$FF,$19,$FF,$19,$FF,$99,$E6,$E6
+	DEFB	$FF,$9C,$67,$64,$07,$04,$07,$04,$07,$04,$07,$04,$07,$04,$03,$03
+	DEFB	$C0,$C0,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$00,$00
+
+	DEFB	$78,$48,$79,$49,$79,$49,$78,$48,$7F,$47,$3F,$20,$1F,$10,$0F,$0F ; goal
+	DEFB	$FE,$E2,$FF,$03,$FF,$A3,$FF,$CB,$FF,$1B,$EF,$2B,$CE,$CA,$04,$04 ;（下半分）
+	DEFB	$FF,$91,$EF,$28,$EF,$28,$EF,$28,$FF,$11,$FF,$01,$FE,$82,$7C,$7C
+	DEFB	$FF,$F8,$BF,$B0,$FF,$C4,$FF,$8C,$FF,$9C,$FF,$80,$7F,$42,$3F,$3F
+	DEFB	$FC,$E4,$FC,$64,$FE,$62,$FE,$62,$FE,$62,$FE,$62,$FE,$62,$9C,$9C
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+ else
+	db	01Fh,01Ch,03Fh,038h,07Fh,070h,0FFh,0E0h	;f0  スタート（下半分）
+	db	0FFh,0C3h,0FFh,0EFh,07Ch,07Ch,038h,038h
+	db	0FFh,03Fh,0F3h,033h,0F3h,073h,0F9h,039h	;f1
+	db	0F8h,098h,0F8h,0D8h,0F8h,0F8h,070h,070h
+	db	0FFh,01Ch,0FFh,01Ch,0FFh,09Ch,0FFh,0E0h	;f2
+	db	07Fh,060h,07Fh,063h,07Fh,07Fh,07Ch,07Ch
+	db	0FFh,038h,0FFh,03Fh,0FFh,07Fh,0E0h,060h	;f3
+	db	0E0h,0E0h,0C0h,0C0h,000h,000h,000h,000h
+	db	0FFh,0FCh,0FFh,0FCh,08Fh,08Ch,00Fh,00Ch	;f4
+	db	00Fh,00Ch,00Fh,00Fh,00Fh,00Fh,00Eh,00Eh
+	db	0FFh,003h,0FFh,07Fh,0FFh,07Fh,0E0h,060h	;f5
+	db	0C0h,0C0h,0C0h,0C0h,080h,080h,000h,000h
+
+	db	000h,000h,07Fh,07Fh,07Fh,07Fh,03Fh,030h	;f6  ゴール（下半分）
+	db	03Fh,038h,01Fh,01Eh,00Fh,00Fh,003h,003h
+	db	07Fh,061h,0FFh,0E1h,0FFh,0E3h,0FFh,003h	;f7
+	db	0FFh,007h,0FEh,01Eh,0FCh,0FCh,0F0h,0F0h
+	db	09Fh,098h,09Fh,098h,09Fh,09Fh,01Fh,01Fh	;f8
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FBh,01Bh,0FBh,0FBh,0FBh,0FBh,083h,083h	;f9
+	db	003h,003h,003h,003h,003h,003h,000h,000h
+	db	0FFh,03Ch,0FFh,03Ch,0FFh,03Ch,0FFh,03Ch	;fa
+	db	0FFh,07Ch,0EFh,0ECh,0CFh,0CFh,00Fh,00Fh
+	db	0FEh,0FEh,0FEh,006h,0FEh,006h,0FEh,00Eh	;fb
+	db	0FCh,01Ch,0F8h,078h,0F0h,0F0h,0C0h,0C0h
+ endif
+	db	000h,080h,000h,062h,000h,0F0h,000h,0F1h	;fc
+	db	000h,064h,000h,000h,000h,043h,000h,00Bh
+	db	000h,000h,000h,000h,018h,018h,018h,018h	;fd
+	db	000h,000h,018h,018h,018h,018h,000h,000h
+	db	0C6h,0C6h,0FEh,0BAh,0FEh,082h,0FEh,0AAh	;fe
+	db	0FEh,082h,0FEh,082h,000h,0FEh,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;ff
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+
+;---------------------------------------;
+;	ＴＩＴＬＥ＿ＣＧＸ
+;---------------------------------------;
+NaminoriTitle_CGX:
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 0
+	db	000h,000h,000h,001h,003h,002h,003h,004h
+	db	000h,000h,000h,000h,003h,003h,00Fh,00Ch	; 1
+	db	07Fh,070h,0FFh,080h,0FFh,003h,0FFh,000h
+	db	000h,000h,000h,000h,0E0h,0E0h,0E0h,0E0h	; 2
+	db	0C0h,040h,081h,081h,083h,082h,0C1h,041h
+	db	000h,000h,000h,000h,038h,038h,07Ch,044h	; 3
+	db	0FEh,082h,0FCh,004h,0F8h,008h,0F0h,010h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 4
+	db	000h,000h,000h,000h,001h,003h,007h,004h
+	db	000h,000h,000h,000h,000h,000h,007h,007h	; 5
+	db	01Fh,019h,0FFh,0E0h,0FFh,001h,0FFh,007h
+	db	000h,000h,000h,000h,000h,000h,0C0h,0C0h	; 6
+	db	0C1h,0C1h,083h,082h,007h,004h,083h,082h
+	db	000h,000h,000h,000h,070h,070h,0F8h,088h	; 7
+	db	0FCh,004h,0F8h,008h,0F0h,010h,0E0h,020h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 8
+	db	000h,000h,000h,000h,001h,001h,003h,006h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 9
+	db	007h,007h,03Fh,03Bh,0FFh,0C1h,0FFh,003h
+	db	000h,000h,000h,000h,000h,000h,001h,001h	; a
+	db	083h,082h,087h,084h,00Fh,008h,007h,004h
+	db	000h,000h,000h,000h,0E0h,0E0h,0F0h,010h	; b
+	db	0F8h,008h,0F0h,010h,0E0h,020h,0C0h,040h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; c
+	db	000h,000h,000h,000h,000h,000h,003h,003h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; d
+	db	000h,000h,00Fh,00Fh,07Fh,077h,0FEh,082h
+	db	000h,000h,000h,000h,001h,001h,003h,002h	; e
+	db	007h,004h,00Fh,008h,007h,004h,003h,002h
+	db	000h,000h,0E0h,0E0h,0F0h,010h,0F8h,008h	; f
+	db	0F0h,010h,0E0h,020h,0C0h,040h,0E0h,020h
+	db	007h,005h,007h,005h,00Fh,008h,00Fh,00Ch	;10
+	db	00Fh,00Ah,007h,004h,003h,002h,001h,001h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,09Fh,060h	;11
+	db	09Fh,060h,0FFh,000h,0FFh,060h,0FFh,080h
+	db	0F0h,030h,0FCh,01Ch,0FEh,01Ah,0FFh,039h	;12
+	db	0FFh,033h,0FFh,007h,0FFh,006h,0FFh,000h
+	db	0F8h,088h,07Ch,044h,078h,058h,0B0h,0F0h	;13
+	db	0A0h,0E0h,0C0h,040h,0C0h,040h,0C0h,040h
+	db	007h,008h,00Fh,00Ah,00Fh,01Ah,01Fh,010h	;14
+	db	01Fh,018h,01Fh,014h,00Fh,008h,007h,004h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;15
+	db	03Fh,0C0h,03Fh,0C0h,0FFh,000h,0FFh,000h
+	db	0E1h,061h,0F8h,038h,0FCh,034h,0FFh,073h	;16
+	db	0FFh,067h,0FFh,00Eh,0FFh,00Ch,0FFh,000h
+	db	0F0h,010h,0F8h,088h,0F0h,0B0h,060h,0E0h	;17
+	db	040h,0C0h,080h,080h,080h,080h,080h,080h
+	db	00Fh,008h,00Fh,010h,01Fh,014h,01Fh,034h	;18
+	db	03Fh,020h,03Eh,031h,03Eh,029h,01Fh,010h
+	db	0FFh,00Dh,0FFh,000h,0FFh,000h,0FFh,000h	;19
+	db	0FFh,000h,07Fh,080h,07Fh,080h,0FFh,000h
+	db	083h,082h,0F7h,076h,0F9h,07Fh,0FFh,0E7h	;1a
+	db	0FFh,0CFh,0FFh,01Dh,0FFh,018h,0FFh,000h
+	db	0E0h,020h,0C0h,0C0h,080h,080h,000h,000h	;1b
+	db	000h,000h,080h,080h,0C0h,0C0h,0E0h,0A0h
+	db	007h,00Ch,01Fh,010h,01Fh,020h,03Fh,028h	;1c
+	db	03Fh,068h,07Fh,040h,07Ch,063h,07Ch,053h
+	db	0FEh,006h,0FFh,019h,0FFh,000h,0FFh,000h	;1d
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	003h,002h,0E5h,0E7h,0FDh,07Fh,0FEh,06Eh	;1e
+	db	0FEh,0EEh,0FFh,0CDh,0FFh,01Ch,0FFh,019h
+	db	0C0h,0C0h,080h,080h,000h,000h,000h,000h	;1f
+	db	000h,000h,0C0h,0C0h,0E0h,020h,0F0h,010h
+	db	00Fh,00Fh,010h,01Fh,008h,00Fh,006h,007h	;20
+	db	001h,001h,000h,000h,000h,000h,000h,000h
+	db	0FFh,000h,0FFh,088h,07Fh,0F8h,007h,0FEh	;21
+	db	081h,0FFh,070h,07Fh,008h,00Bh,000h,000h
+	db	0FFh,000h,0FFh,000h,0FFh,001h,0FEh,006h	;22
+	db	0FBh,0FFh,000h,0FFh,000h,04Ch,000h,000h
+	db	0E0h,0A0h,0F0h,0B0h,0F0h,090h,070h,050h	;23
+	db	020h,020h,080h,080h,040h,0C0h,000h,000h
+	db	003h,003h,01Ch,01Ch,023h,03Fh,011h,01Fh	;24
+	db	00Ch,00Fh,003h,003h,000h,000h,000h,000h
+	db	0FFh,040h,0FFh,080h,0FFh,000h,0FFh,01Ch	;25
+	db	0E7h,0FFh,000h,0FFh,0B0h,0B9h,000h,000h
+	db	0FFh,001h,0FFh,001h,0FFh,003h,0FCh,00Fh	;26
+	db	0F0h,0FFh,000h,0FFh,000h,0A5h,000h,000h
+	db	0C0h,040h,0E0h,020h,0F0h,090h,0E0h,0E0h	;27
+	db	080h,080h,040h,0C0h,040h,0C0h,000h,000h
+	db	00Fh,008h,007h,006h,01Fh,01Fh,020h,03Fh	;28
+	db	018h,01Fh,006h,007h,000h,000h,000h,000h
+	db	0FFh,000h,0FFh,000h,0FFh,088h,0FFh,08Ch	;29
+	db	0F3h,09Fh,060h,0FFh,0C0h,0FDh,030h,030h
+	db	0FFh,001h,0FFh,001h,0FEh,002h,0FFh,00Fh	;2a
+	db	0F0h,0FFh,000h,0FFh,001h,02Dh,000h,000h
+	db	0F0h,010h,0F0h,090h,060h,060h,080h,080h	;2b
+	db	040h,0C0h,040h,0C0h,080h,080h,000h,000h
+	db	03Fh,020h,01Fh,010h,00Fh,00Ch,01Fh,01Fh	;2c
+	db	020h,03Fh,01Ch,01Fh,002h,002h,000h,000h
+	db	0FFh,000h,0FFh,000h,0FFh,080h,0FFh,08Ch	;2d
+	db	07Fh,0C7h,03Ch,0E7h,098h,098h,000h,000h
+	db	0FFh,001h,0FEh,002h,0FEh,002h,0FDh,00Fh	;2e
+	db	0F0h,0FFh,000h,0FFh,000h,05Bh,000h,000h
+	db	0F0h,090h,060h,060h,000h,000h,0C0h,0C0h	;2f
+	db	020h,0E0h,020h,0E0h,0C0h,0C0h,000h,000h
+	db	000h,07Eh,000h,0FFh,0C0h,0FBh,0F8h,01Fh	;30
+	db	0FCh,007h,0F8h,00Fh,0E0h,03Fh,040h,0F9h
+	db	0E0h,0FEh,0EEh,01Fh,0FFh,001h,0FFh,080h	;31
+	db	0FFh,004h,0FFh,020h,0FFh,000h,0FFh,001h
+	db	07Fh,0D5h,0FFh,000h,0FDh,002h,0FFh,000h	;32
+	db	0DFh,020h,0FFh,004h,0FFh,000h,0FFh,000h
+	db	000h,07Eh,000h,0DFh,000h,0FBh,000h,0FFh	;33
+	db	000h,0F7h,000h,0FDh,000h,0FFh,000h,0CBh
+	db	0FCh,007h,0F0h,01Fh,0C0h,07Fh,080h,0FFh	;34
+	db	0C0h,07Bh,0E0h,03Fh,0C0h,0FFh,000h,0F3h
+	db	0FDh,002h,0FFh,000h,0FFh,020h,0FFh,004h	;35
+	db	0FFh,000h,0EFh,010h,0FFh,000h,0FFh,080h
+
+ ifn  ASSEMBLE__ENGLISH
+;;;	------------------------------------------------;36～6c
+;;;	Pikachu's
+;;;	 Beach
+
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$7F,$00,$7F
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$E0,$00,$F8
+	DEFB	$00,$00,$00,$03,$00,$03,$00,$03,$00,$03,$00,$03,$00,$03,$00,$03
+	DEFB	$00,$00,$00,$00,$00,$E0,$04,$FC,$04,$FE,$08,$FE,$10,$FC,$10,$F8
+
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+	DEFB	$00,$00,$00,$00,$00,$00,$08,$08,$08,$7C,$08,$FC,$08,$FC,$08,$FC
+
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+	DEFB	$00,$3F,$00,$3F,$00,$3F,$00,$1F,$00,$1F,$00,$1F,$00,$0F,$00,$0F
+	DEFB	$00,$FC,$00,$FE,$40,$FE,$44,$DF,$44,$DF,$44,$FE,$04,$FE,$04,$FF
+	DEFB	$00,$03,$00,$03,$02,$FB,$00,$FD,$04,$FF,$38,$FF,$00,$7D,$08,$FD
+	DEFB	$04,$FC,$04,$FE,$08,$FE,$08,$FC,$10,$FD,$10,$FF,$20,$FF,$01,$FF
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$80,$C0,$C0,$60,$EF,$C0,$FF,$80,$FF
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$02,$02,$3F,$02,$FF,$00,$FF,$04,$FF
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$7F,$01,$FF,$02,$FF
+	DEFB	$08,$FC,$08,$FC,$08,$FC,$08,$FC,$08,$FC,$00,$7F,$00,$FF,$00,$FF
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$C6,$00,$EF,$21,$FF
+	DEFB	$00,$00,$00,$01,$00,$03,$00,$03,$00,$07,$05,$07,$02,$3B,$00,$BD
+	DEFB	$00,$00,$00,$E0,$20,$F0,$40,$F0,$80,$F0,$00,$F8,$00,$FC,$0E,$FE
+
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+	DEFB	$00,$0F,$00,$0F,$00,$07,$00,$07,$00,$07,$00,$03,$00,$03,$00,$03
+	DEFB	$18,$FE,$60,$FC,$40,$F0,$40,$E0,$40,$E0,$40,$E0,$40,$E0,$40,$E0
+	DEFB	$08,$FD,$0B,$FF,$08,$FD,$08,$FC,$08,$7C,$08,$7D,$08,$7D,$09,$7D
+	DEFB	$03,$FF,$06,$FF,$00,$FF,$00,$FF,$20,$FF,$60,$FF,$C0,$FF,$81,$E7
+	DEFB	$00,$FF,$06,$FF,$08,$7C,$00,$78,$00,$FF,$60,$FF,$C0,$FF,$90,$FF
+	DEFB	$04,$FF,$04,$FF,$08,$FF,$08,$FF,$08,$FF,$08,$FF,$10,$FD,$90,$F8
+	DEFB	$02,$FF,$1C,$FF,$20,$FE,$00,$F2,$00,$FF,$00,$FF,$00,$FF,$01,$FF
+	DEFB	$00,$7F,$08,$7F,$08,$7D,$08,$7D,$08,$BD,$08,$FD,$88,$FD,$48,$FD
+	DEFB	$21,$FF,$21,$FF,$21,$FF,$20,$FF,$20,$FF,$20,$FF,$20,$FF,$20,$F7
+	DEFB	$04,$BF,$04,$BF,$04,$BF,$04,$BE,$04,$FE,$04,$FE,$08,$FE,$10,$FD
+	DEFB	$10,$FF,$00,$F8,$00,$FE,$01,$FF,$01,$7F,$01,$1F,$02,$3F,$02,$FF
+	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$00,$80,$00,$80,$00,$00
+
+	DEFB	$01,$03,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	DEFB	$C0,$E0,$00,$E0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	DEFB	$7B,$7F,$02,$3F,$00,$01,$00,$00,$03,$07,$1C,$3F,$60,$7F,$83,$FF
+	DEFB	$03,$C3,$00,$81,$00,$00,$00,$00,$F0,$F0,$08,$F8,$04,$FC,$84,$FC
+	DEFB	$0F,$CF,$00,$87,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	DEFB	$70,$F8,$00,$B8,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	DEFB	$7E,$7F,$00,$3F,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	DEFB	$3B,$BF,$00,$1D,$00,$00,$00,$01,$01,$03,$02,$03,$02,$03,$02,$03
+	DEFB	$C3,$F3,$00,$E1,$00,$00,$E0,$E0,$10,$F0,$10,$F0,$10,$F0,$10,$F0
+	DEFB	$E0,$F8,$00,$F0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	DEFB	$04,$FF,$38,$7E,$00,$3C,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+	DEFB	$8C,$FD,$89,$FB,$4E,$FF,$40,$7F,$40,$7F,$41,$7F,$42,$7E,$22,$7E
+	DEFB	$88,$FC,$08,$F8,$3E,$FE,$01,$FF,$00,$FF,$F0,$FF,$08,$1F,$10,$3F
+	DEFB	$0C,$1E,$13,$3F,$20,$3F,$20,$7F,$E4,$FF,$C4,$FF,$C0,$FF,$C1,$FF
+	DEFB	$00,$00,$03,$87,$8C,$CF,$50,$DF,$51,$DF,$4F,$CF,$43,$C7,$E4,$EF
+	DEFB	$00,$00,$C0,$E0,$20,$F0,$10,$F9,$89,$FB,$8A,$FB,$0A,$FF,$0C,$FF
+	DEFB	$02,$03,$32,$7B,$49,$FF,$85,$FD,$09,$FD,$11,$F9,$21,$F1,$21,$E1
+	DEFB	$10,$F0,$17,$F7,$18,$FF,$10,$FF,$04,$FF,$0A,$FF,$12,$F3,$12,$F3
+	DEFB	$00,$00,$00,$80,$80,$C0,$40,$C0,$40,$E0,$20,$E0,$20,$E0,$20,$E0
+
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+	DEFB	$22,$3E,$23,$3F,$20,$3F,$20,$3F,$20,$3F,$23,$3F,$1C,$1E,$00,$00
+	DEFB	$61,$FF,$82,$FF,$0C,$FE,$30,$F8,$C0,$E0,$00,$80,$00,$00,$00,$00
+	DEFB	$87,$FF,$47,$FF,$46,$7F,$20,$7F,$20,$3F,$13,$3F,$0C,$1E,$00,$00
+	DEFB	$98,$FF,$11,$FF,$33,$FF,$63,$FF,$A0,$FF,$10,$BF,$0F,$1F,$00,$00
+	DEFB	$8C,$FF,$8C,$FF,$8C,$FF,$0C,$FF,$0A,$FF,$89,$FB,$70,$71,$00,$00
+	DEFB	$47,$E7,$49,$DF,$71,$FF,$03,$FF,$04,$FE,$18,$FC,$E0,$F0,$00,$00
+	DEFB	$12,$F3,$92,$F3,$92,$F3,$92,$F3,$92,$F3,$92,$F3,$61,$E3,$00,$00
+	DEFB	$20,$E0,$20,$E0,$20,$E0,$20,$E0,$20,$E0,$40,$E0,$80,$C0,$00,$00
+
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;	DEFB	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+;;;	------------------------------------------------;6d～7e,7f,0～5,6～a
+	DEFB	$82,$82,$82,$82,$82,$82,$82,$82,$82,$82,$42,$42,$3E,$3E,$00,$00	; 'U'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$40,$40,$3C,$3C,$02,$02,$7C,$7C,$00,$00	; 's'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$42,$42,$7E,$7E,$40,$40,$3E,$3E,$00,$00	; 'e'
+	DEFB	$3C,$3C,$42,$42,$80,$80,$80,$80,$80,$80,$42,$42,$3C,$3C,$00,$00	; 'C'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$42,$42,$42,$42,$42,$42,$3C,$3C,$00,$00	; 'o'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$22,$22,$22,$22,$22,$22,$22,$22,$00,$00	; 'n'
+	DEFB	$00,$00,$10,$10,$7C,$7C,$10,$10,$10,$10,$10,$10,$0C,$0C,$00,$00	; 't'
+	DEFB	$00,$00,$00,$00,$4E,$4E,$50,$50,$60,$60,$40,$40,$40,$40,$00,$00	; 'r'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$42,$42,$42,$42,$42,$42,$3C,$3C,$00,$00	; 'o'
+	DEFB	$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$00,$00	; 'l'
+	DEFB	$FC,$FC,$82,$82,$82,$82,$FC,$FC,$80,$80,$80,$80,$80,$80,$00,$00	; 'P'
+	DEFB	$00,$00,$00,$00,$38,$38,$04,$04,$3C,$3C,$44,$44,$3E,$3E,$00,$00	; 'a'
+	DEFB	$02,$02,$02,$02,$02,$02,$3E,$3E,$42,$42,$42,$42,$3E,$3E,$00,$00	; 'd'
+	DEFB	$00,$00,$10,$10,$7C,$7C,$10,$10,$10,$10,$10,$10,$0C,$0C,$00,$00	; 't'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$42,$42,$42,$42,$42,$42,$3C,$3C,$00,$00	; 'o'
+	DEFB	$78,$78,$84,$84,$80,$80,$7C,$7C,$02,$02,$82,$82,$7C,$7C,$00,$00	; 'S'
+	DEFB	$00,$00,$00,$00,$44,$44,$44,$44,$44,$44,$44,$44,$3C,$3C,$00,$00	; 'u'
+	DEFB	$00,$00,$00,$00,$4E,$4E,$50,$50,$60,$60,$40,$40,$40,$40,$00,$00	; 'r'
+
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+
+	db	000h,000h,000h,000h,00Fh,00Fh,01Fh,010h	;3b
+	db	03Fh,020h,03Fh,023h,03Ch,024h,03Ch,024h
+	db	000h,000h,000h,000h,0F0h,0F0h,0F8h,008h	;3c
+	db	0FCh,004h,0FCh,0C4h,03Ch,024h,03Ch,024h
+	db	03Ch,024h,03Ch,024h,03Fh,023h,03Fh,020h	;3d
+	db	01Fh,010h,00Fh,00Fh,000h,000h,000h,000h
+	db	03Ch,024h,03Ch,024h,0FCh,0C4h,0FCh,004h	;3e
+	db	0F8h,008h,0F0h,0F0h,000h,000h,000h,000h
+	db	03Ch,024h,03Ch,024h,03Ch,024h,03Ch,024h	;3f
+	db	03Ch,024h,03Ch,024h,03Ch,024h,03Ch,024h
+	db	000h,000h,000h,000h,0FFh,0FFh,0FFh,000h	;40
+	db	0FFh,000h,0FFh,0FFh,000h,000h,000h,000h
+
+	DEFB	$0C,$0C,$12,$12,$10,$10,$7E,$7E,$10,$10,$10,$10,$10,$10,$00,$00	; 'f'
+	DEFB	$FC,$FC,$82,$82,$82,$82,$FC,$FC,$88,$88,$84,$84,$82,$82,$00,$00	; 'R'
+	DEFB	$00,$00,$00,$00,$38,$38,$04,$04,$3C,$3C,$44,$44,$3E,$3E,$00,$00	; 'a'
+	DEFB	$02,$02,$02,$02,$02,$02,$3E,$3E,$42,$42,$42,$42,$3E,$3E,$00,$00	; 'd'
+	DEFB	$18,$18,$3C,$3C,$3C,$3C,$3C,$3C,$18,$18,$00,$00,$18,$18,$18,$18	; '!'
+ else
+ endif
+
+;;;	------------------------------------------------;6d～
+
+
+ ifn 0
+	db	01Eh,01Eh,03Eh,03Eh,07Fh,073h,07Fh,063h	;36
+	db	0FFh,0E3h,0FFh,0C0h,0FFh,0E3h,07Fh,063h
+	db	0FEh,0FEh,0FEh,0FEh,0FEh,0C6h,0FFh,0C7h	;37
+	db	0FFh,0C7h,0FFh,001h,0FFh,0C3h,0FFh,0C3h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0C0h,0FFh,0FEh	;38
+	db	0FFh,0FEh,087h,086h,09Fh,09Eh,0BFh,0BEh
+	db	0FCh,0FCh,0FCh,0FCh,0FCh,00Ch,0FCh,00Ch	;39
+	db	0FCh,00Ch,0FCh,00Ch,0FFh,00Fh,0FFh,01Fh
+	db	003h,003h,003h,003h,003h,003h,003h,003h	;3a
+	db	003h,003h,07Fh,07Fh,0FFh,0FFh,0FFh,0C7h
+	db	0FFh,0FEh,0FFh,0FFh,0FDh,00Dh,0FFh,00Fh	;3b
+	db	0FFh,00Fh,0FFh,000h,0FFh,00Fh,0FFh,00Fh
+	db	0FCh,07Ch,0FCh,0CCh,0FCh,0CCh,0FCh,0FCh	;3c
+	db	0FCh,0FCh,0FCh,00Ch,0FFh,0FFh,0FFh,0FFh
+	db	000h,000h,000h,000h,001h,001h,003h,003h	;3d
+	db	003h,003h,07Fh,07Fh,0FFh,0FFh,0FFh,0C7h
+	db	00Fh,00Fh,07Fh,07Fh,0FFh,0F0h,0FFh,0C0h	;3e
+	db	0FFh,000h,0FFh,0F0h,0FFh,0F0h,0FFh,000h
+	db	0F8h,0F8h,0F8h,0F8h,0F8h,018h,0F8h,018h	;3f
+	db	0F8h,078h,0FCh,07Ch,0FCh,07Ch,0FCh,00Ch
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;40
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;41
+	db	000h,000h,001h,003h,00Fh,01Fh,03Fh,07Fh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;42
+	db	00Fh,03Fh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;43
+	db	0FCh,0FFh,0FFh,0E1h,0FFh,0C3h,0FFh,087h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;44
+	db	000h,000h,0E0h,0F0h,0FCh,0FEh,0FFh,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;45
+	db	000h,000h,000h,000h,000h,000h,000h,080h
+	db	07Eh,062h,07Eh,072h,03Fh,03Fh,01Fh,01Fh	;46
+	db	007h,006h,007h,006h,007h,007h,007h,007h
+	db	0FFh,0C3h,0FFh,0C3h,0FFh,087h,0FEh,006h	;47
+	db	0FEh,00Eh,0FCh,03Ch,0F8h,0F8h,0E0h,0E0h
+	db	07Fh,074h,07Fh,060h,07Fh,070h,03Fh,038h	;48
+	db	01Fh,01Ch,00Fh,00Eh,007h,007h,003h,003h
+	db	0FFh,01Eh,0FFh,03Eh,0F7h,077h,0E7h,067h	;49
+	db	0E0h,060h,0E0h,060h,0E0h,0E0h,0C0h,0C0h
+	db	0FFh,007h,0FFh,03Fh,0FFh,0FFh,0E1h,0E1h	;4a
+	db	001h,001h,000h,000h,000h,000h,000h,000h
+	db	0FCh,00Ch,0FFh,00Fh,0FFh,08Fh,0FFh,080h	;4b
+	db	0FFh,0C0h,0FFh,0F0h,07Fh,07Fh,01Fh,01Fh
+	db	007h,006h,0FFh,0FEh,0FFh,0FFh,0FFh,01Fh	;4c
+	db	0F8h,038h,0F0h,0F0h,0E0h,0E0h,080h,080h
+	db	0FFh,007h,0FFh,03Fh,0FCh,0FCh,0E1h,0E1h	;4d
+	db	001h,001h,001h,001h,001h,001h,001h,001h
+	db	0FFh,0F0h,0FFh,0F0h,0FFh,0E0h,0FFh,0C1h	;4e
+	db	0FFh,083h,0FFh,08Fh,0FEh,0FEh,0F8h,0F8h
+	db	0FCh,07Ch,0FCh,0FCh,0C0h,0C0h,0C0h,0C0h	;4f
+	db	080h,080h,000h,000h,000h,000h,000h,000h
+	db	000h,001h,003h,007h,007h,00Fh,00Fh,01Eh	;50
+	db	01Fh,03Eh,03Fh,03Ch,03Fh,07Ch,07Fh,07Ch
+	db	0FFh,0F8h,0FFh,092h,0FFh,012h,0FFh,018h	;51
+	db	0FFh,01Fh,0FFh,002h,0FFh,002h,0FFh,01Fh
+	db	0FFh,0FFh,0FFh,07Fh,0FFh,07Fh,0FFh,08Fh	;52
+	db	0FFh,08Fh,0FFh,001h,0FFh,001h,0FFh,089h
+	db	0FFh,000h,0FFh,0E1h,0FFh,0C3h,0FFh,087h	;53
+	db	0FFh,007h,0FFh,0C7h,0FFh,0C7h,0FFh,001h
+	db	0FFh,0FBh,0FFh,0F9h,0FFh,0F8h,0FFh,0C0h	;54
+	db	0FFh,0C0h,0FFh,0C0h,0FFh,0CFh,0FFh,0CFh
+	db	0C0h,0E0h,0F0h,0F8h,0F8h,0FCh,0FCh,00Eh	;55
+	db	0FEh,00Fh,0FFh,00Fh,0FFh,00Fh,0FFh,00Fh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;56
+	db	000h,000h,000h,000h,000h,080h,080h,080h
+ ifn  pm_jmsg
+	db	000h,000h,04Ah,04Ah,04Ah,04Ah,040h,040h	;57	じ
+	db	040h,040h,044h,044h,044h,044h,038h,038h
+	db	000h,000h,000h,000h,010h,010h,0B8h,0B8h	;58	ゅ
+	db	0D4h,0D4h,094h,094h,038h,038h,010h,010h
+	db	070h,070h,000h,000h,078h,078h,084h,084h	;59	う
+	db	004h,004h,004h,004h,008h,008h,030h,030h
+	db	000h,000h,04Ah,04Ah,04Ah,04Ah,040h,040h	;5a	じ
+	db	040h,040h,044h,044h,044h,044h,038h,038h
+	db	010h,010h,0FEh,0FEh,010h,010h,010h,010h	;5b	キ
+	db	0FEh,0FEh,010h,010h,010h,010h,010h,010h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;5c	ー
+	db	0FEh,0FEh,000h,000h,000h,000h,000h,000h
+	db	000h,000h,0FEh,0FEh,00Ch,00Ch,010h,010h	;5d	で
+	db	025h,025h,020h,020h,010h,010h,00Ch,00Ch
+	db	005h,005h,005h,005h,008h,008h,044h,044h	;5e	バ
+	db	044h,044h,042h,042h,082h,082h,082h,082h
+	db	000h,000h,07Ch,07Ch,000h,000h,0FEh,0FEh	;5f	ラ
+	db	002h,002h,004h,004h,008h,008h,030h,030h
+ else
+	DEFB	$82,$82,$82,$82,$82,$82,$82,$82,$82,$82,$42,$42,$3E,$3E,$00,$00	; 'U'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$40,$40,$3C,$3C,$02,$02,$7C,$7C,$00,$00	; 's'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$42,$42,$7E,$7E,$40,$40,$3E,$3E,$00,$00	; 'e'
+	DEFB	$3C,$3C,$42,$42,$80,$80,$80,$80,$80,$80,$42,$42,$3C,$3C,$00,$00	; 'C'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$42,$42,$42,$42,$42,$42,$3C,$3C,$00,$00	; 'o'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$22,$22,$22,$22,$22,$22,$22,$22,$00,$00	; 'n'
+	DEFB	$00,$00,$10,$10,$7C,$7C,$10,$10,$10,$10,$10,$10,$0C,$0C,$00,$00	; 't'
+	DEFB	$00,$00,$00,$00,$4E,$4E,$50,$50,$60,$60,$40,$40,$40,$40,$00,$00	; 'r'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$42,$42,$42,$42,$42,$42,$3C,$3C,$00,$00	; 'o'
+ endif
+	db	07Fh,07Ch,03Fh,07Ch,03Fh,03Ch,01Fh,03Eh	;60
+	db	00Fh,01Eh,007h,00Fh,003h,007h,000h,001h
+	db	0FFh,01Fh,0FFh,01Fh,0FFh,01Fh,0FFh,00Fh	;61
+	db	0FFh,007h,0FFh,003h,0FFh,083h,0FFh,0E3h
+	db	0FFh,089h,0FFh,099h,0FFh,099h,0FFh,0B1h	;62
+	db	0FFh,0F1h,0FFh,0E1h,0FFh,0C3h,0FFh,087h
+	db	0FFh,001h,0FFh,0C7h,0FFh,0C4h,0FFh,0C6h	;63
+	db	0FFh,087h,0FFh,00Eh,0FFh,008h,0FFh,098h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,03Fh,0FFh,03Eh	;64
+	db	0FFh,03Ch,0FFh,038h,0FFh,008h,0FFh,039h
+	db	0FFh,00Fh,0FFh,00Fh,0FFh,00Fh,0FEh,01Fh	;65
+	db	0FCh,01Ch,0F9h,03Dh,0F3h,07Bh,0C7h,0E7h
+	db	080h,080h,000h,080h,000h,000h,000h,000h	;66
+	db	070h,0F8h,0FCh,0FCh,0BEh,0BEh,03Eh,03Fh
+ ifn  pm_jmsg
+	db	000h,000h,000h,000h,072h,072h,002h,002h	;67	ン
+	db	002h,002h,002h,002h,004h,004h,078h,078h
+	db	000h,000h,0FCh,0FCh,004h,004h,008h,008h	;68	ス
+	db	010h,010h,028h,028h,044h,044h,082h,082h
+	db	010h,010h,078h,078h,020h,020h,034h,034h	;69	を
+	db	058h,058h,028h,028h,020h,020h,01Ch,01Ch
+	db	020h,020h,020h,020h,02Ch,02Ch,030h,030h	;6a	と
+	db	060h,060h,080h,080h,080h,080h,07Eh,07Eh
+	db	044h,044h,044h,044h,044h,044h,044h,044h	;6b	り
+	db	044h,044h,004h,004h,008h,008h,030h,030h
+	db	000h,000h,044h,044h,0F2h,0F2h,04Ah,04Ah	;6c	か
+	db	04Ah,04Ah,048h,048h,008h,008h,030h,030h
+	db	000h,000h,000h,000h,000h,000h,078h,078h	;6d	っ
+	db	004h,004h,004h,004h,008h,008h,030h,030h
+	db	000h,000h,07Ch,07Ch,004h,004h,000h,000h	;6e	こ
+	db	000h,000h,000h,000h,080h,080h,07Ch,07Ch
+	db	000h,000h,008h,008h,00Eh,00Eh,008h,008h	;6f	よ
+	db	008h,008h,0FCh,0FCh,08Ah,08Ah,070h,070h
+ else
+	DEFB	$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$00,$00	; 'l'
+	DEFB	$FC,$FC,$82,$82,$82,$82,$FC,$FC,$80,$80,$80,$80,$80,$80,$00,$00	; 'P'
+	DEFB	$00,$00,$00,$00,$38,$38,$04,$04,$3C,$3C,$44,$44,$3E,$3E,$00,$00	; 'a'
+	DEFB	$02,$02,$02,$02,$02,$02,$3E,$3E,$42,$42,$42,$42,$3E,$3E,$00,$00	; 'd'
+	DEFB	$00,$00,$10,$10,$7C,$7C,$10,$10,$10,$10,$10,$10,$0C,$0C,$00,$00	; 't'
+	DEFB	$00,$00,$00,$00,$3C,$3C,$42,$42,$42,$42,$42,$42,$3C,$3C,$00,$00	; 'o'
+	DEFB	$78,$78,$84,$84,$80,$80,$7C,$7C,$02,$02,$82,$82,$7C,$7C,$00,$00	; 'S'
+	DEFB	$00,$00,$00,$00,$44,$44,$44,$44,$44,$44,$44,$44,$3C,$3C,$00,$00	; 'u'
+	DEFB	$00,$00,$00,$00,$4E,$4E,$50,$50,$60,$60,$40,$40,$40,$40,$00,$00	; 'r'
+ endif
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;70
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	03Fh,07Fh,00Fh,01Fh,001h,003h,000h,000h	;71
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FFh,08Fh,0FFh,0DFh,0FFh,0FFh,00Fh,03Fh	;72
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FCh,0FFh	;73
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FFh,0FFh,0FCh,0FEh,0E0h,0F0h,000h,000h	;74
+	db	000h,000h,003h,003h,007h,007h,007h,006h
+	db	006h,087h,007h,007h,003h,007h,003h,003h	;75
+	db	001h,001h,0C0h,0C0h,0E0h,0E0h,0F8h,078h
+	db	077h,077h,067h,067h,0CEh,0EFh,0DEh,0DEh	;76
+	db	09Ch,09Ch,008h,018h,000h,000h,000h,000h
+ ifn  pm_jmsg
+	db	008h,008h,010h,010h,020h,020h,040h,040h	;77	く
+	db	040h,040h,020h,020h,010h,010h,008h,008h
+	db	020h,020h,024h,024h,0F2h,0F2h,040h,040h	;78	な
+	db	084h,084h,03Ch,03Ch,046h,046h,038h,038h
+	db	070h,070h,010h,010h,014h,014h,07Eh,07Eh	;79	み
+	db	094h,094h,0A4h,0A4h,0A4h,0A4h,048h,048h
+	db	000h,000h,09Eh,09Eh,080h,080h,080h,080h	;7a	に
+	db	080h,080h,0A0h,0A0h,0A0h,0A0h,09Eh,09Eh
+	db	000h,000h,038h,038h,054h,054h,092h,092h	;7b	の
+	db	092h,092h,092h,092h,092h,092h,064h,064h
+	db	07Ch,07Ch,008h,008h,030h,030h,07Ch,07Ch	;7c	ろ
+	db	082h,082h,002h,002h,002h,002h,03Ch,03Ch
+	db	070h,070h,000h,000h,078h,078h,084h,084h	;7d	う
+	db	004h,004h,004h,004h,008h,008h,030h,030h
+	db	018h,018h,03Ch,03Ch,03Ch,03Ch,03Ch,03Ch	;7e	！
+	db	018h,018h,000h,000h,018h,018h,018h,018h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+ else
+	DEFB	$0C,$0C,$12,$12,$10,$10,$7E,$7E,$10,$10,$10,$10,$10,$10,$00,$00	; 'f'
+	DEFB	$FC,$FC,$82,$82,$82,$82,$FC,$FC,$88,$88,$84,$84,$82,$82,$00,$00	; 'R'
+	DEFB	$00,$00,$00,$00,$38,$38,$04,$04,$3C,$3C,$44,$44,$3E,$3E,$00,$00	; 'a'
+	DEFB	$02,$02,$02,$02,$02,$02,$3E,$3E,$42,$42,$42,$42,$3E,$3E,$00,$00	; 'd'
+	DEFB	$18,$18,$3C,$3C,$3C,$3C,$3C,$3C,$18,$18,$00,$00,$18,$18,$18,$18	; '!'
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7c
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7d
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+ endif
+	db	000h,000h,000h,000h,00Fh,00Fh,01Fh,010h	;3b
+	db	03Fh,020h,03Fh,023h,03Ch,024h,03Ch,024h
+	db	000h,000h,000h,000h,0F0h,0F0h,0F8h,008h	;3c
+	db	0FCh,004h,0FCh,0C4h,03Ch,024h,03Ch,024h
+	db	03Ch,024h,03Ch,024h,03Fh,023h,03Fh,020h	;3d
+	db	01Fh,010h,00Fh,00Fh,000h,000h,000h,000h
+	db	03Ch,024h,03Ch,024h,0FCh,0C4h,0FCh,004h	;3e
+	db	0F8h,008h,0F0h,0F0h,000h,000h,000h,000h
+	db	03Ch,024h,03Ch,024h,03Ch,024h,03Ch,024h	;3f
+	db	03Ch,024h,03Ch,024h,03Ch,024h,03Ch,024h
+	db	000h,000h,000h,000h,0FFh,0FFh,0FFh,000h	;40
+	db	0FFh,000h,0FFh,0FFh,000h,000h,000h,000h
+
+ endif
+

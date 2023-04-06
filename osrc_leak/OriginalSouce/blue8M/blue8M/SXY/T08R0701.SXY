@@ -1,0 +1,31 @@
+; 10/23/95		13:53:02
+dun_tbl$:
+	db	017h
+ie_tbl$:
+	db	002h
+	db	007h,004h,006h,EXIT
+	db	007h,005h,006h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	003h
+	db	SYLPHMAN
+	db	001h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+	db	SYLPHMAN
+	db	002h+4,000h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	002h
+	db	SYLPHMAN
+	db	001h+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	003h
+ram_map_tbl$:
+	dw	00dh * 004h + 003h + ram_map
+	db	007h,004h
+	dw	00dh * 004h + 003h + ram_map
+	db	007h,005h

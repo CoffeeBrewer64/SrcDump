@@ -1,0 +1,1156 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	dealer.def
+	include	vanish.def
+	include	anime.def
+	include	macro.h
+	include	pm_debug.def
+	include	group.def
+
+	include	pikaanm.h
+
+
+bank12	group	G_BANK12
+
+
+	public	d2_room3
+
+
+	extern	put_wait
+	extern	obj_stopping
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+	extern	CheckAssignPos
+	extern	SetActorSite
+	extern	yes_no
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+seq_d2r1f3	equ	seq_ctrl_buf + 017h
+
+
+d2_room3:
+ysiz	=	18
+xsiz	=	20
+	db	DOUKUTU_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	dungeon2_3		; map data adrs
+	dw	msg_d2r1f3		; message tbl adrs
+	dw	ev_d2r1f3		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d2r1f3
+
+
+ev_d2r1f3:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d2r1f3_tbl
+	ld	a,(seq_d2r1f3)
+	call	battle_sequence
+	ld	(seq_d2r1f3),a
+
+CheckNoEncount:
+	ld	a,(ev_d2 + 1)
+	bit	1,a				; check battle vs science
+	ret	z
+
+	ld	hl,NoEncountSpace$
+	call	CheckAssignPos
+	jr	nc,ne$
+
+	ld	hl,obs_player
+	set	4,(hl)				; エンカウント強制なし
+
+	ret
+
+
+ne$:
+	ld	hl,obs_player
+	res	4,(hl)				; エンカウント強制なしをクリア
+
+	ret
+
+
+NoEncountSpace$:
+	db	005h,00bh
+	db	005h,00ch
+	db	005h,00dh
+	db	005h,00eh
+	db	006h,00bh
+	db	006h,00ch
+	db	006h,00dh
+	db	006h,00eh
+	db	007h,00bh
+	db	007h,00ch
+	db	007h,00dh
+	db	007h,00eh
+	db	008h,00bh
+	db	008h,00ch
+	db	008h,00dh
+	db	008h,00eh
+	db	0ffh
+
+
+return:
+	ld	hl,ev_d2 + 01h
+	bit	6,(hl)				; ロケット団との対戦確認
+	res	6,(hl)				; ロケット団との対戦確認
+	call	nz,r_vanish
+
+	xor	a
+	ld	(cancel_key),a
+
+set_seq:
+	ld	(seq_d2r1f3),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+r_vanish:
+	ld	a,<D2R1F3msg2				; Nusashi
+	call	vanish
+	ld	a,<D2R1F3msg6				; Kojiro
+	call	vanish
+
+	ret
+
+
+d2r1f3_tbl:
+	initndw	check_encount,seq_check_encount
+;	ndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+	ndw	vs_after,seq_vs_after
+	ndw	science_get,seq_science_get
+	ndw	s_step,seq_s_step
+
+	ndw	MusashiGo,SeqMusashiGo
+	ndw	MusashiStep,SeqMusashiStep
+	ndw	MusashiArrive,SeqMusashiArrive
+	ndw	KojiroGo,SeqKojiroGo
+	ndw	KojiroStep,SeqKojiroStep
+	ndw	KojiroArrive,SeqKojiroArrive
+	ndw	RocketBattle,SeqRocketBattle
+	ndw	BattleAfter,SeqBattleAfter
+	ndw	VanishReady,SeqVanishReady
+	ndw	VanishEnd,SeqVanishEnd
+
+
+	extern	DebugKeyHook
+
+check_encount:
+  ifn	pm_debug
+	call	DebugKeyHook				; B-Button 
+	ret	nz
+  endif
+
+	ld	a,(ev_d2 + 1)
+	and	10000001b			; 化石とってなかったらイベント
+	call	z,ScienceTrainer
+
+	ld	a,(ev_d2 + 1)
+	bit	2,a
+	call	z,MuKo				; ムサシ\コジロウイベント
+
+	ret
+
+
+; 科学者化石を手に入れるけど主人公も貰えちゃうおいしいイベント
+ScienceTrainer:
+	ld	a,(ev_d2 + 1)
+	bit	1,a				; check battle vs science
+	jp	nz,other_check$
+
+	ld	a,(mapscloll_y)
+	cp	008h
+	jp	nz,other_check$
+
+	ld	a,(mapscloll_x)
+	cp	00dh
+	jp	nz,other_check$
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,msg_science1
+	ld	(work1),a
+	call	talk_map			; (with setting sequence number)
+
+	ret
+
+
+other_check$:
+	ld	a,(ev_d2 + 1)
+	and	10000001b			; こうら、貝の化石
+	jp	z,battle_main
+
+	ret
+
+
+vs_after:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; losing return
+
+;	ld	a,0f0h
+;	ld	(cancel_key),a
+
+;	ld	a,(event_flg)
+;	bit	6,a				; battle wait check
+;	ret	nz
+
+	call	actor_blanch
+
+	call	put_wait
+
+	ld	hl,ev_d2 + 1
+	set	1,(hl)
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,seq_check_encount
+	call	set_seq
+
+	ret
+
+
+science_get:
+	ld	a,msg_science1
+	ld	(work1),a
+	call	obj_stopping
+
+	ld	hl,HeroPikaPickPos1$
+	call	CheckAssignPos
+	jr	c,right_sp$
+
+	ld	hl,HeroPickPos1$		; check left fossil
+	call	CheckAssignPos
+	jr	c,left$
+
+	ld	hl,HeroPikaPickPos2$
+	call	CheckAssignPos
+	jr	c,left_sp$
+
+	ld	hl,HeroPickPos2$		; check right fossil
+	call	CheckAssignPos
+	jr	c,right$
+
+	jp	battle_main
+
+
+left_sp$:
+	ld	b,08h
+	ld	hl,pika_parry_l$
+	call	chk_pika_escape
+
+right$:
+	ld	de,step_l$
+
+	jr	rts$
+
+
+right_sp$:
+	ld	b,0ch
+	ld	hl,pika_parry_r$
+	call	chk_pika_escape
+
+left$:
+	ld	de,step_r$
+
+rts$:
+	ld	a,msg_science1
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,seq_s_step
+	call	set_seq
+
+	ret
+
+
+HeroPickPos1$:
+	db	007h,00ch
+	db	006h,00bh
+	db	005h,00ch
+	db	0ffh
+
+HeroPikaPickPos1$:
+	db	007h,00ch
+	db	0ffh
+pika_parry_r$:
+	db	Pika_Init
+	db	Pika_Site_South
+	extern	Pika_Jump_NorthWest
+	db	<Pika_Jump_NorthWest
+	db	Pika_End
+
+
+HeroPickPos2$:
+	db	007h,00dh
+	db	006h,00eh
+	db	005h,00eh
+	db	0ffh
+
+HeroPikaPickPos2$:
+	db	007h,00dh
+	db	0ffh
+pika_parry_l$:
+	db	Pika_Init
+	db	Pika_Site_South
+	extern	Pika_Jump_NorthEast
+	db	<Pika_Jump_NorthEast
+	db	Pika_End
+
+
+step_r$:
+	db	A_R
+step_l$:
+	db	A_U,A_E
+
+
+	
+
+
+s_step:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	a,msg_msg1_get
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,(ev_d2 + 1)
+	bit	7,a
+	jr	z,oth$
+
+	ld	a,D2R1F3msg7			; msg7
+
+	jr	vanish$
+
+
+oth$:
+	ld	a,D2R1F3msg8			; msg8
+
+vanish$:
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,seq_check_encount
+	call	set_seq
+
+	ret
+
+
+
+
+; ロケット団登場！！
+	extern	init_hero_anime
+	extern	set_now_music
+
+	extern	MusicStop
+	extern	direct_play
+	extern	musrocket
+	extern	musraibaru
+
+MuKo:
+	ld	a,(mapscloll_x)			; stairway check
+	cp	003h
+	ret	nz
+	ld	a,(mapscloll_y)
+	cp	005h
+	ret	nz
+
+	call	MusicStop
+	ld	c,MUSIC_BANK4_NO
+	ld	a,<musrocket
+	call	direct_play
+
+	xor	a
+	ld	(joy_status),a
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,<D2R1F3msg2			; Nusashi
+	call	appear
+
+	ld	a,<D2R1F3msg6			; Kojiro
+	call	appear
+
+	ld	a,01h
+	ld	(wait_pass_flg),a		; メッセージ強制解除オン
+
+	ld	a,MsgOmachi
+	ld	(work1),a
+	call	talk_map
+
+	xor	a
+	ld	(wait_pass_flg),a		; メッセージ強制解除オフ
+
+	ld	a,01h
+	ld	(ctrl_move_cnt),a
+	ld	a,W_U
+	ld	(ctrl_move_val),a
+	call	init_hero_anime
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqMusashiGo
+	call	set_seq
+
+	ret
+
+
+StepMusashi:
+	db	A_L_RUN
+
+StepKojiro:
+	db	A_L_RUN
+	db	A_L_RUN
+	db	A_L_RUN
+	db	A_L_RUN
+	db	A_L_RUN
+	db	A_E
+
+
+MusashiGo:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(ctrl_move_cnt)
+	and	a					; 主人公ステップバック
+	ret	nz
+
+	call	put_wait
+
+	ld	a,MsgMusashi
+	ld	(work1),a
+	ld	de,StepMusashi
+	call	actor_anime_set
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqMusashiStep
+	call	set_seq
+
+	ret
+
+
+MusashiStep:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+MusashiArrive:
+	ld	a,02h
+	ld	(actor_table + 021h),a
+	ld	a,00h
+	ld	(actor_table + 029h),a
+
+KojiroGo:
+	ld	a,MsgKojiro
+	ld	(work1),a
+	ld	de,StepKojiro
+	call	actor_anime_set
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqKojiroStep
+	call	set_seq
+
+	ret
+
+
+KojiroStep:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+KojiroArrive:
+	ld	a,02h
+	ld	(actor_table + 061h),a
+	ld	a,08h
+	ld	(actor_table + 069h),a
+
+	call	put_wait
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,MsgRocketStart		; ロケット団バトル前
+	ld	(work1),a
+	call	talk_map
+
+RocketBattle:
+	ld	hl,event_flg
+	set	6,(hl)				; 特殊バトルモードを示唆
+	set	7,(hl)				; バトル直後にメッセージあり
+
+	ld	hl,msg2_win			; hero lose
+	ld	de,msg2_lose			; hero win
+	call	set_battle_msg
+
+	ld	a,d_member
+	ld	(event_fight_no),a
+	ld	a,42
+	ld	(take_mons_ptn),a
+
+	xor	a
+	ld	(joy_status),a
+	ld	(cancel_key),a
+
+	ld	hl,ev_d2 + 01h
+	set	6,(hl)				; ロケット団との対戦確認
+
+	ld	a,SeqBattleAfter
+	call	set_seq
+
+	ret
+
+
+BattleAfter:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,02h
+	ld	(actor_table + 021h),a
+	ld	(actor_table + 061h),a
+	xor	a
+	ld	(actor_table + 029h),a
+	ld	(actor_table + 069h),a
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,01h
+	ld	(wait_pass_flg),a		; メッセージ強制解除オン
+
+	ld	a,MsgRocketAfter
+	ld	(work1),a			; msg_after
+	call	talk_map
+
+	xor	a
+	ld	(wait_pass_flg),a		; メッセージ強制解除オフ
+
+	call	MusicStop
+	ld	c,MUSIC_BANK4_NO
+	ld	a,<musrocket
+	call	direct_play
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqVanishReady
+	call	set_seq
+
+	ret
+
+
+VanishReady:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	call	n_to_b
+
+	ld	a,<D2R1F3msg2				; Nusashi
+	call	vanish
+	ld	a,<D2R1F3msg6				; Kojiro
+	call	vanish
+
+	call	actor_blanch
+	call	put_wait
+
+	call	b_to_n
+
+	ld	a,SeqVanishEnd
+	call	set_seq
+
+	ret
+
+
+VanishEnd:
+	call	set_now_music
+
+	xor	a
+	ld	(joy_status),a
+	ld	(cancel_key),a
+
+	ld	hl,ev_d2 + 01h
+	set	2,(hl)
+	res	6,(hl)				; check the ROCKET-OBJ
+
+	ld	a,seq_check_encount
+	call	set_seq
+
+	ret
+
+
+appear:
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	call	actor_blanch
+	call	put_wait
+
+	ret
+
+
+vanish:
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ret
+
+
+
+
+
+msg_d2r1f3:
+	msgndw	msg1,msg_science1
+	ndw	msg2,MsgMusashi			; (2)ムサシ
+	ndw	msg3,msg_member2
+	ndw	msg4,msg_member3
+	ndw	msg5,msg_member4
+	ndw	msg10,MsgKojiro			; (6)コジロウ
+	ndw	msg6,msg_capsule1
+	ndw	msg7,msg_capsule2
+	ndw	capsule_item,msg_capsule3
+	ndw	capsule_item,msg_capsule4
+
+	ndw	msg1_get,msg_msg1_get		; non entry message
+
+	ndw	msg2_0,MsgOmachi
+	ndw	msg2_start,MsgRocketStart
+	ndw	msg2_after,MsgRocketAfter
+
+
+dealer_talk:
+d_talk1:
+	; ムサシ
+
+d_talk2:
+	db	msg_member2,040h
+	dw	ev_d2 + 1
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk3:
+	db	msg_member3,040h
+	dw	ev_d2 + 1
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk4:
+	db	msg_member4,040h
+	dw	ev_d2 + 1
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+d_talk5:
+	; コジロウ
+
+	db	0ffh
+
+
+; ムサシ華麗に登場（ぱくり）
+;	ndw	msg2_0,MsgOmachi
+;	ndw	msg2_start,MsgRocketStart
+;	ndw	msg2_after,MsgRocketAfter
+msg2:
+msg10:
+	db	EOM
+
+
+	public	msg2_0
+
+msg2_0:
+	extern	msg2_0_0_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_0_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	c,0ah
+	call	wait_vb_s
+
+	ld	a,08h
+	ld	(watashi_muki),a		; look under
+
+	ld	a,00h				; hero
+	ld	(usr_buf + 18),a
+	ld	a,00h				; gyoe@
+	ld	(usr_buf + 19),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	ld	c,20
+	call	wait_vb_s
+
+	jp	msg_return
+
+
+msg2_start:
+	extern	msg2_start_1_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg2_start_1_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+msg2_lose:
+	extern	msg2_lose_2_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg2_lose_2_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+	public	msg2_after
+
+msg2_after:
+	extern	msg2_after_3_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_3_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	c,040h
+	call	wait_vb_s
+
+	jp	msg_return
+
+
+
+
+;-----------------------------------------------;
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_d2 + 1)
+	bit	1,a				; check battle experience
+	jr	z,battle_invoke$
+
+	and	10000001b
+	jr	nz,obtained$
+
+	ld	hl,after1
+	call	put_win_msg			; before obtain fossil
+
+	jr	rts$
+
+
+battle_invoke$:
+	ld	hl,msg1_0
+	call	put_win_msg
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg1_win			; hero lose
+	ld	de,msg1_win			; hero win
+	call	set_battle_msg
+
+	ld	a,(work1)
+	ld	(sv_msg_no),a
+	call	set_battle
+	call	set_battle_data
+
+	ld	a,seq_vs_after
+	call	set_seq
+
+	jr	rts$
+
+
+obtained$:
+	ld	hl,after2
+	call	put_win_msg			; after obtained fossil
+
+rts$:
+	jp	msg_return
+
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	jr	trainer_common
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	jr	trainer_common
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+
+trainer_common:
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg6:
+	db	CALL_MSG
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg6_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,rts$
+
+	ld	bc,41 * 256 + 1
+	call	take_item
+	jp	nc,fossil_full
+
+	call	fossil_get
+
+	ld	a,D2R1F3msg7			; msg7
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	hl,ev_d2 + 1
+	set	0,(hl)				; get "koura" for yellow 
+
+	ld	a,seq_science_get
+	call	set_seq
+
+rts$:
+	jp	msg_return
+
+
+msg6_0$:
+	extern	msg6_0_4_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg6_0_4_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg7:
+	db	CALL_MSG
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg7_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,rts$
+
+	ld	bc,42 * 256 + 1
+	call	take_item
+	jp	nc,fossil_full
+
+	call	fossil_get
+
+	ld	a,D2R1F3msg8			; msg8
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	hl,ev_d2 + 1
+	set	7,(hl)				; get "kai"
+
+	ld	a,seq_science_get
+	call	set_seq
+
+rts$:
+	jp	msg_return
+
+
+msg7_0$:
+	extern	msg7_0_5_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg7_0_5_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+fossil_get:
+	ld	hl,msg_fossil_get
+	jp	put_win_msg
+
+
+msg_fossil_get:
+	extern	msg_fossil_get_6_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg_fossil_get_6_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	FANFARE6
+	db	WAIT_NP
+	db	EOM
+
+
+
+fossil_full:
+	ld	hl,msg_fossil_full
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg_fossil_full:
+	extern	msg_fossil_full_7_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg_fossil_full_7_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg1_0:
+	extern	msg1_0_8_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_8_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_9_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_9_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+after1:
+	extern	after1_10_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw after1_10_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+after2:
+	extern	after2_11_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw after2_11_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_get:
+	extern	msg1_get_12_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg1_get_12_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	FANFARE6
+	db	EOM
+
+
+msg3_0:
+	extern	msg3_0_13_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_13_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_14_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_14_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_15_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_15_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_0:
+	extern	msg4_0_16_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_16_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_17_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_17_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_18_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_18_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_0:
+	extern	msg5_0_19_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_19_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_20_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_20_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_21_D02R0103
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_21_D02R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d2r1f3:
+	include	..\sxy\d02r0103.sxy
+
+
+dungeon2_3:
+	include	..\mapdata\otuki_b2.map   
+
+
+
+
+
+
+  ifn	1
+;----------------------------------------------------
+; ピカチュウがいて、ふまれる位置だったらよける。
+; In	: b regs	踏まれる方向コード
+;	: hl regs	よけるアニメデータ
+;----------------------------------------------------
+chk_pika_escape:
+	ld	a,(obs_pikachu)
+	bit	7,a
+	ret	z
+
+	ld	a,(chyari_flg)
+	and	a
+	ret	nz
+
+	push	hl
+	push	bc
+
+	extern	get_site_to_pika
+	ld	hl,get_site_to_pika
+	ld	b,G_BANK3f
+	extern	bank_push_call
+	call	bank_push_call
+
+	pop	bc
+	pop	hl
+	ld	a,b
+	cp	e
+	ret	nz
+
+	push	hl
+	ld	a,(oam_flg)
+	push	af
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	extern	ShadowChrSet
+	ld	hl,ShadowChrSet
+	ld	b,G_BANK3f
+	call	bank_push_call
+
+	pop	af
+	ld	(oam_flg),a
+	pop	hl
+
+	extern	PikaEventAnime
+	call	PikaEventAnime
+	ret
+
+  endif
+

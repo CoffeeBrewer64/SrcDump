@@ -1,0 +1,45 @@
+
+	include	common.def	
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	d7_room1
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+d7_room1:
+ysiz	=	18
+xsiz	=	20
+	db	DOUKUTU_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	dungeon7		; map data adrs
+	dw	msg_tbl$		; message tbl adrs
+	dw	event$			; event routine adrs
+	db	0			; map link flg
+	dw	room_str$
+
+
+
+event$:
+	jp	init_for_talkmap
+
+
+msg_tbl$:
+	db	EOM
+
+
+room_str$:
+	include	..\sxy\d07r0101.sxy
+
+
+dungeon7:
+	include ..\mapdata\iwanuke_.map
+

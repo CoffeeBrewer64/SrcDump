@@ -1,0 +1,294 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+	include pm_debug.def
+
+
+bank7	group	G_BANK7
+
+	public	t4_room5
+
+	extern	bank2bank
+	extern	remove_item
+	extern	bank_push_call
+	extern	yes_no
+	extern	check_pack
+
+
+
+CYCLE_TYPE	equ	21
+EXIT		=	0ffh
+
+
+t4_room5:
+ysiz	=	4
+xsiz	=	4
+	db	CYCLE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	cycle_map		; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	jp	init_for_talkmap
+
+
+msg_tbl:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+;	dw	kanban1
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t4_5)
+	bit	0,a
+	jr	z,non$
+
+	ld	hl,msg1_6$
+	call	put_win_msg
+
+	jp	exit$
+
+
+non$:
+	ld	b,45
+	call	check_pack
+	jr	z,shop$
+
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+	ld	bc,6 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	a,45
+	ld	(DA_BUF + 0),a
+	ld	b,005h
+	ld	hl,remove_item
+	call	bank_push_call
+
+	ld	hl,ev_t4_5
+	set	0,(hl)
+
+	ld	hl,msg1_4$
+	call	put_win_msg
+
+	jr	exit$
+
+
+full$:
+	ld	hl,msg1_7$
+	call	put_win_msg
+
+	jr	exit$
+
+
+shop$:
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	xor	a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+
+	ld	a,BT_A + BT_B
+	ld	(allow_msk),a			; assign key
+	ld	a,2 - 1
+	ld	(allow_max),a			; select elements
+	ld	a,2
+	ld	(allow_pos + 0),a		; 1st locate Y
+	ld	a,1
+	ld	(allow_pos + 1),a		; 1st locate X
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+	SET_WIN_POS	0,0,16,5
+	call	put_window
+
+	call	actor_blanch
+
+	ld	hl,2*20 + 2 + dmy_vram		; S_POS  2,2
+	ld	de,msg1_menu$
+	call 	put_msg
+ ifn  pm_jmsg
+ else	
+	S_POS	8,3				; Ç∂ÇƒÇÒÇµÇ·ÇÃâ∫Ç…ï\é¶
+	ld	de,msg1_menu2$			;ÅhÅêÇPÇOÇOÇOÇOÇOÇOÅh
+	call 	put_msg
+ endif
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	call	allow
+	bit    	1,a				; check cancel request(b)
+	jr	nz,rts$
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,rts$				; "yameru" select
+
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+rts$:
+	ld	hl,msg1_5$
+	call	put_win_msg
+
+exit$:
+	jp	msg_return
+
+
+ ifn  pm_jmsg
+msg1_menu$:			;ÅhÇ∂ÇƒÇÒÇµÇ·  ÇPÇOÇOÇOÇOÇOÇOâ~ÅA Ç©ÇÌÇ»Ç¢Åh
+	db	zi_,te_,n_,si_,yya_,spc@,n1@,n0@,n0@,n0@,n0@,n0@,n0@,yen@,cr@
+	db	ka_,wa_,na_,i_,EOM
+ else
+msg1_menu$:
+	db	usf_b,usf_i,usf_c,usf_y,usf_c,usf_l,usf_e,cr@	; ÇaÇhÇbÇxÇbÇkÇd
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l,EOM		; ÇbÇ`ÇmÇbÇdÇk
+msg1_menu2$:
+	db	dol@,n1@,n0@,n0@,n0@,n0@,n0@,n0@,EOM		; ÅêÇPÇOÇOÇOÇOÇOÇO
+ endif
+
+
+msg1_0$:
+	extern	msg1_0_0_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_0_0_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg1_1$:
+	extern	msg1_1_1_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_1_1_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg1_2$:
+	extern	msg1_2_2_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_2_2_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg1_3$:
+	extern	msg1_3_3_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_3_3_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg1_4$:
+	extern	msg1_4_4_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_4_4_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db	FANFARE6
+	db	EOM
+
+
+msg1_5$:
+	extern	msg1_5_5_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_5_5_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg1_6$:
+	extern	msg1_6_6_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_6_6_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg1_7$:
+	extern	msg1_7_7_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_7_7_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_8_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg2_0_8_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	a,(ev_t4_5)
+	bit	0,a
+	ld	hl,msg3_1$
+	jr	nz,rts$
+
+	ld	hl,msg3_0$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_9_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg3_0_9_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+msg3_1$:
+	extern	msg3_1_10_T04R0501
+	db I_MSG2	; mvmsgí«â¡
+	dw msg3_1_10_T04R0501	; mvmsgí«â¡
+	db 026h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+room_str:
+	include	..\sxy\t04r0501.sxy
+
+
+cycle_map:
+	include ..\mapdata\cicle.map
+
+
+
+
+

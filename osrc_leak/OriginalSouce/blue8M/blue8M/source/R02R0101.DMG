@@ -1,0 +1,54 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	r2_room1
+
+
+	extern	iwamin
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+r2_room1:  
+ysiz	=	4
+xsiz	=	4
+	db	DOUKUTU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	iwamin			; map data adrs
+	dw	msg_r2r1f1		; message tbl adrs
+	dw	event_r2r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event_r2r1f1:
+	ld	a,R2
+	ld	(mapno_stack),a
+
+	jp	init_for_talkmap
+
+
+
+msg_r2r1f1:
+	dw	msg1$
+
+
+msg1$:
+	extern	msg1_0_R02R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_R02R0101	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+room_str:
+	include	..\sxy\r02r0101.sxy
+

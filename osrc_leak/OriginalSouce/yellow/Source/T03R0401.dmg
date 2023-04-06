@@ -1,0 +1,126 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t3_room4
+
+
+	extern	bank2bank
+	extern	item_town_3B
+	extern	shop_2
+
+
+SHOP_TYPE	equ	2
+EXIT		=	0ffh
+
+
+t3_room4:   
+ysiz	=	4
+xsiz	=	4
+	db	SHOP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	shop_2			; map data adrs
+	dw	msg_t3r4f1		; message tbl adrs
+	dw	event_t3r4f1		; event routine adrs
+	db	0			; map link flg
+	dw	room_str		;
+
+
+
+event_t3r4f1:
+	call	init_for_talkmap
+	ld	a,1
+	ld	(win_cancel),a
+
+	ret
+
+
+msg_t3r4f1:
+	msgndw	item_town_3B,msg_shopman1
+	ndw	msg2,msg_gsan1
+	ndw	msg3,msg_niichyan1
+
+
+msg2:
+	db	CALL_MSG
+
+  ifn	0
+	call	push_vram
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	call	pop_vram
+
+	ld	a,133
+	ld	(sel_item_no),a
+	ld	a,B_PUT_MONS_MAP
+	call	bank2bank
+	
+	ld	c,128
+	ld	b,1
+	ld	hl,zukan_flg2
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+	
+	ld	hl,msg2_1$
+	call	put_win_msg
+  else
+	ld	hl,msg2_0$
+	call	put_win_msg
+  endif
+	jp	msg_return
+
+
+  ifn	0
+msg2_0$:
+	db	D_MSG
+	db	i__,n__,ti__,ki__,spc@,ku_,sa_,i_,spc@,o_,zi_,sa_,n_,ka_,ra_
+	db	home@
+	db	na_,n_,da_,ka_,spc@,he__,n__,na_,spc@,poke@,wo_,gyo3@
+	db	ka_,ttu_,ti_,yya_,ttu_,ta_,yo_,gyoe@
+	db	EOMwaiteom
+
+
+msg2_1$:
+	db	D_MSG
+	db	su_,ttu_,ge_,bou@,spc@,yo_,wa_,i_,no_,gyoe@
+	db	home@
+	db	n5@,n0@,n0@,yen@,mo_,spc@,si_,ta_,no_,ni_,tenten2@
+	db	EOMeom
+  else
+msg2_0$:
+	extern	msg2_0_0_T03R0401
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_0_T03R0401	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+  endif
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_1_T03R0401
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_1_T03R0401	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+room_str:
+	include	..\sxy\t03r0401.sxy
+

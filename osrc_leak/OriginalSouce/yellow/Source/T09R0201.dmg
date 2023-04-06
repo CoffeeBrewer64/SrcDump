@@ -1,0 +1,1194 @@
+
+	include	common.def
+	include	pm_debug.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	dealer.def
+	include	anime.def
+	include macro.h
+	include	group.def
+	include	pikaanm.h
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t9_room2
+	public	t9r2f1_tbl
+
+
+	extern	se_wait
+	extern	gym9_door_hook
+	extern	gym_setting
+	extern	bank2bank
+	extern	table_jump
+	extern	actor_anime_set   
+	extern	yes_no
+	extern	search_hit
+	extern	game_over
+;;	extern	gym_judge
+	extern	set_battle
+	extern	set_battle_data
+	extern	set_battle_msg
+	extern	obj_stepping
+	extern	obj_stopping
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+	extern	musdoor
+	extern	SEplay
+
+	extern	PikaEventAnime
+
+
+BIT_RESET_MODE	equ	0
+BIT_SET_MODE	equ	1
+BIT_CHECK_MODE	equ	2
+
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+
+seq_t9r2f1	equ	seq_ctrl_buf + 06eh
+
+
+t9_room2:
+ysiz	=	9
+xsiz	=	10
+	db	BUILDING_TYPE
+	db	ysiz,xsiz		; yx size
+	dw	dojo_07			; map data adrs
+	dw	msg_t9r2f1		; message tbl adrs
+	dw	event_t9r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	t9_champ_str
+
+
+event_t9r2f1:
+	call	gym_initialize$
+
+	call	init_for_talkmap
+
+	ld	hl,t9r2f1_tbl
+	ld	a,(seq_t9r2f1)
+	jp	table_jump
+
+
+
+gym_initialize$:
+	ld	hl,ptn_data
+	bit	6,(hl)
+	res	6,(hl)
+	push	hl
+	call	nz,init_buf$
+	pop	hl
+	bit	5,(hl)
+	res	5,(hl)
+	call	nz,gym9_door_hook		; door open or close
+
+	ld	hl,ev_t9_2 + 1
+	res	7,(hl)
+
+	ret
+
+
+
+init_buf$:
+	ld	hl,t_name$
+	ld	de,l_name$
+	jp	gym_setting
+
+
+t_name$:
+  ifn	pm_jmsg
+	db	gu__,re__,n__
+	db	EOM
+  else
+	db	usf_c,usf_i,usf_n,usf_n,usf_a,usf_b,usf_a,usf_r,spc@,usf_i,usf_s,usf_l,usf_a,usf_n,usf_d
+	db	EOM
+  endif
+
+
+l_name$:
+  ifn	pm_jmsg
+	db	ka__,tu__,ra__
+	db	EOM
+  else
+	db	usf_b,usf_l,usf_a,usf_i,usf_n,usf_e
+	db	EOM
+  endif
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_t9r2f1),a
+	ld	(AdrsDealerTalk + 9),a
+	ld	(AdrsDealerTalk + 8),a
+
+	ret
+
+
+set_obj_num:
+	ld	a,(work1)
+	ld	(obs_actor),a
+
+	ret
+
+
+bit_call:
+	ld	a,B_BIT_CONTROL
+	jp	bank2bank
+
+
+
+
+;=======================================================
+;
+; Event Cotrol Sequence Table
+;
+;=======================================================
+
+t9r2f1_tbl:
+	initndw	Battle,SeqBattle		; Animetion For Dealer
+	ndw	Missing,SeqMissing		; Battle Invoke For Dealer
+	ndw	After,SeqAfter			; After Battle For Dealer
+
+	ndw	vs_after,seq_vs_after		; After Battle For Leader
+
+
+	public	Battle
+	public	After
+	public	vs_after
+
+
+;--------------------------------------------------------
+; Check Battle & Set Walk Animation Process
+;
+;--------------------------------------------------------
+Battle:
+	ld	a,(AdrsDealerTalk + 8)		; check quiz out
+	and	a
+	ret	z
+
+	ld	(work1),a
+
+	cp	4
+	jr	nz,oth$
+
+
+	ld	a,004h
+	ld	(watashi_muki),a
+
+	ld	hl,pika_escape_ex$
+	ld	b,00h				; 下
+	call	pika_escape
+
+	ld	de,step_ex$
+
+	jr	rts$
+
+
+oth$:
+	ld	a,001h
+	ld	(watashi_muki),a
+
+	ld	hl,pika_escape$
+	ld	b,0ch				; 右
+	call	pika_escape
+
+	ld	de,step$
+
+rts$:
+	call	actor_anime_set
+
+	ld	a,SeqMissing
+	ld	(seq_t9r2f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+step_ex$:
+	db	A_L,A_U,A_E
+
+
+pika_escape_ex$:
+	db	Pika_Init
+	db	Pika_Run_East
+	db	Pika_Run_North
+	db	Pika_Site_South
+	db	Pika_End
+
+step$:
+	db	A_L,A_E
+
+pika_escape$:
+	db	Pika_Init
+	db	Pika_Run_South
+	db	Pika_Run_West
+	db	Pika_Site_East
+	db	Pika_End
+
+
+;----------------------------------------------------
+; ピカチュウがいて、ふまれる位置だったらよける。
+; In	: e regs	踏まれる方向コード
+;	: hl regs	よけるアニメデータ
+;----------------------------------------------------
+pika_escape:
+	ld	a,(obs_pikachu)
+	bit	7,a
+	ret	z
+
+	push	hl
+	push	bc
+
+	extern	get_site_to_pika
+	ld	hl,get_site_to_pika
+	ld	b,G_BANK3f
+	call	bank_push_call
+
+	pop	bc
+	pop	hl
+	ld	a,b
+	cp	e
+	ret	nz
+
+	call	PikaEventAnime
+	ret
+	
+
+
+;--------------------------------------------------------
+; Dealer Walk Animation Wait Process
+;
+;--------------------------------------------------------
+Missing:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,(AdrsDealerTalk + 8)
+	ld	(obs_actor),a
+	ld	(work1),a
+	jp	talk_map
+
+
+
+
+;--------------------------------------------------------
+; After Dealer Battle Process
+;	for normal Dealer
+;--------------------------------------------------------
+After:
+	call	clear_quiz_bit
+
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+
+	ld	a,(obs_actor)			;
+	sub	002h				; ディーラーに対応したドアのフラグをチェック
+	ld	c,a				;
+	ld	b,BIT_CHECK_MODE		;
+	ld	hl,ev_t9_2 + 2			;
+	call	bit_call			;
+;	call	chk_dealer$
+	ld	a,c
+	and	a
+	jr	nz,yet$
+
+  ifn	YELLOW_VERSION				;  by tama 1998/05/16
+	ld	a,(obs_actor)			; No2のディーラーはドアとの関連がない
+	cp	2				; 
+	jr	z,yet$
+  endif
+
+	ld	c,30
+	call	wait_vb_s
+
+	call	set_dealer$
+
+	call	open_door$
+
+	call	se_wait
+	ld	a,<musdoor
+	call	SEplay
+	call	se_wait
+
+	jr	fin$
+
+yet$:
+	call	set_dealer$
+
+	call	open_door$
+
+fin$:
+	xor	a
+	ld	(cancel_key),a
+	ld	(AdrsDealerTalk + 8),a		; switch buffer clear
+
+	ld	a,SeqBattle
+	ld	(seq_t9r2f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+set_dealer$:
+	ld	a,(obs_actor)			;
+	ld	(DA_BUF + 0),a			; 各ディーラー対応のフラグをセット
+	ld	c,a				;
+	ld	b,BIT_SET_MODE			;
+	ld	hl,ev_t9_2 + 0			;
+	call	bit_call			;
+	ret
+
+chk_dealer$:
+	ld	a,(obs_actor)			; ディーラーとの戦闘の有無をチェック
+	ld	(DA_BUF + 0),a			;
+	ld	c,a				;
+	ld	b,BIT_CHECK_MODE		;
+	ld	hl,ev_t9_2 + 0			;
+	call	bit_call			;
+	ret
+
+open_door$:
+	ld	a,(obs_actor)			;
+	sub	002h				; ディーラーに対応したドアのフラグをセット
+	ld	c,a				;
+	ld	b,BIT_SET_MODE			;
+	ld	hl,ev_t9_2 + 2			;
+	call	bit_call			;
+
+	call	gym9_door_hook
+	ret
+
+;--------------------------------------------------------
+; After Dealer Battle Process
+;	for Leader "Katsura"
+;--------------------------------------------------------
+vs_after:
+	call	clear_quiz_bit
+
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+;	call	actor_blanch
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+obtain_machine:
+	ld	a,msg_vs_after1
+	ld	(work1),a
+	call	talk_map
+
+	ld	hl,ev_t9_2 + 0
+	set	1,(hl)				; win status
+
+	ld	bc,238 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	a,msg_vs_after2
+	ld	(work1),a
+	call	talk_map
+
+	ld	hl,ev_t9_2 + 0
+	set	0,(hl)				; check obtained item
+
+	jr	rts$
+
+
+full$:
+	ld	a,msg_vs_after3
+	ld	(work1),a
+	call	talk_map
+
+rts$:
+	ld	hl,my_badge + 0
+	set	6,(hl)
+
+	ld	hl,ev_champ + 0
+	set	6,(hl)
+
+	ld	a,(ev_t9_2 + 0)
+	or	11111100b
+	ld	(ev_t9_2 + 0),a
+	ld	hl,ev_t9_2 + 1
+	set	0,(hl)
+
+	ld	hl,ptn_data
+	set	5,(hl)
+
+  ifn	0
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,SeqBattle
+	ld	(seq_t9r2f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+  else
+	jp	return
+  endif
+
+
+
+;=======================================================
+;
+; Messsage Sequence Table
+;
+;=======================================================
+msg_t9r2f1:
+	msgndw	msg1,msg_katura
+	ndw	msg2,msg_science1
+	ndw	msg3,msg_doro1
+	ndw	msg4,msg_science2
+	ndw	msg5,msg_doro2
+	ndw	msg6,msg_science3
+	ndw	msg7,msg_doro3
+	ndw	msg8,msg_science4
+	ndw	msg9,msg_danpei
+	ndw	msg1_0,msg_vs_after1
+	ndw	msg1_1,msg_vs_after2
+	ndw	msg1_2,msg_vs_after3
+
+
+cmn_setting:
+	ld	a,(work1)
+	ld	(sv_msg_no),a
+	call	set_battle
+	call	set_battle_data
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	a,(sv_msg_no)
+	cp	1
+	jr	z,boss$
+
+	ld	a,SeqAfter
+
+	jr	set_seq$
+
+boss$:
+	ld	a,seq_vs_after
+
+set_seq$:
+	ld	(seq_t9r2f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	jp	msg_return
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t9_2 + 0)
+	bit	1,a
+	jr	z,battle$
+
+	bit	0,a
+	jr	nz,after$
+	call	z,obtain_machine
+
+	extern	WaitPass
+	call	WaitPass
+
+	jp	msg_return
+
+
+after$:
+	ld	hl,msg1_after
+	call	put_win_msg
+
+	jp	msg_return
+
+
+battle$:
+	ld	hl,msg1_battle_in
+	call	put_win_msg
+
+	ld	hl,msg1_win			; hero lose
+	ld	de,msg1_win			; hero win
+	call	set_battle_msg
+
+	ld	a,7
+	ld	(championcap_no),a		; hall number
+
+	jp	cmn_setting
+
+
+msg1_battle_in:
+	extern	msg1_battle_in_0_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_battle_in_0_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_1_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE6
+	db	WAIT_NP
+	db	EOM
+
+
+msg1_after:
+	extern	msg1_after_2_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_2_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_0:
+	extern	msg1_0_3_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_3_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1:
+	extern	msg1_1_4_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_4_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE
+	extern	msg1_1_5_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_5_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2:
+	extern	msg1_2_6_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_6_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+
+	call	set_obj_num
+
+	ld	a,(ev_t9_2 + 0)
+	bit	2,a
+	jr	nz,after$
+
+battle$:
+	ld	hl,msg2_0
+	call	put_win_msg
+
+	ld	hl,msg2_win			; hero lose
+	ld	de,msg2_win			; hero win
+	call	set_battle_msg
+
+	jp	cmn_setting
+
+
+after$:
+	ld	hl,msg2_after
+	call	put_win_msg
+
+	jp	msg_return
+
+
+
+
+msg2_0:
+	extern	msg2_0_7_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_7_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_8_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_8_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_9_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_9_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	call	set_obj_num
+
+	ld	a,(ev_t9_2 + 0)
+	bit	3,a
+	jr	nz,after$
+
+  ifn	YELLOW_VERSION
+	call	get_quiz_bit
+	jr	nz,battle$
+
+	ld	a,(ev_t9_2 + 2)
+	bit	1,a
+	jr	nz,battle$
+
+	ld	e,Msg3BeforeNo
+	jp	BeforeQuizSame
+
+battle$:
+  endif
+	ld	hl,msg3_0
+	call	put_win_msg
+
+	ld	hl,msg3_win			; hero lose
+	ld	de,msg3_win			; hero win
+	call	set_battle_msg
+
+	jp	cmn_setting
+
+
+after$:
+	ld	hl,msg3_after
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg3_0:
+	extern	msg3_0_10_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_10_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_11_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_11_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_12_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_12_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg4:
+	db	CALL_MSG
+
+	call	set_obj_num
+
+	ld	a,(ev_t9_2 + 0)
+	bit	4,a
+	jr	nz,after$
+
+  ifn	YELLOW_VERSION
+	call	get_quiz_bit
+	jr	nz,battle$
+
+	ld	a,(ev_t9_2 + 2)
+	bit	2,a
+	jr	nz,battle$
+
+	ld	e,Msg4BeforeNo
+	jp	BeforeQuizSame
+battle$:
+  endif
+
+	ld	hl,msg4_0
+	call	put_win_msg
+
+	ld	hl,msg4_win			; hero lose
+	ld	de,msg4_win			; hero win
+	call	set_battle_msg
+
+	jp	cmn_setting
+
+
+after$:
+	ld	hl,msg4_after
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg4_0:
+	extern	msg4_0_13_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_13_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_14_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_14_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_15_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_15_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	call	set_obj_num
+
+	ld	a,(ev_t9_2 + 0)
+	bit	5,a
+	jr	nz,after$
+
+  ifn	YELLOW_VERSION
+	call	get_quiz_bit
+	jr	nz,battle$
+
+	ld	a,(ev_t9_2 + 2)
+	bit	3,a
+	jr	nz,battle$
+
+	ld	e,Msg5BeforeNo
+	jp	BeforeQuizSame
+battle$:
+  endif
+
+	ld	hl,msg5_0
+	call	put_win_msg
+
+	ld	hl,msg5_win			; hero lose
+	ld	de,msg5_win			; hero win
+	call	set_battle_msg
+
+	jp	cmn_setting
+
+
+after$:
+	ld	hl,msg5_after
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg5_0:
+	extern	msg5_0_16_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_16_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_17_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_17_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_18_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_18_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg6:
+	db	CALL_MSG
+
+	call	set_obj_num
+
+	ld	a,(ev_t9_2 + 0)
+	bit	6,a
+	jr	nz,after$
+
+  ifn	YELLOW_VERSION
+	call	get_quiz_bit
+	jr	nz,battle$
+
+	ld	a,(ev_t9_2 + 2)
+	bit	4,a
+	jr	nz,battle$
+
+	ld	e,Msg6BeforeNo
+	jp	BeforeQuizSame
+battle$:
+  endif
+	ld	hl,msg6_0
+	call	put_win_msg
+
+	ld	hl,msg6_win			; hero lose
+	ld	de,msg6_win			; hero win
+	call	set_battle_msg
+
+	jp	cmn_setting
+
+
+after$:
+	ld	hl,msg6_after
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg6_0:
+	extern	msg6_0_19_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg6_0_19_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_win:
+	extern	msg6_win_20_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg6_win_20_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_after:
+	extern	msg6_after_21_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg6_after_21_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg7:
+	db	CALL_MSG
+
+	call	set_obj_num
+
+	ld	a,(ev_t9_2 + 0)
+	bit	7,a
+	jr	nz,after$
+
+  ifn	YELLOW_VERSION
+	call	get_quiz_bit
+	jr	nz,battle$
+
+	ld	a,(ev_t9_2 + 2)
+	bit	5,a
+	jr	nz,battle$
+
+	ld	e,Msg7BeforeNo
+	jp	BeforeQuizSame
+battle$:
+  endif
+	ld	hl,msg7_0
+	call	put_win_msg
+
+	ld	hl,msg7_win			; hero lose
+	ld	de,msg7_win			; hero win
+	call	set_battle_msg
+
+	jp	cmn_setting
+
+
+after$:
+	ld	hl,msg7_after
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg7_0:
+	extern	msg7_0_22_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg7_0_22_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_win:
+	extern	msg7_win_23_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg7_win_23_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_after:
+	extern	msg7_after_24_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg7_after_24_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8:
+	db	CALL_MSG
+
+	call	set_obj_num
+
+	ld	a,(ev_t9_2 + 1)
+	bit	0,a
+	jr	nz,after$
+
+  ifn	YELLOW_VERSION
+	call	get_quiz_bit
+	jr	nz,battle$
+
+	ld	a,(ev_t9_2 + 2)
+	bit	6,a
+	jr	nz,battle$
+
+	ld	e,Msg8BeforeNo
+	jp	BeforeQuizSame
+battle$:
+  endif
+	ld	hl,msg8_0
+	call	put_win_msg
+
+	ld	hl,msg8_win			; hero lose
+	ld	de,msg8_win			; hero win
+	call	set_battle_msg
+
+	jp	cmn_setting
+
+
+after$:
+	ld	hl,msg8_after
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg8_0:
+	extern	msg8_0_25_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg8_0_25_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_win:
+	extern	msg8_win_26_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg8_win_26_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_after:
+	extern	msg8_after_27_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg8_after_27_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg9:
+	db	CALL_MSG
+
+	ld	hl,msg9_main
+	ld	b,G_BANK3c
+	extern	bank_push_call
+	call	bank_push_call
+
+	jp	msg_return
+
+
+t9_champ_str:
+	include	..\sxy\t09r0201.sxy
+
+dojo_07:
+	include	..\mapdata\gym_07.map
+
+
+
+
+
+
+BeforeQuizSame:
+	ld	hl,BeforeQuizMsgMain
+	ld	b,G_BANK3c
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+	
+clear_quiz_bit:
+	push	hl
+	ld	hl,obs_new_quiz
+	bit	7,(hl)
+	res	7,(hl)
+	pop	hl
+	ret
+
+get_quiz_bit:
+	push	hl
+	ld	hl,obs_new_quiz
+	bit	7,(hl)
+	pop	hl
+	ret
+
+
+
+bank3c	group	G_BANK3c
+
+
+
+msg9_main:
+
+	ld	a,(ev_t9_2 + 0)
+	bit	1,a
+	jr	nz,winner$
+
+	ld	hl,msg9_0$
+
+	jr	rts$
+
+
+winner$:
+	ld	hl,msg9_1$
+
+rts$:
+	call	put_win_msg
+
+	ret
+;	jp	msg_return
+
+
+msg9_0$:
+	extern	msg9_0_28_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg9_0_28_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_1$:
+	extern	msg9_1_29_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg9_1_29_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+BeforeQuizMsgMain:
+  ifn	0
+	ld	hl,MsgQuizReq
+	call	put_win_msg
+
+	jp	msg_return
+  endif
+
+	ld	hl,before_msg_table$
+	ld	d,00h
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	put_win_msg
+
+
+before_msg_table$:
+	initndw	msg3_before,Msg3BeforeNo
+	ndw	msg4_before,Msg4BeforeNo
+	ndw	msg5_before,Msg5BeforeNo
+	ndw	msg6_before,Msg6BeforeNo
+	ndw	msg7_before,Msg7BeforeNo
+	ndw	msg8_before,Msg8BeforeNo
+
+msg3_before:
+	extern	msg3_before_30_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_before_30_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg4_before:
+	extern	msg4_before_31_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_before_31_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg5_before:
+	extern	msg5_before_32_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_before_32_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg6_before:
+	extern	msg6_before_33_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg6_before_33_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg7_before:
+	extern	msg7_before_34_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg7_before_34_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg8_before:
+	extern	msg8_before_35_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw msg8_before_35_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+MsgQuizReq:
+	extern	MsgQuizReq_36_T09R0201
+	db I_MSG2	; mvmsg追加
+	dw MsgQuizReq_36_T09R0201	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+

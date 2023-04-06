@@ -1,0 +1,368 @@
+;===============================================;
+; Category	: ROM header
+; Bank-No.	: G_BANK00
+; Infomation	: Pocket Monsters Pink & Yellow
+;===============================================;
+
+
+	include		pm_debug.def
+	include		common.def
+	include		group.def
+
+
+bank0	group	G_RST
+
+
+	org	0000h
+
+
+	public	RST0
+
+
+	extern	sgb_reset	;変更（村川）
+	extern	vblank
+	extern	int_lcdc
+	extern	wdt
+	extern	sio
+	extern	bank_change		;追加（村川）
+	extern	chrmove		;追加（村川）
+	extern	fontmove		;追加（村川）
+	extern	fontset		;追加（村川）
+
+
+
+;==============================================
+; Macro Define For Calculate Complement Value 
+;==============================================
+INIT_TOTAL	macro	mmmm
+m_total	=	0000h
+		endm
+
+cdb		macro	mmmm
+m_total	=	m_total + mmmm
+	db	mmmm
+		endm
+
+sum_db		macro	mmmm
+m_total1	equ	0 - m_total - 25
+	db	< m_total1
+		endm
+
+
+
+
+RST0:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST1:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST2:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST3:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST4:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST5:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST6:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST7:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+
+;VBLANK
+	jp	vblank
+	db	0, 0, 0, 0, 0
+;LASTER
+	jp	int_lcdc
+	db	0, 0, 0, 0, 0
+;	db	0ffh
+;	db	0, 0, 0, 0, 0, 0, 0
+;TIMER
+	jp	wdt
+	db	0, 0, 0, 0, 0
+;SERIAL
+	jp	sio
+	db	0, 0, 0, 0, 0
+;PORT
+	reti
+;	db	0, 0, 0, 0, 0, 0, 0		;削除（村川）
+
+
+;*******************************************
+;* 0バンクに余裕を作るため
+;* LCDC.DMGから移動
+;*******************************************
+	public	lcdc_stop
+	public	lcdc_on
+	public	oam_clr
+	public	oam_off
+
+lcdc_stop:
+	xor	a
+	ld	(IFL),a
+
+	ld	a,(IE)
+	ld	b,a			; interrupt enable list flag saved
+	res	0,a			; v-blank interrupt disenable
+	ld	(IE),a
+
+z1$:
+	ld	a,(LY)			; LCDC Y position Get 
+	cp	091h			; 145(V-Blank cyu?)
+	jr	nz,z1$
+
+	ld	a,(LCDC)
+	and	07fh
+	ld	(LCDC),a		; LCD control stop all
+
+	ld	a,b
+	ld	(IE),a			; interrupt enable list flag rewrite
+
+	ret
+
+lcdc_on:
+	ld	a,(LCDC)
+	set	7,a			; LCD control enabled
+	ld	(LCDC),a
+
+	ret
+
+oam_clr:				; Object Clear
+	xor	a
+	ld	hl,oam_buf		; OAM(0C400h - 0C4A0h)clear
+	ld	b,0a0h
+z1$:
+	ld	(hli),a
+	dec	b
+	jr	nz,z1$
+	ret
+
+oam_off:				; Object Don't Look
+	ld	a,0a0h
+	ld	hl,oam_buf		; OAM
+	ld	de,00004h		; Skip 4 Byte
+	ld	b,028h
+z1$:
+	ld	(hl),a			; 0a0h wo oam_buf ni set
+	add	hl,de			; oam_buf count up ( 4byte )
+	dec	b
+	jr	nz,z1$
+	ret
+
+
+;*******************************************
+;* CHRSET.DMGから移動
+;*******************************************
+
+	public	bank_chg_block_m
+	public	chrset
+;=======================================================================;
+; Category	: transfer charactor data in LCDC stop
+; Bank-No.	: G_BANK00
+; In		: de reg		set address
+;		: hl reg		chr data address
+;		: a reg			chr data bank number
+;		: bc reg		num of bytes to transfer
+; Infomation	: Do not call if LCDC is active!!
+;=======================================================================;
+bank_chg_block_m:
+chrset:
+	ld	(bank_stack),a
+	ld	a,(rombankno)
+	push	af
+	ld	a,(bank_stack)
+	call	bank_change
+
+	call	block_move
+
+	pop	af
+	call	bank_change
+
+	ret
+
+
+	public	block_move
+	public	block_move_sub
+;=======================================================================;
+; Category	: transfer data (hl)==>(de)
+; Bank-No.	: G_BANK00
+; In		: hl reg	data address
+;		: de reg	store address
+;		: bc reg	amount of data
+; Out		: hl reg	data area end address + 1
+;		: de reg	store area end address + 1
+; Infomation	: Nothing
+;=======================================================================;
+block_move:				; HL -> DE ni Byte Move
+	ld	a,b
+	and	a
+	jr	z,block_move_sub
+
+	ld	a,c
+	and	a
+	jr	z,move_loop$
+
+	inc	b
+
+move_loop$:
+	call	block_move_sub
+	dec	b
+	jr	nz,move_loop$
+
+	ret
+
+
+block_move_sub:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,block_move_sub
+	ret
+
+
+	public	set_chr_sub
+;------------------------------------------------------
+; same input parameters 'chrmove'
+; IN:	de == chr data adrs
+;	hl == chr set adrs
+;	b  == chr data bank No.
+;	c  == num of chr 
+;-------------------------------------------------------
+set_chr_sub:
+	ld	a,(LCDC)
+	bit	7,a
+	jp	nz,chrmove
+
+	push	hl
+	ld	h,d
+	ld	l,e
+	pop	de		; exchange hl,de
+	ld	a,b
+	push	af
+
+	swap	c
+	ld	a,0fh
+	and	c
+	ld	b,a
+	ld	a,0f0h
+	and	c
+	ld	c,a		; bc = c * 16
+	pop	af
+	
+	jp	chrset
+
+
+	public	set_fnt_sub
+;------------------------------------------------------
+; same input parameters 'fontmove'
+; IN:	de == chr data adrs
+;	hl == chr set adrs
+;	b  == chr data bank No.
+;	c  == num of chr 
+;-------------------------------------------------------
+set_fnt_sub:
+	ld	a,(LCDC)
+	bit	7,a
+	jp	nz,fontmove
+
+	push	de
+	ld	d,h
+	ld	e,l		; de == set adrs
+
+	ld	a,b
+	push	af
+
+	ld	h,0
+	ld	l,c
+	add	hl,hl
+	add	hl,hl
+	add	hl,hl
+	ld	b,h
+	ld	c,l	; bc = c * 8 == num of data to transfer
+
+	pop	af		; a  == bankno
+	pop	hl		; hl == data adrs
+
+	jp	fontset
+
+
+;*******************************************
+;移動ここまで
+;*******************************************
+
+
+bank0	group	G_HEADER
+
+
+	org	00100h
+
+
+	public	header_start
+
+
+header_start:
+	db	000h
+	jp	sgb_reset				;reset->sgb_resetへ変更（村川）
+	db	0ceh,0edh,066h,066h
+	db	0cch,00dh,000h,00bh
+	db	003h,073h,000h,083h
+	db	000h,00ch,000h,00dh
+	db	000h,008h,011h,01fh
+	db	088h,089h,000h,00eh
+	db	0dch,0cch,06eh,0e6h
+	db	0ddh,0ddh,0d9h,099h
+	db	0bbh,0bbh,067h,063h
+	db	06eh,00eh,0ech,0cch
+	db	0ddh,0dch,099h,09fh
+	db	0bbh,0b9h,033h,03eh
+
+
+
+	INIT_TOTAL
+	cdb	'P'			; "POKEMON YELLOW"
+	cdb	'O'
+	cdb	'K'
+	cdb	'E'
+	cdb	'M'
+	cdb	'O'
+	cdb	'N'
+	cdb	' '
+	cdb	'Y'
+	cdb	'E'
+	cdb	'L'
+	cdb	'L'
+	cdb	'O'
+	cdb	'W'
+	cdb	000h				; size adjust code
+  ifn	pm_cgb
+	cdb	080h				; CGB対応ソフト code
+  else
+	cdb	000h				; size adjust code
+  endif
+	cdb	030h				; Maker Code(L)
+	cdb	031h				; Maker Code(H)
+	cdb	003h				; Hard Type
+;;;	cdb	013h				; Casset Type	003h->013hに変更（村川）
+	cdb	01Bh				; Casset Type	MBC5 + SRAM + BACKUP BATTERY
+	cdb	005h				; ROM Size = 8M
+	cdb	003h				; RAM Size = 256Kbit
+	cdb	001h				; Country Code
+	cdb	033h				; Extend Code(New Type ID)
+	cdb	000h				; Rom Version
+	sum_db					; Completment Value
+	db	000h	  			; Sum Check(H)
+	db	000h  				; Sum Check(L) 
+
+
+
+
+
+

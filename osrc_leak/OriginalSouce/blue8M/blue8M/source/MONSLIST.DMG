@@ -1,0 +1,3383 @@
+
+;*****************************************
+;* Making name	: Pocket Monsters	*
+;* Source file	: monslist.src		*
+;*****************************************
+	include	common.def
+	include	fntequ.def
+	include	banktool.def
+	include	sgb_col.def
+  	include macro.h
+	include	group.def
+	include	pm_debug.def
+
+bank0	group	G_BANK0
+;*************************************************
+;*						*
+;*	monster list & card system tousai	*
+;*						*
+;*************************************************
+	public	cap_list
+	public	cap_list1
+	public	cap_list2
+	public	cap_list_sub
+	public	cap_list_sub2
+	public	item_list
+	public	chg_skill
+	public	mons_card
+	public	get_pet_name
+	public	get_pet_name_0
+;	public	put_mons_name
+;	public	put_mons_noname
+	public	put_monschr
+	public	put_monschr2
+	public	put_bcd
+	public	put_type
+	public	put_waza_type
+	public	gyaarth
+	public	gyaarth_play
+	public	get_monsadr
+	public	set_item_param
+	public	get_monsimg
+	public	set_monsimg
+	public	put_mons_status
+	public	put_mons_status2
+	public	print_status
+	public	get_item_no
+	public	set_monsdata_dmy
+	public	get_level
+	public	level_to_exp
+	public	prt_mons_chr
+	public	prt_mons_chr2
+	public	set_str_buf
+	public	put_graph
+	public	put_level_s
+	public	put_level1
+	public	put_condition
+	public	put_condition2
+	public	set_d_shortname
+
+	extern	bank2bank
+	extern	push_vram
+	extern	ready2ready
+	extern	push_bank
+	extern	bank_push_call
+	extern	pop_bank
+	extern	oam_clr
+	extern	memset
+	extern	put_all
+	extern	dvram_cls
+	extern	put_window
+	extern	put_msg
+	extern	put_win_msg
+	extern	mons_tbl
+	extern	myu_tbl
+	extern	waza_tbl
+	extern	waza_name_tbl
+	extern	mons_name_tbl
+	extern	cls_allow
+	extern	allow
+	extern	allow2
+	extern	allow_1
+	extern	block_cls
+	extern	cont_abwait
+	extern	cont_repeat
+	extern	wait_vb
+	extern	put_wait
+	extern	pal_off_put_wait
+	extern	wait_vb_s
+	extern	chrmove
+	extern	chrset
+	extern	fontset
+	extern	fontmove
+	extern	fnt_gauge
+	extern	set_gauge
+	extern	fnt_fight
+	extern	okuri_chk
+	extern	put_dec
+	extern	actor_blanch
+	extern	block_move
+	extern	bank_chg_block_m
+	extern	str_cpy
+	extern	get_table
+;;	extern	mul
+	extern	mul_6
+	extern	mul_direct
+	extern	div_direct
+	extern	mul_any
+	extern	item_name_tbl
+	extern	item_gold_tbl
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	white_allow
+	extern	color_set
+	extern	palset
+	extern	pal_off
+	extern	hp_color_chk
+	extern	get_max_pp
+	extern	shinka_tbl
+
+	extern	play
+	extern	mushariusagi
+	extern	mushariusagi2
+	extern	mons_voice_tbl
+
+	extern	uncompress
+	extern	se_wait
+	extern	step_prn_win
+	extern 	get_item_name
+	extern	get_mons_name
+	extern 	set_status_all
+	extern 	change_mons_pos
+
+	extern	monschr182
+	extern	monschr183
+	extern	monschr184
+
+
+
+;******************
+;* Lot of monster *
+;******************
+
+
+
+MONSTERMAX	=	26
+
+
+
+;*****************************************
+;*	put_graph			*
+;*	in : d = empty graph length	*
+;*	   : e = graph ber length 	*	
+;*	   : c = deta zero check	*
+;*	   : hl = dvram address		*	
+;*****************************************
+put_graph:
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,r@				; "HP"
+	ld	(hli),a
+	ld	a,life0@			; "HP" + gauge no hashi
+	ld	(hli),a
+	push	hl
+	ld	a,life1@
+
+graph0$:
+	ld	(hli),a
+	dec	d
+	jr	nz,graph0$
+
+	ld	a,(mons_or_item)
+	dec	a
+	ld	a,0dh + 60h
+	jr	z,z1$
+	dec	a
+z1$:
+	ld	(hl),a				; futa
+
+	pop	hl
+	ld	a,e
+	and	a
+	jr	nz,graph1$
+
+	ld	a,c
+	and	a
+	jr	z,ret$			; gauge empty
+
+;	ld	a,1
+;	ld	e,a
+	ld	e,1
+
+graph1$:
+	ld	a,e
+	sub	8
+	jr	c,graph2$
+
+	ld	e,a
+	ld	a,life9@
+	ld	(hli),a
+	ld	a,e
+	and	a
+	jr	z,ret$
+
+	jr	graph1$
+	
+graph2$:
+
+	ld	a,life1@
+	add	a,e
+	ld	(hl),a
+
+ret$:
+	pop	bc
+	pop	de
+	pop	hl
+	ret
+
+;****************************************************************
+;* Set the monster's data to 'monsdata_dmy'			*
+;*	IN  :	sel_item_pos	list position of 'my_cap_data'	*
+;*		my_or_gein	0 = my_cap_data 		*
+;*				1 = gein_cap_data		*
+;*				2 = my_mons_data		*
+;*				3 = benri_mons_data		*
+;*	OUT :	monsdata_dmy	address of 'monsdata_dmy'	*
+;*		mons_data	monster data			*
+;*		sel_item_no	selected monster's number	*
+;****************************************************************
+set_monsdata_dmy:
+	ld	hl,monsdata_dmy_sub
+	ld	b,01h
+	jp	bank_push_call
+
+
+;****************************************************************
+;* Set the skill number to `waza_swap' as skill changing	*
+;*	IN   :	B		list number as 0 org		*
+;*		C		writing data			*	
+;****************************************************************
+put_waza_no:
+	ld	hl,waza_swap
+	ld	e,b
+	ld	d,0
+	add	hl,de
+	ld	a,c
+	ld	(hl),a
+
+	ret
+
+;*********************************
+;* prt_mons_chr			*
+;*********************************
+prt_mons_chr:
+	ld	a,1
+	ld	(reverse_fg),a
+
+prt_mons_chr2:
+	push	hl
+	ld	a,(in_dat)
+	push	af
+
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	
+	ld	hl,in_dat
+	ld	a,(hl)
+	pop	bc
+	ld	(hl),b
+	and	a
+	pop	hl
+	jr	z,ng$
+
+	cp	152
+	jr	c,ok$
+
+ng$:
+	ld	a,1
+	ld	(sel_item_no),a
+	ret
+
+ok$:
+	push	hl
+	ld	de,09000h
+	call	put_monschr
+	pop	hl
+
+	ld	a,(rombankno)
+	push	af
+	ld	a,0fh				; 'set_mons_dvram' bank
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	xor	a
+	ld	(dmy_box1),a
+	extern	set_mons_dvram
+	call	set_mons_dvram
+	xor	a
+	ld	(reverse_fg),a
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+;*********************************
+;*	gyaarth_play		*
+;*				*
+;*   In: Areg  Monster Number	*
+;*********************************
+gyaarth_play:
+	call	gyaarth
+	call	play				; scream !! 
+	jp	se_wait
+
+
+gyaarth:
+	dec	a
+	ld	c,a
+	ld	b,0
+
+	ld	hl,mons_voice_tbl
+
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+
+	ld	a,0eh
+	call	push_bank
+
+	ld	a,(hli)
+	ld	b,a			; Monster Voice Number
+	ld	a,(hli)
+	ld	(mons_voice_offset),a	; Monster Voice Tone Changer
+	ld	a,(hl)
+	ld	(mons_voice_tempo),a	; Monster Voice Speed Changer
+
+	call	pop_bank	
+
+	ld	a,b
+
+	ld	c,mushariusagi		; Monster Voice Top Number
+
+	rlca
+	add	a,b
+	add	a,c			; a = voice no * 3 + hariusagi
+	
+	ret
+
+
+
+;**********************************
+;* cap_list			  *
+;* Select capsule from list	  *
+;* IN  : ef_size = sub message No *
+;**********************************
+cap_list:
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+
+	call	pal_off_put_wait
+	call	oam_clr
+	call	cap_list_ready
+
+;	ld	b,COL_CAPLIST1
+;	call	color_set
+
+	call	cap_list_sub			; print capsule list 
+	jp	cap_list1
+
+
+cap_list2:
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+
+	call	cap_list_ready
+	call	cap_list_sub2			; print capsule list 
+	jp	cap_list1
+
+
+cap_list_ready:
+	ld	a,1
+	call	push_bank
+
+	call	set_gauge
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+	xor	a
+	ld	(my_or_gein),a			; 0 = my
+
+	ld	(scloll_sw),a
+	ld	hl,allow_pos
+	inc	a
+	ld	(hli),a				; Y pos
+	xor	a
+	ld	(hli),a				; X pos
+	ld	a,(allow_sv_mons)
+	push	af
+
+	ld	(hli),a				; allow_cnt
+	inc	hl
+	ld	a,(my_cap_tbl)			; number of taking capsules
+	and	a
+	jr	z,pass1$
+
+	dec	a
+pass1$:
+	ld	(hli),a				; allow_max
+
+	ld	a,(nigerarenai_flg)
+	and	a
+	ld	a,BT_A + BT_B 
+	jr	z,z4$
+
+	xor	a
+	ld	(nigerarenai_flg),a
+;	ld	a,BT_A 				; nigerarenakatta baai wa 
+	inc	a
+						; "B" button wa tukaenai
+z4$:
+	ld	(hli),a				; allow_msk
+;	ld	a,(allow_sv_mons)
+	pop	af
+	ld	(hl),a				; allow_old
+	
+	ret
+	
+
+
+
+cap_list1:
+;	call	cap_list_sub			; print capsule list 
+select$:
+	ld	a,1
+	ld	(allow_loop_flg),a
+	ld	a,40h
+	ld	(ef_adr4_l),a
+	call	allow2
+	call	white_allow
+
+	ld	b,a				; select list number
+
+	xor	a
+	ld	(ef_adr4_l),a
+	ld	a,(allow_cnt)
+	ld	(allow_sv_mons),a
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	ld	a,(select_allow)
+	and	a
+	jp	nz,pos_change$			; pos irekae
+next$:
+	pop	af
+	ld	(wave_flg),a
+
+	bit	1,b
+	jr	nz,z99$				; press 'B' is cancel
+
+	ld	a,(my_cap_tbl)
+	and	a
+	jr	z,z99$				; no take any capsules
+
+	ld	a,(allow_cnt)
+	ld	(sel_item_pos),a		; list number = count - 1
+
+	ld	hl,my_cap_tbl + 1
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	ld	a,(hl)
+	ld	(sel_item_no),a			; selected list number
+	ld	(mymons_no),a			; selected list number
+
+	call	pop_bank
+	and	a
+
+	ret
+
+z99$:
+	call	pop_bank
+	scf					; no selected monster list
+
+	ret
+
+pos_change$:
+	bit	1,b
+	jr	z,pos_change1$				; press 'B' is cancel
+
+	ld	b,4
+	extern	list_allow_cls
+	ld	hl,list_allow_cls
+	call	bank_push_call
+
+	xor	a
+	ld	(select_allow),a
+	ld	(ef_size),a
+	call	cap_list_sub2
+
+	jr	select$
+
+
+pos_change1$:
+	ld	a,(allow_cnt)
+	ld	(sel_item_pos),a
+
+	ld	b,4
+	ld	hl,change_mons_pos
+	call	bank_push_call
+	jr	select$
+
+
+;********************************
+;*   cap_list_sub 		*
+;*   capsule list only		*
+;********************************
+cap_list_sub:
+	ld	hl,cap_list_sub3
+	jr	cap_sub_call
+
+cap_list_sub2:
+	ld	hl,cap_list_sub4
+cap_sub_call:
+	ld	b,4
+	jp	bank_push_call
+
+;****************************************
+;* Function	put_condition 		*
+;* IN  :  de = condition address	*
+;*     :  hl = dvram address		*
+;* OUT :  Z  = condition normal		* 
+;****************************************
+put_condition:
+	push	de
+	dec	de
+	dec	de
+	ld	a,(de)
+	ld	b,a
+	dec	de
+	ld	a,(de)
+	or	b
+	pop	de
+	jr	nz,put_condition2
+
+  ifn	pm_jmsg
+	ld	a,hi_
+	ld	(hli),a
+	ld	a,n_
+	ld	(hli),a
+	ld	(hl),si_
+  else
+	ld	a,usf_f
+	ld	(hli),a
+	ld	a,usf_n
+	ld	(hli),a
+	ld	(hl),usf_t
+  endif
+	and	a
+	ret
+	
+put_condition2:
+	ld	a,(rombankno)
+	push	af
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,01dh				; 'set_mons_dvram' bank
+ else
+	ld	a,01eh				; 'set_mons_dvram' bank
+ endif
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	put_cond_main
+
+	pop	bc
+	ld	a,b
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	ret
+
+
+;********************************
+;* Function	put_level 	*
+;* IN  :  monsdata_dmy		*
+;*     :  hl = dvram address	*
+;********************************
+put_level_s:				; call from status_sub1
+					; 	    status_sub2
+	ld	a,o@			; "L"
+	ld	(hli),a
+
+	ld	c,2			; 2keta
+	ld	a,(monsdata_dmy + 33)	; level
+	cp	100
+	jr	c,put_level1
+	dec	hl	
+	inc	c			; 3keta
+	jr	put_level1
+	
+put_level:
+	ld	a,o@			; ":L"
+	ld	(hli),a
+
+	ld	c,3			; 3keta
+	ld	a,(monsdata_dmy + 33)	; level
+
+put_level1:
+	ld	(in_dat),a
+	ld	de,in_dat
+	ld	b,041h			; 1byte hidariyose
+	jp	put_dec
+
+;*********************************
+;* Function	item_list	*
+;*********************************
+item_list:
+;*****************************************
+;* put_mons_noname / put_mons_name       *
+;*****************************************
+;*****************************************
+;* Function	get_waza_no		*
+;* IN	A	list number( 0 org )	*
+;* OUT	A	object number		*
+;*****************************************
+get_waza_no:
+	ld	hl,waza_swap
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	a,(hl)
+
+	ret
+
+;*****************************************************************
+;* Function	get_monsadr					*
+;*		read the 'mons_tbl' setting bank number & etc	*
+;*		do not check the pointer begin from No.1	*
+;* IN	tbl_pos		the table position of the object data 	*
+;* OUT	mons_data	object data ( 49byte )			*
+;*****************************************************************
+get_monsadr:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,00eh
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	push	bc
+	push	de
+	push	hl
+
+	ld	a,(in_dat)
+	push	af
+
+	ld	a,(tbl_pos)		; monster number
+	ld	(in_dat),a
+
+	ld	de,monschr182
+	ld	b,066h
+	cp	182			; kabutopusu kaseki
+	jr	z,special_set$
+
+	ld	de,monschr184
+;	ld	b,066h
+	cp	184			; obake
+	jr	z,special_set$
+
+	ld	de,monschr183
+	ld	b,077h
+	cp	183			; putera kaseki
+	jr	z,special_set$
+
+	cp	21
+	jr	z,special_set2$
+
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+	ld	a,(in_dat)
+	
+	dec	a
+	ld	bc,MONS_TBL_SIZE	; size of table length
+	ld	hl,mons_tbl
+	call	mul_any
+
+	ld	de,mons_data
+	ld	bc,MONS_TBL_SIZE
+	call	block_move		; copy
+
+	jr	ret$
+
+special_set$:
+	ld	hl,mons_data + 10
+	ld	(hl),b
+	inc	hl
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+	jr	ret$
+
+special_set2$:
+	ld	hl,myu_tbl
+	ld	de,mons_data
+	ld	bc,MONS_TBL_SIZE
+	ld	a,01h
+	call	bank_chg_block_m	; copy
+
+ret$:
+	ld	a,(tbl_pos)
+	ld	(mons_data),a
+
+	pop	af
+	ld	(in_dat),a
+
+	pop	hl
+	pop	de
+	pop	bc
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+;************************************************
+;*	get_pet_name				*
+;*   in	: a = list position			*
+;*	: hl = table address			*
+;*   out: de = table_data			*
+;************************************************
+get_pet_name_0:
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_name
+get_pet_name:
+	push	hl
+	push	bc
+
+	call	mul_6
+
+	ld	de,table_data
+	push	de
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+	pop	de
+	
+	pop	bc
+	pop	hl
+
+	ret
+
+;*********************************
+;*				*
+;*	put bcd data		*
+;*   in: de = bcd data adrs	*
+;*	 hl = dvram_address     *
+;*	c  = data byte		*
+;*	bit7 = 0:normal		*
+;*		 1:0 suppress	*
+;*	bit6 = 0:normal		*
+;*		 1:hidariyose	*
+;*	bit5 = 0:normal		*
+;*		 1:$ãLçÜèoóÕ	*
+;*********************************
+put_bcd:
+	ld	b,c
+	res	7,c		; bit7 reset
+	res	6,c		; bit6 reset
+
+	; ë∫êÏí«â¡Ç±Ç±Ç©ÇÁ
+	res	5,c		; bit5 reset
+	bit	5,b			;if ( (b & 0x20) == 0x20) {
+	jr	z,z1$		;	if ( (b & 0x80) == 0) {
+	bit	7,b			;		*hl = dol@;
+	jr	nz,z1$		;		hl++;
+	ld	(hl),dol@	;	}
+	inc	hl			;}
+	;Å@ë∫êÏí«â¡Ç±Ç±Ç‹Ç≈
+
+z1$:
+	ld	a,(de)		; bcd data load
+	swap	a
+	call	bcd1$
+
+	ld	a,(de)		; bcd data load
+	call	bcd1$
+
+	inc	de		; bcd data address ++ 
+	dec	c		; data byte--
+	jr	nz,z1$
+
+	bit	7,b
+	jr	z,z6$
+
+	bit	6,b
+	jr	nz,z7$
+
+	dec	hl
+z7$:
+	bit	5,b
+	jr	z,z8$
+	ld	(hl),dol@
+	inc	hl
+z8$:
+	ld	(hl),n0@		; saigo no 0 wa dasu
+	call	okuri_chk
+	inc	hl
+z6$:
+	ret
+
+bcd1$:
+	and	00fh
+	and	a
+	jr	z,bcd3$
+
+	; ë∫êÏí«â¡Ç±Ç±Ç©ÇÁ
+	bit	7,b
+	jr	z,bcd2$
+	bit	5,b
+	jr	z,z1_1$
+	ld	(hl),dol@
+	inc	hl
+	res	5,b
+z1_1$:
+	; ë∫êÏí«â¡Ç±Ç±Ç‹Ç≈
+	
+	res	7,b
+bcd2$:
+	add	a,n0@
+	ld	(hli),a
+	jp	okuri_chk
+
+bcd3$:
+	bit	7,b
+	jr	z,bcd2$			; 0 supress nasi
+
+	bit	6,b
+	ret	nz			; hidariyose
+
+	inc	hl			; migiyose
+	ret
+
+;*****************************************
+;* Set monster image data address	*
+;* IN  : HL 		character type	*  
+;*	sel_item_no			*
+;*****************************************
+get_monsimg:
+;	push	de
+
+	ld	bc,mons_data			; get already 'get_monsadr'
+	add	hl,bc				;hl= offset to front/back chr
+
+;	pop	de
+
+	ld	a,(hli)
+	ld	(comp_data_adrs),a
+	ld	a,(hl)
+	ld	(comp_data_adrs + 1),a		; comp data adrs
+
+	ld	a,(sel_item_no)
+	ld	b,a
+	cp	21
+	ld	a,1				; myu = bank1
+	jr	z,z30$
+	ld	a,b
+	cp	182				; kaseki chr
+	ld	a,MONS_CHR3_BANK		; Monster Bankb
+	jr	z,z30$
+	ld	a,b
+	cp	31
+	ld	a,MONS_CHR1_BANK		; Monster Bank9
+	jr	c,z30$
+	ld	a,b
+	cp	74
+	ld	a,MONS_CHR2_BANK		; Monster Banka
+	jr	c,z30$
+	ld	a,b
+	cp	116
+	ld	a,MONS_CHR3_BANK		; Monster Bankb
+	jr	c,z30$
+	ld	a,b
+	cp	153
+	ld	a,MONS_CHR4_BANK                ; Monster Bankc
+	jr	c,z30$
+	ld	a,MONS_CHR5_BANK                ; Monster Bankd
+z30$:
+	jp	uncompress			; bank0
+
+
+;*****************************************
+;* Display out monster image		*
+;* IN	: sel_item_no	monster number	*
+;*	  de 		vram adrs	*
+;*****************************************
+put_monschr:
+	push	de
+
+	ld	hl,F_IMG_ADRS_POS		; flont view
+	call	get_monsimg			; bank0
+						; uncomp
+;	ld	de,mons_data
+;	ld	hl,MONS_SIZE_POS
+;	add	hl,de
+	ld	hl,mons_data + MONS_SIZE_POS
+	ld	a,(hli)
+	ld	c,a				; c = yx len
+
+	pop	de
+
+put_monschr2:
+	push	de
+
+	and	00fh
+	ld	(work0),a			; work0 = x len
+	ld	b,a
+	ld	a,7
+	sub	b				; work2 = ((7 - x len)/2) * 7
+	inc	a
+	srl	a
+	ld	b,a
+	add	a,a
+	add	a,a
+	add	a,a				; *8
+	sub	b				; *7
+	ld	(work2),a
+
+	ld	a,c
+	swap	a
+	and	00fh
+	ld	b,a
+	add	a,a
+	add	a,a
+	add	a,a
+	ld	(work1),a			; work1 = y len * 8
+	ld	a,7
+	sub	b				; 7 - y len
+	ld	b,a
+	ld	a,(work2)			; ((7-xlen/2)*7 + (7-ylen)) * 8
+	add	a,b
+	add	a,a
+	add	a,a
+	add	a,a
+	ld	(work2),a
+
+	xor	a
+	ld	(RAMBANK),a
+
+	ld	hl,plane2_area
+	call	cls1$
+
+	ld	de,plane0_area
+	ld	hl,plane2_area
+	call	move1$
+
+	ld	hl,plane0_area
+	call	cls1$
+
+	ld	de,plane1_area
+	ld	hl,plane0_area
+	call	move1$
+
+	pop	de
+
+	jp	set_monsimg				; bank0
+
+;	jr	rts$
+
+
+move1$:
+	ld	a,(work2)
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	ld	a,(work0)
+
+m2$:
+	push	af
+	push	hl
+
+	ld	a,(work1)
+	ld	c,a
+
+m1$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz,m1$
+
+	pop	hl
+
+	ld	bc,7*8
+	add	hl,bc			; next line
+
+	pop	af
+	dec	a
+	jr	nz,m2$
+
+;	jr	rts$
+	ret
+
+
+cls1$:
+	ld	bc,7*7*8
+
+c1$:
+	xor	a
+	ld	(hli),a
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,c1$
+
+rts$:
+
+	ret
+
+
+;*****************************************
+;*					*
+;*	monster image to vram		* to character data area
+;*  in:	de = vram adrs			* character data area size
+;*	reverce_fg			*
+;*					*
+;*****************************************
+set_monsimg:
+	xor	a
+	ld	(RAMBANK),a
+
+	push	de
+
+	ld	hl,plane1_area + 391	;plane1->plane0 write by Jun
+	ld	de,plane0_area + 391
+	ld	bc,plane2_area + 391
+	ld	a,196			;392/2
+	ld	(work0),a
+
+z1$:
+	ld	a,(de)
+	dec	de
+	ld	(hld),a
+	ld	a,(bc)
+	dec	bc
+	ld	(hld),a
+
+	ld	a,(de)
+	dec	de
+	ld	(hld),a
+	ld	a,(bc)
+	dec	bc
+	ld	(hld),a
+
+	ld	a,(work0)
+	dec	a
+	ld	(work0),a
+	jr	nz,z1$
+
+	ld	a,(reverse_fg)
+	and	a
+	jr	z,z2$
+
+	ld	bc,784			; reverse 392*2
+	ld	hl,plane0_area
+
+rev3$:
+	swap	(hl)
+	inc	hl
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,rev3$
+
+z2$:
+	pop	hl			;de -> hl by Jun
+
+	ld	de,plane0_area
+	ld	c,7*7
+	ld	a,(rombankno)
+	ld	b,a
+	jp	chrmove
+
+
+
+bank1	group	G_BANK1
+
+monsdata_dmy_sub:
+	ld	a,(benri_mons_data)
+	ld	(sel_item_no),a
+	ld	a,(my_or_gein)
+	cp	3
+	jr	z,pass1$
+
+	ld	a,(sel_item_pos)		; list line number
+	ld	e,a
+	ld	hl,get_item_no
+	ld	b,0eh
+	call	bank_push_call
+
+pass1$:
+	ld	a,(sel_item_no)			; from 'set_monsdata_dmy'
+	ld	(tbl_pos),a
+	call	get_monsadr			; Get Monstaer address
+						; mons_tbl -> mon_data
+
+	ld	hl,my_cap_data
+	ld	bc,CAPDATA_LEN			
+	ld	a,(my_or_gein)
+	cp	1
+	jr	c,set_mons_dmy1$	
+
+	ld	hl,gein_cap_data 
+	jr	z,set_mons_dmy1$	
+
+	cp	2
+	ld	hl,my_mons_data 
+	ld	bc,MONSDATA_LEN			
+	jr	z,set_mons_dmy1$
+
+	ld	hl,benri_mons_data 
+	jr	set_mons_dmy2$
+
+set_mons_dmy1$:
+	ld	a,(sel_item_pos)		; list line number
+	call	mul_any				; HL = HL + A * BC
+
+set_mons_dmy2$:
+	ld	de,monsdata_dmy
+	ld	bc,CAPDATA_LEN
+	jp	block_move			; 'my_cap_data'>'monsdata_dmy'
+
+bank9	group	G_BANK9
+;****************************************
+; put_type				*
+; IN  :  tbl_pos = monster number	*
+;	 hl      = dvram address	*
+;****************************************
+put_type:
+	call	ready2ready
+	push	hl
+	call	get_monsadr
+	pop	hl
+
+	push	hl
+	ld	a,(mons_data + 6)		; zokusei1
+	call	print$
+
+	ld	a,(mons_data + 6)		; zokusei1
+	ld	b,a
+	ld	a,(mons_data + 7)		; zokusei2
+	cp	b
+	pop	hl
+	jr	z,cls$
+
+	ld	bc,40
+	add	hl,bc
+print$:
+	push	hl
+	jr	zokusei_print
+
+cls$:
+ ifn	ASSEMBLE__ENGLISH		; ÇPÇOï∂éöî≈ÇÕÅhÉ^ÉCÉvÇQ/Åhï\é¶ÇÇPçsè„Ç…ï\é¶ÇµÇƒÇ¢ÇÈ
+  ifn	pm_jmsg
+	ld	a,spc@
+	ld	bc, -3			; S_POS(12,10) = spc@  ÅhÉ^ÉCÉvÇQ/ÅhÇÃ ÅKïîï™Çè¡Ç∑
+	add	hl,bc
+	ld	(hl),a
+	ld	bc, 18
+	add	hl,bc
+	ld	bc,5
+	jp	memset			; memset( S_POS(10,11), spc@, 5 )  ÅhÉ^ÉCÉtÇQ/Åhïîï™Çè¡Ç∑
+  else
+	ld	a,spc@
+	ld	bc, 19
+	add	hl,bc
+	ld	bc, 6			; âpåÍÇ≈ÇÕÅhÇsÇxÇoÇdÇQÅ^ÅhÇ∆ÇUï∂éöÇ…Ç»ÇÈ
+	jp	memset			; memset( S_POS(10,11), spc@, 6)ÅhTYPE2/Åhïîï™Çè¡Ç∑
+  endif
+ else
+	ld	a,spc@
+	ld	bc,17			; S_POS(12,11) = spc@  ÅhÉ^ÉCÉvÇQÅhÇÃ ÅKïîï™Çè¡Ç∑
+	add	hl,bc
+	ld	(hl),a
+	inc	bc
+	add	hl,bc
+	ld	bc,5
+	jp	memset			; memset( S_POS(10,12), spc@, 5 )  ÅhÉ^ÉCÉtÇQÅhïîï™Çè¡Ç∑
+ endif
+	
+
+put_waza_type:
+	call	ready2ready
+	push	hl
+	ld	a,(m_kougeki + 3)		; zokusei
+
+zokusei_print:
+	add	a,a
+	ld	hl,zokusei_tbl
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	ld	a,(hli)
+	ld	e,a
+	ld	d,(hl)
+
+	pop	hl
+	jp	put_msg				; zokusei print
+
+zokusei_tbl:
+	dw	nashi$		; 0
+	dw	sentou$		; 1
+	dw	hikou$		; 2
+	dw	doku$		; 3
+	dw	jimen$
+	dw	iwa$
+	dw	tori$
+	dw	mushi$
+	dw	ghost$
+	dw	nashi$
+	dw	nashi$		; 10
+	dw	nashi$
+	dw	nashi$
+	dw	nashi$
+	dw	nashi$
+	dw	nashi$
+	dw	nashi$
+	dw	nashi$
+	dw	nashi$
+	dw	nashi$
+	dw	honoo$		; 20
+	dw	mizu$		; 21
+	dw	kusa$		; 22
+	dw	denki$		; 23
+	dw	esupaa$		; 24
+	dw	koori$		; 25
+	dw	dragon$		; 26
+
+nashi$:		; 0
+  ifn	pm_jmsg
+	db	no__,bou@,ma__,ru__
+	db	EOM
+  else
+	db	usf_n,usf_o,usf_r,usf_m,usf_a,usf_l
+	db	EOM
+  endif
+
+sentou$:	; 1
+  ifn	pm_jmsg
+	db	ka_,ku_,to_,u_
+	db	EOM
+  else
+	db	usf_f,usf_i,usf_g,usf_h,usf_t,usf_i,usf_n,usf_g
+	db	EOM
+  endif
+
+hikou$:		; 2
+  ifn	pm_jmsg
+	db	hi_,ko_,u_
+	db	EOM
+  else
+	db	usf_f,usf_l,usf_y,usf_i,usf_n,usf_g
+	db	EOM
+  endif
+
+doku$:		; 3
+  ifn	pm_jmsg
+	db	do_,ku_,spc@
+	db	EOM
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n
+	db	EOM
+  endif
+
+honoo$:		; 20
+  ifn	pm_jmsg
+	db	ho_,no_,o_
+	db	EOM
+  else
+	db	usf_f,usf_i,usf_r,usf_e
+	db	EOM
+  endif
+
+mizu$:		; 21
+  ifn	pm_jmsg
+	db	mi_,zu_,spc@
+	db	EOM
+  else
+	db	usf_w,usf_a,usf_t,usf_e,usf_r
+	db	EOM
+  endif
+
+kusa$:		; 22
+  ifn	pm_jmsg
+	db	ku_,sa_,spc@
+	db	EOM
+  else
+	db	usf_g,usf_r,usf_a,usf_s,usf_s
+	db	EOM
+  endif
+
+denki$:		; 23
+  ifn	pm_jmsg
+	db	de_,n_,ki_
+	db	EOM
+  else
+	db	usf_e,usf_l,usf_e,usf_c,usf_t,usf_r,usf_i,usf_c
+	db	EOM
+  endif
+
+esupaa$:	; 24
+  ifn	pm_jmsg
+	db	e__,su__,pa__,bou@
+	db	EOM
+  else
+	db	usf_p,usf_s,usf_y,usf_c,usf_h,usf_i,usf_c
+	db	EOM
+  endif
+
+koori$:		; 25
+  ifn	pm_jmsg
+	db	ko_,o_,ri_
+	db	EOM
+  else
+	db	usf_i,usf_c,usf_e
+	db	EOM
+  endif
+
+jimen$:		; 4
+  ifn	pm_jmsg
+	db	zi_,me_,n_
+	db	EOM
+  else
+	db	usf_g,usf_r,usf_o,usf_u,usf_n,usf_d
+	db	EOM
+  endif
+
+iwa$:		; 5
+  ifn	pm_jmsg
+	db	i_,wa_
+	db	EOM
+  else
+	db	usf_r,usf_o,usf_c,usf_k
+	db	EOM
+  endif
+
+tori$:		; 6
+  ifn	pm_jmsg
+	db	to_,ri_
+	db	EOM
+  else
+	db	usf_b,usf_i,usf_r,usf_d
+	db	EOM
+  endif
+
+mushi$:		; 7
+  ifn	pm_jmsg
+	db	mu_,si_
+	db	EOM
+  else
+	db	usf_b,usf_u,usf_g
+	db	EOM
+  endif
+
+ghost$:		; 8
+  ifn	pm_jmsg
+	db	go__,bou@,su__,to__
+	db	EOM
+  else
+	db	usf_g,usf_h,usf_o,usf_s,usf_t
+	db	EOM
+  endif
+
+dragon$:	; 26
+  ifn	pm_jmsg
+	db	do__,ra__,go__,n__
+	db	EOM
+  else
+	db	usf_d,usf_r,usf_a,usf_g,usf_o,usf_n
+	db	EOM
+  endif
+
+
+
+
+;===============================================================;
+;   SET_DEALER_SHORT_NAME					;
+;         IN    dealer_no = dealer number			;
+;===============================================================;
+set_d_shortname:
+	ld	hl,shortname_tbl$
+	ld	a,(dealer_no)
+	dec	a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	
+	ld	de,table_data
+
+loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	cp	EOM
+	jr	nz,loop$
+
+	ret
+
+
+shortname_tbl$:
+	dw	dealername01$
+	dw	dealername02$
+	dw	dealername03$
+	dw	dealer_name
+	dw	dealername05$
+	dw	dealername06$
+	dw	dealername07$
+	dw	dealername08$
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealername11$
+	dw	dealername12$
+	dw	dealername13$
+	dw	dealer_name
+	dw	dealername15$
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealername18$
+	dw	dealer_name
+	dw	dealername20$
+	dw	dealername21$
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealername24$
+	dw	dealer_name
+	dw	dealername26$
+	dw	dealername27$
+	dw	dealername28$
+	dw	dealer_name
+	dw	dealername30$
+	dw	dealername31$
+	dw	dealername32$
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+	dw	dealer_name
+
+
+dealername01$:
+  ifn	pm_jmsg
+	db	ta_,n_,pa__,n__
+	db	EOM
+  else
+	db	usf_y,usf_o,usf_u,usf_n,usf_g,usf_s,usf_t,usf_e,usf_r
+	db	EOM
+  endif
+
+dealername02$:
+  ifn	pm_jmsg
+	db	mu_,si_,to_,ri_
+	db	EOM
+  else
+	db	usf_b,usf_u,usf_g,spc@,usf_c,usf_a,usf_t,usf_c,usf_h,usf_e,usf_r
+	db	EOM
+  endif
+
+dealername03$:
+  ifn	pm_jmsg
+	db	mi__,ni__,su__,ka__
+	db	EOM
+  else
+	db	usf_l,usf_a,usf_s,usf_s
+	db	EOM
+  endif
+
+dealername05$:
+  ifn	pm_jmsg
+	db	bo__,bou@,i__
+	db	EOM
+  else
+	db	usf_j,usf_r,kten@,usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,osu@
+	db	EOM
+  endif
+
+dealername06$:
+  ifn	pm_jmsg
+	db	ga__,bou@,ru__
+	db	EOM
+  else
+	db	usf_j,usf_r,kten@,usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,mesu@
+	db	EOM
+  endif
+
+dealername07$:
+  ifn	pm_jmsg
+	db	ma__,ni__,a__
+	db	EOM
+  else
+	db	usf_p,usf_o,usf_k,acc_e_,usf_m,usf_a,usf_n,usf_i,usf_a,usf_c
+	db	EOM
+  endif
+
+dealername08$:
+  ifn	pm_jmsg
+	db	ri_,ka_,ke_,i_
+	db	EOM
+  else
+	db	usf_s,usf_u,usf_p,usf_e,usf_r,spc@,usf_n,usf_e,usf_r,usf_d
+	db	EOM
+  endif
+
+dealername11$:
+  ifn	pm_jmsg
+	db	do_,ro_,bo_,u_
+	db	EOM
+  else
+	db	usf_b,usf_u,usf_r,usf_g,usf_l,usf_a,usf_r
+	db	EOM
+  endif
+
+dealername12$:
+  ifn	pm_jmsg
+	db	o__,ya__,zi__
+	db	EOM
+  else
+	db	usf_e,usf_n,usf_g,usf_i,usf_n,usf_e,usf_e,usf_r
+	db	EOM
+  endif
+
+dealername13$:
+  ifn	pm_jmsg
+	db	zi__,yya__,ttu__,ku__
+	db	EOM
+  else
+	db	usf_j,usf_u,usf_g,usf_g,usf_l,usf_e,usf_r
+	db	EOM
+  endif
+
+dealername15$:
+  ifn	pm_jmsg
+	db	ka_,i_,pa__,n__
+	db	EOM
+  else
+	db	usf_s,usf_w,usf_i,usf_m,usf_m,usf_e,usf_r
+	db	EOM
+  endif
+
+dealername18$:
+  ifn	pm_jmsg
+	db	o_,ne_,e_,sa_,n_
+	db	EOM
+  else
+	db	usf_b,usf_e,usf_a,usf_u,usf_t,usf_y
+	db	EOM
+  endif
+
+dealername20$:
+  ifn	pm_jmsg
+	db	gu__,ru__,bou@,pu__
+	db	EOM
+  else
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_r
+	db	EOM
+  endif
+
+dealername21$:
+  ifn	pm_jmsg
+	db	zi__,yya__,gu__,ra__,bou@
+	db	EOM
+  else
+	db	usf_j,usf_u,usf_g,usf_g,usf_l,usf_e,usf_r
+	db	EOM
+  endif
+
+dealername24$:
+  ifn	pm_jmsg
+	db	ka_,ra_,te_
+	db	EOM
+  else
+	db	usf_b,usf_l,usf_a,usf_c,usf_k,usf_b,usf_e,usf_l,usf_t
+	db	EOM
+  endif
+
+dealername26$:
+  ifn	pm_jmsg
+	db	o__,bou@,ki__,do__
+	db	EOM
+  else
+	db	usf_p,usf_r,usf_o,usf_f,kten@,usf_o,usf_a,usf_k
+	db	EOM
+  endif
+
+dealername27$:
+  ifn	pm_jmsg
+	db	ti__,bou@,hu__
+	db	EOM
+  else
+	db	usf_c,usf_h,usf_i,usf_e,usf_f
+	db	EOM
+  endif
+
+dealername28$:
+  ifn	pm_jmsg
+	db	ke_,n_,ki_,yyu_,u_,i_,n_
+	db	EOM
+  else
+	db	usf_s,usf_c,usf_i,usf_e,usf_n,usf_t,usf_i,usf_s,usf_t
+	db	EOM
+  endif
+
+dealername30$:
+  ifn	pm_jmsg
+	db	da_,n_,i_,n_
+	db	EOM
+  else
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t
+	db	EOM
+  endif
+
+dealername31$:
+  ifn	pm_jmsg
+	db	e__,ri__,bou@,to__,osu@
+	db	EOM
+  else
+	db	usf_c,usf_o,usf_o,usf_l,usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,osu@
+	db	EOM
+  endif
+
+dealername32$:
+  ifn	pm_jmsg
+	db	e__,ri__,bou@,to__,mesu@
+	db	EOM
+  else
+	db	usf_c,usf_o,usf_o,usf_l,usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,mesu@
+	db	EOM
+  endif
+
+
+
+bank4	group	G_BANK4
+
+;*****************************************
+;*					*
+;*	seimeichi , lifegauge		*
+;*  in:	hl = dvram adrs			*
+;*	sel_item_no			*
+;*					*
+;*****************************************
+put_mons_status:
+	call	ready2ready
+	ld	a,1
+	jr	put_mons_status3
+
+put_mons_status2:
+	call	ready2ready
+	ld	a,2
+
+put_mons_status3:
+	ld	(mons_or_item),a
+	push	hl				; Dvram address save  
+
+gauge_calc$:
+	ld	a,(monsdata_dmy + 1)		; HP value just now (high)
+	ld	b,a
+	ld	a,(monsdata_dmy + 2)		; HP value just now (low)
+	ld	c,a
+	or	b
+	jr	nz,not_zero$			; nowHP > 0
+
+	xor	a
+	ld	c,a
+	ld	e,a
+	ld	a,6
+	ld	d,a
+	jp	z99$				; nowHP = 0
+	
+not_zero$:
+	ld	a,(monsdata_dmy + 34)		; maxHP (high)
+	ld	d,a
+	ld	a,(monsdata_dmy + 35)		; maxHP (low)
+	ld	e,a
+
+	ld	a,B_GRAPH_BER_CALC
+	call	bank2bank
+
+	ld	a,6
+	ld	d,a				; d = empty gauge length
+
+	ld	c,a				; c = zero check
+
+z99$:
+	pop	hl				; Dvram address load
+
+	push	de
+	push	hl
+	push	hl
+	call	put_graph
+	pop	hl				; Dvram address load
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(us_display_flg)
+	bit	HP_DSPSTYLE_BIT,a
+	jr	z, z99_00$
+	ld	bc,9			; ñ_ÉOÉâÉtÇÃâEÇ…ÇgÇoÇï\é¶Ç∑ÇÈ
+	jr	z99_10$
+z99_00$:
+	ld	bc,21			; ñ_ÉOÉâÉtÇÃâ∫Ç…ÇgÇoÇï\é¶Ç∑ÇÈ
+z99_10$:
+ else
+	ld	bc,21
+ endif
+	add	hl,bc				; next line and word
+
+	ld	de,monsdata_dmy + 1		; life value just now
+	ld	bc,2*256 + 3 			; 2byte 3keta
+
+	call	put_dec
+
+	ld	a,sura@
+	ld	(hli),a				; "/"
+
+	ld	de,monsdata_dmy + 34		; life value max
+	ld	bc,2*256 + 3			; 2byte 3keta
+
+	call	put_dec
+
+	pop	hl
+	pop	de				;e = graph length
+	ret
+
+;*********************************
+;*	get_level		*
+;*				*
+;*	in  : monsdata_dmy	*
+;*	out : d = level		*
+;*				*
+;*********************************
+;*********************************
+;* Status card of monsters	*
+;*********************************
+mons_card:
+	call	set_monsdata_dmy		; mons_tbl -> mons_data
+						; my_cap_data -> monsdata_dmy
+	ld	a,(my_or_gein)
+	cp	2
+	jr	c,card1$
+	
+	ld	a,(monsdata_dmy + 3)
+	ld	(monsdata_dmy + 33),a
+	ld	(mons_level),a
+	
+	ld	hl,monsdata_dmy + 16
+	ld	de,monsdata_dmy + 34
+
+	ld	b,1
+	call	set_status_all
+
+card1$:
+	ld	hl,obs_walk_flag
+	set	1,(hl)
+	
+	ld	a,033h
+	ld	(NR50),a			; volume down
+
+	call	pal_off_put_wait
+	call	dvram_cls
+	call	actor_blanch			; clear Character
+
+	call	set_gauge
+
+	ld	de,fnt_fight
+	ld	hl,096d0h
+	ld	bc,4*256 + 3		; bank4  3chara 
+	call	fontmove 
+
+	ld	de,fnt_fight + 24
+	ld	hl,09780h
+	ld	bc,4*256 + 1		; bank4  6chara 
+	call	fontmove 
+
+	ld	de,fnt_fight + 48
+	ld	hl,09760h
+	ld	bc,4*256 + 2		; bank4  6chara 
+	call	fontmove 
+
+	ld	de,alfa_p
+	ld	hl,09720h
+	ld	bc,4*256 + 1		; bank4  6chara 
+	call	fontmove 
+
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+
+	S_POS	19,1				; ñÓàÛògÇï\é¶
+	ld	bc,060ah
+	call	put_yajirushi			; No name type
+
+	ld	de,-6				; ÅhNo.ÅhÇï\é¶
+	add	hl,de
+	ld	(hl),dot@
+	dec	hl
+	ld	(hl),No@
+
+	S_POS	19,9				; ñÓàÛògÇï\é¶
+	ld	bc,0806h
+	call	put_yajirushi			; status
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_MSG_POS 10,9,mc_ms1$		; ÅhÉ^ÉCÉvÇPÅ^É^ÉCÉvÇQÅ^IDNoÅ^Ç®Ç‚Å^ÅhÇï\é¶
+ else
+;	SET_MSG_POS 11,10,mc_ms1$
+	SET_MSG_POS 10,10,mc_ms1$		; ÅhÉ^ÉCÉvÇPÅ^É^ÉCÉvÇQÅ^IDNoÅ^Ç®Ç‚Å^ÅhÇï\é¶
+ endif
+	call	put_msg				; strings for right window
+
+	S_POS	11,3				; ÉâÉCÉtÉQÅ[ÉWÅAÇgÇoÇï\é¶
+;	call	put_mons_status			; HP & HP MAX & life gauge
+	ld	a,95
+	call	bank2bank
+	ld	hl,sgbcol_buf + 8
+	call	hp_color_chk
+	ld	b,COL_CARD
+	call	color_set
+
+	S_POS	16,6				; èÛë‘ÅhÇ‹Ç–ÅAÇ–ÇÒÇµìôÅhÇï\é¶
+	ld	de,monsdata_dmy + 4		; condition
+	call	put_condition
+	jr	nz,next$
+
+	S_POS	16,6
+	ld	de,futuu_msg$			; èÛë‘ÅhÇ”Ç¬Ç§ÅhÇï\é¶
+	call	put_msg				; strings for right window
+
+next$:
+  ifn	pm_jmsg
+	SET_MSG_POS 10,6,status_msg$		; ÅhÇ∂ÇÂÇ§ÇΩÇ¢Å^ÅhÇï\é¶
+  else
+	SET_MSG_POS 9,6,status_msg$
+  endif
+	call	put_msg				; strings for right window
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	14,2				; ÉåÉxÉãÇï\é¶
+ else
+	S_POS	16,1				; ÉåÉxÉãÇï\é¶
+ endif
+	call	put_level_s			; print monster level
+	
+	ld	a,(mons_data)
+	ld	(in_dat),a
+	ld	(tbl_pos),a
+
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+
+	S_POS	3,7				; ÉÇÉìÉXÉ^Å[î‘çÜÇï\é¶	ÇmÇèÅDÅhÇOÇPÇUÅh
+	ld	de,in_dat
+	ld	bc,33027			;= 1*256 + 3 + 128*256
+						; 1byte 3keta
+						; b(7bit)=1 ( zero print )
+	call	put_dec				; print monster number
+	
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	11,10				; É^ÉCÉvÇPÅ^É^ÉCÉvÇQÅ^ì‡óeÇï\é¶
+ else
+	S_POS	15,10				; É^ÉCÉvÇPÅ^É^ÉCÉvÇQÅ^ì‡óeÇï\é¶
+ endif
+	ld	a,B_PUT_TYPE
+	call	bank2bank
+
+	ld	hl,name_tbl$
+	call	get_address$
+
+	ld	d,h				; É|ÉPÉÇÉìñºÇï\é¶
+	ld	e,l
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	9,1
+ else
+	S_POS	11,1
+ endif
+	call	put_msg				; name
+
+	ld	hl,oya_tbl$
+	call	get_address$
+
+	ld	d,h
+	ld	e,l
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	12,16				; Ç®Ç‚ñºÇï\é¶
+ else
+;	S_POS	14,14
+	S_POS	14,16				; Ç®Ç‚ñºÇï\é¶
+ endif
+	call	put_msg				; oya name
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	12,14				; ÇhÇcÉiÉìÉoÅ[Çï\é¶
+ else
+;	S_POS	14,12
+	S_POS	14,14				; ÇhÇcÉiÉìÉoÅ[Çï\é¶
+ endif
+	ld	de,monsdata_dmy + 12
+	ld	bc,33285			;= 2*256 + 5 + 128*256
+						; 2byte 5keta
+						; b(7bit)=1 ( zero print )
+	call	put_dec				; print id-no
+
+	ld	d,0
+	call	print_status
+	call	put_wait
+	call	palset
+
+	S_POS	1,0
+	call	prt_mons_chr
+
+	ld	a,(sel_item_no)
+	call	gyaarth_play
+
+gyath1$:
+	call	cont_abwait
+ret$:
+	pop	af		
+	ld	(wave_flg),a		
+;	inc	a
+;	ld	a,1
+;	and	a			; NZ
+	ret
+
+
+get_address$:
+	ld	a,(my_or_gein)
+	add	a,a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	a,(my_or_gein)
+	cp	3
+	ret	z
+
+	ld	a,(sel_item_pos)
+	jp	mul_6
+
+oya_tbl$:
+	dw	my_cap_oya
+	dw	gein_cap_oya
+	dw	my_mons_oya
+	dw	benri_mons_oya
+
+name_tbl$:
+	dw	my_cap_name
+	dw	gein_cap_name
+	dw	my_mons_name
+	dw	benri_mons_name
+
+mc_ms1$:
+  ifn	pm_jmsg
+	db	ta__,i__,pu__,n1@,sura@,cr@	; É^ÉCÉvÇPÅ^
+	db	ta__,i__,pu__,n2@,sura@,cr@	; É^ÉCÉvÇQÅ^
+	db	id@,No@,sura@,cr@		; IDNoÅ^
+	db	o_,ya_,sura@,cr@		; Ç®Ç‚Å^
+	db	EOM
+  else
+	db	usf_t,usf_y,usf_p,usf_e,n1@,sura@,cr@
+	db	usf_t,usf_y,usf_p,usf_e,n2@,sura@,cr@
+	db	id@,No@,sura@,cr@
+	db	usf_o,usf_t,sura@,cr@
+	db	EOM
+  endif
+
+status_msg$:
+  ifn	pm_jmsg
+	db	zi_,yyo_,u_,ta_,i_,sura@,EOM	; Ç∂ÇÂÇ§ÇΩÇ¢Å^
+  else
+	db	usf_s,usf_t,usf_a,usf_t,usf_u,usf_s,sura@,EOM
+  endif
+
+futuu_msg$:
+  ifn	pm_jmsg
+	db	hu_,tu_,u_,EOM			; Ç”Ç¬Ç§
+  else
+	db	usf_o,usf_k,EOM
+  endif
+
+put_yajirushi:
+	ld	de,20
+z1$:
+	ld	(hl),78h
+	add	hl,de
+	dec	b
+	jr	nz,z1$
+
+	ld	(hl),77h
+	dec	hl
+
+z2$:
+	ld	(hl),76h
+	dec	hl
+	dec	c
+	jr	nz,z2$
+
+	ld	(hl),6fh
+
+	ret
+
+alfa_p:
+	db	000h,0fch,0c6h,0c6h,0c6h,0fch,0c0h,0c0h
+	
+	
+;********************************
+;  print_status			*
+;  IN : d			*
+;     : monsdata_dmy		*
+;********************************
+print_status:				; ÅhÇ±Ç§Ç∞Ç´ÅAÇ⁄Ç§Ç¨ÇÂÅAÇ∑ÇŒÇ‚Ç≥ÅAÇ∆Ç≠ÇµÇ„ÅhílÇï\é¶
+	ld	a,d
+	and	a
+	jr	nz,pass1$
+
+;	SET_WIN_POS	0,8,10,17
+	SET_WIN_POS	0,8,9,17
+	call	put_window
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	1,9
+	ld	bc,25
+ else	
+;	S_POS	2,10
+	S_POS	1,10
+	ld	bc,5
+ endif
+	jr	pass2$
+
+pass1$:					; êÌì¨å„ÉåÉxÉãÇ™è„Ç™Ç¡ÇΩÇ∆Ç´Ç…ï\é¶Ç≥ÇÍÇÈ
+	SET_WIN_POS	9,2,19,11
+	call	put_window
+	
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	11,3
+	ld	bc,24
+ else
+	S_POS	11,4
+	ld	bc,4
+ endif
+
+pass2$:					; É|ÉPÉÇÉì  Ç¬ÇÊÇ≥ÇÇ›ÇÈ  Ç≈ï\é¶Ç≥ÇÍÇÈ
+	push	bc
+	push	hl
+	ld	de,mc_ms1$			; ÅhÇ±Ç§Ç∞Ç´ÅAÇ⁄Ç§Ç¨ÇÂÅAÇ∑ÇŒÇ‚Ç≥ÅAÇ∆Ç≠ÇµÇ„ÅhÇï\é¶
+	call	put_msg				; strings for left window
+	pop	hl
+	pop	bc
+
+	add	hl,bc
+
+	ld	de,monsdata_dmy + 36		; kougekiryoku
+	ld	bc,2*256 + 3			; 2byte 3keta
+	call	put_dec$			; print monster kougekiryoku
+
+	ld	de,monsdata_dmy + 38		; bougyoryoku
+	call	put_dec$			; print monster bougyoryoku
+
+	ld	de,monsdata_dmy + 40		; subayasa
+	call	put_dec$			; print monster subayasa
+
+	ld	de,monsdata_dmy + 42		; tokusyu nouryokuchi
+
+	jp	put_dec				; print monster subayasa
+
+
+put_dec$:
+	push	hl
+	call	put_dec				; print monster level
+	pop	hl
+	ld	de,40
+	add	hl,de
+	ret
+
+mc_ms1$:
+  ifn	pm_jmsg
+	db	ko_,u_,ge_,ki_,cr@		; ÅhÇ±Ç§Ç∞Ç´Åh
+	db	bo_,u_,gi_,yyo_,cr@		; ÅhÇ⁄Ç§Ç¨ÇÂÅh
+	db	su_,ba_,ya_,sa_,cr@		; ÅhÇ∑ÇŒÇ‚Ç≥Åh
+	db	to_,ku_,si_,yyu_		; ÅhÇ∆Ç≠ÇµÇ„Åh
+	db	EOM
+  else
+	db	usf_a,usf_t,usf_t,usf_a,usf_c,usf_k,cr@
+	db	usf_d,usf_e,usf_f,usf_e,usf_n,usf_s,usf_e,cr@
+	db	usf_s,usf_p,usf_e,usf_e,usf_d,cr@
+	db	usf_s,usf_p,usf_e,usf_c,usf_i,usf_a,usf_l
+	db	EOM
+  endif
+
+;*********************************
+;* Change rate of attack pattern *
+;*********************************
+chg_skill:
+;	jp	z,chg_skill_end$
+
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+	ld	(all_put_req),a
+
+	ld	bc,5
+	ld	hl,waza_swap
+	call	memset				; clear to 'waza_swap' area
+
+	ld	hl,monsdata_dmy + 8
+	ld	de,waza_swap
+	ld	bc,4
+	call	block_move			; set data to 'waza_swap'
+
+	ld	hl,set_str_buf
+	ld	b,0eh
+	call	bank_push_call			; farcall  0E:set_str_buf()
+
+	S_POS	9,2
+	ld	bc,050ah
+	call	block_cls
+
+	S_POS	19,3
+	ld	(hl),78h
+
+	SET_WIN_POS 0,8,19,17			; ãZï\é¶ópògÇï\é¶
+	call	put_window			; skill change box
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_MSG_POS 2,9,waza_name
+ else
+	SET_MSG_POS 2,10,waza_name
+ endif
+	call	put_msg				; skill & attack pattern list
+
+	ld	a,(para_work)
+	inc	a
+	ld	c,a				; PP put_count
+	ld	a,4
+	sub	c
+	ld	b,a				; @bou put_count
+	
+	S_POS	11,10				; PP put
+	ld	de,40
+	ld	a,72h
+	call	p_put$
+
+	ld	a,b
+	and	a
+	jr	z,bou_pass$
+
+	ld	c,a
+	ld	a,bou@
+	call	p_put$
+
+bou_pass$:
+	ld	hl,monsdata_dmy + 8
+	ld	de,10*20 + 14 + dmy_vram
+	ld	b,0
+p_loop2$:	
+	ld	a,(hli)
+	and	a
+	jr	z,p_end$
+
+	push	bc
+
+;	push	hl
+;	push	de	
+;	
+;	dec	a
+;	ld	hl,waza_tbl
+;	ld	bc,6
+;	call	mul_any
+;
+;	ld	de,table_data
+;	ld	a,0eh
+;	call	bank_chg_block_m
+;
+;	pop	de
+;	pop	hl
+
+	push	hl
+	push	de
+
+	ld	hl,allow_cnt
+	ld	a,(hl)
+	push	af
+
+	ld	a,b
+	ld	(hl),a
+	push	hl
+
+	ld	hl,get_max_pp
+	ld	b,03h
+	call	bank_push_call
+	
+	pop	hl
+	pop	af
+	ld	(hl),a
+
+	pop	de
+	pop	hl
+
+	push	hl
+
+	ld	bc,20
+	add	hl,bc
+
+	ld	a,(hl)
+	and	03fh
+	ld	(table_data + 4),a
+
+	ld	h,d
+	ld	l,e
+	push	hl
+
+	ld	de,table_data + 4		; nokori pp
+	ld	bc,1*256 + 2			; 1byte 2keta
+	call	put_dec				; print nokori pp 
+
+	ld	a,sura@
+	ld	(hli),a
+
+;	ld	de,table_data + 5		; max pp
+	ld	de,in_dat			; max pp
+	ld	bc,1*256 + 2			; 1byte 2keta
+	call	put_dec				; print max pp 
+
+	pop	hl
+	ld	de,40
+	add	hl,de
+	ld	d,h
+	ld	e,l
+
+	pop	hl
+	pop	bc
+
+	inc	b	
+	ld	a,b
+	cp	4
+	jr	nz,p_loop2$
+
+
+p_end$:
+
+	SET_MSG_POS 9,3,mc_msg_exp1$		; ÅhÇØÇ¢ÇØÇÒÇøÅ^ÅhÇï\é¶
+	call	put_msg				; "keikenchi"
+
+	ld	a,(monsdata_dmy + 33)
+	push	af
+	cp	100
+	jr	z,pass$
+
+	inc	a
+	ld	(monsdata_dmy + 33),a
+pass$:
+  ifn	pm_jmsg
+	S_POS	14,5				; ì˙ñ{åÍÇÃèÍçáÇÕÅhÇ≈ÅhÇï\é¶
+	ld	(hl),ten@
+  endif
+	S_POS	14,6
+  ifn	pm_jmsg
+	ld	(hl),te_
+  else
+	ld	(hl),q@					; âpåÍÇÃèÍçáÇÕÅhtoÅhÇï\é¶
+  endif
+	inc	hl
+	inc	hl
+	call	put_level_s			; print monster level + 1
+	pop	af
+	ld	(monsdata_dmy + 33),a
+
+	ld	de,monsdata_dmy + 14		; keikenchi
+	S_POS	12,4
+	ld	bc,3*256 + 7			; 3byte 7keta
+	call	put_dec				; print monster keikenchi
+
+	call	tsugino_level$
+	ld	de,monsdata_dmy + 14		; tsugino level made 
+	S_POS	7,6
+	ld	bc,3*256 + 7			; 3byte 7keta
+	call	put_dec				; print tsugino level made
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	9,0
+	call	name_cls$
+	S_POS	9,1
+	call	name_cls$
+ else
+	S_POS	11,0
+	call	name_cls$
+	S_POS	11,1
+	call	name_cls$
+ endif
+	ld	a,(mons_data)
+	ld	(in_dat),a
+	call	get_mons_name			; "talkmap.dmg"
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	9,1				; ÉÇÉìÉXÉ^Å[ñºÇï\é¶
+ else
+	S_POS	11,1
+ endif
+	call	put_msg
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	call	cont_abwait
+
+	pop	af
+	ld	(wave_flg),a
+
+chg_skill_end$:
+	ld	hl,obs_walk_flag
+	res	1,(hl)
+
+	ld	a,077h
+	ld	(NR50),a			; volume up
+
+	call	pal_off
+	jp	dvram_cls			; vram clear
+
+tsugino_level$:
+;	xor	a
+;	ld	(calc_work1),a	
+;	ld	(calc_work2),a	
+	ld	a,(monsdata_dmy + 33)		; level
+	cp	100
+	jr	z,ful_level$
+
+;	inc	a
+;	ld	(calc_work3),a	
+;	ld	(calc_work4),a	
+;	push	af
+;	call	mul_direct
+;	pop	af
+;	ld	(calc_work4),a	
+;	call	mul_direct
+
+	inc	a
+	ld	d,a
+	ld	hl,level_to_exp
+	ld	b,016h
+	call	bank_push_call
+
+	ld	hl,monsdata_dmy + 16		; keikenchi (low)
+	ld	a,(calc_work3)
+	sub	(hl)
+	ld	(hld),a
+
+	ld	a,(calc_work2)
+	sbc	a,(hl)
+	ld	(hld),a
+
+	ld	a,(calc_work1)
+	sbc	a,(hl)
+	ld	(hld),a
+
+	ret
+
+ful_level$:
+	ld	hl,monsdata_dmy + 14
+	xor	a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	ret
+
+mc_msg_exp1$:
+  ifn	pm_jmsg
+	db	ke_,i_,ke_,n_,ti_,sura@,cr@	; ÇØÇ¢ÇØÇÒÇøÅ^
+	db	a_,to_				; Ç†Ç∆
+	db	EOM
+  else
+	db	usf_e,usf_x,usf_p,spc@,usf_p,usf_o,usf_i,usf_n,usf_t,usf_s,cr@
+	db	usf_l,usf_e,usf_v,usf_e,usf_l,spc@,usf_u,usf_p
+	db	EOM
+  endif
+
+
+name_cls$:
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, MONS_NAME_LEN -1
+ else
+	ld	bc,5
+ endif
+	ld	a,spc@
+	jp	memset
+
+
+p_put$:
+	ld	(hli),a
+	ld	(hld),a
+	add	hl,de
+	dec	c
+	jr	nz,p_put$
+	ret
+
+
+	public	cap_list_sub4
+cap_list_sub3:
+	xor	a
+	ld	(all_put_req),a
+
+	call	dvram_cls			; chara claer
+	call	actor_blanch			; chara claer
+
+;---------------------------------------
+	ld	b,1ch
+	extern	monschr_set
+	ld	hl,monschr_set
+	call	bank_push_call
+
+;---------------------------------------
+cap_list_sub4:
+	ld	a,(ef_size)
+	cp	4
+	jp	z,sub_message
+
+	call	list_allow_cls
+
+	extern	listcol_ready
+	ld	b,1ch
+	ld	hl,listcol_ready
+	call	bank_push_call
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	3,0			; É|ÉPÉÇÉì ñºëOï\é¶à íuÅiÇPÇOï∂éöî≈Åj
+ else
+	S_POS	3,1			; É|ÉPÉÇÉì ñºëOï\é¶à íuÅiÇTï∂éöî≈Åj
+ endif
+	ld	de,my_cap_tbl + 1
+	xor	a
+	ld	c,a
+	ld	(work1),a
+	ld	(sgb_work),a
+loop$:
+	ld	a,(de)
+	cp	0ffh
+	jp	z,sub_message_0			; end of table data ?
+
+	push	bc				; saved counter
+	push	de				; saved table address
+	push	hl				; saved vram address
+
+	ld	a,c
+
+	push	hl
+	ld	hl,my_cap_name
+	call	get_pet_name
+	pop	hl
+	call	put_msg
+;---------------------------------------
+	ld	b,1ch
+	extern	monschr_put
+	ld	hl,monschr_put
+	call	bank_push_call
+
+;---------------------------------------
+	ld	a,(work1)
+	ld	(sel_item_pos),a
+	inc	a
+	ld	(work1),a
+	call	set_monsdata_dmy		; mons_tbl -> mons_data
+						; my_cap_data -> monsdata_dmy
+	pop	hl
+	push	hl
+
+	ld	a,(select_allow)
+	and	a
+	jr	z,pass1$
+
+	dec	a
+	ld	b,a
+	ld	a,(sel_item_pos)
+	cp	b
+	jr	nz,pass1$
+
+	dec	hl
+	dec	hl
+	dec	hl
+	ld	a,alloww@
+	ld	(hli),a
+	inc	hl
+	inc	hl
+
+pass1$:
+	ld	a,(ef_size)
+	cp	3				; case of add waza
+	jr	z,oboerarerukana$
+	cp	5
+	jr	z,tukaerukana$		;ÅhÇ¬Ç©Ç¶ÇÈ  Ç¬Ç©Ç¶Ç»Ç¢ÅhÇï\é¶Ç∑ÇÈ
+
+	push	hl
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,14			; Ç‹Ç–ÅAÇÀÇﬁÇËìôÇÃï\é¶ÉIÉtÉZÉbÉgà íuÅiÇPÇOï∂éöî≈Åj
+ else
+;	ld	bc,-14
+	ld	bc,-15			; Ç‹Ç–ÅAÇÀÇﬁÇËìôÇÃï\é¶ÉIÉtÉZÉbÉgà íuÅiÇTï∂éöî≈Åj
+ endif
+	add	hl,bc
+	ld	de,monsdata_dmy + 4		; condition
+	call	put_condition
+	pop	hl
+
+status$:
+	push	hl
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,21			; HP:(HHHHH) ÇÃï\é¶ÉIÉtÉZÉbÉgà íuÅiÇPÇOï∂éöî≈Åj
+					;   22/ 22
+	ld	a,(us_display_flg)
+	set	HP_DSPSTYLE_BIT,a
+	ld	(us_display_flg),a	; HP:(HHHHH) 22/ 22 ÇÃï\é¶å^Ç…Ç∑ÇÈ
+ else
+	ld	bc,-12
+ endif
+	add	hl,bc
+;	call	put_mons_status2
+	ld	a,96
+	call	bank2bank
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(us_display_flg)
+	res	HP_DSPSTYLE_BIT,a	; HP:(HHHHH) ÇÃï\é¶å^Ç…ñﬂÇ∑
+	ld	(us_display_flg),a	;  22/ 22
+ endif
+	call	list_color
+	pop	hl
+	jr	level$
+	
+oboerarerukana$:
+	push	hl
+	ld	a,B_CHECK_WAZA_FLG
+	call	bank2bank
+	pop	hl
+
+	ld	de,oboerareru_msg$	;ÅhÇ®Ç⁄Ç¶ÇÁÇÍÇÈÅh
+	ld	a,c
+	and	a
+	jr	nz,put_oboerareruka$
+
+	ld	de,oboerarenai_msg$	;ÅhÇ®Ç⁄Ç¶ÇÁÇÍÇ»Ç¢Åh
+
+put_oboerareruka$:
+  ifn	ASSEMBLE__ENGLISH
+	ld	bc,29
+  else
+	ld	bc,9			;Ç®Ç⁄Ç¶ÇÁÇÍÇÈÅ^Ç®Ç⁄Ç¶ÇÁÇÍÇ»Ç¢ï\é¶à íuÉIÉtÉZÉbÉg
+  endif
+	push	hl
+	add	hl,bc
+	call	put_msg
+	pop	hl
+
+level$:
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, MONS_NAME_LEN -1	; ":Çk"ÇÃï\é¶à íuÉIÉtÉZÉbÉgÅiÇPÇOï∂éöî≈Åj
+ else
+	ld	bc,5			; ":Çk"ÇÃï\é¶à íuÉIÉtÉZÉbÉgÅiÇTï∂éöî≈Åj
+ endif
+	add	hl,bc
+	call	put_level_s
+
+	pop	hl
+	pop	de
+	inc	de				; next data of 'my_cap_tbl'
+
+	ld	bc,40
+	add	hl,bc				; next print line
+
+	pop	bc
+	inc	c				; count up
+
+	jp	loop$
+
+oboerareru_msg$:
+  ifn	pm_jmsg
+	db	o_,bo_,e_,ra_,re_,ru_,EOM	; Ç®Ç⁄Ç¶ÇÁÇÍÇÈ
+  else
+	db	usf_a,usf_b,usf_l,usf_e,EOM	; ABLE
+  endif
+
+oboerarenai_msg$:
+  ifn	pm_jmsg
+	db	o_,bo_,e_,ra_,re_,na_,i_,EOM	; Ç®Ç⁄Ç¶ÇÁÇÍÇ»Ç¢
+  else
+	db	usf_n,usf_o,usf_t,spc@,usf_a,usf_b,usf_l,usf_e,EOM	; NOT ABLE
+  endif
+
+
+tukaerukana$:
+	push	hl
+	ld	hl,shinka_tbl
+	ld	b,0
+	ld	a,(monsdata_dmy)		; monster No
+	dec	a
+	add	a,a
+	rl	b
+	ld	c,a
+	add	hl,bc
+	
+	ld	de,table_data
+	ld	a,0eh
+	ld	bc,2
+	call	bank_chg_block_m
+
+	ld	hl,table_data
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,table_data
+	ld	a,0eh
+	ld	bc,13
+	call	bank_chg_block_m
+
+	ld	hl,table_data
+
+	ld	de,tukaenai_msg$		;ÅhÇ¬Ç©Ç¶Ç»Ç¢Åh
+
+tukaeruka_loop$:
+	ld	a,(hli)
+	and	a
+	jr	z,put_tukaeruka$
+
+	inc	hl
+	inc	hl
+
+	cp	2
+	jr	nz,tukaeruka_loop$
+
+	dec	hl
+	dec	hl
+	ld	b,(hl)
+	ld	a,(junior_name + 4)		; item No
+	inc	hl
+	inc	hl
+	inc	hl
+	cp	b
+	jr	nz,tukaeruka_loop$
+
+	ld	de,tukaeru_msg$			;ÅhÇ¬Ç©Ç¶ÇÈÅh
+
+put_tukaeruka$:
+  ifn	ASSEMBLE__ENGLISH
+	ld	bc,29
+  else
+	ld	bc,9				;ÅhÇ¬Ç©Ç¶ÇÈÅ^Ç¬Ç©Ç¶Ç»Ç¢ï\é¶à íuÉIÉtÉZÉbÉg
+  endif
+	pop	hl
+	push	hl
+	add	hl,bc
+	call	put_msg
+	pop	hl
+
+	jr	level$
+
+tukaeru_msg$:
+  ifn	pm_jmsg
+	db	tu_,ka_,e_,ru_,EOM	; Ç¬Ç©Ç¶ÇÈ
+  else
+	db	usf_a,usf_b,usf_l,usf_e,EOM	; ABLE
+  endif
+
+tukaenai_msg$:
+  ifn	pm_jmsg
+	db	db	tu_,ka_,e_,na_,i_,EOM	; Ç¬Ç©Ç¶Ç»Ç¢
+  else
+	db	usf_n,usf_o,usf_t,spc@,usf_a,usf_b,usf_l,usf_e,EOM	; NOT ABLE
+  endif
+
+
+sub_message_0:
+	ld	b,COL_CAPLIST1
+	call	color_set
+
+sub_message:
+	ld	hl,obs_system
+	ld	a,(hl)
+	push	af
+	push	hl
+	set	6,(hl)
+
+	ld	a,(ef_size)
+	cp	0f0h
+	jr	nc,item_use_msg$
+
+	add	a,a			; * 2
+	ld	hl,sub_msg_tbl$
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	call	put_win_msg
+
+ret$:
+	pop	hl
+	pop	af
+	ld	(hl),a
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	jp	palset
+
+item_use_msg$:
+	and	0fh
+	ld	hl,item_msg_tbl$
+	add	a,a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hli)			;HL = msg_address
+	ld	h,(hl)
+	ld	l,a
+
+	push	hl
+	ld	a,(yes_no_map + 29)  	;monster pos.
+	ld	hl,my_cap_name
+	call	get_pet_name
+	pop	hl
+	call	put_win_msg
+
+	jr	ret$
+
+item_msg_tbl$:
+	dw	doku_msg$
+	dw	yakedo_msg$
+	dw	koori_msg$
+	dw	nemuri_msg$
+	dw	mahi_msg$
+	dw	kizu_msg$
+	dw	nandemo_msg$
+	dw	fukkatsu_msg$
+	dw	level_up_msg$
+
+sub_msg_tbl$:
+	dw	normal$
+	dw	item$
+	dw	fight$
+	dw	waza$
+	dw	trance$
+	dw	item$			; ishi
+
+normal$:
+	extern	normal_0_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw normal_0_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+item$:
+	extern	item_1_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw item_1_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+fight$:
+	extern	fight_2_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw fight_2_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+waza$:
+	extern	waza_3_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw waza_3_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+trance$:
+	extern	trance_4_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw trance_4_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+kizu_msg$:
+	extern	kizu_msg_5_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw kizu_msg_5_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+doku_msg$:
+	extern	doku_msg_6_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw doku_msg_6_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+mahi_msg$:
+	extern	mahi_msg_7_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw mahi_msg_7_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+yakedo_msg$:
+	extern	yakedo_msg_8_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw yakedo_msg_8_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+koori_msg$:
+	extern	koori_msg_9_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw koori_msg_9_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+nemuri_msg$:
+	extern	nemuri_msg_10_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw nemuri_msg_10_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+nandemo_msg$:
+	extern	nandemo_msg_11_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw nandemo_msg_11_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+fukkatsu_msg$:
+	extern	fukkatsu_msg_12_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw fukkatsu_msg_12_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+level_up_msg$:
+	extern	level_up_msg_13_MONSLIST
+	db I_MSG2	; mvmsgí«â¡
+	dw level_up_msg_13_MONSLIST	; mvmsgí«â¡
+	db 022h	; mvmsgí«â¡
+	db	FANFARE			; Item de Level Up! By Jun
+	db	WAIT
+	db	EOM
+
+list_color:
+	ld	hl,sgbcol_buf + 2
+	ld	a,(sgb_work)
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	call	hp_color_chk
+	ld	b,COL_CAPLIST2
+	call	color_set
+
+	ld	hl,sgb_work
+	inc	(hl)
+
+	ret
+
+
+
+
+;;;;;
+
+
+banke	group	G_BANKe
+;*****************************************
+;* Set the skill name strings to buffer	*
+;*	IN   : waza_swap		*
+;*	OUT  : waza_name		*
+;*	       para_work lot of skill	*
+;*****************************************
+set_str_buf:
+	ld	hl,waza_swap
+	ld	de,waza_name
+	ld	b,0
+
+set_name$:
+	ld	a,(hli)
+	and	a
+	jr	z,bou_loop1$
+
+	push	hl				; save the address 'waza_swap'
+
+	ld	(tbl_pos),a
+	ld	a,02ch				; waza_name_tblÇÃ ﬁ›∏#
+	ld	(tbl_bank),a
+	ld	a,ASGN_WAZA_NAME
+	ld	(tbl_number),a
+	call	get_table
+
+	ld	hl,table_data
+
+loop$:
+	ld	a,(hli)
+	cp	EOM
+	jr	z,pass$
+
+	ld	(de),a
+	inc	de
+	jr	loop$
+
+pass$:
+	ld	a,b
+	ld	(para_work),a			; lot of skill
+	inc	b
+	ld	a,cr@
+	ld	(de),a
+	inc	de
+
+	pop	hl
+
+	ld	a,b
+	cp	4
+	jr	z,set_end$
+
+	jr	set_name$
+
+bou_loop1$:
+	ld	a,bou@
+	ld	(de),a
+	inc	de
+
+	inc	b
+	ld	a,b
+	cp	4
+	jr	z,set_end$
+	
+	ld	a,cr@
+	ld	(de),a
+	inc	de
+	jr	bou_loop1$
+	
+set_end$:
+	ld	a,EOM
+	ld	(de),a
+
+	ret
+
+
+;*****************************************
+;* Set table address of items		 *
+;* 	IN  : A   datas pattern number   *
+;*           1 - SAVE_CAP                *
+;*           4 - CAP_SEAL                *
+;*           5 - CAP_BUY                 *
+;*           2 - ITEM_SEAL               *
+;*           3 - ITEM_BUY                *
+;*	     6 - WAZA_SALE		 *
+;*                                       *
+;*	OUT : item_list_adrs		 *
+;*	      item_name_adrs		 *
+;*	      item_gold_adrs		 *
+;*	      tbl_bank - use get_table   *
+;*	      tbl_number -     ''        *
+;*****************************************
+;------------------------------------------------------------------------------------------
+; (set_data_flg) : (item_list_adrs)w  (item_name_adrs)w  (tbl_number)    (item_gold_adrs)w
+;  SAVE_CAP      :   gein_cap_tbl,      gein_cap_oya,     ASGN_GEIN_NAME   item_gold_tbl
+;  CAP_SEAL      :   my_cap_tbl,        my_cap_oya,       ASGN_CAP_NAME          "
+;  CAP_BUY       :   shop_item_tbl,     mons_name_tbl,    ASGN_MONS_NAME         "
+;  ITEM_SEAL     :   my_item_tbl,       item_name_tbl,    ASGN_ITEM_NAME         "
+;  ITEM_BUY      :   shop_item_tbl,     item_name_tbl,    ASGN_ITEM_NAME         "
+;------------------------------------------------------------------------------------------
+set_item_param:
+	ld	a,(set_data_flg)
+
+	cp	SAVE_CAP		; Gein Data Table Get
+	jr	nz,next1$               ; chigautoki wa tugi
+	ld	hl,gein_cap_tbl
+	ld	de,gein_cap_oya
+	ld	a,ASGN_GEIN_NAME
+	jr	next_fin$
+next1$:					; After Delete Parts
+	cp	CAP_SEAL		; Capsule uru
+	jr	nz,next2$
+	ld	hl,my_cap_tbl
+	ld	de,my_cap_oya
+	ld	a,ASGN_CAP_NAME
+	jr	next_fin$
+next2$:					; After Delete Parts
+	cp	CAP_BUY			; Capsule kau
+	jr	nz,next3$
+	ld	hl,shop_item_tbl
+	ld	de,mons_name_tbl
+	ld	a,ASGN_MONS_NAME
+	jr	next_fin$
+next3$:
+	cp	ITEM_SEAL		; Item uru
+	jr	nz,next4$
+	ld	hl,my_item_tbl
+	ld	de,item_name_tbl
+	ld	a,ASGN_ITEM_NAME
+	jr	next_fin$
+next4$:
+;	cp	ITEM_BUY		; Item kau
+	ld	hl,shop_item_tbl
+	ld	de,item_name_tbl
+	ld	a,ASGN_ITEM_NAME
+
+next_fin$:
+	ld	(tbl_number),a
+	ld	a,l
+	ld	(item_list_adrs),a
+	ld	a,h
+	ld	(item_list_adrs + 1),a
+
+	ld	a,e
+	ld	(item_name_adrs),a
+	ld	a,d
+	ld	(item_name_adrs + 1),a
+
+	ld	bc,item_gold_tbl
+	ld	a,c
+	ld	(item_gold_adrs),a
+	ld	a,b
+	ld	(item_gold_adrs + 1),a
+
+	ret
+
+;*************************************************
+;* Function	get_item_no			*
+;*		get the value from 'my_cap_tbl'	*
+;* IN	E	table pointer ( 0 org )		*
+;* OUT	sel_item_no	object data value	*
+;*************************************************
+get_item_no:
+;	push	hl
+
+	ld	hl,my_cap_tbl + 1		; data area address
+
+	ld	a,(my_or_gein)
+	and	a
+	jr	z,get_item_no1$
+	dec	a				;cp	1
+	jr	z,get_item_no0$
+
+	ld	hl,my_mons_tbl + 1		; data area address
+	jr	get_item_no1$
+
+get_item_no0$:
+	ld	hl,gein_cap_tbl + 1		; data area address
+
+get_item_no1$:
+	ld	d,0
+	add	hl,de
+	ld	a,(hl)
+	ld	(sel_item_no),a
+
+;	pop	hl
+
+	ret
+
+
+bank16	group	G_BANK16
+;*********************************
+;*	get_level		*
+;*				*
+;*	in  : monsdata_dmy	*
+;*	out : d = level		*
+;*				*
+;*********************************
+get_level:
+	ld	a,(monsdata_dmy)		; monster No
+	ld	(tbl_pos),a
+	call	get_monsadr
+
+	ld	d,1
+loop1$:
+	inc	d
+
+	call	level_to_exp
+	
+	push	hl
+	ld	hl,monsdata_dmy + 16		; keikenchi (shimo)
+	ld	a,(calc_work3)
+	ld	c,a
+	ld	a,(hld)		; keikenchi (shimo)
+	sub	c
+	ld	a,(calc_work2)
+	ld	c,a
+	ld	a,(hld)		; keikenchi
+	sbc	a,c
+	ld	a,(calc_work1)
+	ld	c,a
+	ld	a,(hl)		; keikenchi (kami)
+	sbc	a,c
+	pop	hl
+
+	jr	nc,loop1$
+
+	dec	d
+
+	ret
+
+;********************************
+;	level_to_exp		*
+;  in  : d = level		*
+;        mons_data + 19 	*
+;  out : calc_work1 = exp(high)	* 
+;  	 calc_work2 = exp(med)	*
+;  	 calc_work3 = exp(low)	*
+;********************************
+level_to_exp:
+	ld	a,(mons_data + 19)		; exp table pattern
+	add	a,a
+	add	a,a
+	ld	c,a
+	ld	b,0
+	ld	hl,tbl$
+	add	hl,bc
+
+	call	x_2jo$
+
+	ld	a,d
+	ld	(calc_work4),a
+	call	mul_direct		; X^3
+
+	ld	a,(hl)
+	and	0f0h
+	swap	a
+	ld	(calc_work4),a
+	call	mul_direct
+	ld	a,(hli)
+	and	00fh
+	ld	(calc_work4),a
+	ld	b,4
+	call	div_direct
+	
+	ld	a,(calc_work1)
+	push	af
+	ld	a,(calc_work2)
+	push	af
+	ld	a,(calc_work3)
+	push	af
+	
+	call	x_2jo$
+	
+	ld	a,(hl)
+	and	07fh
+	ld	(calc_work4),a
+	call	mul_direct	
+
+	ld	a,(calc_work1)
+	push	af
+	ld	a,(calc_work2)
+	push	af
+	ld	a,(calc_work3)
+	push	af
+
+	ld	a,(hli)
+	push	af
+
+	xor	a
+	ld	(calc_work1),a
+	ld	(calc_work2),a
+	ld	a,d
+	ld	(calc_work3),a
+	ld	a,(hli)
+	ld	(calc_work4),a
+	call	mul_direct		
+
+	ld	b,(hl)
+	ld	a,(calc_work3)
+	sub	b
+	ld	(calc_work3),a
+	ld	b,0
+	ld	a,(calc_work2)
+	sbc	a,b
+	ld	(calc_work2),a
+	ld	a,(calc_work1)
+	sbc	a,b
+	ld	(calc_work1),a
+	
+	pop	af
+	and	080h
+	jr	nz,sub$
+	
+	pop	bc
+	ld	a,(calc_work3)
+	add	a,b
+	ld	(calc_work3),a
+	pop	bc
+	ld	a,(calc_work2)
+	adc	a,b
+	ld	(calc_work2),a
+	pop	bc
+	ld	a,(calc_work1)
+	adc	a,b
+	ld	(calc_work1),a
+	jr	jump$
+
+sub$:
+	pop	bc
+	ld	a,(calc_work3)
+	sub	b
+	ld	(calc_work3),a
+	pop	bc
+	ld	a,(calc_work2)
+	sbc	a,b
+	ld	(calc_work2),a
+	pop	bc
+	ld	a,(calc_work1)
+	sbc	a,b
+	ld	(calc_work1),a
+
+jump$:
+	pop	bc
+	ld	a,(calc_work3)
+	add	a,b
+	ld	(calc_work3),a
+	pop	bc
+	ld	a,(calc_work2)
+	adc	a,b
+	ld	(calc_work2),a
+	pop	bc
+	ld	a,(calc_work1)
+	adc	a,b
+	ld	(calc_work1),a
+
+	ret
+
+x_2jo$:
+	xor	a
+	ld	(calc_work1),a
+	ld	(calc_work2),a
+	ld	a,d
+	ld	(calc_work3),a
+	ld	(calc_work4),a
+	jp	mul_direct		; X^2
+
+
+;		X^3  X^2 X^1
+tbl$:
+	db	011h,000,000,000	; X^3
+	db	034h,010,000,030	; 3/4*X^3 + 10*X^2 - 30
+	db	034h,020,000,070 	; 3/4*X^3 + 20*X^2 - 70
+	db	065h,080h + 15,100,140	; 6/5*X^3 - 15*X^2 +100*X - 140
+	db	045h,000,000,000	; 4/5*X^3
+	db	054h,000,000,000	; 5/4*X^3
+
+
+
+ ifn	ASSEMBLE__ENGLISH
+bank1d	group	G_BANK1d
+ else
+bank1e	group	G_BANK1e
+ endif
+
+;****************************************
+;* Function	put_cond_main 		*
+;* IN  :  de = condition address	*
+;*     :  hl = dvram address		*
+;* OUT :  Z  = condition normal		* 
+;****************************************
+put_cond_main:
+	ld	a,(de)				; condition
+
+	bit	3,a
+	jr	nz,doku$
+
+	bit	4,a
+	jr	nz,yake$
+
+	bit	5,a
+	jr	nz,hie$
+
+	bit	6,a
+	jr	nz,mahi$
+
+	and	007h
+	ret	z
+
+nemu$:
+  ifn	pm_jmsg
+	ld	a,ne_
+	ld	(hli),a
+	ld	a,mu_
+	ld	(hli),a
+	ld	(hl),ri_
+  else
+	ld	a,usf_s
+	ld	(hli),a
+	ld	a,usf_l
+	ld	(hli),a
+	ld	(hl),usf_p
+  endif
+	ret
+	
+doku$:
+  ifn	pm_jmsg
+	ld	a,q@				; do
+	ld	(hli),a
+	ld	(hl),ku_
+  else
+	ld	a,usf_p
+	ld	(hli),a
+	ld	a,usf_s
+	ld	(hli),a
+	ld	(hl),usf_n
+  endif
+	ret
+	
+yake$:
+  ifn	pm_jmsg
+	ld	a,ya_
+	ld	(hli),a
+	ld	a,ke_
+	ld	(hli),a
+	ld	(hl),q@
+  else
+	ld	a,usf_b
+	ld	(hli),a
+	ld	a,usf_r
+	ld	(hli),a
+	ld	(hl),usf_n
+  endif
+	ret
+
+hie$:
+  ifn	pm_jmsg
+	ld	a,ko_
+	ld	(hli),a
+	ld	a,o_
+	ld	(hli),a
+	ld	(hl),ri_
+  else
+	ld	a,usf_f
+	ld	(hli),a
+	ld	a,usf_r
+	ld	(hli),a
+	ld	(hl),usf_z
+  endif
+	ret
+
+mahi$:
+  ifn	pm_jmsg
+	ld	a,ma_
+	ld	(hli),a
+	ld	(hl),hi_
+  else
+	ld	a,usf_p
+	ld	(hli),a
+	ld	a,usf_a
+	ld	(hli),a
+	ld	(hl),usf_r
+  endif
+	ret
+

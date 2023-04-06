@@ -1,0 +1,2646 @@
+;=======================================================================;
+; Category	: pikatyuu game
+; Author	: tetsu
+; Bank-No.	: 0001h
+; In		: Nothing
+; Out		: Nothing
+;=======================================================================;
+	include		common.def
+	include		group.def
+	include		laster.h
+	include		ex_actor.h
+	include		pm_debug.def
+
+bank3e	group	G_BANK3e
+
+	public	OpeningDemoYellow
+	public	OPdemoBGcgx
+	public	OPdemoOBJcgx
+
+	extern	lcdc_stop
+	extern	wait_vb
+	extern	wait_vb_s
+	extern	cont_repeat
+	extern	color_set
+	extern	palset
+	extern	chrmove
+
+	extern	muscasino
+	extern	muscasino2
+	extern	direct_play
+	extern	MusicStop
+	extern	music_skip2
+
+	extern	EXActorInit
+	extern	EXActorJump
+	extern	EXAddActor
+	extern	EXDelActor
+	extern	EXDelActorAll
+	extern	EXActorAnmSet
+
+	extern	OpeningColorTrans
+	extern	musstartdemo
+
+	extern	change_cgb_bgp
+	extern	change_cgb_obp0
+	extern	change_cgb_obp1
+
+;=======================================================================;
+;
+;		OPENING DEMO
+;
+;=======================================================================;
+;=======================================;
+;	MACRO
+;=======================================;
+E_HL	macro	address
+	ld	hl,address
+	add	hl,bc
+	endm
+
+;============================================
+ef_initequ	macro
+mcount	=	0	
+	endm
+
+ef_equ		macro	mequno
+mequno	equ	mcount
+mcount	=	mcount + 1
+	endm
+
+ef_equ_g	macro	mequno
+mequno	equ	mcount
+mcount	=	mcount + 1
+	public	mequno
+	endm
+
+;============================================
+ef_initndb	macro
+mcount	=	0	
+	endm
+
+ef_ndb		macro	mdata,mequno
+	db	mdata
+mequno	equ	mcount
+mcount	=	mcount + 1
+	endm
+
+;============================================
+ef_initndw	macro
+mcount	=	0	
+	endm
+
+ef_initndw2	macro	mdata
+mcount	=	mdata	
+	endm
+
+ef_inc_ndw	macro	maddress
+	dw	maddress
+mcount	=	mcount + 1
+	endm
+
+ef_ndw_g	macro	maddress,mequno
+	dw	maddress
+mequno	equ	mcount
+mcount	=	mcount + 1
+	public	mequno
+	endm
+
+ef_ndw		macro	maddress,mequno
+	dw	maddress
+mequno	equ	mcount
+mcount	=	mcount + 1
+	endm
+
+;=======================================;
+;	DEFINE
+;=======================================;
+seq_work		equ	300+dmy_map
+
+;=======================================;
+;
+;	MAINLOOP
+;
+;=======================================;
+OpeningDemoYellow:
+	ld	a,(IE)
+	push	af
+	xor	a
+	ld	(IFL),a
+	ld	a,00001111b
+	ld	(IE),a
+	ld	a,00001000b
+	ld	(STAT),a
+
+	call	OpeningDemoInit
+	call	wait_vb
+main_loop$:
+	ld	a,(seq_work)
+	bit	7,a
+	jr	nz,exit$
+
+	call	cont_repeat
+	ld	a,(joy_on)
+	and	BT_A+BT_B+BT_ST
+	jr	nz,exit$
+	
+	call	MainSeqence
+
+	ld	a,<oam_buf
+	ld	(OAM_Address),a
+	call	EXActorJump
+	
+  ifn	pm_cgb & pm_cgb_obj_atr
+	ld	a,(seq_work)
+	cp	07h
+	call	z,set_namipika_attr$
+	cp	0bh
+	call	z,set_soratobu_attr$
+  endif
+	
+	call	wait_vb
+	jr	main_loop$
+exit$:
+	call	PalOff
+	xor	a
+	ld	(LasterReq),a
+	call	wait_vb
+
+	xor	a
+	ld	(IFL),a
+	pop	af
+	ld	(IE),a
+
+	ld	a,90h
+	ld	(window_y),a
+	call	EXActorInit
+	ld	hl,dmy_vram
+	ld	bc,20*18
+	xor	a
+	call	memset
+	call	oam_clr
+
+;	call	MusicStop
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	wait_vb
+	call	wait_vb
+	call	wait_vb
+	xor	a
+	ld	(all_put_req),a
+
+;	call	palset
+	ret
+
+  ifn	pm_cgb & pm_cgb_obj_atr
+set_namipika_attr$:
+	ld	a,(4 * 8 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 8 + 3 + oam_buf),a
+	ld	a,(4 * 14 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 14 + 3 + oam_buf),a
+	ld	a,(4 * 16 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 16 + 3 + oam_buf),a
+	ld	a,(4 * 18 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 18 + 3 + oam_buf),a
+	ld	a,(4 * 19 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 19 + 3 + oam_buf),a
+	ret
+
+set_soratobu_attr$:
+	ld	a,(4 * 18 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 18 + 3 + oam_buf),a
+	ld	a,(4 * 19 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 19 + 3 + oam_buf),a
+	ld	a,(4 * 20 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 20 + 3 + oam_buf),a
+	ld	a,(4 * 25 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 25 + 3 + oam_buf),a
+	ld	a,(4 * 26 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 26 + 3 + oam_buf),a
+	ld	a,(4 * 28 + 3 + oam_buf)
+	or	01h
+	ld	(4 * 28 + 3 + oam_buf),a
+	ret
+  endif
+
+
+
+;=======================================;
+;	MAIN SEQUENCE			;
+;=======================================;
+MainSeqence:
+	ld	a,(seq_work)
+	ld	hl,SeqTable$
+	call	SeqAddressGet
+	jp	(hl)
+SeqTable$:
+	ef_initndw
+	ef_ndw		Scene1Init,Scene1No
+	ef_inc_ndw	Scene1
+
+	ef_ndw		Scene2Init,Scene2No
+	ef_inc_ndw	Scene2
+
+	ef_ndw		Scene3Init,Scene3No
+	ef_inc_ndw	Scene3
+
+	ef_ndw		Scene4Init,Scene4No
+	ef_inc_ndw	Scene4
+
+	ef_ndw		Scene5Init,Scene5No
+	ef_inc_ndw	Scene5
+
+	ef_ndw		Scene6Init,Scene6No
+	ef_inc_ndw	Scene6
+
+	ef_ndw		Scene7Init,Scene7No
+	ef_inc_ndw	Scene7_1
+	ef_inc_ndw	Scene7_2
+	ef_inc_ndw	Scene7_3
+	ef_inc_ndw	Scene7_4
+
+	ef_ndw		DemoExit,DemoExitNo
+
+SeqNoInc:
+	ld	hl,seq_work
+	inc	(hl)
+	ret
+
+;---------------------------------------;
+;	Scene1				;
+;---------------------------------------;
+Scene1Init:
+	xor	a
+	ld	(LasterReq),a
+
+	ld	de,5858h
+	ld	a,<PikaRunAct1No
+	call	ActorSet
+
+	xor	a
+	ld	(headerx),a
+	ld	(headery),a
+	ld	a,90h
+	ld	(window_y),a
+
+	ld	a,11100100b
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	a,11000100b
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+
+;	call	Wait80Set
+	ld	a,082h
+	ld	(seq_work+1),a
+	call	SeqNoInc
+	ret
+
+Scene1:
+	call	WaitCount
+	ret	nc
+	
+	call	ActorDel
+	call	SeqNoInc
+	ret
+
+;---------------------------------------;
+;	Scene2				;
+;---------------------------------------;
+Scene2Init:
+	call	screen_off
+	ld	c,8
+	call	music_skip2
+
+	xor	a
+	ld	(LasterReq),a
+
+	ld	hl,9800h
+	ld	bc,400h
+	xor	a
+	call	memset
+
+	call	PikaSet$
+
+	ld	de,58b8h
+	ld	a,<PikaKousokuActNo
+	call	KousokuActorSet$
+
+	ld	a,1
+	call	screen_on
+
+	call	Wait80Set
+	call	SeqNoInc
+	ret
+
+PikaSet$:
+	ld	hl,6*20h+20+9800h
+	ld	de,20h
+	ld	b,6
+	ld	a,90h
+set_loop1$:
+	ld	c,6
+	push	af
+	push	hl
+set_loop2$:
+	ld	(hli),a
+	inc	a
+	dec	c
+	jr	nz,set_loop2$
+
+	pop	hl
+	add	hl,de
+	pop	af
+	add	a,10h
+	dec	b
+	jr	nz,set_loop1$
+
+; ｱﾄﾘﾋﾞｭｰﾄ･ｾｯﾄ
+; GF石原さんの要望によりＣＧＢの場合は
+;ピカチュウのホッペを赤くする。（村川）
+  ifn	pm_cgb
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,set_loop1_1$		; CGB以外の場合はこの処理をスキップ
+	ld	hl,6*20h+20+9800h
+	ld	de,20h
+	ld	b,6
+	ld	a,01h
+	ld	(VBK),a
+set_loop1_0$:
+	ld	c,6
+	push	hl
+set_loop2_0$:
+	ld	(hli),a				; ピカチュウのアトリビュートを 01h にする。
+	dec	c
+	jr	nz,set_loop2_0$
+
+	pop	hl
+	add	hl,de
+	dec	b
+	jr	nz,set_loop1_0$
+
+	xor	a
+	ld	(VBK),a
+set_loop1_1$:
+  endif
+	ret
+
+KousokuActorSet$:
+	ld	hl,PosTable$
+	ld	a,8
+set_loop3$:
+	push	af
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	inc	hl
+	ld	a,(hli)
+	push	hl
+	push	af
+
+	ld	a,<KousokuEffectActNo
+	call	EXAddActor
+	pop	af
+	E_HL	ACTOR_WK0
+	ld	(hl),a
+
+	pop	hl
+	pop	af
+	dec	a
+	jr	nz,set_loop3$
+	ret
+PosTable$:
+	db	0d0h,20h,2
+	db	0f0h,30h,4
+	db	0d0h,40h,6
+	db	0c0h,50h,8
+	db	0e0h,60h,8
+	db	0c0h,70h,6
+	db	0e0h,80h,4
+	db	0f0h,90h,2
+
+Scene2:
+	call	WaitCount
+	jr	c,next$
+	
+	ld	a,(headerx)
+	cp	68h
+	ret	z
+	add	a,4
+	ld	(headerx),a
+	ret
+next$:
+	call	EXDelActorAll
+	call	SeqNoInc
+	ret
+
+;---------------------------------------;
+;	Scene3				;
+;---------------------------------------;
+Scene3Init:
+	call	screen_off
+	ld	c,5
+	call	music_skip2
+
+;Scene2Init でピカチュウのホッペを赤くした処理を解除する。
+  ifn	pm_cgb
+	ld	a,(cgb_flg)
+	and	a
+	jr	z,Scene3Init_0_0$		; CGB以外の場合はこの処理をスキップ
+	ld	hl,6*20h+20+9800h
+	ld	de,20h
+	ld	b,6
+	ld	a,01h
+	ld	(VBK),a
+	xor	a
+Scene3Init_0$:
+	ld	c,6
+	push	hl
+Scene3Init_1$:
+	ld	(hli),a					; アトリビュートを元に戻す。
+	dec	c
+	jr	nz,Scene3Init_1$
+
+	pop	hl
+	add	hl,de
+	dec	b
+	jr	nz,Scene3Init_0$
+
+	xor	a
+	ld	(VBK),a
+Scene3Init_0_0$:
+  endif
+
+	xor	a
+	ld	(LasterReq),a
+	call	ScreenMapMake
+
+	ld	de,5858h
+	ld	a,<PikaRunAct2No
+	call	ActorSet
+
+;	ld	a,0
+	xor	a
+	call	screen_on
+
+	call	Wait80Set
+	call	SeqNoInc
+	ret
+
+Scene3:
+	call	WaitCount
+	ret	nc
+	
+	call	ActorDel
+	call	SeqNoInc
+	ret
+
+;---------------------------------------;
+;	Scene4				;
+;---------------------------------------;
+Scene4Init:
+	call	screen_off
+	ld	c,5
+	call	music_skip2
+
+	ld	a,<SCY
+	ld	(LasterReq),a
+	call	LasterSinSet
+
+	ld	hl,9800h
+	ld	bc,60h
+	xor	a
+	call	memset
+
+	ld	hl,9860h
+	ld	c,010h
+	ld	a,20h
+loop$:
+	ld	(hli),a
+	inc	a
+	ld	(hli),a
+	dec	a
+	dec	c
+	jr	nz,loop$
+
+	ld	hl,9880h
+	ld	bc,300h
+	ld	a,10h
+	call	memset
+
+	ld	de,40f8h
+	ld	a,<PikaNaminoriActNo
+	call	ActorSet
+
+	ld	a,1
+	call	screen_on
+
+	call	Wait58Set
+	call	SeqNoInc
+	ret
+
+Scene4:
+	call	WaitCount
+	jr	c,next$
+	
+	ld	hl,headerx
+	inc	(hl)
+	inc	(hl)
+
+	ld	hl,LasterBuffer2
+	ld	de,LasterBuffer2+1
+	ld	a,(hl)
+	push	af
+	ld	c,100h-1
+shift$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz,shift$
+	pop	af
+	ld	(hl),a
+
+	call	LasterBufferDMA
+	ret
+next$:
+	call	ActorDel
+	call	SeqNoInc
+	ret
+
+
+;---------------------------------------;
+;	Scene5				;
+;---------------------------------------;
+Scene5Init:
+	call	screen_off
+	ld	c,5
+	call	music_skip2
+
+	xor	a
+	ld	(LasterReq),a
+	call	ScreenMapMake
+
+	ld	de,5858h
+	ld	a,<PikaRunAct3No
+	call	ActorSet
+
+;	ld	a,0
+	xor	a
+	call	screen_on
+
+	call	Wait80Set
+	call	SeqNoInc
+	ret
+
+Scene5:
+	call	WaitCount
+	ret	nc
+	
+	call	ActorDel
+	call	SeqNoInc
+	ret
+
+;---------------------------------------;
+;	Scene6				;
+;---------------------------------------;
+Scene6Init:
+	call	screen_off
+	ld	c,5
+	call	music_skip2
+
+	xor	a
+	ld	(LasterReq),a
+	ld	hl,9800h
+	ld	bc,400h
+	xor	a
+	call	memset
+
+	ld	hl,9800h
+	ld	bc,100h
+	ld	a,2
+	call	memset
+
+	ld	hl,8*20h+9800h
+	ld	de,data1$
+	ld	bc,0614h
+	call	MapBlockSet$
+
+	ld	hl,4*20h+12+9800h
+	ld	de,data2$
+	ld	bc,0304h
+	call	MapBlockSet$
+
+	ld	hl,7*20h+3+9800h
+	ld	de,data3$
+	ld	bc,0202h
+	call	MapBlockSet$
+
+	ld	de,9858h
+	ld	a,<PikaFlyActNo
+	call	ActorSet
+
+	ld	a,1
+	call	screen_on
+
+	call	Wait80Set
+	call	SeqNoInc
+	ret
+
+MapBlockSet$:
+	push	bc
+	push	hl
+set_loop$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	dec	c
+	jr	nz,set_loop$
+	
+	pop	hl
+	ld	bc,20h
+	add	hl,bc
+
+	pop	bc
+	dec	b
+	jr	nz,MapBlockSet$
+	ret
+	
+data1$:
+	db	002h,002h,002h,002h,002h,002h,002h,002h,002h,002h
+	db	002h,002h,002h,002h,002h,002h,002h,060h,061h,062h
+	db	002h,002h,002h,002h,002h,002h,002h,002h,002h,002h
+	db	002h,002h,002h,002h,002h,002h,062h,000h,000h,000h
+	db	002h,002h,002h,002h,002h,002h,002h,002h,002h,002h
+	db	002h,002h,002h,002h,002h,062h,000h,000h,000h,000h
+	db	060h,061h,002h,002h,002h,002h,002h,002h,002h,002h
+	db	002h,002h,002h,002h,062h,000h,000h,000h,000h,000h
+	db	000h,000h,063h,060h,061h,060h,061h,002h,002h,002h
+	db	002h,060h,061h,062h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,063h,062h,063h
+	db	062h,000h,000h,000h,000h,000h,000h,000h,000h,000h
+data2$:
+	db	030h,031h,032h,033h
+	db	040h,041h,042h,043h
+	db	050h,051h,052h,053h
+data3$:
+	db	012h,013h
+	db	022h,023h
+
+Scene6:
+	call	WaitCount
+	jr	c,next$
+
+	ld	a,(seq_work+1)
+	and	00000111b
+	ret	nz
+
+	ld	a,(seq_work+1)
+	and	00001000b
+	sla	a
+	sla	a
+	sla	a
+	ld	e,a
+	ld	d,00h
+	ld	hl,data_table$
+	add	hl,de
+	ld	a,l
+	ld	(chr_mv_buf + 1),a		; data address low
+	ld	a,h
+	ld	(chr_mv_buf + 2),a		; data address high
+;	ld	a,00h
+	xor	a
+	ld	(chr_mv_buf + 3),a		; vram address low
+	ld	a,96h
+	ld	(chr_mv_buf + 4),a		; vram address high
+	ld	a,4
+	ld	(chr_mv_buf + 0),a
+	ret
+next$:
+	call	ActorDel
+	call	SeqNoInc
+	ret
+
+data_table$:
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;60
+	db	007h,0FFh,018h,0F8h,060h,0E0h,080h,080h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;61
+	db	0E0h,0FFh,018h,01Fh,006h,007h,001h,001h
+	db	003h,0FFh,00Ch,0FCh,030h,0F0h,020h,0E0h	;62
+	db	040h,0C0h,040h,0C0h,080h,080h,080h,080h
+	db	0C0h,0FFh,030h,03Fh,00Ch,00Fh,004h,007h	;63
+	db	002h,003h,002h,003h,001h,001h,001h,001h
+
+	db	000h,0FFh,000h,0FFh,000h,0FFh,00Eh,0FFh	;70
+	db	031h,0F1h,040h,0C0h,080h,080h,080h,080h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,070h,0FFh	;71
+	db	08Ch,08Fh,002h,003h,001h,001h,001h,001h
+	db	001h,0FFh,002h,0FEh,00Ch,0FCh,010h,0F0h	;72
+	db	020h,0E0h,020h,0E0h,040h,0C0h,080h,080h
+	db	080h,0FFh,040h,07Fh,030h,03Fh,008h,00Fh	;73
+	db	004h,007h,004h,007h,002h,003h,001h,001h
+
+;---------------------------------------;
+;	Scene7				;
+;---------------------------------------;
+Scene7Init:
+	call	screen_off
+	ld	c,5
+	call	music_skip2
+
+;	ld	a,<BGP
+	xor	a
+	ld	(LasterReq),a
+ ifn 0
+	ld	hl,LasterBuffer
+;	ld	bc,4*8-1
+	ld	bc,4*8
+	ld	a,0ffh
+	call	memset
+
+;	ld	hl,4*8-1+LasterBuffer
+	ld	hl,4*8+LasterBuffer
+	ld	bc,10*8
+	ld	a,11100100b
+	call	memset
+
+;	ld	hl,14*8-1+LasterBuffer
+	ld	hl,14*8+LasterBuffer
+;	ld	bc,4*8+1
+	ld	bc,4*8
+	ld	a,0ffh
+	call	memset
+ endif
+	ld	hl,9800h
+	ld	bc,4*20h
+	ld	a,1
+	call	memset
+
+	ld	hl,4*20h+9800h
+	ld	bc,10*20h
+	xor	a
+	call	memset
+
+	ld	hl,14*20h+9800h
+	ld	bc,4*20h
+	ld	a,1
+	call	memset
+
+	ld	hl,6*20h+5+9800h
+	ld	de,20h
+	ld	a,4
+	ld	b,8
+loop1$:
+	ld	c,12
+	push	hl
+loop2$:
+	ld	(hli),a
+	inc	a
+	dec	c
+	jr	nz,loop2$
+	pop	hl
+	add	hl,de
+	add	a,4
+	dec	b
+	jr	nz,loop1$
+
+	ld	hl,6*20h+4+9800h
+	ld	(hl),003h
+	ld	hl,7*20h+4+9800h
+	ld	(hl),074h
+	ld	hl,13*20h+5+9800h
+	ld	(hl),000h
+
+	ld	de,6058h
+	ld	a,<EyeActNo
+	call	ActorSet
+
+;	ld	a,0
+	xor	a
+	call	screen_on
+
+	call	Wait80Set
+	call	SeqNoInc
+	ret
+
+Scene7_1:
+	call	WaitCount
+	ret	nc
+	
+	ld	de,6858h
+	ld	a,<ThunderActNo
+	call	EXAddActor
+
+	call	SeqNoInc
+	ret
+
+Scene7_2:
+	ld	de,col_table1
+	call	PaletteCount
+	jr	c,next$
+
+;	push	af
+;	call	LasterWindowSet
+;	pop	af
+	ld	(BGP),a
+	ld	(OBP0),a
+	and	11110000b
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+next$:
+	call	EXDelActorAll
+	call	oam_clr
+
+	ld	hl,dmy_vram
+	ld	bc,4*20
+	ld	a,1
+	call	memset
+
+	ld	hl,4*20+dmy_vram
+	ld	bc,10*20
+	xor	a
+	call	memset
+
+	ld	hl,14*20+dmy_vram
+	ld	bc,4*20
+	ld	a,1
+	call	memset
+
+	ld	a,1
+	ld	(all_put_req),a
+	call	wait_vb
+	call	wait_vb
+	call	wait_vb
+	xor	a
+	ld	(all_put_req),a
+
+	ld	a,11100100b
+	ld	(OBP0),a
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+  endif
+;	call	LasterWindowSet
+
+	ld	de,5858h
+	ld	a,<PikaThunderActNo
+	call	ActorSet
+
+	call	SeqNoInc
+	ld	a,28h
+	ld	(seq_work+1),a
+	ret
+
+Scene7_3:
+	call	WaitCount
+	jr	c,next$
+	
+	ld	a,(seq_work+1)
+;	and	00000001b
+;	ret	z
+	and	00000011b
+	ret	nz
+
+	ld	a,(OBP0)
+	xor	11111111b
+	ld	(OBP0),a
+	ld	a,(BGP)
+	xor	00000011b
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+  endif
+;	call	LasterWindowSet
+	ret
+
+next$:
+	xor	a
+	ld	(LasterReq),a
+	ld	a,11100100b
+	ld	(BGP),a
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+  endif
+
+	call	SeqNoInc
+
+Scene7_4:
+	ld	de,col_table2
+	call	PaletteCount
+	jr	c,next$
+
+	ld	(OBP0),a
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+  endif
+	ret
+next$:
+	call	SeqNoInc
+	ret
+
+col_table1:
+ ifn 0
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,000h,000h,0e4h
+	db	0e4h,090h,090h,040h
+	db	040h,000h,000h,0ffh
+ endif
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0e4h
+	db	0e4h,0c0h,0c0h,0ffh
+;	db	0e4h,090h,090h,040h
+;	db	040h,000h,000h,0ffh
+
+col_table2:
+	db	0e4h,090h,090h,040h
+	db	040h,000h,000h,0ffh
+
+ ifn 0
+LasterWindowSet:
+;	ld	hl,4*8-1+LasterBuffer
+	ld	hl,4*8+LasterBuffer
+	ld	bc,10*8
+	call	memset
+	ret
+ endif
+
+;---------------------------------------;
+;	End				;
+;---------------------------------------;
+DemoExit:
+	ld	c,40h
+	call	wait_vb_s
+
+	ld	hl,seq_work
+	set	7,(hl)
+	ret
+
+;---------------------------------------;
+;	Sub				;
+;---------------------------------------;
+ActorSet:
+	call	EXAddActor
+	ld	a,c
+	ld	(seq_work+2),a
+	ld	a,b
+	ld	(seq_work+3),a
+	ret
+
+ActorDel:
+;	call	EXActorInit
+	ld	a,(seq_work+2)
+	ld	c,a
+	ld	a,(seq_work+3)
+	ld	b,a
+	call	EXDelActor
+	ret
+
+Wait80Set:
+	ld	a,80h
+	ld	(seq_work+1),a
+	ret
+
+Wait58Set:
+	ld	a,58h
+	ld	(seq_work+1),a
+	ret
+
+WaitCount:
+	ld	hl,seq_work+1
+	ld	a,(hl)
+	and	a
+	jr	z,next$
+	dec	(hl)
+	and	a
+	ret
+next$:
+	scf
+	ret
+
+PaletteCount:
+	ld	hl,seq_work+1
+	ld	a,(hl)
+	inc	(hl)
+	ld	l,a
+	ld	h,00h
+
+	add	hl,de
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,end$
+	and	a
+	ret
+end$:
+	scf
+	ret
+
+ScreenMapMake:
+	ld	hl,9800h
+	ld	bc,4*20h
+	ld	a,1
+	call	memset
+
+	ld	hl,4*20h+9800h
+	ld	bc,10*20h
+	xor	a
+	call	memset
+
+	ld	hl,14*20h+9800h
+	ld	bc,4*20h
+	ld	a,1
+	call	memset
+	ret
+
+screen_off:
+	xor	a
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	call	wait_vb
+	call	wait_vb
+	call	lcdc_stop
+	ret
+	
+screen_on:
+	ld	e,a
+	ld	hl,OpeningColorTrans
+	ld	b,G_BANK1c
+	extern	bank_push_call
+	call	bank_push_call
+
+	xor	a
+	ld	(headerx),a
+	ld	(headery),a
+	ld	a,90h
+	ld	(window_y),a
+
+	ld	a,11100011b
+	ld	(LCDC),a
+
+	ld	a,11100100b
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	a,11100000b
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+LasterSinSet:
+	ld	de,LasterBuffer2
+	ld	a,8
+loop$:
+	push	af
+	ld	hl,LasterDataTable
+	ld	bc,20h
+	call	BlockMove
+	pop	af
+	dec	a
+	jr	nz,loop$
+	ret
+
+LasterDataTable:
+	db	000h,000h,001h,002h,002h,003h,003h,003h
+	db	004h,003h,003h,003h,002h,002h,001h,000h
+	db	000h,000h,0FFh,0FEh,0FEh,0FDh,0FDh,0FDh
+	db	0FCh,0FDh,0FDh,0FDh,0FEh,0FEh,0FFh,000h
+
+LasterBufferDMA:
+	ld	a,<LasterBuffer2+10h
+	ld	(chr_mv_buf + 1),a		; data address low
+	ld	a,>LasterBuffer2
+	ld	(chr_mv_buf + 2),a		; data address high
+	ld	a,<LasterBuffer+10h
+	ld	(chr_mv_buf + 3),a		; vram address low
+	ld	a,>LasterBuffer
+	ld	(chr_mv_buf + 4),a		; vram address high
+	ld	a,7
+	ld	(chr_mv_buf + 0),a
+	ret
+
+;=======================================;
+;
+;	INITIALIZE
+;
+;=======================================;
+OpeningDemoInit:
+	xor	a
+	ld	(all_put_req),a
+	ld	(headerx),a
+	ld	(headery),a
+	ld	(all_putadr_l),a
+	ld	a,98h
+	ld	(all_putadr_h),a
+
+	call	DVRAMcls
+
+	ld	hl,dmy_vram
+	ld	bc,18*20
+	ld	a,1
+	call	memset
+
+	ld	hl,4*20+dmy_vram
+	ld	bc,10*20
+	xor	a
+	call	memset
+	ld	a,1
+	ld	(all_put_req),a
+	call	wait_vb
+	call	wait_vb
+	call	wait_vb
+	xor	a
+	ld	(all_put_req),a
+
+	ld	de,OPdemoOBJcgx		;OBJcgx set
+	ld	hl,8000h
+	ld	bc,G_BANK3e*100h+0ffh
+	call	chrmove
+
+	ld	de,OPdemoBGcgx		;BGcgx set
+	ld	hl,9000h
+	ld	bc,G_BANK3e*100h+080h
+	call	chrmove
+
+	call	EXActorInit
+	call	ActorDataSet
+
+	ld	b,8
+	call	color_set
+
+	xor	a
+	ld	hl,seq_work
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	a,musstartdemo
+	ld	c,MUSIC_BANK3_NO
+	call	direct_play			;TEST!!!
+	ret
+
+ActorDataSet:
+	ld	a,<HeaderTable
+	ld	(A_Header+0),a
+	ld	a,>HeaderTable
+	ld	(A_Header+1),a
+
+	ld	a,<MoveTable
+	ld	(A_Move+0),a
+	ld	a,>MoveTable
+	ld	(A_Move+1),a
+
+	ld	a,<PatTable
+	ld	(A_Pat+0),a
+	ld	a,>PatTable
+	ld	(A_Pat+1),a
+
+	ld	a,<AnmTable
+	ld	(A_Animetion+0),a
+	ld	a,>AnmTable
+	ld	(A_Animetion+1),a
+	ret
+
+;*********************************************************
+;**							**
+;**     TOOLS 						**
+;**							**
+;*********************************************************
+DVRAMcls:
+	ld	hl,dmy_vram
+	ld	bc,20*18
+	ld	a,07fh
+	call	memset
+	ret
+
+BlockMove:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	dec	bc
+	ld	a,c
+	or	b
+	jr	nz,BlockMove
+	ret
+
+memset:
+	push	de
+	ld	e,a
+loop$:
+	ld	a,e
+	ld	(hli),a
+	dec	bc
+	ld	a,c
+	or	b
+	jr	nz,loop$
+	pop	de
+	ret
+
+oam_clr:
+	ld	hl,oam_buf
+	ld	bc,40*4
+	xor	a
+	call	memset
+	ret
+
+PalOff:
+	xor	a
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+	ret
+
+
+;*********************************************************
+;**							**
+;**     POCKET MONSTER ACTOR HEADER			**
+;**							**
+;*********************************************************
+;===============================================;
+;	ACTOR DATA				;
+;	db	ANM				;
+;	db	MOVE				;
+;	db	CHR				;
+;===============================================;
+HeaderTable:
+	ef_initequ
+
+	ef_equ		dummyActNo		;Dummy
+	db	000h
+	db	000h
+	db	000h
+
+	ef_equ	PikaRunAct1No
+	db	PikaRunAnm1No
+	db	MoveStopNo
+	db	000h
+
+	ef_equ	PikaRunAct2No
+	db	PikaRunAnm2No
+	db	MoveStopNo
+	db	000h
+
+	ef_equ	PikaRunAct3No
+	db	PikaRunAnm3No
+	db	MoveStopNo
+	db	000h
+
+	ef_equ	PikaKousokuActNo
+	db	PikaKousokuAnmNo
+	db	MovePikaKousokuNo
+	db	000h
+
+	ef_equ	PikaNaminoriActNo
+	db	PikaNaminoriAnmNo
+	db	MovePikaNaminoriNo
+	db	000h
+
+	ef_equ	PikaFlyActNo
+	db	PikaFlyAnmNo
+	db	MovePikaFlyNo
+	db	000h
+
+	ef_equ	PikaThunderActNo
+	db	PikaThunderAnmNo
+	db	MoveStopNo
+	db	000h
+
+	ef_equ	KousokuEffectActNo
+	db	KousokuEffectAnmNo
+	db	MoveKousokuEffectNo
+	db	000h
+
+	ef_equ	EyeActNo
+	db	EyeAnmNo
+	db	MoveStopNo
+	db	000h
+
+	ef_equ	ThunderActNo
+	db	ThunderAnmNo
+	db	MoveStopNo
+	db	000h
+
+;*********************************************************
+;**							**
+;**     POCKET MONSTER ACTOR MOVE			**
+;**							**
+;*********************************************************
+MoveTable:
+	ef_initndw
+	ef_inc_ndw	dummy$
+
+	ef_ndw	MoveStop,MoveStopNo
+	ef_ndw	MovePikaKousoku,MovePikaKousokuNo
+	ef_ndw	MovePikaNaminori,MovePikaNaminoriNo
+	ef_ndw	MovePikaFly,MovePikaFlyNo
+	ef_ndw	MoveKousokuEffect,MoveKousokuEffectNo
+
+dummy$:
+MoveStop:
+	ret
+
+;---------------------------------------;
+;	Kousoku				;
+;---------------------------------------;
+MovePikaKousoku:
+	E_HL	ACTOR_X
+	ld	a,(hl)
+	cp	058h
+	ret	z
+	sub	4
+	ld	(hl),a
+	ret
+
+;---------------------------------------;
+;	Naminori			;
+;---------------------------------------;
+MovePikaNaminori:
+	E_HL	ACTOR_X
+	ld	a,(hl)
+	cp	058h
+	jr	z,pass$
+	add	a,4
+	ld	(hl),a
+pass$:
+	E_HL	ACTOR_Y
+	cp	058h
+	ret	z
+	add	a,1
+	ld	(hl),a
+	ret
+
+;---------------------------------------;
+;	Fly				;
+;---------------------------------------;
+MovePikaFly:
+	E_HL	ACTOR_WK0
+	ld	e,(hl)
+	ld	d,00h
+	ld	hl,SeqTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+SeqTable$:
+	dw	FlyUp$
+	dw	FlyHold$
+FlyUp$:
+	E_HL	ACTOR_Y
+	ld	a,(hl)
+	cp	058h
+	jr	z,next$
+	sub	2
+	ld	(hl),a
+	ret
+next$:
+	E_HL	ACTOR_WK0
+	inc	(hl)
+FlyHold$:
+	E_HL	ACTOR_WK1
+	ld	a,(hl)
+	inc	(hl)
+	ld	d,008h
+	call	IntSin
+	E_HL	ACTOR_DY
+	ld	(hl),a
+	ret
+
+;---------------------------------------;
+;	Effect				;
+;---------------------------------------;
+MoveKousokuEffect:
+	E_HL	ACTOR_WK0
+	ld	a,(hl)
+	E_HL	ACTOR_X
+	add	a,(hl)
+	ld	(hl),a
+	ret
+
+
+;=======================================;
+;	SUB 				;
+;=======================================;
+;---------------------------------------;
+;	SeqAddressGet			;
+;---------------------------------------;
+SeqAddressGet:
+	ld	e,a
+	ld	d,00h
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	ret
+
+;===============================================;
+;	IntSin&IntCos				;
+;===============================================;
+IntCos:
+	add	a,10h
+IntSin:
+	and	00111111b
+	cp	20h
+	jr	nc,minus$
+plus$:
+	call	SinCalc$
+	ld	a,h
+	ret
+minus$:
+	and	00011111b
+	call	SinCalc$
+	ld	a,h
+	xor	11111111b
+	inc	a
+	ret
+
+SinCalc$:
+	ld	e,a
+	ld	a,d
+	ld	d,00h
+	ld	hl,IntSinTable
+	add	hl,de
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+multi$:				; (i)a = A, (i)de = B, (i)l = float
+	ld	hl,000h		; (o)hl = A*B
+calcloop1$:
+	srl	a
+	jr	nc,calcloop2$
+	add	hl,de
+calcloop2$:
+	sla	e
+	rl	d
+	and	a
+	jr	nz,calcloop1$
+	ret
+
+;---------------------------------------------------------------;
+;		      sin cos table				;
+;---------------------------------------------------------------;
+IntSinTable:
+	dw	 00000h,00019h,00032h,0004Ah
+	dw	 00062h,00079h,0008Eh,000A2h
+	dw	 000B5h,000C6h,000D5h,000E2h
+	dw	 000EDh,000F5h,000FBh,000FFh
+
+	dw	 00100h,000FFh,000FBh,000F5h
+	dw	 000EDh,000E2h,000D5h,000C6h
+	dw	 000B5h,000A2h,0008Eh,00079h
+	dw	 00062h,0004Ah,00032h,00019h
+
+;*********************************************************
+;**							**
+;**     POCKET MONSTER ACTOR ANIMETION			**
+;**							**
+;*********************************************************
+;===============================================;
+;	AnmTable				;
+;===============================================;
+AnmTable:
+	ef_initndw
+	ef_inc_ndw	DummyAnm
+
+	ef_ndw	PikaRunAnm1,PikaRunAnm1No
+	ef_ndw	PikaRunAnm2,PikaRunAnm2No
+	ef_ndw	PikaRunAnm3,PikaRunAnm3No
+	ef_ndw	PikaKousokuAnm,PikaKousokuAnmNo
+	ef_ndw	PikaNaminoriAnm,PikaNaminoriAnmNo
+	ef_ndw	PikaFlyAnm,PikaFlyAnmNo
+	ef_ndw	PikaThunderAnm,PikaThunderAnmNo
+	ef_ndw	KousokuEffectAnm,KousokuEffectAnmNo
+	ef_ndw	EyeAnm,EyeAnmNo
+	ef_ndw	ThunderAnm,ThunderAnmNo
+
+DummyAnm:
+	db	DummyPatNo,20h
+	db	ANMstop
+PikaRunAnm1:
+	db	PikaRunPat1_1No,004h
+	db	PikaRunPat1_2No,004h
+	db	PikaRunPat1_3No,004h
+	db	ANMloop
+PikaRunAnm2:
+	db	PikaRunPat2_1No,004h
+	db	PikaRunPat2_2No,004h
+	db	PikaRunPat2_3No,004h
+	db	ANMloop
+PikaRunAnm3:
+	db	PikaRunPat3_1No,004h
+	db	PikaRunPat3_2No,004h
+	db	PikaRunPat3_3No,004h
+	db	ANMloop
+PikaKousokuAnm:
+	db	PikaKousokuPatNo,020h
+	db	ANMstop
+PikaNaminoriAnm:
+	db	PikaNaminoriPatNo,020h
+	db	ANMstop
+PikaFlyAnm:
+	db	PikaFlyPatNo,020h
+	db	ANMstop
+PikaThunderAnm:
+	db	PikaThunderPatNo,020h
+	db	ANMstop
+KousokuEffectAnm:
+	db	KousokuEffectPatNo,020h
+	db	ANMstop
+EyeAnm:
+	db	EyePat1No,01fh
+	db	EyePat3No,002h
+	db	EyePat1No,002h
+	db	EyePat3No,002h
+	db	EyePat1No,01fh
+	db	EyePat3No,002h
+	db	EyePat1No,017h
+	db	EyePat2No,020h
+	db	ANMstop
+ThunderAnm:
+	db	ThunderPat1No,004h
+	db	ThunderPat2No,004h
+	db	ANMloop
+
+
+;*********************************************************
+;**							**
+;**     POCKET MONSTER ACTOR PATTERN			**
+;**							**
+;*********************************************************
+;===============================================;
+;	PatTable				;
+;===============================================;
+PatTable:
+	ef_initndw
+	db	0
+	ef_ndw	DummyPat,DummyPatNo
+
+	db	096h
+	ef_ndw	PikaRunPat1,PikaRunPat1_1No
+	db	098h
+	ef_ndw	PikaRunPat1,PikaRunPat1_2No
+	db	09ah
+	ef_ndw	PikaRunPat1,PikaRunPat1_3No
+	db	00ch
+	ef_ndw	PikaRunPat2,PikaRunPat2_1No
+	db	00eh
+	ef_ndw	PikaRunPat2,PikaRunPat2_2No
+	db	03ch
+	ef_ndw	PikaRunPat2,PikaRunPat2_3No
+	db	060h
+	ef_ndw	PikaRunPat3,PikaRunPat3_1No
+	db	070h
+	ef_ndw	PikaRunPat3,PikaRunPat3_2No
+	db	080h
+	ef_ndw	PikaRunPat3,PikaRunPat3_3No
+	db	090h
+	ef_ndw	PikaPat36,PikaKousokuPatNo
+	db	000h
+	ef_ndw	PikaPat36,PikaNaminoriPatNo
+	db	006h
+	ef_ndw	PikaPat36,PikaFlyPatNo
+	db	0c6h
+	ef_ndw	PikaPat25,PikaThunderPatNo
+	db	06dh
+	ef_ndw	EffectPat,KousokuEffectPatNo
+	db	0f0h
+	ef_ndw	PatEye,EyePat1No
+	db	0f4h
+	ef_ndw	PatEye,EyePat2No
+	db	0f8h
+	ef_ndw	PatEye,EyePat3No
+	db	09ch
+	ef_ndw	PatThunder,ThunderPat1No
+	db	0ech
+	ef_ndw	PatThunder,ThunderPat2No
+
+DummyPat:
+PatSize1:
+	db	 001h
+	db	-004h,-004h,0,0
+PikaRunPat1:
+	db	 004h
+	db	-008h,-008h,0,0
+	db	-008h, 000h,1,0
+	db	 000h,-008h,16,0
+	db	 000h, 000h,17,0
+PikaRunPat2:
+	db	 008h
+	db	-010h,-008h,0,0
+	db	-010h, 000h,1,0
+	db	-008h,-008h,16,0
+	db	-008h, 000h,17,0
+	db	 000h,-008h,32,0
+	db	 000h, 000h,32,HREV
+	db	 008h,-008h,33,0
+	db	 008h, 000h,33,HREV
+PikaRunPat3:
+	db	 014h
+	db	-018h,-008h,0,0
+	db	-018h, 000h,1,0
+	db	-010h,-008h,2,0
+	db	-010h, 000h,3,0
+	db	-008h,-010h,4,0
+	db	-008h,-008h,5,0
+	db	-008h, 000h,6,0
+	db	-008h, 008h,4,HREV
+	db	 000h,-010h,7,0
+	db	 000h,-008h,8,0
+	db	 000h, 000h,8,HREV
+	db	 000h, 008h,7,HREV
+	db	 008h,-010h,9,0
+	db	 008h,-008h,10,0
+	db	 008h, 000h,10,HREV
+	db	 008h, 008h,9,HREV
+	db	 010h,-010h,11,0
+	db	 010h,-008h,12,0
+	db	 010h, 000h,12,HREV
+	db	 010h, 008h,11,HREV
+PikaPat36:
+	db	 024h
+	db	-018h,-018h,0,0
+	db	-018h,-010h,1,0
+	db	-018h,-008h,2,0
+	db	-018h, 000h,3,0
+	db	-018h, 008h,4,0
+	db	-018h, 010h,5,0
+	db	-010h,-018h,16,0
+	db	-010h,-010h,17,0
+	db	-010h,-008h,18,0
+	db	-010h, 000h,19,0
+	db	-010h, 008h,20,0
+	db	-010h, 010h,21,0
+	db	-008h,-018h,32,0
+	db	-008h,-010h,33,0
+	db	-008h,-008h,34,0
+	db	-008h, 000h,35,0
+	db	-008h, 008h,36,0
+	db	-008h, 010h,37,0
+	db	 000h,-018h,48,0
+	db	 000h,-010h,49,0
+	db	 000h,-008h,50,0
+	db	 000h, 000h,51,0
+	db	 000h, 008h,52,0
+	db	 000h, 010h,53,0
+	db	 008h,-018h,64,0
+	db	 008h,-010h,65,0
+	db	 008h,-008h,66,0
+	db	 008h, 000h,67,0
+	db	 008h, 008h,68,0
+	db	 008h, 010h,69,0
+	db	 010h,-018h,80,0
+	db	 010h,-010h,81,0
+	db	 010h,-008h,82,0
+	db	 010h, 000h,83,0
+	db	 010h, 008h,84,0
+	db	 010h, 010h,85,0
+PikaPat25:
+	db	 019h
+	db	-014h,-010h,0,0
+	db	-014h,-008h,1,0
+	db	-014h, 000h,2,0
+	db	-014h, 008h,3,0
+	db	-014h, 010h,4,0
+	db	-00ch,-010h,5,0
+	db	-00ch,-008h,6,0
+	db	-00ch, 000h,7,0
+	db	-00ch, 008h,8,0
+	db	-00ch, 010h,9,0
+	db	-004h,-010h,16,0
+	db	-004h,-008h,17,0
+	db	-004h, 000h,18,0
+	db	-004h, 008h,19,0
+	db	-004h, 010h,20,0
+	db	 004h,-010h,21,0
+	db	 004h,-008h,22,0
+	db	 004h, 000h,23,0
+	db	 004h, 008h,24,0
+	db	 004h, 010h,25,0
+	db	 00ch,-010h,32,0
+	db	 00ch,-008h,33,0
+	db	 00ch, 000h,34,0
+	db	 00ch, 008h,35,0
+	db	 00ch, 010h,36,0
+EffectPat:
+	db	 004h
+	db	-004h,-010h,0,0
+	db	-004h,-008h,1,0
+	db	-004h, 000h,1,HREV
+	db	-004h, 008h,0,HREV
+PatEye:
+	db	 008h
+	db	-008h,-018h,0,PAL2
+	db	-008h,-010h,1,PAL2
+	db	 000h,-018h,2,PAL2
+	db	 000h,-010h,3,PAL2
+	db	-008h, 008h,1,HREV+PAL2
+	db	-008h, 010h,0,HREV+PAL2
+	db	 000h, 008h,3,HREV+PAL2
+	db	 000h, 010h,2,HREV+PAL2
+PatThunder:
+	db	 00ch
+	db	-008h,-028h,0,PAL2
+	db	-008h,-020h,1,PAL2
+	db	-008h,-018h,2,PAL2
+	db	 000h,-028h,16,PAL2
+	db	 000h,-020h,17,PAL2
+	db	 000h,-018h,18,PAL2
+	db	-008h, 010h,2,HREV+PAL2
+	db	-008h, 018h,1,HREV+PAL2
+	db	-008h, 020h,0,HREV+PAL2
+	db	 000h, 010h,18,HREV+PAL2
+	db	 000h, 018h,17,HREV+PAL2
+	db	 000h, 020h,16,HREV+PAL2
+
+;=======================================;
+;	DATA 				;
+;=======================================;
+OPdemoBGcgx:
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 0
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh	; 1
+	db	0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	; 2
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	000h,000h,000h,000h,0FCh,0FCh,0FFh,0FFh	; 3
+	db	07Fh,07Fh,07Fh,07Fh,03Fh,03Fh,03Fh,03Fh
+	db	000h,000h,000h,000h,000h,000h,0F0h,0F0h	; 4
+	db	0FFh,0FFh,0FFh,087h,0FFh,080h,0FFh,0C0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 5
+	db	080h,080h,0F8h,0F8h,0FFh,03Fh,0FFh,007h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 6
+	db	000h,000h,000h,000h,000h,000h,0C0h,0C0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 7
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 8
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 9
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; a
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; b
+	db	000h,000h,000h,000h,000h,000h,003h,003h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; c
+	db	001h,001h,01Fh,01Fh,0FFh,0FCh,0FFh,0E0h
+	db	000h,000h,000h,000h,000h,000h,00Fh,00Fh	; d
+	db	0FFh,0FFh,0FFh,0E1h,0FFh,001h,0FFh,003h
+	db	000h,000h,000h,000h,03Fh,03Fh,0FFh,0FFh	; e
+	db	0FEh,0FEh,0FEh,0FEh,0FCh,0FCh,0FCh,0FCh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,0FFh,000h,0FFh,000h,0F0h,000h,00Ah	;10
+	db	000h,055h,000h,0AFh,000h,0FFh,000h,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;11
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,0FFh,000h,0FFh,00Eh,0FFh,031h,0F1h	;12
+	db	040h,0C0h,040h,0C0h,080h,080h,0C0h,080h
+	db	000h,0FFh,000h,0FFh,030h,0FFh,0CCh,0CFh	;13
+	db	002h,003h,002h,003h,001h,001h,003h,001h
+	db	0FFh,0C0h,0FFh,0C0h,0FFh,0E0h,0FFh,0E0h	;14
+	db	0FFh,0F0h,0FFh,0F0h,07Fh,070h,03Fh,038h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;15
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0F8h,0F8h,0FEh,01Eh,0FFh,007h,0FFh,001h	;16
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,000h,000h,000h,08Fh,08Fh,0FFh,0FFh	;17
+	db	0FFh,070h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,000h,0FFh,0FFh,0FFh,0FFh,0FFh,000h	;18
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,000h,0FFh,0FFh,0FFh,0FFh,0FFh,000h	;19
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,000h,000h,000h,0F1h,0F1h,0FFh,0FFh	;1a
+	db	0FFh,00Eh,0FFh,000h,0FFh,000h,0FFh,000h
+	db	01Fh,01Fh,07Fh,078h,0FFh,0E0h,0FFh,080h	;1b
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;1c
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,003h,0FFh,003h,0FFh,007h,0FFh,007h	;1d
+	db	0FFh,00Fh,0FFh,00Fh,0FEh,00Eh,0FCh,01Ch
+	db	0F8h,0F8h,0F0h,0F0h,0F0h,0F0h,0E0h,0E0h	;1e
+	db	0C0h,0C0h,080h,080h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;1f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,00Eh,000h,031h,000h,040h,000h,088h	;20
+	db	000h,015h,000h,0AAh,000h,05Fh,000h,0FFh
+	db	000h,060h,000h,098h,000h,006h,000h,001h	;21
+	db	000h,050h,000h,0AAh,000h,0D5h,000h,0FFh
+	db	0F0h,080h,07Fh,0C0h,03Fh,0F0h,00Fh,0FFh	;22
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	0CFh,001h,0FEh,003h,0FCh,01Fh,0E0h,0FFh	;23
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	01Fh,01Ch,00Fh,00Eh,003h,003h,001h,001h	;24
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,0C0h	;25
+	db	0FFh,0F0h,03Fh,03Dh,00Fh,00Fh,007h,007h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;26
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;27
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;28
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;29
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;2a
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;2b
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,003h	;2c
+	db	0FFh,00Fh,0FCh,0BCh,0F0h,0F0h,0E0h,0E0h
+	db	0F8h,038h,0F0h,070h,0C0h,0C0h,080h,080h	;2d
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;2e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;2f
+	db	000h,000h,018h,018h,03Ch,03Ch,07Ch,06Ch
+	db	000h,0FFh,036h,0FFh,049h,0C9h,049h,0C1h	;30
+	db	08Eh,083h,09Eh,083h,0FCh,08Fh,070h,0FFh
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;31
+	db	003h,0FFh,00Ch,0FCh,010h,0F0h,010h,0F0h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;32
+	db	0E0h,0FFh,019h,01Fh,006h,006h,000h,000h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;33
+	db	0F0h,0FFh,00Ch,00Fh,002h,003h,002h,003h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;34
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	003h,003h,003h,003h,003h,003h,007h,006h	;35
+	db	007h,006h,007h,006h,007h,006h,00Fh,00Ch
+
+;	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,001h	;36
+;	db	0FFh,003h,0FFh,007h,0FFh,007h,0FFh,007h
+;	db	0FFh,000h,0FFh,000h,0FFh,0F0h,09Fh,098h	;37
+;	db	00Fh,00Ch,00Fh,00Eh,09Fh,09Eh,0FFh,0FEh
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;36
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;37
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;38
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;39
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+
+;	db	0FFh,000h,0FFh,000h,0FFh,00Fh,0F9h,019h	;3a
+;	db	0F0h,030h,0F0h,070h,0F9h,079h,0FFh,07Fh
+;	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,080h	;3b
+;	db	0FFh,0C0h,0FFh,0E0h,0FFh,0E0h,0FFh,0E0h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;3a
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;3b
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+
+	db	0C0h,0C0h,0C0h,0C0h,0C0h,0C0h,0E0h,060h	;3c
+	db	0E0h,060h,0E0h,060h,0E0h,060h,0F0h,030h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;3d
+	db	000h,000h,000h,000h,000h,000h,001h,001h
+	db	000h,000h,003h,003h,007h,007h,00Fh,00Ch	;3e
+	db	01Fh,018h,07Fh,070h,0FFh,0E0h,0FFh,080h
+	db	0FCh,0CCh,0FCh,08Ch,0FCh,00Ch,0FCh,00Ch	;3f
+	db	0FCh,00Ch,0FEh,006h,0FEh,006h,0FEh,006h
+	db	000h,0FFh,000h,0FFh,001h,0FFh,006h,0FEh	;40
+	db	008h,0F8h,008h,0F8h,010h,0F0h,010h,0F0h
+	db	020h,0E0h,020h,0E0h,0E0h,0E0h,018h,000h	;41
+	db	01Fh,000h,00Eh,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;42
+	db	006h,000h,007h,000h,003h,001h,003h,000h
+	db	001h,001h,001h,001h,003h,001h,007h,001h	;43
+	db	01Eh,003h,0FEh,003h,0FCh,00Fh,0F0h,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;44
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	00Fh,00Ch,00Fh,00Ch,00Fh,00Ch,00Fh,00Ch	;45
+	db	01Fh,018h,01Fh,018h,01Fh,018h,01Fh,018h
+
+;	db	0FFh,007h,0FFh,003h,0FFh,001h,0FFh,000h	;46
+;	db	0FFh,000h,0FFh,000h,0E3h,01Ch,080h,07Fh
+;	db	0FFh,0FEh,0FFh,0FCh,0FFh,0F8h,0FFh,0F0h	;47
+;	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;46
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;47
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;48
+	db	0FFh,003h,0FFh,001h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;49
+	db	0FFh,0C0h,0FFh,080h,0FFh,000h,0FFh,000h
+
+;	db	0FFh,07Fh,0FFh,03Fh,0FFh,01Fh,0FFh,00Fh	;4a
+;	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+;	db	0FFh,0E0h,0FFh,0C0h,0FFh,080h,0FFh,000h	;4b
+;	db	0FFh,000h,0FFh,000h,0C7h,038h,001h,0FEh
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;4a
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;4b
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+
+	db	0F0h,030h,0F0h,030h,0F0h,030h,0F0h,030h	;4c
+	db	0F8h,018h,0F9h,019h,0FFh,01Fh,0FFh,01Eh
+	db	007h,007h,00Fh,00Eh,01Fh,018h,03Fh,030h	;4d
+	db	0FFh,0E0h,0FFh,0C0h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;4e
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FEh,006h,0FEh,006h,0FEh,006h,0FEh,006h	;4f
+	db	0FFh,003h,0FFh,003h,0FFh,003h,0FFh,003h
+	db	020h,0E0h,040h,0C0h,040h,0C0h,070h,0C0h	;50
+	db	03Eh,0E8h,01Fh,0F8h,007h,0FFh,000h,0FFh
+	db	000h,000h,000h,000h,000h,000h,007h,000h	;51
+	db	01Fh,002h,0FFh,007h,0F8h,01Fh,0E0h,0FFh
+	db	003h,001h,007h,002h,007h,002h,01Fh,003h	;52
+	db	0FCh,007h,0F8h,00Fh,0F0h,0FFh,000h,0FFh
+	db	0E0h,03Fh,0E0h,03Fh,0C0h,07Fh,080h,0FFh	;53
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;54
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	01Fh,018h,01Fh,018h,00Fh,00Ch,00Fh,00Ch	;55
+	db	00Fh,00Ch,007h,006h,007h,006h,003h,003h
+	db	080h,07Fh,000h,0FFh,000h,0FFh,000h,0FFh	;56
+	db	000h,0FFh,080h,07Fh,080h,07Fh,0E3h,01Ch
+	db	0FFh,000h,07Fh,080h,07Fh,080h,07Fh,080h	;57
+	db	07Fh,080h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,0C3h,0FFh,0E7h,0FFh,07Ch	;58
+	db	0FFh,018h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,0C3h,0FFh,0E7h,0FFh,03Eh	;59
+	db	0FFh,018h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FEh,001h,0FEh,001h,0FEh,001h	;5a
+	db	0FEh,001h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	001h,0FEh,000h,0FFh,000h,0FFh,000h,0FFh	;5b
+	db	000h,0FFh,001h,0FEh,001h,0FEh,0C7h,038h
+	db	0FFh,018h,0FFh,018h,0FFh,030h,0FFh,030h	;5c
+	db	0FFh,030h,0FFh,060h,0FFh,060h,0FFh,0C0h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;5d
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;5e
+	db	0FFh,000h,0FFh,001h,0FFh,007h,0FEh,01Eh
+	db	0FFh,003h,0FFh,003h,0FFh,007h,0FEh,01Eh	;5f
+	db	0F8h,078h,0E0h,0E0h,080h,080h,000h,000h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;60
+	db	007h,0FFh,018h,0F8h,060h,0E0h,080h,080h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh	;61
+	db	0E0h,0FFh,018h,01Fh,006h,007h,001h,001h
+	db	003h,0FFh,00Ch,0FCh,030h,0F0h,020h,0E0h	;62
+	db	040h,0C0h,040h,0C0h,080h,080h,080h,080h
+	db	0C0h,0FFh,030h,03Fh,00Ch,00Fh,004h,007h	;63
+	db	002h,003h,002h,003h,001h,001h,001h,001h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;64
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	003h,003h,001h,001h,000h,000h,000h,000h	;65
+	db	000h,000h,001h,001h,001h,001h,001h,001h
+	db	0FFh,080h,0FFh,0C0h,0FFh,0E0h,0FFh,0F0h	;66
+	db	0FFh,0C0h,0FFh,0C0h,0FFh,080h,0FFh,080h
+	db	0FFh,000h,0FFh,000h,0FFh,007h,0FFh,00Eh	;67
+	db	0FFh,018h,0FFh,030h,0FFh,060h,0FFh,060h
+	db	0FFh,000h,0FFh,000h,0FFh,0E0h,0FFh,0F0h	;68
+	db	0FFh,0B8h,0FFh,018h,0FFh,03Ch,0FFh,00Ch
+	db	0FFh,000h,0FFh,000h,0FFh,007h,0FFh,00Fh	;69
+	db	0FFh,01Dh,0FFh,018h,0FFh,03Ch,0FFh,030h
+	db	0FFh,000h,0FFh,000h,0FFh,0E0h,0FFh,070h	;6a
+	db	0FFh,018h,0FFh,00Ch,0FFh,006h,0FFh,006h
+	db	0FFh,001h,0FFh,003h,0FFh,007h,0FFh,00Fh	;6b
+	db	0FFh,003h,0FFh,003h,0FFh,001h,0FFh,001h
+	db	0FFh,0C0h,0FFh,0E0h,07Fh,060h,07Fh,070h	;6c
+	db	03Fh,030h,03Fh,038h,09Fh,098h,09Fh,09Ch
+	db	0FFh,000h,0FFh,001h,0FFh,007h,0FEh,01Eh	;6d
+	db	0F8h,038h,0F0h,030h,0F0h,030h,0F8h,018h
+	db	0F8h,078h,0E0h,0E0h,080h,080h,000h,000h	;6e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;6f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,00Eh,0FFh	;70
+	db	031h,0F1h,040h,0C0h,080h,080h,080h,080h
+	db	000h,0FFh,000h,0FFh,000h,0FFh,070h,0FFh	;71
+	db	08Ch,08Fh,002h,003h,001h,001h,001h,001h
+	db	001h,0FFh,002h,0FEh,00Ch,0FCh,010h,0F0h	;72
+	db	020h,0E0h,020h,0E0h,040h,0C0h,080h,080h
+	db	080h,0FFh,040h,07Fh,030h,03Fh,008h,00Fh	;73
+	db	004h,007h,004h,007h,002h,003h,001h,001h
+	db	01Fh,01Fh,00Fh,00Fh,00Fh,00Fh,007h,007h	;74
+	db	003h,003h,001h,001h,000h,000h,000h,000h
+	db	001h,001h,001h,001h,003h,003h,003h,003h	;75
+	db	003h,003h,003h,003h,003h,003h,003h,003h
+	db	0FFh,083h,0FFh,081h,0FFh,003h,0FFh,000h	;76
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,0C0h,0FFh,080h,0FFh,000h,0FFh,000h	;77
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,00Ch,0FFh,00Ch,0FFh,00Ch,0FFh,00Ch	;78
+	db	0FFh,018h,0FFh,018h,0FFh,018h,0FFh,030h
+	db	0FFh,030h,0FFh,030h,0FFh,030h,0FFh,030h	;79
+	db	0FFh,018h,0FFh,018h,0FFh,018h,0FFh,00Ch
+	db	0FFh,003h,0FFh,001h,0FFh,000h,0FFh,000h	;7a
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,0C1h,0FFh,081h,0FFh,0C0h,0FFh,000h	;7b
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	08Fh,08Ch,08Fh,08Ch,0C7h,0C6h,0C7h,0C6h	;7c
+	db	0C7h,0C7h,0C7h,0C7h,0CFh,0CEh,0DFh,0DCh
+	db	0F8h,018h,0FCh,00Ch,0FCh,00Ch,0FEh,006h	;7d
+	db	0FEh,006h,0FFh,003h,0FFh,003h,0FFh,003h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+
+OPdemoOBJcgx:
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 0
+	db	001h,001h,000h,000h,006h,006h,007h,005h
+	db	000h,000h,000h,000h,000h,000h,0F0h,0F0h	; 1
+	db	0FFh,0FFh,0FFh,0F0h,07Fh,070h,03Fh,038h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 2
+	db	000h,000h,0E0h,0E0h,0F8h,018h,0FFh,007h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 3
+	db	000h,000h,000h,000h,07Fh,07Fh,0FFh,080h
+	db	020h,020h,030h,030h,070h,070h,078h,078h	; 4
+	db	0F8h,0B8h,0F8h,098h,0F8h,008h,0F8h,0C8h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 5
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,001h,001h,002h,003h	; 6
+	db	004h,007h,004h,007h,008h,00Fh,008h,00Fh
+	db	03Fh,03Fh,0C0h,0FFh,030h,0CFh,078h,087h	; 7
+	db	078h,087h,030h,0CFh,000h,0FFh,000h,0FFh
+	db	000h,000h,0C0h,0C0h,020h,0E0h,010h,0F0h	; 8
+	db	008h,0F8h,008h,0F8h,004h,0FCh,004h,0FCh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; 9
+	db	000h,000h,001h,001h,002h,003h,0F2h,0F3h
+	db	000h,000h,000h,000h,000h,000h,03Eh,03Eh	; a
+	db	0C1h,0FFh,000h,0FFh,030h,0CFh,078h,087h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; b
+	db	080h,080h,040h,0C0h,020h,0E0h,020h,0E0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; c
+	db	000h,000h,001h,001h,002h,003h,004h,007h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; d
+	db	0C0h,0C0h,020h,0E0h,010h,0F0h,010h,0F0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	; e
+	db	000h,000h,001h,001h,002h,003h,004h,007h
+	db	000h,000h,000h,000h,000h,000h,060h,060h	; f
+	db	090h,0F0h,008h,0F8h,008h,0F8h,030h,0F0h
+	db	00Fh,008h,00Fh,008h,01Fh,010h,01Fh,010h	;10
+	db	03Fh,020h,03Fh,020h,03Fh,020h,01Fh,010h
+	db	09Fh,098h,087h,084h,0C3h,043h,0C0h,040h	;11
+	db	0E0h,020h,0E0h,020h,0F0h,010h,0F1h,011h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,0C1h	;12
+	db	0FFh,081h,0FFh,080h,0F9h,086h,0F0h,00Fh
+	db	0FFh,000h,0FFh,000h,0FFh,0C0h,0FFh,0A0h	;13
+	db	0FFh,0E0h,0FFh,0C0h,0FFh,001h,0FFh,000h
+	db	0F8h,028h,0F0h,010h,0F0h,010h,0F8h,068h	;14
+	db	0F8h,058h,0FCh,074h,0FCh,024h,0FCh,004h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;15
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+ ifn  ASSEMBLE__ENGLISH
+	; ＣＧＢで変更したピカチュウのほっぺの色と風船の色が重ならないように
+	; 風船を１ドット上にあげた （キャラＮｏ．１６、２６、３６）
+	DB	$08,$0F,$08,$0F,$05,$07,$05,$07,$07,$07,$1B,$1F,$2F,$33,$5F,$63
+ else
+	db	008h,00Fh,008h,00Fh,005h,007h,005h,007h	;16
+	db	003h,003h,007h,007h,01Bh,01Fh,02Fh,033h
+ endif
+	db	000h,0FFh,000h,0FFh,000h,0FFh,080h,0FFh	;17
+	db	0C0h,0FFh,0C0h,0FFh,0ECh,03Fh,0FBh,03Fh
+	db	007h,0FFh,004h,0FFh,009h,0FEh,009h,0FEh	;18
+	db	010h,0FFh,030h,0FFh,0D0h,0DFh,008h,00Fh
+	db	00Ch,0FFh,0C4h,03Fh,0E4h,01Fh,0E4h,01Fh	;19
+	db	0C4h,03Fh,002h,0FFh,002h,0FFh,001h,0FFh
+	db	078h,087h,030h,0CFh,000h,0FFh,000h,0FFh	;1a
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	010h,0F0h,010h,0F0h,010h,0F0h,010h,0F0h	;1b
+	db	010h,0F0h,020h,0E0h,020h,0E0h,040h,0C0h
+	db	008h,00Fh,004h,007h,002h,003h,001h,001h	;1c
+	db	002h,003h,0E4h,0E7h,0FBh,0FBh,0CCh,0FFh
+	db	060h,0E0h,080h,080h,040h,0C0h,020h,0E0h	;1d
+	db	040h,0C0h,087h,087h,0CFh,0CFh,033h,0FFh
+	db	002h,003h,001h,001h,000h,000h,001h,001h	;1e
+	db	002h,003h,001h,001h,0E3h,0E3h,0FCh,0FFh
+	db	040h,0C0h,020h,0E0h,090h,0F0h,020h,0E0h	;1f
+	db	040h,0C0h,040h,0C0h,0C7h,0C7h,03Fh,0FFh
+	db	00Fh,008h,007h,004h,003h,002h,003h,002h	;20
+	db	007h,004h,00Fh,008h,00Fh,008h,007h,004h
+	db	0F9h,009h,0FBh,00Ah,0F3h,012h,0E7h,024h	;21
+	db	0C7h,046h,08Fh,08Fh,0CFh,04Ch,0FFh,030h
+	db	0F0h,00Fh,0F9h,006h,0FFh,000h,0FFh,003h	;22
+	db	0FFh,00Ch,0FFh,010h,0FFh,000h,0FFh,001h
+	db	0FFh,013h,0FFh,00Ch,0FFh,000h,0FFh,000h	;23
+	db	0FFh,080h,0FFh,080h,0FFh,040h,0FFh,080h
+	db	0F2h,04Eh,0E2h,09Eh,0E2h,01Eh,0F4h,00Ch	;24
+	db	0F8h,008h,0F0h,030h,0F0h,0D0h,0FCh,01Ch
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;25
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+ ifn  ASSEMBLE__ENGLISH
+	; ＣＧＢで変更したピカチュウのほっぺの色と風船の色が重ならないように
+	; 風船を１ドット上にあげた （キャラＮｏ．１６、２６、３６）
+	DB	$5F,$62,$8F,$F2,$83,$FE,$81,$FF,$41,$7F,$40,$7F,$20,$3F,$18,$1F
+ else
+	db	05Fh,062h,05Fh,062h,08Fh,0F2h,081h,0FFh	;26
+	db	081h,0FFh,040h,07Fh,040h,07Fh,020h,03Fh
+ endif
+	db	0F1h,01Fh,0FEh,01Eh,0FDh,00Dh,0FFh,00Eh	;27
+	db	0FFh,020h,0FFh,0C0h,0FFh,080h,0FFh,0A0h
+	db	008h,00Fh,004h,007h,0FBh,0FBh,0FFh,007h	;28
+	db	0FFh,001h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	001h,0FFh,003h,0FFh,01Fh,0FCh,0FFh,0E0h	;29
+	db	0FFh,080h,0FFh,000h,0FFh,000h,0FFh,003h
+	db	0C1h,0FFh,0F2h,0FEh,0FEh,03Eh,0FCh,03Ch	;2a
+	db	0F8h,078h,0E0h,060h,0C3h,0C3h,00Fh,00Ch
+	db	080h,080h,000h,000h,000h,000h,000h,000h	;2b
+	db	038h,038h,0F8h,0C8h,0F8h,008h,0F8h,008h
+	db	043h,07Fh,040h,07Fh,020h,03Fh,020h,03Fh	;2c
+	db	04Ch,07Fh,04Ch,07Fh,040h,07Fh,041h,07Fh
+	db	020h,03Fh,058h,07Fh,047h,07Fh,048h,07Fh	;2d
+	db	030h,03Fh,027h,03Fh,018h,018h,000h,000h
+	db	0CCh,0FFh,043h,07Fh,040h,07Fh,020h,03Fh	;2e
+	db	020h,03Fh,04Ch,07Fh,04Ch,07Fh,040h,07Fh
+	db	041h,07Fh,020h,03Fh,058h,07Fh,047h,07Fh	;2f
+	db	044h,07Fh,03Bh,03Fh,01Ch,01Ch,000h,000h
+	db	003h,002h,001h,001h,001h,001h,001h,001h	;30
+	db	002h,003h,001h,001h,000h,000h,000h,000h
+	db	0FFh,010h,0FFh,020h,0FFh,038h,07Fh,0FCh	;31
+	db	03Fh,0F8h,0BFh,0E0h,07Fh,060h,01Fh,010h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;32
+	db	0FFh,01Ch,0FFh,002h,0FFh,001h,0FFh,001h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;33
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FEh,012h,0FFh,011h,0FFh,011h,0FEh,022h	;34
+	db	0FCh,03Ch,0E0h,020h,0C0h,040h,0C0h,040h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;35
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+ ifn  ASSEMBLE__ENGLISH
+	; ＣＧＢで変更したピカチュウのほっぺの色と風船の色が重ならないように
+	; 風船を１ドット上にあげた （キャラＮｏ．１６、２６、３６）
+	DB	$07,$07,$01,$01,$01,$01,$03,$02,$02,$03,$02,$03,$02,$03,$3F,$3D
+ else
+	db	019h,01Fh,007h,007h,001h,001h,003h,002h	;36
+	db	002h,003h,002h,003h,002h,003h,03Fh,03Dh
+ endif
+	db	0FFh,050h,0FFh,070h,0FFh,060h,0FFh,008h	;37
+	db	0FFh,000h,07Fh,0A8h,07Fh,09Ch,0FFh,00Fh
+	db	0FFh,000h,0FFh,018h,0FFh,02Ch,0FFh,03Ch	;38
+	db	0FFh,018h,0FFh,000h,0F9h,086h,0F0h,00Fh
+	db	0FDh,00Dh,0FBh,03Bh,0FAh,00Ah,0FAh,00Ah	;39
+	db	0FEh,006h,0FCh,004h,0FCh,004h,0FFh,003h
+	db	03Fh,030h,0FFh,0C0h,0FFh,080h,0FFh,080h	;3a
+	db	07Fh,040h,07Fh,041h,03Eh,026h,0BCh,0A4h
+	db	0F8h,008h,0F0h,010h,0F0h,010h,0F0h,010h	;3b
+	db	0F0h,030h,0C0h,0C0h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;3c
+	db	000h,000h,001h,001h,002h,003h,001h,001h
+	db	000h,000h,000h,000h,030h,030h,048h,078h	;3d
+	db	084h,0FCh,004h,0FCh,018h,0F8h,020h,0E0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;3e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;3f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;40
+	db	001h,001h,006h,007h,008h,00Fh,008h,00Fh
+	db	01Fh,010h,00Fh,00Ch,00Fh,00Fh,07Fh,070h	;41
+	db	0F8h,087h,000h,0FFh,000h,0FFh,000h,0FFh
+	db	0FFh,001h,0FFh,07Eh,0FFh,080h,0C0h,03Fh	;42
+	db	000h,0FFh,000h,0FFh,000h,0FFh,000h,0FFh
+	db	0FFh,0FFh,0FFh,000h,000h,0FFh,000h,0FFh	;43
+	db	000h,0FFh,000h,0FFh,001h,0FFh,03Eh,0FFh
+	db	0FEh,0FEh,0FFh,001h,00Fh,0F1h,001h,0FFh	;44
+	db	002h,0FFh,00Ch,0FFh,0F0h,0FFh,000h,0FFh
+	db	000h,000h,0E0h,0E0h,0F8h,018h,0FEh,006h	;45
+	db	07Fh,081h,00Fh,0F1h,006h,0FAh,00Ch,0FCh
+	db	07Fh,051h,07Fh,040h,03Fh,020h,01Fh,018h	;46
+	db	007h,006h,001h,001h,000h,000h,000h,000h
+	db	0FDh,007h,0FDh,087h,0FFh,042h,0FFh,0B0h	;47
+	db	0FFh,08Ch,0FFh,080h,07Fh,040h,07Fh,040h
+	db	0F0h,00Fh,0F9h,006h,0FFh,000h,0FFh,000h	;48
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,00Eh,0FFh,000h,0FFh,000h,0FFh,000h	;49
+	db	0FFh,000h,0FFh,000h,0FFh,00Fh,0F5h,00Bh
+	db	0FEh,0F2h,0FFh,051h,0FEh,00Eh,0F8h,008h	;4a
+	db	0FCh,034h,0E2h,0FEh,0CCh,0FCh,0F0h,0F0h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;4b
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,001h,001h	;4c
+	db	000h,000h,003h,003h,0CCh,0CFh,0F0h,0FFh
+	db	090h,0F0h,048h,078h,090h,0F0h,020h,0E0h	;4d
+	db	0A0h,0E0h,0C0h,0C0h,033h,0F3h,00Fh,0FFh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;4e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;4f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	007h,007h,000h,000h,000h,000h,000h,000h	;50
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,0FFh,0F2h,0FFh,00Eh,00Fh,002h,003h	;51
+	db	002h,003h,001h,001h,000h,000h,000h,000h
+	db	003h,0FFh,004h,0FFh,008h,0FFh,01Fh,0FFh	;52
+	db	020h,0E0h,0C0h,0C0h,000h,000h,000h,000h
+	db	0C0h,0FFh,000h,0FFh,00Fh,0FFh,0F0h,0F0h	;53
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,0FFh,01Fh,0FFh,0E0h,0E0h,000h,000h	;54
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0F0h,0F0h,000h,000h,000h,000h,000h,000h	;55
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;56
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	02Fh,030h,011h,01Eh,00Eh,009h,00Fh,00Eh	;57
+	db	00Fh,009h,00Fh,00Dh,006h,006h,000h,000h
+	db	0FFh,000h,0FCh,003h,003h,0FCh,0FEh,03Fh	;58
+	db	0C1h,0C1h,080h,080h,000h,000h,000h,000h
+	db	0CBh,034h,037h,0C8h,0CFh,030h,03Fh,0C1h	;59
+	db	0FFh,0C2h,03Fh,03Ch,007h,004h,003h,003h
+	db	0C0h,040h,080h,080h,080h,080h,080h,080h	;5a
+	db	0C0h,040h,0C0h,040h,0C0h,0C0h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;5b
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0F0h,0FFh,0CCh,0FFh,043h,07Fh,0A0h,0FFh	;5c
+	db	0A0h,0FFh,0C0h,0FFh,040h,07Fh,04Ch,07Fh
+	db	04Ch,07Fh,040h,07Fh,021h,03Fh,018h,01Fh	;5d
+	db	017h,01Fh,012h,01Eh,00Ch,00Ch,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;5e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;5f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;60
+	db	001h,001h,003h,002h,003h,002h,007h,004h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;61
+	db	080h,080h,0C0h,040h,0C0h,040h,0E0h,020h
+	db	007h,004h,00Fh,008h,00Fh,008h,01Fh,010h	;62
+	db	01Fh,010h,03Fh,020h,03Fh,021h,01Fh,018h
+	db	0E0h,020h,0F0h,010h,0F0h,010h,0E0h,020h	;63
+	db	0C0h,040h,080h,080h,000h,000h,0C0h,0C0h
+	db	000h,000h,000h,000h,000h,000h,078h,078h	;64
+	db	07Fh,077h,03Fh,030h,03Fh,038h,01Fh,018h
+	db	007h,004h,003h,003h,000h,000h,001h,001h	;65
+	db	003h,002h,0C7h,0C5h,0FFh,03Eh,0FFh,010h
+	db	0E0h,020h,0F8h,018h,0FCh,084h,0F8h,018h	;66
+	db	0E0h,060h,083h,083h,0FFh,07Ch,0FFh,008h
+	db	00Fh,00Ch,003h,002h,001h,001h,001h,001h	;67
+	db	003h,002h,003h,002h,003h,002h,007h,004h
+	db	0FFh,000h,0FFh,080h,0FFh,000h,0FFh,070h	;68
+	db	0DFh,050h,0FFh,070h,0FFh,001h,03Fh,0C0h
+	db	006h,005h,006h,005h,003h,002h,003h,003h	;69
+	db	007h,004h,007h,004h,00Fh,008h,00Fh,008h
+	db	01Fh,0E1h,01Fh,0E6h,03Fh,0C0h,0FFh,000h	;6a
+	db	0FFh,080h,0FFh,060h,0FFh,018h,0FFh,000h
+	db	00Fh,008h,00Fh,008h,007h,004h,003h,003h	;6b
+	db	002h,003h,001h,001h,002h,003h,001h,001h
+	db	0FFh,040h,0CFh,070h,0C0h,0FFh,080h,0FFh	;6c
+	db	070h,0FFh,00Fh,0FFh,048h,0F8h,0B0h,0B0h
+	db	000h,000h,000h,00Fh,000h,030h,000h,040h	;6d
+	db	03Fh,040h,00Fh,030h,000h,00Fh,000h,000h
+	db	000h,000h,000h,0FFh,000h,000h,000h,000h	;6e
+	db	0FFh,000h,0FFh,000h,000h,0FFh,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;6f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,001h,001h	;70
+	db	001h,001h,003h,002h,003h,002h,007h,004h
+	db	000h,000h,000h,000h,0C0h,0C0h,0E0h,020h	;71
+	db	0E0h,020h,0F0h,010h,0F0h,010h,0F8h,008h
+	db	007h,004h,00Fh,008h,00Fh,008h,01Fh,010h	;72
+	db	01Fh,010h,00Fh,00Ch,003h,003h,000h,000h
+	db	0F8h,008h,0F0h,010h,0E0h,020h,0C0h,040h	;73
+	db	080h,080h,0E0h,060h,0F0h,010h,0FCh,08Ch
+	db	000h,000h,060h,060h,078h,078h,07Ch,074h	;74
+	db	07Fh,073h,03Fh,030h,03Fh,030h,01Fh,010h
+	db	003h,003h,00Fh,00Ch,01Fh,010h,00Fh,009h	;75
+	db	007h,004h,083h,082h,0E3h,063h,0FFh,01Ch
+	db	0FEh,002h,0FCh,01Ch,0E0h,060h,080h,080h	;76
+	db	080h,080h,081h,081h,0C7h,0C6h,0FFh,038h
+	db	01Fh,010h,00Fh,008h,007h,005h,003h,002h	;77
+	db	003h,002h,007h,004h,007h,004h,007h,004h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;78
+	db	0FFh,000h,0FFh,060h,0BFh,0B0h,0FFh,0F0h
+	db	007h,004h,00Eh,009h,00Ch,00Bh,00Ch,00Bh	;79
+	db	01Eh,015h,01Fh,016h,01Fh,013h,01Fh,012h
+	db	0FFh,061h,07Fh,080h,03Fh,0C0h,03Fh,0C9h	;7a
+	db	07Fh,086h,0FFh,000h,0FFh,0C0h,0FFh,0B0h
+	db	00Fh,00Eh,00Fh,008h,00Fh,00Ch,007h,006h	;7b
+	db	003h,003h,000h,000h,000h,000h,000h,000h
+	db	0FCh,03Fh,0E0h,03Fh,0F0h,01Fh,0FFh,07Fh	;7c
+	db	088h,0F8h,070h,070h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7d
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;7f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,001h,001h	;80
+	db	001h,001h,003h,002h,003h,002h,007h,004h
+	db	060h,060h,0F0h,090h,0F0h,090h,0F8h,008h	;81
+	db	0F8h,008h,0FCh,004h,0FCh,004h,0F8h,008h
+	db	007h,004h,00Fh,008h,00Fh,008h,007h,006h	;82
+	db	001h,001h,000h,000h,000h,000h,007h,007h
+	db	0F0h,010h,0E0h,020h,0C0h,040h,0F0h,030h	;83
+	db	0F8h,088h,07Eh,046h,0FFh,0E3h,0FCh,00Ch
+	db	0C0h,0C0h,0F0h,0F0h,0F8h,0F8h,0FCh,0FCh	;84
+	db	0FEh,0F2h,07Fh,061h,07Fh,060h,03Fh,020h
+	db	003h,002h,001h,001h,000h,000h,000h,000h	;85
+	db	000h,000h,00Fh,00Fh,0BFh,0B0h,0FFh,047h
+	db	0F0h,030h,0E0h,020h,0F0h,090h,0F0h,090h	;86
+	db	0E0h,0A0h,0F0h,0F0h,0FDh,00Dh,0FFh,0E3h
+	db	03Fh,020h,01Fh,010h,01Fh,010h,00Fh,008h	;87
+	db	01Fh,01Ah,01Fh,014h,01Fh,014h,03Fh,038h
+	db	0FFh,078h,0FFh,0C0h,0FFh,000h,0FFh,000h	;88
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	07Fh,068h,0EFh,0B8h,0CFh,0B8h,05Fh,070h	;89
+	db	05Ch,073h,038h,037h,008h,00Fh,00Ch,00Bh
+	db	0FFh,060h,0BFh,0B0h,0FFh,0F0h,0FFh,060h	;8a
+	db	0FFh,001h,07Fh,080h,07Fh,089h,0FFh,006h
+	db	007h,004h,007h,007h,003h,002h,003h,002h	;8b
+	db	001h,001h,001h,001h,000h,000h,000h,000h
+	db	0FFh,000h,0FFh,000h,0FFh,0E0h,0FFh,00Fh	;8c
+	db	0FCh,004h,0F8h,088h,0F8h,0A8h,070h,070h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;8d
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;8e
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;8f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;90
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;91
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,002h,002h,007h,007h,00Fh,00Fh	;92
+	db	00Fh,00Fh,01Fh,018h,01Fh,010h,03Fh,030h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;93
+	db	000h,000h,080h,080h,080h,080h,080h,080h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;94
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;95
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,001h,001h	;96
+	db	003h,003h,003h,003h,031h,031h,03Fh,03Fh
+	db	000h,000h,000h,000h,000h,000h,0C0h,0C0h	;97
+	db	0E0h,0E0h,080h,080h,0CCh,0CCh,0FCh,0FCh
+	db	000h,000h,000h,000h,001h,001h,003h,003h	;98
+	db	003h,003h,001h,001h,003h,003h,037h,037h
+	db	000h,000h,000h,000h,0C0h,0C0h,0E0h,0E0h	;99
+	db	080h,080h,0C0h,0C0h,080h,080h,0ECh,0ECh
+	db	000h,000h,000h,000h,001h,001h,001h,001h	;9a
+	db	000h,000h,001h,001h,003h,003h,007h,007h
+	db	000h,000h,0E0h,0E0h,0F0h,0F0h,0C0h,0C0h	;9b
+	db	0E0h,0E0h,0C0h,0C0h,080h,080h,0E0h,0E0h
+	db	000h,0F0h,060h,091h,010h,0E9h,010h,02Ch	;9c
+	db	008h,034h,008h,014h,008h,014h,008h,0F6h
+	db	000h,080h,080h,040h,080h,040h,040h,0A0h	;9d
+	db	000h,04Fh,006h,019h,009h,076h,031h,04Ah
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;9e
+	db	000h,000h,000h,080h,000h,0B0h,030h,0C8h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;9f
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;a0
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;a1
+	db	000h,000h,040h,040h,0F0h,0B0h,0F8h,088h
+	db	03Fh,020h,03Fh,020h,03Fh,021h,07Fh,041h	;a2
+	db	07Fh,047h,07Fh,040h,0FFh,0A0h,0FFh,0A0h
+	db	080h,080h,080h,080h,000h,000h,000h,000h	;a3
+	db	0C0h,0C0h,0F8h,038h,0FEh,006h,0FFh,001h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;a4
+	db	001h,001h,00Fh,00Eh,03Fh,030h,0FFh,0C0h
+	db	000h,000h,000h,000h,000h,000h,03Eh,03Eh	;a5
+	db	0FEh,0DEh,0FCh,01Ch,0FCh,03Ch,0F8h,038h
+	db	01Fh,01Fh,00Fh,00Fh,01Fh,01Fh,01Fh,01Fh	;a6
+	db	01Fh,01Fh,00Fh,00Fh,01Fh,01Fh,01Ch,01Ch
+	db	0F8h,0F8h,0F0h,0F0h,0F8h,0F8h,0F8h,0F8h	;a7
+	db	0F8h,0F8h,0F0h,0F0h,0F8h,0F8h,038h,038h
+	db	03Fh,03Fh,01Fh,01Fh,00Fh,00Fh,01Fh,01Fh	;a8
+	db	01Fh,01Fh,01Fh,01Fh,00Fh,00Fh,00Ch,00Ch
+	db	0FCh,0FCh,0F8h,0F8h,0F0h,0F0h,0F8h,0F8h	;a9
+	db	0F8h,0F8h,0F8h,0F8h,0F0h,0F0h,030h,030h
+	db	03Fh,03Fh,03Fh,03Fh,01Fh,01Fh,00Fh,00Fh	;aa
+	db	01Fh,01Fh,01Fh,01Fh,00Fh,00Fh,006h,006h
+	db	0FCh,0FCh,0FCh,0FCh,0F8h,0F8h,0F0h,0F0h	;ab
+	db	0F8h,0F8h,0F8h,0F8h,0F0h,0F0h,060h,060h
+	db	07Ch,082h,014h,0EAh,004h,01Ah,004h,00Bh	;ac
+	db	003h,00Ch,000h,007h,000h,000h,000h,000h
+	db	021h,05Ah,021h,052h,020h,0D3h,040h,0B1h	;ad
+	db	080h,060h,000h,0C0h,000h,000h,000h,000h
+	db	030h,0C8h,020h,0D8h,0C0h,030h,000h,0E0h	;ae
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;af
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	001h,001h,001h,001h,001h,001h,000h,000h	;b0
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0F9h,019h,0FFh,006h,0FFh,004h,0F9h,08Eh	;b1
+	db	0F8h,08Fh,0F8h,08Fh,079h,04Eh,07Fh,044h
+	db	0FFh,060h,0DFh,050h,0FFh,070h,0FFh,060h	;b2
+	db	0FFh,000h,0FFh,010h,0FFh,000h,0FFh,030h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;b3
+	db	0FFh,000h,0FFh,0FCh,0DFh,058h,0FFh,078h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,003h	;b4
+	db	0FCh,00Ch,0F0h,030h,0F0h,010h,0F0h,010h
+	db	0F0h,070h,0E0h,060h,080h,080h,000h,000h	;b5
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;b6
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;b7
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;b8
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;b9
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;ba
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;bb
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;bc
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;bd
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;be
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;bf
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,001h,001h,003h,002h	;c0
+	db	007h,004h,00Fh,008h,00Fh,008h,01Fh,010h
+	db	07Fh,044h,0FFh,080h,0FFh,000h,0FFh,000h	;c1
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,050h,0FFh,008h,0FFh,008h,0FFh,000h	;c2
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,030h,0FFh,000h,0F3h,00Ch,0E1h,01Eh	;c3
+	db	0E1h,01Eh,0F3h,00Ch,0FFh,000h,0FFh,000h
+	db	0F0h,010h,0E0h,020h,0E0h,020h,0E1h,021h	;c4
+	db	0C7h,046h,0FFh,0F8h,0FFh,004h,0FFh,00Ah
+	db	006h,006h,01Fh,019h,07Fh,061h,0FEh,082h	;c5
+	db	0FEh,002h,0FEh,002h,0FEh,002h,0FCh,004h
+	db	0F0h,0F0h,07Fh,07Fh,07Fh,078h,03Fh,038h	;c6
+	db	01Fh,01Ch,00Fh,00Ch,007h,004h,003h,002h
+	db	000h,000h,000h,000h,0C0h,0C0h,0F0h,030h	;c7
+	db	0FBh,00Bh,0FFh,004h,0FFh,000h,0FFh,000h
+	db	000h,000h,000h,000h,000h,000h,07Ch,07Ch	;c8
+	db	0FFh,083h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	000h,000h,001h,001h,007h,006h,01Fh,018h	;c9
+	db	0BFh,0A0h,0FFh,040h,0FFh,000h,0FFh,000h
+	db	01Eh,01Eh,0FCh,0FCh,0FCh,03Ch,0F8h,038h	;ca
+	db	0F0h,070h,0E0h,060h,0C0h,040h,080h,080h
+	db	001h,001h,000h,000h,000h,000h,000h,000h	;cb
+	db	000h,000h,000h,000h,000h,000h,001h,001h
+	db	0FFh,020h,0FFh,0A0h,07Fh,04Ch,07Fh,042h	;cc
+	db	07Fh,041h,0FFh,080h,0C7h,0B8h,083h,07Ch
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;cd
+	db	0FFh,001h,0FFh,010h,0FFh,000h,0FFh,010h
+	db	0FFh,009h,0FEh,00Ah,0FCh,064h,0FCh,084h	;ce
+	db	0FCh,004h,0FEh,002h,0C6h,03Ah,083h,07Dh
+	db	000h,000h,000h,000h,006h,006h,00Eh,00Ah	;cf
+	db	01Eh,012h,03Eh,022h,07Eh,042h,0FFh,081h
+	db	01Fh,010h,03Fh,020h,03Fh,020h,07Fh,040h	;d0
+	db	07Fh,040h,0FFh,080h,0FFh,0C3h,0FCh,08Ch
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;d1
+	db	0FFh,000h,0FFh,000h,0FFh,080h,07Fh,060h
+	db	0FFh,000h,0FFh,006h,0FFh,019h,0FFh,020h	;d2
+	db	0FFh,00Ah,0FFh,015h,0FFh,021h,0FFh,021h
+	db	0FFh,000h,0FFh,000h,0FFh,080h,0FFh,043h	;d3
+	db	0FCh,024h,0FBh,02Bh,0FBh,00Ah,0FEh,01Fh
+	db	0FFh,002h,0FFh,004h,0FFh,038h,0FFh,0C7h	;d4
+	db	0F8h,088h,0F8h,088h,0F8h,008h,0F8h,0F8h
+	db	0FCh,004h,0FCh,004h,0FCh,03Ch,0C0h,0C0h	;d5
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	001h,001h,001h,001h,004h,004h,01Fh,01Bh	;d6
+	db	03Fh,020h,01Fh,010h,03Fh,020h,01Fh,018h
+	db	083h,07Ch,083h,07Ch,0C7h,0B8h,0FFh,080h	;d7
+	db	0FFh,040h,0FFh,020h,0FFh,018h,0FFh,006h
+	db	0FFh,038h,0EFh,07Ch,0C7h,07Ch,0C7h,038h	;d8
+	db	0EFh,038h,0FFh,010h,0FFh,000h,0FFh,000h
+	db	083h,07Dh,083h,07Dh,0C7h,03Ah,0FFh,003h	;d9
+	db	0FFh,004h,0FFh,008h,0FFh,030h,0FFh,0C0h
+	db	0FFh,001h,0FFh,001h,0FFh,041h,0FFh,0B1h	;da
+	db	0FEh,00Eh,0F8h,018h,0F8h,008h,0F0h,030h
+	db	007h,007h,000h,000h,000h,000h,000h,000h	;db
+	db	000h,000h,001h,001h,001h,001h,001h,001h
+	db	0FFh,000h,0FFh,080h,0FFh,080h,0FFh,080h	;dc
+	db	0FFh,080h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;dd
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h
+	db	0FFh,001h,0FFh,002h,0FFh,002h,0FFh,002h	;de
+	db	0FFh,003h,0FFh,001h,0FFh,001h,0FFh,001h
+	db	0C0h,0C0h,0C0h,040h,0E0h,020h,0E0h,020h	;df
+	db	0F0h,010h,0F0h,030h,0C0h,0C0h,040h,0C0h
+	db	0F0h,090h,060h,060h,000h,000h,000h,000h	;e0
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	01Fh,010h,00Fh,00Ch,003h,002h,001h,001h	;e1
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FFh,012h,0FFh,00Ch,0FFh,000h,0FFh,083h	;e2
+	db	07Ch,07Ch,000h,000h,000h,000h,000h,000h
+	db	0E0h,01Fh,0FFh,03Fh,0C0h,0C0h,000h,000h	;e3
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	080h,080h,080h,080h,000h,000h,000h,000h	;e4
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;e5
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	001h,001h,000h,000h,000h,000h,000h,000h	;e6
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FFh,000h,0FFh,080h,0FFh,080h,07Fh,040h	;e7
+	db	03Fh,038h,03Fh,023h,03Fh,029h,016h,016h
+	db	0FFh,000h,0FFh,000h,0FFh,000h,0FFh,000h	;e8
+	db	0FFh,07Ch,083h,083h,001h,001h,000h,000h
+	db	0FFh,001h,0FEh,003h,0FFh,003h,0FCh,004h	;e9
+	db	0F8h,038h,0F8h,088h,0F8h,028h,0D0h,0D0h
+	db	020h,0E0h,0C0h,0C0h,000h,000h,000h,000h	;ea
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;eb
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,007h,003h,00Ch	;ec
+	db	004h,00Bh,00Ch,012h,008h,076h,07Eh,081h
+	db	000h,000h,000h,000h,000h,0C0h,080h,060h	;ed
+	db	040h,0B1h,020h,05Fh,01Fh,020h,011h,02Eh
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;ee
+	db	000h,0E0h,0C0h,030h,020h,0D8h,0F0h,008h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;ef
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,001h,001h	;f0
+	db	003h,003h,007h,007h,007h,007h,007h,007h
+	db	000h,000h,000h,000h,0F0h,0F0h,0F8h,098h	;f1
+	db	0FCh,00Ch,0FEh,00Eh,0FEh,09Eh,0FEh,0FEh
+	db	007h,007h,003h,003h,001h,001h,000h,000h	;f2
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FEh,0FEh,0FCh,0FCh,0F8h,0F8h,0F0h,0F0h	;f3
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+
+;	db	000h,000h,000h,000h,003h,003h,001h,001h	;f4
+;	db	001h,001h,003h,003h,007h,007h,007h,007h
+;	db	000h,000h,000h,000h,000h,000h,0C0h,0C0h	;f5
+;	db	0F0h,0B0h,0FCh,00Ch,0FEh,00Eh,0FFh,09Fh
+;	db	007h,007h,007h,007h,003h,003h,001h,001h	;f6
+;	db	000h,000h,000h,000h,000h,000h,000h,000h
+;	db	0FEh,0FEh,0FEh,0FEh,0FCh,0FCh,0F8h,0F8h	;f7
+;	db	0F0h,0F0h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,003h,003h,001h,001h,001h,001h	;f4
+	db	003h,003h,007h,007h,007h,007h,007h,007h
+	db	000h,000h,000h,000h,0C0h,0C0h,0F0h,0B0h	;f5
+	db	0FCh,00Ch,0FEh,00Eh,0FFh,09Fh,0FEh,0FEh
+	db	007h,007h,003h,003h,001h,001h,000h,000h	;f6
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FEh,0FEh,0FCh,0FCh,0F8h,0F8h,0F0h,0F0h	;f7
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;f8
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;f9
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	007h,007h,007h,007h,000h,000h,000h,000h	;fa
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	0FCh,0FCh,0FEh,0FEh,000h,000h,000h,000h	;fb
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,07Fh,000h,000h,000h,001h,001h,006h	;fc
+	db	006h,019h,018h,026h,000h,018h,000h,000h
+	db	000h,03Bh,000h,000h,000h,000h,000h,080h	;fd
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	030h,0C8h,000h,030h,000h,000h,000h,000h	;fe
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h	;ff
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+
+
+

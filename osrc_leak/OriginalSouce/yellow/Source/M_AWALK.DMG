@@ -1,0 +1,375 @@
+
+	include		group.def
+
+bank2	group	G_MUSIC1
+	;
+	;	autowalk01
+	;
+	;	Converting on Sun Feb 19 10:03:05 1995
+	;
+	;				by ver 1.02
+	;
+	public	AutoWalk11
+	public	AutoWalk12
+	public	AutoWalk13
+	public	AutoWalk14
+;----------------------------------------
+AutoWalk11:
+;----------------------------------------
+	db	0edh,000h,080h
+	db	0f0h,077h
+	db	0ech,002h
+	db	0e8h
+; P1-1
+	db	0dch,0b1h
+	db	0e5h,0b1h
+	db	091h
+	db	081h
+	db	091h
+	db	081h
+	db	061h
+	db	041h
+	db	031h
+; P1-2
+	db	0e6h,0b3h
+	db	0b0h
+	db	0e5h,030h
+	db	040h
+	db	080h
+	db	0b9h
+; P1-3 --- tied
+	db	0fdh
+	dw	sub11$
+; P1-4 --- tied
+	db	0fdh
+	dw	sub12$
+; P1-5 --- tied
+	db	0fdh
+	dw	sub11$
+; P1-6 --- tied
+	db	043h
+	db	043h
+	db	041h
+	db	045h
+loop10$:
+; P1-7 --- tied
+	db	0fdh
+	dw	sub11$
+; P1-8 --- tied
+	db	0fdh
+	dw	sub12$
+; P1-9 --- tied
+	db	0fdh
+	dw	sub11$
+; P1-10 --- tied
+	db	043h
+	db	043h
+	db	041h
+	db	045h
+	db	0feh,0
+	dw	loop10$
+sub11$:
+	db	041h
+	db	045h
+	db	061h
+	db	065h
+	db	0ffh
+sub12$:
+	db	041h
+	db	045h
+	db	021h
+	db	025h
+	db	0ffh
+;----------------------------------------
+AutoWalk12:
+;----------------------------------------
+	db	0ech,002h
+; P2-1
+	db	0dch,0c1h
+	db	0e4h,041h
+	db	021h
+	db	011h
+	db	021h
+	db	011h
+	db	0e5h,0b1h
+	db	091h
+	db	081h
+; P2-2
+	db	043h
+	db	040h
+	db	080h
+	db	0b0h
+	db	0e4h,030h
+	db	047h
+; P2-3
+	db	0e5h,091h
+	db	0e4h,011h
+	db	043h
+	db	021h
+	db	061h
+	db	093h
+; P2-4
+	db	0e5h,091h
+	db	0e4h,011h
+	db	043h
+	db	021h
+	db	011h
+	db	0e5h,0b3h
+; P2-5
+	db	091h
+	db	0e4h,011h
+	db	043h
+	db	021h
+	db	061h
+	db	091h
+	db	091h
+; P2-6
+	db	081h
+	db	041h
+	db	061h
+	db	081h
+	db	091h
+	db	091h
+	db	093h
+loop20$:
+; P2-7
+	db	0e5h,091h
+	db	0e4h,011h
+	db	042h
+	db	0dch,081h
+	db	040h
+	db	0dch,0c1h
+	db	021h
+	db	061h
+	db	092h
+	db	0dch,091h
+	db	090h
+	db	0dch,0c1h
+; P2-8
+	db	0e5h,091h
+	db	0e4h,011h
+	db	043h
+	db	020h
+	db	010h
+	db	000h
+	db	0e5h,0b0h
+	db	0b2h
+	db	0dch,0a1h
+	db	080h
+	db	0dch,0c1h
+; P2-9
+	db	091h
+	db	0e4h,011h
+	db	042h
+	db	0dch,091h
+	db	040h
+	db	0dch,0c1h
+	db	021h
+	db	061h
+	db	092h
+	db	0dch,081h
+	db	090h
+	db	0dch,0c1h
+; P2-10
+	db	081h
+	db	040h
+	db	0dch,081h
+	db	040h
+	db	0dch,0c1h
+	db	061h
+	db	0dch,081h
+	db	060h
+	db	0dch,0c1h
+	db	080h
+	db	091h
+	db	091h
+	db	093h
+	db	0feh,0
+	dw	loop20$
+;----------------------------------------
+AutoWalk13:
+;----------------------------------------
+	db	0dch,010h
+; P3-1 -
+	db	0cfh
+; P3-2
+	db	0e4h,040h
+	db	0c2h
+	db	040h
+	db	0c2h
+	db	040h
+	db	0c8h
+; P3-3 --- tied
+	db	0fdh
+	dw	sub31$
+; P3-4 --- tied
+	db	090h
+	db	0c0h
+	db	090h
+	db	0c4h
+	db	080h
+	db	0c0h
+	db	080h
+	db	0c4h
+; P3-5 --- tied
+	db	0fdh
+	dw	sub31$
+; P3-6 --- tied
+	db	0b0h
+	db	0c2h
+	db	080h
+	db	0c2h
+	db	090h
+	db	0c0h
+	db	090h
+	db	0c2h
+loop30$:
+; P3-7
+	db	0fdh
+	dw	sub32$
+	db	0c2h
+; P3-8
+	db	0e2h,040h
+	db	0c0h
+	db	0e3h,090h
+	db	0c0h
+	db	090h
+	db	0c2h
+	db	0b0h
+	db	0c0h
+	db	080h
+	db	0c0h
+	db	080h
+	db	0c2h
+; P3-9
+	db	0fdh
+	dw	sub32$
+	db	0c0h
+	db	0e2h,040h
+	db	0c0h
+; P3-10
+	db	020h
+	db	0c0h
+	db	0e3h,0b0h
+	db	0c0h
+	db	090h
+	db	0c0h
+	db	080h
+	db	0c2h
+	db	090h
+	db	0c0h
+	db	090h
+	db	0c2h
+	db	0feh,0
+	dw	loop30$
+sub31$:
+	db	090h
+	db	0c0h
+	db	090h
+	db	0c4h
+	db	090h
+	db	0c0h
+	db	090h
+	db	0c4h
+	db	0ffh
+sub32$:
+	db	0e2h,010h
+	db	0c0h
+	db	0e3h,090h
+	db	0c0h
+	db	090h
+	db	0c2h
+	db	0e2h,060h
+	db	0c0h
+	db	0e3h,090h
+	db	0c0h
+	db	090h
+	db	0ffh
+;----------------------------------------
+AutoWalk14:
+;----------------------------------------
+	db	0dch
+; P4-1 -
+	db	0cfh
+; P4-2 -
+	db	0cfh
+; P4-3 -
+	db	0cfh
+; P4-4 -
+	db	0cfh
+; P4-5 -
+	db	0cfh
+; P4-6 -
+	db	0cdh
+	db	0d6h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+loop40$:
+; P4-7
+	db	0b3h,011h
+	db	0b5h,011h
+	db	0b1h,011h
+	db	0b1h,011h
+	db	0b1h,011h
+	db	0b3h,011h
+	db	0b1h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b5h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+; P4-8
+	db	0b3h,011h
+	db	0b5h,011h
+	db	0b1h,011h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b1h,011h
+	db	0b1h,011h
+	db	0b1h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b5h,011h
+	db	0b1h,011h
+; P4-9
+	db	0b3h,011h
+	db	0b3h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b1h,011h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b1h,011h
+	db	0b3h,011h
+	db	0b3h,011h
+	db	0b1h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b1h,011h
+; P4-10
+	db	0b1h,011h
+	db	0b3h,011h
+	db	0b1h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0b5h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b3h,011h
+	db	0b3h,011h
+	db	0b0h,013h
+	db	0b0h,013h
+	db	0b0h,012h
+	db	0b0h,012h
+	db	0feh,0
+	dw	loop40$
+
+

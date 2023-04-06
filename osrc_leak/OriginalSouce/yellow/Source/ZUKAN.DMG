@@ -1,0 +1,1350 @@
+;*****************************************
+;* Source file	: zukan.src		*
+;*****************************************
+
+	include	common.def
+	include	fntequ.def
+	include	banktool.def
+	include	sgb_col.def
+	include macro.h
+	include	group.def
+	include	pm_debug.def
+  ifn	ASSEMBLE__ENGLISH
+	include printer.h
+  endif
+
+	public	zukan
+	public	zukan_put
+	public	get_order_no
+	public	get_kaihatsu_no
+	public	zukan_tbl
+
+	public	ZukanDataSet
+  ifn	ASSEMBLE__ENGLISH
+	public	Print_ZukanCommentSet
+  endif
+	public	MokujiFirstWindowSet
+	public	MokujiSecondWindowSet
+
+	extern	put_window
+	extern	put_msg
+	extern	put_msg_s		;追加（村川）
+	extern	block_cls
+	extern	put_dec
+	extern	put_bcd
+	extern	bank2bank
+	extern	bank_push_call	
+	extern	get_mons_name
+	extern	get_mons_name2
+	extern	get_monsadr
+	extern	prt_mons_chr
+	extern	prt_mons_chr2
+	extern	gyaarth_play
+	extern	gyaarth
+	extern	allow
+	extern	white_allow
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	chrset
+	extern	chrmove
+	extern	fnt_zukan
+	extern	fnt_gauge
+	extern	fnt_serifu
+	extern	cap_data
+	extern	set_serifu
+	extern	dvram_cls
+	extern	actor_blanch
+	extern	wait_vb
+	extern	put_wait
+	extern	wait_vb_s
+	extern	cont_repeat
+	extern	map_rewrite
+	extern	color_set
+	extern	color_rewrite
+	extern	how_many_bit
+	extern	palset
+	extern	pal_off
+	extern	pop_vram_m
+	extern	set_gauge
+	extern	set_fight_font
+	extern	pal_off_put_wait
+	
+bank10	group	G_BANK10
+
+
+;************************************************
+;*						*
+;*		zukan_main			*
+;*						*
+;************************************************
+zukan:
+	call	pal_off
+	call	dvram_cls
+	call	actor_blanch
+
+	ld	a,(scloll_sv)
+	push	af
+
+	xor	a
+	ld	(allow_cnt),a
+	ld	(scloll_sv),a
+	ld	(allow_old),a
+	inc	a
+	ld	(in_dat),a
+	ld	(cont_joy_flg),a
+loop1$:
+;	call	zukandat_set
+	ld	hl,zukandat_set
+	ld	b,05h
+	call	bank_push_call
+loop2$:
+	ld	b,COL_START
+	call	color_set
+loop$:
+	ld	hl,allow_pos
+	ld	a,3
+	ld	(hli),a			; Y pos
+	xor	a
+	ld	(hli),a			; X pos
+	inc	a
+	ld	(scloll_sw),a
+	inc	hl
+	inc	hl
+	ld	a,6
+	ld	(hli),a			; allow_max
+	ld	(hl),BT_A + BT_B + BT_R + BT_L	; allow_msk
+
+	call	mokuji_put
+	jr	c,zukan_menu1$
+
+ret$:
+	xor	a
+	ld	(scloll_sw),a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+	ld	(cont_joy_flg),a
+	ld	(auto_move_cnt),a
+	ld	(auto_move_msk),a
+
+	pop	af
+	ld	(scloll_sv),a
+
+	call	pal_off_put_wait
+	call	color_rewrite
+
+	jp	map_rewrite
+
+zukan_menu1$:
+	call	zukan_menu
+	dec	b
+	jr	z,ret$			; yameru select
+	dec	b
+	jr	z,loop$
+	dec	b
+	jr	z,loop2$
+	jp	loop1$
+
+;===============================================================;
+;  ZUKAN_MENU                                                   ;
+;===============================================================;
+zukan_menu:
+	call	white_allow
+	ld	a,(allow_cnt)
+	push	af
+	ld	b,a
+	ld	a,(allow_old)
+	push	af
+	ld	a,(scloll_sv)
+	push	af
+
+;	ld	a,(scloll_sv)
+;	ld	b,a
+;	ld	a,(allow_cnt)
+	add	a,b
+	inc	a
+	ld	(in_dat),a
+	ld	a,(in_dat)
+	push	af
+	ld	a,(usr_buf)
+	push	af
+;	call	print_number
+
+	ld	hl,zukan_flg2
+	call	zukan_bit_check
+	ld	b,2
+	jr	z,return$
+
+	call	get_kaihatsu_no
+
+	ld	hl,allow_pos
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,8
+	ld	(hli),a				; Y pos
+	ld	a,15
+	ld	(hli),a				; X pos
+ else
+;	ld	a,10
+	ld	a,8
+	ld	(hli),a				; Y pos
+	ld	a,12
+	ld	(hli),a				; X pos
+ endif
+	xor	a
+	ld	(hli),a				; allow_cnt
+	inc	hl
+;	ld	a,3
+	ld	a,4
+	ld	(hli),a				; allow_max
+	ld	a,BT_A + BT_B
+	ld	(hli),a				; allow_msk
+	xor	a
+	ld	(hli),a				; allow_old
+	ld	(scloll_sw),a
+	ld	(cont_joy_flg),a		; debug 98/5/22
+
+allow_loop$:	
+	call	allow
+	bit	1,a
+	ld	b,2
+ ifn	ASSEMBLE__ENGLISH
+	jr	nz,return__B_button$
+ else
+	jr	nz,return$
+ endif
+	ld	a,(allow_cnt)
+	and	a
+	jr	z,zukan$
+	dec	a
+	jr	z,gyaarth$
+	dec	a
+	jr	z,dist$
+	dec	a
+	jr	z,print$
+
+	ld	b,1				; yameru select
+return$:
+	pop	af
+	ld	(usr_buf),a
+	pop	af
+	ld	(in_dat),a
+
+	pop	af
+	ld	(scloll_sv),a
+	pop	af
+	ld	(allow_old),a
+	pop	af
+	ld	(allow_cnt),a
+
+	ld	a,1				; debug 98/5/22
+	ld	(cont_joy_flg),a		;
+
+	push	bc
+	S_POS	0,3			;allow_cls
+	ld	de,20
+	ld	bc,spc@*100h + 13
+	call	zukanwaku_put
+	pop	bc
+	ret
+
+ ifn	ASSEMBLE__ENGLISH
+return__B_button$:			; Ｂボタンキャンセルされたときの
+;	push	af			; ”データ、こえ、ぶんぷ、やめる”の▲カーソルを消す
+	push	bc			; （注意！）外枠を付けていると（call put_window()）
+;	push	de			; ウィンドウ内部を spc@ クリアしてくれるのでこの▲を
+;	push	hl			; 消去する処理は不要
+	S_POS	15,8
+	ld	de,20
+	ld	bc,spc@*100h + 9	;バグ修正 + 7  -> + 9 に変更（村川）
+	call	zukanwaku_put
+;	pop	hl
+;	pop	de
+	pop	bc
+;	pop	af
+	jr	return$
+ endif
+
+
+zukan$:
+	call	zukan_put0
+	ld	b,0
+	jr	return$
+
+gyaarth$:
+	ld	a,(in_dat)
+	call	gyaarth
+	extern	SEplay
+	call	SEplay
+	jr	allow_loop$
+
+dist$:
+	ld	a,B_DISTRIBUTION
+	call	bank2bank
+	ld	b,0
+	jr	return$
+
+print$:
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+
+	ld	a,(in_dat)
+	ld	(sel_item_no),a
+
+	extern	ZukanPrintOut
+	ld	hl,ZukanPrintOut
+	ld	b,G_BANK3a
+	call	bank_push_call
+
+	xor	a
+	ld	(all_put_req),a
+	call	dvram_cls
+
+	pop	af
+	ld	(wave_flg),a
+	ld	b,3
+	jr	return$
+
+;===============================================================;
+;  MOKUJI                                                       ;
+;    OUT  :  Cflg    0 = zukan close				;
+;         :          1 = zukan_menu open			;
+;===============================================================;
+mokuji_put:
+	call	MokujiFirstWindowSet
+
+mokuji_loop1$:
+	call	MokujiSecondWindowSet
+
+	call	palset
+
+	call	allow
+
+	bit	1,a			; cancel by "B" button 
+	jp	nz,ret$
+
+	bit	0,a			; debug by sige 98/06/08
+	jp	nz,pass6$		; Ａボタンを先にチェックしないと、
+					; チャタる
+
+	bit	6,a			; up key	
+	jr	z,pass3$
+
+	ld	a,(scloll_sv)
+	and	a
+	jp	z,mokuji_loop1$
+
+	dec	a
+	ld	(scloll_sv),a
+	jp	mokuji_loop1$
+
+pass3$:
+	bit	7,a			; down key	
+	jr	z,pass4$
+
+	ld	a,(usr_buf)		; file suu
+	cp	7
+	jp	c,mokuji_loop1$
+
+	sub	7
+	ld	b,a
+	ld	a,(scloll_sv)
+	cp	b
+	jp	z,mokuji_loop1$
+	
+	inc	a
+	ld	(scloll_sv),a
+	jp	mokuji_loop1$
+
+pass4$:
+	bit	4,a			; right key	
+	jr	z,pass5$
+
+	ld	a,(usr_buf)		; file suu
+	cp	7
+	jp	c,mokuji_loop1$
+
+	sub	6
+	ld	b,a
+	ld	a,(scloll_sv)
+	add	a,7
+	ld	(scloll_sv),a
+	cp	b
+	jp	c,mokuji_loop1$
+
+	dec	b
+	ld	a,b
+	ld	(scloll_sv),a
+	jp	mokuji_loop1$
+
+pass5$:
+	bit	5,a			; left key	
+	jr	z,pass6$
+
+	ld	a,(scloll_sv)
+	sub	7
+	ld	(scloll_sv),a
+	jp	nc,mokuji_loop1$
+
+	xor	a
+	ld	(scloll_sv),a
+	jp	mokuji_loop1$
+
+pass6$:
+	scf
+	ret
+ret$:
+	and	a
+	ret
+
+
+MokujiFirstWindowSet:
+	xor	a
+	ld	(all_put_req),a
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	15,6
+	ld	a,7ah			; ”＝＝＝＝＝”画面右側の上下の区切りとして挿入
+	ld	(hli),a			; （注意！）
+	ld	(hli),a			;	枠表示のための put_window() を呼ばないので
+	ld	(hli),a			;	ウィンドウ内部が spc@ クリアされない！
+	ld	(hli),a			;	故に▲カーソルのＢボタンキャンセルで
+	ld	(hli),a			;	▲が消えずに残るのでこれを消す処理を追加すること
+
+	S_POS	14,0
+	ld	(hl),71h		; ”｜”を表示
+	S_POS	14,1
+	call	waku_put$		; 縦のバインダーラインを表示
+	S_POS	14,9
+	call	waku_put$		; 縦のバインダーラインを表示
+ else
+	SET_WIN_POS 11,6,19,17		; ”データみる、なきごえ、．．．”の枠を表示	
+	call	put_window
+
+	S_POS	10,0
+	ld	(hl),71h		; ”｜”を表示
+	S_POS	10,1
+	call	waku_put$		; 縦のバインダーラインを表示
+	S_POS	10,9
+	call	waku_put$		; 縦のバインダーラインを表示
+ endif
+
+	ld	hl,zukan_flg2
+	ld	b,19			; 19 byte (152bit)
+	call	how_many_bit
+	ld	de,in_dat
+	S_POS	16,2			; ”みつけたかず”の数値を表示
+	ld	bc,00103h		; 1byte 3keta
+	call	put_dec
+
+	ld	hl,zukan_flg
+	ld	b,19			; 19 byte (152bit)
+	call	how_many_bit
+	ld	de,in_dat
+	S_POS	16,5			; ”つかまえたかず”の数値を表示
+	ld	bc,00103h		; 1byte 3keta
+	call	put_dec
+
+ ifn	ASSEMBLE__ENGLISH
+
+	S_POS	16,1
+	ld	de,file_str1$			; ”みつけ”を表示
+	call	put_msg
+
+	S_POS	16,4
+	ld	de,file_str2$			; ”とった”を表示
+	call	put_msg
+
+	S_POS	1,1
+	ld	de,mokuji_str1$			; ”もくじ”を表示
+	call	put_msg
+
+	S_POS	16,8
+	ld	de,menu_msg$			; ”データ、こえ、ぶんぷ、プリント、やめる”
+	call	put_msg
+
+ else
+	S_POS	12,1
+	ld	de,file_str1$			; ”みつけたかず”を表示
+	call	put_msg
+
+	S_POS	12,4
+	ld	de,file_str2$			; ”つかまえたかず”を表示
+	call	put_msg
+
+	S_POS	1,1
+	ld	de,mokuji_str1$			; ”もくじ”を表示
+	call	put_msg
+
+	S_POS	13,8		
+	ld	de,menu_msg$			; ”データをみる、なきごえ、ぶんぷをみる、プリント、やめる”
+	call	put_msg	
+ endif
+
+	ld	hl,zukan_flg2 + 18
+	ld	b,153
+loop1$:
+	ld	a,(hld)
+	ld	c,8
+loop2$:
+	dec	b
+	sla	a
+	jr	c,max_set$
+	
+	dec	c
+	jr	nz,loop2$
+	jr	loop1$
+	
+max_set$:
+	ld	a,b
+	ld	(usr_buf),a
+	ret
+
+waku_put$:
+	ld	c,9
+	ld	de,20
+	ld	a,11h + 60h
+wakuloop$:
+	ld	(hl),a
+	add	hl,de
+	xor	1
+	dec	c
+	jr	nz,wakuloop$
+	ret
+
+ ifn	ASSEMBLE__ENGLISH
+file_str1$:
+  ifn	pm_jmsg
+	db	mi_,tu_,ke_			; ”みつけ”
+	db	EOM
+  else
+	db	usf_s,usf_e,usf_e,usf_n
+	db	EOM
+  endif
+
+file_str2$:
+  ifn	pm_jmsg
+	db	to_,ttu_,ta_			; ”とった”
+	db	EOM
+  else
+	db	usf_o,usf_w,usf_n
+	db	EOM
+  endif
+
+mokuji_str1$:
+  ifn	pm_jmsg
+	db	mo_,ku_,zi_			; ”もくじ”
+	db	EOM
+  else
+	db	usf_c,usf_o,usf_n,usf_t,usf_e,usf_n,usf_t,usf_s
+	db	EOM
+  endif
+
+menu_msg$:
+  ifn	pm_jmsg
+	db	de__,bou@,ta__,cr@		; ”データ”
+	db	ko_,e_,cr@			; ”こえ”
+	db	bu_,n_,pu_,cr@			; ”ぶんぷ”
+	db	pu__,ri__,n__,cr@		; ”プリン”
+	db	ya_,me_,ru_			; ”やめる”
+	db	EOM
+  else
+	db	usf_d,usf_a,usf_t,usf_a,cr@
+	db	usf_c,usf_r,usf_y,cr@
+	db	usf_a,usf_r,usf_e,usf_a,cr@
+	db	usf_p,usf_r,usf_n,usf_t,cr@
+	db	usf_q,usf_u,usf_i,usf_t
+	db	EOM
+  endif
+
+ else
+	
+file_str1$:
+	db	mi_,tu_,ke_,ta_,ka_,zu_
+	db	EOM
+
+file_str2$:
+	db	tu_,ka_,ma_,e_,ta_,ka_,zu_
+	db	EOM
+
+mokuji_str1$:
+	db	mo_,ku_,zi_
+	db	EOM
+
+menu_msg$:
+	db	de__,bou@,ta__,wo_,mi_,ru_,cr@
+	db	na_,ki_,go_,e_,cr@
+	db	bu_,n_,pu_,wo_,mi_,ru_,cr@
+	db	pu__,ri__,n__,to__,cr@
+	db	ya_,me_,ru_
+	db	EOM
+ endif
+
+
+
+MokujiSecondWindowSet:
+	xor	a
+	ld	(all_put_req),a
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	4,2			; ”●”表示をS_POS(3,y)にしたのでポケモン名は(4,y)から
+	ld	bc,14*256 + MONS_NAME_LEN -1
+ else
+	S_POS	5,2
+	ld	bc,14*256 + 5
+ endif
+	call	block_cls		; mokuji window no menu cls 
+
+	S_POS	1,3
+
+	ld	a,(scloll_sv)
+	ld	(in_dat),a
+	ld	d,7			; counter
+
+	ld	a,(usr_buf)		; file suu
+	cp	7
+	jr	nc,monsname_loop$
+
+	ld	d,a
+	dec	a
+	ld	(allow_max),a
+
+monsname_loop$:				; put mons number & mons name
+	ld	a,(in_dat)
+	inc	a
+	ld	(in_dat),a
+	push	af
+
+	push	de			; counter save
+	push	hl			; vram address save
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	de, -20			; 通し番号は１行上に表示させる
+	add	hl,de
+	ld	de,in_dat
+	ld	bc,0103h + 8000h	; 1byte 3keta ( zero print )
+	call	put_dec
+	ld	de, 20			; ”●ポケモン名”は１行下に表示させる（元に戻す）
+	add	hl,de
+	dec	hl			; ”●ポケモン名”を１キャラ左に寄せる
+ else
+	ld	de,in_dat
+	ld	bc,0103h + 8000h	; 1byte 3keta ( zero print )
+	call	put_dec
+ endif
+	push	hl
+	ld	hl,zukan_flg
+	call	zukan_bit_check
+	pop	hl
+
+	ld	a,spc@			; ”  ”
+	jr	z,pass0$
+	ld	a,072h			; ”●”つかまえたポケモンを示すキャラクタ
+pass0$:
+	ld	(hl),a
+
+	push	hl
+
+	ld	hl,zukan_flg2
+	call	zukan_bit_check
+
+	jr	nz,put_name1$
+
+	ld	de,ber5_str$
+	jr	put_name2$
+
+ber5_str$:
+	db	bou@,bou@,bou@,bou@,bou@
+ ifn	ASSEMBLE__ENGLISH
+	db	bou@,bou@,bou@,bou@,bou@	; ---------- １０文字用に拡張
+ endif
+	db	EOM
+
+put_name1$:
+	call	get_kaihatsu_no
+	call	get_mons_name
+
+put_name2$:
+	pop	hl
+	inc	hl
+	call	put_msg
+
+	pop	hl			; vram address load
+	ld	bc,40
+	add	hl,bc
+	pop	de			; counter load
+
+	pop	af
+	ld	(in_dat),a
+
+	dec	d
+	jr	nz,monsname_loop$
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	ret
+
+;===============================================================;
+;   	ZUKAN BI CHECK						;
+;===============================================================;
+zukan_bit_check:
+	ld	a,(in_dat)
+	dec	a
+	ld	c,a
+	ld	b,2				; bit check
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+	ld	a,c	
+	and	a
+
+	ret
+
+;===============================================================;
+;   MENU SET (TAKE_MONSTER PICK_UP)				;
+;===============================================================;
+
+;===============================================================;
+;   PRINT_NUMBER 						;
+;===============================================================;
+
+;===============================================================;
+;   ZUKAN PUT							;
+;===============================================================;
+zukan_put:
+	call	pal_off_put_wait
+	call	dvram_cls
+	call	actor_blanch
+;	call	zukandat_set
+	ld	hl,zukandat_set
+	ld	b,05h
+	call	bank_push_call
+zukan_put0:
+	ld	hl,obs_walk_flag
+	set	1,(hl)
+
+	ld	a,033h
+	ld	(NR50),a			; volume down
+
+	ld	a,(wave_flg)
+	push	af
+	xor	a
+	ld	(wave_flg),a
+
+	call	pal_off
+
+	ld	a,(in_dat)
+	ld	(sel_item_no),a
+	push	af
+
+	ld	b,COL_ZUKAN
+	call	color_set
+
+	pop	af
+	ld	(in_dat),a
+
+	call	ZukanDataSet			; ポケモンの絵、名、身長、体重 etc.
+						; の表示 (説明文は含まない)
+ ifn	ASSEMBLE__ENGLISH
+	call	c, ZukanCommentSet_SPOS_1_11	; 説明文を表示
+ else
+	call	put_wait
+	call	palset
+
+	call	get_monsadr
+	S_POS	1,1
+	call	prt_mons_chr
+
+	ld	a,(sel_item_no)
+	call	gyaarth_play
+ endif
+
+cont_repeat_loop$:
+	call	cont_repeat
+
+	ld	a,(joy_repeat)
+	and	03h				; A or B button
+	jr	z,cont_repeat_loop$
+
+	pop	af
+	ld	(wave_flg),a
+	
+	call	pal_off
+	call	dvram_cls
+	call	color_rewrite
+	call	set_serifu
+	call	palset
+
+	ld	hl,obs_walk_flag
+	res	1,(hl)
+
+	ld	a,077h
+	ld	(NR50),a			; volume up
+
+	ret
+
+
+data_str1:
+  ifn	pm_jmsg
+	db	ta_,ka_,sa_,spc@,spc@,hate@,hate@,hate@,a@,cr@
+	db	o_,mo_,sa_,spc@,spc@,hate@,hate@,hate@,b@,c@
+	db	EOM
+  else
+	db	usf_h,usf_t,spc@,spc@,hate@,a@,hate@,hate@,b@,cr@		; ”HT  ？’？””
+	db	usf_w,usf_t,spc@,spc@,spc@,hate@,hate@,hate@,usf_l_,usf_b_		; ”WT    ？？？ｌｂ”
+	db	EOM
+  endif
+
+monster_str:
+	db	poke@		; ”ポケモン”
+	db	EOM
+
+zukan_waku2:		;	”－□－□－□－□－－－－□－□－□－□－”
+	db	i@,j@,l@,j@,l@,j@,l@,j@,l@,l@,l@,l@,j@,l@,j@,l@,j@,l@,j@,k@
+	db	EOM
+
+ZukanDataSet:
+	call	dvram_cls
+					;     20
+	S_POS	0,0			; deee..eeef	枠を表示する
+	ld	de,1			; g        h
+	ld	bc,e@*100h + 20		; g        h
+	call	zukanwaku_put		; :        : 18
+	S_POS	0,17			; g        h
+	ld	b,p@			; g        h
+	call	zukanwaku_put		; mppp..pppo
+					;
+	S_POS	0,1			;
+	ld	de,20			;
+	ld	bc,g@*100h + 16		;
+	call	zukanwaku_put		;
+	S_POS	19,1			;
+	ld	b,h@			;
+	call	zukanwaku_put		;
+					;
+	ld	a,d@			;
+	ld	(dmy_vram),a		;
+	ld	a,f@			;
+	ld	(dmy_vram + 19),a	;
+	ld	a,m@			;
+	ld	(20*17 + dmy_vram),a	;
+	ld	a,o@			;
+	ld	(20*17 + 19 + dmy_vram),a
+
+	S_POS	0,9
+	ld	de,zukan_waku2		; ”－□－□－□－□－－－－□－□－□－□－”を表示
+	call	put_msg
+
+	S_POS	9,6
+	ld	de,data_str1		; ”たかさ  ？？？ｍ、おもさ  ？？？ｋｇ”を表示
+	call	put_msg
+	
+	call	get_mons_name		; ”ポケモン名”を表示
+	S_POS	9,2
+	call	put_msg
+
+	ld	hl,zukan_tbl
+	ld	a,(in_dat)
+	dec	a
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	e,a
+	ld	d,(hl)			; DE= zukan_tbl[((in_dat)-1)*2]
+	
+	S_POS	9,4
+	call	put_msg			; ”種類”を表示
+	ld	h,b
+	ld	l,c
+	push	de
+
+  ifn	pm_jmsg
+	ld	de,monster_str		; 続けて”ポケモン”を表示
+	call	put_msg
+  endif
+
+	ld	a,(in_dat)
+	push	af
+
+	call	get_order_no		; ポケモン番号 (in_dat) の変換
+					; 	開発用番号 －＞ オーダー番号
+	S_POS	2,8
+	ld	a,No@
+	ld	(hli),a	
+	ld	a,dot@
+	ld	(hli),a			; ”No.”を表示
+	ld	de,in_dat
+	ld	bc,0103h + 8000h		; 1byte 3keta (zero print)
+	call	put_dec			; ポケモン番号（オーダー値）を表示
+
+	ld	hl,zukan_flg
+	call	zukan_bit_check		; return  C ; off bit
+
+	pop	af
+	ld	(in_dat),a		; (in_dat) を開発用番号に戻す
+
+	ld	a,(sel_item_no)
+	ld	(tbl_pos),a			; (tbl_pos) = (sel_item_no)
+
+	pop	de
+
+
+ ifn	ASSEMBLE__ENGLISH
+	push	af			;------------------------------------
+	push	bc			; 英語版 put_msg() で ポケモンの説明をカーソル
+	push	de			; 送り＆待ち可能にするために絵と泣き声の処理を
+	push	hl			; 先に行う
+chara_put$:
+	call	put_wait
+	call	palset
+
+	call	get_monsadr			; ポケモンの図（絵）を表示
+	S_POS	1,1
+	call	prt_mons_chr
+
+	ld	a,(sel_item_no)
+	call	gyaarth_play			; 泣き声を出す
+	pop	hl
+	pop	de
+	pop	bc
+	pop	af			;------------------------------------
+ endif
+	
+	ld	a,c				; from bit control
+	and	a				; <C> = 0
+	ret	z				; ポケモンの絵と声のみを出す（解説はなし）
+
+	inc	de			;------- 身長を表示 ------------
+  ifn	pm_jmsg
+	ld	a,(de)
+	push	af				; A=(DE) == 身長
+
+	S_POS	13,6
+	ld	bc,0103h			; 1byte 3keta
+	call	put_dec
+	
+	S_POS	14,6
+	pop	af				; 身長
+	cp	10
+	jr	nc,pass10$
+
+	ld	(hl),n0@			; 身長１.０m未満のとき１桁目に”０”を表示
+pass10$:
+	inc	hl
+	ld	a,(hli)	
+	ld	(hld),a	
+	ld	(hl),dot@
+
+  else
+
+	ld	a,(de)
+
+	S_POS	12,6
+	ld	bc,0102h			; 1byte 2keta
+	call	put_dec
+	ld	a,a@
+	ld	(hl),a
+	inc	de
+	inc	de
+	
+	S_POS	15,6
+	ld	bc,8102h
+	call	put_dec
+	ld	a,b@
+	ld	(hl),a
+  endif
+					;--------------------------------
+
+	inc	de			;------- 体重を表示 -------------
+	inc	de				; ???
+	inc	de				; taijyuu (high)
+	push	de
+	ld	hl,work0
+	ld	a,(hl)				; work0 push
+	push	af				; push (work0)
+	ld	a,(de)				; taijyuu (high)
+	ld	(hli),a				; (work0) = (DE+3)	体重 (high)
+	ld	a,(hl)				; work1 push
+	push	af				; push (work1)
+	dec	de
+	ld	a,(de)				; taijyuu (low)
+	ld	(hl),a				; (work1) = (DE+2)	体重 (low)
+	ld	de,work0
+
+  ifn	pm_jmsg
+	S_POS	12,8
+	ld	bc,0204h			; 2byte 4keta
+  else
+	S_POS	11,8
+	ld	bc,0205h			; 2byte 5keta
+  endif
+	call	put_dec
+	
+	S_POS	14,8
+	ld	a,(work1)			; taijyuu (low)
+	sub	10
+	ld	a,(work0)			; taijyuu (high)
+	sbc	a,0
+	jr	nc,pass11$
+	
+	ld	(hl),n0@
+
+pass11$:
+	inc	hl
+	ld	a,(hli)	
+	ld	(hld),a	
+	ld	(hl),dot@			; ”．”を表示
+
+	pop	af
+	ld	(work1),a			; pop (work1)
+	pop	af
+	ld	(work0),a			; pop (work0)
+						;--------------------------------
+
+  ifn	ASSEMBLE__ENGLISH
+	pop	hl
+	inc	hl			; HL = 説明文の先頭アドレス
+	scf				; <C> = 1
+	ret				; 注意！）プリントアウト処理に対処するために
+					;	  図鑑の説明文表示は別ルーチンにした
+					;	  ( ZukanCommentSet: )
+; ポケモン図鑑説明文を表示
+ZukanCommentSet_SPOS_1_11:
+	ld	bc,11*20 + dmy_vram + 1	; S_POS(1,11)
+ZukanCommentSet:			; ZukanCommentSet(HL message address , BC S_POS)
+	ld	a,OKURI_CANCEL
+	ld	(okuri_cansel),a	; 図鑑解説文表示 23Apr,1998 村川追加変更
+	call	put_msg_s
+	xor	a
+	ld	(okuri_cansel),a	; 村川追加変更 ここまで
+	ret
+
+Print_ZukanCommentSet:
+
+	S_POS	0,0			;     20	
+	ld	de,20			; g        h	枠を表示する
+	ld	bc,g@*100h + 13		; g        h
+	call	zukanwaku_put		; :        : 13
+	S_POS	19,0			; g        h
+	ld	b,h@			; g        h
+	call	zukanwaku_put		; mppp..pppo
+					;
+	S_POS	0,13			;
+	ld	de,1			;
+	ld	bc,p@*100h + 20		;
+	call	zukanwaku_put		;
+					;
+	ld	a,m@			;
+	ld	(20*13 + dmy_vram),a	;
+	ld	a,o@			;
+	ld	(20*13 + 19 + dmy_vram),a
+
+
+	ld	a,(PRT_work0)
+	ld	l,a
+	ld	a,(PRT_work1)
+	ld	h,a
+	ld	bc,1*20 + 1 + dmy_vram	; S_POS(1,1)
+
+	ld	a,(us_display_flg)
+	set	PRINT_ZUKAN@_BIT,a
+	ld	(us_display_flg),a	; zukan@ 処理を cr@ 処理にする
+
+	call	ZukanCommentSet
+
+	ld	a,(us_display_flg)
+	res	PRINT_ZUKAN@_BIT,a	; zukan@ 処理を元に戻す
+	ld	(us_display_flg),a
+
+	ret
+  else
+	pop	de
+	inc	de
+	S_POS	1,11
+	call	put_msg
+	ret
+  endif
+
+
+zukanwaku_put:
+	push	bc
+	push	de
+wakuloop$:
+	ld	(hl),b
+	add	hl,de
+	dec	c
+	jr	nz,wakuloop$
+	pop	de
+	pop	bc
+
+	ret
+
+
+
+zukan_tbl:
+	dw	zukan001$
+	dw	zukan002$
+	dw	zukan003$
+	dw	zukan004$
+	dw	zukan005$
+	dw	zukan006$
+	dw	zukan007$
+	dw	zukan008$
+	dw	zukan009$
+	dw	zukan010$
+	dw	zukan011$
+	dw	zukan012$
+	dw	zukan013$
+	dw	zukan014$
+	dw	zukan015$
+	dw	zukan016$
+	dw	zukan017$
+	dw	zukan018$
+	dw	zukan019$
+	dw	zukan020$
+	dw	zukan021$
+	dw	zukan022$
+	dw	zukan023$
+	dw	zukan024$
+	dw	zukan025$
+	dw	zukan026$
+	dw	zukan027$
+	dw	zukan028$
+	dw	zukan029$
+	dw	zukan030$
+	dw	zukan031$
+	dw	zukan032$
+	dw	zukan033$
+	dw	zukan034$
+	dw	zukan035$
+	dw	zukan036$
+	dw	zukan037$
+	dw	zukan038$
+	dw	zukan039$
+	dw	zukan040$
+	dw	zukan041$
+	dw	zukan042$
+	dw	zukan043$
+	dw	zukan044$
+	dw	zukan045$
+	dw	zukan046$
+	dw	zukan047$
+	dw	zukan048$
+	dw	zukan049$
+	dw	zukan050$
+	dw	zukan051$
+	dw	zukan052$
+	dw	zukan053$
+	dw	zukan054$
+	dw	zukan055$
+	dw	zukan056$
+	dw	zukan057$
+	dw	zukan058$
+	dw	zukan059$
+	dw	zukan060$
+	dw	zukan061$
+	dw	zukan062$
+	dw	zukan063$
+	dw	zukan064$
+	dw	zukan065$
+	dw	zukan066$
+	dw	zukan067$
+	dw	zukan068$
+	dw	zukan069$
+	dw	zukan070$
+	dw	zukan071$
+	dw	zukan072$
+	dw	zukan073$
+	dw	zukan074$
+	dw	zukan075$
+	dw	zukan076$
+	dw	zukan077$
+	dw	zukan078$
+	dw	zukan079$
+	dw	zukan080$
+	dw	zukan081$
+	dw	zukan082$
+	dw	zukan083$
+	dw	zukan084$
+	dw	zukan085$
+	dw	zukan086$
+	dw	zukan087$
+	dw	zukan088$
+	dw	zukan089$
+	dw	zukan090$
+	dw	zukan091$
+	dw	zukan092$
+	dw	zukan093$
+	dw	zukan094$
+	dw	zukan095$
+	dw	zukan096$
+	dw	zukan097$
+	dw	zukan098$
+	dw	zukan099$
+	dw	zukan100$
+	dw	zukan101$
+	dw	zukan102$
+	dw	zukan103$
+	dw	zukan104$
+	dw	zukan105$
+	dw	zukan106$
+	dw	zukan107$
+	dw	zukan108$
+	dw	zukan109$
+	dw	zukan110$
+	dw	zukan111$
+	dw	zukan112$
+	dw	zukan113$
+	dw	zukan114$
+	dw	zukan115$
+	dw	zukan116$
+	dw	zukan117$
+	dw	zukan118$
+	dw	zukan119$
+	dw	zukan120$
+	dw	zukan121$
+	dw	zukan122$
+	dw	zukan123$
+	dw	zukan124$
+	dw	zukan125$
+	dw	zukan126$
+	dw	zukan127$
+	dw	zukan128$
+	dw	zukan129$
+	dw	zukan130$
+	dw	zukan131$
+	dw	zukan132$
+	dw	zukan133$
+	dw	zukan134$
+	dw	zukan135$
+	dw	zukan136$
+	dw	zukan137$
+	dw	zukan138$
+	dw	zukan139$
+	dw	zukan140$
+	dw	zukan141$
+	dw	zukan142$
+	dw	zukan143$
+	dw	zukan144$
+	dw	zukan145$
+	dw	zukan146$
+	dw	zukan147$
+	dw	zukan148$
+	dw	zukan149$
+	dw	zukan150$
+	dw	zukan151$
+	dw	zukan152$
+	dw	zukan153$
+	dw	zukan154$
+	dw	zukan155$
+	dw	zukan156$
+	dw	zukan157$
+	dw	zukan158$
+	dw	zukan159$
+	dw	zukan160$
+	dw	zukan161$
+	dw	zukan162$
+	dw	zukan163$
+	dw	zukan164$
+	dw	zukan165$
+	dw	zukan166$
+	dw	zukan167$
+	dw	zukan168$
+	dw	zukan169$
+	dw	zukan170$
+	dw	zukan171$
+	dw	zukan172$
+	dw	zukan173$
+	dw	zukan174$
+	dw	zukan175$
+	dw	zukan176$
+	dw	zukan177$
+	dw	zukan178$
+	dw	zukan179$
+	dw	zukan180$
+	dw	zukan181$
+	dw	zukan182$
+	dw	zukan183$
+	dw	zukan184$
+	dw	zukan185$
+	dw	zukan186$
+	dw	zukan187$
+	dw	zukan188$
+	dw	zukan189$
+	dw	zukan190$
+
+;-----------------------------------------------; 1994.02.21
+	include	..\monsdata\pmfile.dat		; main data
+
+	include	..\monsdata\pmfile.ov		; unkown data
+;-----------------------------------------------; 1994.02.21
+
+;---------------------------------------;
+;	get_kaihatsu_no			;
+; IN  : in_dat = order number		;
+; OUT : in_dat = kaihatsu number	;
+;---------------------------------------;
+get_kaihatsu_no:
+	push	bc
+	push	hl
+  
+	ld	a,(in_dat)
+	ld	b,a
+	ld	c,0
+	ld	hl,order_tbl
+loop1$:
+	inc	c
+	ld	a,(hli)
+	cp	b
+	jr	nz,loop1$
+	
+	ld	a,c
+	ld	(in_dat),a
+	pop	hl
+	pop	bc
+
+	ret
+
+;---------------------------------------;
+;	get_order_no			;
+; IN  : in_dat = kaihatsu number	;
+; OUT : in_dat = order number		;
+;---------------------------------------;
+get_order_no:
+	push	bc
+	push	hl
+
+	ld	a,(in_dat)
+	dec	a
+	ld	hl,order_tbl
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	ld	a,(hl)
+	ld	(in_dat),a
+
+	pop	hl
+	pop	bc
+
+	ret
+
+
+order_tbl:
+	include	..\monsdata\order.dat
+
+;kaihatsu_tbl:
+;	include	..\monsdata\kaihatsu.dat
+
+bank5	group	5
+
+zukandat_set:
+	call	set_gauge
+	ld	de,fnt_zukan
+	ld	hl,09600h
+	ld	bc,4*100h + 12h
+	call	chrmove
+	ld	de,cap_data 
+	ld	hl,09720h
+	ld	bc,0eh*100h + 1
+	jp	chrmove
+

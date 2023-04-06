@@ -1,0 +1,2937 @@
+;===============================;
+;	1 player game mode	;
+;===============================;
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	pm_debug.def
+	include	banktool.def
+	include	sgb_col.def
+	include macro.h
+	include	group.def
+
+	include	objbank.def
+;	extern	objct
+
+
+
+	public	hero_setup			; bank 0
+
+	public	play1
+	public	new_scenario
+	public	cont1
+	public	startmap_set
+	public	check_save_data
+	public	name_in0
+	public	name_change
+	public	config
+
+
+	extern	se_wait
+	extern	bank2bank
+	extern	bank_push_call
+	extern	ready2ready
+	extern	init_map
+	extern	bank_change
+
+	extern	get_img_direct
+	extern	get_kaihatsu_no
+	extern	dvram_cls
+	extern	chrset
+	extern	chrmove
+	extern	fontset
+	extern	block_cls
+	extern	mapper
+	extern	lcdc_on
+	extern	lcdc_stop
+	extern	pop_vram_m
+	extern	palset
+	extern	pal_off
+	extern	pal_off_put_wait
+	extern	set_objdata
+	extern	set_objdata_main
+;;	extern	cls_actor_table
+	extern	cls_allow
+	extern	allow_1
+	extern	allow2
+	extern	set_monsimg
+	extern	add_capsule2
+	extern	memset
+	extern	mul_any
+	extern	put_msg_s
+	extern	main_loop
+	extern	play2
+	extern	wait_vb
+	extern	put_wait
+	extern	send_send_buf
+	extern	send_send_buf2
+	extern	send_dmy
+	extern	set_jiki
+	extern	oam_clr
+	extern	cont
+	extern	set_serifu
+	extern	set_gauge
+	extern	set_fight_font2	
+	extern	allow_effect2
+	extern	okuri_naoshi
+	extern	table_search
+	extern	monschr_set
+	extern	monschr_move
+	extern	fontmove
+	extern	monschr_put2
+	extern	prt_mons_chr
+	extern	color_set
+	extern	color_rewrite
+	extern	gyaarth_play
+
+	extern	debug_hero
+	extern	debug_rival
+
+	extern	fnt_kana
+	extern	fnt_gauge
+	extern	fnt_serifu
+
+	extern	dealerchr25			; rival
+	extern	dealerchr26			; okido
+
+	extern	musfield2			; Welcome Music Start!
+	extern	mussyowan
+	extern	muspi	
+	extern	direct_play
+	extern	rule_select
+
+	extern	BGMplay
+	extern	SEplay
+	extern	MusicStop
+
+	extern	change_cgb_bgp
+
+
+bank0	group	0
+
+
+;-------------------------------;
+; set up starting data for hero ;
+;-------------------------------;
+hero_setup:
+	ld	hl,actor_table 
+	call	init$
+
+	ld	hl,actor_table + 100h
+	call	init$
+
+	ld	a,001h
+	ld	(actor_table + 0000h),a
+	ld	(actor_table + 010eh),a		; obj code initialize
+
+	ld	hl,actor_table + 4
+	ld	(hl),03ch
+	inc	hl
+	inc	hl
+	ld	(hl),40h
+
+	ret
+
+
+init$:
+	ld	bc,0010h
+	xor	a
+	call	memset
+
+	ret
+
+
+
+
+bank1	group	1
+
+
+;---------------------------------------;
+; ready to play game mode as play alone ;
+;---------------------------------------;
+play1:
+	call	setup_status
+
+	xor	a
+	ld	(ef_count1),a			; use for settei_flg
+
+	inc	a
+	ld	(ef_buf),a			; non save data on memory
+
+	call	check_save_data
+	jr	nc,play1_0
+
+	ld	a,B_LOAD_DATA
+	call	bank2bank
+
+play1_0:
+	ld	c,20
+	call	wait_vb_s			; c=20
+
+	xor	a
+	ld	(tuushin_flg),a
+	ld	hl,allow_sv_mons
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	ld	(effect_no),a
+
+	ld	hl,obs_player
+	res	6,(hl)				; terminal mode clear
+
+	call	dvram_cls			; Dvram clear
+
+	call	color_rewrite
+
+	call	set_serifu
+	call	set_kana
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+	ld	a,(ef_buf)			; check save_data
+	cp	1
+	jr	z,non_data$
+	
+
+	SET_WIN_POS	0,0,14,7
+	call		put_window		; window set up
+	SET_MSG_POS	2,2,msg_continue2
+	call		put_msg			; message set up
+
+	jr	set_end$
+
+
+non_data$:
+	SET_WIN_POS	0,0,14,5
+	call		put_window		; window set up
+	SET_MSG_POS	2,2,msg_continue1
+	call		put_msg			; message set up
+
+set_end$:
+	ld	hl,obs_system
+	res	6,(hl)				; system mode off
+
+	call	actor_blanch
+
+	xor	a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+	ld	(allow_ret_flg),a
+	inc	a
+	ld	(allow_pos + 1),a		; arrow x-position
+	inc	a
+	ld	(allow_pos),a			; arrow y-position
+
+	ld	a,BT_A + BT_B + BT_ST
+	ld	(allow_msk),a
+	ld	a,(ef_buf)
+	ld	(allow_max),a
+
+	call	allow
+
+	bit	1,a
+	jp	nz,main_loop			; menu back
+
+	ld	c,20
+	call	wait_vb_s			; c=20
+
+	ld	a,(allow_cnt)
+	ld	b,a
+
+	ld	a,(ef_buf)
+	cp	3 - 1
+	jp	z,next1$
+	inc	b
+
+next1$:
+	ld	a,b
+	and	a
+	jr	z,continue$
+
+next_sellect$:
+	cp	1
+	jp	z,new_scenario_0		; new_game_mode
+
+config$:
+	call	config
+	ld	a,1
+	ld	(ef_count1),a
+
+	jp	play1_0
+
+
+continue$:
+	call	continue_status
+
+	ld	hl,ptn_data
+	set	5,(hl)				; allow rewrite bg-cell
+
+key_wait$:
+	xor	a
+	ld	(joy_on),a
+	ld	(joy_off),a
+	ld	(joy_status),a
+
+	call	cont
+	ld	a,(joy_status)
+	bit	0,a
+	jr	nz,start$
+
+	bit	1,a
+	jp	nz,play1_0
+
+	jr	key_wait$
+
+
+start$:
+	call	pal_off_put_wait
+	call	dvram_cls			; Dvram clear
+
+	ld	a,4
+	ld	(watashi_muki3),a
+	ld	c,10
+	call	wait_vb_s
+
+	ld	a,(dendou_no)
+	and	a
+	jp	z,cont1
+
+	ld	a,(mapno)
+	cp	D14R1F14
+	jp	nz,cont1
+
+	xor	a
+	ld	(ev_something + 2),a
+	ld	hl,game_mode
+	set	2,(hl)				; game over mode & warp mode
+	call	startmap_set
+
+	jp	cont1
+
+
+
+
+setup_status:
+	ld	a,01h
+	ld	(msg_speed),a
+	ld	a,03h
+	ld	(my_lvl),a
+
+	ld	a,40h
+	ld	(PrintContrast),a
+
+	ret
+
+
+
+check_p_area:
+	ld	a,p_bottom - p_top
+	cp	128
+	ret	c
+
+	ld	hl,over_msg$
+	call	put_win_msg
+
+	ret
+
+
+over_msg$:
+	extern	over_msg_0_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw over_msg_0_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+;=======================================================================;
+; NEW_SCENARIO 								;
+;=======================================================================;
+new_scenario_0:
+	ld	hl,game_mode + 0
+	res	1,(hl)
+
+
+new_scenario:
+	call	new_game
+
+	ld	a,008h
+	ld	(watashi_muki),a		; for t01r0102
+
+	ld	c,20
+	call	wait_vb_s			; c=20
+
+;---------------------------;
+; wait time of changing map ;
+;---------------------------;
+cont1:
+	xor	a
+	ld	(joy_on),a
+	ld	(joy_status),a
+	ld	(joy_repeat),a
+	ld	(event_flg),a			; for terminal room
+
+	ld	hl,game_mode
+	set	0,(hl)				; play time count on
+
+	call	hero_setup
+
+	ld	c,20
+	call	wait_vb_s			; c=20
+
+	call	check_p_area
+
+	ld	a,(send_send_cnt)
+	and	a
+	ret	nz				; to talk_99
+
+	jp	mapper
+
+
+  ifn	pm_jmsg
+msg_continue2:
+	db	tu_,du_,ki_,ka_,ra_,ha_,zi_,me_,ru_,cr@		; つづきからはじめる
+msg_continue1:
+	db	sa_,i_,si_,yyo_,ka_,ra_,ha_,zi_,me_,ru_,cr@	; さいしょからはじめる
+msg_config:
+	db	se_,ttu_,te_,i_,wo_,spc@,ka_,e_,ru_		; せっていを  かえる
+	db	EOM
+ else
+msg_continue2:
+	db	usf_c,usf_o,usf_n,usf_t,usf_i,usf_n,usf_u,usf_e,cr@
+msg_continue1:
+	db	usf_n,usf_e,usf_w,spc@,usf_g,usf_a,usf_m,usf_e,cr@
+msg_config:
+	db	usf_o,usf_p,usf_t,usf_i,usf_o,usf_n
+	db	EOM
+ endif
+
+
+;msg_terminal:	;注意！） 未使用である！  "PLAY2.DMG"で定義されている
+; ifn  pm_jmsg
+;	db	to__,re__,bou@,do__,se__,n__,ta__,bou@,cr@
+;	db	ko__,ro__,si__,a__,mu__,cr@
+;	db	ko__,ro__,si__,a__,mu__,n2@,cr@
+;	db	ya_,me_,ru_,EOM
+; else
+;	db	usf_t,usf_r,usf_a,usf_d,usf_e,spc@,usf_c,usf_e,usf_n,usf_t,usf_e,usf_r,cr@
+;	db	usf_c,usf_o,usf_l,usf_o,usf_s,usf_s,usf_e,usf_u,usf_m,cr@
+;	db	usf_c,usf_o,usf_l,usf_o,usf_s,usf_s,usf_e,usf_u,usf_m,n2@,cr@
+;	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l,EOM
+; endif
+
+
+;----------------------;
+; continue play status ;
+;----------------------;
+	extern	how_many_bit
+	extern	put_dec
+
+
+ ifn	ASSEMBLE__ENGLISH
+continue_status:			; つづきからはじめる の場合
+	xor	a
+	ld	(all_put_req),a
+	
+  ifn	pm_jmsg
+	SET_WIN_POS 0,8,19,17
+	call	put_window
+
+	SET_MSG_POS 1,10,msg_menu_status
+	call	put_msg
+
+	SET_MSG_POS 9,10,my_name
+	call	put_msg
+
+	S_POS	10,12
+	call	badgecount_put
+
+	S_POS	9,14
+	call	zukan_flg_put
+
+	S_POS	8,16
+	call	time_put
+  else
+	SET_WIN_POS 4,7,19,16
+	call	put_window
+
+	SET_MSG_POS 5,9,msg_menu_status
+	call	put_msg
+
+	SET_MSG_POS 12,9,my_name
+	call	put_msg
+
+	S_POS	17,11	;福井君の設定値10,12
+	call	badgecount_put
+
+	S_POS	16,13	;福井君の設定値9,14
+	call	zukan_flg_put
+
+	S_POS	13,15	;福井君の設定値8,16
+	call	time_put
+  endif
+
+	ld	a,1
+	ld	(all_put_req),a
+	ld	c,30
+	jp	wait_vb_s
+ else
+continue_status:
+	xor	a
+	ld	(all_put_req),a
+	SET_WIN_POS 4,7,18,16
+	call	put_window
+
+	SET_MSG_POS 5,9,msg_menu_status
+	call	put_msg
+
+	SET_MSG_POS 13,9,my_name
+	call	put_msg
+
+	S_POS	14,11
+	call	badgecount_put
+
+	S_POS	13,13
+	call	zukan_flg_put
+
+	S_POS	12,15
+	call	time_put
+
+	ld	a,1
+	ld	(all_put_req),a
+	ld	c,30
+	jp	wait_vb_s
+ endif
+
+
+
+	public	saving_status
+
+ ifn	ASSEMBLE__ENGLISH
+saving_status:				; 日本語１０文字仕様	メニュー画面  レポート
+	xor	a
+	ld	(all_put_req),a
+	
+  ifn	pm_jmsg
+	SET_WIN_POS 0,0,19,9
+	call	put_window
+
+	call	set_serifu
+	call	actor_blanch
+
+	SET_MSG_POS 1,2,msg_menu_status		; しゅじんこう    アイウエオかきくけこ
+	call	put_msg				; もっているバッジ      ０こ
+						; ポケモンずかん      １ひき
+	SET_MSG_POS 8,2,my_name			; プレイじかん        ０：１２
+	call	put_msg
+
+	S_POS	10,4
+	call	badgecount_put
+
+	S_POS	9,6
+	call	zukan_flg_put
+
+	S_POS	8,8
+	call	time_put
+  else
+	SET_WIN_POS 4,0,19,9
+	call	put_window
+
+	call	set_serifu
+	call	actor_blanch
+
+	SET_MSG_POS 5,2,msg_menu_status
+	call	put_msg
+
+	SET_MSG_POS 12,2,my_name
+	call	put_msg
+
+	S_POS	17,4
+	call	badgecount_put
+
+	S_POS	16,6
+	call	zukan_flg_put
+
+	S_POS	13,8
+	call	time_put
+  endif
+
+	ld	a,1
+	ld	(all_put_req),a
+	ld	c,30
+	jp	wait_vb_s
+ else
+saving_status:					; 日本語５文字仕様
+	xor	a
+	ld	(all_put_req),a
+	SET_WIN_POS 5,0,19,9
+	call	put_window
+
+	call	set_serifu
+	call	actor_blanch
+
+	SET_MSG_POS 6,2,msg_menu_status
+	call	put_msg
+
+	SET_MSG_POS 13,2,my_name
+	call	put_msg
+
+	S_POS	15,4
+	call	badgecount_put
+
+	S_POS	14,6
+	call	zukan_flg_put
+
+	S_POS	13,8
+	call	time_put
+
+	ld	a,1
+	ld	(all_put_req),a
+	ld	c,30
+	jp	wait_vb_s
+ endif
+
+
+badgecount_put:
+	push	hl
+	ld	hl,my_badge + 0
+	ld	b,1
+	call	how_many_bit
+	pop	hl
+	ld	de,in_dat
+	ld	bc,0102h			; 1 byte length, 1 column
+	jp	put_dec
+
+
+zukan_flg_put:
+	push	hl
+	ld	hl,zukan_flg
+	ld	b,19
+	call	how_many_bit
+	pop	hl
+	ld	de,in_dat
+	ld	bc,0103h			; 1 byte length, 3 column
+	jp	put_dec
+
+
+time_put:
+	ld	de,play_time_h + 0
+	ld	bc,0103h			; 1 byte length, 3 column
+	call	put_dec
+
+	ld	(hl),n@				; ':'
+	inc	hl
+
+	ld	de,play_time_m
+	ld	bc,8102h			; 1 byte length, 2 column
+	jp	put_dec
+
+
+msg_menu_status:
+  ifn	pm_jmsg
+	db	si_,yyu_,zi_,n_,ko_,u_,cr@
+	db	mo_,ttu_,te_,i_,ru_,ba__,ttu__,zi__
+	db	spc@,spc@,spc@,spc@,ko_,cr@
+	db	poke@,zu_,ka_,n_
+	db	spc@,spc@,spc@,spc@,hi_,ki_,cr@
+	db	pu__,re__,i__,zi_,ka_,n_
+	db	EOM
+  else
+	db	usf_p,usf_l,usf_a,usf_y,usf_e,usf_r,cr@
+	db	usf_b,usf_a,usf_d,usf_g,usf_e,usf_s
+	db	spc@,spc@,spc@,spc@,cr@
+	db	poke@,usf_d,usf_e,usf_x
+	db	spc@,spc@,spc@,spc@,cr@
+	db	usf_t,usf_i,usf_m,usf_e
+	db	EOM
+  endif
+
+
+;----------------------------;
+; message each status set up ;
+;----------------------------;
+config:
+	extern	ConfigSet
+;	call	ConfigSet
+	ld	hl,ConfigSet
+	ld	b,G_BANK10
+	call	bank_push_call
+	ret
+
+
+
+check_save_data:
+	ld	a,00ah
+	ld	(RAMCS),a
+	ld	a,1
+	ld	(ROMRAM),a			; ram-bank = 0
+;	xor	a
+	ld	(RAMBANK),a			; ram-bank = 0
+
+	ld	b,MONS_NAME_LEN
+	ld	hl,PLANE_SIZE*3 + 100h + 0a000h
+
+loop$:
+	ld	a,(hli)
+	cp	EOM
+	jr	z,sv$
+
+	dec	b
+	jr	nz,loop$
+
+end$:
+	xor	a
+	ld	(RAMCS),a
+	ld	(ROMRAM),a			; ram-bank = 0
+
+	and	a
+	ret
+
+sv$:
+	xor	a
+	ld	(RAMCS),a
+	ld	(ROMRAM),a			; ram-bank = 0
+
+	scf
+	ret
+
+
+
+;----------------------------------------;
+; clear saving area for scenario playing ;
+;----------------------------------------;
+clear_save_data:
+	ld	a,(msg_speed)
+	push	af
+	ld	a,(my_lvl)
+	push	af
+	ld	a,(game_mode)
+	push	af
+;------Tetsu 98/04/06---------------
+	ld	a,(PrintContrast)
+	push	af
+;------Tetsu 98/04/06---------------
+
+	ld	hl,my_name
+	ld	bc,pm_box_end - my_name
+	xor	a
+	call	memset
+
+	ld	hl,actor_table
+	ld	bc,200h
+	xor	a
+	call	memset
+
+;---------98/04/04 Tetsu (for Naminori)-----------------
+	xor	a
+	ld	(high_score+0),a
+	ld	(high_score+1),a
+	ld	(high_score+2),a
+;---------98/04/04 Tetsu (for Naminori)-----------------
+
+;------Tetsu 98/04/06---------------
+	pop	af
+	ld	(PrintContrast),a
+;------Tetsu 98/04/06---------------
+	pop	af
+	ld	(game_mode),a
+	pop	af
+	ld	(my_lvl),a
+	pop	af
+	ld	(msg_speed),a
+
+	ld	a,(ef_count1)
+	and	a
+	call	z,setup_status
+
+	ld	hl,debug_hero
+	ld	de,my_name
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	ld	hl,debug_rival
+	ld	de,rival_name
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	ret
+
+
+;--------------------------;
+; new game mode for player ;
+;--------------------------;
+new_game:
+	call	MusicStop				; Title Music Reset
+
+	ld	a,MUSIC_BANK1_NO		; Bank 2
+	ld	c,a
+	ld	a,musfield2			; Welcome Music Start!
+	call	direct_play
+
+	call	dvram_cls
+	call	set_serifu
+
+	call	clear_save_data
+
+	ld	a,B_EVENT_INITIALIZE
+	call	bank2bank			; default event setting
+
+	ld	hl,my_stock_item
+	ld	a,20
+	ld	(sel_item_no),a
+	ld	a,1
+	ld	(item_kosuu),a
+	call	add_item
+
+	ld	a,(effect_no)
+	ld	(ev_something + 2),a
+	call	startmap_set			; set data of starting map
+
+	xor	a
+	ld	(wave_flg),a
+
+	ld	a,(game_mode + 00h)		; for debug in making
+	bit	1,a
+	jp	nz,rts$
+
+	ld	de,dealerchr26
+	ld	bc,01300h
+	call	picture				; okido
+	call	charactor_in1
+
+	ld	hl,msg_welcome
+	call	put_win_msg			; welcome to...
+
+	call	n_to_w
+	call	dvram_cls
+
+;	ld	a,167				; nidori-no
+	ld	a,84				; pika
+	ld	(tbl_pos),a
+	ld	(sel_item_no),a
+	call	get_monsadr
+	S_POS	6,4
+	call	prt_mons_chr			; pocket monster display
+
+	call	charactor_in2
+;	call	w_to_n
+
+	ld	hl,msg_okido
+	call	put_win_msg
+
+	call	n_to_w
+	call	dvram_cls
+
+	ld	de,hero_size1
+	ld	bc,00400h
+	call	picture				; hero
+
+	call	charactor_in2
+;	call	w_to_n
+
+	ld	hl,msg_okido1
+	call	put_win_msg
+
+	call	hero_named
+
+	call	n_to_w
+	call	dvram_cls
+
+	ld	de,dealerchr25
+	ld	bc,01300h
+	call	picture				; rival
+
+	call	charactor_in1
+;	call	w_to_n
+
+	ld	hl,msg_okido2
+	call	put_win_msg
+
+	call	rival_named
+
+rts$:
+	call	n_to_w
+	call	dvram_cls
+
+	ld	de,hero_size1
+	ld	bc,00400h
+	call	picture				; hero
+
+	call	w_to_n
+
+	ld	a,(event_flg)			; for terminal mode
+	and	a
+	jr	nz,pass$
+
+	ld	hl,msg_go_to
+	call	put_win_msg
+
+pass$:
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,mussyowan
+	call	SEplay
+
+	pop	af
+	call	bank_change
+
+	ld	c,4
+	call	wait_vb_s
+
+	ld	hl,CHAR_DATA
+	ld	de,OBJ_JIBUN
+	ld	b,CBANK_JIBUN
+	ld	c,12
+;	ld	de,objct
+;	ld	bc,OBJ_CHARA_BANK1 * 100h + 12
+	call	chrmove
+
+	ld	de,hero_size2
+	ld	bc,00400h
+	call	picture				; zoom down 2
+
+	ld	c,4
+	call	wait_vb_s
+
+	ld	de,hero_size3
+	ld	bc,00400h
+	call	picture				; zoom down 3
+
+	call	hero_setup
+
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,MUSIC_BANK1_NO
+	ld	(music_bank_flg),a		; Set Bank 2
+	ld	(music_bank_flg_back),a		; Set Bank 2
+	ld	a,0ah
+	ld	(fade_play_fg),a		; Fadeout On
+	call	MusicStop
+
+	pop	af
+	call	bank_change
+
+	ld	c,20
+	call	wait_vb_s			; c=20
+
+	SET_BLOCK 6,5,13,12
+	call	block_cls
+
+	call	set_serifu
+
+	ld	a,1
+	ld	(oam_flg),a
+
+	ld	c,50
+	call	wait_vb_s			; c=50
+
+	call	n_to_w
+
+	call	dvram_cls
+
+	ret
+
+
+
+
+msg_welcome:
+	extern	msg_welcome_1_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw msg_welcome_1_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg_okido:
+	extern	msg_okido_2_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw msg_okido_2_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db	NIDORIINA
+	extern	msg_okido_3_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw msg_okido_3_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg_okido1:
+	extern	msg_okido1_4_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw msg_okido1_4_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg_okido2:
+	extern	msg_okido2_5_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw msg_okido2_5_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg_go_to:
+	extern	msg_go_to_6_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw msg_go_to_6_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+charactor_in1:
+	ld	hl,bgp_tbl$
+	ld	b,6
+
+loop$:
+	ld	a,(hli)
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+
+	ld	c,10
+	call	wait_vb_s
+	dec	b
+	jr	nz,loop$
+
+	ret
+
+
+
+
+bgp_tbl$:
+	db	054h,0a8h,0fch,0f8h,0f4h,0e4h
+	
+
+
+
+charactor_in2:
+	ld	a,77h
+	ld	(WX),a
+
+	call	wait_vb
+
+	ld	a,0e4h
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	
+loop$:
+	call	wait_vb
+
+	ld	a,(WX)
+	sub	8
+	cp	0ffh
+	ret	z
+
+	ld	(WX),a
+
+	jr	loop$
+
+
+
+
+;===============================================;
+;	patch up character data on "vram"	;
+;	IN					;
+;	b regs					;
+;		data bank number		;
+;	de regs					;
+;		data address			;
+;===============================================;
+	public	picture
+	public	picture_ready
+
+picture_ready:
+	call	ready2ready
+
+picture:
+	push	bc
+
+	ld	a,b				; data bank
+	call	get_img_direct
+
+	ld	a,0
+	extern	open_ram_bank
+	call	open_ram_bank
+
+	ld	hl,plane0_area
+	ld	de,plane2_area
+	ld	bc,784
+	call	block_move
+
+	extern	close_ram_bank
+	call	close_ram_bank
+
+	ld	de,CHAR_BG
+	call	set_monsimg
+
+	pop	bc
+
+	ld	a,c
+	and	a
+
+	S_POS	15,1
+	jr	nz,set$
+
+	S_POS	6,4				; center position
+
+set$:
+	xor	a
+	ld	(dmy_box1),a
+	ld	a,B_SET_MSD_READY
+	jp	bank2bank
+
+
+;----------------------------------;
+; set up data of starting scenario ;
+;----------------------------------;
+startmap_set:
+	call	sel_initdata
+
+	ld	a,B_INITMOVE
+	call	bank2bank
+
+	ld	hl,game_mode
+	bit	2,(hl)				; game over mode & warp mode
+	res	2,(hl)
+	jr	z,normal_start$
+
+	ld	a,(ev_something + 2)		; place of last recover status
+
+	jr	map_set$
+
+
+normal_start$:
+	bit	1,(hl)				; for debug in making
+	jr	z,no_map_sel$
+
+	call	take_debug			; take something for debug
+
+no_map_sel$:
+	ld	a,T1				; normal play mode
+
+map_set$:
+	ld	b,a
+
+	ld	a,(event_flg)
+	and	a
+	jr	nz,terminal_room$
+
+	ld	a,b
+
+terminal_room$:
+	ld	hl,game_mode
+	bit	4,(hl)				; falling in hall
+;-----------------------------------------------; 1995.07.26 by aspirin
+;	res	4,(hl)
+;-----------------------------------------------; 1995.07.26 by aspirin
+	ret	nz				; cause broken
+
+	ld	(mapno_stack),a
+
+	ret
+
+
+;-----------------------------------------------------------------------;
+; select start & restrat data ;						;
+; << in >>								;
+;	(game_mode)		game play status			;
+;	(event_flg)		valued in terminal mode(game_mode#2=0)	;
+;	(ev_something + 2)	number of start map(game_mode#2=0)	;
+;				number of warp field map(game_mode#2=1) ;
+;-----------------------------------------------------------------------;
+STARTDATA_SIZE		equ	7
+WARPDATA_SIZE		equ	6
+
+sel_initdata:
+	ld	a,(event_flg)
+	cp	T0R1F1				; pm-change room
+	jr	nz,stairway$
+
+	ld	hl,term_room1_oya$		; case of ownner
+
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	z,mode_set$
+	
+	ld	hl,term_room1_ko$		; case of vsitor
+
+	jr	mode_set$
+
+
+stairway$:
+	cp	T0R1F2
+	jr	nz,no_term$
+
+	ld	hl,term_room2_oya$		; case of ownner
+
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	z,mode_set$
+	
+	ld	hl,term_room2_ko$		; case of vsitor
+
+	jr	mode_set$
+
+
+no_term$:
+	ld	a,(game_mode)
+	bit	1,a				; debug mode check
+	jr	nz,warp_section$
+
+	bit	2,a				; restart mode check
+	jr	nz,warp_section$
+
+	ld	hl,initdata$
+
+mode_set$:
+	ld	de,mapno
+	ld	c,STARTDATA_SIZE
+
+set_loop$:
+	ld	a,(hli)
+	ld	(de),a
+
+	inc	de
+
+	dec	c
+	jr	nz,set_loop$
+
+	ld	a,(hli)
+	ld	(map_type),a
+
+	xor	a
+
+	jr	same$
+
+
+warp_section$:
+	ld	a,(mapno_stack)
+
+	ld	hl,game_mode
+	bit	4,(hl)				; falling in hall
+;	res	4,(hl)
+	jr	nz,fall_warp$
+
+	bit	6,(hl)
+	res	6,(hl)
+	jr	z,warp_map$
+
+	ld	a,(ev_something + 1)		; place of last used pmc
+
+	jr	set$
+
+
+fall_warp$:
+	ld	hl,event_flg
+	res	4,(hl)				; falling in hall
+
+	ld	a,(ev_something + 5)		; to fall
+	ld	b,a
+	ld	(mapno),a
+	ld	a,(ev_something + 6)		; to fall number
+	ld	c,a
+
+	ld	hl,fall_map$
+
+	ld	de,00h				; counter
+	ld	a,006h				; "fall_data" size
+	ld	(temp_box_s),a
+
+fall_loop$:
+	ld	a,(hli)				; check mapno
+	cp	b
+	jr	z,fall_number$
+
+	inc	hl
+
+	jr	fall_next$
+
+
+fall_number$:
+	ld	a,(hli)
+	cp	c
+	jr	z,fall_arrive$
+
+fall_next$:
+	ld	a,(temp_box_s)
+	add	a,e
+	ld	e,a
+
+	jr	fall_loop$
+
+
+fall_arrive$:
+	ld	hl,fall_data$
+	add	hl,de
+
+	jr	mapdata_set$
+
+
+warp_map$:
+	ld	a,(ev_something + 2)
+
+set$:
+	ld	b,a
+	ld	(mapno),a
+
+	ld	hl,warp_base$
+
+scc_loop$:
+	ld	a,(hli)
+	inc	hl				; mapno is double size
+	cp	b
+	jr	z,scc$
+
+	inc	hl
+	inc	hl
+
+	jr	scc_loop$
+
+
+scc$:
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+mapdata_set$:
+	ld	de,mapadr2
+	ld	c,WARPDATA_SIZE
+
+set_loop2$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+
+	dec	c
+	jr	nz,set_loop2$
+
+	xor	a
+	ld	(map_type),a
+
+same$:
+	ld	(grobal_y),a
+	ld	(grobal_x),a
+
+	ld	a,0ffh
+	ld	(ram_map_id),a
+
+	ret
+
+
+fall_map$:
+	db	D16R1F1,1			; map-number,table-number
+	db	D16R1F1,2
+	db	D16R1F2,1
+	db	D16R1F2,2
+	db	D16R1F3,1
+	db	D16R1F3,2
+	db	D16R1F4,1
+	db	D16R1F4,2
+	db	R23R1F1,2
+	db	T9R1F1,1
+	db	T9R1F1,2
+	db	D11R1F1,3
+
+	db	0ffh				; end
+
+
+fall_data$:
+	dw	015h * 004h + 00ah + ram_map	; d16r1f1(fall-1)
+	db	007h,012h			; y, x
+	db	001h,000h			; cell-block position
+
+	dw	015h * 004h + 00ch + ram_map	; d16r1f1(fall-2)
+	db	007h,017h			; y, x
+	db	001h,001h			; cell-block position
+
+	dw	015h * 004h + 00ah + ram_map	; d16r1f2(fall-1)
+	db	007h,013h			; y, x
+	db	001h,001h			; cell-block position
+
+	dw	015h * 004h + 00ch + ram_map	; d16r1f2(fall-2)
+	db	007h,016h			; y, x
+	db	001h,000h			; cell-block position
+
+	dw	015h * 004h + 00ah + ram_map	; d16r1f3(fall-1)
+	db	007h,012h			; y, x
+	db	001h,000h			; cell-block position
+
+	dw	015h * 004h + 00ah + ram_map	; d16r1f3(fall-2)
+	db	007h,013h			; y, x
+	db	001h,001h			; cell-block position
+
+	dw	015h * 008h + 003h + ram_map	; d16r1f4(fall-1)
+	db	00eh,004h			; y, x
+	db	000h,000h			; cell-block position
+
+	dw	015h * 008h + 003h + ram_map	; d16r1f4(fall-2)
+	db	00eh,005h			; y, x
+	db	000h,001h			; cell-block position
+
+	dw	015h * 009h + 00ch + ram_map	; r23r1f1(fall-1)
+	db	010h,016h			; y, x
+	db	000h,000h			; cell-block position
+
+	dw	015h * 008h + 009h + ram_map	; t9r1f1(fall-1)
+	db	00eh,010h			; y, x
+	db	000h,000h			; cell-block position
+
+	dw	015h * 008h + 009h + ram_map	; t9r1f1(fall-2)
+	db	00eh,010h			; y, x
+	db	000h,000h			; cell-block position
+
+	dw	015h * 008h + 00ah + ram_map	; d11r1f1(fall-3)
+	db	00eh,012h			; y, x
+	db	000h,000h			; cell-block position
+
+
+
+initdata$:
+	db	T1R1F2				; Map Number
+	dw	10 * 4 + 2 + ram_map		; mapadr2
+	db	006h,003h			; mapscloll_y,x
+	db	000h,001h			; mapscloll_y4,x4
+	db	004h				; Map Type
+
+
+term_room1_oya$:
+	db	T0R1F1				; Map Number
+	dw	11*3 + 2 + ram_map		; mapadr2
+	db	004h,003h			; mapscloll_y,x
+	db	000h,001h			; mapscloll_y4,x4
+	db	21				; Map Type
+
+
+term_room1_ko$:
+	db	T0R1F1				; Map Number
+	dw	11*3 + 4 + ram_map		; mapadr2
+	db	004h,006h			; mapscloll_y,x
+	db	000h,000h			; mapscloll_y4,x4
+	db	21				; Map Type
+
+
+term_room2_oya$:
+	db	T0R1F2				; Map Number
+	dw	11*3 + 2 + ram_map		; mapadr2
+	db	004h,003h			; mapscloll_y,x
+	db	000h,001h			; mapscloll_y4,x4
+	db	21				; Map Type
+
+
+term_room2_ko$:
+	db	T0R1F2				; Map Number
+	dw	11*3 + 4 + ram_map		; mapadr2
+	db	004h,006h			; mapscloll_y,x
+	db	000h,000h			; mapscloll_y4,x4
+	db	21				; Map Type
+
+
+warp_base$:
+	dw	T1,t01$
+	dw	T2,t02$
+	dw	T3,t03$
+	dw	T4,t04$
+	dw	T5,t05$
+	dw	T6,t06$
+	dw	T7,t07$
+	dw	T8,t08$
+	dw	T9,t09$
+	dw	T10,t10$
+	dw	T11,t11$
+	dw	R4,r4$
+	dw	R10,r10$
+
+
+
+warp_table$:
+t01$:
+	dw	010h * 004h + 003h +ram_map	; town01(0c726h)
+	db	006h,005h			; y, x
+	db	000h,001h			; cell-block position
+
+t02$:
+	dw	01ah * 00eh + 00ch + ram_map	; town02
+	db	01ah,017h
+	db	000h,001h
+
+t03$:
+	dw	01ah * 00eh + 007h + ram_map	; town03
+	db	01ah,00dh
+	db	000h,001h
+
+t04$:
+	dw	01ah * 00ah + 00ah + ram_map	; town04
+	db	012h,013h
+	db	000h,001h
+
+t05$:
+	dw	010h * 004h + 002h + ram_map	; town05
+	db	006h,003h
+	db	000h,001h
+
+t06$:
+	dw	01ah * 003h + 006h + ram_map	; town06
+	db	004h,00bh
+	db	000h,001h
+
+t07$:
+	dw	01fh * 006h + 015h + ram_map	; town07
+	db	00ah,029h
+	db	000h,001h
+
+t08$:
+	dw	01ah * 00fh + 00ah + ram_map	; town08
+	db	01ch,013h
+	db	000h,001h
+
+t09$:
+	dw	010h * 007h + 006h + ram_map	; town09
+	db	00ch,00bh
+	db	000h,001h
+
+t10$:
+	dw	010h * 004h + 005h + ram_map	; town10
+	db	006h,009h
+	db	000h,001h
+
+t11$:
+	dw	01ah * 010h + 005h + ram_map	; town11
+	db	01eh,009h
+	db	000h,001h
+
+r4$:
+	dw	033h * 004h + 006h + ram_map	; town11
+	db	006h,00bh
+	db	000h,001h
+
+r10$:
+	dw	010h * 00bh + 006h + ram_map	; town11
+	db	014h,00bh
+	db	000h,001h
+;-----------------------------------------------; don't forget main frame
+
+
+
+cap_list_adding:
+	ld	de,add_cap_tbl$
+
+add_cap_loop$:
+	ld	a,(de)
+	cp	0ffh
+	ret	z
+
+	ld	(sel_item_no),a
+	inc	de
+	ld	a,(de)
+	ld	(mons_level),a
+	inc	de
+	call	add_capsule_new
+
+	jr	add_cap_loop$
+
+
+add_cap_tbl$:
+	db	132,80				; kabigon
+	db	144,80				; freezer
+	db	100,15				; purin
+	db	84,5				; pika
+
+	db	0ffh
+
+
+
+
+;----------------------------------------;
+; data table of adding capsule for debug ;
+;----------------------------------------;
+take_debug:
+  ifn	pm_debug
+	xor	a
+	ld	(my_or_gein),a
+
+	dec	a
+	ld	(save_event_flg + 0),a		; allowed warp all town
+	ld	(save_event_flg + 1),a		; allowed warp all town
+
+	ld	a,07fh
+	ld	(my_badge + 0),a		; badge status( 7 colors )
+
+;-----------------------------------------------; select setup routine of poke
+	call	cap_list_adding
+	
+	ld	a,57
+	ld	hl,CAPDATA_LEN * 3 + my_cap_data + 10
+	ld	(hl),a				 ; naminori add
+
+;	call	cap_rnd_adding
+;-----------------------------------------------; don't forget main frame
+
+add_cap_end$:
+	ld	hl,my_cap_data + 8
+	ld	a,19			; sorawotobu
+	ld	(hli),a
+	ld	a,15			; iaigiri
+	ld	(hli),a
+	ld	a,57			; naminori
+	ld	(hli),a
+	ld	a,70			; kairiki
+	ld	(hl),a
+
+	ld	hl,my_item_tbl
+	ld	de,add_item_tbl$
+
+add_item_loop$:
+	ld	a,(de)
+	cp	0ffh
+	jr	z,add_item_end$
+
+	ld	(sel_item_no),a
+	inc	de
+	ld	a,(de)
+	inc	de
+	ld	(item_kosuu),a
+	call	add_item
+
+	jr	add_item_loop$
+
+
+add_item_end$:
+	ld	hl,zukan_flg			; guide book flag all set
+	call	zukan_set$
+
+	ld	hl,zukan_flg2			; guide book flag all set
+	call	zukan_set$
+
+;-----------------------------------------------;
+	ld	hl,ev_t1_3
+	set	5,(hl)				; guide-book
+;-----------------------------------------------;
+
+	ld	hl,rival_monster
+  ifn  yellow_version
+	ld	a,1				; rival = EV
+	ld	(hli),a
+	ld	a,151				; okido = MYU
+	ld	(hli),a
+	ld	a,84				; hero = PIKATYU
+	ld	(hl),a
+  else
+	ld	a,102				; rival = EV
+	ld	(hli),a
+	ld	a,151				; okido = MYU
+	ld	(hli),a
+	ld	a,84				; hero = PIKATYU
+	ld	(hl),a
+  endif
+
+	ld	hl,my_gold + 00h
+	ld	a,099h
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ret
+
+
+zukan_set$:
+	ld	b,18
+	ld	a,0ffh
+
+zukan_set_loop$:
+	ld	(hli),a
+	dec	b
+	jr	nz,zukan_set_loop$
+
+	ld	(hl),7fh
+
+	ret
+
+
+
+add_item_tbl$:
+	db	1,99
+	db	5,1
+	db	6,1
+	db	16,99
+	db	29,99
+	db	40,99
+	db	43,1
+	db	48,1
+	db	52,99
+	db	53,99
+
+	db	60,99
+	db	63,1
+	db	74,1
+	db	79,99		; point up
+
+	db	0ffh
+
+
+add_item_stock$:
+	db	31,1
+	db	41,1
+	db	42,1
+	db	46,99
+	db	58,99
+	db	60,1
+	db	63,1
+	db	64,1
+	db	69,1
+	db	72,1
+	db	73,1
+	db	74,1
+	db	80,99
+	db	81,99
+	db	82,99
+	db	83,99
+
+	db	202,10
+	db	207,10
+	db	209,10
+	db	214,10
+	db	215,10
+	db	222,10
+	db	223,10
+	db	231,10
+	db	234,10
+	db	235,10
+	db	236,10
+	db	239,10
+	db	241,10
+	db	242,10
+	db	244,10
+	db	250,10
+
+	db	0ffh
+  else
+	ret
+  endif
+
+
+
+;===============================================;
+;	name_in0				;
+;  IN : hl = name in address			;
+;     : ef_size = message kind			;
+;===============================================;
+name_in0:
+	call	push_vram
+	call	ready2ready
+	push	hl
+
+	ld	a,(fighting_flg)
+	dec	a
+ ifn	ASSEMBLE__ENGLISH		; モンスターボールでポケモンを捕まえたとき
+	SET_BLOCK 0,0,11,4
+ else
+	SET_BLOCK 1,0,11,4
+ endif
+	call	z,block_cls
+
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+	call	get_mons_name
+
+	ld	hl,tukemasuka_msg$	; ”ニックネームをつけますか？”
+	call	put_win_msg
+	
+	S_POS	14,7
+	E_POS	15,8
+	ld	a,YES_NO_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+	pop	hl
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,tukenai$
+
+	ld	a,(oam_flg)
+	push	af
+	xor	a
+	ld	(oam_flg),a
+
+	push	hl
+
+	ld	a,2
+	ld	(ef_size),a			; pokemon no name
+	call	name_in
+	ld	a,(fighting_flg)
+	and	a
+	jr	nz,pass2$		
+
+	call	set_objdata_main
+pass2$:
+	call	pop_vram
+	pop	hl
+
+	pop	af
+	ld	(oam_flg),a
+
+	ld	a,(str_buf)
+	cp	EOM
+	ret	nz
+
+tukenai$:
+	ld	d,h
+	ld	e,l
+	ld	hl,table_data
+	ld	bc,MONS_NAME_LEN
+	jp	block_move
+
+	
+tukemasuka_msg$:
+	extern	tukemasuka_msg_7_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw tukemasuka_msg_7_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+name_change:
+	ld	hl,yes_no_map
+	xor	a
+	ld	(oam_flg),a
+	ld	a,2
+	ld	(ef_size),a			; pokemon no name
+	call	name_in
+
+	call	pal_off_put_wait
+	call	set_objdata
+	call	color_reset
+
+	ld	a,(str_buf)
+	cp	EOM
+	jr	z,cancel$
+
+	ld	hl,my_cap_name			;name_pos
+	ld	bc,MONS_NAME_LEN
+	ld	a,(sel_item_pos)
+	call	mul_any
+	ld	e,l
+	ld	d,h
+
+	ld	hl,yes_no_map
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+	and	a
+	ret
+
+cancel$:
+	scf
+	ret
+
+
+;===============================================;
+;	name decide with selected letter	;
+;	IN					;
+;	hl regs					;
+;		name strings buffer address	;
+;===============================================;
+  ifn  pm_jmsg
+  else
+NAME_IN__ALLOW_MAX	=	7
+  endif
+
+name_in:
+	push	hl
+	
+	ld	hl,obs_system
+	set	6,(hl)
+
+	call	pal_off_put_wait
+	call	dvram_cls
+	call	actor_blanch
+
+	ld	b,COL_START
+	call	color_set
+
+;	call	lcdc_stop
+	call	set_gauge
+	call	endset
+;	call	lcdc_on
+
+	ld	b,1ch
+;	ld	hl,monschr_set
+	ld	hl,monschr_move
+	call	bank_push_call
+
+  ifn  pm_jmsg
+	SET_WIN_POS 0,4,19,16
+  else 
+	SET_WIN_POS 0,4,19,14
+  endif
+	call	put_window	
+
+	call	whos_name
+
+	ld	a,3
+	ld	(allow_pos),a
+	ld	a,1
+	ld	(allow_pos + 1),a
+	ld	(allow_old),a
+	ld	(allow_cnt),a
+	ld	a,BT_A + BT_B + BT_ST + BT_SE + BT_R + BT_L + BT_U + BT_D
+	ld	(allow_msk),a
+  ifn  pm_jmsg
+	ld	a,8
+  else
+	ld	a, NAME_IN__ALLOW_MAX
+  endif
+	ld	(allow_max),a
+	ld	a,EOM
+	ld	(str_buf),a
+	xor	a
+	ld	hl,yes_no_map + 1
+	ld	(hli),a
+	ld	(hli),a
+	ld	(ef_count2),a
+name_main:
+	call	vram_set
+	call	palset
+name_loop:
+	ld	a,(yes_no_map + 1)
+	and	a
+	jr	nz,name_exit
+
+	call	naming
+name_allow:
+	call	allow_1
+allow_loop$:
+	ld	a,(allow_cnt)
+	push	af
+	ld	b,1ch
+	ld	hl,allow_effect2
+	call	bank_push_call
+	pop	af
+	ld	(allow_cnt),a
+
+	call	cont_repeat
+	ld	a,(joy_on)
+	and	a
+	jr	z,allow_loop$
+
+	ld	hl,allow_tbl
+loop$:
+	sla	a
+	jr	c,next$
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl
+	jr	loop$
+next$:
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	push	de
+	jp	(hl)
+
+name_exit:
+	pop	de				; owari
+	ld	hl,str_buf
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	call	pal_off_put_wait
+
+	call	dvram_cls			; Dvram clear
+	call	oam_clr
+	call	color_rewrite			; Dvram clear
+	call	palset
+
+	xor	a
+	ld	(ef_count2),a
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	ld	a,(fighting_flg)
+	and	a
+	jp	z,set_serifu
+
+	ld	hl,set_fight_font2
+	ld	b,0fh
+	jp	bank_push_call
+
+
+allow_tbl:
+	dw	name_allow,down		; D_key
+	dw	name_allow,up		; U_key
+	dw	name_allow,left		; L_key
+	dw	name_allow,right	; R_key
+	dw	name_loop ,decide	; Start_button
+	dw	name_main ,change	; Select_button
+	dw	name_loop ,delete	; B_button
+	dw	name_loop ,insert	; A_button
+
+
+
+change1:
+	pop	de
+	ld	de,name_main
+	push	de
+change:
+	ld	a,(yes_no_map + 2)
+	xor	1
+	ld	(yes_no_map + 2),a
+	ret
+	
+
+decide:
+	ld	a,1
+	ld	(yes_no_map + 1),a
+	ret
+
+
+insert:
+	ld	a,(allow_cnt)
+ ifn  pm_jmsg
+	cp	6			; allow Ｙ座標
+ else
+	cp	NAME_IN__ALLOW_MAX -2
+;	cp	5			; 英語版は カーソル位置(17,5) に ED（決定）キャラがある
+ endif
+	jr	nz,pass1$
+
+	ld	a,(allow_pos+1)
+	cp	17			; allow Ｘ座標
+	jr	z,decide
+pass1$:
+	ld	a,(allow_cnt)
+ ifn  pm_jmsg
+	cp	7
+ else
+	cp	NAME_IN__ALLOW_MAX -1
+;	cp	6			; 英語版は カーソル位置(1,6) に 大小文字切り替えがある
+ endif
+	jr	nz,ins1$
+
+	ld	a,(allow_pos+1)
+	cp	1
+	jr	z,change1		; かな、カナにゅうりょく 切り替え
+
+ins1$:
+	ld	hl,allow_dv_adr
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	inc	hl
+
+	ld	a,(hl)			; a = ins chr
+	ld	(yes_no_map + 4),a
+
+	call	eom_pos_chk
+	ld	a,(yes_no_map + 4)
+	cp	ten@
+	ld	de,ten_tbl
+	jr	z,henkan$
+	cp	maru@
+	ld	de,maru_tbl
+	jr	z,henkan$
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(ef_size)		; 主人公、ライバル名の場合の入力文字数と
+	cp	2			; ポケモン名の入力文字数は異なる仕様になった
+	jr	nc, _10$
+	ld	a,(yes_no_map)
+	cp	PLAYER_NAME_LEN -1
+	jr	_20$
+_10$:	ld	a,(yes_no_map)
+	cp	MONS_NAME_LEN -1
+_20$:
+ else
+	ld	a,(yes_no_map)
+	cp	5
+ endif
+	jr	c,ins$
+	ret
+
+henkan$:
+	push	hl
+	call	kana_henkan
+	pop	hl
+	ret	nc
+	dec	hl
+ins$:
+	ld	a,(yes_no_map + 4)
+	ld	(hli),a
+	ld	(hl),EOM
+	ld	a,muspi
+	call	SEplay
+	ret
+
+
+delete:
+	ld	a,(yes_no_map)
+	and	a
+	ret	z
+
+	call	eom_pos_chk
+	dec	hl
+	ld	(hl),EOM
+	ret
+
+
+right:
+	ld	a,(allow_cnt)
+  ifn  pm_jmsg
+	cp	7
+  else
+	cp	NAME_IN__ALLOW_MAX -1
+  endif
+	ret	z
+
+	ld	a,(allow_pos+1)		; migi
+	cp	17
+	jp	z,no_more$
+
+	inc	a
+	inc	a
+	jr	allow_move_ret
+
+no_more$:
+	ld	a,1
+	jr	allow_move_ret
+
+left:
+	ld	a,(allow_cnt)
+  ifn  pm_jmsg
+	cp	7
+  else
+	cp	NAME_IN__ALLOW_MAX -1
+  endif
+	ret	z
+
+	ld	a,(allow_pos+1)		; hidari
+	dec	a
+	jp	z,no_more$
+
+	dec	a
+	jr	allow_move_ret
+
+no_more$:
+	ld	a,17
+	jr	allow_move_ret
+
+
+up:
+	ld	a,(allow_cnt)
+	dec	a
+	ld	(allow_cnt),a
+	and	a
+	ret	nz
+	
+  ifn  pm_jmsg
+	ld	a,7
+  else
+	ld	a, NAME_IN__ALLOW_MAX -1
+  endif
+	ld	(allow_cnt),a
+	ld	a,1
+	jr	allow_move_ret
+
+
+down:
+	ld	a,(allow_cnt)
+	inc	a
+	ld	(allow_cnt),a
+  ifn  pm_jmsg
+	cp	8
+  else
+	cp	NAME_IN__ALLOW_MAX
+  endif
+	jr	nz,z1$
+
+	ld	a,1
+	ld	(allow_cnt),a
+	jr	allow_move_ret
+
+z1$:
+  ifn  pm_jmsg
+	cp	7
+  else
+	cp	NAME_IN__ALLOW_MAX -1
+  endif
+	ret	nz
+	
+	ld	a,1
+allow_move_ret:
+	ld	(allow_pos+1),a
+	jp	cls_allow
+
+
+endset:
+  ifn	ASSEMBLE__ENGLISH
+	ld	de,end_tbl$
+	ld	hl,yen@*10h + 8000h
+	ld	c,4
+endset_0$:
+	ld	a,(STAT)
+	and	02h
+	jr	nz,endset_0$
+	ld	a,(de)		;2
+	ld	(hli),a		;2
+	ld	(hli),a		;2
+	inc	de			;2
+	ld	a,(de)		;2
+	ld	(hli),a		;2
+	ld	(hli),a		;2
+	inc	de			;2
+	dec	c
+	jr	nz,endset_0$
+	ret
+  else
+	ld	de,end_tbl$
+	ld	hl,yen@*10h + 8000h
+	ld	bc,1
+	jp	fontmove
+  endif
+
+end_tbl$:
+	db	0f0h,0c0h,0f0h,0ceh,0fdh,00dh,00dh,00eh
+
+
+vram_set:
+	xor	a
+	ld	(all_put_req),a
+	ld	a,(yes_no_map + 2)
+	and	a
+	ld	de,hiragana_tbl$
+	jr	nz,z1$
+	ld	de,katakana_tbl$
+z1$:
+	S_POS	2,5
+  ifn  pm_jmsg
+	ld	bc,0609h
+  else
+	ld	bc, NAME_IN__ALLOW_MAX - 2 * 256 + 9
+  endif
+loop$:
+	push	bc
+loop1$:
+	ld	a,(de)
+	ld	(hli),a
+	inc	hl
+	inc	de
+	dec	c
+	jr	nz,loop1$
+	ld	bc,22
+	add	hl,bc
+	pop	bc
+	dec	b
+	jr	nz,loop$
+
+	call	put_msg
+
+  ifn	pm_jmsg
+	S_POS	5,17
+	ld	de,ins_msg$
+	call	put_msg
+  endif
+	
+	ld	a,1
+	ld	(all_put_req),a
+	jp	put_wait
+
+
+ ifn	pm_jmsg
+hiragana_tbl$:
+	db	a_,ka_,sa_,ta_,na_,ha_,ma_,ya_,ra_
+	db	i_,ki_,si_,ti_,ni_,hi_,mi_,yu_,ri_
+	db	u_,ku_,su_,tu_,nu_,hu_,mu_,yo_,ru_
+	db	e_,ke_,se_,te_,ne_,he_,me_,wa_,re_
+	db	o_,ko_,so_,to_,no_,ho_,mo_, n_,ro_
+	db	yya_,yyu_,yyo_,ttu_,ten@,maru@,bou@,spc@,yen@
+	db	ka__,na__,EOM
+
+katakana_tbl$:
+	db	a__,ka__,sa__,ta__,na__,ha__,ma__,ya__,ra__
+	db	i__,ki__,si__,ti__,ni__,hi__,mi__,yu__,ri__
+	db	u__,ku__,su__,tu__,nu__,hu__,mu__,yo__,ru__
+	db	e__,ke__,se__,te__,ne__,he__,me__,wa__,re__
+	db	o__,ko__,so__,to__,no__,ho__,mo__, n__,ro__
+	db	yya__,yyu__,yyo__,ttu__,ten@,maru@,bou@,spc@,yen@
+	db	ka_,na_,EOM
+ else
+
+hiragana_tbl$:
+	db	usf_a_,usf_b_,usf_c_,usf_d_,usf_e_,usf_f_,usf_g_,usf_h_,usf_i_	; a b c d e f g h i
+	db	usf_j_,usf_k_,usf_l_,usf_m_,usf_n_,usf_o_,usf_p_,usf_q_,usf_r_	; j k l m n o p q r
+	db	usf_s_,usf_t_,usf_u_,usf_v_,usf_w_,usf_x_,usf_y_,usf_z_,spc@	; s t u v w x y z
+	db	batu@,par@,part@,colon2@,semico@,bra@,brat@,pk@,mn@		;× ( ) : ; [ ]PkMn
+	db	bou@,hate@,gyoe@,osu@,mesu@,sura@,dot@,comma@,dol@		; - ? !♂♀／ . ,ED
+	db	usf_u,usf_p,usf_p,usf_e,usf_r,spc@,usf_c,usf_a,usf_s,usf_e	; UPPER CASE
+	db	EOM
+
+katakana_tbl$:
+	db	usf_a,usf_b,usf_c,usf_d,usf_e,usf_f,usf_g,usf_h,usf_i		; A B C D E F G H I
+	db	usf_j,usf_k,usf_l,usf_m,usf_n,usf_o,usf_p,usf_q,usf_r		; J K L M N O P Q R
+	db	usf_s,usf_t,usf_u,usf_v,usf_w,usf_x,usf_y,usf_z,spc@		; S T U V W X Y Z
+	db	batu@,par@,part@,colon2@,semico@,bra@,brat@,pk@,mn@		;× ( ) : ; [ ]PkMn
+	db	bou@,hate@,gyoe@,osu@,mesu@,sura@,dot@,comma@,dol@		; - ? !♂♀／ . ,ED
+	db	usf_l_,usf_o_,usf_w_,usf_e_,usf_r_,spc@,usf_c_,usf_a_,usf_s_,usf_e_ ; lower case
+	db	EOM
+ endif
+
+ins_msg$:
+ ifn	pm_jmsg
+	db	ni_,yyu_,u_,ri_,yyo_,ku_,EOM	; にゅうりょく
+ else
+;;;	db	usf_p,usf_a,usf_g,usf_e,EOM
+ endif
+
+naming:
+	call	eom_pos_chk
+	ld	a,c
+	ld	(yes_no_map),a
+
+next$:
+ ifn	ASSEMBLE__ENGLISH
+;	ld	hl,1 * 20 + 10 + dmy_vram	; 注意！）捕まえたポケモンにニックネームを付ける
+;	ld	bc,2 * 256 + 10			; とき S_POS(4,1) から表示されている１０文字名の
+;						; ７文字め以降が消されてしまう！
+	ld	hl,2 * 20 + 10 + dmy_vram
+	ld	bc,1 * 256 + 10
+ else
+	ld	hl,1 * 20 + 13 + dmy_vram
+	ld	bc,2 * 256 + 5
+ endif
+	call	block_cls
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_MSG_POS 10,2,str_buf
+ else
+	SET_MSG_POS 13,2,str_buf
+ endif
+	call	put_msg
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	10,3
+	ld	a,(ef_size)		; 主人公、ライバル名の場合の入力文字数と
+	cp	2			; ポケモン名の入力文字数は異なる仕様になった
+	jr	nc, _30$
+	ld	b,PLAYER_NAME_LEN -1		; ＿＿＿＿＿＿＿
+	jr	_40$
+_30$:	ld	b,MONS_NAME_LEN -1		; ＿＿＿＿＿＿＿＿＿＿
+_40$:
+ else
+	S_POS	13,3
+	ld	b,5				; ＿＿＿＿＿
+ endif
+	ld	a,w@				; cursor sita
+cursor2$:
+	ld	(hli),a
+	dec	b
+	jr	nz,cursor2$
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(ef_size)		; 主人公、ライバル名の場合の入力文字数と
+	cp	2			; ポケモン名の入力文字数は異なる仕様になった
+	ld	a,(yes_no_map)
+	jr	nc, _50$
+	cp	PLAYER_NAME_LEN -1
+	jr	_60$
+_50$:	cp	MONS_NAME_LEN -1
+_60$:
+ else
+	ld	a,(yes_no_map)
+	cp	5
+ endif
+	jr	nz,cursor1$
+
+	call	cls_allow
+
+	ld	a,17			; 5 moji haitteru toki goto owari
+	ld	(allow_pos+1),a
+ ifn  pm_jmsg
+	ld	a,6
+ else
+	ld	a, NAME_IN__ALLOW_MAX -2
+;	ld	a,5
+ endif
+	ld	(allow_cnt),a
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(ef_size)		; 主人公、ライバル名の場合の入力文字数と
+	cp	2			; ポケモン名の入力文字数は異なる仕様になった
+	ld	a,MONS_NAME_LEN -2	; 最大文字数を入力後のカーソルバーは S_POS(10+X,3)におく
+	jr	nc, cursor1$		;	( X = MONS_NAME_LEN -2 or PLAYER_NAME_LEN -2 )
+	ld	a,PLAYER_NAME_LEN -2	;
+cursor1$:
+	ld	c,a
+	ld	b,0
+	S_POS	10,3
+	add	hl,bc
+	ld	(hl),x@
+ else
+	ld	a,4			; 最大文字数を入力後のカーソルバーは S_POS(17,3)におく
+cursor1$:
+	S_POS	13,3
+	add	a,l
+	ld	l,a
+	ld	(hl),x@			; ”￣”  cursor ue
+ endif
+	ret
+
+
+kana_henkan:
+	push	de
+	call	eom_pos_chk
+	dec	hl
+	ld	a,(hl)
+	pop	hl
+	ld	de,2
+	call	table_search
+	ret	nc
+
+	inc	hl
+	ld	a,(hl)
+	ld	(yes_no_map + 4),a
+	ret
+
+ten_tbl:
+	db	ka_,ga_,ki_,gi_,ku_,gu_,ke_,ge_,ko_,go_
+	db	sa_,za_,si_,zi_,su_,zu_,se_,ze_,so_,zo_
+	db	ta_,da_,ti_,di_,tu_,du_,te_,de_,to_,do_
+	db	ha_,ba_,hi_,bi_,hu_,bu_,he_,be_,ho_,bo_
+	db	ka__,ga__,ki__,gi__,ku__,gu__,ke__,ge__,ko__,go__
+	db	sa__,za__,si__,zi__,su__,zu__,se__,ze__,so__,zo__
+	db	ta__,da__,ti__,di__,tu__,du__,te__,de__,to__,do__
+	db	ha__,ba__,hi__,bi__,hu__,bu__,he__,be__,ho__,bo__
+	db	0ffh
+
+maru_tbl:
+	db	ha_,pa_,hi_,pi_,hu_,pu_,he_,pe_,ho_,po_
+	db	ha__,pa__,hi__,pi__,hu__,pu__,he__,pe__,ho__,po__
+	db	0ffh
+
+
+eom_pos_chk:
+	ld	hl,str_buf
+	ld	c,0
+loop$:
+	ld	a,(hl)
+	cp	EOM
+	ret	z
+
+	inc	hl
+	inc	c
+	jr	loop$
+
+
+whos_name:
+  ifn	pm_jmsg
+	ld	hl,2 * 20 + 1 + dmy_vram
+  else
+	ld	hl,1 * 20 + 0 + dmy_vram
+  endif
+	ld	a,(ef_size)
+	ld	de,namein_hero$
+	and	a
+	jr	z,darenonamae$
+	ld	de,namein_rival$
+	dec	a			;cp 1
+	jr	z,darenonamae$
+
+	ld	a,(sel_item_no)
+	ld	(usr_buf + USR_BUF_END -2),a	; ld	(usr_buf + 27),a
+	push	af
+	ld	b,1ch
+	ld	hl,monschr_put2
+	call	bank_push_call
+	pop	af
+
+	ld	(in_dat),a
+	call	get_mons_name
+	S_POS	4,1
+	call	put_msg
+
+	ld	hl,1
+	add	hl,bc
+	ld	(hl),no_
+
+  ifn	pm_jmsg
+	S_POS	4,3
+  else
+	S_POS	1,3
+  endif
+	ld	de,nickname$
+	jr	ret$
+
+darenonamae$:
+	call	put_msg
+	ld	l,c
+	ld	h,b
+	ld	de,namaeha$
+ret$:
+	jp	put_msg
+
+namein_hero$:
+  ifn	pm_jmsg
+	db	a_,na_,ta_
+	db	EOM
+  else
+	db	usf_y,usf_o,usf_u,usf_r,spc@
+	db	EOM
+  endif
+
+namein_rival$:
+  ifn	pm_jmsg
+	db	ra__,i__,ba__,ru__
+	db	EOM
+  else
+	db	usf_r,usf_i,usf_v,usf_a,usf_l,apt_s_,spc@
+	db	EOM
+  endif
+
+namaeha$:
+  ifn	pm_jmsg
+	db	no_,na_,ma_,e_,ha_,hate@
+	db	EOM
+  else
+	db	usf_n,usf_a,usf_m,usf_e,hate@
+	db	EOM
+  endif
+
+nickname$:
+  ifn	pm_jmsg
+	db	ni__,ttu__,ku__,ne__,bou@,mu__,ha_,hate@
+	db	EOM
+  else
+	db	usf_n,usf_i,usf_c,usf_k,usf_n,usf_a,usf_m,usf_e,hate@
+	db	EOM
+  endif
+
+
+;--------------------;
+; hero's name decide ;
+;--------------------;
+hero_named:
+	call	right_move
+
+	ld	de,hero_entry			; name entry
+	call	name_select
+	ld	a,(allow_cnt)
+	and	a
+	jr	z,my_self$
+
+	ld	hl,hero_name_tbl		; hero's name list
+	call	name_selected
+	ld	de,my_name
+	call	list_namein
+
+
+	jr	decide$				; no pop_vram
+
+
+my_self$:
+	ld	hl,my_name
+	xor	a
+	ld	(ef_size),a			; hero name
+	call	name_in				; hero
+
+	ld	a,(str_buf)
+	cp	EOM
+	jr	z,my_self$
+
+	call	dvram_cls
+	call	put_wait
+
+	ld	de,hero_size1
+	ld	b,4
+	call	picture				; center 
+
+decide$:
+	ld	hl,msg_hero_name
+	jp	put_win_msg
+
+
+
+msg_hero_name:
+	extern	msg_hero_name_8_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw msg_hero_name_8_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+;---------------------;
+; rival's name decide ;
+;---------------------;
+rival_named:
+	call	right_move
+
+	ld	de,rival_entry			; name entry
+	call	name_select
+	ld	a,(allow_cnt)
+	and	a
+	jr	z,my_self$
+
+	ld	hl,rival_name_tbl		; hero's name list
+	call	name_selected
+	ld	de,rival_name
+	call	list_namein
+
+	jr	decide$				; no pop_vram
+
+
+my_self$:
+	ld	hl,rival_name
+	ld	a,1
+	ld	(ef_size),a			; rival name
+	call	name_in				; hero
+
+	ld	a,(str_buf)
+	cp	EOM
+	jr	z,my_self$
+
+	call	dvram_cls
+	call	put_wait
+
+	ld	de,dealerchr25
+	ld	b,013h
+	call	picture				; center 
+
+decide$:
+	ld	hl,msg_rival_name
+	jp	put_win_msg
+
+
+
+msg_rival_name:
+	extern	msg_rival_name_9_PLAY1
+	db I_MSG2	; mvmsg追加
+	dw msg_rival_name_9_PLAY1	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+list_namein:
+	push	de
+	S_POS	0,0				; "dmy_vram" start address
+	ld	bc,0ch * 0100h + 0bh		; offset (y,x)
+	call	block_cls
+
+	ld	c,10
+	call	wait_vb_s
+
+	pop	de
+	ld	hl,table_data
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+	call	put_wait
+
+;-----------------------------------------------;
+;	object move in LCDC			;
+;	IN					;
+;	hl regs		dmy_vram address	;
+;	a regs		moving site(0:R,0ffh:L)	;
+;	d regs		moving count		;
+;	e regs		offset ( 000h -- 0ffh )	;
+;-----------------------------------------------;
+left_move:
+	S_POS	12,4
+	ld	de,0067dh
+	ld	a,0ffh				; left move
+
+	jr	obj_move
+
+
+right_move:
+	S_POS	6-1,4
+	ld	de,0067dh
+	xor	a				; right move
+
+obj_move:
+	a_push
+
+	ld	(work2),a			; moving site
+
+	ld	a,d
+	ld	(work0),a			; moving counter set
+
+	ld	a,e
+	ld	(work1),a			; offset check value
+	ld	c,a				; character(offset) counter
+
+	ld	a,(work2)			; moving site
+	and	a
+	jr	nz,left1$
+
+	ld	d,00h
+	add	hl,de				; tail address
+
+left1$:
+	ld	d,h
+	ld	e,l				; save
+
+move_loop$:
+	xor	a
+	ld	(all_put_req),a
+	ld	(all_put_cnt),a
+
+	ld	a,(work2)			; moving site
+	and	a
+	jr	nz,left2$
+
+	ld	a,(hli)
+	ld	(hld),a
+	dec	hl
+
+	jr	move_unit$
+
+
+left2$:
+	ld	a,(hld)
+	ld	(hli),a
+	inc	hl
+
+move_unit$:
+	dec	c
+	jr	nz,move_loop$			; all character move check
+
+	ld	a,(work2)			; moving site
+	and	a
+	jr	z,z100$
+
+	dec	hl
+	xor	a
+	ld	(hl),a				; rest dust clear
+
+z100$:
+	ld	a,1
+	ld	(all_put_req),a
+
+	call	put_wait
+
+	ld	a,(work1)
+	ld	c,a				; offset counter reset
+
+	ld	h,d
+	ld	l,e				; load
+
+	ld	a,(work2)			; moving site
+	and	a
+	jr	nz,left3$
+
+	inc	hl
+
+	jr	save_adrs$
+
+
+left3$:
+	dec	hl
+
+save_adrs$:
+	ld	d,h
+	ld	e,l				; save
+
+	ld	a,(work0)
+	dec	a
+	ld	(work0),a
+	jr	nz,move_loop$			; move all check
+
+rts$:
+	a_pop
+
+	ret
+
+
+;===============================================;
+;						;
+;	select name in list as some entry	;
+;						;
+;===============================================;
+name_select:
+	push	de
+
+	SET_WIN_POS 0,0,10,11
+	call	put_window			; window set up
+
+	ld	hl,000h * 014h + 003h + dmy_vram
+	ld	de,entry$
+	call	put_msg
+
+	pop	de
+
+	ld	hl,002h * 014h + 002h + dmy_vram
+	call	put_msg				; message set up
+
+	call	actor_blanch
+
+	xor	a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+
+	inc	a
+	ld	(allow_pos + 1),a		; arrow x-position
+	ld	(allow_msk),a			; ld	a,BT_A
+
+	inc	a
+	ld	(allow_pos),a			; arrow y-position
+
+	inc	a				; ld	a,4 - 1
+	ld	(allow_max),a
+
+	jp	allow
+
+
+entry$:
+  ifn	pm_jmsg
+	db	na_,ma_,e_,ko_,u_,ho_
+	db	EOM
+  else
+	db	usf_n,usf_a,usf_m,usf_e
+	db	EOM
+  endif
+
+
+hero_entry:
+  ifn	pm_jmsg
+	db	zi_,bu_,n_,de_,ki_,me_,ru_
+	db	cr@
+	db	i__,e__,ro__,bou@
+	db	cr@
+	db	sa__,to__,si__
+	db	cr@
+	db	zi__,yya__,ttu__,ku__
+	db	EOM
+  else
+	db	usf_n,usf_e,usf_w,spc@,usf_n,usf_a,usf_m,usf_e,cr@
+	db	usf_y,usf_e,usf_l,usf_l,usf_o,usf_w,cr@
+	db	usf_a,usf_s,usf_h,cr@
+	db	usf_j,usf_a,usf_c,usf_k
+	db	EOM
+  endif
+
+
+rival_entry:
+  ifn	pm_jmsg
+	db	zi_,bu_,n_,de_,ki_,me_,ru_
+	db	cr@
+	db	bu__,ru__,bou@
+	db	cr@
+	db	si__,ge__,ru__
+	db	cr@
+	db	zi__,yyo__,n__
+	db	EOM
+  else
+	db	usf_n,usf_e,usf_w,spc@,usf_n,usf_a,usf_m,usf_e,cr@
+	db	usf_b,usf_l,usf_u,usf_e,cr@
+	db	usf_g,usf_a,usf_r,usf_y,cr@
+	db	usf_j,usf_o,usf_h,usf_n
+	db	EOM
+  endif
+
+
+
+
+;=======================================================;
+;							;
+;	string table search & strings copy to buffer	;
+;							;
+;=======================================================;
+name_selected:
+	ld	b,a				; entry position number
+	ld	c,00h
+
+search_top$:
+	ld	d,h				; entry list table address
+	ld	e,l
+
+search_loop$:
+	ld	a,(hli)
+	cp	EOM
+	jr	nz,search_loop$
+
+	ld	a,b
+	cp	c
+	jr	z,search_hit$
+
+	inc	c
+
+	jr	search_top$
+
+
+search_hit$:
+	ld	h,d
+	ld	l,e
+	ld	de,table_data
+	ld	bc,20
+	jp	block_move			; set the data
+
+
+hero_name_tbl:
+  ifn	pm_jmsg
+	db	zi_,bu_,n_,de_,ki_,me_,ru_
+	db	EOM
+	db	i__,e__,ro__,bou@
+	db	EOM
+	db	sa__,to__,si__
+	db	EOM
+	db	zi__,yya__,ttu__,ku__
+	db	EOM
+  else
+	db	usf_n,usf_e,usf_w,spc@,usf_n,usf_a,usf_m,usf_e,EOM
+	db	usf_y,usf_e,usf_l,usf_l,usf_o,usf_w,EOM
+	db	usf_a,usf_s,usf_h,EOM
+	db	usf_j,usf_a,usf_c,usf_k,EOM
+  endif
+
+
+rival_name_tbl:
+  ifn	pm_jmsg
+	db	zi_,bu_,n_,de_,ki_,me_,ru_
+	db	EOM
+	db	bu__,ru__,bou@
+	db	EOM
+	db	si__,ge__,ru__
+	db	EOM
+	db	zi__,yyo__,n__
+	db	EOM
+  else
+	db	usf_n,usf_e,usf_w,spc@,usf_n,usf_a,usf_m,usf_e,EOM
+	db	usf_b,usf_l,usf_u,usf_e,EOM
+	db	usf_g,usf_a,usf_r,usf_y,EOM
+	db	usf_j,usf_o,usf_h,usf_n,EOM
+  endif
+
+
+dummy_window:
+	db	EOM
+
+
+
+bank4	group	4
+
+	public	hero_size1
+hero_size1:
+;	include	..\data\kasya1.dat
+	include	..\data\hero.dat
+
+hero_size2:
+	include	..\data\kasya2.dat
+
+hero_size3:
+	include	..\data\kasya3.dat
+
+
+
+

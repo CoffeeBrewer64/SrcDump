@@ -1,0 +1,70 @@
+; 10/23/95		13:52:59
+dun_tbl$:
+	db	003h
+ie_tbl$:
+	db	002h
+	db	011h,004h,005h,EXIT
+	db	011h,005h,005h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	008h
+	db	KAKUTOU
+	db	00Ah+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h+040h			; battle type
+	db	0eeh				; dealer number
+	db	001h				; taking pattern 
+	db	PHILIP
+	db	00Dh+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h+040h			; battle type
+	db	0ddh				; dealer number
+	db	007h				; taking pattern 
+	db	PHILIP
+	db	008h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	003h+040h			; battle type
+	db	0ddh				; dealer number
+	db	003h				; taking pattern 
+	db	PHILIP
+	db	00Ch+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	004h+040h			; battle type
+	db	0ddh				; dealer number
+	db	008h				; taking pattern 
+	db	PHILIP
+	db	005h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	005h+040h			; battle type
+	db	0deh				; dealer number
+	db	001h				; taking pattern 
+	db	PHILIP
+	db	002h+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	006h+040h			; battle type
+	db	0deh				; dealer number
+	db	002h				; taking pattern 
+	db	PHILIP
+	db	007h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	007h+040h			; battle type
+	db	0ddh				; dealer number
+	db	004h				; taking pattern 
+	db	DANPEI
+	db	00Fh+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	008h
+ram_map_tbl$:
+	dw	00bh * 009h + 003h + ram_map
+	db	011h,004h
+	dw	00bh * 009h + 003h + ram_map
+	db	011h,005h

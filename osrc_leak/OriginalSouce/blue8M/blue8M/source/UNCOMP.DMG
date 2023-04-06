@@ -1,0 +1,631 @@
+
+	include	common.def
+
+bank0	group	0
+
+;*********************************************************
+;**          UNCOMPRESS GAME-BOY CHARACTER DATA         **
+;**            (Compress data from "compboy")           **
+;**                                                     **
+;**           Copyright 29.Nov.1990  Ver 1.00           **
+;**                                                     **
+;**                  by Junichi.Masuda                  **
+;**                                                     **
+;*********************************************************
+
+	public	uncompress
+
+	extern	memset
+
+
+uncompress:
+	ld	b,a				; normal = 3
+
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,b
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	a,00ah
+	ld	(RAMCS),a
+
+	xor	a
+	ld	(RAMBANK),a
+
+	call	uncompress1
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+
+
+uncompress1:
+;	call	InitComp		; Set "comp_data_adrs" from monslist
+;InitComp:
+	ld	hl,plane0_area		; ZERO Clear Plane-0 & Plane-1
+	ld	c,10h			; #low PLANE_SIZE+PLANE_SIZE
+	ld	b,03h			; #high PLANE_SIZE+PLANE_SIZE
+	xor	a
+	call	memset
+
+	ld	a,001h
+	ld	(bit_cou),a
+	ld	a,003h
+	ld	(byte_pos),a
+	xor	a
+	ld	(dot_cou_x),a
+	ld	(dot_cou_y),a
+	ld	(plane_fg),a
+InitEnd$:
+
+	call	ReadData		; Read X-Y
+	ld	b,a
+	and	00fh
+	add	a,a
+	add	a,a
+	add	a,a
+	ld	(dot_y),a
+	ld	a,b
+	swap	a
+	and	00fh
+	add	a,a
+	add	a,a
+	add	a,a
+	ld	(dot_x),a
+
+	call	Read1Bit		; Plane Number
+	ld	(plane_fg),a
+CompMainLoop:
+	ld	hl,plane0_area
+	ld	a,(plane_fg)
+	bit	0,a
+	jr	z,PlaneSet$		; 0: Plane 0 / !0: Plane 1
+Plane1$:
+	ld	hl,plane1_area
+PlaneSet$:
+	call	set_img_and_area
+
+	ld	a,(plane_fg)
+	bit	1,a
+	jr	z,z1$
+	call	Read1Bit		; Compress type 1
+	and	a
+	jr	z,z2$
+	call	Read1Bit		; Compress type 2
+	inc	a
+z2$:
+	ld	(comp_type),a
+z1$:
+	call	Read1Bit		; Compress Form
+	and	a
+	jr	z,Comp0
+
+Comp1:					; Uncompress Data Form
+	call	Read1Bit
+	ld	c,a
+	call	Read1Bit
+	sla	c
+	or	c
+	and	a
+	jr	z,Comp0
+	call	SetImgArea
+	call	CalcNextPos
+	jr	Comp1
+
+Comp0:					; Compress Data Form
+	ld	c,000h
+z2$:
+	call	Read1Bit
+	and	a
+	jr	z,z1$
+	inc	c
+	jr	z2$
+z1$:
+	ld	a,c
+	add	a,a
+	ld	hl,add_val
+	add	a,l
+	ld	l,a
+	jr	nc,z5$
+	inc	h
+z5$:
+	ld	a,(hli)
+	ld	e,a
+	ld	d,(hl)
+	push	de
+
+	inc	c
+	ld	e,000h
+	ld	d,e
+z3$:
+	call	Read1Bit
+	or	e
+	ld	e,a
+	dec	c
+	jr	z,Just$
+	sla	e
+	rl	d
+	jr	z3$
+Just$:
+	pop	hl			; Push = DE
+	add	hl,de
+	ld	e,l
+	ld	d,h
+WriteLoop$:
+	ld	b,e
+	xor	a
+	call	SetImgArea
+	ld	e,b
+	call	CalcNextPos
+	dec	de
+	ld	a,d
+	and	a
+	jr	nz,z4$
+	ld	a,e
+	and	a
+z4$:
+	jr	nz,WriteLoop$
+	jr	Comp1			; Return
+
+CalcNextPos:
+	ld	a,(dot_y)
+	ld	b,a
+	ld	a,(dot_cou_y)
+	inc	a
+	cp	b
+	jr	z,IncX$
+	ld	(dot_cou_y),a
+	ld	a,(img_area_adrs+0)
+	inc	a
+	ld	(img_area_adrs+0),a
+	ret	nz
+
+	ld	a,(img_area_adrs+1)
+	inc	a
+	ld	(img_area_adrs+1),a	; Next Position Address
+	ret
+IncX$:
+	xor	a
+	ld	(dot_cou_y),a
+	ld	a,(byte_pos)
+	and	a
+	jr	z,NextByte$
+	dec	a
+	ld	(byte_pos),a
+
+	ld	hl,area_pos_adrs
+	ld	a,(hli)
+	ld	(img_area_adrs+0),a
+	ld	a,(hl)
+	ld	(img_area_adrs+1),a	; Top Position
+	ret
+
+NextByte$:
+	ld	a,003h
+	ld	(byte_pos),a
+	ld	a,(dot_cou_x)
+	add	a,008h
+	ld	(dot_cou_x),a
+	ld	b,a
+	ld	a,(dot_x)
+	cp	b
+	jr	z,NextPlane$
+	ld	a,(img_area_adrs+0)
+	ld	l,a
+	ld	a,(img_area_adrs+1)
+	ld	h,a
+	inc	hl
+	jp	set_img_and_area	; Next Byte Address
+
+NextPlane$:
+	pop	hl			; Dec Stack Pointer (Break Call Address)
+	xor	a
+	ld	(dot_cou_x),a
+	ld	a,(plane_fg)
+	bit	1,a
+	jr	nz,CompRet$
+	xor	001h			; 0 Bit = Plane Number
+	set	1,a			; 1 Bit = Plane counter
+	ld	(plane_fg),a
+	jp	CompMainLoop
+CompRet$:
+	jp	XorFunctions
+
+SetImgArea:
+	ld	e,a
+	ld	a,(byte_pos)
+z1$:
+	and	a
+	jr	z,z2$			; 0,1 Bit
+	cp	002h
+	jr	c,z3$
+	jr	z,z4$
+	rrc	e			; Set 6,7 Bit
+	rrc	e
+	jr	z2$
+z3$:
+	sla	e			; Set 2,3 Bit
+	sla	e
+	jr	z2$
+z4$:
+	swap	e			; Set 4,5 Bit
+z2$:
+	ld	a,(img_area_adrs+0)
+	ld	l,a
+	ld	a,(img_area_adrs+1)
+	ld	h,a
+	ld	a,(hl)
+	or	e
+	ld	(hl),a
+	ret
+
+
+Read1Bit:
+	ld	a,(bit_cou)
+	dec	a
+	jr	nz,z1$
+	call	ReadData
+	ld	(data_buff),a
+	ld	a,008h
+z1$:
+	ld	(bit_cou),a
+	ld	a,(data_buff)
+	rlca
+	ld	(data_buff),a
+	and	001h
+	ret
+
+ReadData:
+	ld	a,(comp_data_adrs+0)
+	ld	l,a
+	ld	a,(comp_data_adrs+1)
+	ld	h,a
+	ld	a,(hli)
+	ld	b,a
+	ld	a,l
+	ld	(comp_data_adrs+0),a
+	ld	a,h
+	ld	(comp_data_adrs+1),a
+	ld	a,b
+	ret
+
+add_val:
+	dw	00001h,00003h,00007h,0000fh
+	dw	0001fh,0003fh,0007fh,000ffh
+	dw	001ffh,003ffh,007ffh,00fffh
+	dw	01fffh,03fffh,07fffh,0ffffh
+
+
+;***********************************************
+;**             UNCOMPRESS XOR                **
+;**                                           **
+;***********************************************
+
+XorFunctions:
+	ld	a,(comp_type)
+	cp	002h
+	jp	z,XorType2
+	and	a
+	jp	nz,XorType1
+
+;***************************
+;**      XOR TYPE 0       **
+;***************************
+
+XorType0:
+	ld	hl,plane0_area
+	call	InitType0
+	ld	hl,plane1_area
+InitType0:
+	xor	a
+	ld	(dot_cou_x),a
+	ld	(dot_cou_y),a
+
+	call	set_img_and_area
+
+	ld	a,(reverse_fg)
+	and	a
+	jr	z,z1$
+	ld	hl,rev_xor0_tbl
+	ld	de,rev_xor1_tbl
+	jr	z2$
+z1$:
+	ld	hl,xor0_tbl
+	ld	de,xor1_tbl
+z2$:
+	ld	a,l
+	ld	(xor0_tbl_adrs+0),a
+	ld	a,h
+	ld	(xor0_tbl_adrs+1),a
+
+	ld	a,e
+	ld	(xor1_tbl_adrs+0),a
+	ld	a,d
+	ld	(xor1_tbl_adrs+1),a
+
+	ld	e,000h
+Type0MainLoop:
+;	call	ReadPlaneData		; 1995.9.23 By Jun
+;ReadPlaneData:
+	ld	a,(img_area_adrs+0)
+	ld	l,a
+	ld	a,(img_area_adrs+1)
+	ld	h,a
+	ld	a,(hl)
+;	ret
+
+	ld	b,a
+	swap	a
+	and	00fh
+	call	GetXorVal
+	swap	a
+	ld	d,a
+
+	ld	a,b
+	and	00fh
+	call	GetXorVal
+	or	d
+
+WritePlaneData$:
+	ld	b,a
+	ld	a,(img_area_adrs+0)
+	ld	l,a
+	ld	a,(img_area_adrs+1)
+	ld	h,a
+	ld	a,b
+	ld	(hl),a
+	ld	a,(dot_y)
+	add	a,l
+	jr	nc,z1$
+	inc	h
+z1$:
+	ld	(img_area_adrs+0),a
+	ld	a,h
+	ld	(img_area_adrs+1),a
+
+CheckPos$:
+	ld	a,(dot_cou_x)
+	add	a,008h
+	ld	(dot_cou_x),a
+	ld	b,a
+	ld	a,(dot_x)
+	cp	b
+	jr	nz,Type0MainLoop
+
+NextXorPos$:
+	xor	a
+	ld	e,a			; Clear Xor Table Selection Value
+	ld	(dot_cou_x),a
+	ld	a,(dot_cou_y)
+	inc	a
+	ld	(dot_cou_y),a
+	ld	b,a
+	ld	a,(dot_y)
+	cp	b
+	jr	z,PlaneEnd$
+
+	ld	a,(area_pos_adrs+0)
+	ld	l,a
+	ld	a,(area_pos_adrs+1)
+	ld	h,a
+	inc	hl
+
+	call	set_img_and_area
+	jr	Type0MainLoop
+
+PlaneEnd$:
+	xor	a
+	ld	(dot_cou_y),a
+	ret
+
+GetXorVal:
+	srl	a
+	ld	c,000h
+	jr	nc,HiBit$
+LowBit$:
+	ld	c,001h
+HiBit$:
+	ld	l,a
+	ld	a,(reverse_fg)
+	and	a
+	jr	z,z3$
+	bit	3,e
+	jr	z4$
+z3$:
+	bit	0,e
+z4$:
+	ld	e,l
+	jr	nz,Xor1$
+Xor0$:
+	ld	a,(xor0_tbl_adrs+0)
+	ld	l,a
+	ld	a,(xor0_tbl_adrs+1)
+	jr	z1$
+Xor1$:
+	ld	a,(xor1_tbl_adrs+0)
+	ld	l,a
+	ld	a,(xor1_tbl_adrs+1)
+z1$:
+	ld	h,a
+	ld	a,e
+	add	a,l
+	ld	l,a
+	jr	nc,z2$
+	inc	h
+z2$:
+	ld	a,(hl)
+
+	bit	0,c
+	jr	nz,Low$
+Hi$:
+	swap	a
+Low$:
+	and	00fh
+	ld	e,a
+	ret
+
+
+xor0_tbl:
+	db	001h,032h,076h,045h,0feh,0cdh,089h,0bah
+xor1_tbl:
+	db	0feh,0cdh,089h,0bah,001h,032h,076h,045h
+
+rev_xor0_tbl:
+	db	008h,0c4h,0e6h,02ah,0f7h,03bh,019h,0d5h
+rev_xor1_tbl:
+	db	0f7h,03bh,019h,0d5h,008h,0c4h,0e6h,02ah
+
+
+
+;***************************
+;**      XOR TYPE 1       **
+;***************************
+
+XorType1:
+	xor	a
+	ld	(dot_cou_x),a
+	ld	(dot_cou_y),a
+
+	call	InitType1
+	ld	a,(img_area_adrs+0)
+	ld	l,a
+	ld	a,(img_area_adrs+1)
+	ld	h,a
+	call	InitType0
+
+	call	InitType1
+
+	ld	a,(img_area_adrs+0)
+	ld	l,a
+	ld	a,(img_area_adrs+1)
+	ld	h,a
+	ld	a,(area_pos_adrs+0)
+	ld	e,a
+	ld	a,(area_pos_adrs+1)
+	ld	d,a
+Loop$:
+	ld	a,(reverse_fg)
+	and	a
+	jr	z,NonRev$
+
+	push	de
+	ld	a,(de)
+	ld	b,a
+	swap	a
+	and	00fh
+
+	call	RevData
+	swap	a
+	ld	c,a
+	ld	a,b
+	and	00fh
+
+	call	RevData
+	or	c
+	pop	de
+	ld	(de),a
+NonRev$:
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(de)
+	xor	b
+	ld	(de),a
+	inc	de
+
+	ld	a,(dot_cou_y)
+	inc	a
+	ld	(dot_cou_y),a
+	ld	b,a
+	ld	a,(dot_y)
+	cp	b
+	jr	nz,Loop$
+
+	xor	a
+	ld	(dot_cou_y),a
+	ld	a,(dot_cou_x)
+	add	a,008h
+	ld	(dot_cou_x),a
+	ld	b,a
+	ld	a,(dot_x)
+	cp	b
+	jr	nz,Loop$
+	xor	a
+	ld	(dot_cou_x),a
+	ret
+
+RevData:
+	ld	de,rev_tbl
+	add	a,e
+	ld	e,a
+	jr	nc,z2$
+	inc	d
+z2$:
+	ld	a,(de)
+	ret
+
+InitType1:
+	ld	a,(plane_fg)
+	bit	0,a
+	jr	nz,Plane1$
+	ld	de,plane0_area
+	ld	hl,plane1_area
+	jr	Plane0$
+Plane1$:
+	ld	de,plane1_area
+	ld	hl,plane0_area
+Plane0$:
+	ld	a,l
+	ld	(img_area_adrs+0),a	; Xor Plane Area
+	ld	a,h
+	ld	(img_area_adrs+1),a
+	ld	a,e
+	ld	(area_pos_adrs+0),a	; Xor Plane Area & Write Area
+	ld	a,d
+	ld	(area_pos_adrs+1),a
+	ret
+
+rev_tbl:
+	db	000h,008h,004h,00ch,002h,00ah,006h,00eh
+	db	001h,009h,005h,00dh,003h,00bh,007h,00fh
+
+
+;***************************
+;**      XOR TYPE 2       **
+;***************************
+
+XorType2:
+	call	InitType1
+
+	ld	a,(reverse_fg)
+	push	af
+	xor	a
+	ld	(reverse_fg),a
+
+	ld	a,(area_pos_adrs+0)
+	ld	l,a
+	ld	a,(area_pos_adrs+1)
+	ld	h,a
+	call	InitType0		; Xor 0 Plane
+
+	call	InitType1
+
+	pop	af
+	ld	(reverse_fg),a
+
+	jp	XorType1
+
+
+set_img_and_area:
+	ld	a,l
+	ld	(img_area_adrs+0),a
+	ld	(area_pos_adrs+0),a
+	ld	a,h
+	ld	(img_area_adrs+1),a
+	ld	(area_pos_adrs+1),a
+	ret
+

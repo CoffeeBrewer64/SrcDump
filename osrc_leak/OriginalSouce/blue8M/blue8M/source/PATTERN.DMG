@@ -1,0 +1,94 @@
+
+bank1	group	1
+
+;*************************************************
+;*						*
+;*	PATTERN	TABLE				*
+;*						*
+;*	dw	pattern_chr			*
+;*	dw	pattern_atr			*
+;*		.				*
+;*		.				*
+;*		.				*
+;*						*
+;*	pattern chr				*
+;*						*
+;*		chr no. , chr no. , chr no. ...	*
+;*						*
+;*	pattern	atr				*
+;*						*
+;*		+0	+1	+2	...	*
+;*		rel Y , rel X , ATTR code 	*
+;*				(bit 0 = on)	*
+;*				(  end mark)	*
+;*						*
+;*************************************************
+
+	public	pattern_table
+
+pattern_table:
+	dw	chr0,atr0		; maemuki	
+	dw	chr1,atr0
+	dw	chr0,atr0
+	dw	chr1,atr1
+
+	dw	chr2,atr0		; usiromuki
+	dw	chr3,atr0
+	dw	chr2,atr0
+	dw	chr3,atr1
+
+	dw	chr4,atr0		; hidarimuki
+	dw	chr5,atr0
+	dw	chr4,atr0
+	dw	chr5,atr0
+
+	dw	chr4,atr1		; migimuki
+	dw	chr5,atr1
+	dw	chr4,atr1
+	dw	chr5,atr1
+
+	dw	chr0,atr0		; komono maemuki
+	dw	chr0,atr0
+	dw	chr0,atr0
+	dw	chr0,atr0
+
+	dw	chr0,atr0		; komono usiromuki
+	dw	chr0,atr0
+	dw	chr0,atr0
+	dw	chr0,atr0
+
+	dw	chr0,atr0		; komono hidarimuki
+	dw	chr0,atr0
+	dw	chr0,atr0
+	dw	chr0,atr0
+
+	dw	chr0,atr0		; komono migimuki
+	dw	chr0,atr0
+	dw	chr0,atr0
+	dw	chr0,atr0
+
+chr0:
+	db	0,1,2,3
+chr1:
+	db	080h+0,080h+1,080h+2,080h+3
+chr2:
+	db	4,5,6,7
+chr3:
+	db	080h+4,080h+5,080h+6,080h+7
+chr4:
+	db	8,9,10,11
+chr5:
+	db	080h+8,080h+9,080h+10,080h+11
+
+atr0:
+	db	0,0,0
+	db	0,8,0
+	db	8,0,2
+	db	8,8,3
+
+atr1:
+	db	0,8,020h
+	db	0,0,020h
+	db	8,8,022h
+	db	8,0,023h
+

@@ -1,0 +1,79 @@
+	include		common.def
+	include		fntequ.def
+	include		anime.def
+	include		maphead.def
+	include		banktool.def
+	include		pm_debug.def
+	include		dealer.def
+	include		vanish.def
+	include		map.def
+	include		macro.h
+	include		group.def
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+	extern	bank2bank
+
+
+	public	yellow_check
+
+yellow_check:
+	ret
+
+
+
+
+	public	YellowPatchVanish
+
+YellowPatchVanish:
+	ld	hl,yellow_map
+
+lp$:
+	ld	a,(hli)
+	cp	0ffh
+	ret	z
+
+	ld	b,a
+	ld	a,(mapno)
+	cp	b
+	jr	z,hit$
+
+	inc	hl
+	inc	hl
+	inc	hl
+
+	jr	lp$
+
+
+hit$:
+	ld	a,(hli)				; copy size
+	ld	c,a
+	ld	b,00h
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	ld	de,vanish_group			; ‚Ï‚Á‚¿‚ ‚Ä‚é‚¼
+	call	block_move
+
+	ret
+
+
+yellow_map:
+	db	T1R2F1,07h
+	dw	patch_t1r2f1
+
+	db	0ffh
+
+
+patch_t1r2f1:
+	db	01h,yT1R2F1msg1
+	db	02h,yT1R2F1msg2
+	db	03h,yT1R2F1msg3
+	db	0ffh
+
+
+

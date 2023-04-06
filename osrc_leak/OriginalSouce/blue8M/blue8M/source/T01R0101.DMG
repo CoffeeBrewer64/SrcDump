@@ -1,0 +1,168 @@
+
+	include	common.def	
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include macro.h
+	include group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t1_room1
+
+
+	extern	table_jump
+	extern	bank2bank
+
+	extern	musasa
+
+
+ROOM_TYPE	equ	1
+EXIT		equ	0ffh
+
+
+;;;;seq_t1r1f1	equ	seq_ctrl_buf + 002h
+
+
+t1_room1:
+ysiz	=	4
+xsiz	=	4
+	db	ROOM_TYPE			; map type
+	db	ysiz,xsiz			; yx size
+	dw	room1fa				; map data adrs
+	dw	msg_t1r1f1
+	dw	ev_t1r1f1			; event routine adrs
+	db	0				; map link flg
+	dw	sxy_t1r1f1
+
+
+
+ev_t1r1f1:
+	jp	init_for_talkmap
+
+
+msg_t1r1f1:
+	msgndw	msg1,msg_mother
+	ndw	kanban1,msg_kanban1
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(obs_player)
+	bit	3,a
+	jr	nz,mother$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+mother$:
+	call	mother_love
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T01R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T01R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+mother_love:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	call	n_to_w
+
+	call	map_rewrite
+
+	ld	a,B_KAIHUKU
+	call	bank2bank
+
+	ld	a,< musasa
+	ld	(music_flag),a			; 0:SE / !0:Music
+	call	play
+
+loop$:
+	ld	a,(condetion)
+	cp	< musasa
+	jr	z,loop$
+
+	ld	a,(map_music)
+	ld	(music_flag),a			; 0:SE / !0:Music
+	call	play
+
+	call	w_to_n
+
+	ld	hl,msg1_2$
+	jp	put_win_msg
+
+
+msg1_1$:
+	extern	msg1_1_1_T01R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T01R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_T01R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T01R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+kanban1:
+	db	CALL_MSG
+
+	ld	a,(actor_table + 009h)
+	cp	004h
+	ld	hl,kanban1_1$
+	jr	nz,rts$
+
+	ld	hl,kanban1_0$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+kanban1_0$:
+	extern	kanban1_0_3_T01R0101
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_3_T01R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1_1$:
+	extern	kanban1_1_4_T01R0101
+	db I_MSG2	; mvmsg追加
+	dw kanban1_1_4_T01R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t1r1f1:
+	include	..\sxy\t01r0101.sxy
+
+room1fa:
+	include	..\mapdata\room1f.map
+
+
+

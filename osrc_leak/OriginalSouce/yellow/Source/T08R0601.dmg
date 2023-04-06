@@ -1,0 +1,660 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		dealer.def
+	include		macro.h
+	include		group.def
+	include		pm_debug.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t8_room6
+
+
+	extern	gym_setting
+	extern	table_jump
+	extern	actor_anime_set   
+	extern	yes_no
+	extern	search_hit
+	extern	game_over
+;;	extern	gym_judge
+	extern	set_battle
+	extern	set_battle_data
+	extern	set_battle_msg
+	extern	obj_stepping
+	extern	obj_stopping
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+CHAMPCUP_TYPE	equ	7
+EXIT		=	0ffh
+
+
+seq_t8r6f1	equ	seq_ctrl_buf + 06bh
+
+
+t8_room6:
+ysiz	=	9
+xsiz	=	5
+	db	CHAMPCUP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gym_05			; map data adrs
+	dw	msg_t8r6f1		; message tbl adrs
+	dw	ev_t8r6f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t8r6f1
+
+
+ev_t8r6f1:
+	call	init_gym$
+
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,t8r6f1_tbl
+	ld	a,(seq_t8r6f1)    
+	call	battle_sequence
+	ld	(seq_t8r6f1),a
+
+	ret
+
+
+init_gym$:
+	ld	hl,ptn_data
+	bit	6,(hl)
+	res	6,(hl)
+	ret	z
+
+	ld	hl,t_name$
+	ld	de,l_name$
+	call	gym_setting
+
+	ret
+
+
+
+t_name$:
+  ifn	pm_jmsg
+	db	se__,ki__,ti__,ku__
+	db	EOM
+  else
+	db	usf_f,usf_u,usf_c,usf_h,usf_s,usf_i,usf_a,spc@,usf_c,usf_i,usf_t,usf_y
+	db	EOM
+  endif
+
+
+l_name$:
+  ifn	pm_jmsg
+	db	ki__,yyo__,u__
+	db	EOM
+  else
+	db	usf_k,usf_o,usf_g,usf_a
+	db	EOM
+  endif
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_t8r6f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+
+t8r6f1_tbl:
+	initndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+	ndw	vs_after,seq_vs_after
+
+
+vs_after:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+;	call	actor_blanch
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+obtain_machine:
+	ld	a,msg_vs_after1
+	ld	(work1),a
+	call	talk_map
+
+	ld	hl,ev_t8_6 + 0
+	set	1,(hl)				; check win
+
+	ld	bc,206 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	a,msg_vs_after2
+	ld	(work1),a
+	call	talk_map
+
+	ld	hl,ev_t8_6 + 0
+	set	0,(hl)				; check obtained item
+
+	jr	rts$
+
+
+full$:
+	ld	a,msg_vs_after3
+	ld	(work1),a
+	call	talk_map
+
+rts$:
+	ld	hl,my_badge + 0
+	set	4,(hl)
+
+	ld	hl,ev_champ + 0
+	set	4,(hl)
+
+	ld	a,(ev_t8_6 + 0)
+	or	11111100b
+	ld	(ev_t8_6 + 0),a
+
+  ifn	0
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,seq_battle_main
+	ld	(seq_t8r6f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+  else
+	jp	return
+  endif
+
+
+msg_t8r6f1:
+	msgndw	msg1,msg_kiyou
+	ndw	msg2,msg_gypsy1
+	ndw	msg3,msg_lady1
+	ndw	msg4,msg_gypsy2
+	ndw	msg5,msg_circus1
+	ndw	msg6,msg_circus2
+	ndw	msg7,msg_mini1
+	ndw	msg8,msg_danpei
+	ndw	msg1_0,msg_vs_after1
+	ndw	msg1_1,msg_vs_after2
+	ndw	msg1_2,msg_vs_after3
+
+
+dealer_talk:
+d_talk1:
+	db	msg_gypsy1,020h
+	dw	ev_t8_6 + 0
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk2:
+	db	msg_lady1,020h
+	dw	ev_t8_6 + 0
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk3:
+	db	msg_gypsy2,040h
+	dw	ev_t8_6 + 0
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk4:
+	db	msg_circus1,020h
+	dw	ev_t8_6 + 0
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+d_talk5:
+	db	msg_circus2,020h
+	dw	ev_t8_6 + 0
+	dw	msg6_0
+	dw	msg6_after
+	dw	msg6_win
+	dw	msg6_win
+
+d_talk6:
+	db	msg_mini1,020h
+	dw	ev_t8_6 + 0
+	dw	msg7_0
+	dw	msg7_after
+	dw	msg7_win
+	dw	msg7_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t8_6 + 0)
+	bit	1,a
+	jr	z,battle$
+
+	bit	0,a
+	jr	nz,after$
+
+	call	z,obtain_machine
+
+	extern	WaitPass
+	call	WaitPass
+
+	jr	rts$
+
+
+after$:
+	ld	hl,msg1_after
+	call	put_win_msg
+
+	jr	rts$
+
+
+battle$:
+	ld	hl,msg1_battle_in
+	call	put_win_msg
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg1_win			; hero lose
+	ld	de,msg1_win			; hero win
+	call	set_battle_msg
+
+	ld	a,(work1)
+	ld	(sv_msg_no),a
+	call	set_battle
+	call	set_battle_data
+
+	ld	a,5
+	ld	(championcap_no),a		; hall number
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,seq_vs_after
+	ld	(seq_t8r6f1),a
+
+rts$:
+	jp	msg_return
+
+
+
+msg1_battle_in:
+  ifn	YELLOW_VERSION
+
+	extern	msg1_battle_in_0_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_battle_in_0_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+  else
+	db	D_MSG
+	db	ki__,yyo__,u__,kako2@,tenten2@,spc@
+	db	hu__,aa__,spc@,hu__,aa__,spc@,hu__,aa__,gyoe@
+	db	normal@
+	db	ko_,wa_,ttu_,pa_,spc@,go_,to_,ki_,ga_
+	db	home@
+	db	se_,ttu_,si_,yya_,ni_,spc@,ta_,ta_,ka_,i_,wo_,spc@
+	db	i_,do_,mu_,to_,ha_,gyo3@
+	db	ka_,ta_,ha_,ra_,spc@,i_,ta_,i_,wa_,gyoe@
+	db	normal@
+	db	tenten2@,spc@,do_,ku_,wo_,spc@,ku_,ra_,ttu_,ta_,ra_,spc@
+	db	zi_,me_,tu_,gyoe@
+	db	home@
+	db	ne_,mu_,ttu_,te_,spc@,si_,ma_,ttu_,ta_,ra_,spc@,mu_,te_,i_,ko_,u_
+	db	normal@
+	db	tenten2@,spc@,si_,no_,bi_,no_,spc@
+	db	wa_,za_,no_,spc@,go_,ku_,i_,wo_
+	db	home@
+	db	u_,ke_,te_,spc@,mi_,ru_,ga_,spc@,yo_,i_,gyoe@
+	db	EOMeom
+  endif
+
+
+msg1_win:
+  ifn	YELLOW_VERSION
+
+	extern	msg1_win_1_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+  else
+
+	db	D_MSG
+	db	hu_,n_,tenten2@,gyoe@
+	db	home@
+	db	o_,nu_,si_,spc@,ya_,ri_,o_,ru_,na_,gyoe@
+	db	normal@
+	db	so_,ra_,gyoe@
+	db	home@
+	db	pi__,n__,ku__,spc@,ba__,ttu__,zi__,wo_,spc@,u_,ke_,to_,re_,gyoe@
+	db	EOMwaiteom
+  endif
+
+
+msg1_after:
+  ifn	YELLOW_VERSION
+	extern	msg1_after_2_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_2_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+  else
+	db	D_MSG
+	db	do_,ku_,do_,ku_,ha_,spc@,do_,ku_,wo_,spc@,a_,bi_,ta_,ra_
+	db	home@
+	db	n1@,ta__,bou@,n__,spc@,go_,to_,ni_,spc@,do_,n_,do_,n_,gyo3@
+	db	da__,me__,bou@,zi__,ga_,spc@,o_,o_,ki_,ku_,spc@,na_,ru_,gyoe@
+	db	normal@
+	db	ko_,re_,ha_,spc@,a_,i_,te_,ni_
+	db	home@
+	db	ki_,yyo_,u_,hu_,wo_,spc@,a_,ta_,e_,ru_,spc@
+	db	wa_,za_,spc@,na_,no_,da_,gyoe@
+	db	EOMeom
+  endif
+
+
+msg1_0:
+	extern	msg1_0_3_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_3_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1:
+	extern	msg1_1_4_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_4_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE6
+	extern	msg1_1_5_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_5_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2:
+  ifn	YELLOW_VERSION
+	extern	msg1_2_6_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_6_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	ni_,mo_,tu_,ga_,spc@,i_,ttu_,pa_,i_,da_
+	db	EOMeom
+  endif
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg2_0:
+	extern	msg2_0_7_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_7_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_8_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_8_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_9_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_9_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg3_0:
+	extern	msg3_0_10_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_10_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_11_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_11_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_12_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_12_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg4_0:
+	extern	msg4_0_13_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_13_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_14_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_14_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_15_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_15_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg5_0:
+	extern	msg5_0_16_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_16_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_17_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_17_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg5_after:
+	extern	msg5_after_18_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_18_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	db	CALL_MSG
+
+	ld	hl,d_talk5
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg6_0:
+	extern	msg6_0_19_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg6_0_19_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_win:
+	extern	msg6_win_20_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg6_win_20_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6_after:
+	extern	msg6_after_21_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg6_after_21_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg7:
+	db	CALL_MSG
+
+	ld	hl,d_talk6
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg7_0:
+	extern	msg7_0_22_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg7_0_22_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_win:
+	extern	msg7_win_23_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg7_win_23_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_after:
+	extern	msg7_after_24_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg7_after_24_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg8:
+	db	CALL_MSG
+
+	ld	a,(ev_t8_6 + 0)
+	bit	1,a
+	ld	hl,msg8_1$
+	jr	nz,rts$
+
+	ld	hl,msg8_0$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg8_0$:
+	extern	msg8_0_25_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg8_0_25_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8_1$:
+	extern	msg8_1_26_T08R0601
+	db I_MSG2	; mvmsg追加
+	dw msg8_1_26_T08R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t8r6f1:
+	include	..\sxy\t08r0601.sxy
+
+
+gym_05:
+	include	..\mapdata\gym_05.map
+
+
+
+

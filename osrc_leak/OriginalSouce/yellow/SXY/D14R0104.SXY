@@ -1,0 +1,60 @@
+; 11/11/95		16:35:55
+dun_tbl$:
+	db	07dh
+ie_tbl$:
+	db	003h
+	db	011h,008h,002h,EXIT
+	db	011h,009h,002h,EXIT
+	db	001h,001h,000h,R23R1F1
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	007h
+	db	TRAINERW
+	db	005h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	001h+040h			; battle type
+	db	0e8h				; dealer number
+	db	005h				; taking pattern 
+	db	TRAINERM
+	db	002h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h+040h			; battle type
+	db	0e7h				; dealer number
+	db	005h				; taking pattern 
+	db	CAPSULE
+	db	000h+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	003h+080h			; capsule type
+	db	0f3h				; item number
+	db	CAPSULE
+	db	002h+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h+080h			; capsule type
+	db	028h				; item number
+	db	IWA
+	db	00Fh+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	005h
+	db	IWA
+	db	002h+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	006h
+	db	IWA
+	db	00Ah+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	007h
+ram_map_tbl$:
+	dw	010h * 009h + 005h + ram_map
+	db	011h,008h
+	dw	010h * 009h + 005h + ram_map
+	db	011h,009h
+	dw	010h * 001h + 001h + ram_map
+	db	001h,001h

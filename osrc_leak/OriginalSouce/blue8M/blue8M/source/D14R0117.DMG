@@ -1,0 +1,279 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	d14_room1_17f
+
+	extern	init_hero_anime
+	extern	CheckAssignPos
+	extern	musdoor
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+	extern	acttbl_h_adrs
+	extern	put_wait
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+CHAMPCUP_TYPE	equ	7
+EXIT		=	0ffh
+
+
+seq_d14r1f17	equ	seq_ctrl_buf + 05eh
+
+
+d14_room1_17f:
+ysiz	=	6
+xsiz	=	5
+	db	CHAMPCUP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	honbu2			; map data adrs
+	dw	msg_d14r1f17		; message tbl adrs
+	dw	ev_d14r1f17		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d14r1f17
+
+
+ev_d14r1f17:
+	call	InitLastStage
+
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d14r1f17_tbl
+	ld	a,(seq_d14r1f17)
+	call	battle_sequence
+	ld	(seq_d14r1f17),a
+
+	ret
+
+
+InitLastStage:
+	ld	hl,ptn_data
+	bit	5,(hl)
+	res	5,(hl)
+	ret	z
+
+	ld	a,(ev_d14 + 1)
+	bit	1,a
+	jr	z,close$
+
+	ld	a,004h + 01h
+	jp	bg_change$
+
+
+close$:
+	ld	a,024h + 00h
+
+bg_change$:
+	ld	(el_c),a
+	ld	bc,000h * 0100h + 002h
+	ld	a,B_BGCELL_CHANGE
+	jp	bank2bank
+
+
+return:
+	xor	a
+	ld	(seq_d14r1f17),a
+
+	ret
+
+
+
+d14r1f17_tbl:
+	initndw	LockedRoom,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	AfterCheck,seq_battle_after
+	ndw	step,seq_step
+	ndw	Second,SeqSecond
+
+
+Second:
+	ret
+
+
+AutoIn:
+	ld	hl,ctrl_move_val + 0
+	ld	a,040h				; animetion pattern
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	ld	a,6				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	call	init_hero_anime
+
+	ld	a,seq_step
+	ld	(seq_d14r1f17),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+LockedRoom:
+	ld	hl,stopper$
+	call	CheckAssignPos
+	jp	nc,battle_main
+
+	xor	a
+	ld	(joy_on),a
+	ld	(joy_status),a
+	ld	(ctrl_move_val + 0),a
+	ld	(ctrl_move_cnt),a
+
+	ld	a,(usr_buf + 0)
+	cp	3
+	jr	c,hook$
+
+	ld	hl,ev_d14 + 1
+	bit	6,(hl)
+	set	6,(hl)
+	jr	z,AutoIn
+
+hook$:
+	ld	a,MsgNotBack
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,040h				; animetion pattern
+	ld	(ctrl_move_val + 0),a
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	call	init_hero_anime
+
+	ld	a,seq_step
+	ld	(seq_d14r1f17),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+stopper$:
+	db	00ah,004h
+	db	00ah,005h
+	db	00bh,004h
+	db	00bh,005h
+	db	0ffh
+
+
+step:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	call	put_wait
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	(seq_d14r1f17),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+AfterCheck:
+	call	battle_after
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return
+
+	ld	a,MsgSiva
+	ld	(work1),a
+	jp	talk_map
+
+
+
+
+msg_d14r1f17:
+	msgndw	msg1,MsgSiva
+	ndw	NotBack,MsgNotBack
+
+
+dealer_talk:
+d_talk1:
+	db	MsgSiva,000h
+	dw	ev_d14 + 1
+	dw	msg1_0
+	dw	msg1_after
+	dw	msg1_win
+	dw	msg1_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg1_0:
+	extern	msg1_0_0_D14R0117
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_D14R0117	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_1_D14R0117
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_D14R0117	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_2_D14R0117
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_2_D14R0117	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+NotBack:
+	extern	NotBack_3_D14R0117
+	db I_MSG2	; mvmsg追加
+	dw NotBack_3_D14R0117	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d14r1f17:
+	include	..\sxy\d14r0117.sxy
+
+honbu2:
+	include	..\mapdata\honbu2.map
+

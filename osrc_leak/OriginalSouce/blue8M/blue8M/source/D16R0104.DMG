@@ -1,0 +1,304 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	anime.def
+	include	vanish.def
+	include	macro.h
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d16_room1_4f
+
+
+	extern	init_hero_anime
+	extern	gyaarth_play
+	extern	se_wait
+	extern	DealerTalking
+	extern	battle_after
+	extern	table_jump
+	extern	rock_on
+	extern	CheckAssignPos
+	extern	put_wait
+	extern	mk_trace_cmd
+	extern	lifting
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+seq_d16r1f4	equ	seq_ctrl_buf + 120
+
+
+d16_room1_4f:
+ysiz	=	9
+xsiz	=	15
+	db	DOUKUTU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	mdun_5			; map data adrs
+	dw	msg_d16r1f4		; message tbl adrs
+	dw	ev_d16r1f4		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d16r1f4
+
+
+ev_d16r1f4:
+	call	init_for_talkmap
+
+	ld	a,(seq_d16r1f4)
+	ld	hl,event_d16r1f4
+	jp	table_jump
+
+
+return:
+	xor	a
+	ld	(seq_d16r1f4),a
+	ld	(cancel_key),a
+
+	ret
+
+
+
+event_d16r1f4:
+	initndw	D16R1F4main,SeqD16R1F4main
+	ndw	StepBack,SeqStepBack
+	ndw	CheckRiver,SeqCheckRiver
+	ndw	ObsRiver,SeqObsRiver
+	ndw	BattleAfter,SeqBattleAfter
+
+
+
+BattleAfter:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jr	z,return
+
+	call	battle_after
+
+	ld	a,SeqD16R1F4main
+	ld	(seq_d16r1f4),a
+
+	ret
+
+
+
+D16R1F4main:
+	ld	a,(ev_d16 + 1)
+	and	00000011b
+	cp	00000011b
+	ret	z
+
+	ld	hl,StopPosition$
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,(usr_buf + 0)
+	cp	3
+	jr	nc,one$
+
+	ld	a,W_U				; animetion pattern
+	ld	(ctrl_move_val + 1),a
+
+	ld	a,2
+
+	jr	set$
+
+
+one$:
+	ld	a,1
+
+set$:
+	ld	(ctrl_move_cnt),a
+	ld	a,W_U				; animetion pattern
+	ld	(ctrl_move_val + 0),a
+
+	call	init_hero_anime
+
+	ld	hl,game_mode + 1
+	res	2,(hl)				; no check of exit point
+
+	ld	a,SeqStepBack
+	ld	(seq_d16r1f4),a
+
+	ret
+
+
+
+StopPosition$:
+	db	011h,014h
+	db	011h,015h
+	db	010h,014h
+	db	010h,015h
+	db	0ffh
+
+
+StepBack:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,SeqD16R1F4main
+	ld	(seq_d16r1f4),a
+
+	ret
+
+
+CheckRiver:
+	ld	a,(ev_d16 + 2)
+	and	00000011b
+	cp	00000011b
+	ld	a,SeqD16R1F4main
+	jr	z,rts$
+
+	ld	hl,StopPos$
+	call	CheckAssignPos
+	ld	a,SeqD16R1F4main
+	jr	nc,rts$
+
+	ld	a,(usr_buf + 0)
+	cp	1
+	jr	nz,right$
+
+	ld	de,cmd_riverL$
+
+	jr	set$
+
+
+right$:
+	ld	de,cmd_riverR$
+
+set$:
+	ld	hl,ctrl_move_val
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	call	init_hero_anime
+
+	ld	a,SeqObsRiver
+
+rts$:
+	ld	(seq_d16r1f4),a
+
+	ret
+
+
+StopPos$:
+	db	00eh,004h
+	db	00eh,005h
+	db	0ffh
+
+
+cmd_riverR$:
+	db	W_U,3
+	db	W_R,2
+	db	W_U,1
+	db	A_E
+
+
+cmd_riverL$:
+	db	W_U,3
+	db	W_R,3
+	db	W_U,1
+	db	A_E
+
+
+ObsRiver:
+	ld	a,(ctrl_move_cnt)
+	ld	b,a
+	cp	1
+	call	z,lift$
+
+	ld	a,b
+	and	a
+	ret	nz
+
+	ld	a,SeqD16R1F4main
+	ld	(seq_d16r1f4),a
+
+	ret
+
+
+lift$:
+	xor	a
+	ld	(chyari_flg),a
+	ld	(chyari_sv),a
+	jp	lifting
+
+
+
+msg_d16r1f4:
+	dw	rock_on
+	dw	rock_on
+	dw	bird
+	dw	kanban1
+	dw	kanban2
+
+
+bird_talk:
+	db	2,000h
+	dw	ev_d16 + 3
+	dw	msg1_0
+	dw	msg1_0
+	dw	msg1_0
+	dw	msg1_0
+
+	db	0ffh
+
+
+bird:
+	db	CALL_MSG
+
+	ld	hl,bird_talk
+	call	DealerTalking
+
+	ld	a,SeqBattleAfter
+	ld	(seq_d16r1f4),a
+
+	jp	msg_return
+
+
+msg1_0:
+	extern	msg1_0_0_D16R0104
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_D16R0104	; mvmsg追加
+	db 022h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,74				; freezer-
+	call	gyaarth_play
+	call	se_wait
+
+	jp	msg_return
+
+
+kanban1:
+	extern	kanban1_1_D16R0104
+	db I_MSG2	; mvmsg追加
+	dw kanban1_1_D16R0104	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_2_D16R0104
+	db I_MSG2	; mvmsg追加
+	dw kanban2_2_D16R0104	; mvmsg追加
+	db 022h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d16r1f4:
+	include	..\sxy\d16r0104.sxy
+
+mdun_5:
+	include	..\mapdata\mdun_5.map
+

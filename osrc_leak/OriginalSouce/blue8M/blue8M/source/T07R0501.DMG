@@ -1,0 +1,921 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		maptype.def
+	include		anime.def
+	include		banktool.def
+	include		dealer.def
+	include		vanish.def
+	include		macro.h
+	include		group.def
+	include		pm_debug.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room5
+
+
+	extern	check_pack
+	extern	check_money
+	extern	check_coin
+	extern	block_cls
+	extern	put_bcd
+	extern	table_jump
+	extern	bank2bank
+	extern	yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	capsule_item
+	extern	acttbl_l_adrs
+	extern	mk_trace_cmd
+	extern	CheckAssignPos
+	extern	GetAnimeStatus
+	extern	GetMoveStatus
+	extern	SetActorSite
+
+	extern	se_wait
+	extern	musdoor
+	extern	musswitch
+
+
+seq_t7r5f1	equ	seq_ctrl_buf + 06fh
+
+
+t7_room5:
+ysiz	=	9
+xsiz	=	10
+	db	DEPART_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	pachinco	 	; map data adrs
+	dw	msg_t7r5f1		; message adrs
+	dw	event_t7r5f1		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event_t7r5f1:
+	call	init_t7r5f1
+
+	call	init_door
+
+	call	init_for_talkmap
+
+	ld	hl,t7r5f1_tbl
+	ld	a,(seq_t7r5f1)
+	jp	table_jump
+
+
+init_t7r5f1:
+	ld	hl,ptn_data
+	bit	6,(hl)
+	res	6,(hl)
+	ret	z
+
+	call	rnd
+	ld	a,(random + 0)
+	cp	7
+	jr	nc,normal$
+
+	ld	a,8
+
+normal$:
+	srl	a				; 1/2
+	srl	a				; 1/4
+	srl	a				; 1/8
+	ld	(ctrl_move_val + 50),a		; for "ev_tool" as machine
+
+	ret
+
+
+init_door:
+	ld	hl,ptn_data
+	bit	5,(hl)
+	res	5,(hl)
+	ret	z
+
+	ld	a,(ev_t7_5 + 0)
+	bit	1,a
+	ret	nz
+
+	ld	a,42				; wall
+	ld	(el_c),a
+	ld	bc,002h * 0100h + 008h
+	ld	a,B_BGCELL_CHANGE
+	jp	bank2bank
+
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_t7r5f1),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+t7r5f1_tbl:
+	initndw	t7r5f1_main,seq_t7r5f1_main
+	ndw	vs_after,seq_vs_after
+	ndw	member_out,seq_member_out
+
+
+t7r5f1_main:
+	ret
+
+
+vs_after:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,msg_vs_after1
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,msg_member1
+	ld	(work1),a
+	call	obj_stopping
+
+	ld	de,member_side$
+
+	ld	a,(mapscloll_y)
+	cp	006h
+	jr	nz,side$
+
+	ld	de,member_away$
+
+	jr	set$
+
+
+side$:
+	ld	a,(mapscloll_x)
+	cp	008h
+	jr	nz,set$
+
+	ld	de,member_away$
+
+set$:
+	ld	a,msg_member1
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,seq_member_out
+	ld	(seq_t7r5f1),a
+
+	ret
+
+
+member_side$:
+	db	A_D
+	db	A_R,A_R
+	db	A_U
+	db	A_R,A_R,A_R,A_R
+	db	A_E
+
+member_away$:
+	db	A_R,A_R,A_R,A_R,A_R
+	db	A_E
+
+
+member_out:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,T7R5F1msg11
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	hl,ptn_data
+	set	5,(hl)
+	set	6,(hl)
+
+	ld	a,seq_t7r5f1_main
+	ld	(seq_t7r5f1),a
+
+	ret
+
+
+
+msg_t7r5f1:
+	msgndw	msg1,msg_depaga1
+	ndw	msg2,msg_shopman1
+	ndw	msg3,msg_ossan1
+	ndw	msg4,msg_hotelw1
+	ndw	msg5,msg_uminoie1
+	ndw	msg6,msg_obasan1
+	ndw	msg7,msg_danpei1
+	ndw	msg8,msg_gsan1
+	ndw	msg9,msg_niichyan1
+	ndw	msg10,msg_hotelm1
+	ndw	msg11,msg_member1
+	ndw	kanban1,msg_kanban1
+
+	ndw	msg11_open,msg_vs_after1
+
+
+msg1:
+	extern	msg1_0_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+
+	call	money2coin
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	b,69				; coin case
+	call	check_pack
+	jr	z,boxless$
+
+	call	CheckCoin
+	jr	nc,full_coin$
+
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 2),a
+	ld	a,010h
+	ld	(divwk1 + 1),a
+	call	check_money			; check take money
+	jr	nc,ok$
+
+	ld	hl,msg2_3$
+
+	jr	rts$
+
+
+ok$:
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 2),a
+	ld	a,010h
+	ld	(divwk1 + 1),a
+	ld	hl,divwk1 + 2
+	ld	de,my_gold + 2
+	ld	c,3
+	ld	a,B_BCD_SUB
+	call	bank2bank
+
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 1),a
+	ld	a,050h
+	ld	(divwk1 + 2),a			; piece of coin
+	ld	de,coin + 1
+	ld	hl,divwk1 + 2
+	ld	c,2
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	call	money2coin
+
+	ld	hl,msg2_1$
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg2_2$
+
+	jr	rts$
+
+
+full_coin$:
+	ld	hl,msg2_4$
+
+	jr	rts$
+
+
+boxless$:
+	ld	hl,msg2_5$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_1_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_1_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_2_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_2_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_2$:
+	extern	msg2_2_3_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_3_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_3$:
+	extern	msg2_3_4_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_3_4_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_4$:
+	extern	msg2_4_5_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_4_5_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_5$:
+	extern	msg2_5_6_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_5_6_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_7_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg3_7_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_8_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg4_8_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg5:
+	db	CALL_MSG
+
+	ld	a,(ev_t7_5 + 0)
+	bit	2,a
+	jr	nz,yet$
+
+	ld	hl,msg5_0$
+	call	put_win_msg
+
+	ld	b,69				; coin case
+	call	check_pack
+	jr	z,no_box$
+
+	call	CheckCoin
+	jr	nc,full$
+
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 1),a
+	ld	a,010h
+	ld	(divwk1 + 2),a
+	ld	de,coin + 1
+	ld	hl,divwk1 + 2
+	ld	c,2
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	ld	hl,ev_t7_5 + 0
+	set	2,(hl)
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg5_1$
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg5_3$
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg5_2$
+
+	jr	rts$
+
+
+no_box$:
+	ld	hl,MsgNoCoinCase
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg5_0$:
+	extern	msg5_0_9_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_9_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_1$:
+	extern	msg5_1_10_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg5_1_10_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg5_2$:
+	extern	msg5_2_11_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_11_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_3$:
+	extern	msg5_3_12_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg5_3_12_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	extern	msg6_13_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg6_13_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7:
+	db	CALL_MSG
+
+	ld	a,(ev_t7_4 + 0)
+	bit	1,a
+	ld	hl,msg7_0$
+	jr	z,rts$
+
+	ld	hl,msg7_1$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg7_0$:
+	extern	msg7_0_14_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg7_0_14_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_1$:
+	extern	msg7_1_15_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg7_1_15_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg8:
+	extern	msg8_16_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg8_16_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg9:
+	db	CALL_MSG
+
+	ld	a,(ev_t7_5 + 0)
+	bit	4,a
+	jr	nz,yet$
+
+	ld	hl,msg9_0$
+	call	put_win_msg
+
+	ld	b,69				; coin case
+	call	check_pack
+	jr	z,no_box$
+
+	call	CheckCoin
+	jr	nc,full$
+
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 1),a
+	ld	a,020h
+	ld	(divwk1 + 2),a
+
+	ld	de,coin + 1
+	ld	hl,divwk1 + 2
+	ld	c,2
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	ld	hl,ev_t7_5 + 0
+	set	4,(hl)
+
+	ld	hl,msg9_1$
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg9_3$
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg9_2$
+
+	jr	rts$
+
+
+no_box$:
+	ld	hl,MsgNoCoinCase
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg9_0$:
+	extern	msg9_0_17_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg9_0_17_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_1$:
+	extern	msg9_1_18_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg9_1_18_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg9_2$:
+	extern	msg9_2_19_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg9_2_19_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_3$:
+	extern	msg9_3_20_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg9_3_20_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg10:
+	db	CALL_MSG
+
+	ld	a,(ev_t7_5 + 0)
+	bit	3,a
+	jr	nz,yet$
+
+	ld	hl,msg10_0$
+	call	put_win_msg
+
+	ld	b,69				; coin case
+	call	check_pack
+	jr	z,no_box$
+
+	call	CheckCoin
+	jr	z,no_coin$
+
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 1),a
+	ld	a,020h
+	ld	(divwk1 + 2),a
+
+	ld	de,coin + 1
+	ld	hl,divwk1 + 2
+	ld	c,2
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	ld	hl,ev_t7_5 + 0
+	set	3,(hl)
+
+	ld	hl,msg10_1$
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg10_3$
+
+	jr	rts$
+
+
+no_coin$:
+	ld	hl,msg10_2$
+
+	jr	rts$
+
+
+no_box$:
+	ld	hl,MsgNoCoinCase
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg10_0$:
+	extern	msg10_0_21_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg10_0_21_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg10_1$:
+	extern	msg10_1_22_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg10_1_22_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg10_2$:
+	extern	msg10_2_23_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg10_2_23_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg10_3$:
+	extern	msg10_3_24_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg10_3_24_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg11:
+	db	CALL_MSG
+
+	ld	hl,msg11_0
+	call	put_win_msg
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg11_win			; hero lose
+	ld	de,msg11_win			; hero win
+	call	set_battle_msg
+
+	ld	a,(work1)
+	ld	(sv_msg_no),a
+	call	set_battle
+	call	set_battle_data
+
+	xor	a
+	ld	(joy_status),a
+	ld	(joy_on),a
+	ld	(joy_off),a
+
+	ld	a,seq_vs_after
+	ld	(seq_t7r5f1),a
+
+	jp	msg_return
+
+
+msg11_0:
+	extern	msg11_0_25_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg11_0_25_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg11_win:
+	extern	msg11_win_26_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg11_win_26_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg11_open:
+	extern	msg11_open_27_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw msg11_open_27_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	db	CALL_MSG
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	hl,kanban1_0$
+	call	put_win_msg
+
+	call	se_wait
+	ld	a,< musdoor
+	call	play
+	call	se_wait
+
+	ld	hl,ev_t7_5 + 0
+	set	1,(hl)				; discover hidden stairway
+
+	ld	a,67				; stairs
+	ld	(el_c),a
+	ld	bc,002h * 0100h + 008h
+	ld	a,B_BGCELL_CHANGE
+	call	bank2bank
+
+	jp	msg_return
+
+
+kanban1_0$:
+	extern	kanban1_0_28_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_28_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+
+
+	db	CALL_MSG
+
+	ld	a,< musswitch
+	call	play
+	call	se_wait
+
+	jp	msg_return
+
+
+MsgNoCoinCase:
+	extern	MsgNoCoinCase_29_T07R0501
+	db I_MSG2	; mvmsg追加
+	dw MsgNoCoinCase_29_T07R0501	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+					;
+					;  *--------------*
+;----------------------;		;  |おこづかい    |
+; money & coin display ;		;  |    ４３１９円|
+;----------------------;		;  |コイン        |
+money2coin:				;  |  ３２０８まい|
+	ld	hl,obs_system		;  *--------------*
+	set	6,(hl)				; system message speed mode
+
+	SET_WIN_POS 11,0,19,6
+	call	put_window	
+
+	call	actor_blanch
+
+	SET_BLOCK 12,1,19,5
+	call	block_cls
+
+	SET_MSG_POS 12,2,okozukai$		;”おこづかい”
+	call	put_msg
+
+	SET_MSG_POS 12,3,cls_okozukai$		; 金額を消す
+	call	put_msg
+
+	S_POS	12,3
+	ld	de,my_gold
+  ifn	pm_jmsg
+	ld	c,083h				; 3Byte & 0 suppress
+  else
+	ld	c,0a3h
+  endif
+	call	put_bcd
+	
+	SET_MSG_POS 12,4,koin$			;”コイン”
+	call	put_msg
+
+	SET_MSG_POS 12,5,cls_koin$		; 枚数を消す
+	call	put_msg
+
+  ifn	pm_jmsg
+	S_POS	13,5
+  else
+	S_POS	15,5
+  endif
+	ld	de,coin
+	ld	c,082h				; 2Byte & 0 suppress
+	call	put_bcd
+	
+	ld	hl,obs_system
+	res	6,(hl)
+
+	ret
+
+okozukai$:
+  ifn  pm_jmsg
+	db	o_,ko_,du_,ka_,i_,EOM			; おこづかい
+  else
+	db	usf_m,usf_o,usf_n,usf_e,usf_y,EOM
+  endif
+
+koin$:
+  ifn  pm_jmsg
+	db	ko__,i__,n__,EOM			; コイン
+  else
+	db	usf_c,usf_o,usf_i,usf_n,EOM
+  endif
+
+cls_okozukai$:
+  ifn  pm_jmsg
+	db	spc@,spc@,spc@,spc@,spc@,spc@,yen@,EOM	; 円
+  else
+	db	spc@,spc@,spc@,spc@,spc@,spc@,spc@,EOM
+  endif
+
+cls_koin$:
+  ifn  pm_jmsg
+	db	spc@,spc@,spc@,spc@,spc@,ma_,i_,EOM	; まい
+  else
+	db	spc@,spc@,spc@,spc@,spc@,spc@,spc@,EOM
+  endif
+
+CheckCoin:
+	ld	a,099h
+	ld	(divwk1 + 1),a
+	ld	a,090h
+	ld	(divwk1 + 2),a
+	jp	check_coin			; check take coin
+
+;	ret					; nc : full
+
+
+
+
+room_str: 
+	include	..\sxy\t07r0501.sxy
+
+
+pachinco:
+	include	..\mapdata\pachnco.map
+
+

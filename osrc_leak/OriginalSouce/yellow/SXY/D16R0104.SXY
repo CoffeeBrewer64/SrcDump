@@ -1,0 +1,41 @@
+; 09/19/95		19:27:31
+dun_tbl$:
+	db	07dh
+ie_tbl$:
+	db	004h
+	db	011h,014h,005h,D16R1F3
+	db	011h,015h,006h,D16R1F3
+	db	007h,00bh,001h,D16R1F3
+	db	004h,019h,002h,D16R1F3
+kanban_tbl$:
+	db	002h
+	db	00Fh,009h,4
+	db	001h,017h,5
+hito_tbl$:
+	db	003h
+	db	IWA
+	db	00Fh+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	IWA
+	db	00Fh+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+	db	TORI
+	db	001h+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	003h+040h			; battle type
+	db	04ah				; wild monster
+	db	032h				; monster level
+ram_map_tbl$:
+	dw	015h * 009h + 00bh + ram_map
+	db	011h,014h
+	dw	015h * 009h + 00bh + ram_map
+	db	011h,015h
+	dw	015h * 004h + 006h + ram_map
+	db	007h,00bh
+	dw	015h * 003h + 00dh + ram_map
+	db	004h,019h

@@ -1,0 +1,2158 @@
+
+;===============================================;
+;						;
+;      DEMO_animetion				;
+;						;
+;===============================================;
+
+	include		common.def
+	include		se.def
+	include		effect.def
+	include		banktool.def
+	include		sgb_col.def
+	include		fntequ.def
+	include		..\data\waza_se.h
+	include		macro.h
+	include		group.def
+	include		pm_debug.def
+
+	public		koukan_demo_oya
+	public		koukan_demo_ko
+	public		test_demo
+	public		demo_objset
+	public		put_title
+	public		demo_tit_dat
+
+	extern		bank_push_call
+	extern		oam_clr
+	extern		set_oam_buf16
+	extern		allow_effect
+	extern		real_effect
+	extern		block_cls
+	extern		block_move
+	extern		set_ef_cram
+	extern		wait_vb
+	extern		put_wait
+	extern		wait_vb_s
+	extern		effect_ready
+	extern		bank2bank
+	extern		ready2ready
+	extern		put_msg
+	extern		prt_mons_chr2
+	extern		lcdc_stop
+	extern		lcdc_on
+	extern		gyaarth
+	extern		gyaarth_play
+	extern		badge_chrset
+	extern		dvram_cls
+	extern		n_to_w
+	extern		w_to_n
+	extern		n_to_b
+	extern		b_to_n
+	extern		chrset
+	extern		get_monsadr
+	extern		effect_data
+	extern		cont_repeat
+	extern		color_set
+	extern		color_rewrite
+	extern		put_all
+	extern		put_window
+	extern		put_dec
+	extern		puthaji_yoko
+	extern		puthaji_tate
+	extern		put_win_msg
+	extern		get_mons_name
+	extern		prt_mons_chr
+	extern		muswngo
+	extern		muskusuri
+	extern		color_reset
+	extern		monschr_move
+	extern		monschr_put2
+	extern		memset
+
+	extern		musnidopyon1
+	extern		musnidopyon2
+	extern		musgengerhand
+	extern		musgengerpunch
+	extern		musnidojump
+
+	extern		musstartdemo
+
+	extern		BGMplay
+	extern		SEplay
+	extern		MusicStop
+
+	extern		change_cgb_bgp
+	extern		change_cgb_obp0
+	extern		change_cgb_obp1
+
+WSE_NO		equ	0
+
+
+bank10	group	G_BANK10
+
+;============================================================;
+;   KOUKAN_DEMO                                              ;
+;============================================================;
+koukan_demo_oya:
+	ld	a,(usr_buf + MY_MONS_No_@)	; ld	a,(usr_buf)
+	ld	(usr_buf + USR_BUF_END -1),a	; ld	(usr_buf + 28),a
+	ld	a,(usr_buf + YOUR_MONS_No_@)	; ld	a,(usr_buf + 1)
+	ld	(usr_buf + USR_BUF_END),a	; ld	(usr_buf + 29),a
+
+	ld	de,oya_tbl
+	jr	demo_play
+
+koukan_demo_ko:
+	ld	a,(usr_buf + YOUR_MONS_No_@)	; ld	a,(usr_buf + 1)
+	ld	(usr_buf + USR_BUF_END -1),a	; ld	(usr_buf + 28),a
+	ld	a,(usr_buf + MY_MONS_No_@)	; ld	a,(usr_buf)
+	ld	(usr_buf + USR_BUF_END),a	; ld	(usr_buf + 29),a
+
+	ld	de,ko_tbl
+
+demo_play:
+	ld	a,(my_lvl)
+	push	af
+	and	00110000b
+	ld	(my_lvl),a
+	ld	a,(headery)
+	push	af
+	ld	a,(headerx)
+	push	af
+	xor	a
+	ld	(headery),a
+	ld	(headerx),a
+
+	push	de
+main_loop$:
+	pop	de
+	ld	a,(de)
+	cp	0ffh
+	jr	z,exit$
+
+	inc	de
+	push	de
+
+	ld	hl,koukan_table
+	add	a,a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,main_loop$
+	push	de
+	jp	(hl)
+exit$:
+	pop	af
+	ld	(headerx),a
+	pop	af
+	ld	(headery),a
+	pop	af
+	ld	(my_lvl),a
+	ret
+
+oya_tbl:
+	db	ready_no
+	db	chrset_no
+	db	unitset_no
+	db	suikomu_no
+	db	tensour_no
+	db	wait_no
+	db	msgready_no
+	db	msg1_no
+	db	msg2_no
+	db	msg3_no
+	db	tensoul_no
+	db	msgready_no
+	db	unitset_no
+	db	hakidasu_no
+	db	wait_no
+	db	end_no
+	db	0ffh
+
+ko_tbl:
+	db	ready_no
+	db	msgready_no
+	db	msg5_no
+	db	msg3_no
+	db	namechange_no
+	db	tensour_no
+	db	namechange_no
+	db	msgready_no
+	db	unitset_no
+	db	hakidasu_no
+	db	msgscr_no
+	db	chrset_no
+	db	unitset_no
+	db	suikomu_no
+	db	namechange_no
+	db	tensoul_no
+	db	namechange_no
+	db	wait_no
+	db	msgready_no
+	db	msg1_no
+	db	end_no
+	db	0ffh
+
+
+koukan_table:
+	initndw	koukan_ready	,ready_no
+	ndw	koukan_chrset	,chrset_no
+	ndw	koukan_unitset	,unitset_no
+	ndw	koukan_suikomu	,suikomu_no
+	ndw	koukan_hakidasu ,hakidasu_no
+	ndw	koukan_tensou_r	,tensour_no
+	ndw	koukan_tensou_l ,tensoul_no
+	ndw	koukan_wait	,wait_no
+	ndw	koukanmsg_ready	,msgready_no
+	ndw	koukanmsg1	,msg1_no
+	ndw	koukanmsg2	,msg2_no
+	ndw	koukanmsg3	,msg3_no
+	ndw	koukanmsg4	,msg4_no
+	ndw	koukanmsg5	,msg5_no
+	ndw	koukan_end	,end_no
+	ndw	koukanmsg_scr	,msgscr_no
+	ndw	name_change	,namechange_no
+
+
+koukan_wait:
+	ld	c,100
+	jp	wait_vb_s		; ÇPÇOÇOÉtÉåÅ[ÉÄë“Çø
+
+
+koukan_wait2:
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait		; ÇRÉtÉåÅ[ÉÄë“Çø VBLANKíÜÇ…all_put()ÇÉRÅ[ÉãÇ∑ÇÈ
+	xor	a
+	ld	(all_put_req),a
+	ret
+
+
+koukan_wait3:
+	ld	c,80
+	jp	wait_vb_s		; ÇWÇOÉtÉåÅ[ÉÄë“Çø
+
+
+k_dvram_cls:				; dmy_vram[] = spc@
+	ld	hl,dmy_vram
+	ld	bc,20*18
+	ld	a,7fh
+	jp	memset
+
+
+koukan_ready:
+	call	k_dvram_cls		; dmy_vram[] = spc@
+	call	lcdc_stop
+	ld	hl,koukan_anime
+	ld	de,09000h + 0310h
+	ld	bc,49*16
+	ld	a,00eh
+	call	chrset			; chrset($9310, 0E:koukan_anime, 49*16)
+
+	ld	hl,49*16 + koukan_anime
+	ld	de,08000h + 7c0h
+	ld	bc,4*16
+	ld	a,00eh
+	call	chrset			; chrset($807C, 0E:koukan_anime+49*16, 4*16)
+
+	ld	hl,09800h		;bg_clear
+	ld	bc,0800h
+	ld	a,spc@
+	call	memset			; $9800[0..7FF] = spc@ 
+
+	call	oam_clr
+	ld	a,0ffh
+	ld	(oam_flg),a		; (oam_flg) = $FF
+	ld	hl,obs_system
+	set	6,(hl)			; (obs_system).<6> = 1
+
+	ld	a,(sgb_flg)
+	and	a
+	ld	a,0e4h
+	jr	z,z1$
+	ld	a,0f0h
+z1$:
+	ld	(OBP0),a		; (OBP0) = (sgb_flg) ? $F0 : $E4 
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+
+	call	lcdc_on
+
+	xor	a
+	ld	(all_put_req),a
+
+	ld	a,(usr_buf + MY_MONS_No_@)	; é©ï™Ç™ëóÇÈÉ|ÉPÉÇÉìî‘çÜ
+	ld	(in_dat),a			
+	call	get_mons_name		; return table_data[] = é©ï™Ç™ëóÇÈÉ|ÉPÉÇÉìñº
+
+	ld	hl,table_data
+	ld	de,str_buf
+	ld	bc,MONS_NAME_LEN
+	call	block_move		; str_buf[] = é©ï™Ç™ëóÇÈÉ|ÉPÉÇÉìñº
+
+	ld	a,(usr_buf + YOUR_MONS_No_@)	; ëäéËÇ™ëóÇÈÉ|ÉPÉÇÉìî‘çÜ
+	ld	(in_dat),a			
+	jp	get_mons_name		; return table_data[] = ëäéËÇ™ëóÇÈÉ|ÉPÉÇÉìñº
+
+
+monschrset:
+	ld	a,0d0h
+	ld	(OBP1),a		; (OBP1) = $D0
+  ifn	pm_cgb
+	call	change_cgb_obp1
+  endif
+	ld	b,1ch
+	ld	hl,monschr_move
+	jp	bank_push_call		; farcall	1C:monschr_move()
+
+
+name_change:				; my_name[] <-> gein_name[] Çåä∑Ç∑ÇÈ
+	ld	hl,my_name		; ÅiÉeÉìÉ|ÉâÉäÇ∆ÇµÇƒ yes_no_map[] ÇégópÇµÇƒÇ¢ÇÈÅj
+	ld	de,yes_no_map
+	ld	bc,MONS_NAME_LEN
+	call	block_move		; yes_no_map[] = my_name[]
+
+	ld	hl,gein_name
+	ld	de,my_name
+	ld	bc,MONS_NAME_LEN
+	call	block_move		; my_name[] = gein_name[]
+
+	ld	hl,yes_no_map 
+	ld	de,gein_name
+	ld	bc,MONS_NAME_LEN
+	jp	block_move		; gein_name[] = yes_no_map[]
+
+
+koukan_end:
+	xor	a
+	call	color_reset		; (OBP0),(OBP1),(BGP)ÇÉZÉbÉg
+	ld	hl,obs_system
+	res	6,(hl)			; (obs_system).<6> = 0
+	ret
+
+
+koukan_chrset:
+	ld	a,0abh
+	ld	(LCDC),a		; OBJ 8x8,  BG chr $8800 src $9C00,  Window $9800
+	ld	a,80
+	ld	(window_y),a		; (window_y) = 80
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,086h			; Åiíçà”ÅjëóÇÈë§ñºëOÉEÉBÉìÉhÉEÇÃògÇÇPÉLÉÉÉâï™ç∂ë§Ç…ëÂÇ´Ç≠
+ else					; ÇµÇΩÇÃÇ≈ÉXÉNÉçÅ[ÉãÇÃà◊Ç…âEÇ…âBÇ∑ÉEÉBÉìÉhÉEÇÃèâä˙à íuÇÇP
+	ld	a,07eh			; ÉLÉÉÉâï™âEÇ…ê›íËÇµÇƒÇ®Ç≠
+ endif
+	ld	(WX),a			; (WX) = $7E
+	ld	(headerx),a		; (headerx) = $7E
+
+	xor	a
+	ld	(all_put_req),a
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS	4,0,15,7	;window set
+ else
+	SET_WIN_POS	5,0,15,7	;window set
+ endif
+	call	put_window
+	call	okuru_gawa
+	
+	ld	b,098h			;window put to 9800h
+	call	put_all
+;	call	koukan_wait2
+
+	call	dvram_cls
+	ld	a,(usr_buf + MY_MONS_No_@)	; é©ï™ë§ÇÃÉ|ÉPÉÇÉìî‘çÜ
+	call	trademons_pickup
+	
+	ld	a,07eh			;scroll
+loop1$:
+	push	af
+	call	wait_vb
+	pop	af
+	ld	(WX),a			; (WX)      = $7E -> --(WX) -> $00
+	ld	(headerx),a		; (headerx) = $7E -> --(headerx) -> $00
+	dec	a
+	dec	a
+	and	a
+	jr	nz,loop1$
+
+	call	koukan_wait3		; ÇWÇOÉtÉåÅ[ÉÄë“Çø
+
+	ld	a,173			;smoke_effect
+	call	effect_call
+	ld	a,170			;smoke_effect
+	call	effect_call
+
+	ld	a,(usr_buf + MY_MONS_No_@)
+	call	gyaarth_play
+
+	xor	a
+	ld	(all_put_req),a
+	ret
+
+
+koukan_unitset:
+	call	k_dvram_cls		; dmy_vram[] = spc@
+	ld	b,098h			;window put to 9800h
+	call	put_all
+	
+	ld	b,COL_START
+	call	color_set
+
+	ld	hl,32*4 + 12 +09c00h
+	call	line_set2
+	ld	a,20*8
+	ld	(headerx),a
+	call	wait_vb
+
+	ld	a,08bh
+	ld	(LCDC),a
+	
+;	ld	a,1
+;	ld	(all_put_req),a
+
+	ld	hl,20*2 + 6 + dmy_vram
+	ld	b,7
+	call	bg_change2
+
+	call	koukan_wait2
+
+;	xor	a
+;	ld	(all_put_req),a
+
+	ld	a,muskusuri
+	call	SEplay
+
+	ld	c,014h			;unit deru
+loop$:
+	ld	a,(headerx)
+	add	a,4
+	ld	(headerx),a
+	dec	c
+	jr	nz,loop$
+	ret
+
+
+koukan_suikomu:
+	ld	a,171			;suikomi_effect
+	call	effect_call
+
+	ld	c,10
+	call	wait_vb_s
+
+	ld	a,0e4h
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+	xor	a
+	ld	(el_c),a
+	ld	bc,02060h 
+loop$:
+	push	bc
+	xor	a
+	ld	de,obj_move_tbl$
+	call	set_oam_buf16
+
+	ld	a,(el_c)
+	xor	1
+	ld	(el_c),a
+
+	add	a,7eh
+	ld	hl,oam_buf + 2
+	ld	de,4
+	ld	c,e
+loop1$:
+	ld	(hl),a
+	add	hl,de
+	dec	c
+	jr	nz,loop1$
+	
+	call	put_wait
+
+	pop	bc
+
+	ld	a,c
+	add	a,4
+	ld	c,a
+	cp	0a0h
+	jr	nc,exit$
+
+	ld	a,muswngo
+	call	SEplay
+
+	jr	loop$
+exit$:
+	call	oam_clr
+	ld	a,1
+	ld	(all_put_req),a
+	call	dvram_cls
+	ld	b,098h			; 9800h clear
+	call	put_all
+	call	put_wait
+	xor	a
+	ld	(all_put_req),a
+	ret
+
+
+obj_move_tbl$:
+	db	7eh,00h,7eh,20h,7eh,40h,7eh,60h
+
+
+koukan_hakidasu:
+	ld	a,172			;hakidasi_effect
+	call	effect_call
+
+	call	koukanmsg_ready
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS	4,10,15,17	;window set
+ else
+	SET_WIN_POS	5,10,15,17	;window set
+ endif
+	call	put_window
+	call	ukeru_gawa
+
+	call	koukan_wait2
+
+	ld	a,1
+	ld	(all_put_req),a
+
+	ld	a,(usr_buf + YOUR_MONS_No_@)	; ëäéËë§É|ÉPÉÇÉìî‘çÜ
+	call	trademons_pickup
+
+	ld	a,173			;smoke_effect
+	call	effect_call
+
+	ld	a,1
+	ld	(all_put_req),a
+
+	ld	a,(usr_buf + YOUR_MONS_No_@)
+	call	gyaarth_play
+
+	call	koukan_wait
+
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	4,10
+	ld	bc,080ch
+ else
+	S_POS	5,10
+	ld	bc,070bh
+ endif
+	call	block_cls
+	jp	koukanmsg4
+
+	
+koukan_tensou_r:			; âEï˚å¸ÉXÉNÉçÅ[Éã
+	call	tensou_ready		; ÉLÉÉÉâÉNÉ^ÇÃÉZÉbÉgÅA(headerx)=0,(window_y)=144 etc
+	ld	a,1
+	ld	(ef_count1),a		;scroll_houkou
+
+	ld	a,0e4h
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+	ld	a,054h
+	ld	(effect_x),a		; OBJ Xpos = $54
+	ld	a,01ch
+	ld	(effect_y),a		; OBJ Ypos = $1C	S_POS(9.5, 1.5)
+
+	ld	a,(usr_buf + USR_BUF_END -1)	; ld	a,(usr_buf + 28)
+	ld	(usr_buf + USR_BUF_END -2),a	; ld	(usr_buf + 27),a
+
+	call	koukan_objset		; ÇnÇaÇiÉLÉÉÉâÉNÉ^Ç∆ÇSëgÇÃÇQÅ~ÇQÇÃÇnÇaÇiÇÉZÉbÉgÇ∑ÇÈ
+
+;	ld	a,1
+;	ld	(all_put_req),a
+
+	call	game_boy1_put		; ÉQÅ[ÉÄÉ{Å[ÉCñ{ëÃÇ∆ÉPÅ[ÉuÉãÇÃäGÇï`âÊÇ∑ÇÈ  S_POS(5,3)
+	call	koukan_wait2		; (all_put_req)=1, put_wait(), (all_put_req)=0 ;
+
+;	xor	a
+;	ld	(all_put_req),a
+
+	call	line_set1		; S_POS(0,4)Å`(19,4) = $5EÅiÉPÅ[ÉuÉãÇÃäGÅjÇï`âÊ
+	ld	hl,32*4 + 12 + 09c00h	; SCR_POS(12,4)(VRAMíºèëÇ´)
+	call	line_set2		; haji_buf[2*20] = S_POS(0,4)Å`ÇSÇOå¬ï™
+					; haji_put_buf[0]=2, [1][2]= &SCR_POS(12,4)(VRAMíºèëÇ´)
+	ld	b,06h			; ÇUâÒï™ÅiÇPÇQÉLÉÉÉâï™â°ÉXÉNÉçÅ[ÉãÇ∑ÇÈÅj
+	call	koukan_scroll		; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇaÇfÇâ°ÉXÉNÉçÅ[ÉãÇ≥ÇπÇÈ
+
+	ld	a,1
+	ld	(all_put_req),a
+
+	call	line_set1		;yoko_line only
+					; S_POS(0,4)Å`(19,4) = $5EÅiÉPÅ[ÉuÉãÇÃäGÅjÇï`âÊ
+	ld	b,04h			; ÇSâÒï™ÅiÇWÉLÉÉÉâï™â°ÉXÉNÉçÅ[ÉãÇ∑ÇÈÅj
+	call	koukan_scroll		; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇaÇfÇâ°ÉXÉNÉçÅ[ÉãÇ≥ÇπÇÈ
+
+	call	game_boy2_put		; ÉQÅ[ÉÄÉ{Å[ÉCñ{ëÃÇ∆ÉPÅ[ÉuÉãÇÃäGÇï`âÊÇ∑ÇÈ  S_POS(7,8)
+
+	ld	b,06h			; ÇUâÒï™ÅiÇPÇQÉLÉÉÉâï™â°ÉXÉNÉçÅ[ÉãÇ∑ÇÈÅj
+	call	koukan_scroll		; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇaÇfÇâ°ÉXÉNÉçÅ[ÉãÇ≥ÇπÇÈ
+
+	xor	a
+	ld	(all_put_req),a
+
+	call	koukan_objmove		; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇwÇxà⁄ìÆÇ≥ÇπÇÈ
+	jp	oam_clr
+
+	
+koukan_tensou_l:			; ç∂ï˚å¸ÉXÉNÉçÅ[Éã
+	call	tensou_ready		; ÉLÉÉÉâÉNÉ^ÇÃÉZÉbÉgÅA(headerx)=0,(window_y)=144 etc
+	xor	a
+	ld	(ef_count1),a		;scroll_houkou
+
+	ld	a,064h
+	ld	(effect_x),a		; OBJ Xpos = $64		
+	ld	a,044h
+	ld	(effect_y),a		; OBJ Ypos = $44	S_POS(11.5, 6.5)
+
+	ld	a,(usr_buf + USR_BUF_END)	; ld	a,(usr_buf + 29)
+	ld	(usr_buf + USR_BUF_END -2),a	; ld	(usr_buf + 27),a
+
+	call	koukan_objset		; ÇnÇaÇiÉLÉÉÉâÉNÉ^Ç∆ÇSëgÇÃÇQÅ~ÇQÇÃÇnÇaÇiÇÉZÉbÉgÇ∑ÇÈ
+
+;	inc	a
+;	ld	(all_put_req),a
+
+	call	game_boy2_put		; ÉQÅ[ÉÄÉ{Å[ÉCñ{ëÃÇ∆ÉPÅ[ÉuÉãÇÃäGÇï`âÊÇ∑ÇÈ  S_POS(7,8)
+	call	koukan_wait2		; (all_put_req)=1, put_wait(), (all_put_req)=0 ;
+
+;	xor	a
+;	ld	(all_put_req),a
+
+	call	line_set1		; S_POS(0,4)Å`(19,4) = $5EÅiÉPÅ[ÉuÉãÇÃäGÅjÇï`âÊ
+	ld	hl,32*4 + 20 + 09c00h	; SCR_POS(20,4)(VRAMíºèëÇ´)
+	call	line_set2		; haji_buf[2*20] = S_POS(0,4)Å`ÇSÇOå¬ï™
+					; haji_put_buf[0]=2, [1][2]= &SCR_POS(20,4)(VRAMíºèëÇ´)
+	call	koukan_objmove		; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇwÇxà⁄ìÆÇ≥ÇπÇÈ
+
+	ld	b,06h			; ÇUâÒï™ÅiÇPÇQÉLÉÉÉâï™â°ÉXÉNÉçÅ[ÉãÇ∑ÇÈÅj
+	call	koukan_scroll		; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇaÇfÇâ°ÉXÉNÉçÅ[ÉãÇ≥ÇπÇÈ
+
+	ld	a,1
+	ld	(all_put_req),a
+
+	call	line_set1		;yoko_line only
+					; S_POS(0,4)Å`(19,4) = $5EÅiÉPÅ[ÉuÉãÇÃäGÅjÇï`âÊ
+	ld	b,04h			; ÇSâÒï™ÅiÇWÉLÉÉÉâï™â°ÉXÉNÉçÅ[ÉãÇ∑ÇÈÅj
+	call	koukan_scroll		; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇaÇfÇâ°ÉXÉNÉçÅ[ÉãÇ≥ÇπÇÈ
+
+	call	game_boy1_put		; ÉQÅ[ÉÄÉ{Å[ÉCñ{ëÃÇ∆ÉPÅ[ÉuÉãÇÃäGÇï`âÊÇ∑ÇÈ  S_POS(5,3)
+
+	ld	b,06h			; ÇUâÒï™ÅiÇPÇQÉLÉÉÉâï™â°ÉXÉNÉçÅ[ÉãÇ∑ÇÈÅj
+	call	koukan_scroll		; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇaÇfÇâ°ÉXÉNÉçÅ[ÉãÇ≥ÇπÇÈ
+
+	xor	a
+	ld	(all_put_req),a
+	jp	oam_clr
+
+	
+tensou_ready:
+	ld	a,1
+	ld	(all_put_req),a
+	call	dvram_cls		; dmy_vram[] = spc@
+
+	ld	b,COL_START
+	call	color_set
+
+	xor	a
+	ld	(all_put_req),a
+	call	monschrset
+	call	wait_vb
+
+	ld	a,0abh			; OBJ 8x8,  BG chr $8800, src $9C00,  Window $9800
+	ld	(LCDC),a
+
+	xor	a
+	ld	(headerx),a		; (headerx) = 0
+	ld	a,144
+	ld	(window_y),a		; (window_y) = 144
+	ret
+
+
+game_boy1_put:				; ÉQÅ[ÉÄÉ{Å[ÉCñ{ëÃÇÃäGÇï`âÊ
+	call	k_dvram_cls		; dmy_vram[] = spc@
+	ld	hl,20*4 + 11 + dmy_vram
+	ld	a,02ch + 49		;conecter no.
+	ld	(hli),a			;	S_POS(11,4)= $5D (ÉRÉlÉNÉ^Å[ÇÃäGÅj
+
+	ld	a,02dh + 49		;yoko_line no.
+	ld	c,8
+loop$:
+	ld	(hli),a			;	S_POS(12,4)Å`(19,4)= $5EÅiÉPÅ[ÉuÉãÇÃäGÅj
+	dec	c
+	jr	nz,loop$
+	
+	ld	hl,20*3 + 5 + dmy_vram	;game_boy1 put
+	ld	b,6
+	call	bg_change2
+;	ld	a,B_DEMO_ZOOM
+;	call	bank2bank
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS	4,12,12,15	;window set
+	call	put_window
+	S_POS	5,14
+ else
+	SET_WIN_POS	12,7,18,10	;window set
+	call	put_window
+	S_POS	13,9
+ endif
+	ld	de,my_name
+	call	put_msg
+	jp	wait_vb
+	
+	
+game_boy2_put:				; ÉQÅ[ÉÄÉ{Å[ÉCñ{ëÃÇÃäGÇï`âÊ
+	call	k_dvram_cls		; dmy_vram[] = spc@	
+
+	ld	hl,20*4 + dmy_vram
+	ld	a,02dh + 49		;yoko_line no.
+	ld	c,14
+loop$:
+	ld	(hli),a			;	S_POS(0,4)Å`(13,4)= $5EÅiÉPÅ[ÉuÉãÇÃäGÅj
+	dec	c
+	jr	nz,loop$
+	
+	ld	a,02eh + 49		;magari1_line no.
+	ld	(hl),a			;	S_POS(14,4)= $5FÅiÉPÅ[ÉuÉãã»ÇËäGÅj
+
+	ld	de,20
+	add	hl,de
+	ld	a,030h + 49		;tate_line no.
+	ld	(hl),a			;	S_POS(14,5)Å`(14,8)= $61ÅiÉPÅ[ÉuÉãècÇÃäGÅj
+	add	hl,de
+	ld	(hl),a
+	add	hl,de
+	ld	(hl),a
+	add	hl,de
+	ld	(hl),a
+
+	add	hl,de
+	ld	a,02fh + 49		;magari2_line no.
+	ld	(hld),a			;	S_POS(14,9)= $60ÅiÉPÅ[ÉuÉãã»ÇËäGÅj
+
+	ld	a,02ch + 49		;conecter no.
+	ld	(hl),a			;	S_POS(13,9)= $5DÅiÉRÉlÉNÉ^Å[ÇÃäGÅj
+
+	ld	hl,20*8 + 7 + dmy_vram	;game_boy2 put
+	ld	b,6
+	call	bg_change2
+;	ld	a,B_DEMO_ZOOM
+;	call	bank2bank
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS	6,0,14,3	;window set
+	call	put_window
+	S_POS	7,2
+ else
+	SET_WIN_POS	0,10,6,13	;window set
+	call	put_window
+	S_POS	1,12
+ endif
+	ld	de,gein_name
+	call	put_msg
+	jp	wait_vb
+
+
+line_set1:
+	call	k_dvram_cls		; dmy_vram[] = spc@
+	ld	hl,20*4 + dmy_vram
+	ld	a,02dh + 49		;yoko_line no.
+	ld	c,20
+loop$:
+	ld	(hli),a			; 	S_POS(0,4)Å`(19,4) = $5EÅiÉPÅ[ÉuÉãÇÃäGÅj
+	dec	c
+	jr	nz,loop$
+	ret
+
+
+line_set2:				
+	push	hl			;hl = line put address
+	ld	hl,20*4 + dmy_vram	;	S_POS(0,4)
+	call	puthaji_yoko		; haji_buf[2*20] = S_POS(0,4)Å`ÇSÇOå¬ï™
+	pop	hl
+
+	ld	a,h
+	ld	(haji_put_buf + 2),a
+	ld	a,l
+	ld	(haji_put_buf + 1),a
+	ld	a,2
+	ld	(haji_put_buf),a
+
+	ld	c,10
+	jp	wait_vb_s
+
+
+koukan_scroll:
+loop1$:
+	ld	a,(ef_count1)
+	ld	e,a
+	ld	d,8		; ÇWâÒåJÇËï‘ÇµÅiåv (headerx)-=16 Ç‹ÇΩÇÕ (headerx)+=16 )
+loop$:
+	ld	a,e
+	dec	a		; cp 1
+	jr	z,right$
+left$:				; (ef_count1) == 0 (!=1)ÇÃÇ∆Ç´
+	ld	a,(headerx)
+	sub	2		;	(headerx) -= 2
+	jr	next$
+right$:				; (ef_count1) == 1 ÇÃÇ∆Ç´
+	ld	a,(headerx)
+	add	a,2		;	(headerx) += 2
+next$:
+	ld	(headerx),a
+	call	wait_vb		; ÇuÇaÇkÇ`ÇmÇjíÜÇ… (SCX)=(headerx) ÇÇµÇƒÇ¢ÇÈ "VBLANK.DMG"
+
+	dec	d
+	jr	nz,loop$
+
+	call	koukan_objchange ; ÇQÅ~ÇQÇnÇaÇi ÇTëgï™ chrNo. Bit6 ÇîΩì]Ç≥ÇπÇÈ
+	dec	b		; B reg âÒåJÇËï‘Ç∑
+	jr	nz,loop1$
+	ret
+
+
+koukan_objchange:
+	push	de
+	push	bc
+	push	hl
+	ld	a,(BGP)
+	xor	03ch		;bg color_change  10 -> 01,01 -> 10
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+
+	ld	hl,oam_buf + 2
+	ld	de,4
+	ld	c,20		; ÇQÅ~ÇQÇnÇaÇi ÇTëgï™
+loop$:
+	ld	a,(hl)
+	xor	40h
+	ld	(hl),a		; chrNo. ^= $40  Bit6 ÇîΩì]Ç≥ÇπÇÈ
+	add	hl,de
+	dec	c
+	jr	nz,loop$
+	
+	pop	hl
+	pop	bc
+	pop	de
+	ret
+
+
+koukan_objset:			;el_c = chr_no. 
+	ld	b,1ch
+	ld	hl,monschr_put2
+	call	bank_push_call
+	call	maru_put		; ÇSëgÇÃÇQÅ~ÇQÇÃÇnÇaÇiÇ oam_buf Ç…ÉZÉbÉgÇ∑ÇÈ
+
+koukan_objset2:	
+	ld	hl,oam_buf
+	ld	c,20			; ÇTëgï™ÅiÇQÅ~ÇQÇÃÇnÇaÇiÅj
+loop$:
+	ld	a,(effect_y)
+	add	a,(hl)
+	ld	(hli),a			; Ypos += (effect_y)
+	ld	a,(effect_x)
+	add	a,(hl)
+	ld	(hli),a			; Xpos += (effect_x)
+	inc	hl
+	inc	hl
+	dec	c
+	jr	nz,loop$
+	ret
+	
+
+koukan_objmove:				; ÇQÅ~ÇQÇnÇaÇiÇîΩì]Ç≥ÇπÇ»Ç™ÇÁÇwÇxà⁄ìÆÇ≥ÇπÇÈ
+	ld	a,(ef_count1)		; (ef_count1) = {0:ç∂, 1:âE} ï˚å¸ÉXÉNÉçÅ[Éã
+	and	a
+	jr	z,z1$
+					; âEï˚å¸ÉXÉNÉçÅ[ÉãÇÃÇ∆Ç´
+	ld	bc,0400h		; (effect_x)= 4 , (effect_y)= 0
+	call	koukan_o_movesub
+	ld	bc,000ah		; (effect_x)= 0 , (effect_y)= 0
+	jr	koukan_o_movesub
+
+z1$:					; ç∂ï˚å¸ÉXÉNÉçÅ[ÉãÇÃÇ∆Ç´
+	ld	bc,00f6h		; (effect_x)= 0 , (effect_y)= -10
+	call	koukan_o_movesub
+	ld	bc,0fc00h		; (effect_x)= -4 , (effect_y)= 0
+
+koukan_o_movesub:
+	ld	a,b
+	ld	(effect_x),a
+	ld	a,c
+	ld	(effect_y),a
+	ld	d,4			; ÇSâÒåJÇËï‘Ç∑
+loop$:
+	call	koukan_objset2		; ÇTëgï™ÅiÇQÅ~ÇQÇÃÇnÇaÇiÅjYpos+=(effect_y) Xpos+=(effect_x)
+	call	koukan_objchange	; ÇQÅ~ÇQÇnÇaÇi ÇTëgï™ chrNo. Bit6 ÇîΩì]Ç≥ÇπÇÈ
+
+	ld	c,8
+	call	wait_vb_s
+
+	dec	d
+	jr	nz,loop$
+	ret
+
+
+maru_put:				; ÇSëgÇÃÇQÅ~ÇQÇÃÇnÇaÇiÇ oam_buf Ç…ÉZÉbÉgÇ∑ÇÈ
+	ld	hl,maru_tbl$
+	ld	c,4
+	xor	a
+loop$:
+	push	bc	
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	inc	hl
+	ld	c,(hl)
+	inc	hl
+	ld	b,(hl)
+	inc	hl
+	push	hl
+	inc	a
+	push	af
+	call	set_oam_buf16		; set_oam_buf16(DE data adrs, B y, C x, A oam_buf No.)
+	pop	af			; ÇQÅ~ÇQÇÃÇnÇaÇiÇÉZÉbÉg
+	pop	hl
+	pop	bc
+	dec	c
+	jr	nz,loop$
+	ret
+
+maru_tbl$:	; DE    y x 
+	dw	maru1$,0808h
+	dw	maru2$,0818h
+	dw	maru3$,1808h
+	dw	maru4$,1818h
+maru1$:
+	db	38h,10h,39h,10h,3ah,10h,3bh,10h		; chrNo,atrb,chrNo,atrb,...
+maru2$:
+	db	39h,30h,38h,30h,3bh,30h,3ah,30h
+maru3$:
+	db	3ah,50h,3bh,50h,38h,50h,39h,50h
+maru4$:
+	db	3bh,70h,3ah,70h,39h,70h,38h,70h
+	
+
+trademons_pickup:
+	ld	(sel_item_no),a
+	ld	(tbl_pos),a
+	ld	(sgbcol_buf),a
+
+;	call	dvram_cls
+	ld	b,COL_SHINKA
+	ld	c,0
+	call	color_set
+
+	ld	a,(all_put_req)
+	xor	1
+	ld	(all_put_req),a
+
+;	ld	a,1
+;	ld	(all_put_req),a
+	
+	call	get_monsadr
+	S_POS	7,2
+	call	prt_mons_chr
+
+	ld	c,10
+	jp	wait_vb_s
+
+
+koukanmsg_ready:
+	ld	a,1
+	ld	(all_put_req),a
+	call	dvram_cls
+	ld	a,0e3h
+	ld	(LCDC),a
+
+	ld	a,7
+	ld	(WX),a
+	xor	a
+	ld	(window_y),a
+	ld	a,144
+	ld	(headerx),a
+	ret
+
+
+koukanmsg_scr:
+	ld	c,50
+	call	wait_vb_s
+loop$:
+	call	wait_vb
+	ld	a,(WX)
+	inc	a
+	inc	a
+	ld	(WX),a
+	cp	161
+	jr	nz,loop$
+	call	k_dvram_cls
+
+	ld	c,10
+	call	wait_vb_s
+
+	ld	a,7
+	ld	(WX),a
+	ret
+
+
+koukanmsg1:
+	ld	hl,msg1$
+	call	put_win_msg
+	ld	c,200
+	call	wait_vb_s
+	jp	koukanmsg_scr
+
+msg1$:
+	extern	msg1_0_DEMO
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_0_DEMO	; mvmsgí«â¡
+	db 027h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+koukanmsg2:
+	ld	hl,msg1$
+	call	put_win_msg
+	call	koukan_wait3
+	ld	hl,msg2$
+	call	put_win_msg
+	jp	koukan_wait3
+
+msg1$:
+	extern	msg1_1_DEMO
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_1_DEMO	; mvmsgí«â¡
+	db 027h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+msg2$:
+	extern	msg2_2_DEMO
+	db I_MSG2	; mvmsgí«â¡
+	dw msg2_2_DEMO	; mvmsgí«â¡
+	db 027h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+koukanmsg3:
+	ld	hl,msg1$
+	call	put_win_msg
+	call	koukan_wait3
+	ld	hl,msg2$
+	call	put_win_msg
+	call	koukan_wait3
+	jp	koukanmsg_scr
+
+msg1$:
+	extern	msg1_3_DEMO
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_3_DEMO	; mvmsgí«â¡
+	db 027h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+msg2$:
+	extern	msg2_4_DEMO
+	db I_MSG2	; mvmsgí«â¡
+	dw msg2_4_DEMO	; mvmsgí«â¡
+	db 027h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+koukanmsg4:
+	ld	hl,msg1$
+	call	put_win_msg
+	jp	koukan_wait3
+
+msg1$:
+	extern	msg1_5_DEMO
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_5_DEMO	; mvmsgí«â¡
+	db 027h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+
+koukanmsg5:
+	ld	hl,msg1$
+	call	put_win_msg
+	call	koukan_wait3
+	ld	hl,msg2$
+	call	put_win_msg
+	jp	koukan_wait3
+
+msg1$:
+	extern	msg1_6_DEMO
+	db I_MSG2	; mvmsgí«â¡
+	dw msg1_6_DEMO	; mvmsgí«â¡
+	db 027h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+msg2$:
+	extern	msg2_7_DEMO
+	db I_MSG2	; mvmsgí«â¡
+	dw msg2_7_DEMO	; mvmsgí«â¡
+	db 027h	; mvmsgí«â¡
+	db EOM	; put_msg_sèIóπÉRÅ[Éh mvmsgí«â¡
+
+effect_call:
+	ld	(effect_no),a
+	xor	a
+	ld	(anime_buf),a
+	ld	a,B_EFFECT_SELECT
+	jp	bank2bank
+
+
+;============================================================;
+;   TEST_DEMO                                                ;
+;============================================================;
+test_demo:
+	xor	a
+	ld	(joy_status),a
+	inc	a
+	ld	(all_put_req),a
+
+	call	gamefreakset
+
+	extern	OpeningDemoYellow
+	ld	hl,OpeningDemoYellow
+	ld	b,G_BANK3e
+	call	bank_push_call
+z1$:
+	xor	a
+	ld	(headerx),a
+	ld	(all_put_req),a
+	call	oam_clr
+
+	call	wait_vb
+	ret
+	
+
+demo_objset:
+	ld	hl,oam_buf
+	ld	d,0
+loop$:
+	push	bc
+	ld	a,(effect_y)
+	ld	e,a
+loop1$:
+	ld	a,e
+	add	a,008h
+	ld	e,a
+	ld	(hli),a
+
+	ld	a,(effect_x)
+	ld	(hli),a
+
+	ld	a,d
+	ld	(hli),a
+
+	ld	a,080h
+	ld	(hli),a
+	inc	d
+
+	dec	c
+	jr	nz,loop1$
+
+	ld	a,(effect_x)
+	add	a,008h
+	ld	(effect_x),a
+
+	pop	bc
+	dec	b
+	jr	nz,loop$
+	ret
+
+
+screen_cls1:
+	ld	hl,09c00h
+	ld	bc,32*18
+	jr	cls
+
+screen_cls2:
+	ld	hl,20*4 + dmy_vram
+	ld	bc,20*10
+
+cls:
+	ld	(hl),0
+	inc	hl
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,cls
+	ret
+
+
+screenset_sub:
+	ld	a,1
+loop$:
+	ld	(hli),a
+	dec	c
+	jr	nz,loop$
+	ret
+
+	
+;bg_change:
+;	ld	hl,20*7 + 13 + dmy_vram
+bg_change2:
+	ld	c,0
+	ld	a,B_DEMO_ZOOM
+	jp	bank2bank
+
+
+
+gamefreakset:
+	ld	b,COL_TITLE
+	call	color_set
+
+	ld	b,1
+	extern	opning_marushi
+	ld	hl,opning_marushi
+	call	bank_push_call
+
+	ld	a,0e4h
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ld	c,180
+	call	wait_vb_s
+	call	dvram_cls
+
+	call	lcdc_stop
+
+	xor	a
+	ld	(event_fight_no),a
+
+	call	screen_set
+;	call	demochr_set
+	ld	hl,09000h
+	ld	bc,10h
+	xor	a
+	call	memset
+
+	ld	hl,09010h
+	ld	bc,10h
+	ld	a,0ffh
+	call	memset
+
+	ld	hl,demo_tit_dat
+	ld	de,09600h
+	ld	bc,20*16
+	ld	a,010h
+	call	chrset
+
+	ld	hl,demo_tit_dat
+	ld	de,08800h
+	ld	bc,20*16
+	ld	a,010h
+	call	chrset
+
+	call	lcdc_on
+
+	ld	hl,LCDC
+	res	5,(hl)
+	set	3,(hl)
+
+	ld	c,40h
+	call	wait_vb_s
+	
+ 	ld	b,1ch
+	extern	game_freak_put
+	ld	hl,game_freak_put
+	call	bank_push_call
+	push	af
+;;;	call	put_title			; "PRESENTS" Çï\é¶Ç∑ÇÈÅiâpåÍî≈Ç≈ÇÕçÌèúÇ∑ÇÈÅj
+	pop	af
+	jr	c,pass$
+
+	ld	c,40
+	call	wait_vb_s
+
+pass$:
+	call	screen_cls2
+	call	oam_clr
+	jp	put_wait
+
+
+	public	screen_set
+screen_set:
+	call	screen_cls1
+
+	ld	hl,dmy_vram 
+	ld	c,20*4
+	call	screenset_sub
+
+	ld	hl,20*14 + dmy_vram
+	ld	c,20*4
+	call	screenset_sub
+
+	ld	hl,09c00h 
+	ld	c,32*4
+	call	screenset_sub
+
+	ld	hl,32*14 + 09c00h
+	ld	c,32*4
+	jp	screenset_sub
+
+
+put_title:					; "PRESENTS" Çï\é¶Ç∑ÇÈ
+ ifn	ASSEMBLE__ENGLISH
+	ret					; Åiíçà”ÅIÅjâpåÍî≈Ç≈ÇÕ PRESENTS ÇÕçÌèúÇ∑ÇÈ
+ else
+	ld	hl,dmy_vram + 227		; S_POS(7,11)
+	ld	de,title_tbl2
+	jp	put_msg
+
+title_tbl2:
+	db	67h,68h,69h,6ah,6bh,6ch		; PRESENTS
+	db	EOM
+ endif
+
+demo_tit_dat:
+	include		..\data\demo_tit.dat
+
+okuru_gawa:					; 	ëóÇÈë§
+ ifn	ASSEMBLE__ENGLISH						;*----No. ÇOÇPÇU----*
+	S_POS	5,0							;|                  |
+	ld	de,koukandata_str		; "No." "oya/" "IDNo." 	;|É|ÉbÉ|            |
+	call	put_msg							;|                  |
+									;|Ç®Ç‚Å^ÉvÉåÉCÉÑÅ[  |
+	ld	a,(usr_buf)						;|                  |
+	ld	(in_dat),a						;|IDNo. ÇTÇOÇSÇUÇV  |
+	ld	a,B_GET_ORDER_NO					;*------------------*
+	call	bank2bank			; return (in_dat)= ÉIÅ[É_Å[î‘çÜ
+
+	S_POS	9,0
+	ld	de,in_dat			; é©ï™Ç™ëóÇÈÉ|ÉPÉÇÉìî‘çÜ
+	ld	bc,08103h			; 1byte 3keta	; b(7bit)=1 ( zero print )
+	call	put_dec				; print monster number
+	
+	S_POS	5,2
+	ld	de,str_buf			; é©ï™Ç™ëóÇÈÉ|ÉPÉÇÉìñº
+	call	put_msg
+
+	S_POS	8,4
+	ld	de,usr_buf + MY_OYA_NAME_@	; é©ï™ë§ÇÃÇ®Ç‚ñº
+	call	put_msg
+
+	S_POS	8,6
+	ld	de,usr_buf + MY_MONS_IDNo_@	; é©ï™ë§ÇÃÉ|ÉPÉÇÉì IDNo.
+	ld	bc,08205h			; 2byte 5keta	; b(7bit)=1 ( zero print )
+	jp	put_dec				; print id-no
+
+ else
+	S_POS	6,0
+	ld	de,koukandata_str		; "No." "oya/" "IDNo." 
+	call	put_msg
+
+	ld	a,(usr_buf)
+	ld	(in_dat),a
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+
+	S_POS	10,0
+	ld	de,in_dat			; jibun ga okuru mons No
+	ld	bc,08103h			; 1byte 3keta
+						; b(7bit)=1 ( zero print )
+	call	put_dec				; print monster number
+	
+	S_POS	6,2
+	ld	de,str_buf			; jibun ga okuru mons name
+	call	put_msg
+
+	S_POS	9,4
+    ;	ld	de,usr_buf + 4			; usr_buf 4~9
+	ld	de,usr_buf + MY_OYA_NAME_@
+	call	put_msg				; oya name
+
+	S_POS	9,6
+    ;	ld	de,usr_buf + 10
+	ld	de,usr_buf + MY_MONS_IDNo_@
+	ld	bc,08205h			; 2byte 5keta
+						; b(7bit)=1 ( zero print )
+	jp	put_dec				; print id-no
+ endif
+
+ukeru_gawa:					; 	éÛÇØÇÈë§	;*----No. ÇOÇPÇU----*
+ ifn	ASSEMBLE__ENGLISH						;|                  |
+	S_POS	5,10							;|É|ÉbÉ|            |
+	ld	de,koukandata_str		; "No." "oya/" "IDNo."	;|                  |
+	call	put_msg							;|Ç®Ç‚Å^ÉvÉåÉCÉÑÅ[  |
+									;|                  |
+	ld	a,(usr_buf + YOUR_MONS_No_@)				;|IDNo. ÇTÇOÇSÇUÇV  |
+	ld	(in_dat),a						;*------------------*
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank			; return (in_dat)= ÉIÅ[É_Å[î‘çÜ
+
+	S_POS	9,10
+	ld	de,in_dat			; é©ï™Ç™éÛÇØéÊÇÈÉ|ÉPÉÇÉìî‘çÜ
+	ld	bc,08103h			; 1byte 3keta	; b(7bit)=1 ( zero print )
+	call	put_dec				; print monster number
+	
+	S_POS	5,12
+	ld	de,table_data			; é©ï™Ç™éÛÇØéÊÇÈÉ|ÉPÉÇÉìñº
+	call	put_msg
+
+	S_POS	8,14
+	ld	de,usr_buf + YOUR_OYA_NAME_@	; ëäéËë§ÇÃÇ®Ç‚ñº
+	call	put_msg
+
+	S_POS	8,16
+	ld	de,usr_buf + YOUR_MONS_IDNo_@	; ëäéËë§ÇÃÉ|ÉPÉÇÉì IDNo.
+	ld	bc,08205h			; 2byte 5keta	; b(7bit)=1 ( zero print )
+	jp	put_dec				; print id-no
+
+ else
+	S_POS	6,10
+	ld	de,koukandata_str		; "No." "oya/" "IDNo." 
+	call	put_msg
+
+    ;	ld	a,(usr_buf + 1)
+	ld	a,(usr_buf + YOUR_MONS_No_@)
+	ld	(in_dat),a
+	ld	a,B_GET_ORDER_NO
+	call	bank2bank
+
+	S_POS	10,10
+	ld	de,in_dat			; jibun ga ukeru mons No
+	ld	bc,08103h			; 1byte 3keta
+						; b(7bit)=1 ( zero print )
+	call	put_dec				; print monster number
+	
+	S_POS	6,12
+	ld	de,table_data			; jibun ga ukeru mons name
+	call	put_msg
+
+	S_POS	9,14
+    ;	ld	de,usr_buf + 12			; usr_buf 12~17
+	ld	de,usr_buf + YOUR_OYA_NAME_@
+	call	put_msg				; oya name
+
+	S_POS	9,16
+    ;	ld	de,usr_buf + 18
+	ld	de,usr_buf + YOUR_MONS_IDNo_@	; ëäéËë§ÇÃÉ|ÉPÉÇÉì IDNo.
+	ld	bc,08205h			; 2byte 5keta
+						; b(7bit)=1 ( zero print )
+	jp	put_dec				; print id-no
+
+ endif
+
+
+koukandata_str:
+  ifn	pm_jmsg
+	db	waku1@,waku1@,No@,dot@,cr@	; ==No.
+	db	cr@				;
+	db	o_,ya_,sura@,cr@		; Ç®Ç‚Å^
+	db	id@,No@,dot@			;
+	db	EOM				; IDNo.
+  else
+	db	waku1@,waku1@,No@,dot@,cr@	; ==No.
+	db	cr@				;
+	db	usf_o,usf_t,sura@,cr@		; Ç®Ç‚Å^
+	db	id@,No@,dot@			;
+	db	EOM				; IDNo.
+  endif
+
+
+
+
+
+;=======================================================;
+;							;
+;	CONFIG						;
+;							;
+;=======================================================;
+	public	ConfigSet
+
+	extern	table_search
+	extern	white_allow
+	extern	muspi
+	extern	allow_1
+	extern	cls_allow
+	extern	mul_any
+;-------------------------------------------------------;
+;	MAIN						;
+;-------------------------------------------------------;
+ConfigSet:
+	call	ConfigInit
+main_loop$:
+	call	cont_repeat
+	ld	a,(joy_repeat)
+	and	BT_ST+BT_B
+	jr	nz,exit$
+
+	call	UpDownKey
+	jr	c,pass$
+
+	call	ConfigMain
+	jr	c,exit$
+	
+pass$:
+	call	CursorPut
+	
+	call	wait_vb
+	call	wait_vb
+	call	wait_vb
+	jr	main_loop$
+exit$:
+	ret
+
+ConfigMain:
+	ld	a,(usr_buf+0)
+	ld	e,a
+	ld	d,00h
+	ld	hl,SeqTable$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+SeqTable$:
+	dw	Line1
+	dw	Line2
+	dw	Line3
+	dw	Line4
+	dw	Line5
+	dw	Line6
+	dw	Line7
+	dw	Line8
+
+;-------------------------------------------------------;
+;	MESSAGE SPEED					;
+;-------------------------------------------------------;
+Line1:
+	call	MSGspeedCheck$
+
+	ld	a,(joy_repeat)
+	bit	4,a
+	jr	nz,right$
+	bit	5,a
+	jr	nz,left$
+	jr	pass$
+right$:
+	ld	a,c
+	cp	2
+	jr	c,r_set$
+	ld	c,-1
+r_set$:
+	inc	c
+
+	ld	a,e
+	jr	ret$
+left$:
+	ld	a,c
+	and	a
+	jr	nz,l_set$
+	ld	c,2+1
+l_set$:
+	dec	c
+
+	ld	a,d
+ret$:
+	ld	b,a
+	ld	a,(my_lvl)
+	and	11110000b
+	or	b
+	ld	(my_lvl),a
+pass$:
+	ld	b,00h
+	ld	hl,MSGtable$
+	add	hl,bc
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	
+  ifn	pm_jmsg
+	S_POS	11,2
+  else
+	S_POS	14,2
+  endif
+	call	put_msg
+	and	a
+	ret
+ 
+MSGtable$:
+	dw	hayai$
+	dw	futuu$
+	dw	osoi$
+hayai$:
+  ifn	pm_jmsg
+	db	ha_,ya_,i_,EOM				; ÇÕÇ‚Ç¢
+  else
+	db	usf_f,usf_a,usf_s,usf_t,EOM		; FAST
+  endif
+futuu$:
+  ifn	pm_jmsg
+	db	hu_,tu_,u_,EOM				; Ç”Ç¬Ç§
+  else
+	db	usf_m,usf_i,usf_d,spc@,EOM		; MID
+  endif
+osoi$:
+  ifn	pm_jmsg
+	db	o_,so_,i_,EOM				; Ç®ÇªÇ¢
+  else
+	db	usf_s,usf_l,usf_o,usf_w,EOM		; SLOW
+  endif
+
+MSGspeedCheck$: 
+	ld	a,(my_lvl) 
+	and	00001111b
+	cp	5
+	jr	z,slow$
+	cp	1
+	jr	z,fast$
+	ld	c,1
+	ld	de,0105h	;fast/slow
+	ret
+slow$:
+	ld	c,2
+	ld	de,0301h	;normal/fast
+	ret
+fast$:
+	ld	c,0
+	ld	de,0503h	;slow/normal
+	ret
+
+;-------------------------------------------------------;
+;	EFFECT ON/OFF 					;
+;-------------------------------------------------------;
+Line2:
+	ld	a,(joy_repeat)
+	and	BT_L+BT_R
+	jr	nz,key_on$
+
+	ld	a,(my_lvl) 
+	and	10000000b
+	jr	set$
+key_on$:
+	ld	a,(my_lvl) 
+	xor	10000000b
+	ld	(my_lvl),a 
+set$:
+	ld	bc,00h
+	sla	a
+	rl	c
+	ld	hl,MSGtable$
+	add	hl,bc
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	
+  ifn	pm_jmsg
+	S_POS	11,3
+	ld	a,spc@
+	ld	(hli),a
+	ld	(hl),a
+	S_POS	11,4
+  else
+	S_POS	14,4
+  endif
+	call	put_msg
+	and	a
+	ret
+ 
+MSGtable$:
+	dw	ON$
+	dw	OFF$
+ON$:
+  ifn	pm_jmsg
+	db	zi_,ttu_,ku_,ri_,spc@,mi_,ru_,EOM	; Ç∂Ç¡Ç≠ÇË Ç›ÇÈ
+  else
+	db	usf_o,usf_n,spc@,EOM			; ON
+  endif
+OFF$:
+  ifn	pm_jmsg
+	db	to_,ba_,si_,te_,spc@,mi_,ru_,EOM	; Ç∆ÇŒÇµÇƒ Ç›ÇÈ
+  else
+	db	usf_o,usf_f,usf_f,EOM			; OFF
+  endif
+
+;-------------------------------------------------------;
+;	FIGHT SYSTEM					;
+;-------------------------------------------------------;
+Line3:
+	ld	a,(joy_repeat)
+	and	BT_L+BT_R
+	jr	nz,key_on$
+
+	ld	a,(my_lvl) 
+	and	01000000b
+	jr	set$
+key_on$:
+	ld	a,(my_lvl) 
+	xor	01000000b
+	ld	(my_lvl),a 
+set$:
+	ld	bc,00h
+	sla	a
+	sla	a
+	rl	c
+	ld	hl,MSGtable$
+	add	hl,bc
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	
+  ifn	pm_jmsg
+	S_POS	11,6
+  else
+	S_POS	14,6
+  endif
+	call	put_msg
+	and	a
+	ret
+ 
+MSGtable$:
+	dw	type1$
+	dw	type2$
+type1$:
+  ifn	pm_jmsg
+	db	i_,re_,ka_,e_,ta__,i__,pu__,EOM		; Ç¢ÇÍÇ©Ç¶É^ÉCÉv
+  else
+	db	usf_s,usf_h,usf_i,usf_f,usf_t,EOM	; SHIFT
+  endif
+type2$:
+  ifn	pm_jmsg
+	db	ka_,ti_,nu_,ki_,ta__,i__,pu__,EOM	; Ç©ÇøÇ Ç´É^ÉCÉv
+  else
+	db	usf_s,usf_e,usf_t,spc@,spc@,EOM		; SET
+  endif
+
+;-------------------------------------------------------;
+;	SOUND SYSTEM					;
+;-------------------------------------------------------;
+Line4:
+ ifn 0
+	ld	a,(joy_repeat)
+	and	BT_L+BT_R
+	jr	nz,key_on$
+
+	ld	a,(my_lvl) 
+	and	00100000b
+	jr	set$
+key_on$:
+	xor	a
+	ld	(NR51),a
+	ld	a,(my_lvl) 
+	xor	00100000b
+	ld	(my_lvl),a 
+set$:
+	ld	bc,00h
+	sla	a
+	sla	a
+	sla	a
+	rl	c
+	ld	hl,MSGtable$
+	add	hl,bc
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	
+	S_POS	11,8
+	call	put_msg
+	and	a
+	ret
+ 
+MSGtable$:
+	dw	type1$
+	dw	type2$
+type1$:
+	db	mo__,no__,ra__,ru__,EOM
+type2$:
+	db	su__,te__,re__,o__,EOM
+ endif
+	ld	a,(my_lvl)
+	and	00110000b
+	swap	a
+	ld	c,a
+
+	ld	a,(joy_repeat)
+	bit	4,a
+	jr	nz,right$
+	bit	5,a
+	jr	nz,left$
+	jr	pass$
+right$:
+	ld	a,c
+	inc	a
+	and	00000011b
+	jr	ret$
+left$:
+	ld	a,c
+	dec	a
+	and	00000011b
+ret$:
+	ld	c,a
+	swap	a
+	ld	b,a
+
+	xor	a
+	ld	(NR51),a
+
+	ld	a,(my_lvl)
+	and	11001111b
+	or	b
+	ld	(my_lvl),a
+pass$:
+	ld	b,00h
+	ld	hl,MSGtable$
+	add	hl,bc
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	
+  ifn	pm_jmsg
+	S_POS	11,8
+  else
+	S_POS	8,8
+  endif
+	call	put_msg
+	and	a
+	ret
+ 
+MSGtable$:
+	dw	monoral$
+	dw	stereo1$
+	dw	stereo2$
+	dw	stereo3$
+monoral$:
+  ifn	pm_jmsg
+	db	mo__,no__,ra__,ru__,spc@,EOM
+  else
+;	db	usf_m,usf_o,usf_n,usf_a,usf_u,usf_r,usf_a,usf_l,spc@,EOM
+	db	usf_m,usf_o,usf_n,usf_o,spc@,spc@,spc@,spc@,spc@,EOM
+  endif
+stereo1$:
+  ifn	pm_jmsg
+	db	i__,ya__,ho__,n__,n1@,EOM
+  else
+	db	usf_e,usf_a,usf_r,usf_p,usf_h,usf_o,usf_n,usf_e,n1@,EOM
+  endif
+stereo2$:
+  ifn	pm_jmsg
+	db	i__,ya__,ho__,n__,n2@,EOM
+  else
+	db	usf_e,usf_a,usf_r,usf_p,usf_h,usf_o,usf_n,usf_e,n2@,EOM
+  endif
+stereo3$:
+  ifn	pm_jmsg
+	db	i__,ya__,ho__,n__,n3@,EOM
+  else
+	db	usf_e,usf_a,usf_r,usf_p,usf_h,usf_o,usf_n,usf_e,n3@,EOM
+  endif
+
+;-------------------------------------------------------;
+;	PRINT_OUT CONTRAST				;
+;-------------------------------------------------------;
+Line5:
+	call	ContrastCheck$
+
+	ld	a,(joy_repeat)
+	bit	4,a
+	jr	nz,right$
+	bit	5,a
+	jr	nz,left$
+	jr	pass$
+right$:
+	ld	a,c
+	cp	4
+	jr	c,r_set$
+	ld	c,-1
+r_set$:
+	inc	c
+
+	ld	a,e
+	jr	ret$
+left$:
+	ld	a,c
+	and	a
+	jr	nz,l_set$
+	ld	c,4+1
+l_set$:
+	dec	c
+
+	ld	a,d
+ret$:
+	ld	b,a
+	ld	(PrintContrast),a
+pass$:
+	ld	b,00h
+	ld	hl,MSGtable$
+	add	hl,bc
+	add	hl,bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	
+  ifn	pm_jmsg
+	S_POS	11,10
+  else
+	S_POS	8,10
+  endif
+	call	put_msg
+	and	a
+	ret
+ 
+MSGtable$:
+	dw	contrast1$
+	dw	contrast2$
+	dw	contrast3$
+	dw	contrast4$
+	dw	contrast5$
+contrast1$:
+  ifn	pm_jmsg
+	db	u_,su_,i_,spc@,spc@,spc@,EOM
+  else
+	db	usf_l,usf_i,usf_g,usf_h,usf_t,usf_e,usf_s,usf_t,EOM
+  endif
+contrast2$:
+  ifn	pm_jmsg
+	db	ya_,ya_,spc@,u_,su_,i_,EOM
+  else
+	db	usf_l,usf_i,usf_g,usf_h,usf_t,usf_e,usf_r,spc@,EOM
+  endif
+contrast3$:
+  ifn	pm_jmsg
+	db	hu_,tu_,u_,spc@,spc@,spc@,EOM
+  else
+	db	usf_n,usf_o,usf_r,usf_m,usf_a,usf_l,spc@,spc@,EOM
+  endif
+contrast4$:
+  ifn	pm_jmsg
+	db	ya_,ya_,spc@,ko_,i_,spc@,EOM
+  else
+	db	usf_d,usf_a,usf_r,usf_k,usf_e,usf_r,spc@,spc@,EOM
+  endif
+contrast5$:
+  ifn	pm_jmsg
+	db	ko_,i_,spc@,spc@,spc@,spc@,EOM
+  else
+	db	usf_d,usf_a,usf_r,usf_k,usf_e,usf_s,usf_t,spc@,EOM
+  endif
+
+ContrastCheck$: 
+	ld	a,(PrintContrast)
+	and	a
+	jr	z,usui$
+	cp	20h
+	jr	z,yaya_usui$
+	cp	60h
+	jr	z,yaya_koi$
+	cp	7fh
+	jr	z,koi$
+futuu$:
+	ld	c,2
+	ld	de,2060h	;yaya_usui/yaya_koi
+	ret
+usui$:
+	ld	c,0
+	ld	de,7f20h	;koi/yaya_usui
+	ret
+yaya_usui$:
+	ld	c,1
+	ld	de,0040h	;usui/futuu
+	ret
+yaya_koi$:
+	ld	c,3
+	ld	de,407fh	;futuu/koi
+	ret
+koi$:
+	ld	c,4
+	ld	de,6000h	;yaya_koi/usui
+	ret
+
+
+;-------------------------------------------------------;
+;	EXIT						;
+;-------------------------------------------------------;
+Line6:
+Line7:
+	and	a
+	ret
+Line8:
+	ld	a,(joy_repeat)
+	and	BT_A
+	jr	nz,exit$
+
+	and	a
+	ret
+exit$:
+	scf
+	ret
+
+;-------------------------------------------------------;
+;	SUB						;
+;-------------------------------------------------------;
+EXIT_POINT	equ	7
+CONFIG_MAX	equ	5
+
+UpDownKey:
+	ld	hl,usr_buf+0
+
+	ld	a,(joy_repeat)
+;	bit	7,a
+;	jr	nz,down$
+	cp	80h
+	jr	z,down$
+;	bit	6,a
+;	jr	nz,up$
+	cp	40h
+	jr	z,up$
+	and	a
+	ret
+down$:
+	ld	a,(hl)
+	cp	EXIT_POINT
+	jr	nz,d_check$
+	ld	(hl),00h
+	scf
+	ret
+d_check$:
+	cp	CONFIG_MAX-1
+	jr	c,d_set$
+	ld	(hl),EXIT_POINT-1
+d_set$:
+	inc	(hl)
+	scf
+	ret
+up$:
+	ld	a,(hl)
+	cp	EXIT_POINT
+	jr	nz,u_check$
+	ld	(hl),CONFIG_MAX-1
+	scf
+	ret
+u_check$:
+	and	a
+	jr	nz,u_set$
+	ld	(hl),EXIT_POINT+1
+u_set$:
+	dec	(hl)
+	scf
+	ret
+
+CursorPut:
+  ifn	pm_jmsg
+	S_POS	10,1
+  else
+	S_POS	1,1
+  endif
+	ld	de,20
+	ld	c,16
+cls_loop$:
+	ld	(hl),spc@
+	add	hl,de
+	dec	c
+	jr	nz,cls_loop$
+
+  ifn	pm_jmsg
+	S_POS	10,2
+  else
+	S_POS	1,2
+  endif
+	ld	bc,40
+	ld	a,(usr_buf+0)
+	call	mul_any
+	ld	(hl),allow@
+	ret
+
+ConfigInit:
+	SET_WIN_POS	0,0,19,17
+	call	put_window
+
+  ifn	pm_jmsg
+	SET_MSG_POS	1,2,msg_window$
+  else
+	SET_MSG_POS	2,2,msg_window$
+  endif
+	call	put_msg
+
+  ifn	pm_jmsg
+	SET_MSG_POS	11,16,msg_exit$
+  else
+	SET_MSG_POS	2,16,msg_exit$
+  endif
+	call	put_msg
+
+	xor	a
+	ld	(usr_buf+0),a
+	ld	c,CONFIG_MAX
+init_loop$:
+	push	bc
+	call	ConfigMain
+	pop	bc
+
+	ld	hl,usr_buf+0
+	inc	(hl)
+	dec	c
+	jr	nz,init_loop$
+
+	xor	a
+	ld	(usr_buf+0),a
+	inc	a
+	ld	(all_put_req),a
+	call	put_wait
+	ret
+
+msg_window$:
+  ifn	pm_jmsg
+	db	ha_,na_,si_,no_,spc@,ha_,ya_,sa_
+	db	cr@
+	db	se_,n_,to_,u_,spc@,a__,ni__,me__
+	db	cr@
+	db	si_,a_,i_,no_,spc@,ru__,bou@,ru__
+	db	cr@
+	db	sa__,u__,n__,do__
+	db	cr@
+	db	pu__,ri__,n__,to__,no_,spc@,ko_,sa_
+	db	EOM
+  else
+	db	usf_t,usf_e,usf_x,usf_t,spc@,usf_s,usf_p,usf_e,usf_e,usf_d,spc@,colon2@
+	db	cr@
+	db	usf_a,usf_n,usf_i,usf_m,usf_a,usf_t,usf_i,usf_o,usf_n,spc@,spc@,colon2@
+	db	cr@
+	db	usf_b,usf_a,usf_t,usf_t,usf_l,usf_e,usf_s,usf_t,usf_y,usf_l,usf_e,colon2@
+	db	cr@
+	db	usf_s,usf_o,usf_u,usf_n,usf_d,colon2@
+	db	cr@
+	db	usf_p,usf_r,usf_i,usf_n,usf_t,colon2@
+	db	EOM
+  endif
+
+msg_exit$:
+  ifn	pm_jmsg
+	db	o_,wa_,ri_
+	db	EOM
+  else
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l
+	db	EOM
+  endif
+
+
+
+;-------------------------------------------------------;
+;	KOUKAN_DEMO DATA				;
+;-------------------------------------------------------;
+banke	group	G_BANKe
+
+koukan_anime:
+	include		..\data\trade_an.dat
+
+
+

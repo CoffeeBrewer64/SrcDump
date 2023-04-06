@@ -1,0 +1,76 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room7
+
+
+	extern	coin_goods
+
+
+DEPART_TYPE	equ	18
+EXIT		=	0ffh
+
+
+t7_room7:
+ysiz	=	4
+xsiz	=	5
+	db	DEPART_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	koukanjo	 	; map data adrs
+	dw	t7_room7_msg		; message adrs
+	dw	t7_room7_event		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+t7_room7_event:
+	jp	init_for_talkmap
+
+
+t7_room7_msg:
+	dw	msg1
+	dw	msg2
+
+	dw	Window1
+	dw	Window1
+	dw	Window1
+
+
+msg1:
+	extern	msg1_0_T07R0701
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T07R0701	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_T07R0701
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T07R0701	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+Window1:
+	db	0f7h
+
+
+room_str: 
+	include	..\sxy\t07r0701.sxy
+
+
+koukanjo:
+	include	..\mapdata\kokanjo.map
+
+
+
+
+

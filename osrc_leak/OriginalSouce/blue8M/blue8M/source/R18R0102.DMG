@@ -1,0 +1,88 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	r18_room1_2f
+
+
+	extern	bank2bank
+	extern	gate2f
+	extern	init_for_talk2
+	extern	bouen
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+r18_room1_2f:  
+ysiz	=	4
+xsiz	=	4
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gate2f  	 	; map data adrs
+	dw	msg_tbl 		; message tbl adrs
+	dw	event 			; event routine adrs
+	db	0			; map link flg
+	dw	room_str 
+
+
+event:
+	jp	init_for_talk2
+
+
+
+msg_tbl:
+	dw	msg1
+	dw	scope1
+	dw	scope2
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,5
+	ld	(usr_buf),a
+	ld	a,B_MONSTER_TRADE
+	call	bank2bank
+
+;	call	cont_abwait
+
+	jp	msg_return
+
+
+scope1:
+	db	CALL_MSG
+	ld	hl,scope1_0$
+	jp	bouen
+
+scope1_0$:
+	extern	scope1_0_0_R18R0102
+	db I_MSG2	; mvmsg追加
+	dw scope1_0_0_R18R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+scope2:
+	db	CALL_MSG
+	ld	hl,scope2_0$
+	jp	bouen
+
+scope2_0$:
+	extern	scope2_0_1_R18R0102
+	db I_MSG2	; mvmsg追加
+	dw scope2_0_1_R18R0102	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+room_str:
+	include	..\sxy\r18r0102.sxy
+

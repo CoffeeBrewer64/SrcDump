@@ -1,0 +1,240 @@
+
+	include	common.def
+	include	group.def
+
+bank0	group	G_BANK0
+
+;*************************************************
+;*						*
+;*	cont	[input key status]		*
+;*						*
+;*	ENT	none				*
+;*						*
+;*	RET	joy_status,reg A		*
+;*		   ---pushing key		*
+;*		joy_on				*
+;*		   ---key 'on' this time	*
+;*		joy_off				*
+;*		   ---key 'off' this time	*
+;*						*
+;*	DATA	bit 7  6  5  4  3  2  1  0	*
+;*		    dn up lf rg st se B  A	*
+;*						*
+;*	MOD	A,B,C,D				*
+;*						*
+;*************************************************
+
+
+	public	sgb_reset
+	public	joy_clear
+	public	check_s_reset
+
+
+	extern	bank_push_call
+
+	extern	wait_vb
+	extern	reset
+	extern	soft_reset
+
+
+
+
+sgb_reset:
+
+;------------------ CGB チェック機構　1Apr,1998 村川追加ここから
+	cp	011h
+	jr	z,z0_EQU$
+	xor	a
+	jr	z0_RESULT$
+z0_EQU$:
+	ld	a,0			;本当はa=1にしたいんだけど、今回はCGB対応は見送りです。(ToT)
+z0_RESULT$:
+	ld	(cgb_flg),a
+;------------------ CGB チェック機構　1Apr,1998 村川追加ここまで
+
+	jp	reset
+
+
+;----------------------------------------------------------------------
+; チャタリング対策としてキー入力は毎フレーム単位に変更する（英語版仕様）
+;----------------------------------------------------------------------
+ ifn	ASSEMBLE__ENGLISH
+	public	cont_vblank
+cont_vblank:
+	ld      a,020h      		; U, D, L, R Key Read
+	ld	c,< P1			; < : Mark Is Low
+	ld	(P1),a
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	cpl
+	and     00fh
+	swap    a         
+	ld      b,a       
+	ld      a,010h      		; A, B, SE, ST Key Read
+        ld      (P1),a    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	cpl
+	and     00fh
+	or      b
+	ld	(cont_buf),a		; バッファに保存する
+	ld      a,030h			; Port Reset
+	ld      (P1),a
+	ret
+ endif
+
+	public	cont
+
+cont:
+	ld	a,(rombankno)
+	push	af
+	ld	a,3
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	cont_main
+
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	ret
+
+
+
+bank3	group	G_BANK3
+
+cont_main:
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(cont_buf)
+	cp	$0F			; ソフトリセット？ (A, B, SE, ST Key)
+	jp	z, check_s_reset	;
+	ld	b,a
+ else
+	ld      a,020h      		; U, D, L, R Key Read
+	ld	c,< P1			; < : Mark Is Low
+	ld	(P1),a
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	cpl               
+	and     00fh        
+	swap    a         
+	ld      b,a       
+	ld      a,010h      		; A, B, SE, ST Key Read
+        ld      (P1),a    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	ld      a,(P1)    
+	cpl
+
+	and     04fh
+	cp	00fh			; A, B, SE, ST Key For Soft Reset Check
+	jr	nz,set_status$
+
+	jp	check_s_reset		; Check Soft Reset
+
+
+set_status$:
+	or      b         
+	ld      b,a			; B: 現在のキー入力内容  <d7-0> D,U,L,R,ST,SE,B,A
+ endif
+	ld      a,(joy_data)		; (joy_data): 前回のキー入力内容
+	ld	e,a
+	xor     b
+	ld	d,a         
+	and     e			; (joy_off) = (joy_data) ^ B  & (joy_data)
+	ld	(joy_off),a		;	1 -> 0 変化ビットの検出 
+
+	ld      a,d
+	and	b			; (joy_on) = (joy_data) ^ B  &  B
+	ld	(joy_on),a		;	0 -> 1 変化ビットの検出
+
+ ifn	ASSEMBLE__ENGLISH
+ else
+	ld      a,030h			; ポートリセット
+	ld      (P1),a
+ endif
+	ld	a,b
+	ld	(joy_data),a		; (joy_data) = B
+
+
+chk_all_cancel$:
+	ld	a,(obs_system)		; if ((obs_system).<5>) {(joy_status,on,off)=0}
+	bit	5,a			; All Key Hook Bit
+	jr	nz,joy_clear
+
+	ld	a,(joy_data)
+	ld	(joy_status),a		; (joy_status) = (joy_data)
+
+check_cancel$:
+	ld	a,(cancel_key)		; Cancel Key MASK
+	and	a
+	ret	z			; if ((cancel_key)==0)	return
+
+	cpl				; Reverse "cancel_key"
+	ld	b,a
+
+	ld	a,(joy_status)
+	and	b
+	ld	(joy_status),a		; (joy_status) &= ~(cancel_key)
+
+	ld	a,(joy_on)
+	and	b
+	ld	(joy_on),a		; (joy_on) &= ~(cancel_key)
+
+	ret
+
+
+;-------------------------------------------------------;
+;		     Joy Data All Clear 		;
+;-------------------------------------------------------;
+joy_clear:
+	xor	a
+	ld	(joy_status),a
+	ld	(joy_on),a
+	ld	(joy_off),a
+
+	ret
+
+
+
+;-------------------------------------------------------;
+;		Check Soft Reset Key Count 		;
+;-------------------------------------------------------;
+check_s_reset:
+	call	wait_vb			; 1 Blanking Wait
+
+	ld	a,030h			; Port Reset
+	ld	(P1),a
+
+	ld	hl,soft_reset_counter	; Soft Reset Key Counter ("reset.src")
+	dec	(hl)
+
+	jp	z,soft_reset		; Soft Reset To Go! ("reset.src")
+
+	jp	cont			; Renewal
+
+
+

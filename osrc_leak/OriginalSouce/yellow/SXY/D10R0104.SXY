@@ -1,0 +1,97 @@
+; 06/06/98		01:32:16
+dun_tbl$:
+	db	02eh
+ie_tbl$:
+	db	007h
+	db	000h,018h,001h,D10R1F5
+	db	000h,01ah,001h,D10R1F3
+	db	000h,014h,000h,D10R1F11
+	db	003h,01bh,005h,D10R1F6
+	db	00fh,009h,004h,D10R1F8
+	db	005h,00bh,004h,D10R1F2
+	db	00fh,003h,005h,D10R1F2
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	00bh
+	db	SHAINM
+	db	009h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	DANIN
+	db	010h+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	002h+040h			; battle type
+	db	0e6h				; dealer number
+	db	01ch				; taking pattern 
+	db	KENKYUIN
+	db	003h+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	003h+040h			; battle type
+	db	0e4h				; dealer number
+	db	006h				; taking pattern 
+	db	PHILIP
+	db	00Ah+4,012h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	004h+040h			; battle type
+	db	0ddh				; dealer number
+	db	001h				; taking pattern 
+	db	DANIN
+	db	004h+4,01Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	005h+040h			; battle type
+	db	0e6h				; dealer number
+	db	01dh				; taking pattern 
+	db	CAPSULE
+	db	00Dh+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	006h+080h			; capsule type
+	db	0d1h				; item number
+	db	CAPSULE
+	db	006h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	007h+080h			; capsule type
+	db	024h				; item number
+	db	CAPSULE
+	db	010h+4,015h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	008h+080h			; capsule type
+	db	030h				; item number
+	db	SYORUI
+	db	00Ch+4,016h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	009h
+	db	SYORUI
+	db	00Ah+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00ah
+	db	SYORUI
+	db	006h+4,018h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00bh
+ram_map_tbl$:
+	dw	015h * 001h + 00dh + ram_map
+	db	000h,018h
+	dw	015h * 001h + 00eh + ram_map
+	db	000h,01ah
+	dw	015h * 001h + 00bh + ram_map
+	db	000h,014h
+	dw	015h * 002h + 00eh + ram_map
+	db	003h,01bh
+	dw	015h * 008h + 005h + ram_map
+	db	00fh,009h
+	dw	015h * 003h + 006h + ram_map
+	db	005h,00bh
+	dw	015h * 008h + 002h + ram_map
+	db	00fh,003h

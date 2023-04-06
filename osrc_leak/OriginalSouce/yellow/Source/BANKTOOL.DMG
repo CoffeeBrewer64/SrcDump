@@ -1,0 +1,676 @@
+;===============================================================;
+;								;
+;	bank to bank function call by table data reading	;
+;	*in data*						;
+;	A regs		calling function asigned id number	;
+;								;
+;	*recover*						;
+;	all pair of register 					;
+;								;
+;===============================================================;
+
+
+	include		pm_debug.def
+	include		common.def
+	include	 	fntequ.def
+	include		map.def
+	include	 	banktool.def
+	include	 	group.def
+
+
+bank0	group	G_BANK0
+
+
+	public		bank2bank
+	public		ready2ready
+
+	public		bank_change
+	public		open_ram_bank
+	public		close_ram_bank
+
+
+
+bank_change:
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+
+
+	public	bank_push_call
+
+bank_push_call:
+  ifn	YELLOW_VERSION
+	ld	a,(rombankno)
+	push	af
+	ld	a,b
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	jump_hl
+
+	pop	bc
+	ld	a,b
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	ret
+
+  else
+	ld	a,(rombankno)
+	push	af
+	ld	a,b
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ld	bc,return$
+	push	bc
+
+	jp	(hl)
+
+
+return$:
+	pop	bc
+
+	ld	a,b
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+  endif
+
+
+
+	public	jump_hl
+
+jump_hl:
+	jp	(hl)
+
+
+;=======================================================================;
+; Category	: bank
+; Infomation	: process of access as open for EX-RAM 
+; Bank-No.	: G_BANK00
+; IN	A-regs	: EX-RAM bank(00 - 03)
+; OUT		: nothing
+;=======================================================================;
+
+open_ram_bank:
+	push	af
+
+	ld	a,001h				; select extra ram
+	ld	(ROMRAM),a
+
+	ld	a,00ah				; allowed access
+	ld	(RAMCS),a
+
+	pop	af
+	ld	(RAMBANK),a
+	
+	ret
+
+
+
+
+;=======================================================================;
+; Category	: bank
+; Infomation	: process of access as close for EX-RAM 
+; Bank-No.	: G_BANK00
+; IN		: nothing
+; OUT		: nothing
+;=======================================================================;
+
+close_ram_bank:
+	push	af
+
+	ld	a,00h
+	ld	(ROMRAM),a
+	ld	(RAMCS),a
+
+	pop	af
+
+	ret
+
+
+
+bank2bank:
+	ld	(function_id),a			; function
+
+	ld	a,(rombankno)
+	ld	(sv_bank2bank),a		; before bank save for tool
+	push	af				; before bank save for own
+
+	ld	a,G_BANK3d			; data table bank
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	set_bank2bank
+
+	ld	a,(tbl_bank)			; target program bank
+	call	bank_change
+
+	ld	de,return$
+	push	de
+
+	jp	(hl)
+
+
+return$:
+	pop	af
+	call	bank_change
+
+	ret
+
+
+;-----------------------------------------------------------------------;
+;	ready to set data using some function in calling "bank2bank"	;
+;	set data as HL, DE, BC from "sv_adrs?_l" & "sv_adrs?_h"		;
+;-----------------------------------------------------------------------;
+ready2ready:
+	ld	a,(sv_adrs1_h)
+	ld	h,a
+	ld	a,(sv_adrs1_l)
+	ld	l,a				; HL set
+
+	ld	a,(sv_adrs2_h)
+	ld	d,a
+	ld	a,(sv_adrs2_l)
+	ld	e,a				; DE set
+
+	ld	a,(sv_adrs3_h)
+	ld	b,a
+	ld	a,(sv_adrs3_l)
+	ld	c,a				; BC set
+
+	ret
+
+
+
+
+
+bank3d	group	G_BANK3d
+
+;--------------------------------;
+; setting data of calling status ;
+;--------------------------------;
+set_bank2bank:
+	ld	a,h
+	ld	(sv_adrs1_h),a
+	ld	a,l
+	ld	(sv_adrs1_l),a
+  ifn	0
+	ld	a,d
+	ld	(sv_adrs2_h),a
+	ld	a,e
+	ld	(sv_adrs2_l),a
+	ld	a,b
+	ld	(sv_adrs3_h),a
+	ld	a,c
+	ld	(sv_adrs3_l),a
+  else
+	ld	hl,sv_adrs2_h
+	ld	a,d
+	ld	(hli),a
+	ld	a,e
+	ld	(hli),a
+	ld	a,b
+	ld	(hli),a
+	ld	(hl),c
+;	ld	a,c
+;	ld	(hl),a
+  endif
+
+	ld	hl,bank_call_tbl
+	ld	de,0000h
+
+	ld	a,(function_id)
+	ld	e,a
+	add	a,a				; *2
+	add	a,e				; *3
+	ld	e,a
+	jr	nc,z1$
+
+	inc	d
+
+z1$:
+	add	hl,de				; bank_call$ + 3n
+	ld	d,h
+	ld	e,l
+	ld	a,(de)				; against bank set
+	ld	(tbl_bank),a
+
+	inc	de
+	ld	a,(de)
+	ld	l,a    
+
+	inc	de
+	ld	a,(de)
+	ld	h,a    				; executing address
+
+	ret
+
+
+;-----------------------------------------------;
+; using "bank2bank" program with "banktool.def" ;
+;-----------------------------------------------;
+bank_call_tbl:
+	extern	status_sub1			; 0
+	db	00fh				; against bank number
+	dw	status_sub1			; against function address
+
+	extern	set_msd_ready
+	db	03dh				; against bank number
+	dw	set_msd_ready			; against function address
+
+	extern	bowawan_ready
+	db	03dh				; against bank number
+	dw	bowawan_ready			; against function address
+
+	extern	zoomer
+	db	00bh				; against bank number
+	dw	zoomer				; against function address
+
+	extern	put_mymons_image
+	db	03dh				; against bank number
+	dw	put_mymons_image		; against function address
+
+	extern	zoomsub1_ready
+	db	01eh				; against bank number
+	dw	zoomsub1_ready			; against function address
+
+	extern	sp_attack_main
+	db	003h				; against bank number
+	dw	sp_attack_main			; against function address
+
+	extern	kaihuku
+	db	003h				; against bank number
+	dw	kaihuku				; against function address
+
+	extern	effect_select
+	db	01eh				; against bank number
+	dw	effect_select			; against function address
+
+	extern	mons_picture
+	db	003h				; against bank number
+	dw	mons_picture			; against function address
+
+	extern	put_mons_map			; 10
+	db	003h				; against bank number
+	dw	put_mons_map			; against function address
+
+	extern	bcd_add
+	db	003h				; against bank number
+	dw	bcd_add				; against function address
+
+	extern	bcd_sub
+	db	003h				; against bank number
+	dw	bcd_sub				; against function address
+
+	extern	bcd_div
+	db	003h				; against bank number
+	dw	bcd_div				; against function address
+
+	extern	bcd_div_bc
+	db	003h				; against bank number
+	dw	bcd_div_bc			; against function address
+
+	extern	bcd_to_dec
+	db	003h				; against bank number
+	dw	bcd_to_dec			; against function address
+
+	extern	bit_control
+	db	003h				; against bank number
+	dw	bit_control			; against function address
+
+	extern	req_obj_vanish
+	db	003h				; against bank number
+	dw	req_obj_vanish			; against function address
+
+	extern	obs_obj_atr
+	db	003h				; against bank number
+	dw	obs_obj_atr			; against function address
+
+	extern	doku_chk
+	db	003h				; against bank number
+	dw	doku_chk			; against function address
+
+	extern	check_life_all			; 20
+	db	00fh				; against bank number
+	dw	check_life_all			; against function address
+
+	extern	req_obj_appear
+	db	003h				; against bank number
+	dw	req_obj_appear			; against function address
+
+	db	003h			; dummy
+	dw	req_obj_appear		; dummy
+
+;	extern	get_name_adrs
+;	db	003h				; against bank number
+;	dw	get_name_adrs 			; against function address
+
+	extern	bgcell_change
+	db	003h				; against bank number
+	dw	bgcell_change	 		; against function address
+
+	extern	event_initialize
+	db	003h				; against bank number
+	dw	event_initialize		; against function address
+
+	extern	initmove
+	db	003h				; against bank number
+	dw	initmove			; against function address
+
+	extern	waza_learn_chk
+	db	00eh				; against bank number
+	dw	waza_learn_chk			; against function address
+
+	extern	add_waza1
+	db	001h				; against bank number
+	dw	add_waza1			; against function address
+
+	extern	item_take_chk
+	db	003h				; against bank number
+	dw	item_take_chk			; against function address
+
+	extern	pickup_search
+	db	003h				; against bank number
+	dw	pickup_search			; against function address
+
+	extern	take_item			; 30
+	db	003h				; against bank number
+	dw	take_item    			; against function address
+
+	extern	black_flash
+;	db	012h				; against bank number
+	db	00ah				; against bank number
+	dw	black_flash    			; against function address
+
+	extern	mk_anime
+	db	003h				; against bank number
+	dw	mk_anime    			; against function address
+
+	extern	window_shake_y 
+;	db	012h				; against bank number
+	db	00ah				; against bank number
+	dw	window_shake_y 			; against function address
+
+	extern	offset_adrs
+	db	003h				; against bank number
+	dw	offset_adrs   			; against function address
+
+	extern	change_command
+	db	003h				; against bank number
+	dw	change_command 			; against function address
+
+	extern	window_shake_x
+;	db	012h				; against bank number
+	db	00ah				; against bank number
+	dw	window_shake_x 			; against function address
+
+	extern	put_graph_incdec
+	db	003h				; against bank number
+	dw	put_graph_incdec 		; against function address
+
+	extern	graph_ber_calc
+	db	003h				; against bank number
+	dw	graph_ber_calc	 		; against function address
+
+	extern	put_term_window0
+	db	001h				; against bank number
+	dw	put_term_window0 		; against function address
+
+	extern	condition_inc_dec		; 40
+	db	00fh				; against bank number
+	dw	condition_inc_dec 		; against function address
+
+	extern	zukan
+	db	010h				; against bank number
+	dw	zukan		 		; against function address
+
+	extern	shinka_chk
+	db	00eh				; against bank number
+	dw	shinka_chk	 		; against function address
+
+	extern	save_my_data
+	db	01ch				; against bank number
+	dw	save_my_data	 		; against function address
+
+	extern	fighter0
+	db	03dh				; against bank number
+	dw	fighter0	 		; against function address
+
+	extern	map_contact
+	db	001h				; against bank number
+	dw	map_contact	 		; against function address
+
+	extern	badge_put
+	db	003h				; against bank number
+	dw	badge_put	 		; against function address
+
+	extern	koukan_demo_ko
+	db	010h				; against bank number
+	dw	koukan_demo_ko	 		; against function address
+
+	extern	gokiburi
+	db	01ch				; against bank number
+	dw	gokiburi	 		; against function address
+
+	extern	demo_zoom
+	db	01eh				; against bank number
+	dw	demo_zoom	 		; against function address
+
+	extern	test_demo			; 50
+	db	010h				; against bank number
+	dw	test_demo	 		; against function address
+
+	extern	play_demo_se
+	db	01eh				; against bank number
+	dw	play_demo_se	 		; against function address
+
+	extern	bg_cc2
+	db	01ch				; against bank number
+	dw	bg_cc2		 		; against function address
+
+	extern	get_flontchr
+	db	003h				; against bank number
+	dw	get_flontchr	 		; against function address
+
+	extern	mons_card
+	db	004h				; against bank number
+	dw	mons_card	 		; against function address
+
+	extern	chg_skill
+	db	004h				; against bank number
+	dw	chg_skill	 		; against function address
+
+	extern	koukan_demo_oya
+	db	010h				; against bank number
+	dw	koukan_demo_oya	 		; against function address
+
+	extern	check_site
+;	db	003h				; against bank number
+;	db	008h				; against bank number
+	db	015h				; against bank number
+	dw	check_site	 		; against function address
+
+	extern	get_order_no
+	db	010h				; against bank number
+	dw	get_order_no	 		; against function address
+
+	extern	picture_ready
+	db	001h				; against bank number
+	dw	picture_ready	 		; against function address
+
+	extern	spc_iai				; 60
+	db	003h				; against bank number
+	dw	spc_iai	   	 		; against function address
+
+	extern	zukan_put
+	db	010h				; against bank number
+	dw	zukan_put	    		; against function address
+
+	extern	waza_set
+	db	00eh				; against bank number
+	dw	waza_set	    		; against function address
+
+	extern	save_data			; 63
+	db	01ch				; against bank number
+	dw	save_data	    		; against function address
+
+	extern	sgb_check
+	db	01ch				; against bank number
+	dw	sgb_check	    		; against function address
+
+	extern	anime_xy
+	db	003h				; against bank number
+	dw	anime_xy		    	; against function address
+
+	extern	zokusei_harituke		; 66
+	db	017h				; against bank number
+	dw	zokusei_harituke	    	; against function address
+
+	extern	check_waza_flg
+	db	004h				; against bank number
+	dw	check_waza_flg	    		; against function address
+
+	extern	get_hiden_no
+	db	004h				; against bank number
+	dw	get_hiden_no	    		; against function address
+
+	extern	sgb_color
+	db	01ch				; against bank number
+	dw	sgb_color	    		; against function address
+
+	extern	PutGuide
+	db	017h				; 99
+	dw	PutGuide
+
+;	extern	color_msg			; dummy
+;	db	01ch				; dummy 
+;	dw	sgb_color	    		; dummy
+
+	extern	add_capsule_new2
+	db	003h
+	dw	add_capsule_new2
+
+	extern	hp_graph_incdec
+	db	003h
+	dw	hp_graph_incdec
+
+	extern	status_sub2
+	db	00fh
+	dw	status_sub2
+
+	extern	distribution
+	db	01ch
+	dw	distribution
+
+	extern	put_type
+	db	009h
+	dw	put_type
+
+	extern	bikkuri
+	db	010h				
+	dw	bikkuri
+
+	extern	save_data_koukan
+	db	001h				; 77
+	dw	save_data_koukan
+
+	extern	name_in0
+	db	001h				; 78
+	dw	name_in0
+
+	extern	FirstOneStep
+	db	006h				; 79
+	dw	FirstOneStep
+
+	extern	save_mycap_data
+	db	01ch				; 80
+	dw	save_mycap_data
+
+	extern	load_mycap_data
+	db	01ch				; 81
+	dw	load_mycap_data
+
+	extern	load_data
+	db	01ch				; 82
+	dw	load_data
+
+	extern	save_mons_data
+	db	01ch				; 83
+	dw	save_mons_data
+
+	extern	monster_trade
+	db	01ch				; 84
+	dw	monster_trade
+
+	extern	ending
+;	db	01ch				; 85
+  ifn	ASSEMBLE__BANK_CHANGE
+	db	03ch
+  else
+	db	030h
+  endif
+	dw	ending
+
+	extern	CollectAssess
+	db	011h				; 86
+	dw	CollectAssess
+
+	extern	warp_ef_out
+	db	01eh				; 87
+	dw	warp_ef_out
+
+	extern	warp_ef_in
+	db	01eh				; 88
+	dw	warp_ef_in
+
+	extern	CheckAway
+	db	003h				; 89
+	dw	CheckAway
+
+	extern	CheckAwayWall
+	db	003h				; 90
+	dw	CheckAwayWall
+
+	extern	KaiRiki
+	db	03dh				; 91
+	dw	KaiRiki
+
+	extern	item_founds
+	db	001h				; 92
+	dw	item_founds
+
+	extern	put_waza_type
+	db	009h				; 93
+	dw	put_waza_type
+
+	extern	waza_point_set0
+	db	003h				; 94
+	dw	waza_point_set0
+
+	extern	put_mons_status
+;	db	015h				; 95
+	db	004h				; 95
+	dw	put_mons_status
+
+	extern	put_mons_status2
+;	db	015h				; 96
+	db	004h				; 96
+	dw	put_mons_status2
+
+	extern	elevator_system
+	db	007h				; 97
+	dw	elevator_system
+
+	extern	Assistant
+	db	016h				; 98
+	dw	Assistant
+
+
+
+
+
+

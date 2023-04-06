@@ -1,0 +1,3320 @@
+
+;===============================================;
+;						;
+;	Display & Character effect unit		;
+;						;
+;===============================================;
+
+	include		common.def
+	include		se.def
+	include		effect.def
+	include		effecter.h
+	include		macro.h
+	include		..\data\waza_se.h
+
+
+bank1e	group	30
+
+	public		effect_table
+	public		effect_data
+
+;=============================================================;
+;						       	      ;
+;		WAZA Number = This Table Number	       	      ;
+;							      ;
+;=============================================================;
+effect_data:
+	dw	hataku$				; 1
+	dw	karate_c$			; 2
+	dw	oufuku_b$			; 3
+	dw	ren_panch$			; 4
+	dw	mega_p$				; 5
+	dw	koban$				; 6
+	dw	f_panch$			; 7
+	dw	i_panch$			; 8
+	dw	t_panch$			; 9
+	dw	hikkaku$			; 10
+;---------------------------------------------------
+	dw	hasamu$				; 11
+	dw	hasami_g$			; 12
+	dw	kamaitati$			; 13
+	dw	turugi$				; 14
+	dw	iai$				; 15
+	dw	kazeokosi$			; 16
+	dw	tubasa$				; 17
+	dw	fukitobasi$			; 18
+	dw	kyuukouka$			; 19
+	dw	simetukeru$			; 20
+;---------------------------------------------------
+	dw	tatakikeru$			; 21
+	dw	turu_muti$			; 22
+	dw	fumituke$			; 23
+	dw	nido_keri$			; 24
+	dw	mega_k$				; 25
+	dw	tobigeri$			; 26
+	dw	mawasi$				; 27
+	dw	suna$				; 28
+	dw	zutuki$				; 29
+	dw	tuno_tuku$			; 30
+;---------------------------------------------------
+	dw	midare$				; 31
+	dw	tuno_doriru$			; 32
+	dw	taiatari$			; 33
+	dw	nosikakari$			; 34
+	dw	makituku$			; 35
+	dw	tossin$				; 36
+	dw	abareru$			; 37
+	dw	stemi_t$			; 38
+	dw	sippo$				; 39
+	dw	doku_hari$			; 40
+;---------------------------------------------------
+	dw	d_needle$			; 41
+	dw	m_needle$			; 42
+	dw	nirami$				; 43
+	dw	kamituku$			; 44
+	dw	naku$				; 45
+	dw	hoeru$				; 46
+	dw	utau$				; 47
+	dw	tyouonpa$			; 48
+	dw	sonic$				; 49
+	dw	nenpa$				; 50
+;---------------------------------------------------
+	dw	youkai$				; 51
+	dw	hinoko$				; 52
+	dw	kaen$				; 53
+	dw	mega_f$				; 54
+	dw	mizu$				; 55
+	dw	hydro$				; 56
+	dw	kouzui$				; 57
+	dw	ice_beam$			; 58
+	dw	fubuki$				; 59
+	dw	s_kousen$			; 60
+;---------------------------------------------------
+	dw	b_kousen$			; 61
+	dw	o_beam$				; 62
+	dw	hakai$				; 63
+	dw	tutuku$				; 64
+	dw	d_kutibasi$			; 65
+	dw	jigoku$				; 66
+	dw	ketaguri$			; 67
+	dw	counter$			; 68
+	dw	tikyuu$				; 69
+	dw	kairiki$			; 70
+;---------------------------------------------------
+	dw	suitoru$			; 71
+	dw	mega_d$				; 72
+	dw	yadorigi$			; 73
+	dw	seityou$			; 74
+	dw	happa$				; 75
+	dw	solar_beam$			; 76
+	dw	doku_kona$			; 77
+	dw	sibire_kona$			; 78
+	dw	nemuri_kona$			; 79
+	dw	hanabira$			; 80
+;---------------------------------------------------
+	dw	ito$				; 81
+	dw	dragon$				; 82
+	dw	honoo_uzu$			; 83
+	dw	denki_shock$			; 84
+	dw	z10_bolt$			; 85
+	dw	denjiha$			; 86
+	dw	thunder$			; 87
+	dw	iwanadare$			; 88
+	dw	jisin$				; 89
+	dw	jiware$				; 90
+;---------------------------------------------------
+	dw	ana$				; 91
+	dw	dokudoku$			; 92
+	dw	nenriki$			; 93
+	dw	saiko$				; 94
+	dw	saimin$				; 95
+	dw	yoga$				; 96
+	dw	kousoku$			; 97
+	dw	denkou$				; 98
+	dw	ikari$				; 99
+	dw	teleport$			; 100
+;---------------------------------------------------
+	dw	night_head$			; 101
+	dw	monomane$			; 102
+	dw	iya$				; 103
+	dw	bunsin$				; 104
+	dw	saisei$				; 105
+	dw	kataku$				; 106
+	dw	tiisaku$			; 107
+	dw	enmaku$				; 108
+	dw	ayasii$				; 109
+	dw	kara$				; 110
+;---------------------------------------------------
+	dw	maruku$				; 111
+	dw	bariar$				; 112
+	dw	f_kabe$				; 113
+	dw	w_kabe$				; 114
+	dw	m_kabe$				; 115
+	dw	kiai$				; 116
+	dw	gaman$				; 117
+	dw	yubi$				; 118
+	dw	oumu$				; 119
+	dw	jibaku$				; 120
+;---------------------------------------------------
+	dw	tamago_bomb$			; 121
+	dw	sita_name$			; 122
+	dw	smog$				; 123
+	dw	hedro$				; 124
+	dw	hone_k$				; 125
+	dw	daimonji$			; 126
+	dw	taki$				; 127
+	dw	kara_hasamu$			; 128
+	dw	speed_star$			; 129
+	dw	rocket$				; 130
+;---------------------------------------------------
+	dw	toge_c$				; 131
+	dw	karami$				; 132
+	dw	do_wasure$			; 133
+	dw	spuun$				; 134
+	dw	tamago_umi$			; 135
+	dw	tobihiza$			; 136
+	dw	snake$				; 137
+	dw	dream$				; 138
+	dw	doku_gas$			; 139
+	dw	tama_nage$			; 140
+;---------------------------------------------------
+	dw	kyuuketu$			; 141
+	dw	kiss$				; 142
+	dw	god_bird$			; 143
+	dw	hensin$				; 144
+	dw	awa$				; 145
+	dw	piyopiyo_p$			; 146
+	dw	kinoko_housi$			; 147
+	dw	ikasumi$			; 148
+	dw	s_wave$				; 149
+	dw	haneru$				; 150
+;---------------------------------------------------
+	dw	tokeru$				; 151
+	dw	crab_h$				; 152
+	dw	heavy_bomb$			; 153
+	dw	cat_nail$			; 154
+	dw	hone_b$				; 155
+	dw	sleep$				; 156
+	dw	star_freeze$			; 157
+	dw	hissatu_maeba$			; 158
+	dw	kakubaru$			; 159
+	dw	tex$				; 160
+;---------------------------------------------------
+	dw	t_attack$			; 161
+	dw	ikari_maeba$			; 162
+	dw	kirisaku$			; 163
+	dw	utusemi$			; 164
+	dw	waruagaki$			; 165
+	dw	enemy_put$			; 166
+	dw	bg_modoru$			; 167
+	dw	hensin_modoru$			; 168
+	dw	shake$				; 169
+	dw	koukan_effect1$			; 170
+;---------------------------------------------------
+	dw	koukan_effect2$			; 171
+	dw	koukan_effect3$			; 172
+	dw	koukan_effect4$			; 173
+	dw	effect_ua$			; 174
+	dw	effect_ua$			; 175
+	dw	effect_ub$			; 176
+	dw	effect_ub$			; 177
+	dw	effect_da$			; 178
+	dw	effect_da$			; 179
+	dw	effect_db$			; 180
+;---------------------------------------------------
+	dw	effect_db$			; 181
+	dw	effect_ki$			; 182
+	dw	effect_ki_teki$			; 183
+	dw	effect_mahi$			; 184
+	dw	effect_mahi$			; 185
+	dw	effect_doku$			; 186
+	dw	effect_doku$			; 187
+	dw	effect_sleep$			; 188
+	dw	effect_slp_teki$		; 189
+	dw	effect_konran$			; 190
+;---------------------------------------------------
+	dw	effect_kon_teki$		; 191
+	dw	ana_effect$			; 192
+	dw	cap_throw$			; 193
+	dw	cap_guga$			; 194
+	dw	cap_smoke$			; 195
+	dw	cap_dealer$			; 196
+	dw	scap_throw$			; 197
+	dw	hcap_throw$			; 198
+	dw	shake_jiki$			; 199
+	dw	enemy_vanish$			; 200
+	dw	ishizage$			; 201
+	dw	esanage$			; 202
+	dw	test$
+
+
+
+test$:
+	db	EF_LAS,NO_SE,0ffh
+
+;
+;	Timer & Pattern Bank (MSB),waza_SE_no, Effect Number, End Mark
+;
+;	db	002h, hit2_no,0ffh, 0ffh
+;
+
+waruagaki$:
+hataku$:		
+	db	08h+BANK0, WSE1, hit2_no, 0ffh
+karate_c$:	
+	db	08h+BANK0, WSE2, karate_no, 0ffh
+oufuku_b$:	
+	db	05h+BANK0, WSE3, hit2_no
+	db	05h+BANK0, WSE3, hit2_no, 0ffh
+ren_panch$:
+	db	04h+BANK0, WSE4, hit3_no
+	db	04h+BANK0, WSE4, hit3_no, 0ffh
+mega_p$:	
+	db	06h+BANK1, WSE5, simple_hit1_no, 0ffh
+koban$:	
+	db	08h+BANK0, WSE1, hit2_no
+	db	04h+BANK0, WSE6, koban_no, 0ffh
+f_panch$:	
+	db	06h+BANK0, WSE7, hit3_no
+	db	06h+BANK1, NO_SE, flame1_no, 0ffh
+i_panch$:
+	db	06h+BANK0, WSE8, hit3_no
+	db	10h+BANK0, NO_SE, reitou_no, 0ffh
+t_panch$:
+	db	06h+BANK0, WSE9, hit3_no
+	db	EF_DARK, NO_SE
+	db	06h+BANK1, NO_SE, rydeen1_no
+	db	EF_LIGHT, NO_SE, 0ffh
+hikkaku$:	
+	db	06h+BANK0, WSE10, hikkaku_no, 0ffh
+hasamu$:	
+	db	08h+BANK0, WSE11, hasami_no, 0ffh
+hasami_g$:	
+	db	06h+BANK0, WSE12, hasami_no, 0ffh
+kamaitati$:	
+	db	04h+BANK0, WSE13, kama_no, 0ffh
+turugi$:
+	db	06h+BANK1, WSE14, turugi_no
+	db	06h+BANK1, WSE14, turugi_no
+	db	06h+BANK1, WSE14, turugi_no, 0ffh
+iai$:	
+	db	EF_FLASH, WSE15
+	db	04h+BANK0, NO_SE, kama_no, 0ffh
+kazeokosi$:	
+	db	06h+BANK1, WSE16, wind_no
+	db	06h+BANK0, NO_SE, hit3_no, 0ffh
+tubasa$:	
+	db	06h+BANK1, WSE17, simple_hit1_no, 0ffh
+fukitobasi$:
+	db	06h+BANK1, WSE18, wind_no
+	db	EF_REV_LEAVE, NO_SE, 0ffh
+kyuukouka$:	
+	db	06h+BANK1, WSE19, simple_hit1_no
+	db	EF_BACK2, NO_SE, 0ffh
+simetukeru$:	
+	db	04h+BANK0, WSE20, simetukeru_no
+	db	04h+BANK0, WSE20, simetukeru_no, 0ffh
+tatakikeru$:	
+	db	06h+BANK0, WSE21, hit3_no, 0ffh
+turu_muti$:
+	db	01h+BANK0, WSE22, kama_no
+	db	08h+BANK0, NO_SE,hit2_no, 0ffh
+fumituke$:	
+	db	08h+BANK1, WSE23,simple_hit2_no, 0ffh
+nido_keri$:	
+	db	08h+BANK0, WSE24,hit2_no
+	db	08h+BANK0, WSE24,hit2_no, 0ffh
+mega_k$:	
+	db	06h+BANK1, WSE25, simple_hit1_no,0ffh
+tobigeri$:
+	db	06h+BANK1, WSE26, simple_hit1_no, 0ffh
+mawasi$:	
+	db	EF_FLASH, WSE27
+	db	06h+BANK1, NO_SE, simple_hit1_no, 0ffh
+suna$:		
+	db	06h+BANK1, WSE28, suna_no, 0ffh
+zutuki$:		    
+	db	06h+BANK1, WSE29,simple_hit2_no, 0ffh
+tuno_tuku$:		
+	db	06h+BANK0, WSE30,horn_no
+	db	06h+BANK1, NO_SE,simple_hit2_no, 0ffh
+midare$:	
+	db	02h+BANK0, WSE31,midaretuki_no
+	db	02h+BANK0, NO_SE,midaretuki_no, 0ffh
+tuno_doriru$:	
+	db	02h+BANK1, WSE32, simple_hit2_no
+	db	02h+BANK1, NO_SE, simple_hit2_no
+	db	02h+BANK1, NO_SE, simple_hit2_no
+	db	02h+BANK1, NO_SE, simple_hit2_no
+	db	02h+BANK1, NO_SE, simple_hit2_no, 0ffh
+taiatari$:	
+	db	EF_TAIATARI, WSE73
+	db	EF_AFTER_TAI, NO_SE, 0ffh
+nosikakari$:	
+	db	EF_TAIATARI, WSE73
+	db	EF_FLASH, NO_SE
+	db	EF_FLASH, NO_SE
+	db	EF_AFTER_TAI, NO_SE, 0ffh
+makituku$:	
+	db	04h+BANK0, WSE35, simetukeru_no
+	db	04h+BANK0, WSE35, simetukeru_no
+	db	04h+BANK0, WSE35, simetukeru_no, 0ffh
+tossin$:
+	db	EF_TAIATARI, WSE73
+	db	EF_FLASH, WSE36
+	db	EF_AFTER_TAI, NO_SE, 0ffh
+abareru$:
+	db	06h+BANK1, WSE37,simple_hit1_no, 0ffh
+stemi_t$:
+	db	EF_LIGHT2, WSE73
+	db	06h+BANK0, NO_SE, kiaitame_no
+	db	EF_LIGHT, NO_SE
+	db	EF_TAIATARI, NO_SE
+	db	EF_FLASH, WSE38
+	db	EF_AFTER_TAI, NO_SE, 0ffh
+sippo$:	
+	db	EF_TAIATARI, WSE133
+	db	EF_WAIT,NO_SE
+	db	EF_AFTER_TAI, WSE133
+	db	EF_WAIT,NO_SE
+	db	EF_TAIATARI, WSE133
+	db	EF_WAIT,NO_SE
+	db	EF_AFTER_TAI, WSE133, 0ffh
+doku_hari$:	
+	db	06h+BANK0, WSE40, hit1_no, 0ffh
+d_needle$:
+	db	05h+BANK0, WSE41,hit2_no
+	db	05h+BANK0, WSE41,hit2_no, 0ffh
+m_needle$:	
+	db	03h+BANK0, WSE42, hit2_no, 0ffh
+nirami$:
+	db	EF_DARK, WSE73
+	db	EF_FLASH, WSE43
+	db	EF_FLASH, WSE43
+	db	EF_LIGHT, NO_SE, 0ffh
+kamituku$:
+	db	08h+BANK0, WSE44,hit3_no, 0ffh
+naku$:		
+	db	06h+BANK1, WSE45, wave_no, 0ffh
+hoeru$:	
+	db	06h+BANK1, WSE46, hoeru_no
+	db	06h+BANK1, WSE46, hoeru_no
+	db	06h+BANK1, WSE46, hoeru_no, 0ffh
+utau$:		
+	db	06h+BANK1, WSE47, wave_no
+	db	10h+BANK1, NO_SE, utau_no
+	db	10h+BANK1, NO_SE, utau_no, 0ffh
+tyouonpa$:
+	db	06h+BANK0, WSE48, onpa_no, 0ffh
+sonic$:
+	db	06h+BANK1, WSE46, hoeru_no
+	db	06h+BANK1, WSE46, hoeru_no
+	db	06h+BANK1, WSE16, wind_no
+	db	06h+BANK1, NO_SE, simple_hit2_no, 0ffh
+nenpa$:
+	db	EF_DARK, WSE73
+	db	EF_FLASH, WSE43
+	db	EF_FLASH, WSE43
+	db	EF_LIGHT, NO_SE, 0ffh
+youkai$:
+	db	06h+BANK1, WSE51, ekitai1_no
+	db	06h+BANK1, WSE51, ekitai2_no, 0ffh
+hinoko$:
+	db	06h+BANK1, WSE52, flame1_no, 0ffh
+kaen$:
+	db	06h+BANK1, WSE53, straght_no
+	db	06h+BANK1, WSE53, honoo1_no
+	db	06h+BANK1, WSE53, honoo2_no, 0ffh
+mega_f$:
+	db	EF_LIGHT2, NO_SE
+	db	EF_AME, WSE57
+	db	EF_LIGHT, NO_SE, 0ffh
+mizu$:	
+	db	06h+BANK0, WSE55, hydro1_no, 0ffh
+hydro$:	
+	db	06h+BANK0, WSE56, water_no
+	db	06h+BANK0, WSE56, water_no, 0ffh
+kouzui$:
+	db	EF_AME, WSE57
+	db	06h+BANK0, WSE56, water_no, 0ffh
+ice_beam$:
+	db	03h+BANK0, WSE58, beam_no
+	db	10h+BANK0, NO_SE, reitou_no, 0ffh
+fubuki$:
+	db	04h+BANK0, WSE59, fubuki_no
+	db	04h+BANK0, WSE56, fubuki_no, 0ffh
+s_kousen$:
+	db	03h+BANK0, WSE60, beam_no
+	db	EF_PHY, NO_SE, 0ffh
+b_kousen$:
+	db	12h+BANK0, WSE61, awa_no, 0ffh
+o_beam$:
+	db	03h+BANK0, WSE62, beam_no
+	db	EF_WAIT, NO_SE
+	db	EF_WAIT, NO_SE, 0ffh
+hakai$:
+	db	EF_DARK, WSE73
+	db	EF_UZUMAKI, NO_SE
+	db	02h+BANK0, WSE63, beam_no
+	db	EF_FLASH, NO_SE
+	db	EF_FLASH, NO_SE
+	db	06h+BANK1, WSE5, simple_hit1_no
+	db	EF_LIGHT, NO_SE, 0ffh
+tutuku$:	
+	db	08h+BANK0, WSE64,hit2_no, 0ffh
+d_kutibasi$:
+	db	06h+BANK1, WSE65, simple_hit1_no, 0ffh
+jigoku$:
+	db	EF_LEAVE1, WSE66
+	db	06h+BANK0, NO_SE, hit2_no
+	db	EF_BACK2, NO_SE, 0ffh
+ketaguri$:
+	db	EF_LEAVE1, WSE67
+	db	06h+BANK1, NO_SE, simple_hit1_no
+	db	EF_BACK2, NO_SE, 0ffh
+counter$:
+	db	EF_LEAVE1, WSE68
+	db	06h+BANK1, NO_SE, simple_hit1_no
+	db	EF_BACK2, NO_SE, 0ffh
+tikyuu$:
+	db	EF_REV_TENMETU, NO_SE
+	db	01h+BANK1, WSE140, maru_obj_no
+	db	EF_REV_VANI, 0ffh
+	db	EF_LEAVE1, NO_SE
+	db	02h+BANK1, WSE69, tikyuu1_no
+	db	EF_WAIT, NO_SE
+	db	EF_WAIT, NO_SE
+	db	EF_BACK2, NO_SE
+	db	01h+BANK1, WSE69, tikyuu2_no
+	db	EF_REV_BACK2, NO_SE
+	db	EF_YOKOYURE, NO_SE, 0ffh
+kairiki$:	
+	db	EF_TAIATARI, WSE73
+	db	EF_AFTER_TAI, NO_SE
+	db	06h+BANK1, WSE7, simple_hit1_no, 0ffh
+suitoru$:	
+	db	EF_LIGHT2, WSE71
+	db	06h+BANK0, NO_SE, suitoru1_no
+	db	06h+BANK0, NO_SE, suitoru2_no
+	db	EF_LIGHT, NO_SE, 0ffh
+mega_d$:	
+	db	EF_LIGHT2, WSE72
+	db	EF_FLASH, NO_SE
+	db	06h+BANK0, NO_SE, suitoru1_no
+	db	06h+BANK0, NO_SE, suitoru2_no
+	db	EF_FLASH, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+yadorigi$:	
+	db	06h+BANK1, WSE73, tane1_no
+	db	15h+BANK1, WSE78, tane2_no, 0ffh
+seityou$:	
+	db	EF_LIGHT2, WSE74
+	db	EF_UZUMAKI, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+happa$:		
+	db	EF_HAPPA, WSE75
+	db	01h+BANK1, WSE129, happa_no
+	db	01h+BANK0, WSE13, kama_no, 0ffh
+solar_beam$:
+	db	06h+BANK0, WSE76, beam_no
+	db	06h+BANK0, NO_SE, hit2_no, 0ffh
+doku_kona$:
+	db	06h+BANK0, WSE77, kona_no, 0ffh
+sibire_kona$:
+	db	06h+BANK0, WSE78, kona_no, 0ffh
+nemuri_kona$:
+	db	06h+BANK0, WSE79, kona_no, 0ffh
+hanabira$:	
+	db	EF_LIGHT2, WSE80
+	db	EF_HANA, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+ito$:
+	db	08h+BANK0, WSE81, ito_no, 0ffh
+dragon$:
+	db	06h+BANK1, WSE82, straght_no
+	db	06h+BANK1, NO_SE, honoo1_no
+	db	06h+BANK1, NO_SE, honoo2_no
+	db	06h+BANK1, NO_SE, honoo3_no, 0ffh
+honoo_uzu$:
+	db	06h+BANK1, WSE83, honoo1_no
+	db	06h+BANK1, NO_SE, honoo2_no
+	db	06h+BANK1, NO_SE, honoo3_no, 0ffh
+denki_shock$:	
+	db	02h+BANK1, WSE84, denki_no, 0ffh
+z10_bolt$:	
+	db	01h+BANK1, WSE85, denki_no
+	db	01h+BANK1, WSE85, denki_no, 0ffh
+denjiha$:	
+	db	02h+BANK1, WSE86, denki_no
+;	db	02h+BANK0, WSE43, simetukeru_no		; Bug Fix 95.11.25 Jun
+	db	02h+BANK0, NO_SE, simetukeru_no
+;	db	04h+BANK0, WSE43, simetukeru_no, 0ffh	; Bug Fix 95.11.25 Jun
+	db	04h+BANK0, NO_SE, simetukeru_no, 0ffh
+thunder$:	
+	db	EF_DARK, WSE87
+	db	EF_FLASH, NO_SE
+	db	06h+BANK1, NO_SE, rydeen1_no
+	db	EF_FLASH, NO_SE
+	db	02h+BANK1, WSE85, denki_no
+	db	EF_LIGHT, NO_SE, 0ffh
+iwanadare$:
+	db	04h+BANK0, WSE88, iwa_no, 0ffh
+jisin$:
+	db	EF_YOKOYURE, WSE89
+	db	EF_YOKOYURE, WSE89, 0ffh
+jiware$:
+	db	EF_FLASH, WSE90
+	db	EF_YOKOYURE, NO_SE
+	db	EF_FLASH, WSE90
+	db	EF_YOKOYURE, NO_SE, 0ffh
+ana$:		
+	db	06h+BANK1, WSE91, simple_hit1_no
+	db	EF_MONSUP,NO_SE, 0ffh
+dokudoku$:	
+	db	EF_AME, WSE57
+	db	06h+BANK1, WSE92, ekitai2_no, 0ffh
+nenriki$:
+	db	EF_PHY, WSE93, 0ffh
+saiko$:
+	db	EF_PHY, WSE94
+	db	EF_LAS, NO_SE, 0ffh
+saimin$:
+	db	EF_PHY, WSE95, 0ffh
+yoga$:		
+	db	EF_LIGHT2, WSE96
+	db	06h+BANK1, NO_SE, kataku_no
+	db	EF_FLASH, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+kousoku$:	
+	db	EF_LIGHT2, WSE97
+	db	EF_LIGHT, NO_SE, 0ffh
+denkou$:
+	db	EF_LEAVE1, WSE98
+	db	06h+BANK1, NO_SE, simple_hit1_no
+	db	EF_BACK2, NO_SE, 0ffh
+ikari$:
+	db	06h+BANK0, WSE99, hit2_no, 0ffh
+teleport$:
+	db	EF_TELEPORT, WSE100
+	db	EF_TELEPO_B, NO_SE, 0ffh
+night_head$:
+	db	EF_PHY, WSE93
+	db	EF_LAS, NO_SE, 0ffh
+monomane$:
+	db	06h+BANK1, WSE102, suitoru1_no
+	db	06h+BANK1, WSE102, suitoru2_no, 0ffh
+iya$:
+	db	06h+BANK1, WSE103, wave_no, 0ffh
+bunsin$:
+	db	EF_DARK, NO_SE
+	db	EF_WAIT, NO_SE
+	db	EF_WAIT, NO_SE
+	db	EF_FLASH, NO_SE
+	db	EF_FLASH, NO_SE
+	db	EF_LIGHT, NO_SE
+	db	EF_BUNSIN, WSE104
+	db	EF_BACK2, NO_SE
+	db	06h+BANK1, WSE112, kabe_no, 0ffh
+saisei$:
+	db	EF_TENMETU, WSE105
+	db	EF_LIGHT2, NO_SE
+	db	EF_UZUMAKI, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+kataku$:
+	db	EF_LIGHT2, WSE106
+	db	06h+BANK1, NO_SE, kataku_no
+	db	EF_FLASH, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+tiisaku$:
+	db	EF_LIGHT2, WSE107
+	db	EF_UZUMAKI, NO_SE
+	db	EF_TIISAKU, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+enmaku$:
+	db	06h+BANK1, WSE108, suna_no
+	db	04h+BANK0, NO_SE, capture_smoke_no
+	db	EF_DARK2, NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_DARK, NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_DARK2, NO_SE
+	db	EF_WAIT,NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+ayasii$:
+	db	EF_DARK, WSE109
+	db	06h+BANK1, NO_SE, ayasii_no
+	db	EF_LIGHT, NO_SE, 0ffh
+kara$:
+	db	EF_LIGHT2, WSE111
+	db	EF_MONSDOWN, NO_SE
+	db	06h+BANK0, NO_SE, komoru_no
+	db	EF_LIGHT, NO_SE
+	db	EF_BACK2, NO_SE, 0ffh
+maruku$:
+	db	EF_LIGHT2, WSE111
+	db	06h+BANK0, NO_SE, kataku_no
+	db	EF_FLASH, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+bariar$:
+	db	06h+BANK1, WSE112, kabe_no
+	db	06h+BANK1, WSE112, kabe_no, 0ffh
+f_kabe$:
+	db	EF_LIGHT2, NO_SE
+	db	06h+BANK1, WSE113, kabe_no
+	db	06h+BANK1, WSE113, kabe_no
+	db	EF_LIGHT, NO_SE, 0ffh
+w_kabe$:
+	db	EF_DARK2, NO_SE
+	db	EF_AME, WSE57
+	db	EF_LIGHT, NO_SE, 0ffh
+m_kabe$:
+	db	EF_DARK, NO_SE
+	db	06h+BANK1, WSE115, kabe_no
+	db	06h+BANK1, WSE115, kabe_no
+	db	EF_LIGHT, NO_SE, 0ffh
+kiai$:
+	db	EF_UZUMAKI, WSE116, 0ffh
+gaman$:
+	db	06h+BANK1, WSE117, simple_hit1_no, 0ffh
+yubi$:
+	db	EF_TAIATARI, WSE133
+	db	EF_WAIT,NO_SE
+	db	EF_AFTER_TAI, WSE133
+	db	EF_WAIT,NO_SE
+	db	EF_TAIATARI, WSE133
+	db	EF_WAIT,NO_SE
+	db	EF_AFTER_TAI, WSE133, 0ffh
+;	db	08h+BANK0, WSE118,hit2_no, 0ffh
+oumu$:
+	db	08h+BANK0, WSE119,hit2_no, 0ffh
+jibaku$:
+	db	03h+BANK1, WSE120, bakuhatu_no
+	db	0ffh
+;	db	06h+BANK1, NO_SE, simple_hit1_no, 0ffh
+tamago_bomb$:
+	db	04h+BANK1, WSE121, ball1_no
+	db	04h+BANK1, WSE121, ball2_no, 0ffh
+sita_name$:
+	db	06h+BANK1, WSE124, ekitai2_no, 0ffh
+smog$:
+	db	EF_DARK2, WSE73
+	db	06h+BANK1, WSE123, smog_no
+	db	EF_LIGHT, NO_SE, 0ffh
+hedro$:
+	db	06h+BANK1, WSE124, ekitai1_no
+	db	06h+BANK1, WSE124, ekitai2_no, 0ffh
+hone_k$:
+	db	08h+BANK0, WSE125, hit3_no, 0ffh
+daimonji$:
+	db	06h+BANK1, WSE126, straght_no
+	db	06h+BANK1, NO_SE, daimonji_no
+	db	06h+BANK1, NO_SE, daimonji_no
+	db	06h+BANK1, NO_SE, honoo1_no
+	db	06h+BANK1, NO_SE, honoo2_no, 0ffh
+taki$:
+	db	EF_MONSDOWN, WSE73
+	db	06h+BANK0, WSE56, water_no
+	db	08h+BANK0, NO_SE,hit3_no
+	db	EF_MONSUP, NO_SE, 0ffh
+kara_hasamu$:
+	db	08h+BANK0, WSE128, hasami_no
+	db	06h+BANK0, WSE132, simetukeru_no
+	db	06h+BANK0, WSE132, simetukeru_no, 0ffh
+speed_star$:
+	db	03h+BANK1, WSE129,speed_star_no, 0ffh
+rocket$:
+	db	06h+BANK1, WSE130, simple_hit2_no, 0ffh
+toge_c$:
+	db	04h+BANK1, WSE131, simple_hit1_no, 0ffh
+karami$:
+	db	06h+BANK0, WSE132, simetukeru_no
+	db	06h+BANK0, WSE132, simetukeru_no
+	db	06h+BANK0, WSE132, simetukeru_no, 0ffh
+do_wasure$:
+	db	08h+BANK0, WSE133, ques_no
+	db	08h+BANK0, WSE133, ques_no, 0ffh
+spuun$:
+	db	08h+BANK0, WSE134,hit2_no, 0ffh
+tamago_umi$:
+	db	EF_LEAVE3, WSE73
+	db	08h+BANK0, WSE135,tamago_umi_no
+	db	EF_LIGHT2, NO_SE
+	db	EF_UZUMAKI, NO_SE
+	db	EF_LIGHT, NO_SE
+	db	EF_BACK2, NO_SE, 0ffh
+tobihiza$:
+	db	06h+BANK1, WSE136, simple_hit1_no, 0ffh
+snake$:
+	db	EF_DARK, WSE73
+	db	EF_FLASH, WSE137
+	db	EF_FLASH, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+dream$:
+	db	EF_PHY, WSE138
+;	db	EF_DARK, NO_SE
+	db	EF_DARK, WSE138
+	db	08h+BANK0, WSE138,hit3_no
+	db	EF_LIGHT, NO_SE, 0ffh
+doku_gas$:
+	db	06h+BANK1, WSE139, smog_no, 0ffh
+tama_nage$:
+	db	03h+BANK1, WSE140,ball1_no
+	db	05h+BANK0, NO_SE, throw_hit_no, 0ffh
+kyuuketu$:
+	db	08h+BANK0, WSE141,hit3_no
+	db	EF_FLASH, NO_SE
+	db	06h+BANK0, NO_SE, suitoru1_no
+	db	06h+BANK0, NO_SE, suitoru2_no
+	db	EF_FLASH, NO_SE, 0ffh
+kiss$:
+	db	06h+BANK0, WSE142, wave_no, 0ffh
+god_bird$:
+	db	EF_TELEPORT, WSE143
+	db	EF_TELEPO_B, NO_SE
+	db	06h+BANK1, WSE136, simple_hit1_no
+	db	EF_BACK2, NO_SE, 0ffh
+hensin$:
+	db	06h+BANK1, WSE144, suitoru1_no
+	db	04h+BANK1, WSE144, suitoru2_no
+	db	08h+BANK0, NO_SE, smoke_effect_no
+	db	EF_HENSIN, NO_SE, 0ffh
+awa$:
+	db	16h+BANK0, WSE145, awa_no, 0ffh
+piyopiyo_p$:
+	db	06h+BANK0, WSE146, piyopiyo_no
+	db	06h+BANK0, WSE146, piyopiyo_no
+	db	06h+BANK0, WSE146, piyopiyo_no
+	db	06h+BANK0, WSE3, hit3_no, 0ffh
+kinoko_housi$:
+	db	06h+BANK0, WSE147, kona_no, 0ffh
+ikasumi$:
+	db	EF_LIGHT2, WSE73
+	db	EF_FLASH, WSE137
+	db	EF_FLASH, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+s_wave$:
+	db	06h+BANK0, WSE48, onpa_no
+	db	EF_LAS, WSE93, 0ffh
+haneru$:
+	db	EF_HANERU, WSE150, 0ffh
+tokeru$:
+	db	EF_TOKERU, WSE151, 0ffh
+crab_h$:
+	db	06h+BANK1, WSE152, simple_hit2_no
+	db	06h+BANK0, NO_SE, hasami_no, 0ffh
+heavy_bomb$:
+	db	03h+BANK1, WSE153, bakuhatu_no
+	db	0ffh
+;	db	06h+BANK1, NO_SE, simple_hit2_no
+;	db	06h+BANK1, NO_SE, simple_hit2_no, 0ffh
+cat_nail$:
+	db	04h+BANK0, WSE154, hikkaku_no, 0ffh
+hone_b$:
+	db	06h+BANK0, WSE155, hit3_no, 0ffh
+sleep$:
+	db	10h+BANK0, WSE156, nemuru_no
+	db	10h+BANK0, WSE156, nemuru_no, 0ffh
+star_freeze$:
+	db	04h+BANK0, WSE157, star_freeze1_no
+	db	03h+BANK0, WSE157, star_freeze2_no
+	db	06h+BANK1, WSE158, simple_hit1_no, 0ffh
+hissatu_maeba$:
+	db	06h+BANK0, WSE158, hit3_no, 0ffh
+kakubaru$:
+	db	EF_LIGHT2, WSE159
+	db	06h+BANK1, NO_SE, kataku_no
+	db	EF_FLASH, NO_SE
+	db	EF_LIGHT, NO_SE
+	db	0ffh
+tex$:
+	db	EF_FLASH, WSE160
+	db	06h+BANK1, NO_SE, suitoru1_no
+	db	06h+BANK1, NO_SE, suitoru2_no
+	db	EF_FLASH, NO_SE, 0ffh
+t_attack$:
+	db	EF_FLASH, WSE161
+	db	06h+BANK1, NO_SE, try_attack_no
+	db	EF_FLASH, NO_SE, 0ffh
+ikari_maeba$:
+	db	EF_DARK, WSE73
+	db	06h+BANK1, WSE162, simple_hit1_no
+	db	EF_LIGHT, NO_SE, 0ffh
+kirisaku$:
+	db	06h+BANK0, WSE163, hikkaku_no, 0ffh
+utusemi$:
+	db	EF_LEAVE1, WSE164
+	db	08h+BANK0, NO_SE, smoke_effect_no
+	db	EF_MIGAWARI, NO_SE, 0ffh
+cap_throw$:
+	db	03h+BANK0, NO_SE, capture_throw_no, 0ffh
+scap_throw$:
+	db	03h+BANK0, NO_SE, scap_throw_no, 0ffh
+hcap_throw$:
+	db	02h+BANK0, NO_SE, hcap_throw_no, 0ffh
+cap_guga$:
+	db	04h+BANK0, NO_SE, capture_guga_no, 0ffh
+cap_smoke$:
+	db	04h+BANK0, NO_SE, capture_smoke_no, 0ffh
+enemy_put$:
+	db	EF_REV_BACK2, NO_SE, 0ffh
+enemy_vanish$:
+	db	EF_REV_VANI, NO_SE, 0ffh
+bg_modoru$:
+	db	EF_BACK2, NO_SE, 0ffh
+hensin_modoru$:
+	db	EF_BACK, NO_SE, 0ffh
+shake$:
+	db	EF_SHAKE_SP, NO_SE, 0ffh
+koukan_effect1$:
+	db	06h+BANK2, NO_SE, koukan_ef1_no, 0ffh
+koukan_effect2$:
+	db	04h+BANK2, NO_SE, koukan_ef2_no, 0ffh
+koukan_effect3$:
+	db	06h+BANK2, NO_SE, koukan_ef3_no, 0ffh
+koukan_effect4$:
+	db	06h+BANK2, NO_SE, koukan_ef4_no, 0ffh
+effect_ua$:
+	db	EF_LIGHT2, NO_SE
+	db	EF_UZUMAKI, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+effect_ub$:
+	db	EF_LIGHT2, NO_SE
+	db	06h+BANK1, NO_SE, kataku_no
+	db	EF_LIGHT, NO_SE, 0ffh
+effect_da$:
+	db	EF_DARK2, NO_SE
+	db	EF_UZUMAKI, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+effect_db$:
+	db	EF_DARK2, NO_SE
+	db	06h+BANK1, NO_SE, kataku_no
+	db	EF_LIGHT, NO_SE, 0ffh
+effect_ki$:
+effect_ki_teki$:
+	db	EF_LIGHT2, NO_SE
+	db	EF_KIAI, NO_SE
+	db	EF_LIGHT, NO_SE, 0ffh
+effect_mahi$:	
+	db	04h+BANK0, WSE20, mahi_no
+	db	04h+BANK0, WSE20, mahi_no, 0ffh
+effect_doku$:
+	db	8h+BANK0, WSE20, doku_abi_no
+	db	8h+BANK0, WSE20, doku_abi_no, 0ffh
+effect_sleep$:
+	db	10h+BANK0, WSE156, nemuru_no
+	db	10h+BANK0, WSE156, nemuru_no, 0ffh
+effect_slp_teki$:
+	db	10h+BANK0, WSE156, nemuru_teki_no
+	db	10h+BANK0, WSE156, nemuru_teki_no, 0ffh
+effect_konran$:
+	db	8h+BANK0, WSE133, ques_no
+	db	8h+BANK0, WSE133, ques_no, 0ffh
+effect_kon_teki$:
+	db	8h+BANK0, WSE133, ques_teki_no
+	db	8h+BANK0, WSE133, ques_teki_no, 0ffh
+cap_dealer$:
+	db	03h+BANK0, NO_SE, capture_hito_no, 0ffh
+ana_effect$:
+	db	EF_MONSDOWN,WSE91,0ffh
+shake_jiki$:			
+	db	EF_YOKOYURE, NO_SE, 0ffh
+ishizage$:	
+	db	3h+BANK0, WSE140, ishinage_no, 0ffh
+esanage$:
+	db	3h+BANK0, WSE140, esanage_no, 0ffh
+
+effect_table:
+	initndw	hit1, hit1_no
+	ndw	hit2, hit2_no
+	ndw	hit3, hit3_no
+	ndw	karate, karate_no
+	ndw	simple_hit1, simple_hit1_no
+	ndw	simple_hit2, simple_hit2_no
+	ndw	capture_throw, capture_throw_no
+	ndw	scapture_throw, scap_throw_no
+	ndw	hcapture_throw, hcap_throw_no
+	ndw	capture_guga, capture_guga_no
+	ndw	capture_smoke, capture_smoke_no
+	ndw	capture_hito, capture_hito_no
+	ndw	honoo1, honoo1_no
+	ndw	honoo2, honoo2_no
+	ndw	honoo3, honoo3_no
+	ndw	hikkaki, hikkaku_no
+	ndw	wind, wind_no
+	ndw	flame1, flame1_no
+	ndw	wave, wave_no
+	ndw	ekitai1_p, ekitai1_no
+	ndw	ekitai2_p, ekitai2_no
+	ndw	hoeru_p, hoeru_no
+	ndw	kama, kama_no
+	ndw	piyopiyo, piyopiyo_no
+	ndw	turugi, turugi_no
+	ndw	smog, smog_no
+	ndw	water, water_no
+	ndw	tane1_p, tane1_no
+	ndw	tane2_p, tane2_no
+	ndw	star_freeze1, star_freeze1_no
+	ndw	star_freeze2, star_freeze2_no
+	ndw	straght, straght_no
+	ndw	daimonji, daimonji_no
+	ndw	suitoru1, suitoru1_no
+	ndw	suitoru2, suitoru2_no
+	ndw	simetukeru, simetukeru_no
+	ndw	mahi, mahi_no
+	ndw	ques, ques_no
+	ndw	ques_teki, ques_teki_no
+	ndw	doku_abi, doku_abi_no
+	ndw	suna, suna_no
+	ndw	denki, denki_no
+	ndw	hasami, hasami_no
+	ndw	rydeen1, rydeen1_no
+	ndw	hydro1_p, hydro1_no
+	ndw	kiaitame, kiaitame_no
+	ndw	beam, beam_no
+	ndw	reitou, reitou_no
+	ndw	iwa, iwa_no
+	ndw	onpa, onpa_no
+	ndw	enmaku, enmaku_no
+	ndw	kabe_p, kabe_no
+	ndw	bakuhatu, bakuhatu_no
+	ndw	awa, awa_no
+	ndw	kona, kona_no
+	ndw	ito, ito_no
+	ndw	fubuki, fubuki_no
+	ndw	my_effect, my_effect_no
+	ndw	nemuru, nemuru_no
+	ndw	nemuru_teki, nemuru_teki_no
+	ndw	f_kabe, f_kabe_no
+	ndw	w_kabe, w_kabe_no
+	ndw	ayasii, ayasii_no
+	ndw	speed_star, speed_star_no
+	ndw	utau, utau_no
+	ndw	ball1, ball1_no
+	ndw	ball2, ball2_no
+	ndw	kataku, kataku_no
+	ndw	happa_p, happa_no
+	ndw	horn, horn_no
+	ndw	midaretuki, midaretuki_no
+	ndw	smoke_effect, smoke_effect_no
+	ndw	koukan_ef1, koukan_ef1_no
+	ndw	koukan_ef2, koukan_ef2_no
+	ndw	koukan_ef3, koukan_ef3_no
+	ndw	koukan_ef4, koukan_ef4_no
+	ndw	tamago_umi, tamago_umi_no
+	ndw	try_attack, try_attack_no
+	ndw	maru_obj, maru_obj_no
+	ndw	tikyuu1, tikyuu1_no
+	ndw	tikyuu2, tikyuu2_no
+	ndw	komoru, komoru_no
+	ndw	koban_p, koban_no
+	ndw	safari_isi, ishinage_no
+	ndw	safari_esa, esanage_no
+	ndw	throw_hit, throw_hit_no
+
+;-----------------------------------------------------------------
+simple_hit1:
+	db	X_REV+003h
+	db	L_HIT,ADR3068,0
+	db	L_HIT,ADR2078,0
+	db	L_HIT,ADR1080,0
+
+simple_hit2:
+	db	X_REV+001h
+	db	L_HIT,ADR2078,0
+
+hcapture_throw:
+	db	NO_REV+00bh			; throw the monster ball
+	db	CAP1,ADR5828,0
+	db	CAP1,ADR5030,0
+	db	CAP1,ADR4838,0
+	db	CAP1,ADR4040,0
+	db	CAP1,ADR3848,0
+	db	CAP1,ADR3450,0
+	db	CAP1,ADR3058,0
+	db	CAP1,ADR2f60,0
+	db	CAP1,ADR3068,0
+	db	CAP1,ADR3170,0
+	db	CAP1,ADR3278,0
+
+scapture_throw:
+	db	NO_REV+00bh			; throw the monster ball
+	db	CAP1,ADR5828,0
+	db	CAP1,ADR4c30,0
+	db	CAP1,ADR4338,0
+	db	CAP1,ADR3b40,0
+	db	CAP1,ADR3348,0
+	db	CAP1,ADR2d50,0
+	db	CAP1,ADR2858,0
+	db	CAP1,ADR2660,0
+	db	CAP1,ADR2868,0
+	db	CAP1,ADR2d70,0
+	db	CAP1,ADR3278,0
+
+capture_throw:
+	db	NO_REV+00bh			; throw the monster ball
+	db	CAP1,ADR5828,0
+	db	CAP1,ADR4c30,0
+	db	CAP1,ADR4038,0
+	db	CAP1,ADR3840,0
+	db	CAP1,ADR3048,0
+	db	CAP1,ADR2850,0
+	db	CAP1,ADR2058,0
+	db	CAP1,ADR1e60,0
+	db	CAP1,ADR2068,0
+	db	CAP1,ADR2970,0
+	db	CAP1,ADR3278,0
+
+capture_guga:
+	db	NO_REV+004h			; gugaguga monster ball
+	db	CAP1,ADR3878,4
+	db	CAP2,ADR3878,4
+	db	CAP1,ADR3878,4
+	db	CAP3,ADR3878,4
+
+capture_smoke:
+	db	X_REV+006h			; smoke_ef for monster ball
+	db	SMOKE1,ADR3070,0
+	db	SMOKE2,ADR3070,0
+	db	SMOKE3,ADR2c6c,0
+	db	SMOKE4,ADR2c6c,0
+	db	SMOKE5,ADR2868,0
+	db	SMOKE5,ADR2868,0
+
+capture_hito:
+	db	NO_REV+004h			; for dealer monster ball
+	db	M_HIT,ADR2860,0
+	db	CAP1,ADR4060,0
+	db	CAP1,ADR5858,0
+	db	CAP1,ADR4050,0
+
+throw_hit:
+	db	X_REV+001h			; hit_mark for ball_type
+	db	M_HIT,ADR1c74,0
+
+flame1:
+	db	X_REV+00ch
+	db	L_FIRE,ADR4078,0
+	db	M_FIRE,ADR4078,0
+	db	L_FIRE,ADR4078,0
+	db	M_FIRE,ADR4078,0
+	db	L_FIRE,ADR4088,0
+	db	M_FIRE,ADR4088,0
+	db	L_FIRE,ADR4088,0
+	db	M_FIRE,ADR4088,0
+	db	L_FIRE,ADR4080,0
+	db	M_FIRE,ADR4080,0
+	db	L_FIRE,ADR4080,0
+	db	M_FIRE,ADR4080,0
+
+rydeen1:
+	db	X_REV+00bh
+	db	THUNDER1,ADR1080,3
+	db	THUNDER2,ADR1080,3
+	db	THUNDER3,ADR1080,0
+	db	THUNDER1,ADR2080,0
+	db	THUNDER1,ADR2080,0
+	db	THUNDER1,ADR3480,0
+	db	THUNDER1,ADR3480,0
+	db	THUNDER4,ADR3878,0
+	db	THUNDER4,ADR3878,0
+	db	THUNDER5,ADR3070,0
+	db	THUNDER5,ADR3070,0
+
+hydro1_p:
+	db	X_REV+00ch
+	db	HYDRO1,ADR1070,0
+	db	HYDRO1,ADR2070,0
+	db	HYDRO1,ADR3070,0
+	db	HYDRO1,ADR4070,0
+	db	HYDRO2,ADR4870,0
+	db	HYDRO2,ADR4870,2
+	db	HYDRO3,ADR4870,0
+	db	HYDRO3,ADR4870,2
+	db	HYDRO4,ADR4870,0
+	db	HYDRO4,ADR4870,0
+	db	HYDRO5,ADR4870,0
+	db	HYDRO5,ADR4870,0
+
+wave:
+	db	XY_REV+009h
+	db	WAVE_CHR,ADR5828,0
+	db	WAVE_CHR,ADR4236,0
+	db	WAVE_CHR,ADR3844,0
+	db	WAVE_CHR,ADR4052,0
+	db	WAVE_CHR,ADR4860,0
+	db	WAVE_CHR,ADR3e6e,0
+	db	WAVE_CHR,ADR287c,0
+	db	WAVE_CHR,ADR288a,0
+	db	WAVE_CHR,ADR3098,0
+	
+hit1:
+	db	X_REV+001h
+	db	M_HIT,ADR2878,0
+
+hit2:
+	db	X_REV+002h
+	db	M_HIT,ADR2070,0
+	db	M_HIT,ADR3080,0
+
+hit3:
+	db	X_REV+003h
+	db	M_HIT,ADR2088,0
+	db	M_HIT,ADR2868,0
+	db	M_HIT,ADR3078,0
+
+karate:
+	db	X_REV+004h
+	db	M_HIT,ADR1880,0
+	db	M_HIT,ADR2080,0
+	db	M_HIT,ADR2880,0
+	db	M_HIT,ADR3080,0
+
+honoo1:
+	db	X_REV+003h
+	db	M_FIRE,ADR3868,0
+	db	M_FIRE,ADR3878,0
+	db	M_FIRE,ADR3888,0
+
+honoo2:
+
+	db	X_REV+006h
+	db	M_FIRE,ADR3868,2
+	db	M_FIRE,ADR2868,0
+	db	M_FIRE,ADR3878,2
+	db	M_FIRE,ADR2878,0
+	db	M_FIRE,ADR3888,2
+	db	M_FIRE,ADR2888,0
+
+honoo3:
+	db	X_REV+009h
+	db	M_FIRE,ADR3868,2
+	db	M_FIRE,ADR2868,2
+	db	M_FIRE,ADR1868,0
+	db	M_FIRE,ADR3878,2
+	db	M_FIRE,ADR2878,2
+	db	M_FIRE,ADR1878,0
+	db	M_FIRE,ADR3888,2
+	db	M_FIRE,ADR2888,2
+	db	M_FIRE,ADR1888,0
+
+straght:
+	db	MOVE_REV+005h
+	db	M_FIRE,ADR5828,3
+	db	M_FIRE,ADR503c,3
+	db	M_FIRE,ADR4850,3
+	db	M_FIRE,ADR4064,3
+	db	M_FIRE,ADR3878,0
+		
+beam:
+	db	XYCHR_REV+00eh
+	db	BEAM1,ADR3838,2
+	db	BEAM_HEAD,ADR4840,4
+	db	BEAM2,ADR3838,2
+	db	BEAM_HEAD,ADR4448,4
+	db	BEAM3,ADR3838,2
+	db	BEAM_HEAD,ADR4050,4
+	db	BEAM4,ADR3838,2
+	db	BEAM_HEAD,ADR3c58,4
+	db	BEAM5,ADR3838,2
+	db	BEAM_HEAD,ADR3860,4
+	db	BEAM6,ADR3838,2
+	db	BEAM_HEAD,ADR3468,4
+	db	BEAM7,ADR3838,2
+	db	BEAM_HEAD,ADR3070,0
+
+reitou:
+	db	X_REV+004h
+	db	REITOU1,ADR4068,0
+	db	REITOU2,ADR3868,0
+	db	REITOU3,ADR3068,0
+	db	REITOU4,ADR2868,0
+
+iwa:
+	db	X_REV+012h
+	db	IWA1,ADR1068,2
+	db	IWA1,ADR1078,2
+	db	IWA1,ADR1088,0
+	db	IWA1,ADR1868,2
+	db	IWA1,ADR1078,2
+	db	IWA1,ADR1088,0
+	db	IWA1,ADR2068,2
+	db	IWA1,ADR1078,2
+	db	IWA1,ADR1888,0
+	db	IWA3,ADR1868,0
+	db	IWA3,ADR2068,0
+	db	IWA3,ADR2868,0
+	db	IWA2,ADR4068,2
+	db	IWA1,ADR3078,2
+	db	IWA1,ADR3888,0
+	db	IWA1,ADR3878,2
+	db	IWA2,ADR4088,0
+	db	IWA2,ADR4088,0
+
+hikkaki:
+	db	X_REV+00ch
+	db	HIKKAKI1,ADR2068,2
+	db	HIKKAKI1,ADR2870,2
+	db	HIKKAKI1,ADR3078,0
+	db	HIKKAKI2,ADR2068,2
+	db	HIKKAKI2,ADR2870,2
+	db	HIKKAKI2,ADR3078,0
+	db	HIKKAKI3,ADR2068,2
+	db	HIKKAKI3,ADR2870,2
+	db	HIKKAKI3,ADR3078,0
+	db	HIKKAKI4,ADR2068,2
+	db	HIKKAKI4,ADR2870,2
+	db	HIKKAKI4,ADR3078,0
+
+kama:
+	db	X_REV+00ch
+	db	KAMA1,ADR1090,0
+	db	KAMA2,ADR1090,2
+	db	KAMA2,ADR1888,2
+	db	KAMA1,ADR2080,4
+	db	KAMA2,ADR2080,2
+	db	KAMA2,ADR2878,2
+	db	KAMA1,ADR3070,4
+	db	KAMA2,ADR3070,2
+	db	KAMA2,ADR3868,2
+	db	KAMA1,ADR4060,4
+	db	KAMA3,ADR1068,2
+	db	KAMA3,ADR1068,0
+
+wind:
+	db	MOVE_REV+008h
+	db	WIND1,ADR5030,0
+	db	WIND2,ADR5038,0
+	db	WIND1,ADR5040,0
+	db	WIND2,ADR5048,0
+	db	WIND1,ADR5050,0
+	db	WIND2,ADR4858,0
+	db	WIND1,ADR4060,0
+	db	WIND2,ADR3068,0
+
+onpa:
+	db	XYCHR_REV+00ah
+	db	ONPA1,ADR5040,0
+	db	ONPA1,ADR5044,0
+	db	ONPA1,ADR4848,0
+	db	ONPA1,ADR484c,0
+	db	ONPA1,ADR4050,0
+	db	ONPA1,ADR4054,0
+	db	ONPA1,ADR3858,0
+	db	ONPA1,ADR385c,0
+	db	ONPA1,ADR3060,0
+	db	ONPA1,ADR3064,0
+
+ekitai1_p:
+	db	MOVE_REV+006h
+	db	EKITAI1,ADR4338,0
+	db	EKITAI1,ADR3348,0
+	db	EKITAI1,ADR2858,0
+	db	EKITAI1,ADR2068,0
+	db	EKITAI1,ADR2070,0
+	db	EKITAI1,ADR2078,0
+
+ekitai2_p:
+	db	X_REV+009h
+	db	EKITAI1,ADR2078,0
+	db	EKITAI1,ADR2078,3
+	db	EKITAI2,ADR3078,4
+	db	EKITAI2,ADR3878,4
+	db	EKITAI2,ADR4078,0
+	db	EKITAI1,ADR2078,2
+	db	EKITAI2,ADR3080,4
+	db	EKITAI2,ADR3880,4
+	db	EKITAI2,ADR4080,0
+
+ball1:
+	db	MOVE_REV+005h
+	db	CAP1,ADR4338,0
+	db	CAP1,ADR3348,0
+	db	CAP1,ADR2858,0
+	db	CAP1,ADR2068,0
+	db	CAP1,ADR2078,0
+
+ball2:
+	db	X_REV+003h
+	db	S_BLACK_BALL,ADR1870,0
+	db	L_BLACK_BALL,ADR1870,0
+	db	BLACK_DONUT,ADR1870,0
+
+hoeru_p:
+	db	XYCHR_REV+002h
+	db	HOERU,ADR4840,0
+	db	HOERU,ADR4839,0
+
+piyopiyo:
+	db	X_REV+004h
+	db	HIYOKO1,ADR2488,0
+	db	HIYOKO1,ADR2470,0
+	db	HIYOKO2,ADR1c70,0
+	db	HIYOKO2,ADR1c88,0
+
+turugi:
+	db	TURN_REV+004h
+	db	HIYOKO1,ADR2488,0
+	db	HIYOKO1,ADR2470,0
+	db	HIYOKO2,ADR1c70,0
+	db	HIYOKO2,ADR1c88,0
+
+utau:
+	db	X_REV+006h
+	db	WAVE_CHR,ADR2488,0
+	db	WAVE_CHR,ADR2470,0
+	db	WAVE_CHR,ADR2068,0
+	db	WAVE_CHR,ADR1c70,0
+	db	WAVE_CHR,ADR1c88,0
+	db	WAVE_CHR,ADR2090,0
+
+smog:
+	db	MOVE_REV+00ch
+	db	SMOG1,ADR4338,0
+	db	SMOG2,ADR4338,0
+	db	SMOG1,ADR3348,0
+	db	SMOG2,ADR3348,0
+	db	SMOG1,ADR2858,0
+	db	SMOG2,ADR2858,0
+	db	SMOG1,ADR2068,0
+	db	SMOG2,ADR2068,0
+	db	SMOG1,ADR2070,0
+	db	SMOG2,ADR2070,0
+	db	SMOG1,ADR2078,0
+	db	SMOG2,ADR2078,0
+
+water:
+	db	X_REV+010h
+	db	WATER1,ADR1870,0
+	db	WATER2,ADR1870,0
+	db	WATER3,ADR1870,0
+	db	WATER4,ADR1870,0
+	db	WATER5,ADR1870,0
+	db	WATER6,ADR1870,0
+	db	WATER5,ADR1870,0
+	db	WATER6,ADR1870,0
+	db	WATER1,ADR1880,0
+	db	WATER2,ADR1880,0
+	db	WATER3,ADR1880,0
+	db	WATER4,ADR1880,0
+	db	WATER5,ADR1880,0
+	db	WATER6,ADR1880,0
+	db	WATER5,ADR1880,0
+	db	WATER6,ADR1880,0
+
+tane1_p:
+	db	MOVE_REV+004h
+	db	TANE1,ADR4338,0
+	db	TANE1,ADR3348,0
+	db	TANE1,ADR2858,0
+	db	TANE1,ADR2868,0
+
+tane2_p:
+	db	X_REV+003h
+	db	TANE2,ADR3468,0
+	db	TANE2,ADR3488,0
+	db	TANE2,ADR3878,0
+
+star_freeze1:
+	db	TURN_REV+00fh
+	db	IWA2,ADR3870,0
+	db	IWA1,ADR3070,2
+	db	IWA2,ADR3880,0
+	db	IWA1,ADR2870,2
+	db	IWA1,ADR3080,2
+	db	IWA2,ADR3860,0
+	db	IWA3,ADR2060,4
+	db	IWA3,ADR1060,4
+	db	IWA3,ADR0860,4
+	db	IWA3,ADR0b60,4
+	db	IWA3,ADR0860,4
+	db	IWA3,ADR0b60,4
+	db	IWA3,ADR0860,4
+	db	IWA3,ADR0b60,4
+	db	IWA3,ADR0860,3
+
+star_freeze2:
+	db	NO_REV+001h
+	db	IWA3,ADR3040,0
+	
+daimonji:
+	db	X_REV+002h
+	db	DAIMONJI1,ADR1868,0
+	db	DAIMONJI2,ADR1868,0
+
+suitoru1:
+	db	X_REV+003h
+	db	SUITORI1,ADR1068,0
+	db	SUITORI2,ADR1870,0
+	db	SUITORI3,ADR2078,2
+
+suitoru2:
+	db	MOVE_REV+00bh
+	db	SUITORI4,ADR2078,0
+	db	SUITORI4,ADR1c70,0
+	db	SUITORI4,ADR1868,0
+	db	SUITORI4,ADR1660,0
+	db	SUITORI4,ADR1458,0
+	db	SUITORI4,ADR1254,0
+	db	SUITORI4,ADR1450,0
+	db	SUITORI4,ADR184c,0
+	db	SUITORI4,ADR1c48,0
+	db	SUITORI4,ADR3038,0
+	db	SUITORI4,ADR4828,0
+
+kiaitame:
+	db	XY_REV+006h
+	db	SUITORI1,ADR4014,0
+	db	SUITORI2,ADR481c,0
+	db	SUITORI3,ADR5024,0
+	db	SUITORI4,ADR5024,0
+	db	SUITORI4,ADR5024,0
+	db	SUITORI4,ADR5024,0
+
+my_effect:
+	db	XY_REV+001h
+	db	SUITORI4,ADR4c24,0
+	
+maru_obj:
+	db	X_REV+001h
+	db	L_BLACK_BALL1,ADR2070,3
+
+tikyuu1:
+	db	X_REV+007h
+	db	L_BLACK_BALL1,ADR2070,0
+	db	L_BLACK_BALL1,ADR1870,0
+	db	L_BLACK_BALL1,ADR1070,0
+	db	L_BLACK_BALL1,ADR0870,0
+	db	L_BLACK_BALL2,ADR0870,0
+	db	L_BLACK_BALL3,ADR0870,0
+	db	L_BLACK_BALL4,ADR0870,0
+
+tikyuu2:
+	db	X_REV+008h
+	db	L_BLACK_BALL4,ADR0870,0
+	db	L_BLACK_BALL3,ADR0870,0
+	db	L_BLACK_BALL2,ADR0870,0
+	db	L_BLACK_BALL1,ADR0870,0
+	db	L_BLACK_BALL1,ADR1070,0
+	db	L_BLACK_BALL1,ADR1870,0
+	db	L_BLACK_BALL1,ADR2070,0
+	db	L_BLACK_BALL1,ADR2870,0
+
+denki:
+	db	X_REV+01dh
+	db	S_BLACK_BALL,ADR2070,0
+	db	DENKI1,ADR1062,3
+	db	DENKI2,ADR1060,3
+	db	L_BLACK_BALL,ADR2070,0
+	db	DENKI1,ADR1062,3
+	db	DENKI2,ADR1060,0
+	db	DENKI3,ADR1260,3
+	db	DENKI4,ADR1262,3
+	db	L_BLACK_BALL,ADR2072,0
+	db	DENKI3,ADR1260,3
+	db	DENKI4,ADR1262,0
+	db	DENKI1,ADR1062,3
+	db	DENKI2,ADR1060,3
+	db	L_BLACK_BALL,ADR2272,0
+	db	DENKI1,ADR1062,3
+	db	DENKI2,ADR1060,0
+	db	DENKI3,ADR1260,3
+	db	DENKI4,ADR1262,3
+	db	L_BLACK_BALL,ADR2270,0
+	db	DENKI3,ADR1260,3
+	db	DENKI4,ADR1060,0
+	db	DENKI1,ADR1062,3
+	db	DENKI2,ADR1060,3
+	db	L_BLACK_BALL,ADR2070,0
+	db	DENKI1,ADR1062,3
+	db	DENKI2,ADR1060,0
+	db	DENKI3,ADR1260,3
+	db	DENKI4,ADR1060,3
+	db	L_BLACK_BALL,ADR2072,0
+
+hasami:
+	db	X_REV+004h
+	db	HASAMI1,ADR1860,0
+	db	HASAMI2,ADR1860,0
+	db	HASAMI3,ADR1860,0
+	db	HASAMI3,ADR1860,0
+
+simetukeru:
+	db	X_REV+002h
+	db	SIMETUKE,ADR2860,0
+	db	SIMETUKE,ADR2862,0
+
+mahi:
+	db	TURN_REV+002h
+	db	SIMETUKE,ADR2860,0
+	db	SIMETUKE,ADR2862,0
+
+ques:
+	db	XY_REV+002h
+	db	QUESTION,ADR3830,0
+	db	QUESTION,ADR4048,0
+
+ques_teki:
+	db	NO_REV+002h
+	db	QUESTION,ADR1070,0
+	db	QUESTION,ADR2060,0
+
+nemuru:
+	db	XY_REV+003h
+	db	NEMURI,ADR3830,0
+	db	NEMURI,ADR3828,0
+	db	NEMURI,ADR4020,0
+
+nemuru_teki:
+	db	NO_REV+003h
+	db	NEMURI,ADR1070,0
+	db	NEMURI,ADR2868,0
+	db	NEMURI,ADR2060,0
+
+doku_abi:
+	db	TURN_REV+002h
+	db	DOKU,ADR1070,0
+	db	DOKU,ADR2060,0
+
+suna:
+	db	XYCHR_REV+003h
+	db	SUNA1,ADR3048,3
+	db	SUNA2,ADR3048,3
+	db	SUNA3,ADR3048,0
+
+enmaku:
+	db	XY_REV+003h
+	db	SUITORI4,ADR4030,0
+	db	SUITORI4,ADR3838,0
+	db	SUITORI4,ADR3040,0
+
+kabe_p:
+	db	XYCHR_REV+006h
+	db	KABE,ADR3848,0
+	db	NOTHING,ADR3848,0
+	db	KABE,ADR3848,0
+	db	NOTHING,ADR3848,0
+	db	KABE,ADR3848,0
+	db	NOTHING,ADR3848,0
+
+f_kabe:
+	db	XY_REV+007h
+	db	SS_FIRE,ADR504c,3
+	db	SS_FIRE,ADR604d,3
+	db	SS_FIRE,ADR404a,3
+	db	SS_FIRE,ADR584d,3
+	db	SS_FIRE,ADR484b,3
+	db	SS_FIRE,ADR684d,3
+	db	SS_FIRE,ADR3848,0
+
+w_kabe:
+	db	NO_REV+008h
+	db	WATER1,ADR4050,0
+	db	WATER2,ADR4050,0
+	db	WATER3,ADR4050,0
+	db	WATER4,ADR4050,0
+	db	WATER5,ADR4050,0
+	db	WATER6,ADR4050,0
+	db	WATER5,ADR4050,0
+	db	WATER6,ADR4050,0
+
+bakuhatu:
+	db	XYCHR_REV+015h
+	db	S_BLACK_BALL,ADR3810,0
+	db	L_BLACK_BALL,ADR3810,0
+	db	BLACK_DONUT,ADR3810,0
+	db	S_BLACK_BALL,ADR5828,0
+	db	L_BLACK_BALL,ADR5828,0
+	db	BLACK_DONUT,ADR5828,0
+	db	S_BLACK_BALL,ADR5010,0
+	db	L_BLACK_BALL,ADR5010,0
+	db	BLACK_DONUT,ADR5010,0
+	db	S_BLACK_BALL,ADR3828,0
+	db	L_BLACK_BALL,ADR3828,0
+	db	BLACK_DONUT,ADR3828,0
+	db	S_BLACK_BALL,ADR4818,0
+	db	L_BLACK_BALL,ADR4818,0
+	db	BLACK_DONUT,ADR4818,0
+	db	S_BLACK_BALL,ADR4020,0
+	db	L_BLACK_BALL,ADR4020,0
+	db	BLACK_DONUT,ADR4020,0
+	db	S_BLACK_BALL,ADR4820,0
+	db	L_BLACK_BALL,ADR4820,0
+	db	BLACK_DONUT,ADR4820,0
+
+awa:
+	db	XYCHR_REV+004h
+	db	AWA1,ADR403c,3
+	db	AWA2,ADR3850,3
+	db	AWA3,ADR2864,3
+	db	AWA4,ADR1878,0
+
+kona:
+	db	X_REV+008h
+	db	KONA1,ADR1060,0
+	db	KONA1,ADR1068,0
+	db	KONA2,ADR1060,0
+	db	KONA2,ADR1068,0
+	db	KONA3,ADR1060,0
+	db	KONA3,ADR1068,0
+	db	KONA4,ADR1060,0
+	db	KONA4,ADR1068,0
+	
+ito:
+	db	XYCHR_REV+00ah
+	db	ITO1,ADR3038,0
+	db	ITO2,ADR3040,0
+	db	ITO1,ADR3848,0
+	db	ITO3,ADR1898,0
+	db	ITO3,ADR1c90,0
+	db	ITO3,ADR2088,0
+	db	ITO3,ADR2480,0
+	db	ITO3,ADR2878,0
+	db	ITO3,ADR2c70,0
+	db	ITO3,ADR3068,0
+
+fubuki:
+	db	X_REV+010h
+	db	FUBUKI1,ADR1050,0
+	db	FUBUKI1,ADR2058,0
+	db	FUBUKI1,ADR3060,0
+	db	FUBUKI2,ADR4068,3
+	db	FUBUKI1,ADR1070,4
+	db	FUBUKI1,ADR2078,4
+	db	FUBUKI1,ADR3080,4
+	db	FUBUKI2,ADR4088,3
+	db	FUBUKI1,ADR1060,4
+	db	FUBUKI1,ADR2068,4
+	db	FUBUKI1,ADR3070,4
+	db	FUBUKI2,ADR4078,3
+	db	FUBUKI1,ADR1080,4
+	db	FUBUKI1,ADR2088,4
+	db	FUBUKI1,ADR3090,4
+	db	FUBUKI2,ADR4098,0
+
+ayasii:
+	db	MOVE_REV+012h
+	db	L_HIT,ADR4338,0
+	db	NOTHING,ADR4338,0
+	db	L_HIT,ADR4338,0
+	db	L_HIT,ADR3348,0
+	db	NOTHING,ADR3348,0
+	db	L_HIT,ADR3348,0
+	db	L_HIT,ADR2858,0
+	db	NOTHING,ADR2858,0
+	db	L_HIT,ADR2858,0
+	db	L_HIT,ADR2068,0
+	db	NOTHING,ADR2068,0
+	db	L_HIT,ADR2068,0
+	db	L_HIT,ADR2070,0
+	db	NOTHING,ADR2070,0
+	db	L_HIT,ADR2070,0
+	db	L_HIT,ADR2078,0
+	db	NOTHING,ADR2078,0
+	db	L_HIT,ADR2078,0
+
+speed_star:
+	db	XY_REV+012h
+	db	STAR1,ADR4848,0
+	db	STAR1,ADR4058,0
+	db	STAR1,ADR3868,0
+	db	STAR1,ADR3078,0
+	db	STAR1,ADR2888,0
+	db	STAR1,ADR2098,0
+	db	STAR1,ADR3848,0
+	db	STAR1,ADR3058,0
+	db	STAR1,ADR2868,0
+	db	STAR1,ADR2078,0
+	db	STAR1,ADR1888,0
+	db	STAR1,ADR1098,0
+	db	STAR1,ADR5848,0
+	db	STAR1,ADR5058,0
+	db	STAR1,ADR4868,0
+	db	STAR1,ADR4078,0
+	db	STAR1,ADR3888,0
+	db	STAR1,ADR3098,0
+
+happa_p:
+	db	XYCHR_REV+00ch
+	db	HAPPA,ADR4848,0
+	db	HAPPA,ADR4058,0
+	db	HAPPA,ADR3868,0
+	db	HAPPA,ADR3078,0
+	db	HAPPA,ADR2888,0
+	db	HAPPA,ADR2098,0
+	db	HAPPA,ADR3848,0
+	db	HAPPA,ADR3058,0
+	db	HAPPA,ADR2868,0
+	db	HAPPA,ADR2078,0
+	db	HAPPA,ADR1888,0
+	db	HAPPA,ADR1098,0
+
+kataku:
+	db	TURN_REV+003h
+	db	KATAKU1,ADR1868,0
+	db	KATAKU2,ADR2070,0
+	db	KATAKU3,ADR2878,0
+
+horn:
+	db	XYCHR_REV+004h
+	db	TUNO,ADR3c40,0
+	db	TUNO,ADR3850,0
+	db	TUNO,ADR4448,0
+	db	TUNO,ADR4058,0
+
+midaretuki:
+	db	XYCHR_REV+006h
+	db	TUNO,ADR3c40,0
+	db	TUNO,ADR3850,0
+	db	TUNO,ADR4448,0
+	db	TUNO,ADR4058,0
+	db	TUNO,ADR3428,0
+	db	TUNO,ADR3038,0
+	
+smoke_effect:
+	db	XYCHR_REV+003h
+	db	SMOKE1,ADR4820,0
+	db	SMOKE2,ADR4820,0
+	db	SMOKE3,ADR441c,0
+
+koukan_ef1:
+	db	NO_REV+006h
+	db	CAP1,ADR4850,4
+	db	CAP1,ADR5050,4
+	db	CAP2,ADR5050,4
+	db	CAP1,ADR5050,4
+	db	CAP3,ADR5050,4
+	db	CAP1,ADR5050,3
+
+koukan_ef2:
+	db	NO_REV+004h
+	db	CAP2,ADR5050,4
+	db	CAP1,ADR5050,4
+	db	CAP3,ADR5050,4
+	db	CAP1,ADR5050,3
+
+koukan_ef3:
+	db	NO_REV+001h
+	db	CAP2,ADR3850,3
+
+koukan_ef4:
+	db	NO_REV+003h
+	db	SMOKE1,ADR4048,0
+	db	SMOKE2,ADR4048,0
+	db	SMOKE3,ADR4048,0
+
+tamago_umi:
+	db	XY_REV+008h
+	db	TAMAGO2,ADR5828,0
+	db	TAMAGO1,ADR5828,0
+	db	TAMAGO3,ADR5828,0
+	db	TAMAGO1,ADR5828,0
+	db	TAMAGO2,ADR5828,0
+	db	TAMAGO1,ADR5828,0
+	db	TAMAGO3,ADR5828,0
+	db	TAMAGO1,ADR5828,0
+	
+try_attack:
+	db	XYCHR_REV+006h
+	db	TRY1,ADR4848,0
+	db	TRY2,ADR3858,0
+	db	TRY1,ADR3868,0
+	db	TRY2,ADR2870,0
+	db	TRY1,ADR2888,0
+	db	TRY2,ADR1898,0
+
+komoru:
+	db	TURN_REV+006h
+	db	KARA,ADR3070,0
+	db	NOTHING,ADR3070,0
+	db	KARA,ADR3070,0
+	db	NOTHING,ADR3070,0
+	db	KARA,ADR3070,0
+	db	NOTHING,ADR3070,0
+
+koban_p:
+	db	X_REV+007h
+	db	KOBAN,ADR4070,0
+	db	KOBAN,ADR386c,0
+	db	KOBAN,ADR3068,0
+	db	KOBAN,ADR3864,0
+	db	KOBAN,ADR4060,0
+	db	KOBAN,ADR385c,0
+	db	KOBAN,ADR4058,0
+
+safari_isi:
+	db	NO_REV+00ch			; throw the monster ball
+	db	S_ISHI,ADR5828,0
+	db	S_ISHI,ADR4c30,0
+	db	S_ISHI,ADR4038,0
+	db	S_ISHI,ADR3840,0
+	db	S_ISHI,ADR3048,0
+	db	S_ISHI,ADR2850,0
+	db	S_ISHI,ADR2058,0
+	db	S_ISHI,ADR1e60,0
+	db	S_ISHI,ADR2068,0
+	db	S_ISHI,ADR2970,0
+	db	S_ISHI,ADR3278,0
+	db	M_HIT,ADR2e74,0
+
+safari_esa:
+	db	NO_REV+00bh			; throw the monster ball
+	db	S_ESA,ADR5828,0
+	db	S_ESA,ADR4c30,0
+	db	S_ESA,ADR4038,0
+	db	S_ESA,ADR3840,0
+	db	S_ESA,ADR3048,0
+	db	S_ESA,ADR2850,0
+	db	S_ESA,ADR2058,0
+	db	S_ESA,ADR1e60,0
+	db	S_ESA,ADR2068,0
+	db	S_ESA,ADR2970,0
+	db	S_ESA,ADR3278,0
+
+;===========================================================================;
+;    EFFECT_CHR    TABLE & DATA                                             ;
+;								            ;
+;								            ;
+;								            ;
+;===========================================================================;
+	public	effect_chr_tbl
+;===========================================================================;
+;    EFFECT_CHR    TABLE                                                    ;
+;===========================================================================;
+effect_chr_tbl:
+	dw	dummy
+	dw	m_hit$		;	1
+	dw	l_hit$		;	2
+	dw	cap1$		;	3
+	dw	cap2$		;	4
+	dw	cap3$		;	5
+	dw	smoke1$		;	6
+	dw	smoke2$		;	7
+	dw	smoke3$		;	8
+	dw	smoke4$		;	9
+	dw	smoke5$		;	10
+	dw	l_fire$		;	11
+	dw	m_fire$		;	12
+	dw	thunder1$	;	13
+	dw	thunder2$	;	14
+	dw	thunder3$	;	15
+	dw	thunder4$	;	16
+	dw	thunder5$	;	17
+	dw	hydro1$		;	18
+	dw	hydro2$		;	19
+	dw	hydro3$		;	20
+	dw	hydro4$		;	21
+	dw	hydro5$		;	22
+	dw	wave_chr$	;	23
+	dw	beam1$		;	24
+	dw	beam2$		;	25
+	dw	beam3$		;	26
+	dw	beam4$		;	27
+	dw	beam5$		;	28
+	dw	beam6$		;	29
+	dw	beam7$		;	30
+	dw	reitou1$	;	31
+	dw	reitou2$	;	32
+	dw	reitou3$	;	33
+	dw	reitou4$	;	34	  
+	dw	iwa1$		;	35
+	dw	iwa2$		;	36
+	dw	iwa3$		;	37
+	dw	hikkaki1$	;	38
+	dw	hikkaki2$	;	39
+	dw	hikkaki3$	;	40
+	dw	hikkaki4$	;	41
+	dw	kama1$		;	42
+	dw	kama2$		;	43
+	dw	kama3$		;	44
+	dw	wind1$		;	45
+	dw	wind2$		;	46
+	dw	onpa1$		;	47
+	dw	ekitai1$	;	48
+	dw	ekitai2$	;	49
+	dw	try1$		;	50
+	dw	try2$		;	51
+	dw	nothing$	;	52
+	dw	hoeru$		;	53
+	dw	hiyoko1$	;	54
+	dw	hiyoko2$	;	55
+	dw	smog1$		;	56
+	dw	smog2$		;	57
+	dw	water1$		;	58
+	dw	water2$		;	59
+	dw	water3$		;	60
+	dw	water4$		;	61
+	dw	water5$		;	62
+	dw	water6$		;	63
+	dw	tane1$		;	64
+	dw	tane2$		;	65
+	dw	daimonji1$	;	66
+	dw	daimonji2$	;	67
+	dw	suitori1$	;	68
+	dw	suitori2$	;	69
+	dw	suitori3$	;	70
+	dw	suitori4$	;	71
+	dw	s_black_ball$	;	72
+	dw	l_black_ball$	;	73
+	dw	denki1$		;	74
+	dw	denki2$		;	75
+	dw	denki3$		;	76
+	dw	denki4$		;	77
+	dw	hasami1$	;	78
+	dw	hasami2$	;	79
+	dw	hasami3$	;	80
+	dw	simetuke$	;	81
+	dw	question$	;	82
+	dw	nemuri$		;	83
+	dw	doku$		;	84
+	dw	suna1$		;	85
+	dw	suna2$		;	86
+	dw	suna3$		;	87
+	dw	kabe$		;	88
+	dw	ss_fire$	;	89
+	dw	black_donut$	;	90
+	dw	awa1$		;	91
+	dw	awa2$		;	92
+	dw	awa3$		;	93
+	dw	awa4$		;	94
+	dw	kona1$		;	95
+	dw	kona2$		;	96
+	dw	kona3$		;	97
+	dw	kona4$		;	98
+	dw	ito1$		;	99
+	dw	ito2$		;	100
+	dw	ito3$		;	101
+	dw	fubuki1$	;	102
+	dw	fubuki2$	;	103
+	dw	star1$		;	104
+	dw	happa$		;	105
+	dw	kataku1$	;	106
+	dw	kataku2$	;	107
+	dw	kataku3$	;	108
+	dw	tuno$		;	109
+	dw	tamago1$	;	110
+	dw	tamago2$	;	111
+	dw	tamago3$	;	112
+	dw	l_black_ball1$	;	113
+	dw	l_black_ball2$	;	114
+	dw	l_black_ball3$	;	115
+	dw	l_black_ball4$	;	116
+	dw	beam_head$	;	117
+	dw	kara$		;	118
+	dw	koban$		;	119
+	dw	s_ishi$		;	120
+	dw	s_esa$		;	121
+
+
+;===========================================================================;
+;    EFFECT_CHR    DATA                                                     ;
+;===========================================================================;
+
+m_hit$:
+	db	009h
+	db	000h,000h,02ch,000h
+	db	000h,008h,02dh,000h
+	db	000h,010h,02ch,020h
+	db	008h,000h,03ch,000h 
+	db	008h,008h,03dh,000h
+	db	008h,010h,03ch,020h
+	db	010h,000h,02ch,040h
+	db	010h,008h,02dh,040h
+	db	010h,010h,02ch,060h
+
+l_hit$:
+	db	010h
+	db	000h,000h,020h,000h		; plane 0
+	db	000h,008h,021h,000h
+	db	000h,010h,021h,020h
+	db	000h,018h,020h,020h
+	db	008h,000h,030h,000h		; plane 1
+	db	008h,008h,031h,000h
+	db	008h,010h,031h,020h
+	db	008h,018h,030h,020h
+	db	010h,000h,030h,040h		; plane 1 lower reverse
+	db	010h,008h,031h,040h
+	db	010h,010h,031h,060h
+	db	010h,018h,030h,060h
+	db	018h,000h,020h,040h		; plane 0 lower reverse
+	db	018h,008h,021h,040h
+	db	018h,010h,021h,060h
+	db	018h,018h,020h,060h
+
+cap1$:					; monster ball as normal view
+	db	004h
+	db	000h,000h,002h,000h
+	db	000h,008h,002h,020h
+	db	008h,000h,012h,000h
+	db	008h,008h,012h,020h
+
+cap2$:					; monster ball as wave 1
+	db	004h
+	db	000h,000h,006h,000h
+	db	000h,008h,007h,000h
+	db	008h,000h,016h,000h
+	db	008h,008h,017h,000h
+
+cap3$:					; monster ball as wave 2
+	db	004h
+	db	000h,000h,007h,020h
+	db	000h,008h,006h,020h
+	db	008h,000h,017h,020h
+	db	008h,008h,016h,020h
+
+smoke1$:					; smoke 1
+	db	00ch
+	db	000h,008h,023h,000h
+	db	008h,000h,032h,000h
+	db	008h,008h,033h,000h
+	db	000h,010h,023h,020h
+	db	008h,010h,033h,020h
+	db	008h,018h,032h,020h
+	db	010h,000h,032h,040h
+	db	010h,008h,033h,040h
+	db	018h,008h,023h,040h
+	db	010h,010h,033h,060h
+	db	010h,018h,032h,060h
+	db	018h,010h,023h,060h
+
+smoke2$:					; smoke 2
+	db	010h
+	db	000h,000h,020h,000h
+	db	000h,008h,021h,000h
+	db	008h,000h,030h,000h
+	db	008h,008h,031h,000h
+	db	000h,010h,021h,020h
+	db	000h,018h,020h,020h
+	db	008h,010h,031h,020h
+	db	008h,018h,030h,020h
+	db	010h,000h,030h,040h
+	db	010h,008h,031h,040h
+	db	018h,000h,020h,040h
+	db	018h,008h,021h,040h
+	db	010h,010h,031h,060h
+	db	010h,018h,030h,060h
+	db	018h,010h,021h,060h
+	db	018h,018h,020h,060h
+
+smoke3$:					; smoke 2
+	db	010h
+	db	000h,000h,020h,000h
+	db	000h,008h,021h,000h
+	db	008h,000h,030h,000h
+	db	008h,008h,031h,000h
+	db	000h,018h,021h,020h
+	db	000h,020h,020h,020h
+	db	008h,018h,031h,020h
+	db	008h,020h,030h,020h
+	db	018h,000h,030h,040h
+	db	018h,008h,031h,040h
+	db	020h,000h,020h,040h
+	db	020h,008h,021h,040h
+	db	018h,018h,031h,060h
+	db	018h,020h,030h,060h
+	db	020h,018h,021h,060h
+	db	020h,020h,020h,060h
+
+smoke4$:					; smoke 3
+	db	00ch
+	db	000h,000h,024h,000h
+	db	000h,008h,025h,000h
+	db	008h,000h,034h,000h
+	db	000h,018h,025h,020h
+	db	000h,020h,024h,020h
+	db	008h,020h,034h,020h
+	db	018h,000h,034h,040h
+	db	020h,000h,024h,040h
+	db	020h,008h,025h,040h
+	db	018h,020h,034h,060h
+	db	020h,018h,025h,060h
+	db	020h,020h,024h,060h
+
+smoke5$:					; smoke 3
+	db	00ch
+	db	000h,000h,024h,000h
+	db	000h,008h,025h,000h
+	db	008h,000h,034h,000h
+	db	000h,020h,025h,020h
+	db	000h,028h,024h,020h
+	db	008h,028h,034h,020h
+	db	020h,000h,034h,040h
+	db	028h,000h,024h,040h
+	db	028h,008h,025h,040h
+	db	020h,028h,034h,060h
+	db	028h,020h,025h,060h
+	db	028h,028h,024h,060h
+
+l_fire$:
+	db	004h
+	db	000h,000h,005h,000h
+	db	000h,008h,005h,020h
+	db	008h,000h,015h,000h
+	db	008h,008h,015h,020h
+
+m_fire$:
+	db	004h
+	db	000h,000h,004h,000h
+	db	000h,008h,004h,020h
+	db	008h,000h,014h,000h
+	db	008h,008h,014h,020h
+
+thunder1$:
+	db	008h
+	db	000h,000h,00ch,000h
+	db	000h,008h,00dh,000h
+	db	008h,000h,01ch,000h
+	db	008h,008h,01dh,000h
+	db	010h,000h,01dh,060h
+	db	010h,008h,01ch,060h
+	db	018h,000h,00dh,060h
+	db	018h,008h,00ch,060h
+
+thunder2$:
+	db	004h
+	db	020h,000h,00ch,000h
+	db	020h,008h,00dh,000h
+	db	028h,000h,01ch,000h
+	db	028h,008h,01dh,000h
+
+thunder3$:
+	db	004h
+	db	030h,000h,01dh,060h
+	db	030h,008h,01ch,060h
+	db	038h,000h,00dh,060h
+	db	038h,008h,00ch,060h
+
+thunder4$:
+	db	008h
+	db	000h,000h,00eh,000h
+	db	000h,008h,00fh,000h
+	db	008h,000h,01eh,000h
+	db	008h,008h,01fh,000h
+	db	000h,010h,00fh,020h
+	db	000h,018h,00eh,020h
+	db	008h,010h,01fh,020h
+	db	008h,018h,01eh,020h
+
+thunder5$:
+	db	008h
+	db	000h,000h,00eh,000h
+	db	000h,008h,00fh,000h
+	db	008h,000h,01eh,000h
+	db	008h,008h,01fh,000h
+	db	000h,020h,00fh,020h
+	db	000h,028h,00eh,020h
+	db	008h,020h,01fh,020h
+	db	008h,028h,01eh,020h
+
+hydro1$:
+	db	003h
+	db	000h,000h,037h,000h
+	db	008h,010h,037h,000h
+	db	000h,020h,037h,000h
+
+hydro2$:
+	db	004h
+	db	000h,000h,036h,000h
+	db	000h,008h,036h,020h
+	db	008h,000h,036h,040h
+	db	008h,008h,036h,060h
+
+hydro3$:
+	db	008h
+	db	000h,010h,028h,000h
+	db	000h,018h,028h,020h
+	db	008h,010h,038h,000h
+	db	008h,018h,038h,020h
+	db	000h,020h,036h,000h
+	db	000h,028h,036h,020h
+	db	008h,020h,036h,040h
+	db	008h,028h,036h,060h
+
+hydro4$:
+	db	00ch
+	db	000h,000h,028h,000h
+	db	000h,008h,028h,020h
+	db	008h,000h,038h,000h
+	db	008h,008h,038h,020h
+	db	000h,010h,029h,000h
+	db	000h,018h,029h,020h
+	db	008h,010h,039h,000h
+	db	008h,018h,039h,020h
+	db	000h,020h,028h,000h
+	db	000h,028h,028h,020h
+	db	008h,020h,038h,000h
+	db	008h,028h,038h,020h
+
+hydro5$:
+	db	008h
+	db	000h,000h,029h,000h
+	db	000h,008h,029h,020h
+	db	008h,000h,039h,000h
+	db	008h,008h,039h,020h
+	db	000h,020h,029h,000h
+	db	000h,028h,029h,020h
+	db	008h,020h,039h,000h
+	db	008h,028h,039h,020h
+
+wave_chr$:
+	db	004h
+	db	000h,000h,008h,000h
+	db	000h,008h,009h,000h
+	db	008h,000h,018h,000h
+	db	008h,008h,019h,000h
+
+beam1$:
+	db	001h
+	db	018h,000h,045h,060h
+
+beam2$:
+	db	002h
+	db	018h,008h,045h,000h
+	db	010h,008h,046h,060h
+
+beam3$:
+	db	002h
+	db	010h,010h,045h,060h
+	db	018h,010h,046h,000h
+
+beam4$:
+	db	002h
+	db	010h,018h,045h,000h
+	db	008h,018h,046h,060h
+
+beam5$:
+	db	002h
+	db	008h,020h,045h,060h
+	db	010h,020h,046h,000h
+
+beam6$:
+	db	002h
+	db	008h,028h,045h,000h
+	db	000h,028h,046h,060h
+
+beam7$:
+	db	002h
+	db	000h,030h,045h,060h
+	db	008h,030h,046h,000h
+
+beam_head$:
+	db	004h
+	db	000h,000h,043h,000h
+	db	000h,008h,043h,020h
+	db	008h,000h,022h,000h
+	db	008h,008h,043h,060h
+
+reitou1$:
+	db	002h
+	db	000h,000h,003h,000h
+	db	000h,030h,003h,020h
+
+reitou2$:
+	db	006h
+	db	000h,000h,003h,000h
+	db	000h,030h,003h,020h
+	db	008h,008h,003h,000h
+	db	008h,028h,003h,020h
+	db	008h,000h,013h,000h
+	db	008h,030h,013h,020h
+
+reitou3$:
+	db	00ch
+	db	000h,000h,003h,000h
+	db	000h,030h,003h,020h
+	db	008h,008h,003h,000h
+	db	008h,028h,003h,020h
+	db	008h,000h,013h,000h
+	db	008h,030h,013h,020h
+	db	010h,010h,003h,000h
+	db	010h,020h,003h,020h
+	db	010h,008h,013h,000h
+	db	010h,028h,013h,020h
+	db	010h,000h,003h,000h
+	db	010h,030h,003h,020h
+
+reitou4$: 	  
+	db	013h
+	db	000h,000h,003h,000h
+	db	008h,000h,013h,000h
+	db	010h,000h,003h,000h
+	db	018h,000h,013h,000h
+	db	008h,008h,003h,000h
+	db	010h,008h,013h,000h
+	db	018h,008h,003h,000h
+	db	010h,010h,003h,000h
+	db	018h,010h,013h,000h
+	db	018h,018h,003h,000h
+	db	010h,020h,003h,020h
+	db	018h,020h,013h,020h
+	db	008h,028h,003h,020h
+	db	010h,028h,013h,020h
+	db	018h,028h,003h,020h
+	db	000h,030h,003h,020h
+	db	008h,030h,013h,020h
+	db	010h,030h,003h,020h
+	db	018h,030h,013h,020h
+
+iwa1$:
+	db	004h
+	db	000h,000h,00ah,000h
+	db	000h,008h,00bh,000h
+	db	008h,000h,01ah,000h
+	db	008h,008h,01bh,000h
+
+iwa2$:
+	db	002h
+	db	008h,000h,00ah,000h
+	db	008h,008h,00bh,000h
+
+iwa3$:
+	db	00ch
+	db	010h,000h,00ah,000h
+	db	010h,008h,00bh,000h
+	db	018h,000h,01ah,000h
+	db	018h,008h,01bh,000h
+	db	000h,010h,00ah,000h
+	db	000h,018h,00bh,000h
+	db	008h,010h,01ah,000h
+	db	008h,018h,01bh,000h
+	db	008h,020h,00ah,000h
+	db	008h,028h,00bh,000h
+	db	010h,020h,01ah,000h
+	db	010h,028h,01bh,000h
+
+hikkaki1$:
+	db	004h
+	db	000h,010h,044h,000h
+	db	000h,018h,044h,020h
+	db	008h,010h,044h,040h
+	db	008h,018h,044h,060h
+
+hikkaki2$:
+	db	005h
+	db	008h,008h,044h,000h
+	db	008h,010h,044h,020h
+	db	010h,008h,044h,040h
+	db	010h,010h,044h,060h
+	db	000h,018h,047h,000h
+
+hikkaki3$:
+	db	006h
+	db	010h,000h,044h,000h
+	db	010h,008h,044h,020h
+	db	018h,000h,044h,040h
+	db	018h,008h,044h,060h
+	db	008h,010h,047h,000h
+	db	002h,016h,047h,000h
+
+hikkaki4$:
+	db	004h
+	db	018h,000h,047h,000h
+	db	012h,006h,047h,000h
+	db	00ch,00ch,047h,000h
+	db	006h,012h,047h,000h
+
+kama1$:
+	db	004h
+	db	000h,000h,044h,000h
+	db	000h,008h,044h,020h
+	db	008h,000h,044h,040h
+	db	008h,008h,044h,060h
+
+kama2$:
+	db	002h
+	db	006h,002h,047h,000h
+	db	000h,008h,047h,000h
+
+kama3$:
+	db	001h
+	db	0a0h,000h,04dh,000h
+
+wind1$:
+	db	008h
+	db	000h,000h,026h,000h
+	db	000h,008h,027h,000h
+	db	008h,000h,036h,000h
+	db	008h,008h,037h,000h
+	db	010h,000h,028h,000h
+	db	010h,008h,029h,000h
+	db	018h,000h,038h,000h
+	db	018h,008h,039h,000h
+
+wind2$:
+	db	008h
+	db	000h,000h,027h,020h
+	db	000h,008h,026h,020h
+	db	008h,000h,037h,020h
+	db	008h,008h,036h,020h
+	db	010h,000h,029h,020h
+	db	010h,008h,028h,020h
+	db	018h,000h,039h,020h
+	db	018h,008h,038h,020h
+
+onpa1$:
+	db	004h
+	db	000h,000h,00ch,000h
+	db	000h,008h,00dh,000h
+	db	008h,000h,00ch,040h
+	db	008h,008h,00dh,040h
+
+ekitai1$:
+	db	004h
+	db	000h,000h,044h,000h
+	db	000h,008h,044h,020h
+	db	008h,000h,044h,040h
+	db	008h,008h,044h,060h
+
+ekitai2$:
+	db	001h
+	db	000h,000h,045h,000h
+
+try1$:
+	db	007h
+	db	000h,000h,04dh,000h
+	db	000h,008h,02fh,000h
+	db	000h,010h,04dh,020h
+	db	008h,000h,04eh,000h
+	db	008h,008h,007h,000h
+	db	008h,010h,04eh,020h
+	db	010h,008h,03fh,000h
+
+try2$:
+	db	007h
+	db	000h,008h,03fh,040h
+	db	008h,000h,04eh,040h
+	db	008h,008h,007h,040h
+	db	008h,010h,04eh,060h
+	db	010h,000h,04dh,040h
+	db	010h,008h,02fh,040h
+	db	010h,010h,04dh,060h
+
+nothing$:
+	db	001h
+	db	0a0h,000h,000h,010h
+
+hoeru$:
+	db	006h
+	db	000h,000h,02ah,000h
+	db	000h,008h,02bh,000h
+	db	008h,000h,03ah,000h
+	db	010h,000h,03ah,040h
+	db	018h,000h,02ah,040h
+	db	018h,008h,02bh,040h
+
+hiyoko1$:
+	db	004h
+	db	000h,000h,000h,000h
+	db	000h,008h,001h,000h
+	db	008h,000h,010h,000h
+	db	008h,008h,011h,000h	
+
+hiyoko2$:
+	db	004h
+	db	000h,000h,001h,0a0h
+	db	000h,008h,000h,0a0h
+	db	008h,000h,011h,0a0h
+	db	008h,008h,010h,0a0h	
+
+smog1$:
+	db	004h
+	db	000h,000h,00ah,000h
+	db	000h,008h,00bh,000h
+	db	008h,000h,01ah,000h
+	db	008h,008h,01bh,000h
+
+smog2$:
+	db	004h
+	db	000h,000h,00bh,020h
+	db	000h,008h,00ah,020h
+	db	008h,000h,01bh,020h
+	db	008h,008h,01ah,020h
+
+water1$:
+	db	004h
+	db	020h,000h,005h,000h
+	db	020h,008h,005h,020h
+	db	028h,000h,015h,000h
+	db	028h,008h,015h,020h
+
+water2$:
+	db	005h
+	db	018h,000h,004h,000h
+	db	018h,008h,004h,020h
+	db	020h,000h,014h,000h
+	db	020h,008h,014h,020h
+	db	028h,004h,041h,000h
+
+water3$:
+	db	006h
+	db	010h,000h,005h,000h
+	db	010h,008h,005h,020h
+	db	018h,000h,015h,000h
+	db	018h,008h,015h,020h
+	db	020h,004h,042h,000h
+	db	028h,004h,042h,000h
+
+water4$:
+	db	007h
+	db	008h,000h,004h,000h
+	db	008h,008h,004h,020h
+	db	010h,000h,014h,000h
+	db	010h,008h,014h,020h
+	db	018h,004h,041h,000h
+	db	020h,004h,041h,000h
+	db	028h,004h,041h,000h
+
+water5$:
+	db	008h
+	db	000h,000h,005h,000h
+	db	000h,008h,005h,020h
+	db	008h,000h,015h,000h
+	db	008h,008h,015h,020h
+	db	010h,004h,042h,000h
+	db	018h,004h,042h,000h
+	db	020h,004h,042h,000h
+	db	028h,004h,042h,000h
+
+water6$:
+	db	008h
+	db	000h,000h,004h,000h
+	db	000h,008h,004h,020h
+	db	008h,000h,014h,000h
+	db	008h,008h,014h,020h
+	db	010h,004h,041h,000h
+	db	018h,004h,041h,000h
+	db	020h,004h,041h,000h
+	db	028h,004h,041h,000h
+
+tane1$:
+ 	db	003h
+	db	000h,000h,03dh,000h
+	db	000h,008h,03dh,000h
+	db	008h,008h,03dh,000h
+
+tane2$:
+	db	004h
+	db	000h,000h,006h,000h
+	db	000h,008h,006h,020h
+	db	008h,000h,016h,000h
+	db	008h,008h,017h,000h
+
+daimonji1$:
+	db	00bh
+	db	000h,010h,042h,000h
+	db	008h,000h,042h,000h
+	db	008h,008h,042h,000h
+	db	008h,010h,042h,000h
+	db	008h,018h,042h,000h
+	db	008h,020h,042h,000h
+	db	010h,010h,042h,000h
+	db	018h,008h,042h,000h
+	db	018h,018h,042h,000h
+	db	020h,000h,042h,000h
+	db	020h,020h,042h,000h
+
+daimonji2$:
+	db	00bh
+	db	000h,010h,041h,000h
+	db	008h,000h,041h,000h
+	db	008h,008h,041h,000h
+	db	008h,010h,041h,000h
+	db	008h,018h,041h,000h
+	db	008h,020h,041h,000h
+	db	010h,010h,041h,000h
+	db	018h,008h,041h,000h
+	db	018h,018h,041h,000h
+	db	020h,000h,041h,000h
+	db	020h,020h,041h,000h
+
+suitori1$:
+	db	004h
+	db	000h,000h,049h,000h
+	db	000h,028h,049h,000h
+	db	028h,000h,049h,000h
+	db	028h,028h,049h,000h
+
+suitori2$:
+	db	004h
+	db	000h,000h,049h,000h
+	db	000h,018h,049h,000h
+	db	018h,000h,049h,000h
+	db	018h,018h,049h,000h
+
+suitori3$:
+	db	004h
+	db	000h,000h,049h,000h
+	db	000h,008h,049h,000h
+	db	008h,000h,049h,000h
+	db	008h,008h,049h,000h
+
+suitori4$:
+	db	004h
+	db	000h,000h,043h,000h
+	db	000h,008h,043h,020h
+	db	008h,000h,043h,040h
+	db	008h,008h,043h,060h
+
+s_black_ball$:
+	db	004h
+	db	008h,008h,033h,000h
+	db	008h,010h,033h,020h
+	db	010h,008h,033h,040h
+	db	010h,010h,033h,060h
+
+l_black_ball$:
+	db	010h
+	db	000h,000h,022h,000h
+	db	000h,008h,023h,000h
+	db	000h,010h,023h,020h
+	db	000h,018h,022h,020h
+	db	008h,000h,032h,000h
+	db	008h,008h,043h,000h
+	db	008h,010h,043h,020h
+	db	008h,018h,032h,020h
+	db	010h,000h,032h,040h
+	db	010h,008h,043h,040h
+	db	010h,010h,043h,060h
+	db	010h,018h,032h,060h
+	db	018h,000h,022h,040h
+	db	018h,008h,023h,040h
+	db	018h,010h,023h,060h
+	db	018h,018h,022h,060h
+
+l_black_ball1$:
+	db	010h
+	db	000h,000h,022h,000h
+	db	000h,008h,03bh,000h
+	db	000h,010h,023h,020h
+	db	000h,018h,022h,020h
+	db	008h,000h,032h,000h
+	db	008h,008h,043h,000h
+	db	008h,010h,043h,020h
+	db	008h,018h,032h,020h
+	db	010h,000h,032h,040h
+	db	010h,008h,043h,040h
+	db	010h,010h,043h,060h
+	db	010h,018h,032h,060h
+	db	018h,000h,022h,040h
+	db	018h,008h,023h,040h
+	db	018h,010h,023h,060h
+	db	018h,018h,022h,060h
+
+l_black_ball2$:
+	db	00ch
+	db	000h,000h,032h,000h
+	db	000h,008h,043h,000h
+	db	000h,010h,043h,020h
+	db	000h,018h,032h,020h
+	db	008h,000h,032h,040h
+	db	008h,008h,043h,040h
+	db	008h,010h,043h,060h
+	db	008h,018h,032h,060h
+	db	010h,000h,022h,040h
+	db	010h,008h,023h,040h
+	db	010h,010h,023h,060h
+	db	010h,018h,022h,060h
+
+l_black_ball3$:
+	db	008h
+	db	000h,000h,032h,040h
+	db	000h,008h,043h,040h
+	db	000h,010h,043h,060h
+	db	000h,018h,032h,060h
+	db	008h,000h,022h,040h
+	db	008h,008h,023h,040h
+	db	008h,010h,023h,060h
+	db	008h,018h,022h,060h
+
+l_black_ball4$:
+	db	004h
+	db	000h,000h,022h,040h
+	db	000h,008h,023h,040h
+	db	000h,010h,023h,060h
+	db	000h,018h,022h,060h
+
+denki1$:
+ 	db	004h
+	db	008h,018h,04ch,020h
+	db	020h,008h,04bh,000h
+	db	030h,020h,04ch,000h
+	db	018h,030h,04bh,040h
+
+denki2$:
+	db	004h
+	db	000h,018h,04ch,000h
+	db	020h,000h,04bh,040h
+	db	038h,020h,04ch,020h
+	db	018h,038h,04bh,000h
+
+denki3$:
+	db	004h
+	db	010h,008h,04ah,040h
+	db	030h,010h,04ah,000h
+	db	028h,030h,04ah,020h
+	db	008h,028h,04ah,060h
+
+denki4$:
+	db	004h
+	db	008h,000h,04ah,020h
+	db	038h,008h,04ah,060h
+	db	030h,038h,04ah,040h
+	db	000h,030h,04ah,000h
+
+hasami1$:
+	db	008h
+	db	000h,030h,044h,000h
+	db	000h,038h,044h,020h
+	db	008h,030h,044h,040h
+	db	008h,038h,044h,060h
+	db	026h,00ah,044h,000h
+	db	026h,012h,044h,020h
+	db	02eh,00ah,044h,040h
+	db	02eh,012h,044h,060h
+
+hasami2$:
+	db	00ch
+	db	00eh,022h,044h,000h
+	db	00eh,02ah,044h,020h
+	db	016h,022h,044h,040h
+	db	016h,02ah,044h,060h
+	db	006h,032h,047h,000h
+	db	000h,038h,047h,000h
+	db	01ah,016h,044h,000h
+	db	01ah,01eh,044h,020h
+	db	022h,016h,044h,040h
+	db	022h,01eh,044h,060h
+	db	030h,008h,047h,000h
+	db	02ah,00eh,047h,000h
+
+hasami3$:
+	db	008h
+	db	006h,032h,047h,000h
+	db	000h,038h,047h,000h
+	db	012h,026h,047h,000h
+	db	00ch,02ch,047h,000h
+	db	01eh,01ah,047h,000h
+	db	018h,020h,047h,000h
+	db	02ah,00eh,047h,000h
+	db	024h,014h,047h,000h
+
+simetuke$:
+	db	008h
+	db	000h,000h,035h,020h
+	db	008h,000h,035h,040h
+	db	010h,000h,035h,000h
+	db	018h,000h,035h,060h
+	db	000h,040h,035h,000h
+	db	008h,040h,035h,060h
+	db	010h,040h,035h,020h
+	db	018h,040h,035h,040h
+
+question$:
+	db	004h
+	db	000h,000h,02ah,000h
+	db	000h,008h,02bh,000h
+	db	008h,000h,03ah,000h
+	db	008h,008h,03bh,000h
+
+nemuri$:
+	db	003h
+	db	000h,000h,03fh,000h
+	db	000h,008h,03fh,000h
+	db	008h,006h,03fh,000h
+
+doku$:
+	db	004h
+	db	000h,000h,00eh,000h
+	db	000h,008h,00eh,020h
+	db	008h,000h,00fh,000h
+	db	008h,008h,00fh,020h
+
+suna1$:
+	db	003h
+	db	010h,000h,02ch,000h
+	db	010h,008h,03ch,000h
+	db	010h,010h,02dh,000h
+
+suna2$:
+	db	006h
+	db	010h,010h,031h,000h
+	db	010h,018h,031h,000h
+	db	008h,010h,02ch,000h
+	db	008h,018h,03ch,000h
+	db	008h,020h,02dh,000h
+	db	010h,020h,02dh,000h
+
+suna3$:
+	db	009h
+	db	008h,020h,031h,000h
+	db	010h,020h,031h,000h
+	db	008h,028h,031h,000h
+	db	010h,028h,031h,000h
+	db	000h,020h,02ch,000h
+	db	000h,028h,03ch,000h
+	db	000h,030h,02dh,000h
+	db	008h,030h,02dh,000h
+	db	010h,030h,02dh,000h
+
+kabe$:
+	db	007h
+	db	000h,000h,046h,000h
+	db	008h,002h,047h,000h
+	db	010h,003h,048h,000h
+	db	018h,004h,048h,000h
+	db	020h,005h,048h,000h
+	db	028h,005h,048h,000h
+        db	030h,005h,048h,000h
+
+ss_fire$:
+	db	001h
+	db	000h,000h,042h,000h
+
+black_donut$:					; smoke 2
+	db	00ch
+	db	000h,000h,024h,000h
+	db	000h,008h,025h,000h
+	db	008h,000h,034h,000h
+	db	000h,010h,025h,020h
+	db	000h,018h,024h,020h
+	db	008h,018h,034h,020h
+	db	010h,000h,034h,040h
+	db	018h,000h,024h,040h
+	db	018h,008h,025h,040h
+	db	010h,018h,034h,060h
+	db	018h,010h,025h,060h
+	db	018h,018h,024h,060h
+
+awa1$:
+	db	004h
+	db	000h,000h,043h,000h
+	db	000h,008h,043h,020h
+	db	008h,000h,043h,040h
+	db	008h,008h,043h,060h
+
+awa2$:
+	db	008h
+	db	000h,000h,049h,000h
+	db	002h,008h,049h,000h
+	db	018h,000h,049h,000h
+	db	010h,010h,049h,000h
+	db	008h,000h,043h,000h
+	db	008h,008h,043h,020h
+	db	010h,000h,043h,040h
+	db	010h,008h,043h,060h
+
+awa3$:
+	db	00bh
+	db	000h,000h,049h,000h
+	db	018h,002h,049h,000h
+	db	014h,010h,049h,000h
+	db	008h,000h,043h,000h
+	db	000h,008h,043h,020h
+	db	010h,000h,043h,040h
+	db	010h,008h,043h,060h
+	db	004h,008h,043h,000h
+	db	004h,010h,043h,020h
+	db	00ch,008h,043h,040h
+	db	00ch,010h,043h,060h
+
+awa4$:
+	db	00fh
+	db	000h,008h,049h,000h
+	db	008h,010h,049h,000h
+	db	020h,000h,049h,000h
+	db	008h,000h,043h,000h
+	db	008h,008h,043h,020h
+	db	010h,000h,043h,040h
+	db	010h,008h,043h,060h
+	db	010h,010h,043h,000h
+	db	010h,018h,043h,020h
+	db	018h,010h,043h,040h
+	db	018h,018h,043h,060h
+	db	020h,008h,043h,000h
+	db	020h,010h,043h,020h
+	db	028h,008h,043h,040h
+	db	028h,010h,043h,060h
+
+kona1$:
+	db	004h
+	db	000h,000h,049h,000h
+	db	000h,010h,049h,000h
+	db	000h,020h,049h,000h
+	db	000h,030h,049h,000h
+
+kona2$:
+	db	008h
+	db	000h,000h,049h,000h
+	db	000h,010h,049h,000h
+	db	000h,020h,049h,000h
+	db	000h,030h,049h,000h
+	db	008h,008h,049h,000h
+	db	008h,018h,049h,000h
+	db	008h,028h,049h,000h
+	db	008h,038h,049h,000h
+
+kona3$:
+	db	00ch
+	db	000h,000h,049h,000h
+	db	000h,010h,049h,000h
+	db	000h,020h,049h,000h
+	db	000h,030h,049h,000h
+	db	008h,008h,049h,000h
+	db	008h,018h,049h,000h
+	db	008h,028h,049h,000h
+	db	008h,038h,049h,000h
+	db	010h,000h,049h,000h
+	db	010h,010h,049h,000h
+	db	010h,020h,049h,000h
+	db	010h,030h,049h,000h
+
+kona4$:
+	db	00fh
+	db	000h,000h,049h,000h
+	db	000h,010h,049h,000h
+	db	000h,020h,049h,000h
+	db	000h,030h,049h,000h
+	db	008h,008h,049h,000h
+	db	008h,018h,049h,000h
+	db	008h,028h,049h,000h
+	db	008h,038h,049h,000h
+	db	010h,000h,049h,000h
+	db	010h,010h,049h,000h
+	db	010h,020h,049h,000h
+	db	010h,030h,049h,000h
+	db	018h,008h,049h,000h
+	db	018h,018h,049h,000h
+	db	018h,028h,049h,000h
+	db	018h,038h,049h,000h
+
+ito1$:
+	db	006h
+	db	010h,000h,026h,000h
+	db	010h,008h,027h,000h
+	db	008h,010h,026h,000h
+	db	008h,018h,027h,000h
+	db	000h,020h,026h,000h
+	db	000h,028h,027h,000h
+
+ito2$:
+	db	006h
+	db	018h,000h,027h,000h
+	db	010h,008h,026h,000h
+	db	010h,010h,027h,000h
+	db	008h,018h,026h,000h
+	db	008h,020h,027h,000h
+	db	000h,028h,026h,000h
+
+ito3$:
+	db	006h
+	db	000h,000h,01ch,000h
+	db	000h,008h,01dh,000h
+	db	010h,000h,01ch,000h
+	db	010h,008h,01dh,000h
+	db	020h,000h,01ch,000h
+	db	020h,008h,01dh,000h
+
+fubuki1$:
+	db	002h
+	db	000h,000h,003h,000h
+	db	008h,000h,013h,000h
+
+fubuki2$:
+	db	001h
+	db	000h,000h,003h,000h
+
+star1$:
+	db	004h
+	db	000h,000h,003h,000h
+	db	000h,008h,003h,020h
+	db	008h,000h,013h,000h
+	db	008h,008h,013h,020h
+
+happa$:
+	db	001h
+	db	000h,000h,006h,000h
+
+kataku1$:
+	db	008h
+	db	000h,000h,02eh,000h
+	db	000h,030h,02eh,020h
+	db	030h,000h,02eh,040h
+	db	030h,030h,02eh,060h
+	db	000h,018h,02fh,000h
+	db	030h,018h,02fh,040h
+	db	018h,000h,03eh,000h
+	db	018h,030h,03eh,020h
+
+kataku2$:
+	db	008h
+	db	000h,000h,02eh,000h
+	db	000h,020h,02eh,020h
+	db	020h,000h,02eh,040h
+	db	020h,020h,02eh,060h
+	db	000h,010h,02fh,000h
+	db	020h,010h,02fh,040h
+	db	010h,000h,03eh,000h
+	db	010h,020h,03eh,020h
+
+kataku3$:
+	db	008h
+	db	000h,000h,02eh,000h
+	db	000h,010h,02eh,020h
+	db	010h,000h,02eh,040h
+	db	010h,010h,02eh,060h
+	db	000h,008h,02fh,000h
+	db	010h,008h,02fh,040h
+	db	008h,000h,03eh,000h
+	db	008h,010h,03eh,020h
+
+tuno$:
+	db	002h
+	db	000h,000h,01eh,000h
+	db	000h,008h,01fh,000h
+
+tamago1$:
+	db	004h
+	db	000h,000h,048h,000h
+	db	000h,008h,048h,020h
+	db	008h,000h,012h,000h
+	db	008h,008h,012h,020h
+
+tamago2$:
+	db	004h
+	db	000h,000h,04ah,000h
+	db	000h,008h,007h,000h
+	db	008h,000h,016h,000h
+	db	008h,008h,017h,000h
+
+tamago3$:
+	db	004h
+	db	000h,000h,007h,020h
+	db	000h,008h,04ah,020h
+	db	008h,000h,017h,020h
+	db	008h,008h,016h,020h
+
+kara$:
+	db	007h
+	db	000h,010h,02fh,000h
+	db	001h,008h,02fh,000h
+	db	001h,018h,02fh,000h
+	db	002h,000h,02eh,000h
+	db	002h,020h,02eh,020h
+	db	00ah,000h,03eh,000h
+	db	00ah,020h,03eh,020h
+
+koban$:
+	db	004h
+	db	000h,002h,04bh,000h
+	db	000h,00ah,04ch,000h
+	db	008h,000h,04ch,060h
+	db	008h,008h,04bh,060h
+
+s_ishi$:
+	db	001h
+	db	000h,000h,04dh,000h
+s_esa$:	
+	db	001h
+	db	000h,000h,04eh,000h
+
+
+;===================================================================;
+;    EFFECT_ADDRESS   TABLE & DATA                                  ;
+; 								    ;
+; 								    ;
+;===================================================================;
+	public	ef_address_table
+;===================================================================;
+;    EFFECT_ADDRESS   TABLE                                         ;
+;===================================================================;
+ef_address_table:
+	db	10h,68h	;0
+	db	10h,70h	;1	
+	db	10h,78h	;2	
+	db	10h,80h	;3
+	db	10h,88h	;4
+	db	10h,90h	;5
+	db	10h,98h	;6
+	db	18h,68h	;7
+	db	18h,70h	;8
+	db	18h,78h	;9
+	db	34h,28h	;10
+	db	18h,80h	;11
+	db	18h,88h	;12
+	db	18h,98h	;13
+	db	20h,68h	;14
+	db	20h,70h	;15
+	db	20h,78h	;16
+	db	20h,80h	;17
+	db	20h,88h	;18
+	db	20h,90h	;19
+	db	20h,98h	;20
+	db	28h,68h	;21
+	db	28h,70h	;22
+	db	28h,78h	;23
+	db	28h,80h	;24
+	db	28h,88h	;25
+	db	30h,68h	;26
+	db	30h,70h	;27
+	db	30h,78h	;28
+	db	30h,80h	;29
+	db	30h,90h	;30
+	db	30h,98h	;31
+	db	38h,68h	;32
+	db	38h,78h	;33
+	db	38h,80h	;34
+	db	38h,88h	;35
+	db	40h,68h	;36
+	db	40h,70h	;37
+	db	40h,78h	;38
+	db	40h,80h	;39
+	db	40h,88h	;40
+	db	40h,98h	;41
+	db	10h,60h	;42
+	db	18h,60h	;43
+	db	20h,60h	;44
+	db	28h,60h	;45
+	db	30h,60h	;46
+	db	40h,60h	;47
+	db	58h,28h	;48
+	db	43h,38h	;49
+	db	33h,48h	;50
+	db	20h,58h	;51
+	db	32h,78h	;52
+	db	58h,58h	;53
+	db	2ch,6ch	;54
+	db	34h,80h	;55
+	db	48h,70h	;56
+	db	42h,36h	;57
+	db	38h,44h	;58
+	db	40h,52h	;59
+	db	48h,60h	;60
+	db	3eh,6eh	;61
+	db	28h,7ch	;62
+	db	28h,8ah	;63
+	db	50h,3ch	;64
+	db	48h,50h	;65
+	db	40h,64h	;66
+	db	38h,38h	;67
+	db	50h,30h	;68
+	db	50h,38h	;69
+	db	50h,40h	;70
+	db	50h,48h	;71
+	db	50h,50h	;72
+	db	48h,58h	;73
+	db	50h,44h	;74
+	db	48h,48h	;75
+	db	48h,4ch	;76
+	db	40h,50h	;77
+	db	40h,54h	;78
+	db	38h,58h	;79
+	db	38h,5ch	;80
+	db	30h,64h	;81
+	db	48h,40h	;82
+	db	48h,39h	;83
+	db	24h,88h	;84
+	db	24h,70h	;85
+	db	1ch,70h	;86
+	db	1ch,88h	;87
+	db	34h,68h	;88
+	db	34h,88h	;89
+	db	68h,50h	;90
+	db	60h,50h	;91
+	db	68h,60h	;92
+	db	58h,50h	;93
+	db	60h,60h	;94
+	db	68h,40h	;95
+	db	40h,40h	;96
+	db	38h,40h	;97
+	db	0bh,60h	;98
+	db	44h,48h	;99
+	db	40h,14h	;100
+	db	48h,1ch	;101
+	db	50h,24h	;102
+	db	4ch,24h	;103
+	db	10h,62h	;104
+	db	12h,62h	;105
+	db	12h,60h	;106
+	db	20h,72h	;107
+	db	22h,72h	;108
+	db	22h,70h	;109
+	db	28h,62h	;110
+	db	50h,0ah	;111
+	db	52h,0ah	;112
+	db	38h,30h	;113
+	db	40h,48h	;114
+	db	30h,48h	;115
+	db	40h,30h	;116
+	db	30h,40h	;117
+	db	38h,48h	;118
+	db	40h,4ah	;119
+	db	48h,4bh	;120
+	db	50h,4ch	;121
+	db	58h,4dh	;122
+	db	60h,4dh	;123
+	db	68h,4dh	;124
+	db	38h,10h	;125
+	db	50h,10h	;126
+	db	38h,28h	;127
+	db	48h,18h	;128
+	db	40h,20h	;129
+	db	48h,20h	;130
+	db	40h,3ch	;131
+	db	38h,50h	;132
+	db	28h,64h	;133
+	db	1ch,90h	;134
+	db	24h,80h	;135
+	db	2ch,70h	;136
+	db	30h,38h	;137
+	db	10h,50h	;138
+	db	3ch,40h	;139
+	db	40h,58h	;140
+	db	30h,58h	;141
+	db	58h,48h	;142
+	db	50h,58h	;143
+	db	48h,68h	;144
+	db	40h,18h	;145
+	db	28h,58h	;146
+	db	40h,38h	;147
+	db	48h,38h	;148
+	db	08h,70h	;149
+	db	44h,1ch	;150
+	db	3ch,58h	;151
+	db	38h,60h	;152
+	db	08h,60h	;153
+	db	38h,70h	;154
+	db	38h,6ch	;155
+	db	38h,64h	;156
+	db	1ch,74h ;157
+	db	2eh,74h ;158
+	db	34h,50h	;159
+	db	2fh,60h	;160
+	db	31h,70h	;161
+	db	4ch,30h	;162
+	db	3bh,40h	;163
+	db	2dh,50h	;164
+	db	26h,60h	;165
+	db	2dh,70h	;166
+	db	28h,50h	;167
+	db	1eh,60h	;168
+	db	29h,70h	;169
+	db	16h,60h	;170
+	db	14h,58h	;171
+	db	12h,54h	;172
+	db	14h,50h	;173
+	db	18h,4ch	;174
+	db	1ch,48h	;175
+	db	48h,28h ;176
+
+
+
+dummy:
+	db	0,0
+
+
+

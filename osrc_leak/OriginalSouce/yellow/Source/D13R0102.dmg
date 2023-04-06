@@ -1,0 +1,119 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+	include	pm_debug.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d13_room1_2f
+
+
+	extern	capsule_item
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+seq_d13r1f2	equ	seq_ctrl_buf + 96
+
+
+d13_room1_2f:
+ysiz	=	9
+xsiz	=	15
+	db	DOUKUTU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	tori_b2			; map data adrs
+	dw	msg_d13r1f2		; message tbl adrs
+	dw	ev_d13r1f2		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d13r1f2
+
+
+ev_d13r1f2:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d13r1f2_tbl
+	ld	a,(seq_d13r1f2)
+	call	battle_sequence
+	ld	(seq_d13r1f2),a
+
+	ret
+
+
+d13r1f2_tbl:
+	initndw	battle_main,Seqbattle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+msg_d13r1f2:
+	msgndw	msg1,msg_myuu
+	ndw	capsule_item,msgcap1
+	ndw	capsule_item,msgcap2
+	ndw	capsule_item,msgcap3
+	ndw	capsule_item,msgcap4
+
+
+dealer_talk:
+d_talk1:
+	db	msg_myuu,000h
+	dw	ev_d13 + 0
+	dw	msg1_0
+	dw	msg1_after
+	dw	msg1_win
+	dw	msg1_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg1_0:
+msg1_win:
+msg1_after:
+	extern	msg1_after_0_D13R0102
+	db I_MSG2	; mvmsg’Ç‰Á
+	dw msg1_after_0_D13R0102	; mvmsg’Ç‰Á
+	db 027h	; mvmsg’Ç‰Á
+	db	CALL_MSG
+
+	ld	a,131				; fire--
+	extern	gyaarth_play
+	call	gyaarth_play
+	extern	se_wait
+	call	se_wait
+	
+	jp	msg_return
+
+
+sxy_d13r1f2:
+	include	..\sxy\d13r0102.sxy
+
+
+tori_b2:
+  ifn	YELLOW_VERSION
+	include	..\mapdata\yend_03.map
+  else
+;	include	..\mapdata\end03.map
+	include	..\mapdata\nend03.map
+  endif
+
+

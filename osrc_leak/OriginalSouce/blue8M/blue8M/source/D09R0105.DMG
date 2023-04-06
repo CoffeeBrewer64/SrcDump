@@ -1,0 +1,162 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d9_room1_5f
+
+
+	extern	bank2bank
+	extern	set_data
+	extern	bank_push_call
+	extern	check_pack
+
+	extern	put_wait
+	extern	elev_effect
+
+
+DEPART_TYPE	equ	18
+EXIT		=	0ffh
+
+
+d9_room1_5f:
+ysiz	=	4
+xsiz	=	3
+	db	DEPART_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	azito_el		; map data adrs
+	dw	msg_d9r1f5		; message tbl adrs
+	dw	ev_d9r1f5		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d9r1f5
+
+
+
+ev_d9r1f5:
+	ld	hl,ptn_data
+	bit	5,(hl)
+	res	5,(hl)
+	push	hl
+	call	nz,init_elevator$
+	pop	hl
+	bit	7,(hl)
+	res	7,(hl)
+	call	nz,effect
+
+	xor	a
+	ld	(win_cancel),a
+	inc	a
+	ld	(wait_pass_flg),a
+
+	ret
+
+
+init_elevator$:
+	ld	hl,ie_tbl
+
+	ld	a,(elevator + 0)		; from "mapper"
+	ld	b,a
+	ld	a,(elevator + 1)
+	ld	c,a
+
+	call	twice$
+
+twice$:
+	inc	hl
+	inc	hl
+	ld	a,b
+	ld	(hli),a
+	ld	a,c
+	ld	(hli),a
+
+	ret
+
+
+init_elevator:
+	ld	hl,d9_depart
+	call	set_data
+
+	ld	hl,stop_floor
+	ld	de,anime_buf + 0
+	ld	bc,floor_size
+	call	block_move
+
+	ret
+
+
+d9_depart:
+	db	3
+	db	85
+	db	84
+	db	97
+	db	0ffh
+
+
+stop_floor:
+	db	4,D9R1F1
+	db	4,D9R1F2
+	db	2,D9R1F4
+floor_size	equ	* - stop_floor
+
+
+
+effect:
+	call	put_wait
+
+	ld	b,01eh
+	ld	hl,elev_effect
+	call	bank_push_call
+
+	ret
+
+
+
+msg_d9r1f5:
+	dw	info1
+
+
+info1:
+	db	CALL_MSG
+
+	ld	b,74
+	call	check_pack
+	jr	z,no$
+
+	call	init_elevator
+
+	ld	hl,stop_floor
+	ld	a,97				; "elevator_system" in bank11
+	call	bank2bank
+
+	jr	rts$
+
+
+no$:
+	ld	hl,info_0$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+info_0$:
+	extern	info_0_0_D09R0105
+	db I_MSG2	; mvmsg’Ç‰Á
+	dw info_0_0_D09R0105	; mvmsg’Ç‰Á
+	db 020h	; mvmsg’Ç‰Á
+	db	WAIT_NP
+	db	EOM
+
+
+sxy_d9r1f5:
+	include	..\sxy\d09r0105.sxy
+
+azito_el:
+	include	..\mapdata\azito_el.map
+
+

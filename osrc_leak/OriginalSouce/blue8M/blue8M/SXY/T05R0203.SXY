@@ -1,0 +1,43 @@
+; 11/25/95		17:02:01
+dun_tbl$:
+	db	001h
+ie_tbl$:
+	db	002h
+	db	009h,003h,000h,T5R2F2
+	db	009h,012h,001h,T5R2F4
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	004h
+	db	KITOUSHI
+	db	003h+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	001h+040h			; battle type
+	db	0f5h				; dealer number
+	db	005h				; taking pattern 
+	db	KITOUSHI
+	db	008h+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h+040h			; battle type
+	db	0f5h				; dealer number
+	db	006h				; taking pattern 
+	db	KITOUSHI
+	db	00Dh+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	003h+040h			; battle type
+	db	0f5h				; dealer number
+	db	008h				; taking pattern 
+	db	CAPSULE
+	db	001h+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h+080h			; capsule type
+	db	01dh				; item number
+ram_map_tbl$:
+	dw	010h * 005h + 002h + ram_map
+	db	009h,003h
+	dw	010h * 005h + 00ah + ram_map
+	db	009h,012h

@@ -1,0 +1,223 @@
+
+	include	common.def
+	include	fntequ.def
+	include	pm_debug.def
+	include	banktool.def
+	include	sgb_col.def
+	include	fight.def
+	include macro.h
+
+	public	option
+
+	extern	main_loop
+
+	extern	hero_setup
+
+	extern	memset
+	extern	actor_blanch
+	extern	bank_push_call
+	extern	get_mons_name
+	extern	get_dealer_name
+	extern	get_kaihatsu_no
+	extern	rnd
+	extern	put_dec
+	extern	cont_repeat
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	chrset
+	extern	fontset
+	extern	set_kana
+	extern	set_gauge
+	extern	cls
+	extern	wait_vb
+	extern	wait_vb_s
+	extern	cont
+	extern	block_move
+;;	extern	printind
+	extern	dvram_cls
+	extern	oam_clr
+	extern	put_msg
+	extern	put_window
+	extern	play2
+	extern	play1
+	extern	new_scenario
+	extern	allow
+	extern	allow_1
+	extern	cls_allow
+	extern	block_cls
+	extern	add_item
+	extern	add_capsule_new
+	extern	mul_any
+	extern	bank2bank
+	extern	color_rewrite
+	extern	color_set
+	extern	palset
+
+	extern	play
+	extern	musmons
+
+	extern	fnt_kana
+	extern	fnt_gauge
+	extern	fnt_serifu
+	extern	fnt_zukan
+
+
+bank1	group	1
+
+
+option:
+  ifn	pm_debug
+	call	dvram_cls
+
+	ld	hl,my_name$
+	ld	de,my_name
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	ld	hl,rival_name$
+	ld	de,rival_name
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+;	ld	hl,kouhai_name$
+;	ld	de,junior_name
+;	ld	bc,JUNIOR_NAME_LEN
+;	call	block_move
+
+	call	set_kana
+	call	set_gauge
+
+	call	oam_clr
+	call	color_rewrite
+
+	SET_WIN_POS 5,6,15,10
+	call	put_window
+
+	S_POS	7,7
+	ld	de,option_msg1$
+	call	put_msg
+
+	ld	a,3
+	ld	(my_lvl),a
+
+	ld	a,BT_B + BT_A + BT_ST
+	ld	(allow_msk),a
+	xor	a
+	ld	(allow_ret_flg),a
+	inc	a
+;	ld	a,1
+	ld	(allow_max),a
+	ld	a,7
+	ld	(allow_pos),a			; Y pos
+	dec	a
+;	ld	a,6
+	ld	(allow_pos+1),a			; X pos
+	xor	a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+	ld	(scloll_sw),a
+
+;1$:
+;	ld	c,20
+;	call	wait_vb_s
+
+	call	allow
+
+	bit	1,a			
+	jp	nz,main_loop			; cancel by "B" button
+
+	ld	a,(allow_cnt)
+	and	a
+	jp	z,test_fight
+
+	ld	hl,game_mode
+	set	1,(hl)
+
+	jp	new_scenario
+;	jp	map_select_base			; map select
+
+
+my_name$:
+  ifn	pm_jmsg
+	db	o__,re__
+	db	EOM
+  else
+	db	usf_t,usf_o_,usf_m_
+	db	EOM
+  endif
+
+rival_name$:
+  ifn	pm_jmsg
+	db	ta_,ke_
+	db	EOM
+  else
+	db	usf_j,usf_u_,usf_e_,usf_r_,usf_r_,usf_y_
+	db	EOM
+  endif
+
+;kouhai_name$:
+;	db	u_,me_,zo_,u_
+;	db	EOM
+
+option_msg1$:
+  ifn	pm_jmsg
+;	db	te__,su__,to__
+	db	hu__,aa__,i__,to__,cr@
+	db	de__,ba__,ttu__,gu__
+;	db	su__,ta__,bou@,to__
+	db	EOM
+  else
+	db	usf_f,usf_i,usf_g,usf_h,usf_t,cr@
+	db	usf_d,usf_e,usf_b,usf_u,usf_g
+	db	EOM
+  endif
+  else
+	ret
+  endif
+
+
+;=======================;
+;			;
+;	test fight	;
+;			;
+;=======================;
+test_fight:
+
+monster_set$:
+	call	palset
+
+	ld	a,080h
+	ld	(my_badge),a
+
+	ld	hl,game_mode + 1
+	set	0,(hl)				; test fight mode
+
+	ld	hl,my_cap_tbl
+	xor	a
+	ld	(hli),a
+	dec	a
+	ld	(hl),a
+
+	ld	a,1
+	ld	(sel_item_no),a
+	
+	ld	a,20
+	ld	(mons_level),a
+	xor	a
+	ld	(my_or_gein),a
+	ld	(mapno),a
+
+	call	add_capsule_new
+
+	ld	a,1
+	ld	(event_fight_no),a
+
+	ld	a,B_FIGHTER0
+	call	bank2bank
+
+	ld	a,1
+	ld	(oam_flg),a
+	ld	(all_put_req),a
+
+	jr	monster_set$
+

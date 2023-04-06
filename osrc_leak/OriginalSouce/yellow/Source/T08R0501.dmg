@@ -1,0 +1,799 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+	include	pm_debug.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t8_room5
+
+
+	extern	table_jump
+	extern	bank2bank		
+	extern	bank_push_call
+	extern	CheckAssignPos
+	extern	check_money
+	extern	yes_no
+	extern	memset
+	extern	put_wait
+
+
+GATE_TYPE	equ	12
+EXIT		equ	0ffh
+
+
+seq_t8r5f1	equ	seq_ctrl_buf + 47
+
+
+t8_room5:
+ysiz	=	3
+xsiz	=	4
+	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	safa_gate		; map data adrs
+	dw	msg_t8r5f1		; message tbl adrs
+	dw	ev_t8r5f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t8r5f1
+
+
+sxy_t8r5f1:
+	include	..\sxy\t08r0501.sxy
+
+
+safa_gate:
+	include	..\mapdata\5_6gate.map
+
+
+ev_t8r5f1:
+	call	init_for_talkmap
+
+	ld	hl,t8r5f1_tbl
+	ld	a,(seq_t8r5f1)    
+	call	table_jump
+
+	ret
+
+
+t8r5f1_tbl:
+	initndw	t8r5f1_main,SeqT8R5F1
+	ndw	StepCounter,SeqStepCounter
+	ndw	Counter,SeqCounter
+	ndw	GateStep,SeqGateStep
+	ndw	FinishStep,SeqFinishStep
+	ndw	FinishCheck,SeqFinishCheck
+	ndw	Checker,SeqChecker
+
+
+t8r5f1_main:
+	ld	hl,invoke_pos$
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,Msg1_0_No
+	ld	(work1),a
+	call	talk_map			; may I help you ?
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,00ch
+	ld	(actor_table + 009h),a
+
+	ld	a,(usr_buf + 0)
+	cp	1
+	jr	z,left$
+
+	ld	a,SeqCounter
+	ld	(seq_t8r5f1),a
+
+	ret
+
+
+left$:
+	ld	a,W_R				; animetion pattern
+	ld	c,1				; animetion pattern lot
+	call	set_hero_step
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,SeqStepCounter
+	ld	(seq_t8r5f1),a
+
+	ret
+
+
+invoke_pos$:
+	db	002h,003h
+	db	002h,004h
+	db	0ffh
+
+
+StepCounter:
+	call	obs_anime
+	ret	nz
+
+Counter:
+	xor	a
+	ld	(joy_status),a
+	ld	(cancel_key),a
+
+	call	actor_blanch
+
+	ld	a,Msg1_1_No
+	ld	(work1),a
+	call	talk_map			; explain rule
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ret
+
+
+GateStep:
+	call	obs_anime
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,SeqFinishCheck
+	ld	(seq_t8r5f1),a
+
+	ret
+
+
+FinishCheck:
+;-----------------------------------------------; 1996.01.04
+  ifn	1
+	ld	a,4				; south site look turn
+	ld	(watashi_muki),a
+  else
+	call	put_wait
+
+	call	actor_blanch
+  endif
+;-----------------------------------------------; 1996.01.04
+
+	ld	hl,ev_t8_5 + 0
+	bit	6,(hl)
+	res	6,(hl)
+	jr	z,stop$
+
+	res	7,(hl)
+
+	call	actor_blanch
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,Msg1_9_No
+	ld	(work1),a
+	call	talk_map			; well
+
+	xor	a
+;	ld	(actor_table + 009h),a
+	ld	(safari_ball_cnt),a
+	ld	(save_event_flg + 2),a		; safari step
+	ld	(save_event_flg + 2),a		;
+
+	ld	a,W_D				; animetion pattern
+	ld	c,3				; animetion pattern lot
+	call	set_hero_step
+
+	ld	a,SeqFinishStep
+	ld	(seq_t8r5f1),a
+
+	jr	rts$
+
+
+stop$:
+	ld	a,Msg1_6_No
+	ld	(work1),a
+	call	talk_map
+
+rts$:
+	ret
+
+
+FinishStep:
+	call	obs_anime
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,SeqT8R5F1
+	ld	(seq_t8r5f1),a
+
+	ret
+
+
+Checker:
+	call	obs_anime
+	ret	nz
+
+	call	put_wait
+
+	ld	a,(event_check)
+	ld	(seq_t8r5f1),a
+
+	ret
+
+
+;-------------------------------;
+; <<in>>			;
+; a-regs			;
+;	animetion code		;
+; c-regs			;
+;	animetion length	;
+;-------------------------------;
+set_hero_step:
+	push	af
+	ld	b,00h
+	ld	a,c
+	ld	(ctrl_move_cnt),a
+	ld	hl,ctrl_move_val + 0
+	pop	af
+	call	memset
+
+	extern	init_hero_anime
+	jp	init_hero_anime
+
+
+
+obs_anime:
+	ld	a,(ctrl_move_cnt)
+	and	a
+
+	ret
+
+
+
+msg_t8r5f1:
+	msgndw	msg1_0,MsgSylphMan1
+	ndw	msg2,MsgShounen1
+
+	ndw	msg1_0,Msg1_0_No
+	ndw	msg1_1,Msg1_1_No
+	ndw	msg1_6,Msg1_6_No
+	ndw	msg1_9,Msg1_9_No
+
+
+msg1_0:
+	extern	msg1_0_0_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1:
+	db	CALL_MSG
+
+	ld	hl,msg1_1_main
+	ld	b,G_BANK3c
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg1_6:
+	extern	msg1_6_1_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_6_1_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	CALL_MSG
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	hl,msg1_7$
+	call	put_win_msg
+
+	xor	a
+	ld	(actor_table + 009h),a
+
+	ld	a,W_D				; animetion pattern
+	ld	c,3				; animetion pattern lot
+	call	set_hero_step
+
+	ld	hl,ev_t8_5 + 0
+	res	6,(hl)
+	res	7,(hl)
+
+	ld	a,SeqT8R5F1
+	ld	(event_check),a
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg1_8$
+	call	put_win_msg
+
+	ld	a,004h
+	ld	(actor_table + 009h),a
+
+	ld	a,W_U				; animetion pattern
+	ld	c,1				; animetion pattern lot
+	call	set_hero_step
+
+	ld	a,SeqFinishCheck
+	ld	(event_check),a
+
+rts$:
+	ld	a,SeqChecker
+	ld	(seq_t8r5f1),a
+
+	jp	msg_return
+
+
+msg1_7$:
+	extern	msg1_7_2_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_7_2_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_8$:
+	extern	msg1_8_3_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_8_3_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_9:
+	extern	msg1_9_4_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_9_4_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,msg2_main
+	ld	b,G_BANK3c
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+msg1_1_main:
+	ld	hl,msg1_1m$
+	call	put_win_msg
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win			; print taking money
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jp	nz,no$
+
+	ld	hl,my_gold
+	ld	a,(hli)
+	or	(hl)
+	inc	hl
+	or	(hl)
+	jr	nz,chk500yen$
+
+	call	no_money_phase
+	jr	c,stepback$		; refused
+	jr	set_step_counter$	; gate in
+
+
+chk500yen$:
+ ifn	ASSEMBLE__ENGLISH
+	xor	a
+	ld	(divwk1 +0),a
+	ld	a,SAFARI_FEE_HH * 16 + SAFARI_FEE_HL
+	ld	(divwk1 +1),a
+	ld	a,SAFARI_FEE_LH * 16 + SAFARI_FEE_LL
+	ld	(divwk1 +2),a
+ else
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 2),a
+	ld	a,05h
+	ld	(divwk1 + 1),a
+ endif
+	call	check_money
+	jr	nc,ok$
+
+	ld	hl,msg1_5$			;”あッ おかねが たりない！”
+	call	put_win_msg
+
+	call	next_chance_check
+	jr	c,stepback$
+
+;	ld	a,30
+;	ld	hl,500
+	jr	set_step_counter$
+
+
+ok$:
+ ifn	ASSEMBLE__ENGLISH
+	xor	a
+	ld	(usr_buf +0),a
+	ld	a,SAFARI_FEE_HH * 16 + SAFARI_FEE_HL
+	ld	(usr_buf +1),a
+	ld	a,SAFARI_FEE_LH * 16 + SAFARI_FEE_LL
+	ld	(usr_buf +2),a
+ else
+	xor	a
+	ld	(usr_buf + 0),a
+	ld	(usr_buf + 2),a
+	ld	a,05h
+	ld	(usr_buf + 1),a			; \1000
+ endif
+	ld	hl,usr_buf + 2
+	ld	de,my_gold + 2
+	ld	c,3
+	ld	a,B_BCD_SUB
+	call	bank2bank
+
+	extern	muschikin
+	extern	se_play
+	extern	se_wait
+	ld	a,muschikin			;tetsu(98/5/21)
+	call	se_play				;money SE
+	call	se_wait				;
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win			; print taking money
+
+	ld	hl,msg1_2$			;”それでは．．．！
+	call	put_win_msg			;  ５００円  いただきまーす！。。。”
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a, SAFARI_BALL_MAX		; サファリボール初期個数
+ else
+	ld	a,30				; safari-ball
+ endif
+	ld	hl,500 + 2			; ゲートからサファリゾーンまで２歩分を加える
+;	ld	hl,500
+
+set_step_counter$:
+	ld	(safari_ball_cnt),a
+	ld	a,h
+;	ld	a,001h
+	ld	(save_event_flg + 2),a
+	ld	a,l
+;	ld	a,0f4h + 2
+	ld	(save_event_flg + 3),a		; 500(10) --> HEX + 2step
+
+	ld	a,W_U				; animetion pattern
+	ld	c,3				; animetion pattern lot
+	call	set_hero_step2
+
+	ld	hl,ev_t8_5 + 0
+	set	7,(hl)				; request of step count
+	res	6,(hl)				; finish flag
+
+	ld	a,SeqGateStep
+	ld	(seq_t8r5f1),a
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+stepback$:
+	ld	a,W_D				; animetion pattern
+	ld	c,1				; animetion pattern lot
+	call	set_hero_step2
+
+	ld	a,SeqFinishStep
+	ld	(seq_t8r5f1),a
+
+rts$:
+	ret
+
+
+msg1_1m$:
+	extern	msg1_1m_5_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_1m_5_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_6_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_6_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE
+	extern	msg1_2_7_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_7_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_8_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_8_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_5$:
+	extern	msg1_5_9_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_5_9_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+;------------------------------------------------------
+; Safari Explain 
+;------------------------------------------------------
+msg2_main:
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	ld	hl,msg2_2$
+	jr	nz,no$
+
+	ld	hl,msg2_1$
+
+no$:
+	call	put_win_msg
+
+	ret
+
+
+msg2_0$:
+	extern	msg2_0_10_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_10_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_11_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_11_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_2$:
+	extern	msg2_2_12_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_12_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+;-------------------------------;
+; <<in>>			;
+; a-regs			;
+;	animetion code		;
+; c-regs			;
+;	animetion length	;
+;-------------------------------;
+; Same Routine of set_hero_step ,but in other bank.
+set_hero_step2:
+	push	af
+	ld	b,00h
+	ld	a,c
+	ld	(ctrl_move_cnt),a
+	ld	hl,ctrl_move_val + 0
+	pop	af
+	call	memset
+
+	jp	init_hero_anime
+
+
+
+  ifn	YELLOW_VERSION
+
+WAIT_CHANCE_CNT	equ	3
+
+	public	next_chance_check
+
+next_chance_check:
+  ifn	0
+	ld	hl,my_gold
+	ld	a,(hli)
+	or	(hl)
+	inc	hl
+	or	(hl)
+	jr	z,no_money_phase
+  endif
+
+	ld	hl,my_gold
+	ld	de,divwk1
+	ld	bc,3
+	call	block_move
+	xor	a
+	ld	(divwk2 + 0),a
+	ld	(divwk2 + 1),a
+	ld	a,17h
+	ld	(divwk2 + 2),a
+	ld	a,B_BCD_DIV
+	call	bank2bank
+
+	ld	a,(divwk2 + 2)
+	call	bcd2dec
+	push	af
+
+	ld	hl,my_gold
+	xor	a
+	ld	bc,3
+	call	memset				; clear my money
+
+	ld	hl,pay_all_msg$
+	call	put_nowin_msg
+	
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win			; print taking money
+
+	ld	hl,less_ball_msg$
+	call	put_win_msg
+
+	pop	af
+
+	inc	a
+	jr	z,max$
+  ifn	ASSEMBLE__ENGLISH
+	cp	SAFARI_BALL_MAX -1
+	jr	c,set$
+max$:	ld	a, SAFARI_BALL_MAX -1
+  else
+	cp	29
+	jr	c,set$
+max$:	ld	a,29
+  endif
+set$:	ld	hl,500 + 2
+	and	a
+	ret
+
+
+pay_all_msg$:
+	extern	pay_all_msg_13_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw pay_all_msg_13_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+less_ball_msg$:
+	extern	less_ball_msg_14_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw less_ball_msg_14_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+
+	public	no_money_phase
+
+no_money_phase:
+	ld	hl,save_event_flg + 2
+	ld	a,(hl)
+	push	af
+	inc	(hl)
+
+	ld	e,a
+	ld	d,00h
+	ld	hl,refuse_msg_tbl$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	call	put_win_msg
+
+	pop	af
+	cp	WAIT_CHANCE_CNT
+	jr	z,get_chance$
+
+	scf
+	ret
+
+get_chance$:
+	ld	hl,shouganai_msg$
+	call	put_nowin_msg
+
+	ld	a,1
+	ld	hl,500 + 2
+	and	a
+	ret
+
+
+shouganai_msg$:
+	extern	shouganai_msg_15_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw shouganai_msg_15_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE
+	extern	shouganai_msg_16_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw shouganai_msg_16_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+refuse_msg_tbl$:
+	dw	refuse_msg1$
+	dw	refuse_msg2$
+	dw	refuse_msg3$
+	dw	refuse_msg4$
+	dw	refuse_msg5$
+
+refuse_msg1$:
+	extern	refuse_msg1_17_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw refuse_msg1_17_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+refuse_msg2$:
+	extern	refuse_msg2_18_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw refuse_msg2_18_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+refuse_msg3$:
+	extern	refuse_msg3_19_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw refuse_msg3_19_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+refuse_msg4$:
+refuse_msg5$:
+	extern	refuse_msg5_20_T08R0501
+	db I_MSG2	; mvmsg追加
+	dw refuse_msg5_20_T08R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+bcd2dec:
+	push	hl
+	ld	c,a
+	and	00fh
+	ld	l,a
+	ld	h,00h
+	ld	a,c
+	and	0f0h
+	swap	a
+	ld	bc,10
+	extern	mul_any
+	call	mul_any
+	ld	a,l
+	pop	hl
+	ret
+  endif
+
+
+

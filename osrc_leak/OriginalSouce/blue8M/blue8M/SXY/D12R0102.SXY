@@ -1,0 +1,54 @@
+; 11/05/95		22:36:00
+dun_tbl$:
+	db	000h
+ie_tbl$:
+	db	009h
+	db	023h,002h,000h,D12R1F3
+	db	023h,003h,001h,D12R1F3
+	db	023h,008h,002h,D12R1F3
+	db	023h,009h,003h,D12R1F3
+	db	023h,014h,004h,D12R1F4
+	db	023h,015h,005h,D12R1F4
+	db	01eh,027h,000h,D12R1F1
+	db	01fh,027h,001h,D12R1F1
+	db	003h,023h,000h,D12R1F9
+kanban_tbl$:
+	db	005h
+	db	004h,024h,3
+	db	019h,004h,4
+	db	01Fh,00Dh,5
+	db	021h,013h,6
+	db	01Ch,01Ah,7
+hito_tbl$:
+	db	002h
+	db	CAPSULE
+	db	001h+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h+080h			; capsule type
+	db	024h				; item number
+	db	CAPSULE
+	db	007h+4,013h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h+080h			; capsule type
+	db	0f0h				; item number
+ram_map_tbl$:
+	dw	01ah * 012h + 002h + ram_map
+	db	023h,002h
+	dw	01ah * 012h + 002h + ram_map
+	db	023h,003h
+	dw	01ah * 012h + 005h + ram_map
+	db	023h,008h
+	dw	01ah * 012h + 005h + ram_map
+	db	023h,009h
+	dw	01ah * 012h + 00bh + ram_map
+	db	023h,014h
+	dw	01ah * 012h + 00bh + ram_map
+	db	023h,015h
+	dw	01ah * 010h + 014h + ram_map
+	db	01eh,027h
+	dw	01ah * 010h + 014h + ram_map
+	db	01fh,027h
+	dw	01ah * 002h + 012h + ram_map
+	db	003h,023h

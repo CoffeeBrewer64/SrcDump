@@ -1,0 +1,73 @@
+; 06/05/98		18:06:32
+dun_tbl$:
+	db	02eh
+ie_tbl$:
+	db	003h
+	db	00ah,013h,001h,D9R1F3
+	db	00fh,018h,000h,D9R1F5
+	db	00fh,019h,001h,D9R1F5
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	009h
+	db	BOSS
+	db	003h+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h+040h			; battle type
+	db	0e5h				; dealer number
+	db	001h				; taking pattern 
+	db	KOJIRO
+	db	00Ah+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h
+	db	MUSASHI
+	db	00Ah+4,018h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	003h
+	db	DANIN
+	db	002h+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	004h+040h			; battle type
+	db	0e6h				; dealer number
+	db	012h				; taking pattern 
+	db	CAPSULE
+	db	00Ch+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	005h+080h			; capsule type
+	db	023h				; item number
+	db	CAPSULE
+	db	004h+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	006h+080h			; capsule type
+	db	0cah				; item number
+	db	CAPSULE
+	db	014h+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	007h+080h			; capsule type
+	db	025h				; item number
+	db	CAPSULE
+	db	002h+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	008h+080h			; capsule type
+	db	048h				; item number
+	db	CAPSULE
+	db	002h+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	009h+080h			; capsule type
+	db	04ah				; item number
+ram_map_tbl$:
+	dw	015h * 006h + 00ah + ram_map
+	db	00ah,013h
+	dw	015h * 008h + 00dh + ram_map
+	db	00fh,018h
+	dw	015h * 008h + 00dh + ram_map
+	db	00fh,019h

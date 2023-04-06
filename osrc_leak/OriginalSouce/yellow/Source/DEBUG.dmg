@@ -1,0 +1,2163 @@
+
+	include	common.def
+	include	fntequ.def
+	include	pm_debug.def
+	include	banktool.def
+	include	sgb_col.def
+	include	fight.def
+	include macro.h
+	include fntequ.def
+	include group.def
+
+	public	option
+
+	extern	main_loop
+
+	extern	hero_setup
+
+	extern	memset
+	extern	actor_blanch
+	extern	bank_push_call
+	extern	get_mons_name
+	extern	get_dealer_name
+	extern	get_waza_name
+	extern	mons_tbl
+	extern	get_monsadr
+	extern	set_status_all
+	extern	get_kaihatsu_no
+	extern	rnd
+	extern	put_dec
+	extern	cont_repeat
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	chrset
+	extern	fontset
+	extern	set_kana
+	extern	set_gauge
+	extern	cls
+	extern	wait_vb
+	extern	wait_vb_s
+	extern	cont
+	extern	cont_abwait
+	extern	block_move
+	extern	bank_chg_block_m
+;;	extern	printind
+	extern	dvram_cls
+	extern	oam_clr
+	extern	put_msg
+	extern	put_window
+	extern	put_win_msg
+	extern	play2
+	extern	play1
+	extern	new_scenario
+	extern	allow
+	extern	allow_1
+	extern	cls_allow
+	extern	block_cls
+	extern	add_item
+	extern	add_capsule_new
+	extern	add_cap_azuke
+	extern	mul_any
+	extern	bank2bank
+	extern	color_rewrite
+	extern	color_set
+	extern	palset
+	extern	table_search
+	extern	put_wait
+
+	extern	musmons
+
+	extern	fnt_kana
+	extern	fnt_gauge
+	extern	fnt_serifu
+	extern	fnt_zukan
+
+	extern	change_cgb_bgp
+	extern	change_cgb_obp0
+	extern	change_cgb_obp1
+
+;bank1	group	1
+bank3f	group	03fh
+
+
+option:
+  ifn	pm_debug
+	call	dvram_cls
+
+	ld	hl,my_name$
+	ld	de,my_name
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+	ld	hl,rival_name$
+	ld	de,rival_name
+	ld	bc,MONS_NAME_LEN
+	call	block_move
+
+;	ld	hl,kouhai_name$
+;	ld	de,junior_name
+;	ld	bc,MONS_NAME_LEN
+;	call	block_move
+
+	call	set_kana
+	call	set_gauge
+
+	call	oam_clr
+	call	color_rewrite
+
+	SET_WIN_POS 5,6,15,10
+	call	put_window
+
+	S_POS	7,7
+	ld	de,option_msg1$
+	call	put_msg
+
+	ld	a,3
+	ld	(my_lvl),a
+
+	ld	a,BT_B + BT_A + BT_ST
+	ld	(allow_msk),a
+	xor	a
+	ld	(allow_ret_flg),a
+	inc	a
+;	ld	a,1
+	ld	(allow_max),a
+	ld	a,7
+	ld	(allow_pos),a			; Y pos
+	dec	a
+;	ld	a,6
+	ld	(allow_pos+1),a			; X pos
+	xor	a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+	ld	(scloll_sw),a
+
+;1$:
+;	ld	c,20
+;	call	wait_vb_s
+
+	call	allow
+
+	bit	1,a			
+  ifn	YELLOW_VERSION
+	ld	hl,main_loop
+	ret	nz
+
+	ld	a,(allow_cnt)
+	and	a
+	jp	z,test_fight
+
+	ld	hl,game_mode
+	set	1,(hl)
+
+	ld	hl,new_scenario
+	ret
+
+  else
+	jp	nz,main_loop			; cancel by "B" button
+
+	ld	a,(allow_cnt)
+	and	a
+	jp	z,test_fight
+
+	ld	hl,game_mode
+	set	1,(hl)
+
+	jp	new_scenario
+;	jp	map_select_base			; map select
+  endif
+
+
+my_name$:
+  ifn	pm_jmsg
+	db	o__,re__
+	db	EOM
+  else
+	db	usf_t,usf_o_,usf_m_
+	db	EOM
+  endif
+
+rival_name$:
+  ifn	pm_jmsg
+	db	ta_,ke_
+	db	EOM
+  else
+	db	usf_j,usf_u_,usf_e_,usf_r_,usf_r_,usf_y_
+	db	EOM
+  endif
+
+;kouhai_name$:
+;	db	u_,me_,zo_,u_
+;	db	EOM
+
+option_msg1$:
+  ifn	pm_jmsg
+;	db	te__,su__,to__
+	db	hu__,aa__,i__,to__,cr@
+	db	de__,ba__,ttu__,gu__
+;	db	su__,ta__,bou@,to__
+	db	EOM
+  else
+	db	usf_f,usf_i,usf_g,usf_h,usf_t,cr@
+	db	usf_d,usf_e,usf_b,usf_u,usf_g
+	db	EOM
+  endif
+  else
+	ret
+  endif
+
+
+;=======================;
+;			;
+;	test fight	;
+;			;
+;=======================;
+test_fight:
+  ifn pm_debug
+	ld	a,1
+	ld	(cont_joy_flg),a
+
+	ld	a,080h
+	ld	(my_badge),a
+
+	ld	hl,game_mode + 1
+	set	0,(hl)				; test fight mode
+
+	ld	hl,my_item_tbl
+	ld	de,item_add_tbl
+
+item_add_loop$:	
+	ld	a,(de)
+	cp	0ffh
+	jr	z,item_add_end$
+	inc	de
+	ld	(sel_item_no),a
+	ld	a,(de)
+	inc	de
+	ld	(item_kosuu),a
+	push	de
+	call	add_item
+	pop	de
+	jr	item_add_loop$
+
+item_add_end$:	
+	call	set_gauge
+
+	call	dvram_cls
+	call	oam_clr
+
+	SET_WIN_POS 0,0,19,2
+	call	put_window
+
+	S_POS	6,1
+	ld	de,test_fight_msg1$		; "test fight"
+	call	put_msg
+
+	S_POS	4,4
+	ld	de,test_fight_msg2$		; "No. namae reberu"
+	call	put_msg
+
+	S_POS	1,6
+	ld	de,test_fight_msg3$		; "1. 000 ----- 000"
+	call	put_msg
+
+	xor	a
+	ld	(sel_item_pos),a
+	ld	(enemy_data + 11),a		; monster No.
+	ld	(enemy_data + 25),a		; level
+	ld	(dealer_no),a			; dealer No.
+	ld	(gein_name + 2),a
+
+	ld	b,a				; monster number counter
+	ld	c,a				; level counter
+
+	ld	hl,gein_cap_tbl + 1		; level	tbl ( magari )
+	call	cls$
+	ld	hl,my_cap_tbl	
+	call	cls$
+
+	ld	de,my_cap_tbl + 1		; first monster pos
+	ld	hl,6*20 + 4 + dmy_vram
+
+mons_number$:
+	push	hl				; monster number print position
+	push	bc				; b = monster number c = level
+	dec	hl
+	ld	a,allow@
+	ld	(hl),a
+	ld	bc,11
+	add	hl,bc
+	ld	a,spc@
+	ld	(hl),a
+	push	de
+;	ld	b,COL_TOWN
+;	call	color_set
+	pop	de
+	pop	bc				; b = monster number c = level
+	pop	hl				; monster number print position
+
+mons_number_loop$:
+	push	bc				; b = monster number c = level
+	push	de				; my_cap_tbl
+	call	cont_repeat
+	pop	de				; my_cap_tbl
+	pop	bc				; b = monster number c = level
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,count_up$
+	bit	1,a				; "b" button
+	jp	nz,count_down$
+	bit	2,a				; select button
+	jp	nz,option
+	bit	3,a				; start button
+	jp	nz,enemy_set$
+	bit	4,a				; right button
+	jp	nz,mons_level$
+	bit	6,a				; up button
+	jp	nz,before_mons$
+	bit	7,a				; down button
+	jp	nz,next_mons$
+
+	jr	mons_number_loop$
+
+cls$:
+	xor	a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	ret
+
+count_up$:
+	inc	b				; monster number
+	ld	a,b
+	cp	191				; genzai no monster suu + 1
+	jr	c,count_up_1$	
+	xor	a
+	ld	b,a
+
+count_up_1$:
+	ld	(de),a				; monster number -> my_cap_tbl
+	ld	(in_dat),a
+	push	bc
+	push	hl
+	push	de
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	inc	hl
+	push	hl
+	ld	de,test_fight_msg4$		; "@spc * 5"(name cls)
+	call	put_msg
+	ld	bc,-20
+	add	hl,bc
+	ld	de,test_fight_msg4$		; "@spc * 5"(name cls)
+	call	put_msg
+	pop	hl
+	ld	a,(in_dat)			; monster number
+	and	a
+	jr	nz,count_up_2$
+	
+	ld	de,test_fight_msg5$		; "-----"
+	jr	count_up_3$
+
+count_up_2$:
+	call	get_mons_name
+
+count_up_3$:
+	call	put_msg
+	pop	de
+	pop	hl
+	pop	bc
+
+	jr	mons_number_loop$
+
+count_down$:
+	dec	b				; monster number
+	ld	a,b
+	cp	201	
+	jp	c,count_up_1$	
+	ld	a,190				; genzai no monster suu
+	ld	b,a
+	jp	count_up_1$
+
+before_mons$:
+	ld	a,(sel_item_pos)
+	dec	a
+	cp	0ffh
+	jp	z,mons_number_loop$
+	ld	(sel_item_pos),a
+	dec	de				; my_cap_tbl
+	dec	hl
+	ld	a,spc@
+	ld	(hl),a
+	push	bc
+	ld	bc,-40
+	add	hl,bc
+	pop	bc
+	ld	a,allow@
+	ld	(hl),a
+	inc	hl
+	push	hl
+	call	position_move$
+	pop	hl
+
+	jp	mons_number_loop$
+
+
+next_mons$:
+	ld	a,(sel_item_pos)
+	inc	a
+	cp	CAP_MAX
+	jp	nc,mons_number_loop$
+	ld	(sel_item_pos),a
+	inc	de				; my_cap_tbl
+	dec	hl
+	ld	a,spc@
+	ld	(hl),a
+	ld	bc,40
+	add	hl,bc
+	ld	a,allow@
+	ld	(hl),a
+	inc	hl
+	push	hl
+	call	position_move$
+	pop	hl
+	jp	mons_number_loop$
+
+mons_level$:
+	push	hl				; monster number print position
+	push	bc				; b = monster number c = level
+	dec	hl
+	ld	a,spc@
+	ld	(hl),a
+	ld	bc,11
+	add	hl,bc
+	ld	a,allow@
+	ld	(hl),a
+	pop	bc				; b = monster number c = level
+	pop	hl				; monster number print position
+	
+mons_level_loop$:
+	push	bc				; b = monster number c = level
+	push	de				; my_cap_tbl
+	call	cont_repeat
+	pop	de				; my_cap_tbl
+	pop	bc				; b = monster number c = level
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,lvl_count_up$
+	bit	1,a				; "b" button
+	jp	nz,lvl_count_down$
+	bit	3,a				; start button
+	jp	nz,enemy_set$
+	bit	5,a				; left button
+	jp	nz,mons_number$
+	bit	6,a				; up button
+	jp	nz,lvl_before_mons$
+	bit	7,a				; down button
+	jp	nz,lvl_next_mons$
+	jr	mons_level_loop$
+
+lvl_count_up$:
+	inc	c				; monster level
+	ld	a,c
+	cp	101				; max level + 1
+	jr	c,lvl_count_up_1$	
+	ld	a,1
+	ld	c,a
+lvl_count_up_1$:
+	ld	a,(sel_item_pos)
+	push	de				; my_cap_tbl
+	ld	de,gein_cap_tbl + 1		; level tbl ( magari ) 
+	add	a,e
+	ld	e,a
+	jr	nc,lvl_count_up_2$
+	inc	d
+
+lvl_count_up_2$:
+	ld	a,c
+	ld	(de),a				; monster level -> gein_cap_tbl
+	push	bc				; b = monster No.  c = level
+	push	hl				; monster number print posision
+	ld	bc,11
+	add	hl,bc				; level print position
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+
+	pop	hl				; monster number print position
+	pop	bc				; b = monster No.  c = level
+	pop	de				; my_cap_tbl
+	jp	mons_level_loop$
+
+lvl_count_down$:
+	dec	c				; monster level
+	ld	a,c
+	cp	101
+	jr	nc,lvl_count_down1$	
+	and	a
+	jp	nz,lvl_count_up_1$	
+
+lvl_count_down1$:
+	ld	a,100
+	ld	c,a
+	jp	lvl_count_up_1$
+
+lvl_before_mons$:
+	ld	a,(sel_item_pos)
+	dec	a
+	cp	0ffh
+	jp	z,mons_level_loop$
+	ld	(sel_item_pos),a
+	dec	de
+	push	hl				; monster number print posision
+	ld	bc,10
+	add	hl,bc
+	ld	a,spc@
+	ld	(hl),a
+	pop	hl
+	ld	bc,-40
+	add	hl,bc
+	push	hl
+	ld	bc,10
+	add	hl,bc
+	ld	a,allow@
+	ld	(hl),a
+	call	position_move$
+	pop	hl				; monster number print position
+	jp	mons_level_loop$
+
+lvl_next_mons$:
+	ld	a,(sel_item_pos)
+	inc	a
+	cp	CAP_MAX
+	jp	nc,mons_level_loop$
+	ld	(sel_item_pos),a
+	inc	de
+
+	push	hl				; monster number print posision
+	ld	bc,10
+	add	hl,bc
+	ld	a,spc@
+	ld	(hl),a
+	pop	hl
+	ld	bc,40
+	add	hl,bc
+	push	hl
+	ld	bc,10
+	add	hl,bc
+	ld	a,allow@
+	ld	(hl),a
+	call	position_move$
+	pop	hl				; monster number print position
+	jp	mons_level_loop$
+
+position_move$:
+	ld	hl,my_cap_tbl + 1
+	ld	a,(sel_item_pos)
+	add	a,l
+	ld	l,a
+	jr	nc,position_move1$
+	inc	h
+position_move1$:
+	ld	a,(hl)				; monster No.
+	ld	b,a
+	ld	hl,gein_cap_tbl + 1
+	ld	a,(sel_item_pos)
+	add	a,l
+	ld	l,a
+	jr	nc,position_move2$
+	inc	h
+
+position_move2$:
+	ld	a,(hl)				; monster level
+	ld	c,a
+	ret
+
+enemy_set$:
+	ld	hl,my_cap_tbl
+	ld	de,gein_cap_tbl			; level saved (magari)
+	xor	a
+	ld	(hl),a
+	inc	hl
+	ld	a,(hli)				; first monster No.
+	ld	b,a
+	ld	c,6
+	xor	a
+	ld	(fighting_flg),a
+
+enemy_set1$:
+	ld	a,b				; monster No.
+	ld	(sel_item_no),a
+	ld	a,(hl)				; next monster No.
+	ld	b,a
+	inc	de
+	ld	a,(de)				; level
+	and	a
+	jr	z,enemy_set2$
+
+	ld	(mons_level),a
+	xor	a
+	ld	(my_or_gein),a			; 0 = my
+	ld	a,(sel_item_no)
+	and	a
+	jr	z,enemy_set2$
+
+	call	add_capsule_new
+
+enemy_set2$:
+	inc	hl
+	dec	c
+	jr	nz,enemy_set1$
+
+	ld	b,7
+	ld	hl,my_cap_tbl + 1
+	ld	de,gein_cap_tbl
+
+enemy_set2_00$:
+	inc	de
+	dec	b
+	jp	z,test_fight
+	ld	a,(hli)
+	and	a
+	jr	z,enemy_set2_00$
+	ld	a,(de)
+	and	a
+	jr	z,enemy_set2_00$
+
+;enemy data set---------------------------------------
+	SET_BLOCK 0,3,20,18
+	call	block_cls
+	SET_BLOCK 0,3,20,18
+	call	block_cls
+	SET_BLOCK 0,3,20,18
+	call	block_cls
+
+;enemy_set2_0$:
+;	call	cont_repeat
+;	ld	a,(joy_repeat)
+;	and	a
+;	jr	nz,enemy_set2_0$
+	ld	c,20
+	call	wait_vb_s
+	
+	ld	a,1
+	ld	(fighting_flg),a
+	ld	de,test_fight_msg6$		; "wild monster"
+	ld	a,(gein_name + 2)
+	cp	101
+	jr	c,enemy_set2_1$
+	
+	ld	a,2
+	ld	(fighting_flg),a
+	ld	de,test_fight_msg7$		; "dealer"
+
+enemy_set2_1$:
+	S_POS	1,4
+	call	put_msg
+	S_POS	1,6
+	ld	de,test_fight_msg8$		; "No. namae     reberu"
+						; "000 ---------- 000"
+	call	put_msg
+
+	ld	a,(enemy_data + 11)		; enemy No.
+	ld	b,a
+	ld	a,(fighting_flg)
+	dec	a
+	jr	z,enemy_set3$
+
+	ld	a,(dealer_no)
+	ld	(in_dat),a
+	ld	b,a
+	ld	de,in_dat
+	S_POS	1,8
+	push	bc
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	S_POS	5,8
+	ld	de,test_fight_msg0$
+	call	put_msg
+	call	get_dealer_name
+	S_POS	5,8
+	ld	de,dealer_name
+	call	put_msg
+	pop	bc
+	jr	enemy_set4$
+
+enemy_set3$:
+	ld	a,b
+	and	a
+	jr	z,enemy_set4$
+
+	ld	de,in_dat
+	ld	(de),a
+	S_POS	1,8
+	push	bc
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	
+	S_POS	5,8
+	ld	de,test_fight_msg0$
+	call	put_msg
+
+	call	get_mons_name
+	S_POS	5,8
+	call	put_msg
+	pop	bc
+	
+enemy_set4$:
+	ld	a,(enemy_data + 25)
+	ld	c,a				; level
+
+	ld	de,in_dat
+	ld	(de),a
+	S_POS	16,8
+	push	bc
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	pop	bc
+
+enemy_type$:
+	ld	a,spc@
+	ld	(8*20 + 0 + dmy_vram),a
+	ld	(8*20 + 15 + dmy_vram),a
+	ld	a,allow@
+	ld	(4*20 + 0 + dmy_vram),a
+
+enemy_type_loop$:
+	push	bc				; b = monster number c = level
+	call	cont_repeat
+	pop	bc				; b = monster number c = level
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,type_change$
+	bit	3,a				; start button
+	jp	nz,go_fight$
+	bit	7,a				; down button
+	jp	nz,enemy_mons$
+	jr	enemy_type_loop$
+
+type_change$:
+	S_POS	1,8
+	ld	de,test_fight_msg9$		; "000 ---------- 000"
+	call	put_msg
+	S_POS	5,7
+	ld	de,test_fight_msg0$		; "@spc * 10"
+	call	put_msg
+
+	xor	a		
+	ld	b,a				; monster or dealer number
+	ld	c,a				; monster or dealer level
+	ld	a,(fighting_flg)
+	dec	a
+	jr	nz,type_change1$	
+
+	ld	a,2				; dealer
+	ld	(fighting_flg),a
+	ld	a,spc@
+	ld	(3*20 + 4 + dmy_vram),a
+	S_POS	1,4
+	ld	de,test_fight_msg7$		; "dealer"
+	call	put_msg
+	jp	enemy_type_loop$
+
+type_change1$:
+	ld	a,1				; wild monster
+	ld	(fighting_flg),a
+	ld	a,spc@
+	ld	(3*20 + 1 + dmy_vram),a
+	S_POS	1,4
+	ld	de,test_fight_msg6$		; "wild monster"
+	call	put_msg
+	jp	enemy_type_loop$
+
+enemy_mons$:
+	ld	a,allow@
+	ld	(8*20 + 0 + dmy_vram),a
+	ld	a,spc@
+	ld	(8*20 + 15 + dmy_vram),a
+	ld	(4*20 + 0 + dmy_vram),a
+enemy_mons_loop$:
+	push	bc				; b = monster number c = level
+	call	cont_repeat
+	pop	bc				; b = monster number c = level
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,enemons_countup$
+	bit	1,a				; "b" button
+	jp	nz,enemons_countdn$
+	bit	3,a				; start button
+	jp	nz,go_fight$
+	bit	4,a				; right button
+	jp	nz,enemy_lvl$
+	bit	6,a				; up button
+	jp	nz,enemy_type$
+	jr	enemy_mons_loop$
+
+enemons_countup$:
+	push	bc				; b = monster number c = level
+	S_POS	5,7
+	ld	de,test_fight_msg0$		; "@spc * 10"
+	call	put_msg
+	S_POS	5,8
+	ld	de,test_fight_msg0$		; "@spc * 10"
+	call	put_msg
+	pop	bc				; b = monster number c = level
+
+	ld	a,(fighting_flg)
+	dec	a
+	jr	z,mons_countup$
+
+	inc	b				; dealer number
+	ld	a,b
+	cp	48
+	jr	c,dealer_countup1$
+
+	ld	b,1
+dealer_countup1$:
+	ld	a,b
+	ld	(in_dat),a			; dealer number
+	ld	de,in_dat
+	S_POS	1,8
+	push	bc				; b = monster number c = level
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	ld	a,(in_dat)			; dealer number	
+	ld	(dealer_no),a
+	call	get_dealer_name
+	S_POS	5,8
+	ld	de,dealer_name
+	call	put_msg
+	
+	pop	bc				; b = monster number c = level
+	jp	enemy_mons_loop$
+
+mons_countup$:
+	inc	b				; monster number
+	ld	a,b
+	cp	191				; monster max + 1
+	jr	c,mons_countup1$
+
+	ld	b,1
+mons_countup1$:
+	ld	a,b
+	ld	(in_dat),a			; monster number
+	ld	de,in_dat
+	S_POS	1,8
+	push	bc				; b = monster number c = level
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	call	get_mons_name
+	S_POS	5,8
+	call	put_msg
+	
+	pop	bc				; b = monster number c = level
+	jp	enemy_mons_loop$
+
+enemons_countdn$:
+	push	bc				; b = monster number c = level
+	S_POS	5,7
+	ld	de,test_fight_msg0$		; "@spc * 10"
+	call	put_msg
+	S_POS	5,8
+	ld	de,test_fight_msg0$		; "@spc * 10"
+	call	put_msg
+	pop	bc				; b = monster number c = level
+
+	ld	a,(fighting_flg)
+	dec	a
+	jr	z,mons_countdn$
+
+	dec	b				; dealer number
+	ld	a,b
+	cp	48
+	jr	nc,dealer_countdn1$
+	and	a
+	jp	nz,dealer_countup1$
+
+dealer_countdn1$:
+	ld	b,47
+	jp	dealer_countup1$
+
+mons_countdn$:
+	dec	b				; monster number
+	ld	a,b
+	cp	191
+	jr	nc,mons_countdn1$
+	and	a
+	jp	nz,mons_countup1$
+
+mons_countdn1$:
+	ld	b,190				; monster number
+	jp	mons_countup1$
+
+enemy_lvl$:
+	ld	a,spc@
+	ld	(8*20 + 0 + dmy_vram),a
+	ld	a,allow@
+	ld	(8*20 + 15 +dmy_vram),a
+
+enemy_lvl_loop$:
+	push	bc				; b = monster number c = level
+	call	cont_repeat
+	pop	bc				; b = monster number c = level
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,enelvl_countup$
+	bit	1,a				; "b" button
+	jp	nz,enelvl_countdn$
+	bit	3,a				; start button
+	jp	nz,go_fight$
+	bit	5,a				; left button
+	jp	nz,enemy_mons$
+	bit	6,a				; up button
+	jp	nz,enemy_type$
+	jr	enemy_lvl_loop$
+	
+enelvl_countup$:
+	inc	c				; level
+	ld	a,c
+	cp	101
+	jr	c,enelvl_countup1$
+
+	ld	c,1
+
+enelvl_countup1$:
+	S_POS	16,8
+	ld	a,c
+	ld	de,mons_level
+	ld	(de),a
+	push	bc
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	pop	bc	
+	jp	enemy_lvl_loop$
+	
+enelvl_countdn$:
+	dec	c				; level
+	ld	a,c
+	cp	101
+	jr	nc,enelvl_countdn1$
+	and	a
+	jp	nz,enelvl_countup1$
+
+enelvl_countdn1$:
+	ld	c,100
+	jp	enelvl_countup1$
+
+
+go_fight$:
+	ld	a,b
+	and	a
+	jp	z,enemy_type$
+	ld	a,c
+	and	a
+	jp	z,enemy_type$
+
+;	push	bc
+	ld	a,(fighting_flg)
+	dec	a
+	jr	z,go_fight1$
+
+	ld	a,b			; dealer no
+	add	a,200
+	ld	b,a
+
+	ld	a,c
+	ld	(take_mons_ptn),a
+
+go_fight1$:
+	ld	a,c
+	ld	(mons_level),a
+	ld	a,b
+	ld	(event_fight_no),a
+
+	xor	a
+	ld	(event_flg),a		; dealer message off
+;	inc	a
+;	ld	(ctrl_move_val + TEST_FIGHT_NO),a
+
+	ld	a,B_FIGHTER0
+	call	bank2bank
+
+	xor	a
+	ld	(nige_cnt),a
+
+	ld	hl,mymons_cond1
+	ld	bc,5
+	call	memset
+
+	ld	hl,enemy_cond1
+	ld	bc,5
+	call	memset
+
+	call	set_kana
+
+	call	dvram_cls
+	call	oam_clr
+
+	ld	a,0e4h
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	(OBP1),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+	call	change_cgb_obp0
+	call	change_cgb_obp1
+  endif
+
+	SET_WIN_POS 0,0,19,2
+	call	put_window
+
+	S_POS	6,1
+	ld	de,test_fight_msg1$		; "test fight"
+	call	put_msg
+
+	S_POS	4,4
+	ld	de,test_fight_msg2$		; "No. namae reberu"
+	call	put_msg
+
+	S_POS	1,6
+	ld	de,test_fight_msg3$		; "1. 000 ----- 000"
+	call	put_msg
+
+	ld	de,my_cap_tbl
+;	ld	a,(de)
+;	ld	b,a				; number of monster
+	xor	a
+	ld	(de),a
+	ld	(sel_item_pos),a
+	inc	de				; first monster pos
+	ld	hl,6*20 + 4 + dmy_vram 
+
+	push	de
+	push	hl
+
+go_fight2$:
+	ld	a,(sel_item_pos)
+	ld	de,my_cap_tbl + 1
+	add	a,e
+	ld	e,a
+	jr	nc,go_fight3$
+	inc	d
+	
+go_fight3$:
+	ld	a,(de)				; monster No.
+	cp	255
+	jp	z,go_fight7$
+
+	ld	(in_dat),a
+;	push	bc
+	push	hl
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	inc	hl
+	ld	de,test_fight_msg4$		; "@spc * 5"
+	call	put_msg
+	call	get_mons_name
+	call	put_msg
+	pop	hl
+	push	hl
+	ld	bc,11
+	add	hl,bc
+	push	hl
+
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_data + 33		; level
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+	ld	d,h
+	ld	e,l
+	ld	a,(de)
+	ld	(mons_level),a
+	
+	pop	hl
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	
+	ld	a,(sel_item_pos)
+	ld	de,gein_cap_tbl + 1
+	add	a,e
+	ld	e,a
+	jr	nc,go_fight4$
+
+	inc	d
+	
+go_fight4$:
+	ld	a,(mons_level)
+	ld	(de),a
+
+	pop	hl
+	
+go_fight6$:
+	ld	a,(sel_item_pos)
+	inc	a
+	ld	(sel_item_pos),a
+	ld	bc,40
+	add	hl,bc
+;	pop	bc
+;	dec	b
+;	jp	nz,go_fight2$
+	jp	go_fight2$
+
+
+go_fight7$:
+	pop	hl
+	pop	de
+;	pop	bc
+
+	ld	a,(my_cap_data)
+	ld	b,a				; monster No
+	ld	a,(my_cap_data + 33)
+	ld	c,a				; monster level
+
+	xor	a
+	ld	(sel_item_pos),a
+
+	jp	mons_number$
+
+
+my_name$:
+	db	ke_,n_,si_,ro_,u_
+	db	EOM
+
+
+test_fight_msg1$:
+	db	te__,su__,to__,spc@,hu__,aa__,i__,to__
+	db	EOM
+
+
+test_fight_msg2$:
+	db	No@,dot@,spc@,spc@,na_,ma_,e_,spc@,spc@,spc@,spc@
+	db	re__,be__,ru__
+	db	EOM
+
+
+test_fight_msg3$:
+	db	n1@,dot@,allow@,n0@,n0@,n0@,spc@,bou@,bou@,bou@,bou@,bou@
+	db	spc@,spc@,n0@,n0@,n0@,cr@
+	db	n2@,dot@,spc@,n0@,n0@,n0@,spc@,bou@,bou@,bou@,bou@,bou@
+	db	spc@,spc@,n0@,n0@,n0@,cr@
+	db	n3@,dot@,spc@,n0@,n0@,n0@,spc@,bou@,bou@,bou@,bou@,bou@
+	db	spc@,spc@,n0@,n0@,n0@,cr@
+	db	n4@,dot@,spc@,n0@,n0@,n0@,spc@,bou@,bou@,bou@,bou@,bou@
+	db	spc@,spc@,n0@,n0@,n0@,cr@
+	db	n5@,dot@,spc@,n0@,n0@,n0@,spc@,bou@,bou@,bou@,bou@,bou@
+	db	spc@,spc@,n0@,n0@,n0@,cr@
+	db	n6@,dot@,spc@,n0@,n0@,n0@,spc@,bou@,bou@,bou@,bou@,bou@
+	db	spc@,spc@,n0@,n0@,n0@
+	db	EOM
+
+
+test_fight_msg4$:
+	db	spc@,spc@,spc@,spc@,spc@
+	db	EOM
+
+
+test_fight_msg5$:
+	db	bou@,bou@,bou@,bou@,bou@
+	db	EOM
+
+
+test_fight_msg6$:
+	db	wa__,i__,ru__,do__,mo__,n__,su__,ta__,bou@
+	db	EOM
+
+
+test_fight_msg7$:
+	db	de__,ii__,bou@,ra__,bou@,spc@,spc@,spc@,spc@
+	db	EOM
+
+
+test_fight_msg8$:
+	db	No@,dot@,spc@,spc@,na_,ma_,e_
+	db	spc@,spc@,spc@,spc@,spc@,spc@,spc@,spc@,re__,be__,ru__,cr@
+
+
+test_fight_msg9$:
+	db	n0@,n0@,n0@,spc@,bou@,bou@,bou@,bou@,bou@
+	db	bou@,bou@,bou@,bou@,bou@,spc@,n0@,n0@,n0@
+	db	EOM
+
+
+test_fight_msg0$:
+	db	spc@,spc@,spc@,spc@,spc@,spc@,spc@,spc@,spc@,spc@
+	db	EOM
+
+item_add_tbl:
+	db	 3,99
+	db	 4,99
+	db	11,99
+	db	16,99
+	db	17,99
+	db	18,99
+	db	19,99
+	db	20,99
+	db	0ffh
+  endif
+
+
+  ifn pm_debug
+
+	public	monster_maker
+monster_maker:
+	ld	a,(my_mons_tbl)
+	cp	30
+	jp	nc,add_cap_ng$
+
+	call	dvram_cls
+	call	actor_blanch
+
+	ld	a,(msg_speed)
+	push	af
+	xor	a
+	ld	(msg_speed),a
+	ld	hl,gein_cap_oya
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	inc	a				; a = 1
+	ld	(cont_joy_flg),a
+	ld	(sel_item_no),a
+	ld	(mons_level),a
+
+mons$:
+	S_POS	0,3
+	ld	(hl),spc@
+	S_POS	0,1
+	ld	(hl),allow@
+	call	put_no_name$
+mons_loop$:
+	call	wait_vb
+	call	cont_repeat
+
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,countup$
+	bit	1,a				; "b" button
+	jp	nz,countdn$
+	bit	7,a				; down button
+	jp	nz,level$
+	jr	mons_loop$
+
+
+countup$:
+	ld	hl,sel_item_no
+	inc	(hl)
+	ld	a,(hl)
+	cp	152
+	jr	c,mons$
+
+	ld	(hl),1
+	jr	mons$
+
+countdn$:
+	ld	hl,sel_item_no
+	dec	(hl)
+	jr	nz,mons$
+
+	ld	(hl),151
+	jr	mons$
+
+put_no_name$:
+	SET_BLOCK 1,0,10,2
+	call	block_cls
+
+	S_POS	1,1
+	ld	de,sel_item_no
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+
+	inc	hl
+	push	hl
+
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+
+	ld	hl,get_kaihatsu_no
+	ld	b,010h
+	call	bank_push_call
+
+	call	get_mons_name
+
+	pop	hl
+	call	put_msg
+
+	ld	a,(in_dat)
+	ld	(tbl_pos),a
+	call	get_monsadr		; set mons_data ( for set_status_all)
+
+	ret
+
+
+level$:
+	S_POS	0,1
+	ld	(hl),spc@
+	S_POS	0,3
+	ld	(hl),allow@
+	S_POS	0,5
+	ld	(hl),spc@
+	call	put_level$
+	call	level_waza_set$
+level_loop$:
+	call	wait_vb
+	call	cont_repeat
+
+	ld	hl,mons_level
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,levelup$
+	bit	1,a				; "b" button
+	jp	nz,leveldn$
+	bit	3,a				; start button
+	jp	nz,add_cap$
+	bit	6,a				; up button
+	jp	nz,mons$
+	bit	7,a				; down button
+	jp	nz,waza$
+	jr	level_loop$
+
+levelup$:
+	inc	(hl)
+	ld	a,(hl)
+	cp	101
+	jr	c,level$
+
+	ld	(hl),1
+	jr	level$
+
+leveldn$:
+	dec	(hl)
+	jr	nz,level$
+
+	ld	(hl),100
+	jr	level$
+	
+
+put_level$:
+	S_POS	1,3
+	ld	de,mons_level
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+
+	ret
+
+
+level_waza_set$:
+	SET_BLOCK 1,4,12,12
+	call	block_cls
+
+	ld	a,(sel_item_no)			; monster No
+	push	af
+	ld	(in_dat),a
+
+	ld	hl,mons_tbl + 15		; waza
+	dec	a
+	ld	bc,MONS_TBL_SIZE
+	call	mul_any
+
+	ld	de,waza_swap
+	ld	bc,4
+	ld	a,0eh
+	call	bank_chg_block_m
+
+	ld	hl,get_kaihatsu_no
+	ld	b,010h
+	call	bank_push_call
+
+	ld	a,(in_dat)
+	ld	(sel_item_no),a
+
+	xor	a
+	ld	(yes_no_map),a
+
+	ld	de,waza_swap
+	ld	a,B_WAZA_SET
+	call	bank2bank
+
+	S_POS	1,5
+	ld	de,waza_swap
+	ld	b,4
+waza_prt_loop$:
+	ld	a,(de)
+	inc	de
+	and	a
+	jr	z,waza_prt_end$
+
+	push	de
+	push	bc
+	push	hl
+	ld	(in_dat),a
+
+	ld	de,in_dat
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	inc	hl
+
+	call	get_waza_name
+
+	call	put_msg
+
+	pop	hl
+	ld	bc,40
+	add	hl,bc
+	pop	bc
+	pop	de
+
+	dec	b
+	jr	nz,waza_prt_loop$
+
+waza_prt_end$:
+
+	pop	af
+	ld	(sel_item_no),a
+	ret
+
+
+
+waza$:
+	ld	de,waza_swap
+	S_POS	0,5
+	ld	b,1
+waza1$:
+	call	put_waza$
+waza_loop$:
+	call	wait_vb
+	push	de
+	push	bc
+	call	cont_repeat
+	pop	bc
+	pop	de
+
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,up$
+	bit	1,a				; "b" button
+	jp	nz,dn$
+	bit	3,a				; start button
+	jp	nz,add_cap$
+	bit	6,a				; up button
+	jp	nz,wazaup$
+	bit	7,a				; down button
+	jp	nz,wazadn$
+	jr	waza_loop$
+
+up$:
+	ld	a,(de)
+	inc	a
+	ld	(de),a
+	cp	165
+	jr	c,waza1$
+
+	ld	a,1
+	ld	(de),a
+	jr	waza1$
+
+dn$:
+	ld	a,(de)
+	dec	a
+	ld	(de),a
+	jr	nz,waza1$
+
+	ld	a,164
+	ld	(de),a
+	jr	waza1$
+	
+wazaup$:
+	dec	de
+	dec	b
+	jp	z,level$
+	
+	push	bc
+	ld	bc,-40
+	add	hl,bc
+	pop	bc
+
+	jr	waza1$
+
+	
+wazadn$:
+	inc	de
+	inc	b
+	ld	a,b
+	cp	5
+	jp	z,rndpower$
+	
+	push	bc
+	ld	bc,40
+	add	hl,bc
+	pop	bc
+
+	jr	waza1$
+
+
+
+put_waza$:
+	push	hl
+	push	de
+	push	bc
+
+	push	hl
+	push	de
+	ld	bc,-19
+	add	hl,bc
+	ld	bc,020bh
+	call	block_cls
+	pop	de
+	pop	hl
+
+	push	hl
+	ld	(hl),allow@
+	ld	bc,-40
+	add	hl,bc
+	ld	(hl),spc@
+	ld	bc,80
+	add	hl,bc
+	ld	(hl),spc@
+	pop	hl
+
+	inc	hl
+	ld	a,(de)
+	ld	de,in_dat
+	ld	(de),a
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+
+	ld	a,(in_dat)
+	and	a
+	jr	z,put_waza_pass$
+
+	call	check_skill$
+	
+	inc	hl
+
+	call	get_waza_name
+
+	call	put_msg
+
+put_waza_pass$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+check_skill$:
+	ld	a,(sel_item_no)
+	push	af				; monster order No
+
+	ld	a,(in_dat)
+	push	af				; waza No save		
+	push	hl
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+	ld	hl,get_kaihatsu_no
+	ld	b,010h
+	call	bank_push_call
+	ld	a,(in_dat)
+	ld	(sel_item_no),a
+	pop	hl
+	pop	af				; waza No load
+	ld	(in_dat),a
+
+	push	hl
+	extern	waza_capa_chk
+	ld	hl,waza_capa_chk
+	ld	b,G_BANKe
+	call	bank_push_call
+	pop	hl
+
+	jr	c,skill_ok$
+
+	ld	(hl),0f1h			; ng mark
+
+skill_ok$:
+	pop	af				; monster order No
+	ld	(sel_item_no),a
+
+	ret
+
+
+rndpower$:
+	ld	de,gein_cap_oya
+	S_POS	0,13
+	ld	b,1
+rndpower1$:
+	call	put_rnd$
+rndpower_loop$:
+	call	wait_vb
+	push	de
+	push	bc
+	call	cont_repeat
+	pop	bc
+	pop	de
+
+	ld	a,(joy_repeat)
+	bit	0,a				; "a" button
+	jp	nz,up1$
+	bit	1,a				; "b" button
+	jp	nz,dn1$
+	bit	3,a				; start button
+	jp	nz,add_cap$
+	bit	6,a				; up button
+	jp	nz,rndup$
+	bit	7,a				; down button
+	jp	nz,rnddown$
+	jr	rndpower_loop$
+
+
+up1$:
+	ld	a,(de)
+	inc	a
+	ld	(de),a
+	jr	rndpower1$
+
+dn1$:
+	ld	a,(de)
+	dec	a
+	ld	(de),a
+	jr	rndpower1$
+	
+rndup$:
+	dec	de
+	dec	b
+	jp	z,to_waza1$
+	
+	push	bc
+	ld	bc,-40
+	add	hl,bc
+	pop	bc
+
+	jr	rndpower1$
+
+to_waza1$:
+	ld	de,waza_swap + 3
+	S_POS	0,11
+	ld	b,4
+	jp	waza1$
+	
+rnddown$:
+	ld	a,b
+	cp	3
+	jr	z,rndpower1$
+
+	inc	b
+	inc	de
+	
+	push	bc
+	ld	bc,40
+	add	hl,bc
+	pop	bc
+
+	jr	rndpower1$
+
+put_rnd$:
+	push	hl
+	push	de
+	push	bc
+
+	push	hl
+	ld	(hl),allow@
+	ld	bc,-40
+	add	hl,bc
+	ld	(hl),spc@
+	ld	bc,80
+	add	hl,bc
+	ld	(hl),spc@
+	pop	hl
+
+	inc	hl
+	ld	a,(de)
+	ld	de,in_dat
+	ld	(de),a
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+
+	call	put_status$
+
+	pop	bc
+	pop	de
+	pop	hl
+
+	ret
+
+
+put_status$:
+	SET_BLOCK 12,0,20,18
+	call	block_cls
+
+	S_POS	13,1			
+	ld	de,status_str$
+	call	put_msg
+
+	ld	b,10
+	ld	hl,monsdata_dmy + 17
+	ld	a,(gein_cap_oya + 2)
+keikensetloop$:
+	ld	(hli),a
+	dec	b
+	jr	nz,keikensetloop$
+
+	ld	a,(gein_cap_oya)
+	ld	(hli),a
+	ld	a,(gein_cap_oya + 1)
+	ld	(hl),a
+
+	ld	hl,monsdata_dmy + 16
+	ld	de,monsdata_dmy + 34
+	ld	b,1				; call from level up
+	call	set_status_all
+
+	S_POS	17,1			
+	ld	de,monsdata_dmy + 34
+	ld	b,5
+put_status_loop$:
+	push	bc
+	push	de
+
+	push	hl
+	ld	bc,08203h			; 2byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+	pop	hl
+
+	ld	bc,40
+	add	hl,bc
+
+	pop	de
+	inc	de
+	inc	de
+	pop	bc
+	dec	b
+	jr	nz,put_status_loop$
+
+	ret
+
+
+status_str$:
+	db	ta_,i_,ri_,ki_,cr@
+	db	ko_,u_,ge_,ki_,cr@
+	db	bo_,u_,gi_,yyo_,cr@
+	db	su_,ba_,ya_,sa_,cr@
+	db	to_,ku_,si_,yyu_,EOM
+
+
+add_cap$:
+	ld	a,(mons_level)
+	ld	(enemy_data + 25),a
+
+	ld	a,(sel_item_no)
+	ld	(in_dat),a
+
+	ld	hl,get_kaihatsu_no
+	ld	b,010h
+	call	bank_push_call
+
+	ld	a,(in_dat)
+	ld	(sel_item_no),a
+	ld	(tbl_pos),a
+	call	get_monsadr		; set mons_data 
+
+	ld	hl,enemy_data + 11
+	ld	a,(sel_item_no)
+	ld	(hli),a				; monster No
+	ld	a,(monsdata_dmy + 34)		; max HP
+	ld	(hli),a				; now HP
+	ld	a,(monsdata_dmy + 35)		; max HP
+	ld	(hli),a				; now HP
+	xor	a
+	ld	(hli),a				; taikaiseiseki
+	ld	(hli),a				; condition
+	ld	a,(mons_data + 6)
+	ld	(hli),a				; zokusei1
+	ld	a,(mons_data + 7)
+	ld	(hli),a				; zokusei2
+	ld	a,(mons_data + 8)		; hokakuritsu
+	ld	(hli),a				; not use
+	ld	a,(waza_swap)
+	ld	(hli),a
+	ld	a,(waza_swap + 1)
+	ld	(hli),a
+	ld	a,(waza_swap + 2)
+	ld	(hli),a
+	ld	a,(waza_swap + 3)
+	ld	(hl),a
+
+	ld	hl,enemy_data + 36		; pp
+;	ld	a,40					; change 98/06/04
+	xor	a					; 
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	a,(gein_cap_oya + 0)
+	ld	(enemy_data + 23),a		; power rnd
+	ld	a,(gein_cap_oya + 1)
+	ld	(enemy_data + 24),a		; power rnd
+
+	ld	hl,add_cap_azuke
+	ld	b,003h
+	call	bank_push_call	
+
+	ld	b,10
+	ld	hl,my_mons_data + 17
+	ld	a,(gein_cap_oya + 2)		; exp
+looooop$:
+	ld	(hli),a
+	dec	b
+	jr	nz,looooop$
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+	pop	af
+	ld	(msg_speed),a
+	jr	ret$
+
+add_cap_ng$:
+	ld	hl,ng_msg$
+	call	put_win_msg
+
+ret$:
+	ret
+
+
+ng_msg$:
+	extern	ng_msg_0_DEBUG
+	db I_MSG2	; mvmsg追加
+	dw ng_msg_0_DEBUG	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+BOX_LENGTH	equ	pm_box_end - pm_box_start		;length
+BOX_START	equ	0a000h
+PM_BOX1		equ	0a000h
+PM_BOX2		equ	PM_BOX1 + BOX_LENGTH
+PM_BOX3		equ	PM_BOX2 + BOX_LENGTH
+PM_BOX4		equ	PM_BOX3 + BOX_LENGTH
+BOX_SUM		equ	PM_BOX4 + BOX_LENGTH
+BOX_END		equ	BOX_SUM + 1
+
+	public	monster_maker2
+monster_maker2:
+	ld	a,1
+	ld	(cont_joy_flg),a
+	ld	a,2
+	ld	(mons_level),a
+
+	ld	hl,box_init_msg$
+	call	put_win_msg
+
+	extern	yes_no
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jp	nz,ret$				; chancel
+
+	ld	hl,window$
+	call	put_win_msg
+
+	extern	bank_initialize
+	ld	hl,bank_initialize
+	ld	b,G_BANK1c
+	call	bank_push_call
+
+	ld	hl,my_mons_tbl
+	xor	a
+	ld	(hli),a
+	dec	a
+	ld	(hl),a
+cont_loop$:
+	S_POS	2,13
+	ld	(hl),ten@
+	S_POS	1,14
+	ld	(hl),re__
+	inc	hl
+	ld	(hl),he__
+	inc	hl
+	ld	(hl),ru__
+	inc	hl
+	inc	hl
+	ld	de,mons_level
+	ld	bc,08103h			; 1byte 3keta  (=00103h)
+						; + zero print (=08000h)
+	call	put_dec
+
+	call	wait_vb
+	call	cont_repeat
+	ld	a,(joy_repeat)
+
+	bit	0,a				; "a" button
+	jp	nz,up$
+	bit	1,a				; "b" button
+	jp	nz,down$
+	bit	3,a				; start button
+	jp	nz,monsmake$
+
+	jr	cont_loop$
+
+up$:
+	ld	a,(mons_level)
+	inc	a
+	cp	101
+	jr	c,number_set$
+
+	ld	a,2
+	jr	number_set$
+
+down$:
+	ld	a,(mons_level)
+	dec	a
+	cp	2
+	jr	nc,number_set$
+
+	ld	a,100
+number_set$:
+	ld	(mons_level),a
+	jr	cont_loop$
+
+
+monsmake$:
+	ld	c,0
+	ld	d,0				; box No
+loop1$:
+	push	bc
+	push	de
+
+;	ld	hl,obs_system
+;	set	6,(hl)
+;	extern	azukari_bank
+;	ld	hl,azukari_bank
+;	ld	b,G_BANK1c
+;	call	bank_push_call
+;	ld	hl,obs_system
+;	res	6,(hl)
+
+	call	box_change$
+
+	ld	hl,yes_no_map
+	inc	(hl)
+
+	pop	de
+	pop	bc
+	ld	b,30
+loop2$:
+	inc	c
+	push	bc
+	push	de
+
+	ld	a,c
+	ld	(in_dat),a
+	ld	hl,get_kaihatsu_no
+	ld	b,G_BANK10
+	call	bank_push_call
+
+	ld	a,(in_dat)
+	ld	(enemy_no),a
+	ld	(sel_item_no),a
+	xor	a
+	ld	(enemy_cond5),a
+
+	extern	get_enemy_data
+	ld	hl,get_enemy_data
+	ld	b,G_BANKf
+	call	bank_push_call
+
+	ld	a,(enemy_no)
+	ld	(sel_item_no),a
+
+	ld	hl,add_cap_azuke
+	ld	b,03h
+	call	bank_push_call
+
+	pop	de
+	pop	bc
+	ld	a,c
+	cp	151
+	jr	z,ret$
+
+pass1$:
+	dec	b
+	jr	nz,loop2$
+
+	inc	d				; box No
+	jr	loop1$
+
+ret$:
+	ld	a,1
+	ld	(wait_pass_flg),a
+	xor	a
+	ld	(cont_joy_flg),a
+
+	ret
+
+
+
+window$:
+	db	EOM
+
+
+box_init_msg$:
+	extern	box_init_msg_1_DEBUG
+	db I_MSG2	; mvmsg追加
+	dw box_init_msg_1_DEBUG	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+box_change$:
+	push	de
+	extern	mussave
+	ld	a,mussave
+	extern	se_play
+	call	se_play
+	extern	se_wait
+	call	se_wait
+
+	call	pm_bank_get$		; my_mons_tbl -> PM_BOX
+	ld	e,l
+	ld	d,h
+	ld	hl,my_mons_tbl
+	call	bank_move$
+	pop	de
+
+	ld	a,d
+	set	7,a
+	ld	(pm_box_no),a
+
+	push	de
+	call	pm_bank_get$
+	ld	de,my_mons_tbl
+	call	bank_move$
+
+	ld	a,(msg_speed)
+	push	af
+	ld	a,1
+	ld	(msg_speed),a
+
+	extern	save_all
+	ld	hl,save_all
+	ld	b,G_BANK1c
+	call	bank_push_call
+
+	pop	af
+	ld	(msg_speed),a
+
+	pop	de
+
+	ret
+
+pm_bank_get$:
+	ld	hl,pm_bank_tbl$
+	ld	a,(pm_box_no)
+	and	7fh
+	cp	4
+	ld	b,2
+	jr	c,bank2$
+
+	inc	b				; bank3
+	and	3				; 4 ~ 7 -> 0 ~ 3
+
+bank2$:
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	add	hl,de
+	
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ret
+
+pm_bank_tbl$:
+	dw	PM_BOX1
+	dw	PM_BOX2
+	dw	PM_BOX3
+	dw	PM_BOX4
+
+bank_move$:
+	push	hl
+	call	sram_open$
+	ld	a,b
+	ld	(RAMBANK),a
+
+	ld	bc,BOX_LENGTH
+	call	block_move
+
+	pop	hl
+	xor	a
+	ld	(hli),a
+	dec	a
+	ld	(hl),a
+
+	ld	hl,BOX_START
+	ld	bc,BOX_END - BOX_START
+	call	sum_check$
+	ld	(BOX_SUM),a
+
+	call	sram_close$
+
+	ret
+
+
+sram_open$:
+	ld	a,001h
+	ld	(ROMRAM),a
+	ld	a,00ah
+	ld	(RAMCS),a
+
+	ret
+
+
+
+sram_close$:
+	ld	a,00h				; save "flag"
+	ld	(ROMRAM),a
+	ld	(RAMCS),a
+
+	ret
+
+sum_check$:
+	ld	d,0
+
+loop$:
+	ld	a,(hli)
+	add	a,d
+	ld	d,a				; data code easy adding
+
+	dec	bc				; load data lots count down
+	ld	a,b
+	or	c
+	jr	nz,loop$
+
+	ld	a,d
+	cpl
+
+	ret
+
+  endif
+
+
+
+
+

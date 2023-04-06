@@ -1,0 +1,158 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	t3_room1_2f
+
+	extern	hakubutsu2f
+
+
+HAKUBUTSU_TYPE	equ	10
+EXIT		=	0ffh
+
+
+t3_room1_2f:  
+ysiz	=	4
+xsiz	=	7
+	db	HAKUBUTSU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	hakubutsu2f		; map data adrs
+	dw	msg_t3r1f2		; message tbl adrs
+	dw	event_t3r1f2		; event routine adrs
+	db	0			; map link flg
+	dw	room_str		;
+
+
+event_t3r1f2:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t3r1f2:
+	msgndw	msg1,msg_shounen1
+	ndw	msg2,msg_gsan1
+	ndw	msg3,msg_kenkyuin1
+	ndw	msg4,nanami1
+	ndw	msg5,msg_gsan2			; まっちょ兄貴
+	ndw	plate1,msg_plate1
+	ndw	plate2,msg_plate2
+
+
+
+msg1:
+	extern	msg1_0_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_2_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_3_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw msg4_3_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	a,(obs_pikachu)
+	bit	7,a
+	jr	nz,in_hand$
+
+	ld	hl,msg5_1$
+	call	put_win_msg
+
+	jr	rts$
+
+
+in_hand$:
+	ld	a,(pika_friendly + 00h)		; natsuki-ratio
+	cp	101				; 101 < pika_friendly
+	jr	c,non_friend$
+
+	ld	hl,msg5_3$
+	call	put_win_msg
+
+	jr	rts$
+
+
+non_friend$:
+	ld	hl,msg5_2$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg5_1$:
+	extern	msg5_1_4_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw msg5_1_4_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_2$:
+	extern	msg5_2_5_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_5_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_3$:
+	extern	msg5_3_6_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw msg5_3_6_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+plate1:
+	extern	plate1_7_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw plate1_7_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+plate2:
+	extern	plate2_8_T03R0102
+	db I_MSG2	; mvmsg追加
+	dw plate2_8_T03R0102	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\t03r0102.sxy
+
+
+
+

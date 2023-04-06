@@ -1,0 +1,422 @@
+
+	include		common.def
+	include		fntequ.def
+	include		anime.def
+	include		maphead.def
+	include		banktool.def
+	include		vanish.def
+	include		macro.h
+	include		group.def
+	include		pm_debug.def
+
+	
+bank14	group	G_BANK14
+
+
+	public	road23_event
+	public	road23_msg
+
+
+	extern	capsule_item
+	extern	set_battle
+	extern	set_battle_msg
+	extern	bank2bank
+	extern	fnt_kana
+	extern	fontmove
+	extern	actor_anime_set
+	extern	mk_trace_cmd
+	extern	table_jump
+	extern	cont
+	extern	yes_no
+	extern	i_see
+	extern	acttbl_l_adrs
+	extern	SetActorSite2
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	memset
+
+	extern	actor_put
+	extern	push_bank
+	extern	pop_bank
+	extern	check_money
+	extern	put_wait
+
+	extern	se_wait
+	extern	se_play
+	extern	set_now_music
+	extern	musboboo
+
+
+seq_road23		equ	seq_ctrl_buf + 119
+
+
+
+
+road23_event:
+	call	init_dun
+
+	call	init_for_talkmap
+
+	ld	hl,event_table
+	ld	a,(seq_road23)
+	jp	table_jump
+
+
+
+init_dun:
+	ld	hl,ptn_data
+	bit	6,(hl)
+	res	6,(hl)
+	ret	z
+
+	ld	hl,ev_r23 + 1
+	res	0,(hl)
+	res	7,(hl)
+
+	ld	hl,ev_d8 + 0
+	res	0,(hl)				; rewrite bg-cell
+	res	6,(hl)				; reset to rock falling
+
+	ld	a,D8R1F1msg10			; falling rock to hole
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	ld	a,R23R1F1msg13			; falling rock to hole
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	jp	bank2bank
+
+
+
+event_table:
+	initndw	road23_main,seq_road23_main
+	ndw	obs_stepback,seq_obs_stepback
+	ndw	freegate,seq_freegate
+
+
+road23_main:
+	ld	hl,stop_tbl$
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	e,0
+	ld	c,7
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	ret	z
+
+	inc	e
+	dec	c
+	cp	b
+	jr	nz,loop$
+
+	cp	23h
+	jr	nz,next$
+	ld	a,(mapscloll_x)
+	cp	0eh
+	ret	nc
+
+next$:
+	ld	a,e
+	ld	(work1),a
+	ld	a,c
+	ld	(usr_buf),a
+
+	ld	b,2
+	ld	hl,ev_r23
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+	ld	a,c
+	and	a
+	ret	nz
+
+set$:
+	call	get_badge_name
+	call	talk_map
+	xor	a
+	ld	(joy_status),a
+	ret
+
+
+stop_tbl$:
+	db	23h,38h,55h,60h,69h,77h,88h
+	db	0ffh
+
+
+get_badge_name:
+	ld	hl,badge_name_tbl$
+	ld	a,(usr_buf + 0)
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,table_data
+
+loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	cp	EOM
+	jr	nz,loop$
+
+	ret
+
+
+badge_name_tbl$:
+	dw	blue$
+	dw	orange$
+	dw	niji$
+	dw	pink$
+	dw	gold$
+	dw	aka$
+	dw	green$
+
+green$:
+  ifn	pm_jmsg
+	db	gu__,ri__,bou@,n__,EOM
+  else
+	db	usf_e,usf_a,usf_r,usf_t,usf_h,usf_b,usf_a,usf_d,usf_g,usf_e,EOM
+  endif
+
+aka$:
+  ifn	pm_jmsg
+	db	ku__,ri__,mu__,zo__,n__,EOM
+  else
+	db	usf_v,usf_o,usf_l,usf_c,usf_a,usf_n,usf_o,usf_b,usf_a,usf_d,usf_g,usf_e,EOM
+  endif
+
+gold$:
+  ifn	pm_jmsg
+	db	go__,bou@,ru__,do__,EOM
+  else
+	db	usf_m,usf_a,usf_r,usf_s,usf_h,usf_b,usf_a,usf_d,usf_g,usf_e,EOM
+  endif
+
+pink$:
+  ifn	pm_jmsg
+	db	pi__,n__,ku__,EOM
+  else
+	db	usf_s,usf_o,usf_u,usf_l,usf_b,usf_a,usf_d,usf_g,usf_e,EOM
+  endif
+
+niji$:
+  ifn	pm_jmsg
+	db	re__,i__,n__,bo__,bou@,EOM
+  else
+	db	usf_r,usf_a,usf_i,usf_n,usf_b,usf_o,usf_w,usf_b,usf_a,usf_d,usf_g,usf_e,EOM
+  endif
+
+orange$:
+  ifn	pm_jmsg
+	db	o__,re__,n__,zi__,EOM
+  else
+	db	usf_t,usf_h,usf_u,usf_n,usf_d,usf_e,usf_r,usf_b,usf_a,usf_d,usf_g,usf_e,EOM
+  endif
+
+blue$:
+  ifn	pm_jmsg
+	db	bu__,ru__,bou@,EOM
+  else
+	db	usf_c,usf_a,usf_s,usf_c,usf_a,usf_d,usf_e,usf_b,usf_a,usf_d,usf_g,usf_e,EOM
+  endif
+
+
+
+stepback:
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+	ld	a,W_D				; animetion pattern
+	ld	(ctrl_move_val),a
+
+	xor	a
+	ld	(actor_table + 009h),a
+	ld	(cancel_key),a
+
+	extern	init_hero_anime
+	jp	init_hero_anime
+
+
+obs_stepback:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+
+freegate:
+	ld	a,seq_road23_main
+	ld	(seq_road23),a
+
+	ret
+
+
+
+road23_msg:
+	msgndw	msg1,msg_gatekeeper1
+	ndw	msg2,msg_gatekeeper2
+	ndw	msg3,msg_gatekeeper3
+	ndw	msg4,msg_gatekeeper4
+	ndw	msg5,msg_gatekeeper5
+	ndw	msg6,msg_gatekeeper6
+	ndw	msg7,msg_gatekeeper7
+	ndw	kanban1,MsgKanban1
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,6
+	call	badge_event
+
+	jp	msg_return
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,5
+	call	badge_event
+
+	jp	msg_return
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	a,4
+	call	badge_event
+
+	jp	msg_return
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	a,3
+	call	badge_event
+
+	jp	msg_return
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	a,2
+	call	badge_event
+
+	jp	msg_return
+
+
+msg6:
+	db	CALL_MSG
+
+	ld	a,1
+	call	badge_event
+
+	jp	msg_return
+
+
+msg7:
+	db	CALL_MSG
+
+	ld	a,0
+	call	badge_event
+
+	jp	msg_return
+
+
+badge_event:
+	ld	(usr_buf + 0),a
+	call	get_badge_name
+	ld	a,(usr_buf + 0)
+	inc	a
+
+	ld	c,a
+	ld	b,2
+	ld	hl,my_badge
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+	ld	a,c
+	and	a
+	jr	nz,obtained$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	call	stepback
+
+	ld	a,seq_obs_stepback
+	ld	(seq_road23),a
+
+	ret
+
+
+obtained$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	a,(usr_buf + 0)
+	ld	c,a
+	ld	b,1
+	ld	hl,ev_r23 + 0
+	ld	a,B_BIT_CONTROL
+	call	bank2bank
+
+	ld	a,seq_freegate
+	ld	(seq_road23),a
+
+	ret
+
+
+yet$:
+	ld	hl,msg1_1$
+	jp	put_win_msg
+
+
+
+
+msg1_0$:
+	extern	msg1_0_0_ROAD23
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_ROAD23	; mvmsg追加
+	db 024h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,< musboboo
+	call	se_play
+	call	se_wait
+
+	jp	msg_return
+
+
+msg1_1$:
+	extern	msg1_1_1_ROAD23
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_ROAD23	; mvmsg追加
+	db 024h	; mvmsg追加
+	db	FANFARE
+	extern	msg1_1_2_ROAD23
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_2_ROAD23	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	extern	kanban1_3_ROAD23
+	db I_MSG2	; mvmsg追加
+	dw kanban1_3_ROAD23	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+

@@ -1,0 +1,531 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d9_room1_2f
+
+	extern	CheckSlip
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	muspyun
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+
+seq_d9r1f2	equ	seq_ctrl_buf + 42h
+
+
+d9_room1_2f:
+ysiz	=	14
+xsiz	=	15
+	db	BUILDING_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	azito_b2		; map data adrs
+	dw	msg_d9r1f2		; message tbl adrs
+	dw	ev_d9r1f2		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d9r1f2
+
+
+ev_d9r1f2:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d9r1f2_tbl
+	ld	a,(seq_d9r1f2)
+	call	battle_sequence
+	ld	(seq_d9r1f2),a
+
+	ret
+
+
+d9r1f2_tbl:
+	initndw	SlipCheck,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+	ndw	ObsSlip,SeqObsSlip
+
+
+SlipCheck:
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	a,(mapscloll_x)
+	ld	c,a
+	ld	hl,SlipPoint
+	call	CheckSlip
+	cp	0ffh
+	jp	z,battle_main
+
+	ld	hl,obs_map_step
+	set	7,(hl)				; hero animetion mode on
+
+	extern	init_hero_anime
+	call	init_hero_anime
+
+	ld	a,muspyun
+	call	play
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqObsSlip
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+SlipPoint:
+	db	009h,004h
+	dw	slip1$
+	db	00bh,004h
+	dw	slip2$
+	db	00fh,004h
+	dw	slip3$
+	db	010h,004h
+	dw	slip4$
+	db	013h,004h
+	dw	slip5$
+	db	016h,004h
+	dw	slip6$
+	db	00eh,005h
+	dw	slip7$
+	db	016h,006h
+	dw	slip8$
+	db	018h,006h
+	dw	slip9$
+	db	009h,008h
+	dw	slip10$
+	db	00ch,008h
+	dw	slip11$
+	db	00fh,008h
+	dw	slip12$
+	db	013h,008h
+	dw	slip13$
+	db	017h,008h
+	dw	slip14$
+	db	00eh,009h
+	dw	slip15$
+	db	016h,009h
+	dw	slip16$
+	db	009h,00ah
+	dw	slip17$
+	db	00ah,00ah
+	dw	slip18$
+	db	00fh,00ah
+	dw	slip19$
+	db	011h,00ah
+	dw	slip20$
+	db	013h,00ah
+	dw	slip21$
+	db	019h,00ah
+	dw	slip22$
+	db	00eh,00bh
+	dw	slip23$
+	db	010h,00bh
+	dw	slip24$
+	db	012h,00bh
+	dw	slip25$
+	db	009h,00ch
+	dw	slip26$
+	db	00bh,00ch
+	dw	slip27$
+	db	00dh,00ch
+	dw	slip28$
+	db	011h,00ch
+	dw	slip29$
+	db	00ah,00dh
+	dw	slip30$
+	db	00ch,00dh
+	dw	slip31$
+	db	010h,00dh
+	dw	slip32$
+	db	012h,00dh
+	dw	slip33$
+	db	013h,00dh
+	dw	slip34$
+	db	016h,00dh
+	dw	slip35$
+	db	017h,00dh
+	dw	slip36$
+	db	011h,00eh
+	dw	slip37$
+	db	010h,00fh
+	dw	slip38$
+	db	00eh,010h
+	dw	slip39$
+	db	010h,010h
+	dw	slip40$
+	db	012h,010h
+	dw	slip41$
+	db	00ah,011h
+	dw	slip42$
+	db	00bh,011h
+	dw	slip43$
+	db	0ffh
+
+slip1$:
+slip5$:
+	db	W_L,2,A_E
+slip2$:
+slip22$:
+	db	W_R,4,A_E
+slip3$:
+	db	W_U,4
+	db	W_R,4
+	db	A_E
+slip4$:
+	db	W_U,4
+	db	W_R,4
+	db	W_U,1
+	db	A_E
+;slip5$:
+;	db	W_L,2,A_E
+slip6$:
+	db	W_L,2
+	db	W_U,3
+	db	A_E
+slip7$:
+	db	W_D,2
+	db	W_R,4
+	db	A_E
+slip8$:
+	db	W_U,2,A_E
+slip9$:
+slip12$:
+	db	W_U,4,A_E
+slip10$:
+slip13$:
+	db	W_L,6,A_E
+slip11$:
+	db	W_U,1,A_E
+;slip12$:
+;	db	W_U,4,A_E
+;slip13$:
+;	db	W_L,6,A_E
+slip14$:
+	db	W_L,6
+	db	W_U,4
+	db	A_E
+slip15$:
+slip16$:
+slip25$:
+slip38$:
+	db	W_D,2,A_E
+;slip16$:
+;	db	W_D,2,A_E
+slip17$:
+	db	W_L,8,A_E
+slip18$:
+	db	W_L,8
+	db	W_U,1
+	db	A_E
+slip19$:
+	db	W_L,8
+	db	W_U,6
+	db	A_E
+slip20$:
+	db	W_U,2
+	db	W_R,4
+	db	A_E
+slip21$:
+	db	W_U,2
+	db	W_R,4
+	db	W_U,2
+	db	A_E
+;slip22$:
+;	db	W_R,4,A_E
+slip23$:
+	db	W_D,2
+	db	W_R,4
+	db	W_D,2
+	db	A_E
+slip24$:
+	db	W_D,2
+	db	W_R,4
+	db	A_E
+;slip25$:
+;	db	W_D,2,A_E
+slip26$:
+	db	W_L,10,A_E
+slip27$:
+	db	W_L,10
+	db	W_U,2
+	db	A_E
+slip28$:
+	db	W_L,10
+	db	W_U,4
+	db	A_E
+slip29$:
+	db	W_U,2
+	db	W_R,2
+	db	A_E
+slip30$:
+	db	W_R,1
+	db	W_D,2
+	db	A_E
+slip31$:
+	db	W_R,1,A_E
+slip32$:
+	db	W_D,2
+	db	W_R,2
+	db	A_E
+slip33$:
+	db	W_D,2
+	db	W_L,2
+	db	A_E
+slip34$:
+	db	W_U,2
+	db	W_R,4
+	db	W_U,2
+	db	W_L,3
+	db	A_E
+slip35$:
+	db	W_D,2
+	db	W_L,4
+	db	A_E
+slip36$:
+	db	W_L,6
+	db	W_U,4
+	db	W_L,5
+	db	A_E
+slip37$:
+	db	W_U,2,A_E
+;slip38$:
+;	db	W_D,2,A_E
+slip39$:
+	db	W_U,1,A_E
+slip40$:
+	db	W_U,3,A_E
+slip41$:
+	db	W_U,5,A_E
+slip42$:
+	db	W_R,1
+	db	W_D,2
+	db	W_L,4
+	db	A_E
+slip43$:
+	db	W_L,10
+	db	W_U,2
+	db	W_L,5
+	db	A_E
+
+
+
+ObsSlip:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	jr	nz,kurukuru
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	hl,obs_map_step
+	res	7,(hl)				; hero animetion mode on
+
+	ld	a,seq_battle_main
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+	public	kurukuru
+	extern	buildingimg
+	extern	schoolimg
+	extern	chrmove
+
+kurukuru:
+	ld	a,(actor_table + 2)
+	srl	a
+	srl	a
+	ld	hl,kuru_tbl$
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	a,(hl)
+	ld	(actor_table + 2),a
+
+	ld	a,(map_type)
+	cp	BUILDING_TYPE
+	ld	hl,build_tbl$
+	jr	z,next$
+
+	ld	hl,jim_tbl$
+
+next$:
+	ld	a,(ctrl_move_cnt)
+	bit	0,a
+	jr	nz,set$
+
+	ld	de,4*6
+	add	hl,de
+
+set$:
+	ld	a,4
+	ld	bc,0
+
+loop$:
+	push	af
+	push	hl
+	push	bc
+	add	hl,bc
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+	ld	a,(hli)
+	ld	c,a
+	ld	a,(hli)
+	ld	b,a
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	call	chrmove
+
+	pop	bc
+
+	ld	a,6
+	add	a,c
+	ld	c,a
+
+	pop	hl
+	pop	af
+
+	dec	a
+	jr	nz,loop$
+
+	ret
+
+
+build_tbl$:
+	dw	slidemap_data1		,11h*100h + 1	,9200h
+	dw	slidemap_data2		,11h*100h + 1	,9210h
+	dw	slidemap_data3		,11h*100h + 1	,9300h
+	dw	slidemap_data4		,11h*100h + 1	,9310h
+	dw	buildingimg + 200h      ,1ah*100h + 1	,9200h
+	dw	buildingimg + 210h      ,1ah*100h + 1	,9210h
+	dw	buildingimg + 300h      ,1ah*100h + 1	,9300h
+	dw	buildingimg + 310h      ,1ah*100h + 1	,9310h
+
+
+jim_tbl$:
+	dw	slidemap_data2		,11h*100h + 1	,93c0h
+	dw	slidemap_data4		,11h*100h + 1	,93d0h
+	dw	slidemap_data1		,11h*100h + 1	,94c0h
+	dw	slidemap_data3		,11h*100h + 1	,94d0h
+	dw	schoolimg + 3c0h        ,1ah*100h + 1	,93c0h
+	dw	schoolimg + 3d0h        ,1ah*100h + 1	,93d0h
+	dw	schoolimg + 4c0h        ,1ah*100h + 1	,94c0h
+	dw	schoolimg + 4d0h        ,1ah*100h + 1	,94d0h
+
+
+kuru_tbl$:
+	db	8,12,4,0
+
+slidemap_data1:
+	db	080h,070h,080h,038h,080h,01Ch,080h,00Eh	; 0
+	db	080h,007h,080h,003h,080h,001h,0FFh,000h
+slidemap_data2:
+	db	0FFh,000h,080h,001h,080h,003h,080h,007h	; 1
+	db	080h,00Eh,080h,01Ch,080h,038h,080h,070h
+slidemap_data3:
+	db	001h,00Eh,001h,01Ch,001h,038h,001h,070h	;10
+	db	001h,0E0h,001h,0C0h,001h,080h,0FFh,000h
+slidemap_data4:
+	db	0FFh,000h,001h,080h,001h,0C0h,001h,0E0h	;11
+	db	001h,070h,001h,038h,001h,01Ch,001h,00Eh
+
+
+msg_d9r1f2:
+	msgndw	msg1,msg_member
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	capsule_item,msg_capsule3
+	ndw	capsule_item,msg_capsule4
+
+
+
+dealer_talk:
+d_talk1:
+	db	msg_member,040h
+	dw	ev_d9 + 2
+	dw	msg1_0
+	dw	msg1_after
+	dw	msg1_win
+	dw	msg1_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg1_0:
+	extern	msg1_0_0_D09R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_D09R0102	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_1_D09R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_1_D09R0102	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_2_D09R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_2_D09R0102	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d9r1f2:
+	include	..\sxy\d09r0102.sxy
+
+
+azito_b2:
+	include	..\mapdata\azito_b2.map
+
+
+
+
+
+

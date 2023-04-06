@@ -1,0 +1,61 @@
+; 09/19/95		19:27:26
+dun_tbl$:
+	db	07dh
+ie_tbl$:
+	db	007h
+	db	00ch,005h,001h,D16R1F2
+	db	006h,008h,002h,D16R1F4
+	db	004h,019h,003h,D16R1F4
+	db	003h,019h,004h,D16R1F2
+	db	00eh,019h,006h,D16R1F2
+	db	011h,014h,000h,D16R1F4
+	db	011h,015h,001h,D16R1F4
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	006h
+	db	IWA
+	db	00Eh+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	001h
+	db	IWA
+	db	00Fh+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	002h
+	db	IWA
+	db	00Eh+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	003h
+	db	IWA
+	db	00Eh+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	004h
+	db	IWA
+	db	006h+4,012h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	005h
+	db	IWA
+	db	006h+4,013h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	006h
+ram_map_tbl$:
+	dw	015h * 007h + 003h + ram_map
+	db	00ch,005h
+	dw	015h * 004h + 005h + ram_map
+	db	006h,008h
+	dw	015h * 003h + 00dh + ram_map
+	db	004h,019h
+	dw	015h * 002h + 00dh + ram_map
+	db	003h,019h
+	dw	015h * 008h + 00dh + ram_map
+	db	00eh,019h
+	dw	015h * 009h + 00bh + ram_map
+	db	011h,014h
+	dw	015h * 009h + 00bh + ram_map
+	db	011h,015h

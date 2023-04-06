@@ -1,0 +1,80 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	group.def
+
+
+	public	r5_room2
+
+	extern	bank2bank		
+
+
+bank17	group	G_BANK17
+
+
+monschrcheck	=	1	;0 No check mode
+
+
+; Map Type Equal (Look! "mapper.src")
+ROOM_TYPE	equ	1
+SHOP_TYPE	equ	2
+DUNGEON_TYPE	equ	3
+ROOM2F_TYPE	equ	4
+SCHOOL_TYPE	equ	5
+HOTEL_TYPE	equ	6
+CHAMPCUP_TYPE	equ	7
+MINKA_TYPE	equ	8
+SEKISYO_TYPE	equ	9
+HAKUBUTSU_TYPE	equ	10
+NUKEMICHI_TYPE	equ	11
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+
+
+;********************************
+;*				*
+;*	road 5 room2  		*
+;*				*
+;********************************
+r5_room2:  
+
+ysiz	=	4
+xsiz	=	4
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	extern	nukemin  	 	; map data adrs
+	dw	nukemin  	 	; map data adrs
+	dw	msg_r5r2f1		; message tbl adrs
+	dw	ev_r5r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r5r2f1
+
+ev_r5r2f1:
+	ld	a,R5
+	ld	(mapno_stack),a
+	ret
+
+msg_eom:
+	db	EOM
+
+
+msg_r5r2f1:
+	dw	msg1$
+
+msg1$:
+	db	CALL_MSG
+	ld	a,9
+	ld	(usr_buf),a
+	ld	a,B_MONSTER_TRADE
+	call	bank2bank
+	ld	hl,msg_eom
+	ret
+	
+
+sxy_r5r2f1:
+	include	..\sxy\r05r0201.sxy
+

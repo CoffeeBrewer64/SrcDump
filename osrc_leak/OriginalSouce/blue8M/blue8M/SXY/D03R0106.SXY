@@ -1,0 +1,48 @@
+; 11/24/95		22:37:58
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	001h
+	db	000h,006h,00ah,D3R1F1
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	007h
+	db	COOK
+	db	008h+4,001h+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	001h
+	db	COOK
+	db	008h+4,005h+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	002h
+	db	COOK
+	db	007h+4,009h+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	003h
+	db	COOK
+	db	006h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+	db	COOK
+	db	008h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	005h
+	db	COOK
+	db	00Ah+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	006h
+	db	COOK
+	db	00Dh+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	007h
+ram_map_tbl$:
+	dw	00dh * 001h + 004h + ram_map
+	db	000h,006h

@@ -1,0 +1,277 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	pm_debug.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room2
+
+	extern	gyaarth_play
+	extern	bank_push_call
+
+
+MANSHON_TYPE	equ	19
+EXIT		=	0ffh
+
+
+t7_room2:
+ysiz	=	6
+xsiz	=	4
+	db	MANSHON_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	manshon1f		; map data adrs
+	dw	msg_t7r2f1
+	dw	ev_t7r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r2f1
+
+
+ev_t7r2f1:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t7r2f1:
+	msgndw	msg1,MsgNyarth
+	ndw	msg2,MsgBaba
+	ndw	msg3,MsgPippi
+	ndw	msg4,MsgNidoran
+	ndw	kanban1,MsgPlate
+
+
+msg1:
+	extern	msg1_0_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db	CALL_MSG
+
+	ld	a,77
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,check_natsuki
+	call	bank_push_call
+
+	ld	a,(pika_friendly)		; natsuki-ratio
+	cp	251
+	jr	c,ret$
+
+	ld	c,50
+	call	wait_vb_s
+
+	ld	e,16h
+	extern	PikaVoicePlay
+	ld	hl,PikaVoicePlay
+	ld	b,BANK__PikaVoicePlay	;	ld	b,G_BANK3b
+	call	bank_push_call
+
+ret$:
+	jp	msg_return
+
+
+msg3:
+	extern	msg3_1_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,4
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+msg4:
+	extern	msg4_2_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_2_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db	CALL_MSG
+
+	ld	a,15
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+
+kanban1:
+	extern	kanban1_3_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw kanban1_3_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+sxy_t7r2f1:
+	include	..\sxy\t07r0201.sxy
+
+
+manshon1f:
+	include	..\mapdata\mansh01.map
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+
+	extern	special_pika_chk
+
+	public	check_natsuki
+
+check_natsuki:
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	hl,chk_ntk$
+	call	put_win_msg
+
+	ld	hl,special_pika_chk
+	ld	b,G_BANK3f
+	call	bank_push_call
+	ret	nc
+
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+	ld	a,00h
+	ld	(wait_pass_flg),a
+
+	call	check_rank
+	call	put_win_msg
+
+	ret
+
+
+chk_ntk$:
+	extern	chk_ntk_4_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw chk_ntk_4_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg2_1$:
+	extern	msg2_1_5_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_5_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db	WAIT
+	db	EOM
+
+
+check_rank:
+	ld	hl,check_table$
+
+lp$:
+	ld	a,(hli)
+	inc	hl
+	and	a
+	jr	z,hit$				; Max(255)
+
+	ld	b,a
+	ld	a,(pika_friendly)		; natsuki-ratio
+	cp	b
+	jr	c,hit$
+
+	inc	hl
+	inc	hl
+
+	jr	lp$
+
+
+hit$:
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; message address
+
+	ret
+
+
+check_table$:
+	db	51,00h				; 000 -- 050
+	dw	msg2_2$
+	db	101,00h				; 051 -- 100
+	dw	msg2_3$
+	db	131,00h				; 101 -- 130
+	dw	msg2_4$
+	db	161,00h				; 131 -- 160
+	dw	msg2_5$
+	db	201,00h				; 161 -- 200
+	dw	msg2_6$
+	db	255,00h				; 201 -- 255
+	dw	msg2_7$
+	db	00h,0ffh			; EOD(MAX)
+	dw	msg2_7$
+
+
+msg2_2$:
+	extern	msg2_2_6_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_6_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_3$:
+	extern	msg2_3_7_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_3_7_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_4$:
+	extern	msg2_4_8_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_4_8_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_5$:
+	extern	msg2_5_9_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_5_9_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_6$:
+	extern	msg2_6_10_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_6_10_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_7$:
+	extern	msg2_7_11_T07R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_7_11_T07R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+

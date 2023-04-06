@@ -1,0 +1,479 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+	include	maptype.def
+
+
+bank3c	group	G_BANK3c
+
+
+	public	r19_room1
+
+
+	extern	yes_no
+
+	extern	NaminoriPikatyu
+	extern	bank_push_call
+	extern	gyaarth_play
+	extern	se_wait
+
+
+;MINKA_TYPE	equ	8
+;EXIT		=	0ffh
+
+
+r19_room1:  
+ysiz	=	4
+xsiz	=	7
+;xsiz	=	4
+
+;  	db	MINKA_TYPE		; map type
+	db	UMINOIE_TYPE
+	db	ysiz,xsiz		; yx size
+	dw	minka_a_map  	 	; map data adrs
+	dw	msg_tbl 		; message tbl adrs
+	dw	event 			; event routine adrs
+	db	0			; map link flg
+	dw	room_str 
+
+
+event:
+	call	init_for_talkmap
+
+	ret
+
+
+
+
+msg_tbl:
+	dw	msg1
+	dw	msg2
+
+	dw	hang_picture1
+	dw	hang_picture2
+	dw	hang_picture3
+
+	dw	pc
+
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(obs_pikachu)
+	bit	6,a				; obtained "naminori-pikachu"
+	jr	nz,normal$
+
+	ld	hl,msg1_4$			; ra-men
+	call	put_win_msg
+
+	jr	rts$
+
+
+normal$:
+	ld	hl,yellow_event + 00h
+	bit	0,(hl)
+	set	0,(hl)
+	jr	nz,second$
+
+	ld	hl,msg1_1$			; info message
+
+	jr	select$
+
+
+second$:
+	ld	hl,msg1_3$			; 2nd
+
+select$:
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	b,G_BANK3e
+	ld	hl,NaminoriPikatyu
+	call	bank_push_call
+
+	ld	hl,yellow_event + 00h
+	set	1,(hl)				; play SammerBeach
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg1_2$			; no thankyou
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_1$:
+	extern	msg1_1_0_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_0_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_1_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_1_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_2_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_2_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_4$:
+	extern	msg1_4_3_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_3_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+	ld	a,84
+	call	gyaarth_play
+	call	se_wait
+
+	jp	msg_return
+
+
+msg2_1$:
+	extern	msg2_1_4_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_4_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+hang_picture1:
+	db	CALL_MSG
+
+	ld	hl,hp1_2$
+
+	ld	a,(obs_pikachu)
+	bit	6,a				; obtained "naminori-pikachu"
+	jr	z,normal$
+
+	ld	hl,hp1_1$
+
+normal$:
+	call	put_win_msg
+
+	jp	msg_return
+
+hp1_1$:
+	extern	hp1_1_5_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw hp1_1_5_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+hp1_2$:
+	extern	hp1_2_6_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw hp1_2_6_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+hang_picture2:
+	db	CALL_MSG
+
+	ld	hl,hp2_2$
+
+	ld	a,(obs_pikachu)
+	bit	6,a				; obtained "naminori-pikachu"
+	jr	z,normal$
+
+	ld	hl,hp2_1$
+
+normal$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+hp2_1$:
+	extern	hp2_1_7_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw hp2_1_7_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+  ifn	0
+	db	D_MSG
+	db	na_,mi_,no_,ri_,no_,spc@,ko_,ko_,ro_,e_,spc@
+	db	so_,no_,i_,ti_,gyoe@
+	db	normal@
+	db	mi_,gi_,hi_,da_,ri_,de_,spc@,i_,do_,u_
+	db	normal@
+	db	a@,bo__,ta__,n__,to_,no_,spc@,ku_,mi_,a_,wa_,se_,de_
+	db	home@
+	db	tu_,gi_,no_,na_,mi_,ni_,spc@,no_,ru_,gyoe@
+	db	EOMeom
+  endif
+
+
+hp2_2$:
+	extern	hp2_2_8_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw hp2_2_8_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+hang_picture3:
+	db	CALL_MSG
+
+	ld	hl,hp3_2$
+
+	ld	a,(obs_pikachu)
+	bit	6,a				; obtained "naminori-pikachu"
+	jr	z,normal$
+
+	ld	hl,hp3_1$
+
+normal$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+hp3_1$:
+	extern	hp3_1_9_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw hp3_1_9_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+  ifn	0
+	db	D_MSG
+	db	na_,mi_,no_,ri_,no_,spc@,ko_,ko_,ro_,e_,spc@
+	db	so_,no_,ni_,gyoe@
+	db	normal@
+	db	na_,mi_,ni_,spc@,no_,ttu_,ta_,ra_
+	db	home@
+	db	a@,bo__,ta__,n__,de_,spc@,zi__,yya__,n__,pu__,gyoe@
+	db	normal@
+	db	na_,ga_,ku_,spc@,o_,se_,ba_
+	db	to_,o_,ku_,ni_,spc@,zi__,yya__,n__,pu__,gyoe@
+	db	EOMeom
+  endif
+
+
+hp3_2$:
+	extern	hp3_2_10_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw hp3_2_10_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+pc:
+	db	CALL_MSG
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	a,(obs_pikachu)
+	bit	6,a				; obtained "naminori-pikachu"
+	jr	z,no_pika$
+
+	ld	hl,yellow_event + 00h
+	bit	1,(hl)
+	jr	z,no_play$
+
+	ld	a,00h
+	ld	(wait_pass_flg),a
+
+no_play$:
+	ld	hl,pc_1$
+	call	put_win_msg
+
+	ld	a,(yellow_event + 00h)
+	bit	1,a
+	jr	z,rts$
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	hl,pc_2$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jp	z,printer
+
+	call	push_vram_m
+	ld	hl,obs_system
+	set	6,(hl)
+
+	xor	a
+	ld	(oam_flg),a
+
+	extern	NaminoriMapMake
+	ld	hl,NaminoriMapMake
+	ld	b,G_BANK3a
+	call	bank_push_call
+	
+	call	cont_abwait
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	pal_off_put_wait
+	call	map_rewrite2
+	call	set_objdata
+	call	pop_vram_m
+	call	put_wait
+	call	palset
+
+	ld	a,1
+	ld	(oam_flg),a
+
+	jr	rts$
+
+
+no_pika$:
+	ld	hl,pc_0$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+pc_0$:
+	extern	pc_0_11_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw pc_0_11_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db WAIT_NP
+	db EOM
+
+
+pc_1$:
+	extern	pc_1_12_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw pc_1_12_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db WAIT_NP
+	db EOM
+
+
+pc_2$:
+	extern	pc_2_13_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw pc_2_13_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+pc_12$:
+	extern	pc_12_14_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw pc_12_14_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+minka_a_map:
+;	include	..\mapdata\minka_a.map
+	include	..\mapdata\umihouse.map
+
+
+room_str:
+	include	..\sxy\r19r0101.sxy
+
+
+
+
+	extern	NaminoriPrintOut
+	extern	pal_off_put_wait
+	extern	map_rewrite2
+	extern	set_objdata
+	extern	put_wait
+	extern	palset
+	extern	pop_vram_m
+
+printer:
+	call	push_vram_m
+	xor	a
+	ld	(oam_flg),a
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+	ld	hl,NaminoriPrintOut
+	ld	b,G_BANK3a
+	call	bank_push_call
+
+	ld	hl,obs_system
+	res	6,(hl)
+
+	call	pal_off_put_wait
+	call	map_rewrite2
+	call	set_objdata
+	call	pop_vram_m
+	call	put_wait
+	call	palset
+
+	ld	hl,msg_ng$
+
+	ld	a,(DA_BUF + 00h)
+	and	a
+	jr	nz,rts$
+
+	ld	hl,msg_ok$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg_ok$:
+	extern	msg_ok_15_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw msg_ok_15_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg_ng$:
+	extern	msg_ng_16_R19R0101
+	db I_MSG2	; mvmsg追加
+	dw msg_ng_16_R19R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+
+
+

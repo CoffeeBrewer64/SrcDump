@@ -1,0 +1,2719 @@
+; 09/26/96		15:23:02
+
+
+;●サイドン/RHYDON(112)
+	extern	zukan001_com
+zukan001$:
+  ifn	pm_jmsg
+	db	do__,ri__,ru__,EOM
+	db	019				; height
+	dw	01200			; weight
+  else
+	db	usf_d,usf_r,usf_i,usf_l,usf_l,EOM
+	db	6,3				; 6'3"
+	dw	2650			; 265 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan001_com	;
+	db	02bh			; bank#
+	db	EOM			; put_msg_s終了コード
+
+
+;●ガルーラ/KANGASKHAN(115)
+	extern	zukan002_com
+zukan002$:
+  ifn	pm_jmsg
+	db	o_,ya_,ko_,EOM
+	db	022
+	dw	00800
+  else
+	db	usf_p,usf_a,usf_r,usf_e,usf_n,usf_t,EOM
+	db	7,3				; 7'3"
+	dw	1760			; 176 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan002_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニドラン♂/NIDORAN♂(032)
+	extern	zukan003_com
+zukan003$:
+  ifn	pm_jmsg
+	db	do_,ku_,ba_,ri_,EOM
+	db	005
+	dw	00090
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n,spc@,usf_p,usf_i,usf_n,EOM
+	db	1,8				; 1'8"
+	dw	00200			;  20 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan003_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ピッピ/CLEFAIRY(035)
+	extern	zukan004_com
+zukan004$:
+  ifn	pm_jmsg
+	db	yo_,u_,se_,i_,EOM
+	db	006
+	dw	00075
+  else
+	db	usf_f,usf_a,usf_i,usf_r,usf_y,EOM
+	db	2,0				;2'0"
+	dw	00170			; 17 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan004_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●オニスズメ/SPEAROW(021)
+	extern	zukan005_com
+zukan005$:
+  ifn	pm_jmsg
+	db	ko_,to_,ri_,EOM
+	db	003
+	dw	00020
+  else
+	db	usf_t,usf_i,usf_n,usf_y,spc@,usf_b,usf_i,usf_r,usf_d,EOM
+	db	1,0				; 1'0"
+	dw	00040			;   4 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan005_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ビリリダマ/VOLTORB(100)
+	extern	zukan006_com
+zukan006$:
+  ifn	pm_jmsg
+	db	bo__,bou@,ru__,EOM
+	db	005
+	dw	00104
+  else
+	db	usf_b,usf_a,usf_l,usf_l,EOM
+	db	1,8				; 1'8"
+	dw	00230			;  23
+  endif
+	db	I_MSG2			;
+	dw	zukan006_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニドキング/NIDOKING(034)
+	extern	zukan007_com
+zukan007$:
+  ifn	pm_jmsg
+	db	do__,ri__,ru__,EOM
+	db	014
+	dw	00620
+  else
+	db	usf_d,usf_r,usf_i,usf_l,usf_l,EOM
+	db	4,7				; 4'7"
+	dw	01370			; 137 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan007_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ヤドラン/SLOWBRO(080)
+	extern	zukan008_com
+zukan008$:
+  ifn	pm_jmsg
+	db	ya_,do_,ka_,ri_,EOM
+	db	016
+	dw	00785
+  else
+	db	usf_h,usf_e,usf_r,usf_m,usf_i,usf_t,usf_c,usf_r,usf_a,usf_b,EOM
+	db	5,3				; 5'3"
+	dw	01730			; 173 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan008_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●フシギソウ/IVYSAUR(002)
+	extern	zukan009_com
+zukan009$:
+  ifn	pm_jmsg
+	db	ta_,ne_,EOM
+	db	010
+	dw	00130
+  else
+	db	usf_s,usf_e,usf_e,usf_d,EOM
+	db	3,3				; 3'3"
+	dw	00290			;  29 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan009_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ナッシー/EXEGGUTOR(103)
+	extern	zukan010_com
+zukan010$:
+  ifn	pm_jmsg
+	db	ya_,si_,no_,mi_,EOM
+	db	020
+	dw	01200
+  else
+	db	usf_c,usf_o,usf_c,usf_o,usf_n,usf_u,usf_t,EOM
+	db	6,7				; 6'7"
+	dw	02650			; 265 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan010_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ベロリンガ/LICKITUNG(108)
+	extern	zukan011_com
+zukan011$:
+  ifn	pm_jmsg
+	db	na_,me_,ma_,wa_,si_,EOM
+	db	012
+	dw	00655
+  else
+	db	usf_l,usf_i,usf_c,usf_k,usf_i,usf_n,usf_g,EOM
+	db	3,11			; 3'11"
+	dw	01440			; 144 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan011_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●タマタマ/EXEGGCUTE(102)
+	extern	zukan012_com
+zukan012$:
+  ifn	pm_jmsg
+	db	ta_,ma_,go_,EOM
+	db	004
+	dw	00025
+  else
+	db	usf_e,usf_g,usf_g,EOM
+	db	1,4				; 1'4"
+	dw	00060			;   6 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan012_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ベトベター/GRIMER(088)
+	extern	zukan013_com
+zukan013$:
+  ifn	pm_jmsg
+	db	he__,do__,ro__,EOM
+	db	009
+	dw	00300
+  else
+	db	usf_s,usf_l,usf_u,usf_d,usf_g,usf_e,EOM
+	db	2,11			; 2'11"
+	dw	00660			;  66 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan013_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゲンガー/GENGAR(094)
+	extern	zukan014_com
+zukan014$:
+  ifn	pm_jmsg
+	db	si__,yya__,do__,bou@,EOM
+	db	015
+	dw	00405
+  else
+	db	usf_s,usf_h,usf_a,usf_d,usf_o,usf_w,EOM
+	db	4,11			; 4'11"
+	dw	00890			;  89 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan014_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニドラン♀/NIDORAN♀(029)
+	extern	zukan015_com
+zukan015$:
+  ifn	pm_jmsg
+	db	do_,ku_,ba_,ri_,EOM
+	db	004
+	dw	00070
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n,spc@,usf_p,usf_i,usf_n,EOM
+	db	1,4				; 1'4"
+	dw	00150			;  15 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan015_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニドクイン/NIDOQUEEN(031)
+	extern	zukan016_com
+zukan016$:
+  ifn	pm_jmsg
+	db	do__,ri__,ru__,EOM
+	db	013
+	dw	00600
+  else
+	db	usf_d,usf_r,usf_i,usf_l,usf_l,EOM
+	db	4,3				; 4'3"
+	dw	01320			; 132 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan016_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カラカラ/CUBONE(104)
+	extern	zukan017_com
+zukan017$:
+  ifn	pm_jmsg
+	db	ko_,do_,ku_,EOM
+	db	004
+	dw	00065
+  else
+	db	usf_l,usf_o,usf_n,usf_e,usf_l,usf_y,EOM
+	db	1,4				; 1'4"
+	dw	00140			;  14 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan017_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●サイホーン/RHYHORN(111)
+	extern	zukan018_com
+zukan018$:
+  ifn	pm_jmsg
+	db	to_,ge_,to_,ge_,EOM
+	db	010
+	dw	01150
+  else
+	db	usf_s,usf_p,usf_i,usf_k,usf_e,usf_s,EOM
+	db	3,3				; 3'3"
+	dw	02540			; 254 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan018_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ラプラス/LAPRAS(131)
+	extern	zukan019_com
+zukan019$:
+  ifn	pm_jmsg
+	db	no_,ri_,mo_,no_,EOM
+	db	025
+	dw	02200
+  else
+	db	usf_t,usf_r,usf_a,usf_n,usf_s,usf_p,usf_o,usf_r,usf_t,EOM
+	db	8,2				; 8'2"
+	dw	04850			; 485 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan019_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ウインディ/ARCANINE(059)
+	extern	zukan020_com
+zukan020$:
+  ifn	pm_jmsg
+	db	de_,n_,se_,tu_,EOM
+	db	019
+	dw	01550
+  else
+	db	usf_l,usf_e,usf_g,usf_e,usf_n,usf_d,usf_a,usf_r,usf_y,EOM
+	db	6,3				; 6'3"
+	dw	03420			; 342 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan020_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ミュウ/MEW(151)
+	extern	zukan021_com
+zukan021$:
+  ifn	pm_jmsg
+	db	si_,n_,si_,yyu_,EOM
+	db	004
+	dw	00040
+  else
+	db	usf_n,usf_e,usf_w,spc@,usf_s,usf_p,usf_e,usf_c,usf_i,usf_e,EOM
+	db	1,4				; 1'4"
+	dw	00090			;   9 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan021_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ギャラドス/GYARADOS(130)
+	extern	zukan022_com
+zukan022$:
+  ifn	pm_jmsg
+	db	ki_,yyo_,u_,a_,ku_,EOM
+	db	065
+	dw	02350
+  else
+	db	usf_a,usf_t,usf_r,usf_o,usf_c,usf_i,usf_o,usf_u,usf_s,EOM
+	db	21,4			; 21'4"
+	dw	05180			; 518 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan022_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●シェルダー/SHELLDER(090)
+	extern	zukan023_com
+zukan023$:
+  ifn	pm_jmsg
+	db	n2@,ma_,i_,ga_,i_,EOM
+	db	003
+	dw	00040
+  else
+	db	usf_b,usf_i,usf_v,usf_a,usf_l,usf_v,usf_e,EOM
+	db	1,0				; 1'0"
+	dw	00090			;   9 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan023_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●メノクラゲ/TENTACOOL(072)
+	extern	zukan024_com
+zukan024$:
+  ifn	pm_jmsg
+	db	ku_,ra_,ge_,EOM
+	db	009
+	dw	00455
+  else
+	db	usf_j,usf_e,usf_l,usf_l,usf_y,usf_f,usf_i,usf_s,usf_h,EOM
+	db	2,11			; 2'11"
+	dw	01000			; 100 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan024_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゴース/GASTLY(092)
+	extern	zukan025_com
+zukan025$:
+  ifn	pm_jmsg
+	db	ga__,su__,zi_,yyo_,u_,EOM
+	db	013
+	dw	00001
+  else
+	db	usf_g,usf_a,usf_s,EOM
+	db	4,3				; 4'3"
+	dw	00002			;   0.2 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan025_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ストライク/SCYTHER(123)
+	extern	zukan026_com
+zukan026$:
+  ifn	pm_jmsg
+	db	ka_,ma_,ki_,ri_,EOM
+	db	015
+	dw	00560
+  else
+	db	usf_m,usf_a,usf_n,usf_t,usf_i,usf_s,EOM
+	db	4,11			; 4'11"
+	dw	01230			; 123 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan026_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ヒトデマン/STARYU(120)
+	extern	zukan027_com
+zukan027$:
+  ifn	pm_jmsg
+	db	ho_,si_,ga_,ta_,EOM
+	db	008
+	dw	00345
+  else
+	db	usf_s,usf_t,usf_a,usf_r,usf_s,usf_h,usf_a,usf_p,usf_e,EOM
+	db	2,7				; 2'7"
+	dw	00760			;  76 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan027_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カメックス/BLASTOISE(009)
+	extern	zukan028_com
+zukan028$:
+  ifn	pm_jmsg
+	db	ko_,u_,ra_,EOM
+	db	016
+	dw	00855
+  else
+	db	usf_s,usf_h,usf_e,usf_l,usf_l,usf_f,usf_i,usf_s,usf_h,EOM
+	db	5,3				; 5'3"
+	dw	01890			; 189 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan028_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カイロス/PINSIR(127)
+	extern	zukan029_com
+zukan029$:
+  ifn	pm_jmsg
+	db	ku_,wa_,ga_,ta_,EOM
+	db	015
+	dw	00550
+  else
+	db	usf_s,usf_t,usf_a,usf_g,usf_b,usf_e,usf_e,usf_t,usf_l,usf_e,EOM
+	db	4,11			; 4'11"
+	dw	01210			; 121 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan029_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●モンジャラ/TANGELA(114)
+	extern	zukan030_com
+zukan030$:
+  ifn	pm_jmsg
+	db	tu__,ru__,zi_,yyo_,u_,EOM
+	db	010
+	dw	00350
+  else
+	db	usf_v,usf_i,usf_n,usf_e,EOM
+	db	3,3				; 3'3"
+	dw	00770			;  77 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan030_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ガーディ/GROWLITHE(058)
+	extern	zukan033_com
+zukan033$:
+  ifn	pm_jmsg
+	db	ko_,i_,nu_,EOM
+	db	007
+	dw	00190
+  else
+	db	usf_p,usf_u,usf_p,usf_p,usf_y,EOM
+	db	2,4				; 2'4"
+	dw	00420			;  42 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan033_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●イワーク/ONIX(095)
+	extern	zukan034_com
+zukan034$:
+  ifn	pm_jmsg
+	db	i_,wa_,he_,bi_,EOM
+	db	088
+	dw	02100
+  else
+	db	usf_r,usf_o,usf_c,usf_k,spc@,usf_s,usf_n,usf_a,usf_k,usf_e,EOM
+	db	28,10			; 28'10"
+	dw	04630			; 463 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan034_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●オニドリル/FEAROW(022)
+	extern	zukan035_com
+zukan035$:
+  ifn	pm_jmsg
+	db	ku_,ti_,ba_,si_,EOM
+	db	012
+	dw	00380
+  else
+	db	usf_b,usf_e,usf_a,usf_k,EOM
+	db	3,11			; 3'11"
+	dw	00840			;  84 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan035_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ポッポ/PIDGEY(016)
+	extern	zukan036_com
+zukan036$:
+  ifn	pm_jmsg
+	db	ko_,to_,ri_,EOM
+	db	003
+	dw	00018
+  else
+	db	usf_t,usf_i,usf_n,usf_y,spc@,usf_b,usf_i,usf_r,usf_d,EOM
+	db	1,0				; 1'0"
+	dw	00040			;   4 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan036_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ヤドン/SLOWPOKE(079)
+	extern	zukan037_com
+zukan037$:
+  ifn	pm_jmsg
+	db	ma_,nu_,ke_,EOM
+	db	012
+	dw	00360
+  else
+	db	usf_d,usf_o,usf_p,usf_e,usf_y,EOM
+	db	3,11			; 3'11"
+	dw	00790			;  79 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan037_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ユンゲラー/KADABRA(064)
+	extern	zukan038_com
+zukan038$:
+  ifn	pm_jmsg
+	db	ne_,n_,ri_,ki_,EOM
+	db	013
+	dw	00565
+  else
+	db	usf_p,usf_s,usf_i,EOM
+	db	4,3				; 4'3"
+	dw	001250			; 125 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan038_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゴローン/GRAVELER(075)
+	extern	zukan039_com
+zukan039$:
+  ifn	pm_jmsg
+	db	ga_,n_,se_,ki_,EOM
+	db	010
+	dw	01050
+  else
+	db	usf_r,usf_o,usf_c,usf_k,EOM
+	db	3,3				; 3'3"
+	dw	02320			; 232 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan039_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ラッキー/CHANSEY(113)
+	extern	zukan040_com
+zukan040$:
+  ifn	pm_jmsg
+	db	ta_,ma_,go_,EOM
+	db	011
+	dw	00346
+  else
+	db	usf_e,usf_g,usf_g,EOM
+	db	3,7				; 3'7"
+	dw	00760			;  76 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan040_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゴーリキー/MACHOKE(067)
+	extern	zukan041_com
+zukan041$:
+  ifn	pm_jmsg
+	db	ka_,i_,ri_,ki_,EOM
+	db	015
+	dw	00705
+  else
+	db	usf_s,usf_u,usf_p,usf_e,usf_r,usf_p,usf_o,usf_w,usf_e,usf_r,EOM
+	db	4,11			; 4'11"
+	dw	001550			; 155 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan041_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●バリヤード/MR.MIME(122)
+	extern	zukan042_com
+zukan042$:
+  ifn	pm_jmsg
+	db	ba__,ri__,a__,bou@,EOM
+	db	013
+	dw	00545
+  else
+	db	usf_b,usf_a,usf_r,usf_r,usf_i,usf_e,usf_r,EOM
+	db	4,3				; 4'3"
+	dw	001200			; 120 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan042_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●サワムラー/HITMONLEE(106)
+	extern	zukan043_com
+zukan043$:
+  ifn	pm_jmsg
+	db	ki__,ttu__,ku__,EOM
+	db	015
+	dw	00498
+  else
+	db	usf_k,usf_i,usf_c,usf_k,usf_i,usf_n,usf_g,EOM
+	db	4,11			; 4'11"
+	dw	001100			; 110 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan043_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●エビワラー/HITMONCHAN(107)
+	extern	zukan044_com
+zukan044$:
+  ifn	pm_jmsg
+	db	pa__,n__,ti__,EOM
+	db	014
+	dw	00502
+  else
+	db	usf_p,usf_u,usf_n,usf_c,usf_h,usf_i,usf_n,usf_g,EOM
+	db	4,7				; 4'7"
+	dw	001110			; 111 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan044_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●アーボック/ARBOK(024)
+	extern	zukan045_com
+zukan045$:
+  ifn	pm_jmsg
+	db	ko__,bu__,ra__,EOM
+	db	035
+	dw	00650
+  else
+	db	usf_c,usf_o,usf_b,usf_r,usf_a,EOM
+	db	11,6			; 11'6"
+	dw	01430			; 143 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan045_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●パラセクト/PARASECT(047)
+	extern	zukan046_com
+zukan046$:
+  ifn	pm_jmsg
+	db	ki_,no_,ko_,EOM
+	db	010
+	dw	00295
+  else
+	db	usf_m,usf_u,usf_s,usf_h,usf_r,usf_o,usf_o,usf_m,EOM
+	db	3,3				; 3'3"
+	dw	00650			;  65 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan046_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+;●コダック/PSYDUCK(054)
+	extern	zukan047_com
+zukan047$:
+  ifn	pm_jmsg
+	db	a_,hi_,ru_,EOM
+	db	008
+	dw	00196
+  else
+	db	usf_d,usf_u,usf_c,usf_k,EOM
+	db	2,7				; 2'7"
+	dw	00430			;  43 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan047_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●スリープ/DROWZEE(096)
+	extern	zukan048_com
+zukan048$:
+  ifn	pm_jmsg
+	db	sa_,i_,mi_,n_,EOM
+	db	010
+	dw	00324
+  else
+	db	usf_h,usf_y,usf_p,usf_n,usf_o,usf_s,usf_i,usf_s,EOM
+	db	3,3				; 3'3"
+	dw	00710			;  71 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan048_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゴローニャ/GOLEM(076)
+	extern	zukan049_com
+zukan049$:
+  ifn	pm_jmsg
+	db	me__,ga__,to__,n__,EOM
+	db	014
+	dw	03000
+  else
+	db	usf_m,usf_e,usf_g,usf_a,usf_t,usf_o,usf_n,EOM
+	db	4,7				; 4'7"
+	dw	06620			; 662 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan049_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ブーバー/MAGMAR(126)
+	extern	zukan051_com
+zukan051$:
+  ifn	pm_jmsg
+	db	hi_,hu_,ki_,EOM
+	db	013
+	dw	00445
+  else
+	db	usf_s,usf_p,usf_i,usf_t,usf_f,usf_i,usf_r,usf_e,EOM
+	db	4,3				; 4'3"
+	dw	00980			;  98 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan051_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●エレブー/ELECTABUZZ(125)
+	extern	zukan053_com
+zukan053$:
+  ifn	pm_jmsg
+	db	de_,n_,ge_,ki_,EOM
+	db	011
+	dw	00300
+  else
+	db	usf_e,usf_l,usf_e,usf_c,usf_t,usf_r,usf_i,usf_c,EOM
+	db	3,7				; 3'7"
+	dw	00660			;  66 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan053_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●レアコイル/MAGNETON(082)
+	extern	zukan054_com
+zukan054$:
+  ifn	pm_jmsg
+	db	zi_,si_,yya_,ku_,EOM
+	db	010
+	dw	00600
+  else
+	db	usf_m,usf_a,usf_g,usf_n,usf_e,usf_t,EOM
+	db	3,3				; 3'3"
+	dw	01320			; 132 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan054_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ドガース/KOFFING(109)
+	extern	zukan055_com
+zukan055$:
+  ifn	pm_jmsg
+	db	do_,ku_,ga__,su__,EOM
+	db	006
+	dw	00010
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n,spc@,usf_g,usf_a,usf_s,EOM
+	db	2,0				; 2'0"
+	dw	00020			;   2 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan055_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●マンキー/MANKEY(056)
+	extern	zukan057_com
+zukan057$:
+  ifn	pm_jmsg
+	db	bu_,ta_,za_,ru_,EOM
+	db	005
+	dw	00280
+  else
+	db	usf_p,usf_i,usf_g,spc@,usf_m,usf_o,usf_n,usf_k,usf_e,usf_y,EOM
+	db	1,8				; 1'8"
+	dw	00620			;  62 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan057_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●パウワウ/SEEL(086)
+	extern	zukan058_com
+zukan058$:
+  ifn	pm_jmsg
+	db	a_,si_,ka_,EOM
+	db	011
+	dw	00900
+  else
+	db	usf_s,usf_e,usf_a,spc@,usf_l,usf_i,usf_o,usf_n,EOM
+	db	3,7				; 3'7"
+	dw	01980			; 198 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan058_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ディグダ/DIGLETT(050)
+	extern	zukan059_com
+zukan059$:
+  ifn	pm_jmsg
+	db	mo_,gu_,ra_,EOM
+	db	002
+	dw	00008
+  else
+	db	usf_m,usf_o,usf_l,usf_e,EOM
+	db	0,8				; 0'8"
+	dw	00020			;   2 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan059_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ケンタロス/TAUROS(128)
+	extern	zukan060_com
+zukan060$:
+  ifn	pm_jmsg
+	db	a_,ba_,re_,u_,si_,EOM
+	db	014
+	dw	00884
+  else
+	db	usf_w,usf_i,usf_l,usf_d,spc@,usf_b,usf_u,usf_l,usf_l,EOM
+	db	4,7				; 4'7"
+	dw	01950			; 195 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan060_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カモネギ/FARFETCH'D(083)
+	extern	zukan064_com
+zukan064$:
+  ifn	pm_jmsg
+	db	ka_,ru_,ga_,mo_,EOM
+	db	008
+	dw	00150
+  else
+	db	usf_w,usf_i,usf_l,usf_d,spc@,usf_d,usf_u,usf_c,usf_k,EOM
+	db	2,7				; 2'7"
+	dw	00330			;  33 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan064_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●コンパン/VENONAT(048)
+	extern	zukan065_com
+zukan065$:
+  ifn	pm_jmsg
+	db	ko_,n_,ti_,yyu_,u_,EOM
+	db	010
+	dw	00300
+  else
+	db	usf_i,usf_n,usf_s,usf_e,usf_c,usf_t,EOM
+	db	3,3				; 3'3"
+	dw	00660			;  66 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan065_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+;●カイリュー/DRAGONITE(149)
+	extern	zukan066_com
+zukan066$:
+  ifn	pm_jmsg
+	db	do__,ra__,go__,n__,EOM
+	db	022
+	dw	02100
+  else
+	db	usf_d,usf_r,usf_a,usf_g,usf_o,usf_n,EOM
+	db	7,3				; 7'3"
+	dw	04630			; 463 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan066_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ドードー/DODUO(084)
+	extern	zukan070_com
+zukan070$:
+  ifn	pm_jmsg
+	db	hu_,ta_,go_,do_,ri_,EOM
+	db	014
+	dw	00392
+  else
+	db	usf_t,usf_w,usf_i,usf_n,spc@,usf_b,usf_i,usf_r,usf_d,EOM
+	db	4,7				; 4'7"
+	dw	00860			;  86 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan070_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニョロモ/POLIWAG(060)
+	extern	zukan071_com
+zukan071$:
+  ifn	pm_jmsg
+	db	o_,ta_,ma_,EOM
+	db	006
+	dw	00124
+  else
+	db	usf_t,usf_a,usf_d,usf_p,usf_o,usf_l,usf_e,EOM
+	db	2,0				; 2'0"
+	dw	00270			;  27 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan071_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ルージュラ/JYNX(124)
+	extern	zukan072_com
+zukan072$:
+  ifn	pm_jmsg
+	db	hi_,to_,ga_,ta_,EOM
+	db	014
+	dw	00406
+  else
+	db	usf_h,usf_u,usf_m,usf_a,usf_n,usf_s,usf_h,usf_a,usf_p,usf_e,EOM
+	db	4,7				; 4'7"
+	dw	00900			;  90 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan072_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ファイヤー/MOLTRES(146)
+	extern	zukan073_com
+zukan073$:
+  ifn	pm_jmsg
+	db	ka_,e_,n_,EOM
+	db	020
+	dw	00600
+  else
+	db	usf_f,usf_l,usf_a,usf_m,usf_e,EOM
+	db	6,7				; 6'7"
+	dw	01320			; 132 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan073_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●フリーザー/ARTICUNO(144)
+	extern	zukan074_com
+zukan074$:
+  ifn	pm_jmsg
+	db	re_,i_,to_,u_,EOM
+	db	017
+	dw	00554
+  else
+	db	usf_f,usf_r,usf_e,usf_e,usf_z,usf_e,EOM
+	db	5,7				; 5'7"
+	dw	01220			; 122 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan074_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●サンダー/ZAPDOS(145)
+	extern	zukan075_com
+zukan075$:
+  ifn	pm_jmsg
+	db	de_,n_,ge_,ki_,EOM
+	db	016
+	dw	00526
+  else
+	db	usf_e,usf_l,usf_e,usf_c,usf_t,usf_r,usf_i,usf_c,EOM
+	db	5,3				; 5'3"
+	dw	01160			; 116 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan075_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●メタモン/DITTO(132)
+	extern	zukan076_com
+zukan076$:
+  ifn	pm_jmsg
+	db	he_,n_,si_,n_,EOM
+	db	003
+	dw	00040
+  else
+	db	usf_t,usf_r,usf_a,usf_n,usf_s,usf_f,usf_o,usf_r,usf_m,EOM
+	db	1,0
+	dw	00090
+  endif
+	db	I_MSG2			;
+	dw	zukan076_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニャース/MEOWTH(052)
+	extern	zukan077_com
+zukan077$:
+  ifn	pm_jmsg
+	db	ba_,ke_,ne_,ko_,EOM
+	db	004
+	dw	00042
+  else
+	db	usf_s,usf_c,usf_r,usf_a,usf_t,usf_c,usf_h,usf_c,usf_a,usf_t,EOM
+	db	1,4				; 1'4"
+	dw	00090			;   9 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan077_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●クラブ/KRABBY(098)
+	extern	zukan078_com
+zukan078$:
+  ifn	pm_jmsg
+	db	sa_,wa_,ga_,ni_,EOM
+	db	004
+	dw	00065
+  else
+	db	usf_r,usf_i,usf_v,usf_e,usf_r,spc@,usf_c,usf_r,usf_a,usf_b,EOM
+	db	1,4				; 1'4"
+	dw	00140			;  14 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan078_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ロコン/VULPIX(037)
+	extern	zukan082_com
+zukan082$:
+  ifn	pm_jmsg
+	db	ki_,tu_,ne_,EOM
+	db	006
+	dw	00099
+  else
+	db	usf_f,usf_o,usf_x,EOM
+	db	2,0				; 2'0"
+	dw	00220			;  22 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan082_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●キュウコン/NINETALES(038)
+	extern	zukan083_com
+zukan083$:
+  ifn	pm_jmsg
+	db	ki_,tu_,ne_,EOM
+	db	011
+	dw	00199
+  else
+	db	usf_f,usf_o,usf_x,EOM
+	db	3,7				; 3'7"
+	dw	00440			;  44 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan083_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ピカチュウ/PIKACHU(025)
+	extern	zukan084_com
+zukan084$:
+  ifn	pm_jmsg
+	db	ne_,zu_,mi_,EOM
+	db	004
+	dw	00060
+  else
+	db	usf_m,usf_o,usf_u,usf_s,usf_e,EOM
+	db	1,4				; 1'4"
+	dw	00130			;  13 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan084_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ライチュウ/RAICHU(026)
+	extern	zukan085_com
+zukan085$:
+  ifn	pm_jmsg
+	db	ne_,zu_,mi_,EOM
+	db	008
+	dw	00300
+  else
+	db	usf_m,usf_o,usf_u,usf_s,usf_e,EOM
+	db	2,7				; 2'7"
+	dw	00660			;  66 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan085_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ミニリュウ/DRATINI(147)
+	extern	zukan088_com
+zukan088$:
+  ifn	pm_jmsg
+	db	do__,ra__,go__,n__,EOM
+	db	018
+	dw	00033
+  else
+	db	usf_d,usf_r,usf_a,usf_g,usf_o,usf_n,EOM
+	db	5,11			; 5'11"
+	dw	00070			;   7 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan088_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ハクリュウ/DRAGONAIR(148)
+	extern	zukan089_com
+zukan089$:
+  ifn	pm_jmsg
+	db	do__,ra__,go__,n__,EOM
+	db	040
+	dw	00165
+  else
+	db	usf_d,usf_r,usf_a,usf_g,usf_o,usf_n,EOM
+	db	13,1			; 13'1"
+	dw	00360			;  36 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan089_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カブト/KABUTO(140)
+	extern	zukan090_com
+zukan090$:
+  ifn	pm_jmsg
+	db	ko_,u_,ra_,EOM
+	db	005
+	dw	00115
+  else
+	db	usf_s,usf_h,usf_e,usf_l,usf_l,usf_f,usf_i,usf_s,usf_h,EOM
+	db	1,8				; 1'8"
+	dw	00250			;  25 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan090_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カブトプス/KABUTOPS(141)
+	extern	zukan091_com
+zukan091$:
+  ifn	pm_jmsg
+	db	ko_,u_,ra_,EOM
+	db	013
+	dw	00405
+  else
+	db	usf_s,usf_h,usf_e,usf_l,usf_l,usf_f,usf_i,usf_s,usf_h,EOM
+	db	4,3				; 4'3"
+	dw	00890			;  89 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan091_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●タッツー/HORSEA(116)
+	extern	zukan092_com
+zukan092$:
+  ifn	pm_jmsg
+	db	do__,ra__,go__,n__,EOM
+	db	004
+	dw	00080
+  else
+	db	usf_d,usf_r,usf_a,usf_g,usf_o,usf_n,EOM
+	db	1,4				; 1'4"
+	dw	00180			;  18 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan092_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●シードラ/SEADRA(117)
+	extern	zukan093_com
+zukan093$:
+  ifn	pm_jmsg
+	db	do__,ra__,go__,n__,EOM
+	db	012
+	dw	00250
+  else
+	db	usf_d,usf_r,usf_a,usf_g,usf_o,usf_n,EOM
+	db	3,11			; 3'11"
+	dw	00550			;  55 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan093_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●サンド/SANDSHREW(027)
+	extern	zukan096_com
+zukan096$:
+  ifn	pm_jmsg
+	db	ne_,zu_,mi_,EOM
+	db	006
+	dw	00120
+  else
+	db	usf_m,usf_o,usf_u,usf_s,usf_e,EOM
+	db	2,0				; 2'0"
+	dw	00260			;  26 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan096_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●サンドパン/SANDSLASH(028)
+	extern	zukan097_com
+zukan097$:
+  ifn	pm_jmsg
+	db	ne_,zu_,mi_,EOM
+	db	010
+	dw	00295
+  else
+	db	usf_m,usf_o,usf_u,usf_s,usf_e,EOM
+	db	3,3				; 3'3"
+	dw	00650			;  65 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan097_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●オムナイト/OMANYTE(138)
+	extern	zukan098_com
+zukan098$:
+  ifn	pm_jmsg
+	db	u_,zu_,ma_,ki_,EOM
+	db	004
+	dw	00075
+  else
+	db	usf_s,usf_p,usf_i,usf_r,usf_a,usf_l,EOM
+	db	1,4				; 1'4"
+	dw	00170			;  17 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan098_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●オムスター/OMASTAR(139)
+	extern	zukan099_com
+zukan099$:
+  ifn	pm_jmsg
+	db	u_,zu_,ma_,ki_,EOM
+	db	010
+	dw	00350
+  else
+	db	usf_s,usf_p,usf_i,usf_r,usf_a,usf_l,EOM
+	db	3,3				; 3'3"
+	dw	00770			;  77 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan099_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●プリン/JIGGLYPUFF(039)
+	extern	zukan100_com
+zukan100$:
+  ifn	pm_jmsg
+	db	hu_,u_,se_,n_,EOM
+	db	005
+	dw	00055
+  else
+	db	usf_b,usf_a,usf_l,usf_l,usf_o,usf_o,usf_n,EOM
+	db	1,8				; 1'8"
+	dw	00120			;  12 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan100_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●プクリン/WIGGLYTUFF(040)
+	extern	zukan101_com
+zukan101$:
+  ifn	pm_jmsg
+	db	hu_,u_,se_,n_,EOM
+	db	010
+	dw	00120
+  else
+	db	usf_b,usf_a,usf_l,usf_l,usf_o,usf_o,usf_n,EOM
+	db	3,3				; 3'3"
+	dw	00260			;  26 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan101_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●イーブイ/EEVEE(133)
+	extern	zukan102_com
+zukan102$:
+  ifn	pm_jmsg
+	db	si_,n_,ka_,EOM
+	db	003
+	dw	00065
+  else
+	db	usf_e,usf_v,usf_o,usf_l,usf_u,usf_t,usf_i,usf_o,usf_n,EOM
+	db	1,0				; 1'0"
+	dw	00140			;  14 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan102_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ブースター/FLAREON(136)
+	extern	zukan103_com
+zukan103$:
+  ifn	pm_jmsg
+	db	ho_,no_,o_,EOM
+	db	009
+	dw	00250
+  else
+	db	usf_f,usf_l,usf_a,usf_m,usf_e,EOM
+	db	2,11			; 2'11"
+	dw	00550			;  55 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan103_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●サンダース/JOLTEON(135)
+	extern	zukan104_com
+zukan104$:
+  ifn	pm_jmsg
+	db	ka_,mi_,na_,ri_,EOM
+	db	008
+	dw	00245
+  else
+	db	usf_l,usf_i,usf_g,usf_h,usf_t,usf_n,usf_i,usf_n,usf_g,EOM
+	db	2,7				; 2'7"
+	dw	00540			;  54 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan104_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●シャワーズ/VAPOREON(134)
+	extern	zukan105_com
+zukan105$:
+  ifn	pm_jmsg
+	db	a_,wa_,ha_,ki_,EOM
+	db	010
+	dw	00290
+  else
+	db	usf_b,usf_u,usf_b,usf_b,usf_l,usf_e,spc@,usf_j,usf_e,usf_t,EOM
+	db	3,3				; 3'3"
+	dw	00640			;  64 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan105_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ワンリキー/MACHOP(066)
+	extern	zukan106_com
+zukan106$:
+  ifn	pm_jmsg
+	db	ka_,i_,ri_,ki_,EOM
+	db	008
+	dw	00195
+  else
+	db	usf_s,usf_u,usf_p,usf_e,usf_r,usf_p,usf_o,usf_w,usf_e,usf_r,EOM
+	db	2,7				; 2'7"
+	dw	00430			;  43 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan106_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ズバット/ZUBAT(041)
+	extern	zukan107_com
+zukan107$:
+  ifn	pm_jmsg
+	db	ko_,u_,mo_,ri_,EOM
+	db	008
+	dw	00075
+  else
+	db	usf_b,usf_a,usf_t,EOM
+	db	2,7				; 2'7"
+	dw	00170			;  17 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan107_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●アーボ/EKANS(023)
+	extern	zukan108_com
+zukan108$:
+  ifn	pm_jmsg
+	db	he_,bi_,EOM
+	db	020
+	dw	00069
+  else
+	db	usf_s,usf_n,usf_a,usf_k,usf_e,EOM
+	db	6,7				; 6'7"
+	dw	00150			;  15 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan108_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●パラス/PARAS(046)
+	extern	zukan109_com
+zukan109$:
+  ifn	pm_jmsg
+	db	ki_,no_,ko_,EOM
+	db	003
+	dw	00054
+  else
+	db	usf_m,usf_u,usf_s,usf_h,usf_r,usf_o,usf_o,usf_m,EOM
+	db	1,0				; 1'0"
+	dw	00120			;  12 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan109_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニョロゾ/POLIWHIRL(061)
+	extern	zukan110_com
+zukan110$:
+  ifn	pm_jmsg
+	db	o_,ta_,ma_,EOM
+	db	010
+	dw	00200
+  else
+	db	usf_t,usf_a,usf_d,usf_p,usf_o,usf_l,usf_e,EOM
+	db	3,3				; 3'3"
+	dw	00440			;  44 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan110_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニョロボン/POLIWRATH(062)
+	extern	zukan111_com
+zukan111$:
+  ifn	pm_jmsg
+	db	o_,ta_,ma_,EOM
+	db	013
+	dw	00540
+  else
+	db	usf_t,usf_a,usf_d,usf_p,usf_o,usf_l,usf_e,EOM
+	db	4,3				; 4'3"
+	dw	01190			; 119 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan111_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ビードル/WEEDLE(013)
+	extern	zukan112_com
+zukan112$:
+  ifn	pm_jmsg
+	db	ke_,mu_,si_,EOM
+	db	003
+	dw	00032
+  else
+	db	usf_h,usf_a,usf_i,usf_r,usf_y,spc@,usf_b,usf_u,usf_g,EOM
+	db	1,0				; 1'0"
+	dw	00070			;   7 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan112_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●コクーン/KAKUNA(014)
+	extern	zukan113_com
+zukan113$:
+  ifn	pm_jmsg
+	db	sa_,na_,gi_,EOM
+	db	006
+	dw	00100
+  else
+	db	usf_c,usf_o,usf_c,usf_o,usf_o,usf_n,EOM
+	db	2,0				; 2'0"
+	dw	00220			;  22 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan113_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●スピアー/BEEDRILL(015)
+	extern	zukan114_com
+zukan114$:
+  ifn	pm_jmsg
+	db	do_,ku_,ba_,ti_,EOM
+	db	010
+	dw	00295
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n,spc@,usf_b,usf_e,usf_e,EOM
+	db	3,3				; 3'3"
+	dw	00650			;  65 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan114_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ドードリオ/DODRIO(085)
+	extern	zukan116_com
+zukan116$:
+  ifn	pm_jmsg
+	db	mi_,tu_,go_,do_,ri_,EOM
+	db	018
+	dw	00852
+  else
+	db	usf_t,usf_r,usf_i,usf_p,usf_l,usf_e,usf_b,usf_i,usf_r,usf_d,EOM
+	db	5,11			; 5'11"
+	dw	01880			; 188 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan116_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●オコリザル/PRIMEAPE(057)
+	extern	zukan117_com
+zukan117$:
+  ifn	pm_jmsg
+	db	bu_,ta_,za_,ru_,EOM
+	db	010
+	dw	00320
+  else
+	db	usf_p,usf_i,usf_g,spc@,usf_m,usf_o,usf_n,usf_k,usf_e,usf_y,EOM
+	db	3,3				; 3'3"
+	dw	00710			;  71 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan117_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ダグトリオ/DUGTRIO(051)
+	extern	zukan118_com
+zukan118$:
+  ifn	pm_jmsg
+	db	mo_,gu_,ra_,EOM
+	db	007
+	dw	00333
+  else
+	db	usf_m,usf_o,usf_l,usf_e,EOM
+	db	2,4				; 2'4"
+	dw	00730			;  73 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan118_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●モルフォン/VENOMOTH(049)
+	extern	zukan119_com
+zukan119$:
+  ifn	pm_jmsg
+	db	do_,ku_,ga_,EOM
+	db	015
+	dw	00125
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n,usf_m,usf_o,usf_t,usf_h,EOM
+	db	4,11			; 4'11"
+	dw	00280			;  28 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan119_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ジュゴン/DEWGONG(087)
+	extern	zukan120_com
+zukan120$:
+  ifn	pm_jmsg
+	db	a_,si_,ka_,EOM
+	db	017
+	dw	01200
+  else
+	db	usf_s,usf_e,usf_a,spc@,usf_l,usf_i,usf_o,usf_n,EOM
+	db	5,7				; 5'7"
+	dw	02650			; 265 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan120_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●キャタピー/CATERPIE(010)
+	extern	zukan123_com
+zukan123$:
+  ifn	pm_jmsg
+	db	i_,mo_,mu_,si_,EOM
+	db	003
+	dw	00029
+  else
+	db	usf_w,usf_o,usf_r,usf_m,EOM
+	db	1,0				; 1'0"
+	dw	00060			;   6 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan123_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●トランセル/METAPOD(011)
+	extern	zukan124_com
+zukan124$:
+  ifn	pm_jmsg
+	db	sa_,na_,gi_,EOM
+	db	007
+	dw	00099
+  else
+	db	usf_c,usf_o,usf_c,usf_o,usf_o,usf_n,EOM
+	db	2,4				; 2'4"
+	dw	00220			;  22 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan124_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●バタフリー/BUTTERFREE(012)
+	extern	zukan125_com
+zukan125$:
+  ifn	pm_jmsg
+	db	ti_,yyo_,u_,ti_,yyo_,EOM
+	db	011
+	dw	00320
+  else
+	db	usf_b,usf_u,usf_t,usf_t,usf_e,usf_r,usf_f,usf_l,usf_y,EOM
+	db	3,7				; 3'7"
+	dw	00710			;  71 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan125_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カイリキー/MACHAMP(068)
+	extern	zukan126_com
+zukan126$:
+  ifn	pm_jmsg
+	db	ka_,i_,ri_,ki_,EOM
+	db	016
+	dw	01300
+  else
+	db	usf_s,usf_u,usf_p,usf_e,usf_r,usf_p,usf_o,usf_w,usf_e,usf_r,EOM
+	db	5,3				; 8'3"
+	dw	02870			; 287 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan126_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゴルダック/GOLDUCK(055)
+	extern	zukan128_com
+zukan128$:
+  ifn	pm_jmsg
+	db	a_,hi_,ru_,EOM
+	db	017
+	dw	00766
+  else
+	db	usf_d,usf_u,usf_c,usf_k,EOM
+	db	5,7				; 5'7"
+	dw	01690			; 169 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan128_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●スリーパー/HYPNO(097)
+	extern	zukan129_com
+zukan129$:
+  ifn	pm_jmsg
+	db	sa_,i_,mi_,n_,EOM
+	db	016
+	dw	00756
+  else
+	db	usf_h,usf_y,usf_p,usf_n,usf_o,usf_s,usf_i,usf_s,EOM
+	db	5,3				; 5'3"
+	dw	01670			; 167 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan129_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゴルバット/GOLBAT(042)
+	extern	zukan130_com
+zukan130$:
+  ifn	pm_jmsg
+	db	ko_,u_,mo_,ri_,EOM
+	db	016
+	dw	00550
+  else
+	db	usf_b,usf_a,usf_t,EOM
+	db	5,3				; 5'3"
+	dw	01210			; 121 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan130_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ミュウツー/MEWTWO(150)
+	extern	zukan131_com
+zukan131$:
+  ifn	pm_jmsg
+	db	i_,de_,n_,si_,EOM
+	db	020
+	dw	01220
+  else
+	db	usf_g,usf_e,usf_n,usf_e,usf_t,usf_i,usf_c,EOM
+	db	6,7				; 6'7"
+	dw	02690			; 269 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan131_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カビゴン/SNORLAX(143)
+	extern	zukan132_com
+zukan132$:
+  ifn	pm_jmsg
+	db	i_,ne_,mu_,ri_,EOM
+	db	021
+	dw	04600
+  else
+	db	usf_s,usf_l,usf_e,usf_e,usf_p,usf_i,usf_n,usf_g,EOM
+	db	6,11			; 6'11"
+	dw	10140			; 1014 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan132_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●コイキング/MAGIKARP(129)
+	extern	zukan133_com
+zukan133$:
+  ifn	pm_jmsg
+	db	sa_,ka_,na_,EOM
+	db	009
+	dw	00100
+  else
+	db	usf_f,usf_i,usf_s,usf_h,EOM
+	db	2,11			; 2'11"
+	dw	00220			;  22 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan133_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ベトベトン/MUK(089)
+	extern	zukan136_com
+zukan136$:
+  ifn	pm_jmsg
+	db	he__,do__,ro__,EOM
+	db	012
+	dw	00300
+  else
+	db	usf_s,usf_l,usf_u,usf_d,usf_g,usf_e,EOM
+	db	3,11			; 3'11"
+	dw	00660			;  66 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan136_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●キングラー/KINGLER(099)
+	extern	zukan138_com
+zukan138$:
+  ifn	pm_jmsg
+	db	ha_,sa_,mi_,EOM
+	db	013
+	dw	00600
+  else
+	db	usf_p,usf_i,usf_n,usf_c,usf_e,usf_r,EOM
+	db	4,3				; 4'3"
+	dw	01320			; 132 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan138_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●パルシェン/CLOYSTER(091)
+	extern	zukan139_com
+zukan139$:
+  ifn	pm_jmsg
+	db	n2@,ma_,i_,ga_,i_,EOM
+	db	015
+	dw	01325
+  else
+	db	usf_b,usf_i,usf_v,usf_a,usf_l,usf_v,usf_e,EOM
+	db	4,11			; 4'11"
+	dw	02920			; 292 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan139_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●マルマイン/ELECTRODE(101)
+	extern	zukan141_com
+zukan141$:
+  ifn	pm_jmsg
+	db	bo__,bou@,ru__,EOM
+	db	012
+	dw	00666
+  else
+	db	usf_b,usf_a,usf_l,usf_l,EOM
+	db	3,11			; 3'11"
+	dw	01470			; 147 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan141_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ピクシー/CLEFABLE(036)
+	extern	zukan142_com
+zukan142$:
+  ifn	pm_jmsg
+	db	yo_,u_,se_,i_,EOM
+	db	013
+	dw	00400
+  else
+	db	usf_f,usf_a,usf_i,usf_r,usf_y,EOM
+	db	4,3				; 4'3"
+	dw	00880			;  88 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan142_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●マタドガス/WEEZING(110)
+	extern	zukan143_com
+zukan143$:
+  ifn	pm_jmsg
+	db	do_,ku_,ga__,su__,EOM
+	db	012
+	dw	00095
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n,spc@,usf_g,usf_a,usf_s,EOM
+	db	3,11			; 3'11"
+	dw	00210			;  21 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan143_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ペルシアン/PERSIAN(053)
+	extern	zukan144_com
+zukan144$:
+  ifn	pm_jmsg
+	db	si__,yya__,mu__,ne__,ko__,EOM
+	db	010
+	dw	00320
+  else
+	db	usf_c,usf_l,usf_a,usf_s,usf_s,usf_y,spc@,usf_c,usf_a,usf_t,EOM
+	db	3,3				; 3'3"
+	dw	00710			;  71 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan144_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ガラガラ/MAROWAK(105)
+	extern	zukan145_com
+zukan145$:
+  ifn	pm_jmsg
+	db	ho_,ne_,zu_,ki_,EOM
+	db	010
+	dw	00450
+  else
+	db	usf_b,usf_o,usf_n,usf_e,usf_k,usf_e,usf_e,usf_p,usf_e,usf_r,EOM
+	db	3,3				; 3'3"
+	dw	00990			;  99 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan145_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゴースト/HAUNTER(093)
+	extern	zukan147_com
+zukan147$:
+  ifn	pm_jmsg
+	db	ga__,su__,zi_,yyo_,u_,EOM
+	db	016
+	dw	00001
+  else
+	db	usf_g,usf_a,usf_s,EOM
+	db	5,3				; 5'3"
+	dw	00002			;   0.2 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan147_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ケーシィ/ABRA(063)
+	extern	zukan148_com
+zukan148$:
+  ifn	pm_jmsg
+	db	ne_,n_,ri_,ki_,EOM
+	db	009
+	dw	00195
+  else
+	db	usf_p,usf_s,usf_i,EOM
+	db	2,11			; 2'11"
+	dw	00430			;  43 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan148_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●フーディン/ALAKAZAM(065)
+	extern	zukan149_com
+zukan149$:
+  ifn	pm_jmsg
+	db	ne_,n_,ri_,ki_,EOM
+	db	015
+	dw	00480
+  else
+	db	usf_p,usf_s,usf_i,EOM
+	db	4,11			; 4'11"
+	dw	01060			; 106 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan149_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ピジョン/PIDGEOTTO(017)
+	extern	zukan150_com
+zukan150$:
+  ifn	pm_jmsg
+	db	to_,ri_,EOM
+	db	011
+	dw	00300
+  else
+	db	usf_b,usf_i,usf_r,usf_d,EOM
+	db	3,7				; 3'7"
+	dw	00660			;  66 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan150_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ピジョット/PIDGEOT(018)
+	extern	zukan151_com
+zukan151$:
+  ifn	pm_jmsg
+	db	to_,ri_,EOM
+	db	015
+	dw	00395
+  else
+	db	usf_b,usf_i,usf_r,usf_d,EOM
+	db	4,11			; 4'11"
+	dw	00870			;  87 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan151_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●スターミー/STARMIE(121)
+	extern	zukan152_com
+zukan152$:
+  ifn	pm_jmsg
+	db	na_,zo_,no_,EOM
+	db	011
+	dw	00800
+  else
+	db	usf_m,usf_y,usf_s,usf_t,usf_e,usf_r,usf_i,usf_o,usf_u,usf_s,EOM
+	db	3,7
+	dw	01760
+  endif
+	db	I_MSG2			;
+	dw	zukan152_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●フシギダネ/BULBASAUR(001)
+	extern	zukan153_com
+zukan153$:
+  ifn	pm_jmsg
+	db	ta_,ne_,EOM
+	db	007
+	dw	00069
+  else
+	db	usf_s,usf_e,usf_e,usf_d,EOM
+	db	2,4				; 2'4"
+	dw	00150			;  15 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan153_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●フシギバナ/VENUSAUR(003)
+	extern	zukan154_com
+zukan154$:
+  ifn	pm_jmsg
+	db	ta_,ne_,EOM
+	db	020
+	dw	01000
+  else
+	db	usf_s,usf_e,usf_e,usf_d,EOM
+	db	6,7				; 6'7"
+	dw	02210			; 221 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan154_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ドククラゲ/TENTACRUEL(073)
+	extern	zukan155_com
+zukan155$:
+  ifn	pm_jmsg
+	db	ku_,ra_,ge_,EOM
+	db	016
+	dw	00550
+  else
+	db	usf_j,usf_e,usf_l,usf_l,usf_y,usf_f,usf_i,usf_s,usf_h,EOM
+	db	5,3				; 5'3"
+	dw	01210			; 121 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan155_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●トサキント/GOLDEEN(118)
+	extern	zukan157_com
+zukan157$:
+  ifn	pm_jmsg
+	db	ki_,n_,gi_,yyo_,EOM
+	db	006
+	dw	00150
+  else
+	db	usf_g,usf_o,usf_l,usf_d,usf_f,usf_i,usf_s,usf_h,EOM
+	db	2,0				; 2'0"
+	dw	00330			;  33 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan157_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●アズマオウ/SEAKING(119)
+	extern	zukan158_com
+zukan158$:
+  ifn	pm_jmsg
+	db	ki_,n_,gi_,yyo_,EOM
+	db	013
+	dw	00390
+  else
+	db	usf_g,usf_o,usf_l,usf_d,usf_f,usf_i,usf_s,usf_h,EOM
+	db	4,3				; 4'3"
+	dw	00860			;  86 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan158_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ポニータ/PONYTA(077)
+	extern	zukan163_com
+zukan163$:
+  ifn	pm_jmsg
+	db	hi_,no_,u_,ma_,EOM
+	db	010
+	dw	00300
+  else
+	db	usf_f,usf_i,usf_r,usf_e,spc@,usf_h,usf_o,usf_r,usf_s,usf_e,EOM
+	db	3,3				; 3'3"
+	dw	00660			;  66 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan163_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ギャロップ/RAPIDASH(078)
+	extern	zukan164_com
+zukan164$:
+  ifn	pm_jmsg
+	db	hi_,no_,u_,ma_,EOM
+	db	017
+	dw	00950
+  else
+	db	usf_f,usf_i,usf_r,usf_e,spc@,usf_h,usf_o,usf_r,usf_s,usf_e,EOM
+	db	5,7				; 5'7"
+	dw	02090			; 209 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan164_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●コラッタ/RATTATA(019)
+	extern	zukan165_com
+zukan165$:
+  ifn	pm_jmsg
+	db	ne_,zu_,mi_,EOM
+	db	003
+	dw	00035
+  else
+	db	usf_r,usf_a,usf_t,EOM
+	db	1,0				; 1'0"
+	dw	00080			;   8 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan165_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ラッタ/RATICATE(020)
+	extern	zukan166_com
+zukan166$:
+  ifn	pm_jmsg
+	db	ne_,zu_,mi_,EOM
+	db	007
+	dw	00185
+  else
+	db	usf_r,usf_a,usf_t,EOM
+	db	2,4				; 2'4"
+	dw	00410			;  41 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan166_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニドリーノ/NIDORINO(033)
+	extern	zukan167_com
+zukan167$:
+  ifn	pm_jmsg
+	db	do_,ku_,ba_,ri_,EOM
+	db	009
+	dw	00195
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n,spc@,usf_p,usf_i,usf_n,EOM
+	db	2,11				; 2'11"
+	dw	00430				;  43 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan167_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ニドリーナ/NIDORINA(030)
+	extern	zukan168_com
+zukan168$:
+  ifn	pm_jmsg
+	db	do_,ku_,ba_,ri_,EOM
+	db	008
+	dw	00200
+  else
+	db	usf_p,usf_o,usf_i,usf_s,usf_o,usf_n,spc@,usf_p,usf_i,usf_n,EOM
+	db	2,7				; 2'7"
+	dw	00440			;  44 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan168_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●イシツブテ/GEODUDE(074)
+	extern	zukan169_com
+zukan169$:
+  ifn	pm_jmsg
+	db	ga_,n_,se_,ki_,EOM
+	db	004
+	dw	00020
+  else
+	db	usf_r,usf_o,usf_c,usf_k,EOM
+	db	1,4				; 1'4"
+	dw	00440			;  44 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan169_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ポリゴン/PORYGON(137)
+	extern	zukan170_com
+zukan170$:
+  ifn	pm_jmsg
+	db	ba__,bou@,ti__,yya__,ru__,EOM
+	db	008
+	dw	00365
+  else
+	db	usf_v,usf_i,usf_r,usf_t,usf_u,usf_a,usf_l,EOM
+	db	2,7				; 2'7"
+	dw	00800			;  80 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan170_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●プテラ/AERODACTYL(142)
+	extern	zukan171_com
+zukan171$:
+  ifn	pm_jmsg
+	db	ka_,se_,ki_,EOM
+	db	018
+	dw	00590
+  else
+	db	usf_f,usf_o,usf_s,usf_s,usf_i,usf_l,EOM
+	db	5,11			; 5'11"
+	dw	01300			; 130 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan171_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●コイル/MAGNEMITE(081)
+	extern	zukan173_com
+zukan173$:
+  ifn	pm_jmsg
+	db	zi_,si_,yya_,ku_,EOM
+	db	003
+	dw	00060
+  else
+	db	usf_m,usf_a,usf_g,usf_n,usf_e,usf_t,EOM
+	db	1,0				; 1'0"
+	dw	00130			;  13 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan173_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ヒトカゲ/CHARMANDER(004)
+	extern	zukan176_com
+zukan176$:
+  ifn	pm_jmsg
+	db	to_,ka_,ge_,EOM
+	db	006
+	dw	00085
+  else
+	db	usf_l,usf_i,usf_z,usf_a,usf_r,usf_d,EOM
+	db	2,0				; 2'0"
+	dw	00190			;  19 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan176_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ゼニガメ/SQUIRTLE(007)
+	extern	zukan177_com
+zukan177$:
+  ifn	pm_jmsg
+	db	ka_,me_,no_,ko_,EOM
+	db	005
+	dw	00090
+  else
+	db	usf_t,usf_i,usf_n,usf_y,usf_t,usf_u,usf_r,usf_t,usf_l,usf_e,EOM
+	db	1,8				;1'8"
+	dw	00200			; 20 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan177_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●リザード/CHARMELEON(005)
+	extern	zukan178_com
+zukan178$:
+  ifn	pm_jmsg
+	db	ka_,e_,n_,EOM
+	db	011
+	dw	00190
+  else
+	db	usf_f,usf_l,usf_a,usf_m,usf_e,EOM
+	db	3,7				; 3'7"
+	dw	00420			;  42 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan178_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●カメール/WARTORTLE(008)
+	extern	zukan179_com
+zukan179$:
+  ifn	pm_jmsg
+	db	ka_,me_,EOM
+	db	010
+	dw	00225
+  else
+	db	usf_t,usf_u,usf_r,usf_t,usf_l,usf_e,EOM
+	db	3,3				; 3'3"
+	dw	00500			;  50 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan179_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●リザードン/CHARIZARD(006)
+	extern	zukan180_com
+zukan180$:
+  ifn	pm_jmsg
+	db	ka_,e_,n_,EOM
+	db	017
+	dw	00905
+  else
+	db	usf_f,usf_l,usf_a,usf_m,usf_e,EOM
+	db	5,7				; 5'7"
+	dw	02000			; 200 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan180_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ナゾノクサ/ODDISH(043)
+	extern	zukan185_com
+zukan185$:
+  ifn	pm_jmsg
+	db	za_,ttu_,so_,u_,EOM
+	db	005
+	dw	00054
+  else
+	db	usf_w,usf_e,usf_e,usf_d,EOM
+	db	1,8				; 1'8"
+	dw	00120			;  12 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan185_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●クサイハナ/GLOOM(044)
+	extern	zukan186_com
+zukan186$:
+  ifn	pm_jmsg
+	db	za_,ttu_,so_,u_,EOM
+	db	008
+	dw	00086
+  else
+	db	usf_w,usf_e,usf_e,usf_d,EOM
+	db	2,7				; 2'7"
+	dw	00190			;  19 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan186_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ラフレシア/VILEPLUME(045)
+	extern	zukan187_com
+zukan187$:
+  ifn	pm_jmsg
+	db	hu__,ra__,wa__,bou@,EOM
+	db	012
+	dw	00186
+  else
+	db	usf_f,usf_l,usf_o,usf_w,usf_e,usf_r,EOM
+	db	3,11			; 3'11"
+	dw	00410			;  41 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan187_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●マダツボミ/BELLSPROUT(069)
+	extern	zukan188_com
+zukan188$:
+  ifn	pm_jmsg
+	db	hu__,ra__,wa__,bou@,EOM
+	db	007
+	dw	00040
+  else
+	db	usf_f,usf_l,usf_o,usf_w,usf_e,usf_r,EOM
+	db	2,4				; 2'4"
+	dw	00090			;   9 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan188_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ウツドン/WEEPINBELL(070)
+	extern	zukan189_com
+zukan189$:
+  ifn	pm_jmsg
+	db	ha__,e__,to_,ri_,EOM
+	db	010
+	dw	00064
+  else
+	db	usf_f,usf_l,usf_y,usf_c,usf_a,usf_t,usf_c,usf_h,usf_e,usf_r,EOM
+	db	3,3				; 3'3"
+	dw	00140			;  14 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan189_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+
+;●ウツボット/VICTREEBEL(071)
+	extern	zukan190_com
+zukan190$:
+  ifn	pm_jmsg
+	db	ha__,e__,to_,ri_,EOM
+	db	017
+	dw	00155
+  else
+	db	usf_f,usf_l,usf_y,usf_c,usf_a,usf_t,usf_c,usf_h,usf_e,usf_r,EOM
+	db	5,7				; 5'7"
+	dw	00340			;  34 lb
+  endif
+	db	I_MSG2			;
+	dw	zukan190_com
+	db	02bh			; bank#
+	db	EOM				; put_msg_s終了コード
+
+

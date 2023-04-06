@@ -1,0 +1,80 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t11_room1
+
+	extern	room1f
+	extern	gyaarth_play
+
+
+ROOM_TYPE	equ	1
+EXIT		=	0ffh
+
+
+t11_room1:
+ysiz	=	4
+xsiz	=	4
+	db	ROOM_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	room1f			; map data adrs
+	dw	msg_t11r1f1		; message tbl adrs
+	dw	ev_t11r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t11r1f1
+
+
+ev_t11r1f1:
+	jp	init_for_talkmap
+
+
+
+msg_t11r1f1:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+
+
+msg1$:
+	extern	msg1_0_T11R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T11R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_T11R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T11R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_2_T11R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T11R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+
+
+	db	CALL_MSG
+
+	ld	a,40				; "lucky"
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+
+sxy_t11r1f1:
+	include	..\sxy\t11r0101.sxy
+
+

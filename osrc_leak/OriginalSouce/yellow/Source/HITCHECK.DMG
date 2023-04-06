@@ -1,0 +1,298 @@
+
+	include		pm_debug.def
+	include		common.def
+	include		macro.h
+
+	include		pika.def
+
+bank1	group	1
+
+;=======================================================================;
+; Category	: actor-to-actor hit check routine
+; Bank-No.	: G_BANK1
+; In		: actlow
+; Out		: Nothing
+; Infomation	: Nothing
+;=======================================================================;
+
+
+	public	hit_check
+
+hit_check:
+hit_check1$:
+	ld	h,> actor_table
+z1$:
+	ld	a,(actlow)
+	ld	l,a
+	ld	a,(hl)		;+0 actor code
+	and	a
+	ret	z		;return
+
+
+	ld	a,l
+	add	a,03
+	ld	l,a
+
+	ld	a,(hli)		;+3 y.dot
+	call	get_offset
+	ld	a,(hli)		;+4 local_y
+	add	a,004h
+	add	a,b
+	and	0f0h
+	or	c
+	ld	(actwork1),a	;y
+
+	ld	a,(hli)		;+5 x.dot
+	call	get_offset
+	ld	a,(hl)		;+6 local_x
+	add	a,b
+	and	0f0h
+	or	c
+	ld	(actwork2),a	;x
+
+	ld	a,l
+	add	a,07
+	ld	l,a
+
+	xor	a
+	ld	(hld),a		;+d Hit flag ?
+	ld	(hld),a		;+c Hit flag
+	ld	a,(actwork2)
+	ld	(hld),a		;+b hit_x
+	ld	a,(actwork1)
+	ld	(hl),a		;+a hit_y
+
+	xor	a
+
+looptop$:
+	ld	(actwork0),a
+	swap	a
+	ld	e,a
+	ld	a,(actlow)
+	cp	e
+	jp	z,looptail$	;skip actor itself
+
+	ld	d,h
+	ld	a,(de)		;+0 actor code
+	and	a
+	jp	z,looptail$	;skip not use
+	inc	e
+	inc	e
+	ld	a,(de)		;+2 action pattern
+	inc	a
+	jp	z,looptail$	;skip not display
+
+	ld	a,(actlow)
+	add	a,0ah		;+0a hit_y
+	ld	l,a
+	inc	e
+	ld	a,(de)		;+3 y_dot
+	call	get_offset
+	inc	e
+	ld	a,(de)		;+4 local_y
+	add	a,004h
+	add	a,b
+	and	0f0h
+	or	c
+	sub	(hl)		;+0a hit_y
+	jr	nc,z5$
+	cpl
+	inc	a
+z5$:
+	ld	(actwork1),a
+	push	af
+	rl	c
+	pop	af
+	ccf
+	rl	c
+	ld	b,007h
+	ld	a,(hl)		;+0a hit_y
+	and	00fh
+	jr	z,notmove_y2$
+	ld	b,009h
+notmove_y2$:
+	ld	a,(actwork1)
+	sub	b
+	ld	(actwork3),a
+	ld	a,b
+	ld	(actwork1),a
+	jr	c,z10$
+	ld	b,007h
+	dec	e
+	ld	a,(de)		;+3 y_dot
+	inc	e
+	and	a
+	jr	z,notmove_y1$
+	ld	b,009h
+notmove_y1$:
+	ld	a,(actwork3)
+	sub	b		;fix actor heigh
+	jr	z,z10$
+	jr	nc,looptail$
+z10$:
+	inc	e
+	inc	l
+	ld	a,(de)		;+5 x_dot
+	push	bc
+	call	get_offset
+	inc	e
+	ld	a,(de)		;+6 local_x
+	add	a,b
+	and	0f0h
+	or	c
+	pop	bc
+	sub	(hl)		;+0b hit_x
+	jr	nc,z6$
+	cpl
+	inc	a
+z6$:
+	ld	(actwork2),a
+	push	af
+	rl	c
+	pop	af
+	ccf
+	rl	c
+	ld	b,007h
+	ld	a,(hl)		;+0b hit_x
+	and	00fh
+	jr	z,notmove_x2$
+	ld	b,009h
+notmove_x2$:
+	ld	a,(actwork2)
+	sub	b
+	ld	(actwork3),a
+	ld	a,b
+	ld	(actwork2),a
+	jr	c,z11$
+	ld	b,007h
+	dec	e
+	ld	a,(de)		;+5 x_dot
+	inc	e
+	and	a
+	jr	z,notmove_x1$
+	ld	b,009h
+notmove_x1$:
+	ld	a,(actwork3)
+	sub	b		;fix actor heigh
+	jr	z,z11$
+	jr	nc,looptail$
+z11$:
+
+
+  ifn	YELLOW_VERSION
+	ld	a,l
+	and	0f0h		; hero's hit checking?
+	jr	nz,pass_pika$
+
+	xor	a
+	ld	(pika_hit_site),a
+
+	ld	a,(actwork0)
+	cp	PIKA_ACT_NO	; to Pika hit check?
+	jr	nz,pass_pika$
+
+	call	pika_sp_set
+	jr	hitbit_set$
+
+pass_pika$:
+  endif
+
+	ld	a,(actwork2)
+	ld	b,a
+	ld	a,(actwork1)
+	inc	l
+	cp	b
+	jr	c,nearx1$
+	ld	b,00001100b	; 00ch
+	jr	common1$
+nearx1$:
+	ld	b,00000011b	; 003h
+common1$:
+	ld	a,c
+	and	b
+	or	(hl)		;+0c hit_check
+	ld	(hl),a
+	ld	a,c
+	inc	l
+	inc	l
+
+hitbit_set$:
+	ld	a,(actwork0)
+	ld	de,hitbit_data
+	add	a,a
+	add	a,e
+	ld	e,a
+	jr	nc,z98$
+	inc	d
+z98$:
+	ld	a,(de)
+	or	(hl)		;+0e hit_bit
+	ld	(hli),a
+	inc	de
+	ld	a,(de)		;+0f hit_bit
+	or	(hl)
+	ld	(hl),a
+
+looptail$:
+	ld	a,(actwork0)
+	inc	a
+	cp	< ACTOR_MAX
+	jp	nz,looptop$
+	ret
+
+
+pika_sp_set:
+	ld	a,(actwork2)
+	ld	b,a
+	ld	a,(actwork1)
+	inc	l
+	cp	b
+	jr	c,p_nearx1$
+	ld	b,00001100b	; 00ch
+	jr	p_common1$
+p_nearx1$:
+	ld	b,00000011b	; 003h
+p_common1$:
+	ld	a,c
+	and	b
+	ld	(pika_hit_site),a
+	ld	a,c
+	inc	l
+	inc	l
+	ret
+
+
+
+get_offset:
+	and	a
+	ld	b,000h		; bc = 0
+	ld	c,000h
+	jr	z,stop1$	; return
+	ld	c,009h
+	cp	0ffh
+	jr	z,up1$		;up or left
+	ld	c,007h
+	ld	a,000h
+up1$:
+	ld	b,a
+stop1$:
+	ret
+
+hitbit_data:
+	db	00h,01h
+	db	00h,02h
+	db	00h,04h
+	db	00h,08h
+	db	00h,010h
+	db	00h,020h
+	db	00h,040h
+	db	00h,080h
+	db	01h,00h
+	db	02h,00h
+	db	04h,00h
+	db	08h,00h
+	db	010h,00h
+	db	020h,00h
+	db	040h,00h
+	db	080h,00h
+

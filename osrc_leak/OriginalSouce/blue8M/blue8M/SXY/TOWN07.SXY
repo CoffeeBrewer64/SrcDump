@@ -1,0 +1,103 @@
+; 11/26/95		23:16:00
+machi_tbl$:
+	db	00fh
+ie_tbl$:
+	db	00dh
+	db	00dh,008h,000h,T7R1F1
+	db	00dh,00ah,002h,T7R1F1
+	db	009h,018h,000h,T7R2F1
+	db	003h,018h,002h,T7R2F1
+	db	003h,019h,002h,T7R2F1
+	db	009h,029h,000h,T7R3F1
+	db	01bh,00ch,000h,T7R4F1
+	db	013h,01ch,000h,T7R5F1
+	db	013h,027h,000h,T7R6F1
+	db	013h,021h,000h,T7R7F1
+	db	01bh,01fh,000h,T7R8F1
+	db	01bh,023h,000h,T7R9F1
+	db	01bh,02bh,000h,T7R10F1
+kanban_tbl$:
+	db	009h
+	db	00Fh,01Bh,10
+	db	00Fh,013h,11
+	db	009h,02Ah,12
+	db	01Dh,00Dh,13
+	db	009h,015h,14
+	db	00Dh,00Ch,15
+	db	015h,027h,16
+	db	015h,021h,17
+	db	015h,01Bh,18
+hito_tbl$:
+	db	009h
+	db	LOLITA
+	db	011h+4,008h+4			; Y, X
+	db	0feh				; random move mode
+	db	000h				; moving site
+	db	001h
+	db	GSAN2
+	db	01Ch+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	002h
+	db	NEECHYAN
+	db	013h+4,00Eh+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	003h
+	db	GSAN2
+	db	016h+4,019h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	004h
+	db	GSAN2
+	db	010h+4,016h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	005h
+	db	SEINEN
+	db	00Ch+4,020h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	006h
+	db	MONSTER
+	db	00Ch+4,01Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	007h
+	db	DANIN
+	db	01Dh+4,020h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	008h
+	db	DANIN
+	db	00Eh+4,02Ah+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	009h
+ram_map_tbl$:
+	dw	01fh * 007h + 005h + ram_map
+	db	00dh,008h
+	dw	01fh * 007h + 006h + ram_map
+	db	00dh,00ah
+	dw	01fh * 005h + 00dh + ram_map
+	db	009h,018h
+	dw	01fh * 002h + 00dh + ram_map
+	db	003h,018h
+	dw	01fh * 002h + 00dh + ram_map
+	db	003h,019h
+	dw	01fh * 005h + 015h + ram_map
+	db	009h,029h
+	dw	01fh * 00eh + 007h + ram_map
+	db	01bh,00ch
+	dw	01fh * 00ah + 00fh + ram_map
+	db	013h,01ch
+	dw	01fh * 00ah + 014h + ram_map
+	db	013h,027h
+	dw	01fh * 00ah + 011h + ram_map
+	db	013h,021h
+	dw	01fh * 00eh + 010h + ram_map
+	db	01bh,01fh
+	dw	01fh * 00eh + 012h + ram_map
+	db	01bh,023h
+	dw	01fh * 00eh + 016h + ram_map
+	db	01bh,02bh

@@ -1,0 +1,737 @@
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		banktool.def
+	include		anime.def
+	include		dealer.def
+	include		vanish.def
+	include		macro.h
+	include		group.def
+
+
+bank14	group	G_BANK14
+
+
+	public	road22_event
+	public	road22_msg
+
+
+	extern	search_hit
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	capsule_item
+	extern	acttbl_l_adrs
+	extern	mk_trace_cmd
+	extern	CheckAssignPos
+	extern	GetAnimeStatus
+	extern	GetMoveStatus
+	extern	SetActorSite
+
+	extern	musraibaru
+	extern	direct_play
+	extern	set_now_music
+	extern	set_rival_leave_music
+	extern	bank_push_call
+
+	extern	MusicStop
+
+ZENIGAME		equ	177
+FUSIGIDANE		equ	153
+HITOKAGE		equ	176
+
+
+seq_r22		equ	seq_ctrl_buf + 01ah
+
+
+road22_event:
+	call	init_for_talkmap
+
+	ld	hl,r22_tbl
+	ld	a,(seq_r22)
+	jp	table_jump
+
+
+
+r22_tbl:
+	initndw	r22_main,seq_r22_main
+	ndw	near,seq_near			; 1st 001
+	ndw	after_battle,seq_after_battle	; 1st 002
+	ndw	away,seq_away			; 1st 003
+	ndw	Near2,SeqNear2			; 2nd 001
+	ndw	AfterBattle2,SeqAfterBattle2	; 2nd 002
+	ndw	Away2,SeqAway2			; 2nd 003
+	ndw	FreeR22,SeqFreeR22
+
+
+return:
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_r22),a
+
+
+FreeR22:
+	ret
+
+
+
+rival_pattern1:
+	ld	a,d_rival
+	ld	(event_fight_no),a
+	ld	a,02h
+	ld	(take_mons_ptn),a
+
+	ret
+
+
+rival_pattern2:
+	ld	a,d_rival2
+	ld	(event_fight_no),a
+
+	ld	a,(rival_monster)
+	add	a,07h
+	ld	(take_mons_ptn),a		; rival pattern = 8,9,10
+
+	ret
+
+
+step_on:
+	ld	de,near_step
+
+	ld	a,(event_check)
+	cp	1
+	jr	z,z100$
+
+	inc	de
+
+z100$:
+	call	actor_anime_set
+
+	ld	a,0ch
+	ld	(work2),a
+	jp	SetActorSite
+
+
+
+near_step:
+	db	A_R
+	db	A_R
+	db	A_R
+	db	A_R
+	db	A_E
+
+
+
+r22_main:
+	ld	a,(ev_r22 + 0)
+	bit	7,a				; check all event hook
+	ret	z	
+
+	ld	hl,rival_encount$
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,(usr_buf + 0)
+	ld	(event_check),a			; number of applied position
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	a,2
+	ld	(watashi_muki),a
+
+	ld	a,(ev_r22 + 0)
+	bit	0,a
+	jr	nz,first_event
+
+	bit	1,a
+	jp	nz,second_event
+
+	ret
+
+
+rival_encount$:
+	db	004h,01dh
+	db	005h,01dh
+	db	0ffh
+
+
+
+
+first_event:
+	ld	a,MsgRival1
+	ld	(usr_buf + 18),a
+	xor	a
+	ld	(usr_buf + 19),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	ld	a,(chyari_flg)
+	and	a
+	jr	z,no_bank_change$
+
+	call	MusicStop
+
+no_bank_change$:
+	ld	c,MUSIC_BANK1_NO
+	ld	a,< musraibaru
+	call	direct_play
+
+	ld	a,MsgRival1
+	ld	(work1),a
+	call	step_on				; animetion move command
+
+	ld	a,seq_near
+	ld	(seq_r22),a
+
+	ret
+
+
+near:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,(event_check)
+	cp	1
+	jr	nz,z100$
+
+	ld	a,4
+	ld	(watashi_muki),a
+
+	ld	a,04h
+
+	jr	z200$
+
+
+z100$:
+	ld	a,0ch
+
+z200$:
+	ld	(work2),a
+	ld	a,MsgRival1
+	ld	(work1),a
+	call	SetActorSite
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,MsgRival1
+	ld	(work1),a
+	call	talk_map
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,win				; hero lose
+	ld	de,lose				; hero win
+	call	set_battle_msg
+
+	call	rival_pattern1
+
+	ld	a,seq_after_battle
+	ld	(seq_r22),a
+
+	ret
+
+
+win:
+	extern	win_0_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw win_0_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+lose:
+	extern	lose_1_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw lose_1_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+after_battle:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,(rival_monster)
+	cp	2
+	jr	nz,th$
+
+	ld	a,01h
+	ld	(rival_monster),a
+
+th$:
+	ld	a,(actor_table + 009h)
+	and	a
+	jr	nz,z100$
+
+	ld	a,04h
+
+	jr	z200$
+
+
+z100$:
+	ld	a,0ch
+
+z200$:
+	ld	(work2),a
+	ld	a,MsgRival1
+	ld	(work1),a
+	call	SetActorSite
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	hl,ev_r22 + 0
+	set	5,(hl)				; experience
+
+	ld	a,MsgRival1
+	ld	(work1),a
+	call	talk_map
+
+	call	MusicStop
+
+	ld	b,2
+	ld	hl,set_rival_leave_music
+	call	bank_push_call
+
+	ld	a,(event_check)
+	cp	1
+	jr	nz,south$
+
+	call	anime_set1$
+
+	jr	set$
+
+
+south$:
+	call	anime_set2$
+
+set$:
+	ld	a,seq_away
+	ld	(seq_r22),a
+
+	ret
+
+
+anime_set1$:
+	ld	de,cmd_anime1$
+
+	jr	anime$
+
+
+anime_set2$:
+	ld	de,cmd_anime2$
+
+anime$:
+	ld	a,MsgRival1
+	ld	(work1),a
+	jp	actor_anime_set
+
+
+
+cmd_anime1$:
+	db	A_R,A_R
+	db	A_D,A_D,A_D,A_D,A_D
+	db	A_E
+
+
+cmd_anime2$:
+	db	A_U
+	db	A_R,A_R,A_R
+	db	A_D,A_D,A_D,A_D,A_D,A_D
+	db	A_E
+
+
+away:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,< R22msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	call	set_now_music
+
+	ld	hl,ev_r22 + 0
+	res	0,(hl)
+	res	7,(hl)				; check all event hook
+
+	ld	a,seq_r22_main
+	ld	(seq_r22),a
+
+	ret
+
+
+
+second_event:
+	ld	a,MsgRival2
+	ld	(usr_buf + 18),a
+	xor	a
+	ld	(usr_buf + 19),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	ld	a,(chyari_flg)
+	and	a
+	jr	z,no_bank_change$
+
+	call	MusicStop
+
+no_bank_change$:
+	call	MusicStop
+
+	ld	b,2
+	extern	set_rival_in_fast_music
+	ld	hl,set_rival_in_fast_music
+	call	bank_push_call
+
+	ld	a,MsgRival2
+	ld	(work1),a
+	call	step_on				; animetion move command
+
+	ld	a,SeqNear2
+	ld	(seq_r22),a
+
+	ret
+
+
+Near2:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,MsgRival2
+	ld	(work1),a
+
+	ld	a,(event_check)
+	cp	1
+	jr	nz,z100$
+
+	ld	a,4
+	ld	(watashi_muki),a
+
+	ld	a,04h
+
+	jr	z200$
+
+
+z100$:
+	ld	a,2
+	ld	(watashi_muki),a
+
+	ld	a,0ch
+
+z200$:
+	ld	(work2),a
+	call	SetActorSite
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,MsgRival2
+	ld	(work1),a
+	call	talk_map
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,Win2				; hero lose
+	ld	de,Lose2			; hero win
+	call	set_battle_msg
+
+	call	rival_pattern2
+
+	ld	a,SeqAfterBattle2
+	ld	(seq_r22),a
+
+	ret
+
+
+Win2:
+	extern	Win2_2_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw Win2_2_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+Lose2:
+	extern	Lose2_3_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw Lose2_3_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+AfterBattle2:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,MsgRival2
+	ld	(work1),a
+
+	ld	a,(event_check)
+	cp	1
+	jr	nz,z100$
+
+	ld	a,4
+	ld	(watashi_muki),a
+
+	ld	a,04h
+
+	jr	z200$
+
+
+z100$:
+	ld	a,2
+	ld	(watashi_muki),a
+
+	ld	a,0ch
+
+z200$:
+	ld	(work2),a
+	call	SetActorSite
+
+	ld	a,0f0h
+	ld	(cancel_key),a
+
+	ld	hl,ev_r22 + 0
+	set	6,(hl)				; experience
+
+	ld	a,MsgRival2
+	ld	(work1),a
+	call	talk_map
+
+	call	MusicStop
+
+	ld	b,2
+	extern	set_rival_out_fast_music
+	ld	hl,set_rival_out_fast_music
+	call	bank_push_call
+
+	ld	a,(event_check)
+	cp	1
+	jr	nz,south$
+
+	call	anime_set1$
+
+	jr	set$
+
+
+south$:
+	call	anime_set2$
+
+set$:
+	ld	a,SeqAway2
+	ld	(seq_r22),a
+
+	ret
+
+
+anime_set1$:
+	ld	de,cmd_anime1$
+
+	jr	anime$
+
+
+anime_set2$:
+	ld	de,cmd_anime2$
+
+anime$:
+	ld	a,MsgRival2
+	ld	(work1),a
+	jp	actor_anime_set
+
+
+cmd_anime1$:
+	db	A_L
+
+cmd_anime2$:
+	db	A_L,A_L,A_L
+	db	A_E
+
+
+Away2:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+
+	extern	R22msg2
+	ld	a,< R22msg2
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	call	set_now_music
+
+	ld	hl,ev_r22 + 0
+	res	1,(hl)
+	res	7,(hl)				; check all event hook
+
+	ld	a,SeqFreeR22
+	ld	(seq_r22),a
+
+	ret
+
+
+
+
+road22_msg:
+	msgndw	msg1,MsgRival1
+	ndw	msg2,MsgRival2
+	ndw	kanban1,msg_kanban1
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg01
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg02
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban1:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kanban1_main
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+msg01:
+	ld	a,(ev_r22 + 0)
+	bit	5,a				; 1st event battle
+	jr	z,battle$
+
+	ld	hl,after$
+	call	put_win_msg
+
+	jr	rts$
+
+
+battle$:
+	ld	hl,talk_about$
+	call	put_win_msg
+
+rts$:
+	ret
+
+
+talk_about$:
+	extern	talk_about_4_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw talk_about_4_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+after$:
+	extern	after_5_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw after_5_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg02:
+	ld	a,(ev_r22 + 0)
+	bit	6,a				; 1st event battle
+	jr	z,battle2$
+
+	ld	hl,after2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+battle2$:
+	ld	hl,talk_about2$
+	call	put_win_msg
+
+rts$:
+	ret
+
+
+talk_about2$:
+	extern	talk_about2_6_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw talk_about2_6_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+after2$:
+	extern	after2_7_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw after2_7_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1_main:
+	ld	hl,kanban1_0$
+	call	put_win_msg
+
+	ret
+
+
+kanban1_0$:
+	extern	kanban1_0_8_ROAD22
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_8_ROAD22	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+

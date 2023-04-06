@@ -1,0 +1,3001 @@
+
+	include	common.def
+	include	fntequ.def
+	include	pm_debug.def
+	include	banktool.def
+	include	fight.def
+	include macro.h
+	include	group.def
+	include	maphead.def
+
+
+bank1	group	G_BANK1
+
+;*************************************************
+;*						*
+;*	2 players game				*
+;*						*
+;*************************************************
+
+	public	play2
+	public	map_contact
+	public	save_data_koukan
+	public	put_term_window0
+	public	put_term_window
+	public	set_term_waku
+
+
+	extern	reset
+	extern	put_bcd
+	extern	mons_card
+	extern	chg_skill
+	extern	dvram_cls
+	extern	put_msg_s
+	extern	cont
+	extern	wait_vb
+	extern	put_wait
+	extern	block_cls
+	extern	memset
+	extern	cmp_byt
+	extern	oam_clr
+	extern	set_oam_buf16
+	extern	add_capsule
+	extern	save_my_data
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	chrset
+	extern	chrmove
+	extern	fontset
+	extern	main_loop
+;;	extern	put_hex2bcd
+	extern	send_send_buf
+	extern	send_send_buf2
+	extern	send_send_buf2_0
+	extern	send_byt
+	extern	send_byt2
+	extern	send_byts
+	extern	set_item_param
+	extern	load_tuusin_data
+	extern	save_tuusin_data
+	extern	check_save_data
+	extern	mul_6
+	extern	mul_any
+	extern	shinka_0
+	extern	bank2bank
+	extern	ready2ready
+	extern	bank_push_call
+	extern	palset
+	extern	color_set
+
+	extern	set_gauge
+	extern	set_objects
+	extern	fnt_kana
+	extern	fnt_gauge
+	extern	cycleimg
+	extern	bui_cycle
+	extern	statuswaku_dat
+	extern	cellput_to_bg
+	extern	shinkamae_chk
+
+	extern	musmons
+;;	extern	musvolL
+;;	extern	musvolR
+;;	extern	musvolC
+	extern	muskon
+	extern	muswngo
+	extern	muschikin
+	extern	muscha
+	extern	mussea
+	extern	muscasino
+	extern	mustown3
+	extern	musshinka
+	extern	direct_play
+
+	extern	pika_friendly_up
+	extern	cont1
+	extern	okuri_naoshi
+	extern	send_dmy
+	extern	startmap_set
+	extern	table_search
+	extern	zukan_tbl
+	extern	bank_chg_block_m
+	extern	color_rewrite
+
+	extern	BGMplay
+	extern	SEplay
+	extern	MusicStop
+
+
+play2:
+	ld	c,80			;
+	call	wait_vb_s		; ８０フレーム待ち
+
+	call	dvram_cls		; dmy_vram[] = spc@ でクリア 
+	call	actor_blanch		; obj clear
+	call	set_kana		; 文字キャラクタをセット
+	call	set_gauge		; HPゲージキャラクタをセット
+	call	set_term_waku		; 通信ウィンドウ枠キャラクタをセット
+
+	SET_WIN_POS 3,8,16,11		;
+	call	put_term_window		; 通信ウィンドウを表示する
+
+	S_POS	4,10			;
+	ld	de,junbicyu_msg		;”つうしんじゅんびちゅう！”
+	call	put_msg			;
+
+	ld	hl,m_gaman		; m_gaman[0,1] = $5000
+	xor	a			;	（ カウンターとして使用する ）
+	ld	(hli),a			;
+	ld	(hl),050h		;
+
+play21:
+	ld	hl,junior_name		; jnior_name[0..] = $FD  :  データ先頭コード 
+	ld	a,0fdh			;
+ ifn	ASSEMBLE__ENGLISH		;	（ 有効データ送受信識別用にデータの先頭に付ける ） 
+	ld	b, JUNIOR_NAME_LEN	;	（ 有効データの頭出しコードとして使用）
+ else					;
+	ld	b,6			;
+ endif					;
+loop00$:				;
+	ld	(hli),a			;
+	dec	b			;
+	jr	nz,loop00$		;
+
+
+	ld	hl,goods_gold		; goods_gold[0..] = $FD  : データ先頭コード
+	ld	a,0fdh			;				front dummy code
+ ifn	ASSEMBLE__ENGLISH		;
+	ld	b, GOODS_GOLD_SIZE	;
+ else					;
+	ld	b,7			;
+ endif					;
+loop01$:				;
+	ld	(hli),a			;
+	dec	b			;
+	jr	nz,loop01$		;
+
+
+ ifn	ASSEMBLE__ENGLISH		; rnd_table[0..] = rnd():（乱数）
+	ld	b, RND_TABLE_SIZE	;	但し、＄ＦＤ，＄ＦＥ，＄ＦＦ 値は除く
+ else					;
+	ld	b,10			;
+ endif					;
+loop02$:				;
+	call	rnd			;
+	cp	0fdh			;
+	jr	nc,loop02$		;
+	ld	(hli),a			;
+	dec	b			;
+	jr	nz,loop02$		;
+
+
+	ld	hl,dmy_map		; dmy_map[0,1,2] = $FD  : データ先頭コード
+	ld	a,0fdh			; dmy_map[3..202] = 0
+	ld	(hli),a			;
+	ld	(hli),a			;	(但し、dmy_map  DS  24*20  ==  dmy_map[0..479])
+	ld	(hli),a			;
+	ld	b,200			;
+	xor	a			;
+loop1$:					;
+	ld	(hli),a			;
+	dec	b			;
+	jr	nz,loop1$		;
+
+
+	ld	hl,gein_name		; gein_name[0..]     = 0
+ ifn	ASSEMBLE__ENGLISH		; gein_cap_tbl[0..]  = 0
+	ld	bc, GEIN_WORK_SIZE	; gein_cap_data[0..] = 0
+ else					; gein_cap_oya[0..]  = 0
+	ld	bc,315			; gein_cap_name[0..] = 0
+ endif					;
+loop2$:					;（注意！）５文字版の  ３１５ では gein_oya[0..21] = 0
+	xor	a			;	までしか０クリアーしていない
+	ld	(hli),a			;		gein_cap_oya[22..] と
+	dec	bc			;		gein_cap_name[0..] は
+	ld	a,b			;		ゴミデータが残ったままである
+	or	c			;
+	jr	nz,loop2$		;
+
+
+;===============================================================================================
+;my_cap_data[]内 $FE データの検索と $FF に置換  (後に、 my_cap_data[]内 に $FE を復帰させている)
+;						(     gein_cap_data[]内 に $FE を復帰させている)
+;===============================================================================================
+; 1 <= C <= 253 (B = 0) と更に 1 <= C <= 13 (B = 1) の計２６６バイト分ループする
+;	( C = $FD, $FE, $FF になることを避ける為のループのしかたに注意！）
+; my_cap_data[0..265] 内に $FE が見つかると、$FF に変更し、またその時の C の値を dmy_map[10..]
+; に順次代入していく
+; 但し、C == 253 の時は無条件に dmy_map[10..] に $FF を代入する
+;
+	ld	hl,my_cap_data - 1	; HL = &my_cap_data[0] -1
+	ld	de,dmy_map + 10		; DE = &dmy_map[10] ( dmy_map[0,1,2] = $FD , [3..202] = 0 )
+
+	ld	bc,0			; B = C = 0
+loop3$:					; while (1){
+	inc	c				; if (++C == $FD) {	// 253 == $FD
+	ld	a,c				;	(DE)++ = $FF
+	cp	253				;	B = 1 , C = 0
+	jr	z,chk_next$			; 	continue;
+						; }
+
+	ld	a,b				; if (B == 1 && C == 13)
+	dec	a				;	break	( goto	chk_end$ )
+	jr	nz,pass1$			;
+	ld	a,c				;
+	cp	13				;
+	jr	z,chk_end$			;
+pass1$:						;
+
+	inc	hl			    	;
+	ld	a,(hl)			    	;
+	cp	0feh			    	;
+	jr	nz,loop3$		    	; if (++(HL) == $FE) {	// 無効データコード
+						;
+	ld	a,c				;	(DE)++ = C
+	ld	(de),a				;	(HL) = $FF
+	inc	de				;		無効データコードを $FF 上書きで消す
+	ld	(hl),0ffh			; }
+	jr	loop3$			; }
+
+;	---------------------------------
+chk_next$:
+	ld	a,0ffh			;
+	ld	(de),a			; (DE)++ = $FF
+	inc	de			;
+	ld	bc,0100h		;  B = 1 , C = 0
+	jr	loop3$			;  goto  loop3$
+;	---------------------------------
+;===============================================================================================
+
+chk_end$:
+	ld	a,0ffh			; dmy_map[10..] = $FF end mark この$FF は終了コードを意味する
+	ld	(de),a			; （上記処理で１個入る $FF とは別もの）
+
+	call	send_send_buf2		; ４ビットデータの送受信(send_buf[0],read_buf[0])を行う
+
+	ld	a,(sio_oya_ko)		; if ((sio_oya_ko)==KO){  // 相手が親
+	cp	KO			;
+	jr	nz,play22		;	自分が子の場合 ０を２回送信する
+					;
+	call	put_wait		;	３フレーム待ち
+					;
+	xor	a			;
+	ld	(TD),a			;	(TD)= 0		dummy data send			
+	ld	a,081h			;
+	ld	(SC),a			;	(SC)= $81	通信スタート
+					;
+	call	wait_vb			;	１フレーム待ち
+					;
+	xor	a			;
+	ld	(TD),a			;	(TD)= 0		dummy data send
+	ld	a,081h			;
+	ld	(SC),a			;	(SC)= $81	通信スタート
+					; }
+play22:
+	call	put_wait		; ３フレーム待ち
+
+	call	MusicStop		; trans 98/4/17
+
+	ld	a,008h			;
+	ld	(IE),a			; ＳＩＯ割り込みのみ許可する
+
+	ld	hl,goods_gold		; goods_gold[0..] == $FD , rnd_table[0..] == rnd()
+	ld	de,dmy_map2		;				($FD,$FE,$FFは無い)
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, GOODS_GOLD_SIZE + RND_TABLE_SIZE
+ else
+	ld	bc,17
+ endif
+	call	send_byts		; データの送受信  send_byts(DE read, HL send, BC size)
+
+	ld	a,0feh			;
+	ld	(de),a			; dmy_map2[17] = $FE  end mark	データ終了識別コード
+
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl,junior_name		; junior_name[0..6] = $FD , my_name[11] , 
+					; my_cap_{tbl,data,oya,name}[404], zukan_flg[0,1]
+	ld	de,gein_name + 12	; gein_name[12..20] = 0 , gein_cap_{tbl,data,oya,name}[404] = 0,
+					; AdrsDealerTalk[10], play_time_h[0]  バグ！！！
+;（注意！）下記の転送バイト数ではバグが発生するので、AsrsDealerTalk[] の サイズを増やすことで対処した
+; 転送バイト数を４２１バイトきっちりにすると my_cap_name[]の最後のデータ（６匹めの１０文字め）がたまに
+; 欠けるバグが発生する
+; "common.def" の AdrsDealerTalk ds 10+7 と +7 をしているのは 下記の + 3 と オリジナルソースコードで
+; ３５９バイト転送した時に AdrsDealerTalk[5] で終了してはいるが [6..9]の残り４バイト分の余裕を足して
+; おくことにした。
+	ld	bc,pm_cap_end - junior_name + 3		; ４２４バイト <- バグが発生する！！
+;;;	ld	bc,pm_cap_end - junior_name		; ４２１バイト
+
+	call	send_byts		; データの送受信
+	ld	a,0feh			; end mark
+	ld	(de),a			; play_time_h[1] = $FE	バグ！！！
+ else
+	ld	hl,junior_name		; junior_name[0..6] = $FD , my_name[6] , 
+					; my_cap_{tbl,data,oya,name}[344], zukan_flg[0,1]
+	ld	de,gein_name + 12	; gein_name[12..20] = 0 , gein_cap_{tbl,data,oya,name}[344] = 0,
+					; AdrsDealerTalk[0..5]
+	ld	bc,pm_cap_end - junior_name + 3		; ３５９バイト
+
+	call	send_byts		; データの送受信
+	ld	a,0feh			; end mark
+	ld	(de),a			; AdrsDealerTalk[6] = $FE
+ endif
+
+	ld	hl,dmy_map		; dmy_map[0,1,2] = $FD , [3..9] = 0 , [10..] = {...$FF...$FF}
+	ld	de,dmy_map + 200
+	ld	bc,200
+	call	send_byts		; データの送受信
+
+
+	ld	a,00dh			;
+	ld	(IE),a			; Ｖブランク、ＳＩＯ，タイマー、割り込みを許可する
+
+;	call	MusicStop
+
+	ld	a,(sio_oya_ko)		; if ((sio_oya_ko) == OYA){
+	cp	KO			;
+	jr	z,oya_pass$		;
+
+	ld	hl,dmy_map2			; dmy_map2[0..] = $FD,.. ( goods_gold[0..] = $FD )
+						;		rnd(),.. ( rne_table[0..] = rnd )
+						; dmy_map2[17] = $FE
+loop00$:
+	ld	a,(hli)				; 有効データの頭出し
+	and	a				;	0, $FD, $FE 以外の値（有効データ）
+	jr	z,loop00$			;	が出るまでループ
+	cp	0fdh				;
+	jr	z,loop00$			;		$FD : 先頭コード
+	cp	0feh				;		$FE : 無効データ
+	jr	z,loop00$			;
+						;
+	dec	hl				;
+
+	ld	de,rnd_table			; rnd_table[0..9] に 有効データを入れる
+	ld	c,10				;
+block_move_loop0$:				;
+	ld	a,(hli)					;
+	cp	0feh					; $FE 無効データは取り除く
+	jr	z,block_move_loop0$			;
+
+	ld	(de),a				;
+	inc	de				;
+	dec	c				;
+	jr	nz,block_move_loop0$		;
+					; }
+
+oya_pass$:
+
+	ld	hl,gein_name + 15		;	gein_name[15..18] = $FD
+loop0$:						;	gein_name[19,20]  = my_name[0,1]
+	ld	a,(hli)				;
+	and	a				;	有効データの頭出し
+	jr	z,loop0$			;
+	cp	0fdh				; front dummy code
+	jr	z,loop0$			;
+	cp	0feh				; non data code
+	jr	z,loop0$			;
+						;
+	dec	hl				;
+
+	ld	de,gein_name			; gein_name[] に 有効データを入れる
+ ifn	ASSEMBLE__ENGLISH			;
+	ld	c, MONS_NAME_LEN		;
+ else						;
+	ld	c,6				;
+ endif
+block_move_loop1$:
+	ld	a,(hli)
+	cp	0feh
+	jr	z,block_move_loop1$
+
+	ld	(de),a				;
+	inc	de				;
+	dec	c				;
+	jr	nz,block_move_loop1$		;
+	
+	ld	de,gein_cap_tbl			; gein_cap_{tbl,data,oya,name][]に有効データを入れる
+ ifn	ASSEMBLE__ENGLISH			;
+	ld	bc,pm_cap_end - my_cap_tbl	;
+ else						;
+	ld	bc,pm_cap_end - my_cap_tbl	;
+ endif
+block_move_loop2$:
+	ld	a,(hli)
+	cp	0feh
+	jr	z,block_move_loop2$
+
+	ld	(de),a				;
+	inc	de				;
+	dec	bc				;
+	ld	a,b				;
+	or	c				;
+	jr	nz,block_move_loop2$		;
+
+;================================================================================================
+;my_cap_data[]内 に $FE を復帰	(以前の、my_cap_data[]内 $FE データの検索と $FF に置換の復帰処理)
+;================================================================================================
+	ld	de,dmy_map  ; dmy_map[0,1,2]=$FD,[3..9]=0,[10..]={...$FF(C=253)...$FF(end mark)}
+	ld	hl,my_cap_data
+	ld	c,2
+loop1$:					; for (C = 2 ; C ; ){
+	ld	a,(de)
+	inc	de
+	and	a				; 有効データの頭出し
+	jr	z,loop1$			;
+	cp	0fdh				;
+	jr	z,loop1$			;
+	cp	0feh				;
+	jr	z,loop1$			;
+
+	cp	0ffh				; if ( C==253の時の$FF または end markの$FF){
+	jr	z,pass1$			;	HL = &my_cap_data[252]
+						;	--C
+						;	continue
+	push	hl				; }
+	push	bc
+	ld	b,0				; my_cap_data[(DE)-1] = $FE
+	dec	a				;
+	ld	c,a				;	置換されていたデータを $FE に戻す
+	add	hl,bc				;
+	ld	a,0feh				;
+	ld	(hl),a				;
+	pop	bc
+	pop	hl
+	jr	loop1$			; }
+	
+pass1$:
+	ld	hl,my_cap_data + 252
+	dec	c
+	jr	nz,loop1$
+
+
+;================================================================================================
+;gein_cap_data[]内 に $FE を復帰 (以前の、my_cap_data[]内 $FE データの検索と $FF に置換の復帰処理)
+;================================================================================================
+; dmy_map[200..] = 相手側の dmy_map[0,1,2]=$FD,[3..9]=0,[10..]={...$FF(C==253)...$FF(end_mark)}
+
+	ld	de,dmy_map + 200
+	ld	hl,gein_cap_data
+	ld	c,2
+loop2$:					; for (C = 2 ; C ; ){
+	ld	a,(de)
+	inc	de
+	and	a				; 有効データの頭出し
+	jr	z,loop2$			;
+	cp	0fdh				;
+	jr	z,loop2$			;
+	cp	0feh				;
+	jr	z,loop2$			;
+	
+	cp	0ffh				; if ( C==253の時の$FF または end markの$FF){
+	jr	z,pass2$			;	HL = &gein_cap_data[252]
+						;	--C
+						;	continue
+	push	hl				; }
+	push	bc
+	ld	b,0				; gein_cap_data[(DE)-1] = $FE
+	dec	a				;
+	ld	c,a				;	置換されていたデータを $FE に戻す
+	add	hl,bc				;
+	ld	a,0feh				;
+	ld	(hl),a				;
+	pop	bc
+	pop	hl
+	jr	loop2$			; }
+
+pass2$:
+	ld	hl,gein_cap_data + 252
+	dec	c
+	jr	nz,loop2$
+
+;================================================================================================
+	
+	ld	a,< gein_cap_oya		;
+	ld	(item_name_adrs),a		; (item_name_adrs)w = &gein_cap_oya[0]
+	ld	a,> gein_cap_oya		;
+	ld	(item_name_adrs + 1),a		;
+
+	xor	a				;
+	ld	(play_tbl_cnt),a		; (play_tbl_cnt) = 0
+
+	call	MusicStop
+
+	ld	a,(sio_oya_ko)			; if ((sio_oya_ko) == KO){
+	cp	KO				;
+	ld	c,42h				;	６６フレーム待ち
+	call	z,wait_vb_s			; }
+
+	ld	a,(tuushin_flg)			;
+	cp	3				;
+	ld	a,50				;
+	ld	(tuushin_flg),a			;
+	jr	nz,to_play2_loop$		; if ((tuushin_flg) == 3){
+
+	ld	a,4
+	ld	(tuushin_flg),a
+	
+	ld	a,225
+	ld	(event_fight_no),a
+
+	call	dvram_cls
+	call	put_wait			; debug 98/05/28
+	ld	b,9				;
+	call	color_set			;
+
+	ld	hl,my_lvl
+	res	7,(hl)				; effect on
+
+	ld	a,(msg_speed)			; debug 98/06/08
+	push	af				;
+	xor	a				;
+	ld	(msg_speed),a			;
+
+	ld	a,B_FIGHTER0
+	call	bank2bank
+
+	pop	af				; debug 98/06/08
+	ld	(msg_speed),a			;
+
+	ld	a,B_KAIHUKU
+	call	bank2bank
+
+	jp	ret_heya
+						; }
+to_play2_loop$:					; else { (tuushin_flg) = 50
+	ld	c,MUSIC_BANK3_NO		; Bank 3 (Sea, Casino)
+	ld	a,muscasino
+	call	direct_play
+	jr	play2_loop				; goto  play2_loop
+						; }
+
+junbicyu_msg:
+ ifn  pm_jmsg
+	db	tu_,u_,si_,n_,zi_,yyu_,n_,bi_,ti_,yyu_,u_,gyoe@	; つうしんじゅんびちゅう！
+	db	EOM
+ else
+	db	usf_p,usf_l,usf_e,usf_a,usf_s,usf_e,spc@,usf_w,usf_a,usf_i,usf_t,gyoe@
+	db	EOM
+ endif
+
+play2_loop:
+	ld	hl,p2_jmp_tbl
+	ld	b,0
+	ld	a,(play_tbl_cnt)	; if ((play_tbl_cnt) == $FF)
+	cp	0ffh			;	goto  main_loop
+	jp	z,main_loop		;			"MAIN.DMG" main_loop:
+
+	add	a,a			; else
+	ld	c,a			;
+	add	hl,bc			;	goto  (p2_jmp_tbl[play_tbl_cnt]w)w
+	ld	a,(hli)			;
+	ld	h,(hl)			;
+	ld	l,a			;
+	jp	(hl)			;
+
+;*********************************
+;*				*
+;*	koukan			*
+;*				*
+;*********************************
+play2_koukan:
+	call	dvram_cls
+	call	put_wait			; debug 98/05/28
+	ld	b,9				;
+	call	color_set			;
+
+	call	set_term_waku
+	call	play2_koukan_window
+	call	p2_koukan_sub1
+
+	xor	a
+	ld	hl,read_buf
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	ld	(scloll_sw),a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+	ld	(allow_ret_flg),a
+
+	inc	a
+	ld	(send_buf),a
+	jp	my_window1$
+
+gein_window1$:
+	xor	a
+	ld	(scloll_sw),a
+	inc	a				; 1 = gein
+	ld	(my_or_gein),a
+	ld	a,BT_A + BT_L + BT_D 
+	ld	(allow_msk),a	
+	ld	a,(gein_cap_tbl)
+	ld	(allow_max),a
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,9
+	ld	(allow_pos),a		; Y pos
+	ld	a,1
+	ld	(allow_pos + 1),a	; X pos
+ else
+	ld	a,3
+	ld	(allow_pos),a		; Y pos
+	ld	a,12
+	ld	(allow_pos + 1),a	; X pos
+ endif
+gloop1$:
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl, us_display_flg
+	set	CURSOR_Y_INTERVAL_BIT,(hl)	; Ｙ方向移動間隔を１キャラ毎にする
+	call	allow
+	ld	hl, us_display_flg
+	res	CURSOR_Y_INTERVAL_BIT,(hl)	; Ｙ方向移動間隔を元に戻す（２キャラ毎）
+ else
+	call	allow
+ endif
+	and	a
+	jp	z,pass1$
+
+	bit	0,a
+	jr	z,g10$
+
+;	=====================		;（バグ修正！）
+ ifn	ASSEMBLE__ENGLISH		; 相手のポケモン選択画面で一番下のポケモンにカーソルを
+	ld	a,(allow_max)		; 合わせて、下キー＋Ａボタン同時押しで allow_max == 
+	ld	c,a			; allow_cnt になってしまうためバグが発生する。
+	ld	a,(allow_cnt)		; ( allow_max == allow_cnt の仕様を使うルーチンもあるよう
+	cp	c			;   なので、大元の allow() を変更することは不可である )
+	jr	c, _100$		; 
+	ld	a,(allow_max)		; allow_cnt >= allow_max の場合 allow_cnt = allow_max -1 
+	dec	a			; にして対処した ('98 8/10)
+	ld	(allow_cnt),a
+_100$:
+ endif
+;	=====================
+
+	ld	a,SAVE_CAP		; A key
+	ld	(set_data_flg),a
+	ld	hl,set_item_param
+	ld	b,0eh
+	call	bank_push_call
+
+	ld	hl,gein_cap_data
+	call	put_play2_card
+	jp	pass1$
+
+g10$:
+	bit	5,a
+	jr	z,g20$
+
+	xor	a			; left key
+	ld	(my_or_gein),a		; 0 = my
+	ld	a,(allow_dv_adr)
+	ld	l,a
+	ld	a,(allow_dv_adr + 1)
+	ld	h,a
+	ld	a,(allow_spc)
+	ld	(hl),a
+	ld	a,(allow_cnt)
+	ld	b,a
+	ld	a,(my_cap_tbl)
+	dec	a
+	cp	b
+	jr	nc,my_window1$
+
+	ld	(allow_cnt),a
+	jr	my_window1$
+
+g20$:
+	bit	7,a
+	jp	z,pass1$
+
+	jp	koukan_cyuushi$
+
+my_window1$:
+	xor	a
+	ld	(my_or_gein),a		; 0 = my
+	ld	(scloll_sw),a
+	ld	a,BT_A + BT_R + BT_D
+	ld	(allow_msk),a	
+
+	ld	a,(my_cap_tbl)
+	ld	(allow_max),a
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,1
+	ld	(allow_pos),a		; Y pos
+	ld	a,1
+	ld	(allow_pos + 1),a	; X pos
+
+;	====================	バク修正！
+	S_POS	1,1			; U + A_KEY 同時押し、離した直後に B_KEY を入れると
+	ld	bc,6 * 256 + 1		; 前のカーソルが消えずに残るバグ（ＮＯＡから報告）の修正
+	call	block_cls		; block_cls(S_POS(1,1) , Y==6 , X==1)
+;	====================
+ else
+	ld	a,3
+	ld	(allow_pos),a		; Y pos
+	ld	a,2
+	ld	(allow_pos + 1),a	; X pos
+ endif
+loop1$:
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl, us_display_flg
+	set	CURSOR_Y_INTERVAL_BIT,(hl)	; Ｙ方向移動間隔を１キャラ毎にする
+	call	allow
+	ld	hl, us_display_flg		; Ｙ方向移動間隔を元に戻す（２キャラ毎）
+	res	CURSOR_Y_INTERVAL_BIT,(hl)
+ else
+	call	allow
+ endif
+
+	and	a
+	jr	nz,z49$
+
+	jp	pass1$
+
+z49$:
+	bit	0,a
+	jr	z,z10$
+
+	jp	status_or_kettei$
+					;（注意！）この部分はゴミコード
+	ld	a,CAP_SEAL		;	絶対呼ばれることはないはずだよ。
+	ld	(set_data_flg),a	;
+	ld	hl,set_item_param	;
+	ld	b,0eh			;
+	call	bank_push_call		;
+					;
+	call	put_play2_card		;
+					;
+	jp	pass1$			;
+
+z10$:
+	bit	4,a
+	jr	z,z20$
+
+	ld	a,1			; right key
+	ld	(my_or_gein),a		; 1 = gein
+	ld	a,(allow_dv_adr)
+	ld	l,a
+	ld	a,(allow_dv_adr + 1)
+	ld	h,a
+	ld	a,(allow_spc)
+	ld	(hl),a
+	ld	a,(allow_cnt)
+	ld	b,a
+	ld	a,(gein_cap_tbl)
+	dec	a
+	cp	b
+	jr	nc,z15$
+
+	ld	(allow_cnt),a
+z15$:
+	jp	gein_window1$
+
+z20$:
+	bit	7,a
+	jr	z,pass1$
+
+	jp	koukan_cyuushi$
+
+pass1$:
+	ld	a,(my_or_gein)
+	and	a
+	jp	z,loop1$		; my
+	jp	gloop1$			; gein
+
+
+status_or_kettei$:
+	call	push_vram
+	call	white_allow
+;	=====================		;（バグ修正！）
+ ifn	ASSEMBLE__ENGLISH		; 自分のポケモン選択画面で一番下のポケモンにカーソルを
+	ld	a,(allow_max)		; 合わせて、下キー＋Ａボタン同時押しで allow_max == 
+	ld	c,a			; allow_cnt になってしまうためバグが発生する。
+	ld	a,(allow_cnt)		; ( allow_max == allow_cnt の仕様を使うルーチンもあるよう
+	cp	c			;   なので、大元の allow() を変更することは不可である )
+	jr	c, _10$			; 
+	ld	a,(allow_max)		; allow_cnt >= allow_max の場合 allow_cnt = allow_max -1 
+	dec	a			; にして対処した ('98 8/10)
+_10$:
+ else
+	ld	a,(allow_cnt)
+ endif
+;	=====================
+	push	af
+
+	SET_WIN_POS 0,14,19,17
+	call	put_term_window
+
+	SET_MSG_POS 2,16,dotch_msg1$
+	call	put_msg
+
+	xor	a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+	ld	(allow_ret_flg),a
+	ld	(allow_max),a
+
+	ld	a,16
+	ld	(allow_pos),a		; Y pos
+
+allow_left$:
+	ld	a,spc@
+	ld	(20*16 + 11 + dmy_vram),a
+	ld	a,BT_A + BT_B + BT_R
+	ld	(allow_msk),a	
+	ld	a,1
+	ld	(allow_pos + 1),a	; X pos
+
+	call	allow
+	bit	4,a
+	jr	nz,allow_right$
+	bit	1,a			; B key (cancel)
+	jr	z,pass2$
+
+b_button$:
+	pop	af
+	ld	(allow_cnt),a
+	call	pop_vram
+	jp	my_window1$
+
+allow_right$:
+	ld	a,spc@
+	ld	(20*16 + 1 + dmy_vram),a
+	ld	a,BT_A + BT_B + BT_L
+	ld	(allow_msk),a	
+	ld	a,11
+	ld	(allow_pos + 1),a	; X pos
+
+	call	allow
+	bit	5,a
+	jr	nz,allow_left$
+	bit	1,a			; B key (cancel)
+	jr	nz,b_button$
+
+	jr	mons_kettei$
+
+pass2$:
+	pop	af
+	ld	(allow_cnt),a
+	ld	a,CAP_SEAL		
+	ld	(set_data_flg),a
+	ld	hl,set_item_param
+	ld	b,0eh
+	call	bank_push_call
+
+	call	put_play2_card
+
+	call	pop_vram
+	jp	my_window1$
+
+mons_kettei$:
+	call	white_allow
+	pop	af
+	ld	(allow_cnt),a
+	ld	(usr_buf),a		; jibun no select pos
+	ld	(send_buf),a
+	call	send_send_buf2_0	; ”つうしんたいきちゅう！”ウィンドウを表示して
+					; ４ビットデータの送受信(send_buf[0],read_buf[0])を行う
+	ld	a,(read_buf)
+	cp	0fh
+	jp	z,play2_loop
+
+	ld	(usr_buf + 1),a		; aite no select pos
+	call	put_selmark
+	ld	a,1
+	ld	(play_tbl_cnt),a
+
+	jp	play2_loop
+
+
+dotch_msg1$:
+  ifn	pm_jmsg
+	db	su__,te__,i__,ta__,su__,wo_,mi_,ru_,spc@,spc@	; ステイタスをみる
+	db	ko_,u_,ka_,n_,ni_,da_,su_			; こうかんにだす
+	db	EOM
+  else
+;	注意！）横並びに表示されるので spc@ の数に気を付けること！
+	db	usf_s,usf_t,usf_a,usf_t,usf_s,spc@,spc@,spc@,spc@,spc@	; STATS ( STATISTIC の略語 )
+	db	usf_t,usf_r,usf_a,usf_d,usf_e				; TRADE
+	db	EOM
+  endif
+
+koukan_cyuushi$:
+	ld	a,(allow_cnt)
+	ld	b,a	
+	ld	a,(allow_max)
+	cp	b
+	jp	nz,pass1$
+
+	ld	a,(allow_dv_adr)
+	ld	l,a
+	ld	a,(allow_dv_adr + 1)
+	ld	h,a
+	ld	a,spc@
+	ld	(hl),a
+	
+cyuushi_allow$:
+	ld	a,allow@
+	ld	(16*20 + 1 + dmy_vram),a
+cyuushi_loop$:
+	call	cont_repeat
+	ld	a,(joy_repeat)
+	and	a
+	jr	z,cyuushi_loop$
+
+	bit	0,a
+	jr	nz,ret_heya$
+
+	bit	6,a				; ue
+	jr	z,cyuushi_loop$
+
+	ld	a,spc@
+	ld	(16*20 + 1 + dmy_vram),a
+	
+	ld	a,(my_cap_tbl)			; monster suu
+	dec	a
+	ld	(allow_cnt),a
+	jp	my_window1$
+	
+ret_heya$:
+	ld	a,alloww@
+	ld	(16*20 + 1 + dmy_vram),a
+	
+	ld	a,0fh
+	ld	(send_buf),a
+	
+	call	send_send_buf2_0	; ”つうしんたいきちゅう！”ウィンドウを表示して
+					; ４ビットデータの送受信(send_buf[0],read_buf[0])を行う
+	ld	a,(read_buf)
+	cp	0fh
+	jr	nz,cyuushi_allow$
+
+ret_heya:
+	extern	pal_off_put_wait
+	call	pal_off_put_wait
+
+	ld	hl,talking_flg
+	ld	a,(hl)
+	push	af
+	push	hl
+	res	0,(hl)
+
+	xor	a
+	ld	(event_flg),a
+	dec	a
+	ld	(ram_map_id),a
+
+	extern	init_map
+	call	init_map
+
+	ld	b,003h
+	extern	mapper_init
+	ld	hl,mapper_init
+	call	bank_push_call
+	pop	hl
+	pop	af
+	ld	(hl),a
+
+	call	w_to_n
+	ret
+
+p2_koukan_sub1:
+	S_POS	11,15
+	ld	a,07eh
+	ld	bc,49
+	call	memset
+
+	SET_WIN_POS 0,15,10,17
+	call	put_term_window
+
+	SET_MSG_POS 2,16,sub1_msg1$
+	jp	put_msg
+
+sub1_msg1$:
+  ifn	pm_jmsg
+	db	ko_,u_,ka_,n_,ti_,yyu_,u_,si_
+	db	EOM
+  else
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l
+	db	EOM
+  endif
+
+
+
+put_selmark:				; aite no eranda monster wo mark
+	ld	a,(read_buf)
+ ifn	ASSEMBLE__ENGLISH
+	S_POS 	1,9
+	ld	bc,20
+ else
+	S_POS 	12,3
+	ld	bc,40
+ endif
+	call	mul_any
+	ld	(hl),alloww@
+	
+	ret
+
+put_play2_card:
+	ld	a,(allow_cnt)
+	ld	(sel_item_pos),a
+	ld	a,B_MONS_CARD
+	call	bank2bank
+	ld	a,B_CHG_SKILL
+	call	bank2bank
+	call	put_wait			; debug 98/05/28
+	ld	b,9				;
+	call	color_set			;
+	call	palset
+	call	set_term_waku
+	call	play2_koukan_window
+	jp	p2_koukan_sub1
+
+;*****************************************
+;*					*
+;*	draw koukan window		*
+;*					*
+;*****************************************
+play2_koukan_window:
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS 0,0,19,7
+	call	put_term_window
+
+	SET_WIN_POS 0,8,19,15
+	call	put_term_window
+
+	SET_MSG_POS 5,0,my_name
+	call	put_msg
+
+	SET_MSG_POS 5,8,gein_name
+	call	put_msg
+
+	S_POS	2,1
+	ld	de,my_cap_tbl + 1
+
+	call	list1$
+
+	S_POS	2,9
+	ld	de,gein_cap_tbl + 1
+ else
+	SET_WIN_POS 0,1,9,14
+	call	put_term_window			; 左側（自分）のウィンドウ枠を表示
+
+	SET_WIN_POS 10,1,19,14			; 右側（相手）のウィンドウ枠を表示
+	call	put_term_window
+
+	SET_MSG_POS 3,1,my_name			; 自分の名前を表示
+	call	put_msg
+
+	SET_MSG_POS 13,1,gein_name		; 相手の名前を表示
+	call	put_msg
+
+	S_POS	3,3
+	ld	de,my_cap_tbl + 1		; 自分の手持ちポケモン
+
+	call	list1$
+
+	S_POS	13,3
+	ld	de,gein_cap_tbl + 1		; 相手の手持ちポケモン
+ endif
+list1$:
+	ld	c,0
+list2$:
+	ld	a,(de)
+	cp	0ffh
+	ret	z
+
+	ld	(in_dat),a
+	push	bc
+	push	hl
+	push	de
+	push	hl
+
+	ld	a,c			; monster pos
+	ld	(calc_work0),a
+
+	call	get_mons_name
+
+	pop	hl
+	call	put_msg
+
+	pop	de
+	inc	de
+	pop	hl
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,20
+ else
+	ld	bc,40
+ endif
+	add	hl,bc
+	pop	bc
+	inc	c
+	jr	list2$
+
+;*********************************
+;*				*
+;*	torihiki		*
+;*	command = 7		*
+;*				*
+;*********************************
+play2_tori:
+	ld	c,100
+	call	wait_vb_s
+
+	xor	a
+	ld	(send_buf + 1),a
+	ld	(read_buf + 1),a
+	ld	(scloll_sw),a
+	ld	(allow_ret_flg),a
+
+	SET_WIN_POS 0,12,19,17
+	call	put_term_window
+
+	ld	a,(usr_buf)		; 自分が選んだカーソル位置
+	ld	hl,my_cap_tbl + 1
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hl)
+	ld	(in_dat),a
+	call	get_mons_name
+
+	ld	hl,table_data
+	ld	de,usr_buf + 2		; usr_buf[2..] = 自分が選んだポケモン名
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, MONS_NAME_LEN
+ else
+	ld	bc,6
+ endif
+	call	block_move
+
+	ld	a,(usr_buf + 1)		; 相手が選んだカーソル位置
+	ld	hl,gein_cap_tbl + 1
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hl)
+	ld	(in_dat),a
+	call	get_mons_name		; return  table_data[] = 相手が選んだポケモン名
+
+	ld	hl,msg1$		; ”usr_buf[2] と table_data[] を こうかんします”
+	ld	bc,14*20 + 1 + dmy_vram	; S_POS(1,14)
+	call	put_msg_s
+
+	call	push_vram
+
+	S_POS	10,7
+	ld	bc,0080bh			; 11,8
+	ld	a,5
+	ld	(itwk0),a			; ************
+	SET_WIN_MOD YES_NO_WIN			; *▲こうかん*
+	call	step_prn_win			; *  やめる  *
+						; ************
+	call	pop_vram
+
+	ld	a,(allow_cnt)
+	and	a
+	jr	z,ok1$
+
+	ld	a,1				; jibun = ng
+	ld	(send_buf),a
+
+	SET_WIN_POS 0,12,19,17
+	call	put_term_window
+	
+	S_POS	1,14
+	ld	de,ng_msg1$			;”ざんねんながら
+	call	put_msg				;  こうかんは  キャンセルされました”
+
+	call	send_send_buf2_0	; ”つうしんたいきちゅう！”ウィンドウを表示して
+					; ４ビットデータの送受信(send_buf[0],read_buf[0])を行う
+
+	jp	z100$
+
+ok1$:
+	ld	a,2				; jibun = ok
+	ld	(send_buf),a
+	call	send_send_buf2_0	; ”つうしんたいきちゅう！”ウィンドウを表示して
+					; ４ビットデータの送受信(send_buf[0],read_buf[0])を行う
+	ld	a,(read_buf)
+	dec	a
+
+	jr	nz,torihiki1$			; gein = ok
+
+	SET_WIN_POS 0,12,19,17
+	call	put_term_window
+	
+	S_POS	1,14
+	ld	de,ng_msg1$			; gein = ng
+	call	put_msg
+
+	jp	z100$
+
+torihiki1$:
+;------------------------------ demo data set ------------------------
+	ld	a,(usr_buf)			; 自分が選択したカーソル位置
+	ld	hl,my_cap_oya			; おや名（自分側）
+	call	mul_6
+
+	ld	de,usr_buf + MY_OYA_NAME_@	; ld	de,usr_buf + 4（５文字版）
+	ld	bc,MONS_NAME_LEN
+	call	block_move			; set  usr_buf+4 ~ usr_buf+9 （５文字版）
+
+	ld	hl,my_cap_data
+	ld	a,(usr_buf)			; jibun no select pos
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+	
+	ld	bc,12
+	add	hl,bc				; HL= my_cap_data[(usr_buf)][12] == ポケモン IDNo.
+	ld	a,(hli)
+	ld	(usr_buf + MY_MONS_IDNo_@),a	; ld	(usr_buf + 10),a
+	ld	a,(hl)
+	ld	(usr_buf + MY_MONS_IDNo_@ +1),a	; ld	(usr_buf + 11),a
+
+	ld	a,(usr_buf + 1)			; 相手が選択したカーソル位置
+	ld	hl,gein_cap_oya			; おや名（相手側）
+	call	mul_6
+
+	ld	de,usr_buf + YOUR_OYA_NAME_@	; ld	de,usr_buf + 12（５文字版）
+	ld	bc,MONS_NAME_LEN
+	call	block_move			; set  usr_buf+12 ~ usr_buf+17（５文字版）
+
+	ld	hl,gein_cap_data
+	ld	a,(usr_buf + 1)			; aite no select pos
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+	
+	ld	bc,12
+	add	hl,bc				; HL=gein_cap_data[(usr_buf+1)][12]==ポケモン IDNo.
+	ld	a,(hli)
+	ld	(usr_buf + YOUR_MONS_IDNo_@),a	; ld	(usr_buf + 18),a
+	ld	a,(hl)
+	ld	(usr_buf + YOUR_MONS_IDNo_@ +1),a ; ld	(usr_buf + 19),a
+;----------------------------------------------------------------------
+	
+	ld	a,(usr_buf)			; 自分が選んだカーソル位置
+	ld	(sel_item_pos),a
+	ld	hl,my_cap_tbl + 1
+	ld	b,0
+	ld	c,a
+	add	hl,bc				; HL= my_cap_tbl[1+(usr_buf)]
+
+	ld	a,(hl)
+	ld	(usr_buf + MY_MONS_No_@),a	; 自分が選んだポケモン番号
+
+	ld	hl,pika_friendly_up
+	ld	b,G_BANK3d
+	ld	d,11				; trade	
+	call	bank_push_call
+
+	xor	a
+	ld	(cap_or_mons),a			; my_cap_tbl
+	call	sub_capsule
+
+	ld	a,(usr_buf + 1)			; 相手が選んだカーソル位置
+	ld	c,a
+	ld	(sel_item_pos),a
+	ld	hl,gein_cap_tbl + 1
+	ld	d,0
+	ld	e,a
+	add	hl,de
+	ld	a,(hl)
+	ld	(sel_item_no),a
+	ld	hl,gein_cap_data
+	ld	a,c			; sel item pos
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+	ld	de,monsdata_dmy
+	ld	bc,CAPDATA_LEN
+	call	block_move
+	call	add_capsule
+	ld	a,(my_cap_tbl)
+	dec	a
+	ld	(sel_item_pos),a
+
+	ld	a,1
+	ld	(ctrl_move_val + CANCEL_OK_FLG),a	; cancel ng
+
+	ld	a,(usr_buf + 1)			; aite no select pos
+	ld	hl,gein_cap_tbl + 1
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+
+	ld	a,(hl)
+	ld	(usr_buf + YOUR_MONS_No_@),a	; 相手が選んだポケモン番号
+
+	ld	a,0ah			; Fade Out Count
+	ld	(fade_play_fg),a
+
+	ld	a,MUSIC_BANK1_NO		; Bank 3 (Sea, Casino)
+	ld	(music_bank_flg_back),a
+
+	ld	a,musshinka
+	ld	(music_flag),a
+	call	BGMplay
+
+	ld	c,100
+	call	wait_vb_s
+
+	call	dvram_cls
+
+	call	set_gauge
+
+	xor	a
+	ld	(anime_buf),a
+
+	ld	a,(sio_oya_ko)
+	cp	OYA				; aite ga oya
+	jr	z,demo_ko$
+	
+	ld	a,B_KOUKAN_DEMO_OYA
+	call	bank2bank
+	jr	demo_end$
+
+demo_ko$:
+	ld	a,B_KOUKAN_DEMO_KO
+	call	bank2bank
+	
+demo_end$:
+;***** torihiki syuuryou *****
+syuuryou1$:
+	ld	hl,shinka_0
+	ld	b,0eh
+	call	bank_push_call
+
+	call	dvram_cls
+	call	set_term_waku
+	
+	call	send_send_buf2_0	; ”つうしんたいきちゅう！”ウィンドウを表示して
+					; ４ビットデータの送受信(send_buf[0],read_buf[0])を行う
+	ld	c,40
+	call	wait_vb_s
+
+	call	put_wait			; debug 98/05/30
+	ld	b,9				;
+	call	color_set			;
+
+	SET_WIN_POS 0,12,19,17
+	call	put_term_window
+
+	S_POS	1,14
+	ld	de,msg2$			;”こうかんしゅうりょう！”
+	call	put_msg
+
+;	ld	a,SAVE_MYCAP_DATA
+	ld	a,80
+	call	bank2bank
+
+;;	ld	a,SAVE_MONS_DATA
+;	ld	a,83
+;	call	bank2bank
+
+
+;99$:
+	ld	c,50
+	call	wait_vb_s
+
+;	call	wait_kettei
+
+	xor	a
+	ld	(play_tbl_cnt),a
+
+	jp	play21
+
+z100$:
+	ld	c,100
+	call	wait_vb_s
+
+	xor	a
+	ld	(play_tbl_cnt),a
+	jp	play2_loop
+
+
+
+msg1$:
+	extern	msg1_0_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+msg2$:
+  ifn	pm_jmsg
+	db	ko_,u_,ka_,n_,si_,yyu_,u_,ri_,yyo_,u_,gyoe@
+	db	EOM
+  else
+	db	usf_t,usf_r_,usf_a_,usf_d_,usf_e_,spc@
+	db	usf_c_,usf_o_,usf_m_,usf_p_,usf_l_,usf_e_,usf_t_,usf_e_,usf_d_,gyoe@
+	db	EOM
+  endif
+
+ng_msg1$:
+  ifn	pm_jmsg
+	db	za_,n_,ne_,n_,na_,ga_,ra_,cr@
+	db	ko_,u_,ka_,n_,ha_,spc@,ki__,yya__,n__,se__,ru__,sa_,re_,ma_,si_
+	db	ta_,EOM
+  else
+	db	usf_t,usf_o_,usf_o_,spc@,usf_b_,usf_a_,usf_d_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_e_,spc@,usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,cr@
+	db	usf_w_,usf_a_,usf_s_,spc@
+	db	usf_c_,usf_a_,usf_n_,usf_c_,usf_e_,usf_l_,usf_e_,usf_d_,gyoe@,EOM
+  endif
+
+p2_jmp_tbl:
+	dw	play2_koukan
+	dw	play2_tori
+
+map_contact:				; 95-02-28 ber
+	ld	a,(tuushin_flg)
+	cp	2
+	jr	z,play2$
+	cp	3
+	jr	z,play2$
+	cp	5
+	ret	nz
+
+	ld	a,B_SAVE_DATA_KOUKAN
+	call	bank2bank
+	jp	reset
+
+play2$:
+	call	play2
+
+	ld	hl,cycleimg
+	ld	a,h
+	ld	(mapimgadr + 1),a
+	ld	a,l
+	ld	(mapimgadr),a
+	ld	a,01bh
+	ld	(map_data_bank),a
+	ld	hl,bui_cycle
+	ld	a,h
+	ld	(arukeru_tbl + 1),a
+	ld	a,l
+	ld	(arukeru_tbl),a
+
+	xor	a
+	ld	(gein_name),a
+	inc	a
+	ld	(tuushin_flg),a
+	ld	(joy_repeat),a
+
+	ld	a,0ah			; Fade Out Count
+	ld	(fade_play_fg),a
+
+	ld	a,MUSIC_BANK1_NO		; Bank 1 (Town)
+	ld	(music_bank_flg_back),a
+
+	ld	a,mustown3
+	ld	(music_flag),a
+	jp	BGMplay
+
+	
+save_data_koukan:
+	ret
+
+put_term_window0:
+	call	ready2ready
+put_term_window:
+	push	hl
+
+	ld	a,78h			; top line
+	ld	(hli),a
+	inc	a
+	call	mov0$			; locate X count down
+	inc	a
+	ld	(hl),a
+
+	pop	hl
+	ld	de,20
+	add	hl,de			; next line position compute
+
+z1$:
+	push	hl			; cyuukan
+
+	ld	a,7bh
+	ld	(hli),a
+	ld	a,spc@
+	call	mov0$			; locate X count down
+	ld	(hl),77h
+
+	pop	hl
+
+	ld	de,20
+	add	hl,de			; next line position compute
+	dec	b			; locate Y count down
+	jr	nz,z1$
+	
+	ld	a,7ch			; botom line
+	ld	(hli),a
+	ld	a,76h
+	call	mov0$			; locate X count down
+	ld	(hl),7dh
+	ret
+
+
+mov0$:
+	ld	d,c			; locate X -> Breg in data
+
+z2$:
+	ld	(hli),a			; Character Set
+	dec	d			; count down
+	jr	nz,z2$			; loop '2$'  if counter = 0 exit
+
+	ret
+
+
+set_term_waku:
+	ld	de,statuswaku_dat
+	ld	hl,09760h
+	ld	bc,03d09h		; bank 3d  9 chara 
+	jp	chrmove 
+
+
+bank3d	group	G_BANK3d
+
+;*************************************
+;	rule_select
+;  out  : Cy = ng
+;       : NC = ok
+;       : taisen_rule
+;*************************************
+
+	public	rule_select
+rule_select:
+
+	ld	c,20
+	call	wait_vb_s
+
+	ld	a,1				; for debug
+	ld	(yes_no_map),a			;
+
+	xor	a
+	ld	(taisen_rule),a
+	
+	SET_WIN_POS 0,0,6,5
+	call	put_window			; window set up
+	
+	ld	de,rule_msg$			;”ルールを  ”
+	S_POS	1,2				;”えらんで！”
+	call	put_msg
+
+	SET_WIN_POS 8,0,19,9
+	call	put_window			; window set up
+
+	SET_MSG_POS 10,2,rule_str$		;”にんてんどうカップ”
+	call	put_msg				;”イエローカップ” 	message set up
+						;”ファンシーカップ”
+	SET_WIN_POS 0,10,19,17
+	call	put_window			; window set up
+	
+	call	actor_blanch
+
+	xor	a
+	ld	(anime_cnt),a
+	ld	(event_flg),a
+	ld	(in_dat),a
+
+	ld	hl,allow_pos
+	ld	a,2
+	ld	(hli),a			; Y pos
+	ld	a,9
+	ld	(hli),a			; X pos
+	xor	a
+	ld	(hli),a			; allow_cnt
+	inc	hl			; allow_spc
+	ld	a,3
+	ld	(hli),a			; allow_max
+	ld	a,BT_A + BT_B
+	ld	(hli),a			; allow_msk
+	xor	a
+	ld	(hl),a			; allow old
+
+allow_loop1$:
+	call	put_rule_kaisetu$	
+
+	call	allow
+	and	03h			; A= 0 or (joy_repeat)&3
+	add	a,a
+	add	a,a
+	ld	b,a			; B= <d3>:B key , <d2>:A key
+	ld	a,(allow_cnt)		; if (allow_cnt == 3){  ; ▼CANCEL
+	cp	3			; yameru select ?
+	jr	nz,z5$			;
+					;
+	bit	2,b			;	if (B.<d2>){ ; A key 押された
+	jr	z,z5$			;		A = 2
+					;		B = %00001000
+	dec	a			;	}
+	ld	b,08h			; push b shita kotonisuru
+z5$:					; }
+	add	a,b			; この時点で 00<=B<=0C, 0<=A<=3
+	add	a,0c0h			; 上位４ビットは $C にする
+	ld	(send_buf),a		; 下位４ビット <d3>:B key ,<d2>:A key
+	ld	(send_buf + 1),a	;		<d1><d0>:(allow_cnt)
+
+allow_loop2$:
+;	call	wait_vb
+	ld	hl,send_buf
+	ld	a,(hl)
+	ld	(TD),a
+ ifn  ASSEMBLE__ENGLISH
+	call	send_byt		; 受信データミスによる暴走対策('99 2/18)
+	push	af			; 受信データの保存
+	ld	hl,send_buf
+	ld	a,(hl)
+	ld	(TD),a
+	call	send_byt
+	pop	bc			; もう一度送受信して受信データの一致
+	cp	b			; を確認する
+	jr	nz,allow_loop2$
+ else
+	call	send_byt
+	call	send_byt			; debug 98/06/11
+	ld	b,a
+ endif
+	and	0f0h
+	cp	0c0h			; 上位４ビットが $C の受信データが	
+	jr	nz,allow_loop2$		; 来るまで続ける
+
+	ld	a,b			; 相手側のデータ
+	and	0ch			; A= <d3>:B key,<d2>:A key,<d1><d0>(allow_cnt)
+	jr	nz,gein_select$		; どれかのビットが立っている場合
+
+	ld	a,(send_buf)
+	and	0ch			; 自分が送ったデータの
+	jr	z,allow_loop1$		; 下位４ビットが０の場合
+
+	jr	jump_room$		; どれかのビットが立っている場合
+
+
+gein_select$:
+	ld	a,(send_buf)		; 自分が送ったデータの
+	and	0ch			; 下位４ビットが０の場合
+	jr	z,jump_room0$
+
+	ld	a,(sio_oya_ko)		; 自分が KO の場合
+	cp	KO
+	jr	z,jump_room$		; jibun ga oya
+	
+jump_room0$:
+	ld	a,1			; gein select sign
+	ld	(in_dat),a		;
+
+	ld	a,b			; A= 受信データ
+	ld	(send_buf),a		; 次の送信データ = 受信データ
+	and	03h
+	ld	(allow_cnt),a		; (allow_cnt) = 0～3
+
+jump_room$:
+
+;	ld	a,(sio_oya_ko)
+;	cp	KO
+;	jr	nz,jump_room1$		; aite ga oya
+;	call	wait_vb
+;	call	wait_vb
+;	ld	a,081h
+;	ld	(SC),a
+;jump_room1$:
+
+	call	wait_vb
+	call	wait_vb
+	ld	hl,send_buf
+	ld	a,(hl)
+	ld	(TD),a
+	call	send_byt
+	call	send_byt
+
+	ld	b,20
+jump_room1$:
+	call	wait_vb
+	call	send_dmy
+	dec	b
+	jr	nz,jump_room1$
+
+
+
+	ld	b,spc@
+	ld	c,spc@
+	ld	d,spc@
+	ld	e,alloww@
+
+	ld	a,(send_buf)		; <d3>:B key
+	bit	3,a			;
+	jr	nz,allow_put$		;
+
+	ld	b,e
+	ld	e,c
+
+	ld	a,(allow_cnt)
+	and	a
+	jr	z,allow_put$
+
+	ld	c,b
+	ld	b,d
+
+	dec	a
+	jr	z,allow_put$
+
+	ld	d,c
+	ld	c,b
+
+allow_put$:
+	ld	a,b
+	ld	(20*2 + 9 + dmy_vram),a
+	ld	a,c
+	ld	(20*4 + 9 + dmy_vram),a
+	ld	a,d
+	ld	(20*6 + 9 + dmy_vram),a
+	ld	a,e
+	ld	(20*8 + 9 + dmy_vram),a
+
+	ld	c,40
+	call	wait_vb_s
+
+	ld	a,(send_buf)		; <d3>:B key
+	bit	3,a			;
+	jr	nz,yameru$		;
+
+	ld	a,(allow_cnt)
+ ifn  ASSEMBLE__ENGLISH			; バグ！）通信ミスデータを受信し
+	cp	3			; allow_cnt == 3 の場合 check_tbl$ 上の
+	jr	z,yameru$		; ベクターが定義されていないので暴走する
+ endif					; 為、yameru$ にジャンプさせた。('99 2/18)
+	inc	a
+	ld	(taisen_rule),a
+
+	ld	a,(allow_cnt)
+	ld	hl,check_tbl$
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	ld	de,return$
+	push	de
+	jp	(hl)
+
+return$:
+	ld	(send_buf),a
+	xor	a
+	ld	(send_send_cnt),a
+	ld	(send_send_cnt + 1),a
+	call	send_send_buf2
+	
+	ld	a,(send_buf)
+	and	a
+	jr	nz,rule_ng$
+
+	ld	a,(read_buf)
+	and	a
+	jr	nz,aite_ng$
+
+	xor	a
+	ld	(send_send_cnt),a
+	ld	(send_send_cnt + 1),a
+	and	a			; NC
+	ret
+
+aite_ng$:
+	ld	hl,aite_ng_msg$
+	call	put_win_msg
+
+rule_ng$:
+	jp	rule_select		; rule ng
+
+
+yameru$:
+	xor	a
+	ld	(send_send_cnt),a
+	ld	(send_send_cnt + 1),a
+	scf				; Cy
+	ret
+
+check_tbl$:
+	dw	nintendo_check$
+	dw	yellow_check$
+	dw	fancy_check$
+
+	
+
+nintendo_check$:
+	ld	hl,my_cap_tbl
+	ld	a,(hli)
+	cp	3
+	jp	nz,pokemon_over$
+
+	ld	b,3
+loop1$:
+	ld	a,(hli)
+	cp	21				; myu ?
+	jp	z,myu$
+	dec	b
+	jr	nz,loop1$
+
+	dec	hl
+	dec	hl
+	cp	(hl)
+	jp	z,pokemon_same$
+	dec	hl
+	cp	(hl)
+	jp	z,pokemon_same$
+	ld	a,(hli)
+	cp	(hl)
+	jp	z,pokemon_same$
+
+	ld	a,(my_cap_data + 33)
+	cp	56
+	jp	nc,level_55_over$
+	cp	50
+	jp	c,level_50_under$
+	ld	b,a
+	ld	a,(CAPDATA_LEN + my_cap_data + 33)
+	cp	56
+	jp	nc,level_55_over$
+	cp	50
+	jp	c,level_50_under$
+	ld	c,a
+	ld	a,(CAPDATA_LEN * 2 + my_cap_data + 33)
+	cp	56
+	jp	nc,level_55_over$
+	cp	50
+	jp	c,level_50_under$
+
+	add	a,b
+	add	a,c
+	cp	156
+	jp	nc,total_155_over$
+
+	xor	a				; 0 = ok
+	ret
+
+
+
+yellow_check$:
+	ld	hl,my_cap_tbl
+	ld	a,(hli)
+	cp	3
+	jp	nz,pokemon_over$
+
+	ld	b,3
+loop2$:
+	ld	a,(hli)
+	cp	21				; myu ?
+	jp	z,myu$
+	dec	b
+	jr	nz,loop2$
+
+	dec	hl
+	dec	hl
+
+	cp	(hl)
+	jp	z,pokemon_same$
+	dec	hl
+	cp	(hl)
+	jp	z,pokemon_same$
+	ld	a,(hli)
+	cp	(hl)
+	jp	z,pokemon_same$
+
+	ld	a,(my_cap_data + 33)
+	cp	21
+	jp	nc,level_20_over$
+	cp	15
+	jp	c,level_15_under$
+	ld	b,a
+	ld	a,(CAPDATA_LEN + my_cap_data + 33)
+	cp	21
+	jp	nc,level_20_over$
+	cp	15
+	jp	c,level_15_under$
+	ld	c,a
+	ld	a,(CAPDATA_LEN * 2 + my_cap_data + 33)
+	cp	21
+	jp	nc,level_20_over$
+	cp	15
+	jp	c,level_15_under$
+
+	add	a,b
+	add	a,c
+	cp	51
+	jp	nc,total_50_over$
+
+	xor	a				; 0 = ok
+	ret
+
+
+
+fancy_check$:
+	ld	hl,my_cap_tbl
+	ld	a,(hli)
+	cp	3
+	jp	nz,pokemon_over$
+
+	ld	b,3
+loop3$:
+	ld	a,(hli)
+	cp	21				; myu ?
+	jp	z,myu$
+	dec	b
+	jr	nz,loop3$
+
+	dec	hl
+	dec	hl
+	cp	(hl)
+	jp	z,pokemon_same$
+	dec	hl
+	cp	(hl)
+	jp	z,pokemon_same$
+	ld	a,(hli)
+	cp	(hl)
+	jp	z,pokemon_same$
+
+	dec	hl
+
+	ld	a,(hl)				; monster No
+	ld	(sel_item_no),a
+	push	hl
+	ld	hl,shinkamae_chk
+	ld	b,G_BANKe
+	call	bank_push_call
+	pop	hl
+	jp	c,shinka_ng$
+
+	inc	hl
+	ld	a,(hl)				; monster No
+	ld	(sel_item_no),a
+	push	hl
+	ld	hl,shinkamae_chk
+	ld	b,G_BANKe
+	call	bank_push_call
+	pop	hl
+	jp	c,shinka_ng$
+
+	inc	hl
+	ld	a,(hl)				; monster No
+	ld	(sel_item_no),a
+	push	hl
+	ld	hl,shinkamae_chk
+	ld	b,G_BANKe
+	call	bank_push_call
+	pop	hl
+	jp	c,shinka_ng$
+	
+	dec	hl
+	dec	hl
+
+	ld	b,3
+loop4$:
+	ld	a,(hli)				; monster No
+	push	hl
+	push	bc
+	push	af
+	dec	a
+	ld	c,a
+	ld	b,0
+	
+	ld	hl,zukan_tbl
+	add	hl,bc
+	add	hl,bc
+	ld	de,table_data
+	ld	bc,2
+	ld	a,G_BANK10
+	call	bank_chg_block_m
+
+	ld	hl,table_data
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	ld	de,table_data
+  ifn	pm_jmsg
+	ld	bc,10
+  else
+	ld	bc,TABLE_DATA_DS_SIZE
+  endif
+	ld	a,G_BANK10
+	call	bank_chg_block_m
+
+	ld	hl,table_data
+pass_loop$:
+	ld	a,(hli)
+	cp	EOM
+	jr	nz,pass_loop$		;ポケモン・タイプ名をスキップする。
+
+  ifn	pm_jmsg
+	ld	a,(hli)	
+	cp	21
+	jp	nc,height_over$
+  else
+	ld	a,(hli)				;英語版身長(ft)
+	cp	7
+	jp	nc,height_over$		;身長が７ft以上ならＮＧ
+	add	a,a
+	add	a,a
+	ld	b,a
+	add	a,a
+	add	a,b					;フィートをインチに変換  a = 12 * a
+	ld	b,a
+	ld	a,(hli)				;英語版身長(in)
+	add	a,b					;身長のインチ表現  a = ft * 12 + in
+	cp	6 * 12 + 9
+	jp	nc,height_over$		;身長が6'9"以上ならＮＧ
+  endif
+
+  ifn	pm_jmsg
+	inc	hl
+	ld	a,(hld)				;体重の上位バイト
+	and	a
+	jp	nz,weight_over$	
+
+	ld	a,(hl)				;体重の下位バイト
+	cp	201
+	jp	nc,weight_over$	
+  else
+	ld	a,(hli)				;英語版体重の下位バイト
+	sub	0b9h
+	ld	a,(hl)				;英語版体重の上位バイト
+	sbc	a,1
+	jp	nc,weight_over$		;体重が44.1(lb)以上ならＮＧ
+  endif
+
+	pop	af
+	pop	bc
+	pop	hl
+	dec	b
+	jr	nz,loop4$
+
+	ld	a,(my_cap_data + 33)
+	cp	31
+	jp	nc,level_30_over$
+	cp	25
+	jp	c,level_25_under$
+	ld	b,a
+	ld	a,(CAPDATA_LEN + my_cap_data + 33)
+	cp	31
+	jp	nc,level_30_over$
+	cp	25
+	jp	c,level_25_under$
+	ld	c,a
+	ld	a,(CAPDATA_LEN * 2 + my_cap_data + 33)
+	cp	31
+	jp	nc,level_30_over$
+	cp	25
+	jp	c,level_25_under$
+
+	add	a,b
+	add	a,c
+	cp	81
+	jp	nc,total_80_over$
+
+	xor	a				; 0 = ok
+	ret
+
+
+
+
+
+pokemon_over$:
+	ld	hl,poke_over_msg$
+	call	put_win_msg
+
+	ld	a,1
+	ret
+
+myu$:
+	ld	hl,myu_ng_msg$
+	call	put_win_msg
+
+	ld	a,2
+	ret
+
+pokemon_same$:
+	ld	hl,poke_same_msg$
+	call	put_win_msg
+
+	ld	a,3
+	ret
+
+level_55_over$:
+	ld	hl,over_55_msg$
+	call	put_win_msg
+	ld	a,4
+	ret
+
+level_50_under$:
+	ld	hl,under_50_msg$
+	call	put_win_msg
+	ld	a,5
+	ret
+
+total_155_over$:
+	ld	hl,total155over_msg$
+	call	put_win_msg
+	ld	a,6
+	ret
+
+level_30_over$:
+	ld	hl,over_30_msg$
+	call	put_win_msg
+	ld	a,7
+	ret
+
+level_25_under$:
+	ld	hl,under_25_msg$
+	call	put_win_msg
+	ld	a,8
+	ret
+
+total_80_over$:
+	ld	hl,total80over_msg$
+	call	put_win_msg
+	ld	a,9
+	ret
+
+level_20_over$:
+	ld	hl,over_20_msg$
+	call	put_win_msg
+	ld	a,10
+	ret
+
+level_15_under$:
+	ld	hl,under_15_msg$
+	call	put_win_msg
+	ld	a,11
+	ret
+
+total_50_over$:
+	ld	hl,total50over_msg$
+	call	put_win_msg
+	ld	a,12
+	ret
+
+height_over$:	
+	pop	af
+	pop	bc
+	pop	hl
+	ld	(in_dat),a
+	call	get_mons_name
+	ld	hl,height_over_msg$
+	call	put_win_msg
+	ld	a,13
+	ret
+
+weight_over$:	
+	pop	af
+	pop	bc
+	pop	hl
+	ld	(in_dat),a
+	call	get_mons_name
+	ld	hl,weight_over_msg$
+	call	put_win_msg
+	ld	a,14
+	ret
+
+shinka_ng$:
+	ld	a,(hl)
+	ld	(in_dat),a
+	call	get_mons_name
+
+	ld	hl,shinka_ng_msg$
+	call	put_win_msg
+
+	ld	a,15
+	ret
+
+
+put_rule_kaisetu$:	
+	xor	a
+	ld	(all_put_req),a
+	
+	S_POS	1,11
+	E_POS	18,6
+	call	block_cls
+
+	ld	a,(allow_cnt)
+	cp	3
+	jr	nc,put_wait_ret$
+	
+	ld	hl,rule_kaisetu_tbl$
+	ld	a,(allow_cnt)
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	ld	d,h
+	ld	e,l
+	S_POS	1,12			;”３びきのレベルは  ５０から５５まで・・・”
+	call	put_msg			;”３びきのレベルは  １５から２０まで・・・”
+					;”しんか  していない  ポケモン３びき・・・”
+put_wait_ret$:
+	call	put_wait
+	ld	a,1
+	ld	(all_put_req),a
+
+	ret
+
+rule_kaisetu_tbl$:
+	dw	ninten_kaisetu$
+	dw	yellow_kaisetu$
+	dw	fancy_kaisetu$
+
+ninten_kaisetu$:
+ ifn  pm_jmsg
+	db	n3@,bi_,ki_,no_,re__,be__,ru__,ha_,spc@
+	db	n5@,n0@,ka_,ra_,n5@,n5@,ma_,de_,cr@
+	db	re__,be__,ru__,no_,spc@,go_,u_,ke_,i_,ha_,spc@
+	db	n1@,n5@,n5@,ma_,de_,cr@
+	db	mi__,yyu__,u__,ha_,spc@,e__,n__,to__,ri__,bou@
+	db	de_,ki_,ma_,se_,n_
+	db	EOM
+ else
+	db	usf_l,usf_v,usf_s_,spc@,usf_o_,usf_f_,spc@,n3@,pkmn@,colon2@,n5@,n0@,bou@,n5@,n5@,cr@
+	db	usf_s,usf_u_,usf_m_,spc@,usf_o_,usf_f_,spc@,usf_l,usf_v,usf_s_,colon2@,n1@,n5@,n5@,spc@,usf_m,usf_a,usf_x,cr@
+	db	usf_m,usf_e,usf_w,spc@,usf_c_,usf_a_,usf_n_,apt_t_,spc@,usf_a_,usf_t_,usf_t_,usf_e_,usf_n_,usf_d_,kten@
+	db	EOM
+ endif
+	
+yellow_kaisetu$:
+ ifn  pm_jmsg
+	db	n3@,bi_,ki_,no_,re__,be__,ru__,ha_,spc@
+	db	n1@,n5@,ka_,ra_,n2@,n0@,ma_,de_,cr@
+	db	re__,be__,ru__,no_,spc@,go_,u_,ke_,i_,ha_,spc@
+	db	n5@,n0@,ma_,de_,cr@
+	db	mi__,yyu__,u__,ha_,spc@,e__,n__,to__,ri__,bou@
+	db	de_,ki_,ma_,se_,n_
+	db	EOM
+ else
+	db	usf_l,usf_v,usf_s_,spc@,usf_o_,usf_f_,spc@,n3@,pkmn@,colon2@,n1@,n5@,bou@,n2@,n0@,cr@
+	db	usf_s,usf_u_,usf_m_,spc@,usf_o_,usf_f_,spc@,usf_l,usf_v,usf_s_,colon2@,n5@,n0@,spc@,usf_m,usf_a,usf_x,cr@
+	db	usf_m,usf_e,usf_w,spc@,usf_c_,usf_a_,usf_n_,apt_t_,spc@,usf_a_,usf_t_,usf_t_,usf_e_,usf_n_,usf_d_,kten@
+	db	EOM
+ endif
+
+fancy_kaisetu$:
+ ifn  pm_jmsg
+	db	si_,n_,ka_,spc@,si_,te_,i_,na_,i_,spc@
+	db	poke@,n3@,bi_,ki_,cr@
+	db	re__,be__,ru__,n2@,n5@,ka_,ra_,n3@,n0@,spc@
+	db	a_,wa_,se_,te_,n8@,n0@,ma_,de_,cr@
+	db	ta_,ka_,sa_,n2@,me__,bou@,to__,ru__,spc@
+	db	o_,mo_,sa_,n2@,n0@,ki__,ro__,i_,ka_
+	db	EOM
+ else
+	db	n3@,spc@,usf_b,usf_a_,usf_s_,usf_i_,usf_c_,spc@,pkmn@,kten@,usf_l,usf_v,n2@,n5@,bou@,n3@,n0@,cr@
+	db	usf_s,usf_u_,usf_m_,spc@,usf_o_,usf_f_,spc@,usf_l,usf_v,usf_s_,colon2@,n8@,n0@,spc@,usf_m,usf_a,usf_x,cr@
+	db	n6@,kakot@,n8@,kakot2@,spc@,usf_a_,usf_n_,usf_d_,spc@,n4@,n4@,usf_l_,usf_b_,spc@,usf_m,usf_a,usf_x
+	db	EOM
+ endif
+
+rule_msg$:
+ ifn  pm_jmsg
+	db	ru__,bou@,ru__,wo_,cr@		; ルールを
+	db	e_,ra_,n_,de_,gyoe@		; えらんで！
+	db	EOM
+ else
+	db	usf_v,usf_i_,usf_e_,usf_w_,cr@
+	db	usf_r,usf_u_,usf_l_,usf_e_,usf_s_
+	db	EOM
+ endif
+	
+rule_str$:
+ ifn  pm_jmsg
+	db	ni_,n_,te_,n_,do_,u_,ka__,ttu__,pu__,cr@	; にんてんどうカップ
+	db	i__,e__,ro__,bou@,ka__,ttu__,pu__,cr@		; イエローカップ
+	db	hu__,aa__,n__,si__,bou@,ka__,ttu__,pu__,cr@	; ファンシーカップ
+	db	ya_,me_,ru_					; やめる
+	db	EOM
+ else
+	db	poke@,spc@,usf_c,usf_u_,usf_p_,cr@
+	db	usf_p,usf_i_,usf_k_,usf_a_,spc@,usf_c,usf_u_,usf_p_,cr@
+	db	usf_p,usf_e_,usf_t_,usf_i_,usf_t_,spc@,usf_c,usf_u_,usf_p_,cr@
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l
+	db	EOM
+ endif
+
+
+poke_over_msg$:
+	extern	poke_over_msg_1_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw poke_over_msg_1_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+myu_ng_msg$:
+	extern	myu_ng_msg_2_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw myu_ng_msg_2_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+poke_same_msg$:
+	extern	poke_same_msg_3_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw poke_same_msg_3_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+over_55_msg$:
+	extern	over_55_msg_4_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw over_55_msg_4_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+under_50_msg$:
+	extern	under_50_msg_5_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw under_50_msg_5_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+total155over_msg$:
+	extern	total155over_msg_6_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw total155over_msg_6_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+over_30_msg$:
+	extern	over_30_msg_7_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw over_30_msg_7_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+under_25_msg$:
+	extern	under_25_msg_8_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw under_25_msg_8_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+total80over_msg$:
+	extern	total80over_msg_9_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw total80over_msg_9_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+over_20_msg$:
+	extern	over_20_msg_10_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw over_20_msg_10_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+under_15_msg$:
+	extern	under_15_msg_11_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw under_15_msg_11_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+total50over_msg$:
+	extern	total50over_msg_12_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw total50over_msg_12_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+height_over_msg$:	
+	extern	height_over_msg_13_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw height_over_msg_13_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+weight_over_msg$:	
+	extern	weight_over_msg_14_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw weight_over_msg_14_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+shinka_ng_msg$:
+	extern	shinka_ng_msg_15_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw shinka_ng_msg_15_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+aite_ng_msg$:
+	extern	aite_ng_msg_16_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw aite_ng_msg_16_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+	
+
+;========================================================;
+;========================================================;
+;  TERMINAL						 ;
+;========================================================;
+;========================================================;
+	public	terminal
+terminal:
+	xor	a
+	ld	(msg_speed),a
+
+	ld	hl,obs_player
+	set	6,(hl)				; terminal mode on
+
+	ld	hl,dummy_window
+	call	put_win_msg
+
+	call	push_vram
+
+	ld	hl,dochira_msg$			;”どちらの へやに
+	call	put_win_msg			;  いきますか？   ”
+
+ ifn  pm_jmsg
+	SET_WIN_POS 8,8,19,17
+ else
+	SET_WIN_POS 5,3,19,12
+ endif
+	call	put_window			; window set up
+	call	actor_blanch
+
+ ifn  pm_jmsg
+	SET_MSG_POS 10,10,msg_terminal
+ else
+	SET_MSG_POS 7,5,msg_terminal
+ endif
+	call	put_msg				; message set up
+
+	xor	a
+	ld	(anime_cnt),a
+	ld	(event_flg),a
+	ld	(in_dat),a
+
+	ld	hl,allow_pos
+ ifn  pm_jmsg
+	ld	a,10			; ▲カーソルＹ座標
+	ld	(hli),a			; Y pos
+	ld	a,9			; ▲カーソルＸ座標
+ else
+	ld	a,5			; （注意）jump_room3$: の△カーソルの位置変更も忘れずに！
+	ld	(hli),a
+	ld	a,6
+ endif
+	ld	(hli),a			; X pos
+	xor	a
+	ld	(hli),a			; allow_cnt
+	inc	hl			; allow_spc
+	ld	a,3
+	ld	(hli),a			; allow_max
+;	ld	a,BT_A + BT_B
+	ld	(hli),a			; allow_msk
+	xor	a
+	ld	(hl),a			; allow old
+
+allow_loop1$:
+	call	allow
+	and	03h
+	add	a,a
+	add	a,a
+	ld	b,a
+	ld	a,(allow_cnt)
+	cp	3			; yameru select ?
+	jr	nz,z5$
+
+	bit	2,b
+	jr	z,z5$
+		
+	dec	a
+	ld	b,08h			; push b shita kotonisuru
+z5$:
+	add	a,b
+	add	a,0d0h
+	ld	(send_buf),a
+	ld	(send_buf + 1),a
+
+allow_loop2$:
+	call	send_send_buf		; 送信３バイト send_buf[0,1,2]
+					; 受信２バイト read_buf[0,1]を行う
+
+	ld	a,(read_buf)
+	ld	b,a
+	and	0f0h
+	cp	0d0h
+	jr	z,z10$
+
+	ld	a,(read_buf + 1)
+	ld	b,a
+	and	0f0h
+	cp	0d0h
+	jr	nz,allow_loop2$
+z10$:
+	ld	a,b
+	and	0ch
+	jr	nz,gein_select$
+
+	ld	a,(send_buf)
+	and	0ch
+	jr	z,allow_loop1$
+
+
+	jr	jump_room$
+
+
+gein_select$:
+	ld	a,(send_buf)
+	and	0ch
+	jr	z,jump_room0$
+
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	z,jump_room$		; jibun ga oya
+	
+jump_room0$:
+	ld	a,1			; gein select sign
+	ld	(in_dat),a		;
+
+	ld	a,b
+	ld	(send_buf),a
+	and	03h
+	ld	(allow_cnt),a
+
+jump_room$:
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	nz,jump_room1$		; aite ga oya
+
+	call	wait_vb
+	call	wait_vb
+	ld	a,081h
+	ld	(SC),a
+
+jump_room1$:
+	ld	b,spc@
+	ld	c,spc@
+	ld	d,spc@
+	ld	e,alloww@
+
+	ld	a,(send_buf)
+	and	08h			; B button?
+	jr	nz,jump_room3$
+
+	ld	a,(allow_cnt)
+	cp	2
+	jp	z,colosseum2$
+
+	ld	b,e
+	ld	e,c
+
+	ld	a,(allow_cnt)
+	and	a
+	jr	z,jump_room3$
+
+	ld	c,b
+	ld	b,d
+
+	dec	a
+	jr	z,jump_room3$
+
+	ld	d,c
+	ld	c,b
+
+jump_room3$:
+	call	allow_put$
+
+	call	pop_vram
+
+jump_room4$:
+	ld	a,(send_buf)
+	and	08h			; B button?
+	jr	nz,to_talk_99$
+	
+	ld	a,(allow_cnt)
+	cp	2
+	jr	z,to_talk_99$
+
+	xor	a
+	ld	(chyari_flg),a
+
+	ld	a,(allow_cnt)
+	and	a
+	ld	a,T0R1F2			; pm-battle room
+	jr	nz,floor$
+
+	ld	a,T0R1F1			; pm-change room
+
+floor$:
+	ld	(event_flg),a
+
+	ld	hl,goannai_msg$
+	call	put_win_msg
+
+	ld	c,50
+	call	wait_vb_s
+
+	ld	hl,game_mode
+	res	1,(hl)
+
+	ld	a,(effect_no)
+	ld	(ev_something + 2),a
+	ld	hl,startmap_set			; set data of starting map
+	ld	b,G_BANK1
+	call	bank_push_call
+
+	ld	c,20
+	call	wait_vb_s			; c=20
+
+	xor	a
+	ld	(allow_ret_flg),a
+	ld	(send_buf),a
+	inc	a
+	ld	(tuushin_flg),a
+	ld	(send_send_cnt),a
+
+	ld	hl,cont1
+	ld	b,G_BANK1
+	jp	bank_push_call
+
+to_talk_99$:
+	xor	a
+	ld	(allow_ret_flg),a
+
+	call	put_wait
+
+	ld	hl,okuri_naoshi
+	ld	b,G_BANK1
+	call	bank_push_call
+
+	ld	hl,chancel_msg$
+	call	put_win_msg
+
+	ld	hl,obs_player
+	res	6,(hl)
+
+	ret
+
+
+colosseum2$:
+	ld	a,(in_dat)
+	and	a
+	jr	nz,ene_sel$			; gein select 
+
+	ld	b,spc@
+	ld	c,spc@
+	ld	d,alloww@
+	ld	e,spc@
+	call	allow_put$
+
+ene_sel$:
+	xor	a				; for debug
+	ld	(yes_no_map),a			;
+
+
+
+  ifn 1
+	ld	a,0ffh
+	ld	(read_buf + 1),a
+	ld	a,0bh				; tekitou
+	ld	(send_buf),a
+	ld	b,120
+wait$:
+	ld	a,(sio_oya_ko)
+	cp	KO
+	call	z,wait_vb
+
+	dec	b
+	jr	z,send_ng$
+
+	call	send_byt2
+	call	wait_vb
+	ld	a,(read_buf + 1)
+	inc	a
+	jr	z,wait$
+
+	ld	b,15
+loop1$:
+	call	wait_vb
+	call	send_byt2
+	dec	b
+	jr	nz,loop1$
+	
+	ld	b,15
+loop2$:
+	call	wait_vb
+	call	send_dmy
+	dec	b
+	jr	nz,loop2$
+
+	jr	colosseum2_ok$
+
+send_ng$:
+
+  endif
+
+
+	xor	a
+	ld	(send_send_cnt),a
+	ld	(send_send_cnt + 1),a
+
+	ld	a,(in_dat)
+	and	a
+	jr	z,ver_ng$			; my select
+
+	ld	b,spc@
+	ld	c,spc@
+	ld	d,spc@
+	ld	e,alloww@
+	call	allow_put$
+
+	jp	to_talk_99$	
+
+ver_ng$:
+	ld	hl,ng_msg$
+	call	put_win_msg
+
+	jp	to_talk_99$
+
+
+colosseum2_ok$:
+	ld	b,spc@
+	ld	c,spc@
+	ld	d,alloww@
+	ld	e,spc@
+	call	allow_put$
+
+	call	rule_select
+	jp	c,to_talk_99$			; yameru
+
+	ld	a,T0R1F2			; pm-battle room
+	jp	floor$
+
+
+allow_put$:
+ ifn  pm_jmsg
+	ld	a,b
+	ld	(20*10 + 9 + dmy_vram),a
+	ld	a,c
+	ld	(20*12 + 9 + dmy_vram),a
+	ld	a,d
+	ld	(20*14 + 9 + dmy_vram),a
+	ld	a,e
+	ld	(20*16 + 9 + dmy_vram),a
+ else
+	ld	a,b
+	ld	(20*5 + 6 + dmy_vram),a
+	ld	a,c
+	ld	(20*7 + 6 + dmy_vram),a
+	ld	a,d
+	ld	(20*9 + 6 + dmy_vram),a
+	ld	a,e
+	ld	(20*11 + 6 + dmy_vram),a
+ endif
+	ld	c,40
+	call	wait_vb_s
+
+	ret
+
+dochira_msg$:
+	extern	dochira_msg_17_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw dochira_msg_17_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+	
+goannai_msg$:
+	extern	goannai_msg_18_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw goannai_msg_18_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+chancel_msg$:
+	extern	chancel_msg_19_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw chancel_msg_19_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+ng_msg$:
+	extern	ng_msg_20_PLAY2
+	db I_MSG2	; mvmsg追加
+	dw ng_msg_20_PLAY2	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+dummy_window:
+	db	EOM
+
+msg_terminal:
+ ifn  pm_jmsg
+	db	to__,re__,bou@,do__,se__,n__,ta__,bou@,cr@
+	db	ko__,ro__,si__,a__,mu__,cr@
+	db	ko__,ro__,si__,a__,mu__,n2@,cr@
+	db	ya_,me_,ru_,EOM
+ else
+	db	usf_t,usf_r,usf_a,usf_d,usf_e,spc@,usf_c,usf_e,usf_n,usf_t,usf_e,usf_r,cr@
+	db	usf_c,usf_o,usf_l,usf_o,usf_s,usf_s,usf_e,usf_u,usf_m,cr@
+	db	usf_c,usf_o,usf_l,usf_o,usf_s,usf_s,usf_e,usf_u,usf_m,n2@,cr@
+	db	usf_c,usf_a,usf_n,usf_c,usf_e,usf_l,EOM
+ endif
+
+
+
+;*****************************************
+;*					*
+;*	allow system			*
+;*					*
+;*****************************************
+term_allow:
+	xor	a
+	ld	(ef_adr4_l),a
+
+	ld	a,(work0)
+	push	af
+	ld	a,(work1)
+	push	af
+	xor	a
+	ld	(work0),a
+	ld	a,6
+	ld	(work1),a
+z0$:
+	xor	a
+	ld	(ef_count2),a
+	call	term_allow_1
+;	call	put_wait
+
+z1$:
+	call	cont_repeat
+	ld	a,(joy_repeat)
+	and	a
+	jr	nz,z10$
+
+	pop	af
+	ld	(work1),a
+	pop	af
+	ld	(work0),a
+	xor	a
+	ld	(allow_loop_flg),a
+
+	ret
+
+z10$:
+	xor	a
+	ld	(no_key_cnt),a
+
+	ld	a,(joy_repeat)
+	ld	b,a			; Key Data Load reg B
+	bit	6,a			; Up Key
+	jr	z,z20$
+
+	ld	a,(allow_cnt)		; ue
+	and	a
+	jr	z,z99$
+
+	dec	a
+	ld	(allow_cnt),a
+	jr	z99$
+
+z20$:
+	bit	7,a			; Down Key
+	jr	z,z99$
+
+	ld	a,(allow_cnt)		; sita
+	inc	a
+	ld	c,a
+	ld	a,(allow_max)
+	cp	c
+	jr	c,z99$
+
+	ld	a,c
+	ld	(allow_cnt),a
+
+z99$:
+	ld	a,(allow_msk)
+	and	b
+	jp	z,z0$
+
+z100$:
+	ld	a,(joy_repeat)
+	and	003h
+	jr	z,z101$
+
+	extern	muspi
+	ld	a,< muspi			; a or b key then pi!
+	call	SEplay
+
+z101$:
+	pop	af
+	ld	(work1),a
+	pop	af
+	ld	(work0),a
+
+	ld	a,(joy_repeat)
+
+	ret
+
+
+
+
+term_allow_1:
+	ld	a,(allow_pos)
+	and	a
+	jr	z,z15$
+
+	ld	hl,dmy_vram
+	ld	bc,20
+z10$:
+	add	hl,bc			; hl = dmy_vram(allow_pos,0)
+	dec	a
+	jr	nz,z10$
+z15$:
+	ld	a,(allow_pos + 1)
+	ld	b,0
+	ld	c,a
+
+	add	hl,bc			; hl = dmy_vram(allow_pos,x)
+
+	push	hl
+
+	ld	a,(allow_old)		; old allow cls
+	and	a
+	jr	z,z20$
+
+	ld	bc,40
+z25$:
+	add	hl,bc			; hl = dmy_vram(allow_old,x)
+	dec	a
+	jr	nz,z25$
+z20$:
+	ld	a,(hl)
+	cp	allow@
+	jr	nz,oldpass1$
+
+	ld	a,(allow_spc)
+	ld	(hl),a
+oldpass1$:
+	pop	hl
+
+	ld	a,(allow_cnt)		; new allow put
+	and	a
+	jr	z,z30$
+
+	ld	bc,40
+z35$:
+	add	hl,bc			; hl = dmy_vram(allow_cnt,x)
+	dec	a
+	jr	nz,z35$
+z30$:
+	ld	a,(hl)			; save dvram data
+	cp	allow@
+	jr	z,savepass1$
+
+	ld	(allow_spc),a
+
+savepass1$:
+	ld	a,allow@
+	ld	(hl),a
+	ld	a,l
+	ld	(allow_dv_adr),a
+	ld	a,h
+	ld	(allow_dv_adr+1),a
+
+	ld	a,(allow_cnt)
+	ld	(allow_old),a
+
+	ret
+
+
+
+
+

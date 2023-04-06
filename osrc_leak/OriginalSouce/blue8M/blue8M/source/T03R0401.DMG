@@ -1,0 +1,86 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t3_room4
+
+
+	extern	bank2bank
+	extern	item_town_3B
+	extern	shop_2
+
+
+SHOP_TYPE	equ	2
+EXIT		=	0ffh
+
+
+t3_room4:   
+ysiz	=	4
+xsiz	=	4
+	db	SHOP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	shop_2			; map data adrs
+	dw	msg_t3r4f1		; message tbl adrs
+	dw	event_t3r4f1		; event routine adrs
+	db	0			; map link flg
+	dw	room_str		;
+
+
+
+event_t3r4f1:
+	call	init_for_talkmap
+	ld	a,1
+	ld	(win_cancel),a
+
+	ret
+
+
+msg_t3r4f1:
+	msgndw	item_town_3B,msg_shopman1
+	ndw	msg2,msg_gsan1
+	ndw	msg3,msg_niichyan1
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_0_T03R0401
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_0_T03R0401	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_1_T03R0401
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_1_T03R0401	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+room_str:
+	include	..\sxy\t03r0401.sxy
+

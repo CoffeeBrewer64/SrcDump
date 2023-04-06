@@ -1,0 +1,325 @@
+;#music	sect	code
+	include		group.def
+
+bank20	group	G_MUSIC4		;bank28->bank20Ç…ïœçXÅië∫êÏÅj
+
+	;
+	;	RocketDAN03
+	;
+	;	Converting on Sat Apr 25 00:06:15 1998
+	;
+	;				by ver 1.02
+	;
+	public	MUS_Rocket1
+	public	MUS_Rocket2
+	public	MUS_Rocket3
+;----------------------------------------
+MUS_Rocket1:
+;----------------------------------------
+	db	$ed,$00,$90
+	db	$f0,$77
+	db	$ec,$03
+	db	$ea,$8,$14
+; P1-1
+	db	$dc,$b2
+	db	$e5,$80
+	db	$70
+	db	$61
+	db	$51
+	db	$41
+	db	$31
+	db	$21
+	db	$11
+	db	$01
+; P1-2
+	db	$dc,$b6
+	db	$3b
+	db	$03
+; P1-3
+loop10$:
+	db	$dc,$b2
+	db	$e4,$2f
+	db	$cb
+; P1-4 --- tied
+	db	$dc,$b4
+	db	$e5,$a3
+	db	$cf
+	db	$c7
+; P1-5 --- tied
+	db	$dc,$b2
+	db	$e6,$91
+; P1-6 --- tied
+	db	$e5,$a1
+	db	$93
+; P1-7
+	db	$20
+	db	$30
+	db	$31
+	db	$31
+	db	$21
+	db	$31
+	db	$21
+	db	$31
+	db	$51
+; P1-8
+	db	$20
+	db	$30
+	db	$31
+	db	$31
+	db	$21
+	db	$e6,$a3
+	db	$dc,$b4
+	db	$e5,$b3
+; P1-9
+	db	$dc,$b2
+	db	$20
+	db	$30
+	db	$31
+	db	$31
+	db	$21
+	db	$31
+	db	$21
+	db	$31
+	db	$51
+; P1-10
+	db	$20
+	db	$30
+	db	$31
+	db	$31
+	db	$21
+	db	$e6,$a1
+	db	$e5,$b1
+	db	$dc,$b4
+	db	$a3
+	db	$fe,0
+	dw	loop10$
+;----------------------------------------
+MUS_Rocket2:
+;----------------------------------------
+	db	$ec,$03
+	db	$ea,$6,$15
+; P2-1
+	db	$dc,$c2
+	db	$e4,$20
+	db	$10
+	db	$01
+	db	$e5,$b1
+	db	$a1
+	db	$91
+	db	$81
+	db	$71
+	db	$61
+; P2-2
+	db	$dc,$c7
+	db	$9b
+	db	$e4,$13
+; P2-3
+loop20$:
+	db	$dc,$c2
+	db	$e5,$10
+	db	$20
+	db	$21
+	db	$21
+	db	$11
+	db	$21
+	db	$11
+	db	$21
+	db	$41
+; P2-4
+	db	$10
+	db	$20
+	db	$21
+	db	$21
+	db	$11
+	db	$e6,$93
+	db	$dc,$c5
+	db	$e4,$13
+; P2-5
+	db	$dc,$c2
+	db	$20
+	db	$e5,$20
+	db	$21
+	db	$21
+	db	$11
+	db	$21
+	db	$11
+	db	$21
+	db	$41
+; P2-6
+	db	$10
+	db	$20
+	db	$21
+	db	$21
+	db	$11
+	db	$dc,$c6
+	db	$e4,$27
+; P2-7
+	db	$dc,$c2
+	db	$35
+	db	$53
+	db	$33
+	db	$e5,$a1
+; P2-8
+	db	$e4,$35
+	db	$53
+	db	$31
+	db	$dc,$c5
+	db	$23
+; P2-9
+	db	$dc,$c2
+	db	$35
+	db	$53
+	db	$33
+	db	$e5,$a1
+; P2-10
+	db	$e4,$33
+	db	$53
+	db	$dc,$c5
+	db	$37
+	db	$fe,0
+	dw	loop20$
+;----------------------------------------
+MUS_Rocket3:
+;----------------------------------------
+	db	$dc,$10
+; P3-1 -
+	db	$cf
+; P3-2 -
+	db	$c7
+	db	$e4,$21
+	db	$e5,$91
+	db	$e4,$01
+	db	$31
+; P3-3
+loop30$:
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+; P3-4
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$a1
+	db	$91
+	db	$31
+; P3-5
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+; P3-6
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$90
+	db	$c0
+	db	$20
+	db	$c0
+	db	$e5,$91
+	db	$e4,$01
+	db	$21
+; P3-7
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+; P3-8
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$e5,$a0
+	db	$c0
+	db	$e4,$10
+	db	$c0
+	db	$40
+	db	$c0
+; P3-9
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+; P3-10
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$a0
+	db	$c0
+	db	$30
+	db	$c0
+	db	$e5,$a0
+	db	$c0
+	db	$e4,$10
+	db	$c0
+	db	$40
+	db	$c0
+	db	$fe,0
+	dw	loop30$

@@ -1,0 +1,82 @@
+
+	include	common.def
+	include macro.h
+
+bank0	group	0
+
+	public	use_item2
+	public	split_item2
+	public	check_item2
+;	public  split_seal_item2
+
+
+	extern	push_bank
+	extern	pop_bank
+	extern	bank_push_call
+
+	extern	use_item
+
+	extern	split_item
+	extern	check_item
+;	extern	split_seal_item
+
+use_item2:
+;	ld	a,(rombankno)
+;	push	af
+;	ld	a,3
+;	ld	(rombankno),a
+;	ld	(ROMBANK),a
+;	call	use_item
+;	pop	af
+;	ld	(rombankno),a
+;	ld	(ROMBANK),a
+
+	ld	b,3
+	ld	hl,use_item
+	jp	bank_push_call
+
+
+
+split_item2:
+	ld	a,(rombankno)
+	push	af
+	ld	a,3
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	split_item
+
+	pop	de			; because carry flag keep
+	ld	a,d
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	ret
+
+
+check_item2:
+	push	hl
+	push	de
+	push	bc
+	ld	b,3
+	ld	hl,check_item
+	call	bank_push_call
+	pop	bc
+	pop	de
+	pop	hl
+	ret
+
+
+;spilt_seal_item2:
+;	ld	a,(rombankno)
+;	push	af
+;	ld	a,3			; Now Useitem.src Bank No. = 3
+;	ld	(rombankno),a
+;	ld	(ROMBAnK),a
+;	call	split_seal_item2
+;	pop	af
+;	ld	(rombankno),a
+;	ld	(ROMBANK),a
+;	ret
+
+

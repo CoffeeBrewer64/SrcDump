@@ -1,0 +1,437 @@
+
+	include		common.def
+	include		fntequ.def
+	include		banktool.def
+	include		anime.def
+	include		maphead.def
+	include		macro.h
+	include		group.def
+
+
+bank6	group	G_BANK6
+
+
+	public	town6_event
+	public	town6_msg
+
+
+	extern	yes_no
+	extern	gyaarth_play
+	extern	table_jump
+	extern	bank2bank
+	extern	se_wait
+	extern	CheckAssignPos
+
+	extern	pf_kanban
+	extern	hotel_kanban
+
+
+seq_t6		equ	seq_ctrl_buf + 03ah
+
+
+town6_event:
+	call	init_for_talkmap
+
+	ld	hl,ptn_data
+	bit	6,(hl)
+	res	6,(hl)
+	push	hl
+	call	nz,sequence_invoke$
+	pop	hl
+	bit	5,(hl)
+	res	5,(hl)
+	call	nz,gym_init$
+
+	ld	hl,event_table
+	ld	a,(seq_t6)
+	jp	table_jump
+
+
+gym_init$:
+	call	rnd
+	ld	a,(random + 1)
+	and	00eh
+	ld	(trash_switch + 0),a
+
+	ret
+
+
+sequence_invoke$:
+	ld	hl,ev_d3 + 12
+	bit	2,(hl)
+	ret	z
+
+	bit	3,(hl)
+	set	3,(hl)
+	ret	nz				; only once upon time
+
+	ld	a,SeqEventOut
+	ld	(seq_t6),a
+
+	ret
+
+
+event_table:
+	initndw	t6_main,seq_t6_main
+	ndw	obs_stepback,seq_obs_stepback
+	ndw	EventOut,SeqEventOut
+	ndw	EventOutStep,SeqEventOutStep
+	ndw	pos_out,seq_pos_out
+
+
+t6_main:
+	ld	a,(actor_table + 009h)
+	and	a
+	ret	nz
+
+	ld	hl,event_pos
+	call	CheckAssignPos
+	ret	nc
+
+	xor	a
+	ld	(joy_status),a
+	ld	(event_check),a
+
+	ld	a,msg_funanori1
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,(ev_d3 + 12)
+	bit	2,a				; not stay boat
+	jr	nz,ship_leaved$
+
+	ld	b,63
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+	ld	a,b
+	and	a
+	ret	nz
+
+ship_leaved$:
+	ld	a,W_U				; animetion pattern
+	ld	(ctrl_move_val),a
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	extern	init_hero_anime
+	call	init_hero_anime
+
+	ld	a,seq_obs_stepback
+	ld	(seq_t6),a
+
+	ret
+
+
+event_pos:
+	db	01eh,012h			; ticket check clear position
+	db	0ffh
+
+
+pos_out:
+	ld	hl,event_pos
+	call	CheckAssignPos
+	ret	c
+
+	ld	a,seq_t6_main
+	ld	(seq_t6),a
+
+	ret
+
+
+
+
+EventOut:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,W_U				; animetion pattern
+	ld	(ctrl_move_val + 0),a
+	ld	(ctrl_move_val + 1),a
+	ld	a,2				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	call	init_hero_anime
+
+	ld	a,SeqEventOutStep
+	ld	(seq_t6),a
+
+	ret
+
+
+EventOutStep:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+	ld	(joy_status),a
+
+	ld	a,seq_t6_main
+	ld	(seq_t6),a
+
+	ret
+
+
+obs_stepback:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	c,10
+	call	wait_vb_s
+
+	ld	a,seq_t6_main
+	ld	(seq_t6),a
+
+	ret
+
+
+
+town6_msg:
+	msgndw	msg1,msg_hotelw1
+	ndw	msg2,msg_gsan1
+	ndw	msg3,msg_funanori1
+	ndw	msg4,msg_gsan2
+	ndw	msg5,msg_monster1
+	ndw	msg6,msg_funanori2
+
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+	ndw	pf_kanban,msg_kanban3
+	ndw	hotel_kanban,msg_kanban4
+	ndw	kanban5,msg_kanban5
+	ndw	kanban6,msg_kanban6
+	ndw	kanban7,msg_kanban7
+
+msg1:
+	extern	msg1_0_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,(ev_d3 + 12)
+	bit	2,a
+	jr	nz,after$
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+after$:
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+
+
+msg2_0$:
+	extern	msg2_0_1_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_1_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_2_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_2_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	a,(ev_d3 + 12)
+	bit	2,a
+	jr	nz,ship_leaved$
+
+	ld	a,(actor_table + 009h)
+	cp	00ch
+	jr	z,info$
+
+	ld	hl,talk_pos$
+	call	CheckAssignPos
+	jr	nc,etc$
+
+info$:
+	ld	hl,msg3_@$
+	call	put_win_msg
+
+	jr	rts$
+
+
+etc$:
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	ld	b,63
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+	ld	a,b
+	and	a
+	jr	nz,take$
+
+	ld	hl,msg3_2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+take$:
+	ld	hl,msg3_1$
+	call	put_win_msg
+
+	ld	a,seq_pos_out
+	ld	(seq_t6),a
+
+	jr	rts$
+
+
+ship_leaved$:
+	ld	hl,msg3_3$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+talk_pos$:
+	db	01dh,013h
+	db	01fh,013h
+	db	0ffh
+
+
+msg3_@$:
+	extern	msg3_@_3_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_@_3_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_0$:
+	extern	msg3_0_4_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_4_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_1$:
+	extern	msg3_1_5_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_5_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_2$:
+	extern	msg3_2_6_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_6_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_3$:
+	extern	msg3_3_7_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_3_7_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_8_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg4_8_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg5:
+	extern	msg5_9_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg5_9_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,106				; wanriki-
+	call	gyaarth_play
+	call	se_wait
+
+	ld	hl,msg5_0$
+
+	ret
+
+msg5_0$:
+	extern	msg5_0_10_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_10_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	extern	msg6_11_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg6_11_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	extern	kanban1_12_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kanban1_12_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_13_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kanban2_13_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban5:
+	extern	kanban5_14_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kanban5_14_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban6:
+	extern	kanban6_15_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kanban6_15_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban7:
+	extern	kanban7_16_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kanban7_16_TOWN06	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+

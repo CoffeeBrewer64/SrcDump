@@ -1,0 +1,109 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	r2_room4
+
+
+	extern	sekisyo
+	extern	bank2bank
+	extern	yes_no
+
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+r2_room4:  
+ysiz	=	4
+xsiz	=	5
+	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	sekisyo			; map data adrs
+	dw	msg_r2r4f1		; message tbl adrs
+	dw	event_r2r4f1		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+
+event_r2r4f1:
+	jp	init_for_talkmap
+
+
+
+msg_r2r4f1:
+	msgndw	msg1,msg_ossan1
+	ndw	msg2,msg_neechyan1
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_r2 + 1)
+	bit	0,a
+	jr	nz,yet$
+
+	ld	a,10
+	ld	(DA_BUF + 0),a
+	ld	a,200
+	ld	(DA_BUF + 1),a
+	ld	(in_dat),a
+	call	get_item_name
+	ld	hl,table_data
+	ld	de,anime_buf + 0
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, ITEM_NAME_LEN
+ else
+	ld	bc,9
+ endif
+	call	block_move
+
+	ld	a,98				; "Assistant"
+	call	bank2bank
+	ld	a,(DA_BUF + 0)
+	cp	1				; check to success
+	jr	nz,rts$
+
+	ld	hl,ev_r2 + 1
+	set	0,(hl)
+
+;	jr	rts$
+
+
+yet$:
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+
+msg1_0$:
+	extern	msg1_0_0_R02R0401
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_R02R0401	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_R02R0401
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_R02R0401	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+room_str:
+	include	..\sxy\r02r0401.sxy
+

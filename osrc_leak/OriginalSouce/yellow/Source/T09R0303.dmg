@@ -1,0 +1,143 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t9_room3_3f
+
+
+KENKYUJO_TYPE	equ	20
+EXIT		=	0ffh
+
+
+t9_room3_3f:
+ysiz	=	4
+xsiz	=	4
+	db	KENKYUJO_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	kenkyujo3		; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	jp	init_for_talkmap
+
+
+
+msg_tbl:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+	dw	msg3
+	dw	msg4
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t9_3 + 4)
+	bit	7,a
+	jr	nz,yet$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	ld	bc,235 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	hl,ev_t9_3 + 4
+	set	7,(hl)
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+msg1_0$:
+	extern	msg1_0_0_T09R0303
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T09R0303	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T09R0303
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T09R0303	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg1_2$:
+	extern	msg1_2_2_T09R0303
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T09R0303	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_3_T09R0303
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_T09R0303	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_4_T09R0303
+	db I_MSG2	; mvmsg追加
+	dw msg2_4_T09R0303	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_5_T09R0303
+	db I_MSG2	; mvmsg追加
+	dw msg3_5_T09R0303	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_6_T09R0303
+	db I_MSG2	; mvmsg追加
+	dw msg4_6_T09R0303	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+room_str:
+	include	..\sxy\t09r0303.sxy
+
+
+kenkyujo3:
+	include	..\mapdata\kenkyu_3.map
+
+

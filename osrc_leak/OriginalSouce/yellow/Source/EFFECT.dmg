@@ -1,0 +1,1498 @@
+;===============================================;
+;						;
+;	Display & Character effect unit		;
+;						;
+;===============================================;
+	include		common.def
+	include		se.def
+	include		effect.def
+	include		banktool.def
+	include		fntequ.def
+	include		sgb_col.def
+	include		pm_debug.def
+	include		macro.h
+
+
+	extern		chrmove
+	extern		block_move
+	extern		oam_clr
+	extern		ef_clear
+	extern		effect_ready
+	extern		put_wait
+
+	extern		SEplay
+
+	extern		change_cgb_bgp
+	extern		change_cgb_obp0
+
+bank1e	group	30
+
+;=======================================================;
+;							;
+;	Set data to VRAM as effect character pattern	;
+;							;
+;	IN						;
+;	(effect_no)	kind of effect			;
+;							;
+;	OUT						;
+;	effect_no(+0 -- +15) each byte data writed	;
+;							;
+;	reading each data from "effect_table"		;
+;	in last, set data into 8310H address		;
+;							;
+;-------------------------------------------------------;
+	public		set_ef_cram
+	public		ef0
+	public		ef1
+
+set_ef_cram:
+	ld	a,(el_c)
+	add	a,a				; effect number * 2
+	add	a,a				; effect number * 4
+	ld	hl,effect_chr_table
+	ld	e,a
+	ld	d,0
+	add	hl,de
+
+	ld	a,(hli)
+	ld	(ef_size),a			; data character lots
+
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hl)
+	ld	d,a				; pattern data address(DE)
+
+	ld	hl,ef_char_ram			; vram address
+	ld	b,1eh				; bank number
+	ld	a,(ef_size)			; character count
+	ld	c,a
+	jp	chrmove				; vram set
+
+
+
+;===============================================;
+;						;
+;	effect character set defines		;
+;						;
+;===============================================;
+effect_chr_table:
+;---------------------;
+; effect_pattern0     ;
+;---------------------;
+	db	04fh				; ef_size
+	dw	ef0				; data table address
+	db	0ffh				; dummy
+
+;---------------------;
+; effect_pattern1     ;
+;---------------------;
+	db	04fh				; ef_size
+	dw	ef1				; data table address
+	db	0ffh				; dummy
+
+;---------------------;
+; effect_pattern2     ;
+;---------------------;
+	db	040h				; ef_size
+	dw	ef0				; data table address
+	db	0ffh				; dummy
+
+
+ef0:
+	include		..\effdata\ef0.dat
+
+ef1:
+	include		..\effdata\ef1.dat
+
+slot_data:
+  ifn pokemon_type
+;	include		..\effdata\slotob_b.dat
+	include		..\effdata\slotob_r.dat		;for blue 96/07/26
+  else
+	include		..\effdata\slotob_r.dat
+  endif
+
+
+bankd	group	13
+
+;====================================;
+;   slot_mashine                     ;                            
+;====================================;
+	public	slot_machine
+	extern	dvram_cls
+	extern	cont_abwait
+	extern	wait_vb
+	extern	wait_vb_s
+	extern	cont_repeat
+	extern	se_wait
+	extern	muskon
+	extern	musfanfare
+	extern	musfanfare5
+	extern	musfanfare6
+	extern	muscoin
+	extern	musslotstop
+	extern	muspayout
+	extern	rnd
+	extern	yes_no
+	extern	put_msg
+	extern	put_bcd
+	extern	put_dec
+	extern	put_win_msg
+	extern	put_window
+	extern	push_vram
+	extern	push_vram_m
+	extern	pop_vram
+	extern	pop_vram_m
+	extern	allow
+	extern	actor_blanch
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	chrset
+	extern	fnt_kana
+	extern	set_kana
+	extern	map_rewrite
+	extern	map_rewrite2
+	extern	obj_rewrite
+	extern	color_rewrite
+	extern	color_set
+	extern	bank2bank
+	extern	bank_push_call
+	extern	step_prn_win
+	extern	palset
+	extern	pal_off
+	extern	pal_off_put_wait
+	extern	talk_200
+	extern	sys_init
+	extern	set_objects
+	extern	set_objdata_main
+	extern	set_jiki
+	extern	memset
+;=======================================================================;
+;   slot_mashine                    				        ;
+;  		  usr_buf + 0   =  stop_button check 		        ;
+;  		  usr_buf + 1   =  dram1 tbl_position 		        ;
+;  		  usr_buf + 2   =  dram2 tbl_position 		        ;
+;  		  usr_buf + 3   =  dram3 tbl_position 		        ;
+;  		  usr_buf + 4   =  dram1 chr_no    		        ;
+;  		  usr_buf + 5   =  dram1 chr_no  +----+----+----+       ;
+;  		  usr_buf + 6   =  dram1 chr_no  |  6 |  9 | 12	|	;
+;  		  usr_buf + 7   =  dram2 chr_no  +----+----+----+       ;
+;  		  usr_buf + 8   =  dram2 chr_no  |  5 |  8 | 11	|	;
+;  		  usr_buf + 9   =  dram2 chr_no  +----+----+----+       ;
+;  		  usr_buf + 10  =  dram3 chr_no  |  4 |  7 | 10	|	;
+;  		  usr_buf + 11  =  dram3 chr_no  +----+----+----+       ;
+;  		  usr_buf + 12  =  dram3 chr_no  		        ;
+;  		  usr_buf + 13  =  coin count  high		        ;
+;  		  usr_buf + 14  =  coin count  low  		        ;
+;  		  usr_buf + 15  =  atari_flg (7bit-> 777 6bit-> koyaku) ;
+;  		  usr_buf + 16  =  dram1 suberi_haba 		        ;
+;  		  usr_buf + 17  =  dram2 suberi_haba 		        ;
+;  		  usr_buf + 18  =  dram3 suberi_haba 		        ;
+;  		  usr_buf + 19  =  bet_line check 		        ;
+;   		                    				        ;
+;=======================================================================;
+slot_machine:
+	call	push_vram_m
+	ld	a,1
+	ld	(win_cancel),a
+
+	ld	b,a
+	ld	hl,sys_init
+	call	bank_push_call
+
+	ld	hl,play_msg$
+	call	put_win_msg
+	
+	call	yes_no
+
+	ld	a,(allow_cnt)
+	and	a				;yes = 0
+	jr	nz,exit$			;no  = 1
+
+	dec	a				; a = 0ffh
+	ld	(oam_flg),a
+
+	ld	hl,usr_buf + 18
+	xor	a
+	ld	(hli),a
+	ld	(hl),2
+
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	call	pal_off_put_wait
+	call	slot_bgset
+
+	call	set_kana
+	ld	b,COL_SLOT
+	call	color_set
+	call	put_wait
+	call	palset
+
+	ld	a,0e4h
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+	ld	hl,obs_system
+	set	6,(hl)
+
+	xor	a			;usr_buf init
+	ld	(ef_adr2_l),a
+	ld	hl,usr_buf
+	ld	bc,20
+	call	memset
+
+	call	slot_main
+
+	ld	hl,obs_system
+	res	6,(hl)
+	xor	a
+	ld	(ef_adr2_l),a
+
+	call	pal_off_put_wait
+
+	ld	a,1
+	ld	(oam_flg),a
+
+	call	color_rewrite
+
+	call	set_objdata_main
+	call	map_rewrite2
+exit$:
+	call	pop_vram_m
+	call	put_wait
+	call	palset
+
+	ld	a,(anime_buf + 3)
+	push	af
+	jp	talk_200
+
+play_msg$:
+	extern	play_msg_0_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw play_msg_0_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+;-----------------------------------------------------;
+; slot_main                                           ;	
+;-----------------------------------------------------;
+	extern	n_to_w
+slot_main:
+	call	coin_put1		;my_coin put
+	xor	a
+	ld	hl,usr_buf + 13
+	ld	(hli),a
+	ld	(hl),a			;haraimodosi_coin init
+	call	coin_put2		;haraimodosi_coin put
+
+	ld	hl,bet_msg$
+	call	put_win_msg
+
+	call	push_vram
+betting$:
+	ld	a,BT_A + BT_B
+	ld	(allow_msk),a
+	ld	a,2
+	ld	(allow_max),a
+	ld	a,12
+	ld	(allow_pos + 0),a
+	ld	a,15
+	ld	(allow_pos + 1),a
+	xor	a
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+	ld	(scloll_sw),a
+
+	SET_WIN_POS	14,11,19,17
+	call	put_window
+
+	S_POS	16,12
+	ld	de,msg1$
+	call	put_msg
+
+	call	allow
+	and	2
+	jp	nz,pop_vram
+
+	ld	a,(allow_cnt)
+	ld	b,a			;coin_maisuu set
+	ld	a,3
+	sub	b
+	ld	(usr_buf + 19),a	;bet_count
+
+	ld	hl,coin
+	ld	c,a			;coin ga tariruka ?
+	ld	a,(hli)
+;	ld	a,(coin)
+	and	a
+	jr	nz,go$
+	ld	a,(hl)
+;	ld	a,(coin + 1)
+	cp	c
+	jr	nc,go$
+
+	ld	hl,tarinai_msg$
+	call	put_win_msg
+	jr	betting$
+go$:
+	call	pop_vram
+
+	call	coin_bet		;mi_coin - bet_coin
+	call	lamp_on			;bet_line_lamp on
+
+	call	flg_set
+
+	ld	a,4			;suberi set
+	ld	hl,usr_buf + 16
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+main$:
+	call	se_wait
+	ld	a,muscoin
+	call	SEplay
+
+	ld	hl,start_msg$
+	call	put_win_msg
+	
+	call	slot_start
+	call	slot_hantei		;dram3_controll & hantei
+
+	ld	hl,coin
+	ld	a,(hli)
+	or	(hl)
+	jr	nz,slot_replay$
+	ld	hl,no_coin_msg$
+	call	put_win_msg
+	ld	c,60
+	jp	wait_vb_s
+	
+slot_replay$:
+	ld	hl,replay_msg$
+	call	put_win_msg
+
+	ld	hl,20*12 + 14 + dmy_vram	;call yes_no window
+	ld	bc,13*100h + 15
+	xor	a
+	ld	(itwk0),a
+	ld	a,YES_NO_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+
+	ld	a,(allow_cnt)
+	and	a
+	ret	nz
+
+	call	lamp_off		;bet_line_lamp off
+	jp	slot_main
+
+
+msg1$:
+  ifn  pm_jmsg
+	db	n3@,ma_,i_,cr@		; ３まい
+	db	n2@,ma_,i_,cr@		; ２まい
+	db	n1@,ma_,i_		; １まい
+	db	EOM
+  else
+	db	batu@,n3@,cr@		; ×３
+	db	batu@,n2@,cr@		; ×２
+	db	batu@,n1@		; ×１
+	db	EOM
+  endif
+
+no_coin_msg$:
+	extern	no_coin_msg_1_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw no_coin_msg_1_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+bet_msg$:
+	extern	bet_msg_2_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw bet_msg_2_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+start_msg$:
+	extern	start_msg_3_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw start_msg_3_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+tarinai_msg$:
+	extern	tarinai_msg_4_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw tarinai_msg_4_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+replay_msg$:
+	extern	replay_msg_5_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw replay_msg_5_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+;-----------------------------------------------------;
+; flg_set      ( atari or hazure )                    ;	
+;-----------------------------------------------------;
+flg_set:
+	ld	hl,usr_buf + 15
+	bit	7,(hl)			;777_flg keizoku
+	ret	nz
+
+	ld	a,(ef_adr2_l)
+	and	a
+	jr	nz,koyaku_set$		;syuutyuu_keizoku
+
+	call	rnd
+	and	a
+	jr	z,syuutyuu_set$
+
+	ld	b,a
+	ld	a,(anime_buf)
+	cp	b
+	jr	c,z777$
+
+	ld	a,210			;koyaku_kakuritu
+	cp	b
+	jr	c,koyaku_set$
+	ld	(hl),0
+	ret
+
+koyaku_set$:
+	set	6,(hl)
+	ret
+
+syuutyuu_set$:
+	ld	a,60
+	ld	(ef_adr2_l),a
+	ret
+
+z777$:
+	set	7,(hl)
+	ret
+
+
+;-----------------------------------------------------;
+; slot_start      ( dram_kaiten )                     ;	
+;-----------------------------------------------------;
+slot_start:
+	ld	c,20
+loop$:
+	push	bc
+	call	dram1_kaiten	;kaiten_hajime	button no_check 
+	call	dram2_kaiten
+	call	dram3_kaiten
+	ld	c,2
+	call	wait_vb_s
+	pop	bc
+	dec	c
+	jr	nz,loop$
+
+	xor	a
+	ld	(usr_buf),a	;usr_buf init (stop_b check ram)
+loop1$:
+	call	stop_b_check	;dram_stop check
+	call	dram1_stop
+	call	dram2_stop
+	call	dram3_stop
+	ret	c
+
+	ld	a,(sgb_flg)
+	xor	1
+	inc	a
+	ld	c,a
+	call	wait_vb_s
+
+	jr	loop1$
+
+
+dram1_stop:
+	ld	a,(usr_buf)
+	cp	1
+	jr	c,kaiten$
+
+	ld	de,usr_buf + 1
+	ld	a,(de)
+	rra
+	jr	nc,kaiten$
+
+	ld	hl,usr_buf + 16 ;suberi count
+	ld	a,(hl)
+	and	a
+	ret	z
+	dec	(hl)
+
+	call	dram1_cont
+	ret	nz
+kaiten$:
+	jp	dram1_kaiten
+
+
+dram2_stop:
+	ld	a,(usr_buf)
+	cp	2
+	jr	c,kaiten$
+
+	ld	de,usr_buf + 2
+	ld	a,(de)
+	rra
+	jr	nc,kaiten$
+
+	ld	hl,usr_buf + 17 ;suberi count
+	ld	a,(hl)
+	and	a
+	ret	z
+	dec	(hl)
+
+	call	dram2_cont
+	ret	z
+kaiten$:
+	jp	dram2_kaiten
+
+
+dram3_stop:
+	ld	a,(usr_buf)
+	cp	3
+	jr	c,kaiten$
+
+	ld	de,usr_buf + 3
+	ld	a,(de)
+	rra
+	jr	nc,kaiten$
+	scf
+	ret
+
+kaiten$:
+	call	dram3_kaiten
+	and	a
+	ret
+
+;-----------------------------------------------------;
+; dram_controll                                       ;	
+;-----------------------------------------------------;
+dram1_cont:
+	call	dram1_ramset		;chr_no. set  to usr_buf
+
+	ld	hl,usr_buf + 4
+	ld	a,(usr_buf + 15)	;7_flg check
+	and	080h
+	jr	nz,z7_flg$
+
+	inc	hl
+	ld	a,(hl)
+	cp	10			;cherry chr_no.
+	jr	nz,exit$
+	ret
+
+z7_flg$:
+	ld	c,3
+loop$:
+	ld	a,(hli)
+	cp	2			;7  chr_no.
+	jr	c,exit$
+	dec	c
+	jr	nz,loop$
+	ret
+
+exit$:					;z  -> dram1 kaiten
+	inc	a			;nz -> dram2 kaiten
+	ld	hl,usr_buf + 16
+	ld	(hl),0			;suberi init
+	ret
+
+
+dram2_cont:
+	call	dram2_ramset		;chr_no. set  to usr_buf
+
+	ld	a,(usr_buf + 15)	;7_flg check
+	and	080h
+	jr	nz,z7_flg$
+
+	call	d2_sub
+	ret	nz
+	jr	exit$
+
+z7_flg$:
+	call	d2_sub
+	ld	a,(de)
+	cp	7			;7 & bar  chr_no.
+	ret	nc
+exit$:					;z  -> dram3 kaiten
+	xor	a			;nz -> dram2 kaiten
+	ld	(usr_buf + 17),a
+	ret
+
+
+d2_sub:
+	ld	hl,usr_buf + 4		;dram1
+	ld	de,usr_buf + 7		;dram2
+
+	ld	a,(de)
+	cp	(hl)			;gedan check
+	ret	z
+
+	inc	de
+	ld	a,(de)			;naname_ue check
+	cp 	(hl)
+	ret	z
+
+	inc	hl
+	cp 	(hl)			;tyuudan check
+	ret	z
+
+	inc	hl
+	cp 	(hl)			;naname_sita check
+	ret	z
+
+	inc	de
+	ld	a,(de)
+	cp 	(hl)			;jyoudan check
+	ret	z
+
+	dec	de
+	dec	de
+	ret				;z = tenpai, nz = zure
+
+
+slot_hantei:
+	call	dram3_ramset		;chr_no. set  to usr_buf
+
+	ld	a,(usr_buf + 19)	;bet_count
+	cp	2
+	jr	z,z2_bet$		;1_bet
+	cp	1
+	jr	z,z1_bet$		;2_bet
+
+	ld	hl,usr_buf + 4		;naname_ue check
+	ld	de,usr_buf + 8
+	ld	bc,usr_buf + 12
+	call	hantei_sub1
+	jp	z,atari$
+	
+	ld	hl,usr_buf + 6		;naname_sita check
+	ld	de,usr_buf + 8
+	ld	bc,usr_buf + 10
+	call	hantei_sub1
+	jr	z,atari$
+z2_bet$:	
+	ld	hl,usr_buf + 6		;jyoudan check
+	ld	de,usr_buf + 9
+	ld	bc,usr_buf + 12
+	call	hantei_sub1
+	jr	z,atari$
+	
+	ld	hl,usr_buf + 4		;gedan check
+	ld	de,usr_buf + 7
+	ld	bc,usr_buf + 10
+	call	hantei_sub1
+	jr	z,atari$
+z1_bet$:	
+	ld	hl,usr_buf + 5		;tyuudan check
+	ld	de,usr_buf + 8
+	ld	bc,usr_buf + 11
+	call	hantei_sub1
+	jr	z,atari$
+hazure$:
+	ld	a,(usr_buf + 15)	;7_flg & koyaku check
+	and	0c0h
+	jr	z,z1$
+
+	ld	hl,usr_buf + 18	;dram3 suberi
+	dec	(hl)
+	jr	nz,suberi$
+z1$:
+	ld	hl,hazure_msg$
+	call	put_win_msg
+exit$:
+	xor	a
+	ld	(muspausefg),a
+	ret
+
+suberi$:
+	call	dram3_kaiten
+	call	wait_vb
+	call	dram3_kaiten
+	call	wait_vb
+	jp	slot_hantei
+
+
+atari$:
+	ld	a,(usr_buf + 15)	;atari ?
+	and	0c0h
+	jr	z,suberi$
+	and	080h			;777 ?
+	jr	nz,frag_ok$
+
+	ld	a,(hl)			;egara wa?
+	cp	7			;7 & bar chr_no.
+	jr	c,suberi$
+frag_ok$:
+	ld	a,(hl)	
+	sub	2
+	ld	(usr_buf + 4),a
+
+	ld	hl,atari_tbl$
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+
+	push	de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,str_buf
+	ld	bc,4
+	call	block_move
+
+	pop	hl
+
+	ld	de,haraimodosi$
+	push	de
+	jp	(hl)
+
+haraimodosi$:
+	ld	a,(BGP)
+	xor	040h
+	ld	(BGP),a
+  ifn	pm_cgb
+	call	change_cgb_bgp
+  endif
+	ld	c,5
+	call	wait_vb_s
+	dec	b
+	jr	nz,haraimodosi$
+
+	ld	hl,usr_buf + 13
+	ld	(hl),d
+	inc	hl
+	ld	(hl),e
+
+	call	coin_put2
+	ld	hl,msg$
+	call	put_win_msg
+	call	cont_abwait
+	call	coin_kakutoku
+	call	coin_put2
+	ld	a,0e4h
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+	jp	exit$
+
+msg$:
+	db	CALL_MSG
+
+	push	bc
+	call	mark_put
+	ld	hl,msg1$
+	pop	bc
+	inc	bc
+	inc	bc
+	inc	bc
+	inc	bc
+	ret
+
+msg1$:
+	extern	msg1_6_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw msg1_6_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+
+atari_tbl$:
+	dw	big_bonus,big_coin$
+	dw	reguler,reg_coin$
+	dw	koyaku1,cherry_coin$
+	dw	koyaku2,koyaku_coin$
+	dw	koyaku2,koyaku_coin$
+	dw	koyaku2,koyaku_coin$
+big_coin$:
+	db	n3@,n0@,n0@
+	db	EOM
+reg_coin$:
+	db	n1@,n0@,n0@
+	db	EOM
+cherry_coin$:
+	db	n8@
+	db	EOM
+koyaku_coin$:
+	db	n1@,n5@
+	db	EOM
+
+hazure_msg$:
+	extern	hazure_msg_7_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw hazure_msg_7_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+hantei_sub1:
+	ld	a,(de)
+	cp	(hl)
+	ret	nz
+	ld	a,(bc)
+	cp	(hl)
+	ret
+
+
+dram3_ramset:
+	ld	de,usr_buf + 10
+	ld	hl,dram3_tbl
+	ld	a,(usr_buf + 3)
+	call	hantei_sub2
+dram2_ramset:
+	ld	de,usr_buf + 7
+	ld	hl,dram2_tbl
+	ld	a,(usr_buf + 2)
+	call	hantei_sub2
+dram1_ramset:
+	ld	de,usr_buf + 4
+	ld	hl,dram1_tbl
+	ld	a,(usr_buf + 1)
+
+hantei_sub2:
+	ld	c,a			;chr_no. to usr_buf
+	ld	b,0
+	add	hl,bc
+	ld	c,3
+loop$:
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	inc	hl
+	dec	c
+	jr	nz,loop$
+	ret
+	
+;-----------------------------------------------------;
+; atari                                               ;	
+;-----------------------------------------------------;
+koyaku1:
+	ld	hl,ef_adr2_l
+	ld	a,(hl)
+	and	a
+	jr	z,z1$
+	dec	(hl)
+z1$:
+	ld	b,2
+	ld	de,8
+	ret
+
+koyaku2:
+	ld	hl,ef_adr2_l
+	ld	a,(hl)
+	and	a
+	jr	z,z1$
+	dec	(hl)
+z1$:
+	ld	b,4
+	ld	de,15
+	ret
+
+reguler:
+	ld	a,musfanfare6
+	call	SEplay
+
+	xor	a			;7_red flg clear
+	ld	(usr_buf + 15),a
+
+	ld	b,8
+	ld	de,100
+	ret
+
+big_bonus:
+	ld	hl,yatta$
+	call	put_win_msg
+
+	ld	a,musfanfare5
+	call	SEplay
+
+	call	rnd
+	cp	80h
+	ld	a,0			;7_red flg clear
+	jr	c,z1$
+	ld	(usr_buf + 15),a
+z1$:
+	ld	(ef_adr2_l),a
+
+	ld	b,20
+	ld	de,300
+	ret
+
+yatta$:
+	extern	yatta_8_EFFECT
+	db I_MSG2	; mvmsg追加
+	dw yatta_8_EFFECT	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	E_WAIT
+	db	EOM
+
+
+
+mark_put:
+	ld	hl,20*14 + 2 + dmy_vram
+	ld	a,(usr_buf + 4)				;chr_no
+	add	a,37
+	ld	(hli),a
+	inc	a
+	ld	(hld),a
+	inc	a
+	ld	de,-20
+	add	hl,de
+	ld	(hli),a
+	inc	a
+	ld	(hl),a
+
+	S_POS	18,16
+	ld	(hl),allowd@
+	ret
+
+;-----------------------------------------------------;
+;  coin_put					      ;
+;-----------------------------------------------------;
+coin_bet:
+	ld	hl,usr_buf + 14
+	ld	a,(usr_buf + 19)	;bet_count
+	ld	(hld),a
+	xor	a
+	ld	(hli),a
+
+;	ld	a,(usr_buf + 19)	;bet_count
+;	ld	(usr_buf + 14),a
+;	xor	a
+;	ld	(usr_buf + 13),a
+
+;	ld	hl,usr_buf + 14		;bet_maisuu
+	ld	de,coin + 1		;coin_maisuu
+	ld	c,2
+	ld	a,B_BCD_SUB
+	call	bank2bank
+
+coin_put1:
+	S_POS	5,1
+	ld	de,coin
+	ld	c,2
+	jp	put_bcd
+
+
+coin_put2:
+	S_POS	11,1
+	ld	de,usr_buf + 13
+	ld	bc,082h*100h + 4
+	jp	put_dec
+
+
+coin_kakutoku:
+	ld	a,1
+	ld	(muspausefg),a
+	call	se_wait
+
+	ld	hl,usr_buf + 9
+	xor	a
+	ld	(hli),a
+;	ld	(usr_buf + 9),a
+	inc	a
+	ld	(hl),a
+;	ld	(usr_buf + 10),a
+
+	ld	a,5
+	ld	(ef_count2),a
+loop$:
+	ld	a,(usr_buf + 14)	
+	ld	l,a
+	ld	a,(usr_buf + 13)	
+	ld	h,a
+	or	l
+	ret	z
+
+	ld	de,-1
+	add	hl,de
+
+	ld	a,l
+	ld	(usr_buf + 14),a	
+	ld	a,h
+	ld	(usr_buf + 13),a	
+
+	ld	hl,usr_buf + 10	
+	ld	de,coin + 1		;coin_maisuu
+	ld	c,2
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	call	coin_put1
+	call	coin_put2
+
+	ld	a,muspayout
+	call	SEplay
+	
+	ld	a,(ef_count2)
+	dec	a
+	jr	nz,z1$
+	ld	a,(OBP0)
+	xor	040h
+	ld	(OBP0),a
+  ifn	pm_cgb
+	call	change_cgb_obp0
+  endif
+	ld	a,5
+z1$:
+	ld	(ef_count2),a
+
+	ld	a,(usr_buf + 4)				;chr_no
+	cp	7				;7 & bar chr_no.
+	ld	c,8
+	jr	nc,z2$
+	srl	c
+z2$:
+	call	wait_vb_s
+	jr	loop$
+
+;-----------------------------------------------------;
+;  lamp_switch					      ;
+;-----------------------------------------------------;
+lamp_off:
+	ld	a,35
+	ld	(ef_count1),a		;lamp_off chr no.
+	jr	lamp_sub3_3
+lamp_on:
+	ld	a,20
+	ld	(ef_count1),a		;lamp_on chr no.
+  ifn 0
+lamp_on:
+	ld	a,20
+	ld	(ef_count1),a		;lamp_on chr no.
+	jr	lamp_sub1
+lamp_off:
+	ld	a,35
+	ld	(ef_count1),a		;lamp_off chr no.
+	ld	a,3
+	ld	(usr_buf + 19),a
+  endif
+lamp_sub1:
+	ld	a,(usr_buf + 19)
+	dec	a		;coin * 1
+	jr	z,lamp_sub3_1
+	dec	a		;coin * 2
+	jr	z,lamp_sub3_2
+
+lamp_sub3_3:
+	ld	hl,20*2 + 3 + dmy_vram
+	call	lamp_sub2
+	ld	hl,20*10 + 3 + dmy_vram
+	call	lamp_sub2
+lamp_sub3_2:
+	ld	hl,20*4 + 3 + dmy_vram
+	call	lamp_sub2
+	ld	hl,20*8 + 3 + dmy_vram
+	call	lamp_sub2
+lamp_sub3_1:
+	ld	hl,20*6 + 3 + dmy_vram
+
+lamp_sub2:
+	ld	a,(ef_count1)
+	ld	(hl),a
+	ld	bc,13
+	add	hl,bc
+	ld	(hl),a
+
+	ld	bc,7
+	add	hl,bc
+
+	inc	a
+	ld	(hl),a
+	ld	bc,13
+	add	hl,bc
+	ld	(hl),a
+	
+	ret
+
+;-----------------------------------------------------;
+; dram_kaiten        picture to oam                   ;	
+;-----------------------------------------------------;
+dram1_kaiten:
+	ld	bc,dram1_tbl	;dram1 hairetu
+	ld	de,usr_buf + 1	;dram1_count
+	ld	hl,oam_buf
+	ld	a,030h		;obj x_position
+	ld	(effect_x),a
+	jr	dram_kaiten
+dram2_kaiten:
+	ld	bc,dram2_tbl	;dram2 hairetu
+	ld	de,usr_buf + 2	;dram2_count
+	ld	hl,12*4 + oam_buf
+	ld	a,050h		;obj x_position
+	ld	(effect_x),a
+	jr	dram_kaiten
+dram3_kaiten:
+	ld	bc,dram3_tbl	;dram3 hairetu
+	ld	de,usr_buf + 3	;dram3_count
+	ld	hl,24*4 + oam_buf
+	ld	a,070h		;obj x_position
+	ld	(effect_x),a
+dram_kaiten:	
+	ld	a,058h		;obj low_position
+	ld	(effect_y),a
+
+	push	de
+	ld	a,(de)
+	ld	d,b
+	add	a,c
+	ld	e,a		;de = table_position
+	jr	nc,loop$
+	inc	d
+loop$:
+	ld	a,(effect_y)
+	ld	(hli),a
+	ld	a,(effect_x)
+	ld	(hli),a
+	ld	a,(de)
+	ld	(hli),a
+	ld	a,080h
+	ld	(hli),a
+
+	ld	a,(effect_y)
+	ld	(hli),a
+	ld	a,(effect_x)
+	add	a,08h
+	ld	(hli),a
+	ld	a,(de)
+	inc	a
+	ld	(hli),a
+	ld	a,080h
+	ld	(hli),a
+	inc	de
+
+	ld	a,(effect_y)
+	sub	08h
+	ld	(effect_y),a
+	cp	028h
+	jr	nz,loop$
+
+	pop	de
+	ld	a,(de)
+	inc	a		;count up
+	cp	15*2
+	jr	nz,z2$
+	xor	a		;count init
+z2$:
+	ld	(de),a
+
+	ret
+
+
+;-----------------------------------------------------;
+; stop_b_check        push A bt  ->  usr_buf inc      ;	
+;                     no_push    ->  ret              ;	
+;-----------------------------------------------------;
+stop_b_check:
+	call	wait_vb
+	call	cont_repeat
+	ld	a,(joy_repeat)
+
+	and	01h
+	ret	z
+
+;	ld	hl,usr_buf
+;	inc	(hl)
+
+	ld	hl,usr_buf
+	ld	a,(hl)
+	dec	a
+	ld	de,usr_buf + 16
+	jr	z,suberi_chk$
+	dec	a
+	ld	de,usr_buf + 17
+	jr	z,suberi_chk$
+next$:
+	inc	(hl)
+	
+	ld	a,musslotstop
+	jp	SEplay
+
+suberi_chk$:
+	ld	a,(de)
+	and	a
+	ret	nz
+	jr	next$
+
+
+;-----------------------------------------------------;
+;  slot_BG set					      ;
+;-----------------------------------------------------;
+slot_bgset:
+	call	lcdc_stop
+
+	ld	hl,slot_data			; chracter set address
+	ld	de,08000h			; vram address
+	ld	bc,01ch*16
+	ld	a,1eh				; bank number
+	call	chrset				; vram set
+
+	ld	hl,slot_bg_dat			; chracter set address
+	ld	de,09000h			; vram address
+	ld	bc,37*16
+	ld	a,0dh				; bank number
+	call	chrset				; vram set
+
+	ld	hl,slot_data			; chracter set address
+	ld	de,37*10h + 09000h		; vram address
+	ld	bc,01ch*16
+	ld	a,1eh				; bank number
+	call	chrset				; vram set
+
+	ld	hl,slot_bg_tbl$
+	ld	de,dmy_vram
+	ld	bc,20*12
+	call	block_move
+	
+	call	lcdc_on
+
+	ld	hl,usr_buf + 1
+	ld	a,28
+	ld	(hli),a		;dram1_count init
+	ld	(hli),a		;dram2_count init
+	ld	(hl),a		;dram3_count init
+	call	dram1_kaiten
+	call	dram2_kaiten
+	jp	dram3_kaiten
+
+	
+slot_bg_tbl$:
+	db	0,0,0,0,0,2,3,4,5,0,0,6,7,8,9,0,0,0,0,0
+	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+	db	10,14,11,35,28,30,31,28,28,30,31,28,28,30,31,28,35,10,14,11
+	db	12,15,13,36,29,32,33,29,29,32,33,29,29,32,33,29,36,12,15,13
+	db	10,16,11,35,22,23,23,22,22,23,23,22,22,23,23,22,35,10,16,11
+	db	12,17,13,36,22,23,23,22,22,23,23,22,22,23,23,22,36,12,17,13
+	db	10,18,11,35,22,23,23,22,22,23,23,22,22,23,23,22,35,10,18,11
+	db	12,19,13,36,22,23,23,22,22,23,23,22,22,23,23,22,36,12,19,13
+	db	10,16,11,35,22,23,23,22,22,23,23,22,22,23,23,22,35,10,16,11
+	db	12,17,13,36,22,23,23,22,22,23,23,22,22,23,23,22,36,12,17,13
+	db	10,14,11,35,0,24,25,0,0,24,25,0,0,24,25,0,35,10,14,11
+	db	12,15,13,36,1,26,27,1,1,26,27,1,1,26,27,1,36,12,15,13
+
+;-----------------------------------------------------;
+;  yaku hyouji    				      ;
+;-----------------------------------------------------;
+yaku_hyouji:
+;	call	push_vram_m
+;	call	dvram_cls
+
+
+
+
+;	call	cont_abwait
+;	jp	pop_vram_m
+
+
+;-----------------------------------------------------;
+;  dram picture 				      ;
+;-----------------------------------------------------;
+dram1_tbl:
+	db	000h,002h		; 7red
+	db	014h,016h		; genger
+	db	00ch,00eh		; cap
+	db	004h,006h		; bar	
+	db	008h,00ah		; cherry
+	db	000h,002h		; 7red
+	db	00ch,00eh		; cap
+	db	010h,012h		; pippi
+	db	004h,006h		; bar	
+	db	008h,00ah		; cherry
+	db	000h,002h		; 7red
+	db	014h,016h		; genger
+	db	010h,012h		; pippi
+	db	004h,006h		; bar	
+	db	008h,00ah		; cherry
+	db	000h,002h		;
+	db	014h,016h		;
+	db	00ch,00eh		; 
+dram2_tbl:
+	db	000h,002h		; 7red
+	db	00ch,00eh		; cap
+	db	008h,00ah		; cherry
+	db	010h,012h		; pippi
+	db	014h,016h		; genger
+	db	004h,006h		; bar	
+	db	008h,00ah		; cherry
+	db	00ch,00eh		; cap
+	db	010h,012h		; pippi
+	db	008h,00ah		; cherry
+	db	004h,006h		; bar	
+	db	00ch,00eh		; cap
+	db	010h,012h		; pippi
+	db	008h,00ah		; cherry
+	db	014h,016h		; genger
+	db	000h,002h		;
+	db	00ch,00eh		;
+	db	008h,00ah		; 
+dram3_tbl:
+	db	000h,002h		; 7red
+	db	010h,012h		; pippi
+	db	00ch,00eh		; cap
+	db	008h,00ah		; cherry
+	db	014h,016h		; genger
+	db	010h,012h		; pippi
+	db	00ch,00eh		; cap
+	db	008h,00ah		; cherry
+	db	014h,016h		; genger
+	db	010h,012h		; pippi
+	db	00ch,00eh		; cap
+	db	008h,00ah		; cherry
+	db	014h,016h		; genger
+	db	010h,012h		; pippi
+	db	004h,006h		; bar	
+	db	000h,002h		;
+	db	010h,012h		;
+	db	00ch,00eh		;
+
+slot_bg_dat:
+	include		..\data\slot_bg.dat
+
+
+  ifn	0	;追加（村川）
+;以下は何処からも参照されていないゴミルーチンだ。（多分）
+
+bank29	group	41
+;-----------------------------------------------------;
+;  yaku hyouji    				      ;
+;-----------------------------------------------------;
+	public	SlotList
+SlotList:
+	call	push_vram_m
+	call	pal_off_put_wait
+	call	dvram_cls
+	xor	a
+	ld	(oam_flg),a
+
+	ld	hl,obs_system
+	set	6,(hl)
+
+	call	SlotListMake
+	call	put_wait
+	call	palset
+
+	call	cont_abwait
+
+	ld	hl,obs_system
+	res	6,(hl)
+	call	pal_off_put_wait
+	call	map_rewrite2
+	call	pop_vram_m
+	call	put_wait
+	ld	a,1
+	ld	(oam_flg),a
+	jp	palset
+
+SlotListMake:
+	ld	de,slot_data			; chracter set address
+	ld	hl,09000h			; vram address
+	ld	bc,1eh*100h+01ch
+	call	chrmove				; vram set
+
+	call	put_mark$
+	call	put_count$
+	ret
+
+put_mark$:
+	S_POS	1,1
+	ld	e,0+2
+	ld	c,6
+loop1$:
+	push	bc
+	ld	d,e
+	call	put_mark_sub$
+
+	ld	d,e
+	dec	d
+	dec	d
+	call	put_mark_sub$
+
+	ld	bc,20
+	add	hl,bc
+
+	inc	e
+	inc	e
+	inc	e
+	inc	e
+	pop	bc
+	dec	c
+	jr	nz,loop1$
+	ret
+	
+
+put_mark_sub$:
+	push	hl
+	ld	a,d
+	ld	(hli),a
+	inc	a
+	ld	(hli),a
+	ld	a,d
+	ld	(hli),a
+	inc	a
+	ld	(hli),a
+	ld	a,d
+	ld	(hli),a
+	inc	a
+	ld	(hli),a
+	pop	hl
+
+	ld	bc,20
+	add	hl,bc
+	ret
+
+put_count$:
+	S_POS	9,2
+	ld	de,CountList$
+	ld	c,6
+loop2$:
+	push	bc
+	push	hl
+	push	de
+	call	put_msg
+	pop	de
+	ld	hl,8
+	add	hl,de
+	ld	e,l
+	ld	d,h
+	pop	hl
+	ld	bc,60
+	add	hl,bc
+	pop	bc
+	dec	c
+	jr	nz,loop2$
+	ret
+
+CountList$:	
+	db	tenten@,spc@,n3@,n0@,n0@,ma_,i_,EOM
+	db	tenten@,spc@,n1@,n0@,n0@,ma_,i_,EOM
+	db	tenten@,spc@,spc@,spc@,n8@,ma_,i_,EOM
+	db	tenten@,spc@,spc@,n1@,n5@,ma_,i_,EOM
+	db	tenten@,spc@,spc@,n1@,n5@,ma_,i_,EOM
+	db	tenten@,spc@,spc@,n1@,n5@,ma_,i_,EOM
+	
+		
+  endif	;追加（村川）
+
+
+
+
+
+
+

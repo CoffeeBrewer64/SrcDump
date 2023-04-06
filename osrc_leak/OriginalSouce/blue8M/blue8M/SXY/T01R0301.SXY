@@ -1,0 +1,73 @@
+; 11/12/95		20:04:28
+dun_tbl$:
+	db	003h
+ie_tbl$:
+	db	002h
+	db	00bh,004h,002h,EXIT
+	db	00bh,005h,002h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	00bh
+	db	RIVAL
+	db	003h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h+040h			; battle type
+	db	0e1h				; dealer number
+	db	001h				; taking pattern 
+	db	CAPSULE
+	db	003h+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+	db	CAPSULE
+	db	003h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	003h
+	db	CAPSULE
+	db	003h+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+	db	OOKIDO
+	db	002h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	005h
+	db	DIARY
+	db	001h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	006h
+	db	DIARY
+	db	001h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	007h
+	db	OOKIDO
+	db	00Ah+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	008h
+	db	NEECHYAN
+	db	009h+4,001h+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	009h
+	db	KENKYUIN
+	db	00Ah+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00ah
+	db	KENKYUIN
+	db	00Ah+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00bh
+ram_map_tbl$:
+	dw	00bh * 006h + 003h + ram_map
+	db	00bh,004h
+	dw	00bh * 006h + 003h + ram_map
+	db	00bh,005h

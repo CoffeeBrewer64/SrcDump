@@ -1,0 +1,91 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	t5_room2
+
+	
+
+TOWER_TYPE	equ	15
+EXIT		=	0ffh
+
+
+t5_room2:
+ysiz	=	9
+xsiz	=	10
+	db	TOWER_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	tower1			; map data adrs
+	dw	msg_tbl$		; message tbl adrs
+	dw	event$			; event routine adrs
+	db	0			; map link flg
+	dw	room_str$
+
+
+event$:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_tbl$:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+	dw	msg4$
+	dw	msg5$
+
+
+msg1$:
+	extern	msg1_0_T05R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T05R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_T05R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T05R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_2_T05R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T05R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4$:
+	extern	msg4_3_T05R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_3_T05R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5$:
+	extern	msg5_4_T05R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_4_T05R0201	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str$:
+	include	..\sxy\t05r0201.sxy
+
+
+tower1:
+	include	..\mapdata\nt_1f.map
+
+

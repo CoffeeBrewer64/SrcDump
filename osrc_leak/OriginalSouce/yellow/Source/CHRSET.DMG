@@ -1,0 +1,266 @@
+
+	include		common.def
+	include		group.def
+
+;bank0	group	G_BANK00
+bank0	group	G_BANK0
+	
+;	extern	block_move
+	extern	wait_vb
+	extern	bank_change
+	extern	chrset		;í«â¡Åië∫êÏÅj
+
+	public	chrmove
+	public	fontset
+	public	fontmove
+
+
+
+
+
+;=======================================================================;
+; Category	: transfer charactor data in LCDC stop mode
+; Bank-No.	: G_BANK00
+; In		: de reg		set address
+;		: hl reg		chr data address
+;		: a reg			chr data bank number
+;		: bc reg		num of bytes to transfer
+; Infomation	: Do not call if LCDC is active!!
+;=======================================================================;
+fontset:
+	ld	(bank_stack),a
+
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,(bank_stack)
+	call	bank_change
+
+
+	ld	a,h			; exchange de <-> hl
+	ld	h,d
+	ld	d,a
+	ld	a,l
+	ld	l,e
+	ld	e,a
+
+
+	ld	a,b
+	and	a
+	jr	z,adjust_counter$
+
+	ld	a,c
+	and	a
+	jr	z,move_loop$
+
+adjust_counter$:
+	inc	b
+
+move_loop$:
+	ld	a,(de)
+	inc	de
+	ld	(hli),a
+	ld	(hli),a
+	dec	c
+	jr	nz,move_loop$
+
+	dec	b
+	jr	nz,move_loop$
+
+	pop	af
+	call	bank_change
+
+	ret
+
+
+
+;=======================================================================;
+; Category	: transfer charactor data in vblank
+; Bank-No.	: G_BANK00
+; In		: hl reg		set address
+;		: de reg		chr data address
+;		: b reg			chr data bank number
+;		: c reg			num of chr to set
+; Infomation	: Do not call if LCDC is stop!!
+;=======================================================================;
+
+chrmove:
+	ld	a,(all_put_req)
+	push	af
+	xor	a
+	ld	(all_put_req),a
+
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,b				; Bank No. taihi
+	call	bank_change
+
+	ld	a,e
+	ld	(chr_mv_buf + 1),a		; data address low
+	ld	a,d
+	ld	(chr_mv_buf + 2),a		; data address high
+	ld	a,l
+	ld	(chr_mv_buf + 3),a		; vram address low
+	ld	a,h
+	ld	(chr_mv_buf + 4),a		; vram address high
+
+moveloop$:
+	ld	a,c
+	cp	8
+	jr	nc,move$			
+
+	ld	(chr_mv_buf + 0),a
+	call	wait_vb
+
+	pop	af
+	call	bank_change
+
+	pop	af
+	ld	(all_put_req),a
+
+	ret
+
+move$:
+	ld	a,8
+	ld	(chr_mv_buf + 0),a
+	call	wait_vb
+	ld	a,c
+	sub	8
+	ld	c,a
+	jr	moveloop$
+
+
+
+
+
+
+;=======================================================================;
+; Category	: transfer charactor data in vblank
+; Bank-No.	: G_BANK00
+; In		: hl reg		set address
+;		: de reg		chr data address
+;		: b reg			chr data bank number
+;		: c reg			num of chr to set
+; Infomation	: Do not call if LCDC is stop!!
+;=======================================================================;
+fontmove:
+	ld	a,(all_put_req)
+	push	af
+	xor	a
+	ld	(all_put_req),a
+
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,b
+	call	bank_change
+
+	ld	a,e
+	ld	(fnt_mv_buf + 1),a
+	ld	a,d
+	ld	(fnt_mv_buf + 2),a
+	ld	a,l
+	ld	(fnt_mv_buf + 3),a
+	ld	a,h
+	ld	(fnt_mv_buf + 4),a
+
+moveloop$:
+	ld	a,c
+	cp	8
+	jr	nc,move$
+
+	ld	(fnt_mv_buf + 0),a
+	call	wait_vb
+
+	pop	af
+	call	bank_change
+
+	pop	af
+	ld	(all_put_req),a
+
+	ret
+
+move$:
+	ld	a,8
+	ld	(fnt_mv_buf + 0),a
+
+	call	wait_vb
+
+	ld	a,c
+	sub	8
+	ld	c,a
+
+	jr	moveloop$
+
+
+
+;=======================================================================;
+; Category	: padding memory with same data
+; Bank-No.	: G_BANK00
+; In		: a reg		padding data
+;		: bc reg	data length
+;		: hl reg	address of padding area
+; Out		: hl reg	last address of padding area + 1
+; Infomation	: Nothing
+;=======================================================================;
+
+	public	memset
+
+memset:
+	push	af			; save padding data
+
+	ld	a,b
+	and	a
+	jr	z,adjust_counter$
+
+	ld	a,c
+	and	a
+	jr	z,move_main$
+
+adjust_counter$:
+	inc	b
+
+move_main$:
+	pop	af			; load padding data
+
+move_loop$:
+	ld	(hli),a
+	dec	c
+	jr	nz,move_loop$
+
+	dec	b
+	jr	nz,move_loop$
+
+	ret
+
+
+
+
+;===================================================================
+;
+;
+;
+;
+;===================================================================
+	public	bank_chg_dt_get
+
+bank_chg_dt_get:
+	push	bc
+
+	ld	b,a
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,b
+	call	bank_change
+
+	ld	b,(hl)
+
+	pop	af
+	call	bank_change
+
+	ld	a,b
+
+	pop	bc
+	ret

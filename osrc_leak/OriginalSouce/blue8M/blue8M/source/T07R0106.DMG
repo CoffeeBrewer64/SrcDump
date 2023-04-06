@@ -1,0 +1,148 @@
+
+	include	common.def
+	include	pm_debug.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room1_elv
+
+
+	extern	bank_push_call
+	extern	bank2bank
+	extern	set_data
+
+	extern	put_wait
+	extern	elev_effect
+
+
+;ELEVATOR	equ	1
+
+
+
+DEPART_TYPE	equ	18
+EXIT		=	0ffh
+
+
+t7_room1_elv:
+ysiz	=	2
+xsiz	=	2
+	db	DEPART_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	depart_elv		; map data adrs
+	dw	msg_t7r1f6
+	dw	ev_t7r1f6		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r1f6
+
+
+ev_t7r1f6:
+	ld	hl,ptn_data
+	bit	5,(hl)
+	res	5,(hl)
+	push	hl
+	call	nz,init_elevator$
+	pop	hl
+	bit	7,(hl)
+	res	7,(hl)
+	call	nz,effect
+
+	xor	a
+	ld	(win_cancel),a
+	inc	a
+	ld	(wait_pass_flg),a
+
+	ret
+
+
+init_elevator$:
+	ld	hl,ie_tbl
+
+	ld	a,(elevator + 0)
+	ld	b,a
+	ld	a,(elevator + 1)
+	ld	c,a
+
+	call	twice$
+
+twice$:
+	inc	hl
+	inc	hl
+	ld	a,b
+	ld	(hli),a
+	ld	a,c
+	ld	(hli),a
+
+	ret
+
+
+init_elevator:
+	ld	hl,t7_depart
+	call	set_data
+
+	ld	hl,stop_floor
+	ld	de,anime_buf + 0
+	ld	bc,floor_size
+	jp	block_move
+
+
+
+t7_depart:
+	db	5
+	db	86
+	db	87
+	db	88
+	db	89
+	db	90
+	db	0ffh
+
+
+stop_floor:
+	db	5,T7R1F1
+	db	2,T7R1F2
+	db	2,T7R1F3
+	db	2,T7R1F4
+	db	2,T7R6F1
+floor_size	equ	* - stop_floor
+
+
+effect:
+	ld	b,01eh
+	ld	hl,elev_effect
+	jp	bank_push_call
+
+
+
+msg_t7r1f6:
+	dw	info1
+
+
+info1:
+	db	CALL_MSG
+
+	call	init_elevator
+
+	ld	hl,stop_floor
+	ld	a,97				; "elevator_system" in bank11
+	call	bank2bank
+
+	jp	msg_return
+
+
+
+sxy_t7r1f6:
+	include	..\sxy\t07r0106.sxy
+
+
+depart_elv:
+	include	..\mapdata\depelv.map
+
+
+
+

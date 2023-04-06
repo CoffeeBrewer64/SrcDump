@@ -1,0 +1,26 @@
+; 10/01/95		07:58:41
+michi_tbl$:
+	db	00fh
+ie_tbl$:
+	db	005h
+	db	009h,012h,002h,R7R1F1
+	db	00ah,012h,003h,R7R1F1
+	db	009h,00bh,000h,R7R1F1
+	db	00ah,00bh,001h,R7R1F1
+	db	00dh,005h,000h,R7R2F1
+kanban_tbl$:
+	db	001h
+	db	00Dh,003h,1
+hito_tbl$:
+	db	000h
+ram_map_tbl$:
+	dw	010h * 005h + 00ah + ram_map
+	db	009h,012h
+	dw	010h * 006h + 00ah + ram_map
+	db	00ah,012h
+	dw	010h * 005h + 006h + ram_map
+	db	009h,00bh
+	dw	010h * 006h + 006h + ram_map
+	db	00ah,00bh
+	dw	010h * 007h + 003h + ram_map
+	db	00dh,005h

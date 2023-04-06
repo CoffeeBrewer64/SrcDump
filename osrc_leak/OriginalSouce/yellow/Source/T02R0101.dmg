@@ -1,0 +1,97 @@
+
+	include		common.def
+	include		fntequ.def
+	include		anime.def
+	include		maphead.def
+	include		banktool.def
+	include		macro.h
+	include		group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	t2_room1
+
+
+	extern	bank2bank
+	extern	actor_anime_set
+	extern	table_jump
+	extern	yes_no
+
+	extern	hotel4
+	extern	se_wait
+	extern	hotel_sio
+
+
+HOTEL_TYPE	equ	6
+EXIT		=	0ffh
+
+
+t2_room1:
+ysiz	=	4
+xsiz	=	7
+	db	HOTEL_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	hotel4			; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	t02r01_event		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+t02r01_event:
+	call	hotel_sio
+
+	jp	init_for_talkmap
+
+
+
+msg_tbl:
+	msgndw	msg1,msg_hotelman1
+	ndw	msg2,msg_hotelm1
+	ndw	msg3,msg_trainerm1
+	ndw	msg4,msg_termgirl
+	ndw	msg5,msg_lucky
+
+
+msg1:
+	db	HOTEL
+
+msg2:
+	extern	msg2_0_T02R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T02R0101	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_1_T02R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T02R0101	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	0f6h
+
+msg5:
+	db	CALL_MSG
+
+	extern	lucky_common_msg
+	ld	hl,lucky_common_msg
+	ld	b,G_BANK3c
+	extern	bank_push_call
+	call	bank_push_call
+
+	jp	msg_return
+
+
+room_str:
+	include	..\sxy\t02r0101.sxy
+
+
+
+

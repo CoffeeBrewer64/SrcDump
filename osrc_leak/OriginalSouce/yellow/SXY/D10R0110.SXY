@@ -1,0 +1,56 @@
+; 06/06/98		01:32:17
+dun_tbl$:
+	db	00dh
+ie_tbl$:
+	db	004h
+	db	000h,009h,001h,D10R1F9
+	db	000h,00dh,000h,D10R1F11
+	db	005h,005h,009h,EXIT
+	db	002h,003h,003h,D10R1F6
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	006h
+	db	SHATHOU
+	db	005h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+	db	HOTELW
+	db	005h+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h
+	db	BOSS
+	db	009h+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	003h+040h			; battle type
+	db	0e5h				; dealer number
+	db	002h				; taking pattern 
+	db	KOJIRO
+	db	008h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	004h
+	db	DANIN
+	db	009h+4,00Fh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	005h+040h			; battle type
+	db	0e6h				; dealer number
+	db	028h				; taking pattern 
+	db	MUSASHI
+	db	008h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	006h
+ram_map_tbl$:
+	dw	00fh * 001h + 005h + ram_map
+	db	000h,009h
+	dw	00fh * 001h + 007h + ram_map
+	db	000h,00dh
+	dw	00fh * 003h + 003h + ram_map
+	db	005h,005h
+	dw	00fh * 002h + 002h + ram_map
+	db	002h,003h

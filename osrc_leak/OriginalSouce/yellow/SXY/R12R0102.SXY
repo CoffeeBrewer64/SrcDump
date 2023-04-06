@@ -1,0 +1,20 @@
+; 05/26/98		22:38:50
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	001h
+	db	007h,007h,004h,R12R1F1
+kanban_tbl$:
+	db	002h
+	db	002h,001h,2
+	db	002h,006h,3
+hito_tbl$:
+	db	001h
+	db	NANAMI
+	db	004h+4,003h+4			; Y, X
+	db	0feh				; random move mode
+	db	001h				; moving site
+	db	001h
+ram_map_tbl$:
+	dw	00ah * 004h + 004h + ram_map
+	db	007h,007h

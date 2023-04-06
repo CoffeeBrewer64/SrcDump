@@ -1,0 +1,519 @@
+
+	include	common.def
+	include	fntequ.def
+	include	fight.def
+	include macro.h
+	include pm_debug.def
+
+bank0	group	0
+
+;************************************************
+;*						*
+;*		sio process			*
+;*						*
+;************************************************
+
+	public	sio
+	public	hotel_sio
+	public	send_byt
+	public	send_byt2
+	public	send_byts
+	public	send_send_buf
+	public	send_send_buf2_0
+	public	send_send_buf2
+	public	send_dmy
+
+	public	taiki2
+
+	extern	wait_vb
+	extern	wait_vb_s
+	extern	push_vram
+	extern	pop_vram
+	extern	put_window
+	extern	put_term_window
+	extern	put_msg
+	extern	bank_push_call
+
+
+;********************************
+;*				*
+;*	from sio interrupt	*	; 通信終了割り込み処理
+;*				*
+;********************************
+; 親子が決定している場合は受信バッファ(RD)に１バイトのデータを受け取り、次の通信の為の送信データ
+; (TD)をセットしておく。
+; 未決定の場合は親子を決定し、０データをセットしておき、親の場合は待機状態にする。
+; ＳＩＯ割り込み処理終了フラグを立て (sio_flg)= 1、送信バッファ(TD)には無効データ $FE をセットし、
+; 割り込み処理を終了する
+sio:
+	push    af
+        push    bc
+        push    de
+        push    hl
+
+	ld	a,(sio_oya_ko)		; if ((sio_oya_ko) != $FF) {  既に親子が決定している場合
+	inc	a			;				( $FF==親子未決定 )
+	jr	z,title_sio		;
+
+	ld	a,(SB)
+	ld	(RD),a				; (RD) = (SB)	RD: １バイトの受信用バッファ
+	ld	a,(TD)
+	ld	(SB),a				; (SB) = (TD)	TD: １バイトの送信用バッファ
+	ld	a,(sio_oya_ko)
+	cp	KO
+	jr	z,ret_sio
+
+	ld	a,080h				; if ((sio_oya_ko) == OYA)
+	ld	(SC),a				;	(SC) = $80
+						;		自分が親の場合は待機状態にする
+	jr	ret_sio			; }
+
+title_sio:				; else { // 未決定の場合、親子を決める
+	ld	a,(SB)
+	ld	(RD),a
+	ld	(sio_oya_ko),a			; (sio_oya_ko)=(RD)= (SB) 受信データで親子を決定
+
+	cp	KO
+	jr	z,parent1$			; if ((SB)==OYA){ // 親の場合
+
+	xor	a					;
+	ld	(SB),a					; (SB) = 0
+
+	ld	a,03h					;1 msec		// １ミリ秒待ち
+        ld      (DIV),a                 		; wait cyotto
+wait1$:							;1 msec wait
+        ld      a,(DIV)					;
+        bit     7,a					;
+        jr      nz,wait1$				;
+	
+	ld	a,080h					; (SC) = $80
+	ld	(SC),a					;	自分が親の場合は待機状態にする
+	jr	ret_sio				; }
+
+parent1$:					; else {  // 子の場合
+        xor     a					; (SB) = 0
+        ld      (SB),a				; }
+					; }
+ret_sio:
+	ld	a,1
+	ld	(sio_flg),a		; (sio_flg) = 1
+
+	ld	a,0feh			; (TD) = $FE	( non data code )
+	ld	(TD),a			;	$FE: 通信データ識別コード（これはデータでないの意）
+
+	pop	hl
+	pop	de
+	pop	bc
+	pop	af
+	reti
+
+
+
+;****************************************
+;* 	send_byts			*
+;* IN  :  hl = send data address	*
+;*	  de = read data address 	*
+;*        bc = byte			*
+;****************************************
+; 送受信データにおいて、有効データの先頭コードとして＄ＦＤを用いている。
+; 初めて受信した＄ＦＤの次からを有効データとして byte 分受信する (DE)++
+; （同時に自身のデータも送信している (HL)++ )
+; （注意！）先頭コード＄ＦＤが受信されるまで無限に送受信が繰り返される
+send_byts:
+	ld	a,1
+	ld	(sio_init_flg),a	; (sio_init_flg) = 1	先頭コード未確認フラグをセット
+
+loop1$:					; for (BC = 転送サイズ ; BC ; ){
+	ld	a,(hl)
+	ld	(TD),a				; (TD) = (HL)	送信するデータ
+	call	send_byt			; １バイトの送受信
+
+	push	bc
+	ld	b,a		 		; A= 受信データ
+
+	inc	hl				; HL++
+
+	ld	a,030h				; １９２サイクル待ち	easy wait
+loop2$:	dec	a				; 
+	jr	nz,loop2$			;
+
+	ld	a,(sio_init_flg)
+	and	a
+	ld	a,b				; A= 受信データ
+	pop	bc
+	jr	z,pass1$			; if (sio_init_flg) {  先頭コードを未確認の場合
+
+	dec	hl					; --HL	送信元データのアドレスを戻す
+
+	cp	0fdh					; if (受信データ != $FD)  先頭コード
+	jr	nz,loop1$				;	continue	front dummy code ?
+	
+	xor	a					;
+	ld	(sio_init_flg),a			; (sio_init_flg) = 0  先頭コードを確認
+	jr	loop1$					; continue
+						; }
+pass1$:						; else {
+	ld	(de),a					; (DE)++ = 受信データ
+	inc	de
+	dec	bc					; --BC
+	ld	a,b
+	or	c				; }
+	jr	nz,loop1$		; }
+
+	ret
+
+
+;****************************************
+;* 	send_byt			*
+;* IN  :  hl = send data address	*
+;* OUT     a = receive data		*
+;****************************************
+send_byt:
+	xor	a			;
+	ld	(sio_flg),a		; (sio_flg) = 0
+
+	ld	a,(sio_oya_ko)		; if ((sio_oya_ko) == KO) {
+	cp	KO			;
+	jr	nz,ko1$			;	(SC) = $81
+	ld	a,081h			;		自分が子なら通信スタートする
+	ld	(SC),a			; }
+ko1$:
+	ld	a,(sio_flg)		; if ((sio_flg))  goto  pass1$
+	and	a			;	（通信割り込み処理 sio() を終了している場合）
+	jr	nz,pass1$		;	（ sio()内で (sio_flg) = 1 をしている）
+
+	ld	a,(sio_oya_ko)		; if ((sio_oya_ko)== OYA  &&  send_send_cnt[] != 0){ 
+	cp	OYA			;
+	jr	nz,pass0$		;
+					;
+	call	send_cnt_chk		;
+	jr	z,pass0$		;
+
+	call	easy_wait$			; ６０サイクル待ち	a = 15 -> 0  dec
+
+	push	hl				; send_send_cnt[0,1]++
+	ld	hl,send_send_cnt + 1		;
+	inc	(hl)				;
+	jr	nz,pass00$			;
+	dec	hl				;
+	inc	(hl)				;
+pass00$:					;
+	pop	hl				;
+
+	call	send_cnt_chk			; if (send_send_cnt[0,1] != 0)  goto  ko1$ ループ
+	jr	nz,ko1$				;
+	jp	send_time_over			; else  goto  send_time_over （時間切れ）
+					; }
+
+pass0$:
+	ld	a,(IE)			; 通信割り込みのみ許可？（データ転送モード）
+	and	00fh			; no -> goto  ko1$  ループする
+	cp	008h			;
+	jr	nz,ko1$			;
+
+	ld	a,(m_gaman)		; if (--m_gaman[0,1] != 0)  goto  ko1$  ループする
+	dec	a			;
+	ld	(m_gaman),a		;
+	jr	nz,ko1$			;
+	ld	a,(m_gaman + 1)		;
+	dec	a			;
+	ld	(m_gaman + 1),a		;
+	jr	nz,ko1$			;
+
+	ld	a,(sio_oya_ko)		; if ((sio_oya_ko)==KO){
+	cp	OYA			;
+	jr	z,pass1$		;	自分が子なら
+	ld	a,0ffh			; 	１０２０サイクル待ち（タイミングをずらす）
+loop$:	dec	a			;
+	jr	nz,loop$		; }
+
+pass1$:
+	xor	a			;
+	ld	(sio_flg),a		; (sio_flg) = 0
+
+	ld	a,(IE)			; if ( 通信割り込みのみ許可？ ) {（データ転送モード）
+	and	00fh			;
+	sub	008h			;
+	jr	nz,pass2$		;
+	ld	(m_gaman),a		;	m_gaman[0,1] = $5000
+	ld	a,050h			;
+	ld	(m_gaman + 1),a		;
+					; }
+pass2$:
+	ld	a,(RD)			; if ( 受信データ != $FE )	non data code ?
+	cp	0feh			;	return	受信データ
+	ret	nz			;
+
+retry1$:
+	call	send_cnt_chk		; if (send_send_cnt[0,1] != 0) {
+	jr	z,retry4$		;
+
+	push	hl				; send_send_cnt[0,1]--
+	ld	hl,send_send_cnt + 1		;
+	ld	a,(hl)				;
+	dec	a				;
+	ld	(hld),a				;
+	inc	a				;
+	jr	nz,retry3$			;
+	dec	(hl)				;
+retry3$:					;
+	pop	hl				;
+
+	call	send_cnt_chk			; if (send_send_cnt[0,1] == 0)
+	jr	z,send_time_over		;	goto  send_time_over  （時間切れ）
+					; }
+retry4$:
+	ld	a,(IE)			; if ( 通信割り込みのみ許可？ )（データ転送モード）
+	and	00fh			;	return  $FE  non data code
+	cp	008h			;
+	ld	a,0feh			;
+	ret	z			;		data transmit mode (don't retry)
+
+	ld	a,(hl)			;
+	ld	(TD),a			; (TD) = (HL)
+
+	call	wait_vb			; Ｖブランク待ち
+
+	jp	send_byt		; ループする
+
+
+easy_wait$:				; ６０サイクル待ち	a = 15 -> 0  dec
+	ld	a,15			;
+easy_loop$:				;
+	dec	a			;
+	jr	nz,easy_loop$		;
+	ret				;
+
+send_cnt_chk:				; <z> = (send_send_cnt[0,1] == 0) ?
+	push	hl			;
+	ld	hl,send_send_cnt	;
+	ld	a,(hli)			;
+	or	(hl)			;
+	pop	hl			;
+	ret				;
+
+send_time_over:				; send_send_cnt[0,1] = $FFFF	(A==0 の場合) 
+	dec	a			;
+	ld	(send_send_cnt),a	; 0ffh (time over sign)
+	ld	(send_send_cnt + 1),a	; 0ffh
+	ret
+
+
+
+;****************************************
+;* 	send_send_buf			*
+;* IN  :  send_buf+0,+1  send data  <- これは間違い	*
+;* IN  :  send_buf+0,+1,+2  send data <- 送信側は３バイト必要	*
+;* OUT :  read_buf+0,+1	 read data	*
+;****************************************
+;
+;（注意）実際には３バイト送受信を行っているが、受信データ最初の１バイトは捨て、
+;	 後の２バイトを read_buf[2] に入れている（送信側バッファは send_buf[3] 必要である）
+;
+send_send_buf:					; send data 2byte
+	ld	hl,send_buf
+	ld	de,read_buf
+	ld	c,2
+
+send_byts_wait:
+	ld	a,1				; (sio_init_flg) = 1
+	ld	(sio_init_flg),a		;
+loop1$:						; for (C = 2 ; C ; ) {
+	call	wait_vb					; Ｖブランク待ち
+
+	ld	a,(hl)
+	ld	(TD),a					; (TD) = (HL)++
+	call	send_byt				; １バイトの送受信
+	ld	b,a					; A = 受信データ
+	inc	hl					;
+
+	ld	a,(sio_init_flg)			; if (sio_init_flg) {
+	and	a					;
+	ld	a,0					;	sio_init_flg = 0
+	ld	(sio_init_flg),a			;	continue
+	jr	nz,loop1$				; }
+
+	ld	a,b					;
+	ld	(de),a					; (DE)++ = 受信データ
+	inc	de					;
+
+	dec	c					; --C
+	jr	nz,loop1$			; }
+
+	ret
+
+;****************************************
+;* 	send_send_buf2			*
+;* IN  :  send_buf 	  send data	*
+;* OUT :  read_buf+0,+1   read data	*
+;****************************************
+;
+; ”つうしんたいきちゅう！”メッセージウィンドウを表示して４ビットデータの送受信を行う
+;
+send_send_buf2_0:
+	call	push_vram		; dmy_vram[] を保存
+
+	ld	hl,taiki2		; farcall  01:taiki2()
+	ld	b,01h			;	”つうしんたいきちゅう！”メッセージの表示
+	call	bank_push_call		;
+
+	call	send_send_buf2		; ４ビットデータの送受信 ( send_buf[0] , read_buf[0] )
+
+	jp	pop_vram		; dmy_vram[] を復帰
+
+;
+; ４ビットデータの送受信を行う	: send_buf[0] = 送信４ビットデータ
+;				: read_buf[0] = 受信４ビットデータ
+;				（ データのセットは割り込み処理 sio() の中で行っている）
+send_send_buf2:
+	ld	a,0ffh
+	ld	(read_buf + 1),a	; read_buf[1] = $FF
+
+wait$:					; while (read_buf[1] == $FF){
+	call	send_byt2			; ４ビットデータの送受信
+	call	wait_vb				; Ｖブランク待ち
+	
+	call	send_cnt_chk			; カウントダウンのチェック
+	jr	z,pass0$			; if ((send_send_cnt[0,1] != 0)) {
+						;
+	push	hl					;
+	ld	hl,send_send_cnt + 1			; if (--send_send_cnt[0,1] == 0)
+	dec	(hl)					;	goto  send_time_over()
+	jr	nz,pass00$				;		（時間切れ）
+	dec	hl					;
+	dec	(hl)					;
+	jr	nz,pass00$				;
+	pop	hl					;
+	xor	a					;
+	jp	send_time_over				;
+pass00$:						;
+	pop	hl					;
+						; }	
+pass0$:						
+	ld	a,(read_buf + 1)	;	// send_byt2() で受信が成功した場合は
+	inc	a			;	// read_buf[1] に４ビットの受信データが入る
+	jr	z,wait$			; }
+
+
+	ld	b,10			; for (B = 10 ; B ; B--){
+loop1$:					;					
+	call	wait_vb			;	Ｖブランク待ち
+	call	send_byt2		;	４ビットデータの送受信
+	dec	b			;
+	jr	nz,loop1$		; } // read_buf[1] = ４ビットの受信データ
+	
+	ld	b,10			; for (B = 10 ; B ; B--){
+loop2$:					;
+	call	wait_vb			;	Ｖブランク待ち
+	call	send_dmy		;	(TD) = 0 , if (KO){(SC) = $81}
+	dec	b			;		    自分が子なら通信スタートする
+	jr	nz,loop2$		; } // 送信バッファ(TD)を０クリアする
+	
+	ld	a,(read_buf + 1)
+	ld	(read_buf),a		; read_buf[0] = read_buf[1]
+
+	ret
+
+
+;****************************************
+;*	send_byt2			*
+;*  IN  :  send_buf	send data	*
+;*  OUT :  read_buf + 1  read data	*
+;****************************************
+; send_buf[0]に４ビットの送信データを入れてＳＩＯ割り込みを待ち、(SB)にデータをセットする
+; read_buf[1]に４ビットの受信データが入る
+; （注意！）下記のルーチンでは (SC) = $81 代入直後に ld a,(RD) をしているが、
+; ＳＩＯ割り込みがかかるのは１ミリ秒後なので、この(RD)の値は以前に受信されたデータである
+; また、ＳＩＯ割り込みでは send_buf[0]データは(SB)にセットするだけで、実際に送信されるの
+; は次ぎの通信スタート時である
+send_byt2:
+	call	read$			; 受信データの上位４ビットが６の場合  (RD) = 0 にして
+					; read_buf[1] = 受信データの下位４ビットを代入する
+					; ( read_buf[0] = 受信データ )
+
+	ld	a,(send_buf)		; (TD) = send_buf[0] : 下位４ビットは送信用データ 
+	add	a,060h			;	上位４ビットの値 ６は send_byt2() 識別用サイン
+	ld	(TD),a			;
+
+	ld	a,(sio_oya_ko)		; if ((sio_oya_ko) == KO) {	// 相手が親
+	cp	KO			;
+	jr	nz,read$		;
+	ld	a,081h			;	(SC) = $81
+	ld	(SC),a			;		自分が子なら通信スタートする
+					; }
+read$:
+	ld	a,(RD)
+	ld	(read_buf),a		; read_buf[0] = (RD)
+	and	0f0h			;
+	cp	060h			; 受信データの上位４ビットが６でなければ return
+	ret	nz			;				( read_buf[0] = (RD) )
+
+	xor	a			; 受信データの上位４ビットが６の場合
+	ld	(RD),a			;	(RD) = 0
+					;
+	ld	a,(read_buf)		;	read_buf[1] = 受信データの下位４ビット
+	and	0fh			;	( read_buf[0] = 受信データ )
+	ld	(read_buf + 1),a 	;
+
+	ret
+
+;
+; 送信データバッファ(TD)に０をセットし、自分が子なら通信スタートする
+;
+send_dmy:
+	xor	a			; (TD) = 0
+	ld	(TD),a			;
+
+	ld	a,(sio_oya_ko)		; if ((sio_oya_ko) == KO) {	// 相手が親
+	cp	KO			;
+	ret	nz			;
+	ld	a,081h			;	(SC) = $81
+	ld	(SC),a			;		自分が子なら通信スタートする
+	ret				; }
+
+;*********************************
+;*	hotel_sio		*
+;*********************************
+;
+;  'KO' を送信データとしてセットし待機状態にする（受信バッファ(RD)は０にしておく）
+;
+hotel_sio:
+	ld	a,KO			;
+	ld	(SB),a			; (SB) = KO
+	xor	a			;
+	ld	(RD),a			; (RD) = 0
+	ld	a,080h			;
+	ld	(SC),a			; (SC) = $80
+	ret
+
+
+bank1	group	1
+
+;
+;”つうしんたいきちゅう！”メッセージウィンドウを表示する
+;
+taiki2:
+	SET_WIN_POS 3,10,15,12
+	ld	a,(fighting_flg)	; if ((fighting_flg))
+	and	a			;
+	jr	z,pass1$		;
+	call	put_window		;	put_window()		通常のウィンドウ
+	jr	pass2$			;
+pass1$:					; else
+	call	put_term_window		;	put_term_window()	通信用枠ウィンドウ
+pass2$:					;
+
+	S_POS	4,11
+	ld	de,taiki_msg$		;”つうしんたいきちゅう！”
+	call	put_msg
+
+	ld	c,50
+	jp	wait_vb_s		; ５０フレーム待ち
+
+taiki_msg$:
+ ifn  pm_jmsg
+	db	tu_,u_,si_,n_,ta_,i_,ki_,ti_,yyu_,u_,gyoe@,EOM	; つうしんたいきちゅう！
+ else
+	db	usf_w,usf_a_,usf_i_,usf_t_,usf_i_,usf_n_,usf_g_,kten@,kten@,kten@,gyoe@,EOM
+ endif
+

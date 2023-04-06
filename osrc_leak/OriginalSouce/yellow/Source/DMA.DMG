@@ -1,0 +1,34 @@
+
+	include	common.def
+
+bank1	group	1
+
+;*************************************************
+;*						*
+;*	DMA	[TRANSFER TO OAM]		*
+;*						*
+;*************************************************
+
+	public	dmaset
+
+dmaset:					;
+	ld	c,< dmasub		; 0ff80h
+	ld	b,00ah
+	ld	hl,dmadata
+z1$:
+	ld	a,(hli)
+	ld	(c),a
+	inc	c
+	dec	b
+	jr	nz,z1$
+	ret
+
+dmadata:
+	ld	a,> oam_buf
+	ld	(DMA),a			; 0df00h - df9f -> OAM
+	ld	a,028h			; 160 cycle wait
+z1$:
+	dec	a
+	jr	nz,z1$
+	ret
+

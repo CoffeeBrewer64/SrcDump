@@ -1,0 +1,237 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include macro.h
+	include group.def
+	include	pm_debug.def
+
+
+bank17	group	G_BANK17
+
+
+	extern	hotel1			; map data adrs
+	extern	bank_push_call
+	extern	gyaarth
+	extern	se_wait
+	extern	set_now_music
+	extern	muspurin
+	extern	warp_ef_out
+	extern	warp_ef_in
+	extern	direct_play
+	extern	hotel_sio
+
+	extern	set_pika_sleep
+
+	extern	MusicStop
+
+
+HOTEL_TYPE	equ	6
+EXIT		=	0ffh
+
+
+	public	t3_room6
+
+t3_room6:
+ysiz	=	4
+xsiz	=	7
+	db	HOTEL_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	hotel1			; map data adrs
+	dw	msg_t3r6f1			; message tbl adrs
+	dw	event_t3r6f1			; event routine adrs
+	db	0			; map link flg
+	dw	room_str		;
+
+
+event_t3r6f1:
+	ld	hl,yellow_event + 00h		; ピカチュウイベント発動
+	set	7,(hl)				; →毒のダメージが無効に
+
+	call	hotel_sio
+
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t3r6f1:
+	msgndw	msg1,msg_hotelman1
+	ndw	msg2,msg_hotelm1
+	ndw	msg3,msg_monster1
+	ndw	msg4,msg_termgirl
+	ndw	msg5,msg_depaga
+	ndw	msg6,msg_lucky
+
+
+msg1:
+	db	HOTEL
+
+
+msg2:
+	extern	msg2_0_T03R0601
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T03R0601	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg3_main
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg4:
+	db	0f6h				; termgirl -> talkmap.dmg
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg5_main
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg6:
+	db	CALL_MSG
+
+	extern	lucky_common_msg
+	ld	hl,lucky_common_msg
+	ld	b,G_BANK3c
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+room_str:
+	include	..\sxy\t03r0601.sxy
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+msg5_main:
+	ld	hl,msg5$
+	call	put_win_msg
+
+	ret
+
+msg5$:
+	extern	msg5_1_T03R0601
+	db I_MSG2	; mvmsg追加
+	dw msg5_1_T03R0601	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg3_main:
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+;	ld	hl,yellow_event + 00h
+;	set	7,(hl)				; ピカチュウイベント発動
+;
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	call	MusicStop
+
+	ld	c,020h
+	call	wait_vb_s
+
+	ld	hl,guruguru_tbl$
+	ld	de,usr_buf + 2
+	ld	bc,4
+	call	block_move
+
+	ld	a,(3*10h + 2 + actor_table)
+	ld	hl,usr_buf + 2
+
+loop$:
+	cp	(hl)
+	inc	hl
+	jr	nz,loop$
+
+	dec	hl
+	push	hl
+
+	ld	c,MUSIC_BANK3_NO
+	ld	a,muspurin
+	call	direct_play
+
+	pop	hl
+
+mus_check_loop$:
+	ld	a,(hl)
+	ld	(3*10h + 2 + actor_table),a
+
+	push	hl
+
+	ld	hl,usr_buf + 2
+	ld	de,usr_buf + 1
+	ld	bc,4
+	call	block_move
+	ld	a,(usr_buf + 1)
+	ld	(usr_buf + 5),a
+
+	pop	hl
+
+	ld	c,18h
+	call	wait_vb_s
+
+	ld	a,(condetion+0)
+	ld	b,a
+	ld	a,(condetion+1)
+	or	b
+	jr	nz,mus_check_loop$
+
+	ld	c,030h
+	call	wait_vb_s
+
+	call	set_now_music
+
+	ld	a,(obs_pikachu)
+	bit	7,a
+	ret	z
+
+	extern	check_pika_cond			; ピカチュウの状態異常を
+	ld	hl,check_pika_cond		; チェックする
+	ld	b,G_BANK3f			; carry ON = 異常あり
+	call	bank_push_call			;
+	ret	c
+
+	call	set_pika_sleep
+	ret
+
+
+msg3_0$:
+	extern	msg3_0_2_T03R0601
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_2_T03R0601	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+guruguru_tbl$:
+	db	40h,48h,44h,4ch
+;	db	30h,38h,34h,3ch
+	
+
+
+
+
+
+
+
+

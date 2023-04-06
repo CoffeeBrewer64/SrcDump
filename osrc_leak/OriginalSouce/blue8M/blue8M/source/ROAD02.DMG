@@ -1,0 +1,55 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		macro.h
+	include		group.def
+
+	
+bank15	group	G_BANK15
+
+
+	public	road2_event
+	public	road2_msg
+
+
+	extern	table_jump
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+road2_event:
+	jp	init_for_talkmap
+
+
+road2_msg:
+	msgndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+
+
+
+kanban1:
+	extern	kanban1_0_ROAD02
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_ROAD02	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_1_ROAD02
+	db I_MSG2	; mvmsg追加
+	dw kanban2_1_ROAD02	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+

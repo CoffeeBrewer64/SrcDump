@@ -1,0 +1,75 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room9
+
+	extern	capsule_item
+
+
+MANSHON_TYPE	equ	19
+EXIT		=	0ffh
+
+
+t7_room9:
+ysiz	=	4
+xsiz	=	4
+	db	MANSHON_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	jimusho		 	; map data adrs
+	dw	t7_room9_msg		; message adrs
+	dw	t7_room9_event		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+t7_room9_event:
+	call	init_for_talkmap
+
+	ret
+
+
+t7_room9_msg:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+
+
+msg1$:
+	extern	msg1_0_T07R0901
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T07R0901	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_T07R0901
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T07R0901	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_2_T07R0901
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T07R0901	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str: 
+	include	..\sxy\t07r0901.sxy
+
+
+jimusho:
+	include	..\mapdata\jimsho.map
+	
+

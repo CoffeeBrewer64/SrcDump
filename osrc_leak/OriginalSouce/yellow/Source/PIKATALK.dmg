@@ -1,0 +1,3683 @@
+	include	common.def
+	include	banktool.def
+	include	macro.h
+	include	fntequ.def
+	include	group.def
+	include	maphead.def
+	include	pm_debug.def
+
+	include	pika.def
+
+;	public	PIKAWORKEND
+;	NDS	0,PIKAWORKEND
+
+
+	extern	gyaarth_play
+	extern	bank2bank
+	extern	bank_change
+	extern	bank_push_call
+	extern	put_wait
+	extern	wait_vb
+	extern	mul_any
+
+	extern	chk_pika_sleep			; event pikachu sleeping
+
+
+
+bank0	group	G_BANK0
+
+
+;-------------------------------------------------------------
+;Get Single byte size data 
+;	from Pika's demo move table
+;In	: PikaAnmTblBank		demo action table bank
+;	: PikaAnmTblAddress		demo action table address
+;Out	: a regs			demo action data
+;-------------------------------------------------------------
+	public	GetByteData
+GetByteData:
+	push	hl
+	push	bc
+
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,(PikaAnmTblBank)
+	call	bank_change
+
+	ld	hl,PikaAnmTblAddress
+	ld	c,(hl)
+	inc	hl
+	ld	b,(hl)
+
+	ld	a,(bc)
+	inc	bc
+
+	ld	(hl),b
+	dec	hl
+	ld	(hl),c
+	ld	c,a
+
+	pop	af
+	call	bank_change
+	ld	a,c
+
+	pop	bc
+	pop	hl
+	ret
+
+
+;----------------------------------------------
+; Pika's Animation Controler in Event Sequence 
+; イベントからのピカチュウのアニメーション呼び出し
+; In:	hl regs		anime demo address
+;----------------------------------------------
+	public	PikaEventAnime
+
+PikaEventAnime:
+	ld	a,(rombankno)
+	ld	b,a			; anime table bank number
+	push	af
+	ld	a,G_BANK3f
+	call	bank_change
+
+	call	PikaAnimeMain
+
+	pop	af
+	call	bank_change
+
+	ret
+
+
+  ifn	0
+;---------------------------------------------------
+; ピカチュウの主人公に対する位置をチェック、それによって
+; 移動アニメを実行する
+; (ほかのＯＢＪに踏まれないようによけるため)
+;
+; In	: b regs	ピカチュウのいる方向（主人公に対して）
+;	: hl regs	ピカチュウの移動アニメデータ
+; Out	: carry On	移動アニメ実行
+;	:	Off	場所が合わなかったので実行せず
+;---------------------------------------------------
+	public	CheckAndDoPikaEscape
+
+CheckAndDoPikaEscape:
+	ld	a,(rombankno)
+	push	af
+	ld	a,G_BANK3f
+	call	bank_change
+
+	push	hl
+	call	chk_pika_escape
+	pop	hl
+
+	pop	af
+	call	bank_change
+
+	ld	a,c
+	and	a
+	ret	z
+
+	call	PikaEventAnime
+	scf
+	ret
+
+  endif
+
+
+
+bank3f	group	G_BANK3f
+
+
+HERO_SITE	equ	actor_table + 009h
+
+;---- number define for "BIKKURI" routine -------
+; 吹き出しマークの呼び出しコード
+
+BIKKURI_MARK	equ	0
+QUESTION_MARK	equ	1
+NIKONIKO_MARK	equ	2
+DOKURO_MARK	equ	3
+HEART_MARK	equ	4
+THUNDER_MARK	equ	5
+ZZZ_MARK	equ	6
+SAKANA_MARK	equ	7
+
+;------------------------------------------------
+
+
+;------fix number of actor site data ------------
+
+SOUTH_SITE_VALUE	equ	00h
+NORTH_SITE_VALUE	equ	04h
+WEST_SITE_VALUE		equ	08h
+EAST_SITE_VALUE		equ	0ch
+S_W_SITE_VALUE		equ	04 * 4
+S_E_SITE_VALUE		equ	05 * 4
+N_W_SITE_VALUE		equ	06 * 4
+N_E_SITE_VALUE		equ	07 * 4
+
+;------------------------------------------------
+
+;------------------------------------------------
+SPD1		equ	00
+SPD2		equ	01h * 20h
+SPD3		equ	02h * 20h
+SPD4		equ	03h * 20h
+
+ROLL_LEFT_SW	equ	00000000b
+ROLL_RIGHT_SW	equ	01000000b
+
+JMPCNT2		equ	4 * 10h		; 2 ^ 4 ==  16
+JMPCNT4		equ	3 * 10h		; 2 ^ 3 ==  8
+JMPCNT8		equ	2 * 10h		; 2 ^ 2 ==  4
+JMPCNT16	equ	1 * 10h		; 2 ^ 1 ==  2
+JMPCNT32	equ	0 * 10h		; 2 ^ 0 ==  1
+
+DATA_REQ	equ	080h
+CEL_DOT_LEN	equ	16 - 1
+
+;------------------------------------------------
+
+
+;======= MACRO DEFINE =====================================
+
+INITNUMBERING	macro	m_label
+macro_counter	=	0
+	NUMBERING	m_label
+	endm
+
+NUMBERING	macro	m_label
+m_label		equ	macro_counter
+macro_counter	=	macro_counter + 1
+	endm
+
+INITGLOBALNUM	macro	m_label
+macro_counter	=	0
+	GLOBALNUM	m_label
+	endm
+
+GLOBALNUM	macro	m_label
+	public	m_label
+m_label		equ	macro_counter
+macro_counter	=	macro_counter + 1
+	endm
+
+
+dbjp		macro	m_angle,m_height
+	db	m_angle + m_height - 1
+		endm
+
+dbmv		macro	m_spd,m_wait
+	db	m_spd + m_wait - 1
+		endm
+
+dbwt		macro	m_wait
+	db	m_wait - 1
+		endm
+;==========================================================
+
+
+
+
+;------------------------------------------------
+	extern	FACE_01_Code
+	extern	FACE_02_Code
+	extern	FACE_03_Code
+	extern	FACE_04_Code
+	extern	FACE_05_Code
+	extern	FACE_06_Code
+	extern	FACE_07_Code
+	extern	FACE_08_Code
+	extern	FACE_09_Code
+	extern	FACE_10_Code
+	extern	FACE_11_Code
+	extern	FACE_12_Code
+	extern	FACE_13_Code
+	extern	FACE_14_Code
+	extern	FACE_15_Code
+	extern	FACE_16_Code
+	extern	FACE_17_Code
+	extern	FACE_18_Code
+	extern	FACE_19_Code
+	extern	FACE_20_Code
+	extern	FACE_21_Code
+	extern	FACE_22_Code
+	extern	FACE_23_Code
+	extern	FACE_24_Code
+	extern	FACE_25_Code
+	extern	FACE_26_Code
+	extern	FACE_27_Code
+	extern	FACE_28_Code
+;------------------------------------------------
+
+
+
+;=======================================================================;
+; Category	: Control reactions of Pikatyu Actor
+; Author	:
+; Bank-No.	: G_BANK3f
+; In		: Nothing
+; Out		: Nothing
+; Infomation	: pika_hit_flag	:
+;		:
+;=======================================================================;
+
+	extern	jump_hl
+
+	public	talk_with_pika
+	public	event_with_pika
+
+
+talk_with_pika:
+	ld	a,(pika_hit_flag)
+	and	a
+	ret	z
+
+	ld	a,(work1)
+	cp	PIKA_ACT_NO
+	ret	nz
+
+	call	pika_in_talkmap
+
+	xor	a
+	ld	(work1),a
+	ld	(pika_hit_flag),a
+	ret
+
+
+event_with_pika:
+pika_in_talkmap:
+	ld	a,0d4h
+	ld	(work1),a
+
+	xor	a				; by tama 98/05/22
+	ld	(watashi_muki),a		; ピカチュウと話すときtalkmapの中で
+						; 主人公の向きが変わらないようにしている
+	ld	a,1
+	ld	(win_cancel),a
+
+	call	talk_map
+
+	xor	a
+	ld	(win_cancel),a
+	ret
+
+
+
+
+
+
+
+;-----------------------------------------------------------------------
+; ピカチュウ感情表現呼び出しルーチン
+; In:	hl regs		expression table
+;	a regs		expression number
+;-----------------------------------------------------------------------
+
+	public	PikaCmdBlanch
+
+PikaCmdBlanch:
+	ld	e,a
+	ld	d,00h
+	add	hl,de
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+
+loop$:
+	ld	a,(de)
+	inc	de
+	cp	0ffh
+	jr	z,end$
+
+	ld	c,a
+	ld	b,00h
+	ld	hl,cmd_table$
+	add	hl,bc
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	call	jump_hl
+
+	jr	loop$
+
+end$:
+	ret
+
+	extern	PikaPicture
+
+cmd_table$:
+	initndw		PikaDmy		,DUMMYMODE
+	ndw		PikaTalk	,PIKA_MSG_MODE
+	ndw		PikaVoice	,PIKA_VOICE_MODE
+	ndw		PikaMark	,PIKA_MARK_MODE
+	ndw		PikaAnime	,PIKA_ANIME_MODE
+	ndw		PikaPicture	,PIKA_PICTURE_MODE
+	ndw		PikaTask	,PIKA_TASK_MODE
+	ndw		PikaWaiting	,PIKA_WAIT_MODE
+	ndw		PikaDebug	,PIKA_DEBUG_MODE
+	ndw		PikaSiteHero	,PIKA_SITE_HERO_MODE
+
+	ndw		PikaEndMode	,PIKA_END_MODE
+
+PikaDmy:
+PikaEndMode:
+	ret
+
+;----------------------------------------------
+;Put Message in MsgWindow
+;----------------------------------------------
+PikaTalk:
+	ld	a,(de)
+	ld	l,a
+	inc	de
+	ld	a,(de)
+	ld	h,a
+	inc	de
+	push	de
+
+	call	put_win_msg
+
+	pop	de
+	ret
+	
+
+;----------------------------------------------
+; SE: Pika's Voice
+;----------------------------------------------
+	public	PikaVoice
+PikaVoice:
+	ld	a,(de)
+	inc	de
+	push	de
+
+	ld	e,a
+	nop
+	call	Voice$
+
+	pop	de
+	ret
+	
+Voice$:
+	cp	0ffh
+	ret	z
+
+	extern	PikaVoicePlay
+	ld	hl,PikaVoicePlay
+	ld	b,BANK__PikaVoicePlay	;	ld	b,G_BANK3b
+	call	bank_push_call
+	ret
+
+
+;----------------------------------------------
+; Put Hukidashi Mark On the Pika
+;----------------------------------------------
+PikaMark:
+	ld	a,(oam_flg)
+	push	af
+	ld	a,0ffh			; stop main actor works
+	ld	(oam_flg),a
+
+	ld	a,(de)
+	inc	de
+	push	de
+
+	call	mark$
+
+	pop	de
+
+	pop	af
+	ld	(oam_flg),a
+	ret
+mark$:
+	ld	(usr_buf + 19),a
+	ld	a,PIKA_ACT_NO
+	ld	(usr_buf + 18),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+	ret
+
+
+;----------------------------------------------
+; Pika's Demo Animation
+;----------------------------------------------
+PikaAnime:
+	ld	a,(de)
+	inc	de
+	ld	l,a
+	ld	a,(de)
+	inc	de
+	ld	h,a
+	push	de
+
+	ld	b,G_BANK3f
+
+	call	PikaAnimeMain
+
+	pop	de
+	ret
+
+;----------------------------------------------
+; Wait Count 
+;----------------------------------------------
+PikaWaiting:
+	ld	a,(de)
+	inc	de
+	push	de
+	ld	c,a
+	call	wait_vb_s
+	pop	de
+	ret
+
+;----------------------------------------------
+; Variable Works:character image data set
+;		:screen rewrite
+;		:etc.
+;----------------------------------------------
+PikaTask:
+	ld	a,(de)
+	inc	de
+	push	de
+
+	ld	e,a
+	ld	d,00h
+	ld	hl,subtbl$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	call	jump_hl
+
+	pop	de
+	ret
+
+subtbl$:
+	initndw	ForcePikaChrset		,CHRSET_PIKA
+	ndw	set_kana		,CHRSET_KANA
+	ndw	rewrite_map		,CLRALL_WIN
+	ndw	cont_abwait		,WAIT_ABKEY
+	ndw	nibi_event		,EVENT_CTRL00
+	ndw	kutiba_event		,EVENT_CTRL01
+	ndw	masaki_event		,EVENT_CTRL02
+
+
+
+
+
+
+
+
+;----------------------------------------------
+; Put Message for Debug Pika Emotion System
+;----------------------------------------------
+	public	PikaDebug
+PikaDebug:
+  ife	pm_debug
+
+	ret
+
+  else
+	push	hl
+	ld	hl,game_mode + 00	; デバッグモード以外のときは
+	bit	1,(hl)			; 機能しない
+	pop	hl
+	ret	z
+
+	push	de
+	ld	d,a
+	ld	a,(mapno)		; 主人公の家の２階でのみ
+	cp	T1R1F2			; 機能する
+	ld	a,d			; 
+	pop	de
+	ret	nz
+
+
+	push	de
+
+	call	rewrite_map
+	call	set_kana
+	ld	hl,debugmsg$
+	call	put_win_msg
+	call	rewrite_map
+
+	pop	de
+	ret
+debugmsg$:
+	extern	debugmsg_0_PIKATALK
+	db I_MSG2	; mvmsg追加
+	dw debugmsg_0_PIKATALK	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+  endif
+
+
+;------------------------------------------------
+; ピカチュウを自機と向かい合わせる。
+;------------------------------------------------
+PikaSiteHero:
+	push	de
+
+	call	site_hero_sub
+
+	call	actor_blanch
+
+	pop	de
+	ret
+
+
+site_hero_sub:
+	ld	a,(HERO_SITE)		; set the site
+	xor	00000100b		;  to reverse site of hero
+	ld	(PIKA_ACT_TABLE + 009h),a
+	ret
+
+
+
+
+
+;========================================================================
+; ピカチュウの感情表現ナンバーコントローラー
+; (主にデバッグ用)
+;
+;========================================================================
+	public	test_emotion		; for debug global label
+test_emotion:
+	nop				;
+	nop				; デバッガー上でご自由に
+	nop				; 書き換えてください。
+	nop				;
+	nop				;
+
+  ifn	pm_debug
+
+	push	hl			;
+	ld	hl,game_mode + 00	; デバッグモード以外のときは
+	bit	1,(hl)			; 機能しない
+	pop	hl			;
+	ret	z			;
+
+	push	de			;
+	ld	d,a			;
+	ld	a,(mapno)		; 主人公の家の２階でのみ
+	cp	T1R1F2			; 機能する
+	ld	a,d			; 
+	pop	de			;
+	ret	nz			;
+
+	ld	a,(pika_test_work)
+	inc	a
+	cp	ExpNoEnd
+	jr	c,pass$
+	ld	a,1
+pass$:
+	ld	(pika_test_work),a
+	ret
+
+  else
+
+	ret
+
+  endif
+
+
+
+  ifn	pm_debug
+
+	public	test_ending
+test_ending:
+	extern	ending
+	ld	hl,ending
+  ifn	ASSEMBLE__BANK_CHANGE
+	ld	b,G_BANK3c
+  else
+	ld	b,G_BANK30
+  endif
+	call	bank_push_call
+
+	call	cont_abwait
+
+	jr	test_ending
+
+  endif
+
+
+
+
+;==================================================
+;
+; イベントでの特定の顔呼び出し
+;
+; In	: e regs	感情表現ナンバー
+;==================================================
+	public	EventFacePut
+EventFacePut:
+	ld	a,e
+	jr	set_face
+
+	public	Feel23No		; ハテナ顔
+	public	Feel27No		; 驚き顔
+	public	SleepEventNo		; 寝ている→起きる
+	public	MasakiEvent0No		; ハテナ→
+	public	MasakiEvent1No		; ハテナ(声が短い）
+
+
+;==================================================
+;
+; pikachu actions (called by "talk_map")
+;
+;==================================================
+
+	public	pika_msg_main
+
+pika_msg_main:
+	call	special_face_chk
+	jr	c,set_face
+
+	call	get_pika_face_no
+	call	test_emotion
+
+set_face:
+	ld	(pika_test_work),a
+
+	ld	hl,pika_expression_tbl
+
+	call	PikaCmdBlanch
+
+	ret
+
+
+	public	pika_expression_tbl
+pika_expression_tbl:
+	initndw	FeelingStart	,StartNo
+
+	ndw	FeelingNo1	,Feel1No
+	ndw	FeelingNo2	,Feel2No
+	ndw	FeelingNo3	,Feel3No
+	ndw	FeelingNo4	,Feel4No
+	ndw	FeelingNo5	,Feel5No
+	ndw	FeelingNo6	,Feel6No
+	ndw	FeelingNo7	,Feel7No
+	ndw	FeelingNo8	,Feel8No
+	ndw	FeelingNo9	,Feel9No
+	ndw	FeelingNo10	,Feel10No
+
+	ndw	SleepState	,SleepStateNo
+
+	ndw	FeelingNo12	,Feel12No
+	ndw	FeelingNo13	,Feel13No
+	ndw	FeelingNo14	,Feel14No
+	ndw	FeelingNo15	,Feel15No
+	ndw	FeelingNo16	,Feel16No
+	ndw	FeelingNo17	,Feel17No
+
+	ndw	FeelingNo18	,Feel18No
+	ndw	FeelingNo19	,Feel19No
+
+	ndw	FeelingNo20	,Feel20No
+	ndw	FeelingNo21	,Feel21No
+	ndw	FeelingNo22	,Feel22No
+	ndw	FeelingNo23	,Feel23No
+	ndw	FeelingNo24	,Feel24No
+	ndw	FeelingNo25	,Feel25No
+	ndw	SleepEvent	,SleepEventNo
+	ndw	FeelingNo27	,Feel27No
+	ndw	FeelingNo28	,Feel28No
+	ndw	PippiEvent0	,PippiEvent0No
+	ndw	PippiEvent1	,PippiEvent1No
+	ndw	MasakiEvent0	,MasakiEvent0No
+	ndw	MasakiEvent1	,MasakiEvent1No
+
+	ndw	dummy$		,ExpNoEnd
+	
+
+dummy$:
+	db	0ffh
+
+
+
+
+
+;----------------------------------------------------------
+;
+; ピカチュウの感情表現割り振りルーチン
+; 特定のイベント中の判断などもこの中でやります。
+;
+; 作者:もりもとしげき
+; コメント\改変：たまだそうすけ
+;----------------------------------------------------------
+
+special_face_chk:
+	ld	a,(mapno)
+	cp	T6R2F1
+	jr	nz,chk_T3R6F1$
+
+	ld	hl,yellow_event			; 大好きクラブでマップに入ってすぐの呼び出し
+	bit	7,(hl)				; →それ以降はこのビットがオンになる
+	ld	a,PippiEvent0No			;
+	jr	z,special$			;
+
+	call	chk_pika_sleep			; ピカチュウに話し掛けると
+	ld	a,PippiEvent1No			; 表情の後付いて来るモードに戻る
+	jr	nz,special$			;
+	jr	checknext$			
+
+
+chk_T3R6F1$:
+	ld	a,(mapno)
+	cp	T3R6F1
+	jr	nz,chk_R25R1F1$
+
+	call	chk_pika_sleep			; ピカチュウが寝ているときは
+	ld	a,SleepEventNo			; 起きるイベントが発動する
+	jr	nz,special$			;
+	jr	checknext$
+
+
+chk_R25R1F1$:
+	extern	SelFaceInMasakiEvent		; マサキのイベントソース内で
+	ld	hl,SelFaceInMasakiEvent		; 表情コードを判断している
+	ld	b,G_BANK3c			;
+	call	bank_push_call			;
+
+	ld	a,e
+	cp	0ffh
+	jr	nz,special$
+	jr	checknext$
+
+
+
+checknext$:
+	call	pika_sleep_chk			; pikachu status = sleep
+	ld	a,SleepStateNo			;  move 
+	jr	c,special$			;
+
+	extern	check_pika_cond
+	ld	hl,check_pika_cond		; 
+	ld	b,G_BANK3f			; ピカチュウの状態が悪いときは
+	call	bank_push_call			; 泣き顔モード
+	ld	a,Feel28No			;
+	jr	c,special$			;
+
+	ld	a,(mapno)
+	cp	T5R2F1
+	jr	c,pass$
+	
+	cp	T5R3F1
+	ld	a,Feel22No			; こわがっている表情
+	jr	c,special$			; ポケモンタワー
+
+
+pass$:
+	ld	a,(pika_friendly3)		; 特別な表情
+	and	a
+	jr	z,not_special$
+
+	dec	a
+	ld	c,a
+	ld	b,0
+	ld	hl,special_face_tbl$
+	add	hl,bc
+	ld	a,(hl)
+	jr	special$	
+
+not_special$:
+	and	a	; NC
+	ret
+
+special$:
+	scf
+	ret
+
+
+special_face_tbl$:
+	db	Feel18No	; 1  ゲットだぜ！！ 
+	db	Feel21No	; 2  つり
+	db	Feel23No	; 3  はてな
+	db	Feel24No	; 4  いやいや
+	db	Feel25No	; 5  １０万ボルト
+
+;****************************************
+;	pika_sleep_chk			*
+;	Cy = sleep NC = not sleep	*
+;****************************************
+	public	pika_sleep_chk
+pika_sleep_chk:
+	xor	a
+	ld	(sel_item_pos),a
+loop$:
+	ld	a,(sel_item_pos)
+	ld	c,a
+	ld	b,0
+	ld	hl,my_cap_tbl + 1
+	add	hl,bc
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,not_sleep$
+
+	cp	84				; pikacyu
+	jr	nz,next$
+
+	extern	check_pika
+	ld	hl,check_pika
+	ld	b,G_BANK3f
+	call	bank_push_call
+	jr	nc,next$
+
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_data + 4		; condition
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+	
+	ld	a,(hl)
+	and	07h
+	jr	z,not_sleep$
+
+	jr	sleep$
+
+
+	
+next$:
+	ld	a,(sel_item_pos)
+	cp	5	
+	jr	z,not_sleep$
+
+	inc	a
+	ld	(sel_item_pos),a
+	jr	loop$
+	
+sleep$:
+	scf	
+	ret
+
+not_sleep$:
+	and	a
+	ret
+
+
+
+
+;=================================================
+; Pika's NATSUKI HYOUGEN DEMO TABLE
+;=================================================
+
+	public	FeelingNo1		; for debug global label
+	public	FeelingNo2		; for debug global label
+	public	FeelingNo3		; for debug global label
+	public	FeelingNo4		; for debug global label
+	public	FeelingNo5		; for debug global label
+	public	FeelingNo6		; for debug global label
+	public	FeelingNo7		; for debug global label
+	public	FeelingNo8		; for debug global label
+	public	FeelingNo9		; for debug global label
+	public	FeelingNo10		; for debug global label
+	public	SleepState		; for debug global label
+	public	FeelingNo12		; for debug global label
+	public	FeelingNo13		; for debug global label
+	public	FeelingNo14		; for debug global label
+	public	FeelingNo15		; for debug global label
+	public	FeelingNo16		; for debug global label
+	public	FeelingNo17		; for debug global label
+	public	FeelingNo18		; for debug global label
+	public	FeelingNo19		; for debug global label
+	public	FeelingNo20		; for debug global label
+	public	FeelingNo21		; for debug global label
+	public	FeelingNo22		; for debug global label
+	public	FeelingNo23		; for debug global label
+	public	FeelingNo24		; for debug global label
+	public	FeelingNo25		; for debug global label
+	public	SleepEvent		; for debug global label
+	public	FeelingNo27		; for debug global label
+	public	FeelingNo28		; for debug global label
+	public	PippiEvent0		; for debug global label
+	public	PippiEvent1		; for debug global label
+	public	MasakiEvent0		; for debug global label
+	public	MasakiEvent1		; for debug global label
+
+
+
+FeelingStart:
+	db	0ffh
+
+; Very friendly,smily
+FeelingNo2:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_MARK_MODE
+	db	NIKONIKO_MARK
+	db	PIKA_VOICE_MODE
+	db	22h
+	db	PIKA_PICTURE_MODE
+	db	FACE_02_Code
+	db	0ffh
+
+; Feel the Best!!
+FeelingNo10:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_TASK_MODE
+	db	CHRSET_PIKA
+;	db	PIKA_ANIME_MODE
+;	dw	Anime_RollAroundHero	; 自機の周りをくるくるする
+	db	PIKA_MARK_MODE
+	db	HEART_MARK
+	db	PIKA_VOICE_MODE
+	db	04			; surprise
+	db	PIKA_PICTURE_MODE
+	db	FACE_10_Code
+	db	0ffh
+
+; Very good feeling
+FeelingNo7:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_TASK_MODE
+	db	CHRSET_PIKA
+	db	PIKA_ANIME_MODE
+	dw	Anime_Jump
+
+	db	PIKA_VOICE_MODE
+	db	00h
+
+	db	PIKA_ANIME_MODE
+	dw	Anime_Jump
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_07_Code
+	db	0ffh
+
+; friendly
+FeelingNo4:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_TASK_MODE
+	db	CHRSET_PIKA
+	db	PIKA_ANIME_MODE
+	dw	Anime_JumpHere
+	db	PIKA_VOICE_MODE
+	db	01ch
+	db	PIKA_PICTURE_MODE
+	db	FACE_04_Code
+	db	0ffh
+
+; normal,comfortable
+FeelingNo1:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+;	db	02
+	db	0ffh			; dummy
+	db	PIKA_PICTURE_MODE
+	db	FACE_01_Code
+	db	0ffh
+
+; good feeling
+FeelingNo8:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+	db	26h
+	db	PIKA_PICTURE_MODE
+	db	FACE_08_Code
+	db	0ffh
+
+; not smile
+FeelingNo5:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+	db	1eh
+	db	PIKA_PICTURE_MODE
+	db	FACE_05_Code
+	db	0ffh
+
+; not friendly ,turn face side
+FeelingNo6:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_TASK_MODE
+	db	CHRSET_PIKA
+	db	PIKA_VOICE_MODE
+;	db	25h
+	db	0ffh			; dummy
+	db	PIKA_ANIME_MODE
+	dw	Anime_TurnFace
+	db	PIKA_MARK_MODE
+	db	DOKURO_MARK
+	db	PIKA_PICTURE_MODE
+	db	FACE_06_Code
+
+	db	0ffh
+
+; bad feeling,angry
+FeelingNo3:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+	db	27h
+	db	PIKA_PICTURE_MODE
+	db	FACE_03_Code
+	db	0ffh
+
+; worse feeling,turn face back
+FeelingNo9:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_TASK_MODE
+	db	CHRSET_PIKA
+	db	PIKA_VOICE_MODE
+	db	05			; angry
+	db	PIKA_ANIME_MODE
+	dw	Anime_TurnBack
+	db	PIKA_MARK_MODE
+	db	DOKURO_MARK
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_09_Code
+
+	db	0ffh
+
+
+; ピカチュウの寝顔
+SleepState:
+	db	PIKA_MARK_MODE
+	db	ZZZ_MARK
+
+	db	PIKA_VOICE_MODE
+	db	24h
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_11_Code
+
+	db	0ffh
+
+
+FeelingNo12:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+;	db	018h
+	db	0ffh			; dummy
+	db	PIKA_PICTURE_MODE
+	db	FACE_12_Code
+	db	0ffh
+
+FeelingNo13:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_TASK_MODE
+	db	CHRSET_PIKA
+
+	db	PIKA_ANIME_MODE
+	dw	Anime_TurnFace
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_13_Code
+
+	db	0ffh
+
+FeelingNo14:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_MARK_MODE
+	db	THUNDER_MARK
+
+	db	PIKA_VOICE_MODE
+	db	09			; angry
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_14_Code
+
+	db	0ffh
+
+FeelingNo15:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+	db	21h
+	db	PIKA_PICTURE_MODE
+	db	FACE_15_Code
+	db	0ffh
+
+FeelingNo16:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+	db	20h
+	db	PIKA_PICTURE_MODE
+	db	FACE_16_Code
+	db	0ffh
+
+FeelingNo17:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+	db	0ch
+	db	PIKA_PICTURE_MODE
+	db	FACE_17_Code
+	db	0ffh
+
+FeelingNo18:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+;	db	11h
+	db	0ffh			; dummy
+	db	PIKA_PICTURE_MODE
+	db	FACE_18_Code
+	db	0ffh
+
+
+
+
+FeelingNo19:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_MARK_MODE
+	db	HEART_MARK
+
+	db	PIKA_VOICE_MODE
+	db	020h
+	db	PIKA_PICTURE_MODE
+	db	FACE_19_Code
+	db	0ffh
+
+FeelingNo20:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_MARK_MODE
+	db	HEART_MARK
+
+	db	PIKA_VOICE_MODE
+	db	004h
+	db	PIKA_PICTURE_MODE
+	db	FACE_20_Code
+	db	0ffh
+
+; つりのあとのピカチュウ
+FeelingNo21:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_MARK_MODE
+	db	SAKANA_MARK
+
+	db	PIKA_VOICE_MODE
+	db	0ffh			; dummy
+	db	PIKA_PICTURE_MODE
+	db	FACE_21_Code
+	db	0ffh
+
+; 幽霊が恐いピカチュウ
+FeelingNo22:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_VOICE_MODE
+	db	003h
+	db	PIKA_PICTURE_MODE
+	db	FACE_22_Code
+	db	0ffh
+
+; ポケモンマサキを不思議がっているとき(その１) 
+FeelingNo23:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_VOICE_MODE
+	db	012h			; 疑問な声
+	db	PIKA_PICTURE_MODE
+	db	FACE_23_Code
+
+	db	PIKA_TASK_MODE
+	db	CLRALL_WIN
+	db	0ffh
+
+FeelingNo24:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_MARK_MODE
+	db	BIKKURI_MARK
+
+	db	PIKA_VOICE_MODE
+	db	0ffh			; dummy
+	db	PIKA_PICTURE_MODE
+	db	FACE_24_Code
+	db	0ffh
+
+FeelingNo25:
+	db	PIKA_DEBUG_MODE
+	db	PIKA_MARK_MODE
+	db	THUNDER_MARK
+
+	db	PIKA_VOICE_MODE
+	db	022h
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_25_Code
+	db	0ffh
+
+
+; ピカチュウ寝顔→起きる
+; →連れ歩きに戻る
+SleepEvent:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_MARK_MODE
+	db	ZZZ_MARK
+
+	db	PIKA_VOICE_MODE
+	db	24h
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_26_Code
+
+	db	PIKA_TASK_MODE
+	db	CLRALL_WIN
+
+	db	PIKA_TASK_MODE
+	db	EVENT_CTRL00
+
+	db	0ffh
+
+
+; おどろき
+FeelingNo27:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_VOICE_MODE
+	db	008h
+	db	PIKA_PICTURE_MODE
+	db	FACE_27_Code
+	db	0ffh
+
+FeelingNo28:
+	db	PIKA_DEBUG_MODE
+
+	db	PIKA_VOICE_MODE
+	db	00eh
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_28_Code
+
+	db	0ffh
+
+; ピッピとあってうれしいピカチュウ
+PippiEvent0:
+	db	PIKA_VOICE_MODE
+	db	04
+
+	db	PIKA_PICTURE_MODE
+	db	FACE_10_Code
+
+	db	0ffh
+
+
+; ピッピとあってうれしいことを
+; 主人公に伝えるピカチュウ
+; →連れ歩きに戻る
+PippiEvent1:
+	db	PIKA_SITE_HERO_MODE
+
+	db	PIKA_MARK_MODE
+	db	HEART_MARK
+
+	db	PIKA_VOICE_MODE
+	db	004h
+	db	PIKA_PICTURE_MODE
+	db	FACE_20_Code
+
+	db	PIKA_TASK_MODE
+	db	CLRALL_WIN
+
+	db	PIKA_TASK_MODE
+	db	CHRSET_KANA
+
+	db	PIKA_TASK_MODE
+	db	EVENT_CTRL01
+
+	db	0ffh
+
+
+; ポケモンマサキを不思議がっている
+; →連れ歩きに戻る
+MasakiEvent0:
+	db	PIKA_VOICE_MODE
+	db	012h			; 疑問な声
+	db	PIKA_PICTURE_MODE
+	db	FACE_23_Code
+
+	db	PIKA_TASK_MODE
+	db	CLRALL_WIN
+
+	db	PIKA_TASK_MODE
+	db	EVENT_CTRL02
+
+	db	0ffh
+
+; ポケモンマサキを不思議がっているとき(その２)
+MasakiEvent1:
+	db	PIKA_VOICE_MODE
+	db	019h
+	db	PIKA_PICTURE_MODE
+	db	FACE_23_Code
+
+	db	0ffh
+
+
+;=========================================================;
+; Pikachu Animation Tools
+;=========================================================;
+;--------------------------------------------------------
+;PikaAnmTblBank		command table bank number
+;PikaAnmTblAddress	command table bank address
+;PikaMoveRetFlag
+;
+;P_MoveNo		move program 
+;P_MoveParam		move program 
+;P_AnimeNo		animation pattern control count
+;P_AnimeParam		animation pattern code
+;P_AnimeWork		
+;P_Pattern
+;P_XPOS
+;P_YPOS
+;P_DX
+;P_DY
+;P_Work0
+;P_Work1
+;P_Work2
+;P_Work3
+;--------------------------------------------------------
+
+
+	public	Anime_TurnBack
+Anime_TurnBack:
+  ifn	1
+	db	Pika_Init
+	db	Pika_RightRoll
+	dbwt	2
+	db	Pika_Wait_Move
+	dbwt	31
+	db	Pika_End
+  else
+	db	Pika_Init
+	db	Pika_RightRoll
+	db	2 - 1
+	db	Pika_Wait_Move
+	db	30
+	db	Pika_End
+  endif
+
+	public	Anime_TurnFace
+Anime_TurnFace:
+  ifn	1
+	db	Pika_Init
+	db	Pika_RightRoll
+	dbwt	1
+	db	Pika_Wait_Move
+	dbwt	31
+	db	Pika_End
+  else
+	db	Pika_Init
+	db	Pika_RightRoll
+	db	1 - 1
+	db	Pika_Wait_Move
+	db	30
+	db	Pika_End
+  endif
+
+	public	Anime_Jump
+Anime_Jump:
+  ifn	1
+	db	Pika_Init
+
+;	db	Pika_Jump_Back
+;	dbmv	SPD1		,CEL_DOT_LEN + 1
+;	dbjp	JMPCNT16	,8
+
+	db	Pika_Jump_Here
+	dbwt	8
+	dbjp	JMPCNT8		,CEL_DOT_LEN + 1
+
+	db	Pika_Jump_Here
+	dbwt	8
+	dbjp	JMPCNT8		,CEL_DOT_LEN + 1
+
+	db	Pika_End
+
+	db	Pika_Rolling
+	dbwt	32
+	db	ROLL_LEFT_SW + 4 - 1
+
+;	db	Pika_Jump_Front
+;	dbmv	SPD1		,CEL_DOT_LEN + 1
+;	dbjp	JMPCNT16	,8
+
+	db	Pika_End
+  else
+	db	Pika_Init
+
+	db	Pika_Jump_Back
+	db	SPD1 + CEL_DOT_LEN
+	db	JMPCNT16 + 8 - 1
+
+	db	Pika_Jump_Here
+	db	8 - 1
+	db	JMPCNT8 + CEL_DOT_LEN
+
+	db	Pika_Jump_Here
+	db	8 - 1
+	db	JMPCNT8 + CEL_DOT_LEN
+
+	db	Pika_Rolling
+	db	32 - 1
+	db	ROLL_LEFT_SW + 4 - 1
+
+	db	Pika_Jump_Front
+	db	SPD1 + CEL_DOT_LEN
+	db	JMPCNT16 + 8 - 1
+
+	db	Pika_End
+  endif
+
+	public	Anime_JumpHere
+Anime_JumpHere:
+	db	Pika_Init
+	db	Pika_Jump_Here
+	dbwt	16
+	dbjp	JMPCNT16,CEL_DOT_LEN + 1
+	db	Pika_Jump_Here
+	dbwt	16
+	dbjp	JMPCNT16,CEL_DOT_LEN + 1
+	db	Pika_End
+
+
+Anime_RollAroundHero:
+  ifn	1
+	db	Pika_Init
+
+	db	Pika_Go_FrontLeft
+	dbmv	SPD1,8
+
+	db	Pika_RightRoll
+	dbwt	1
+
+	db	Pika_Go_FrontLeft
+	dbmv	SPD1,8
+
+	db	Pika_Go_FrontRight
+	dbmv	SPD1,8
+
+	db	Pika_RightRoll
+	dbwt	1
+
+	db	Pika_Go_FrontRight
+	dbmv	SPD1,8
+
+	db	Pika_Go_BackRight
+	dbmv	SPD1,8
+
+	db	Pika_RightRoll
+	dbwt	1
+
+	db	Pika_Go_BackRight
+	dbmv	SPD1,8
+
+	db	Pika_Go_BackLeft
+	dbmv	SPD1,8
+
+	db	Pika_RightRoll
+	dbwt	1
+
+	db	Pika_Go_BackLeft
+	dbmv	SPD1,8
+
+	db	Pika_End
+  else
+	db	Pika_Init
+
+	db	Pika_Go_FrontLeft
+	db	SPD1 + 8 - 1
+
+	db	Pika_RightRoll
+	db	0
+
+	db	Pika_Go_FrontLeft
+	db	SPD1 + 8 - 1
+
+	db	Pika_Go_FrontRight
+	db	SPD1 + 8 - 1
+
+	db	Pika_RightRoll
+	db	0
+
+	db	Pika_Go_FrontRight
+	db	SPD1 + 8 - 1
+
+	db	Pika_Go_BackRight
+	db	SPD1 + 8 - 1
+
+	db	Pika_RightRoll
+	db	0
+
+	db	Pika_Go_BackRight
+	db	SPD1 + 8 - 1
+
+	db	Pika_Go_BackLeft
+	db	SPD1 + 8 - 1
+
+	db	Pika_RightRoll
+	db	0
+
+	db	Pika_Go_BackLeft
+	db	SPD1 + 8 - 1
+
+	db	Pika_End
+  endif
+
+
+
+;=========================================================
+; ポケセンでピカチュウがカウンターに移動するアニメ
+;
+;
+;=========================================================
+	public	PMCAnime
+PMCAnime:
+  ifn	pm_jmsg
+  else
+	ld	a,PIKA_OBJ_OFFSET
+	ld	(pika_anime_offset),a
+  endif
+
+	call	ForcePikaChrSet
+
+	call	select_course
+	and	a
+	jr	z,pass$
+	call	PikaEventAnime
+pass$:
+  ifn	pm_jmsg
+  else
+	xor	a
+	ld	(pika_anime_offset),a
+  endif
+	ret
+
+
+	
+select_course:
+	ld	a,(PIKA_ACT_TABLE + 0104h)
+	ld	e,a
+	ld	a,(PIKA_ACT_TABLE + 0105h)
+	ld	d,a
+
+	ld	a,(mapscloll_y)
+	add	a,04h
+	cp	e
+	jr	z,xchk$
+	jr	nc,up$
+down$:
+	ld	hl,Anime_toDesk1
+;	ld	de,Anime_toBefore1
+	ld	a,1
+	ret
+up$:
+	xor	a
+	ret
+
+xchk$:
+	ld	a,(mapscloll_x)
+	add	a,04h
+	cp	d
+	jr	c,left$
+right$:
+	ld	hl,Anime_toDesk2
+;	ld	de,Anime_toBefore2
+	ld	a,2
+	ret
+left$:
+	ld	hl,Anime_toDesk3
+;	ld	de,Anime_toBefore3
+	ld	a,3
+	ret
+
+
+Anime_toDesk1:
+	db	Pika_Init
+	db	Pika_Site_North
+	db	Pika_Go_NorthWest
+	db	Pika_Jump_NorthEast
+	db	Pika_End
+
+Anime_toDesk2:
+	db	Pika_Init
+	db	Pika_Site_North
+	db	Pika_Jump_NorthEast
+	db	Pika_End
+
+Anime_toDesk3:
+	db	Pika_Init
+	db	Pika_Site_North
+	db	Pika_Jump_NorthWest
+	db	Pika_End
+
+
+  ifn	0
+;------------------------------------------------
+; ピカチュウが戻るアニメーションデータ
+; 使わなかった
+;------------------------------------------------
+Anime_toBefore1:
+	db	Pika_Site_South
+	db	Pika_Jump_SouthWest
+	db	Pika_Go_SouthEast
+	db	Pika_End
+
+Anime_toBefore2:
+	db	Pika_Site_South
+	db	Pika_Jump_SouthWest
+	db	Pika_End
+
+Anime_toBefore3:
+	db	Pika_Site_South
+	db	Pika_Jump_SouthEast
+	db	Pika_End
+
+
+;------------------------------------------------
+; ピカチュウ→ボールのアニメ、できはあまりよくない、
+; 結局使わなかった…
+;------------------------------------------------
+
+BallPart:
+	call	ForceRewritePikatoCap
+
+	ld	hl,Anime_KotoKoto
+	call	PikaEventAnime
+
+	ld	c,30
+	call	wait_vb_s
+
+	extern	set_pika_invisible
+	call	set_pika_invisible
+
+	call	wait_vb
+
+	call	actor_blanch
+	call	put_wait
+
+	call	ForcePikaChrSet
+	call	set_kana
+	ret
+	
+Anime_KotoKoto:
+	db	Pika_Init
+
+	db	Pika_Slide_Back
+	db	SPD1 + 2 - 1
+	db	Pika_Slide_Back
+	db	SPD2 + 1 - 1
+
+	db	Pika_Jump_Capsule
+	db	08 - 1
+	db	JMPCNT8 + 4 - 1
+	db	Pika_Jump_Capsule
+	db	08 - 1
+	db	JMPCNT8 + 2 - 1
+	db	Pika_Jump_Capsule
+	db	08 - 1
+	db	JMPCNT8 + 1 - 1
+	db	Pika_Jump_Capsule
+	db	16 - 1
+	db	JMPCNT16 + 1 - 1
+
+	db	Pika_Wait_Move
+	db	8
+
+	db	Pika_End
+
+  endif
+
+
+
+;=======================================================================;
+; ピカチュウのデモアニメコントロールメインルーチン
+; 
+; Category	: Pikachu demo animation control main routine
+; Author	: tama
+; Bank-No.	: G_BANK3f
+; In		: b regs	anime program table bank
+;		: hl regs	anime program table address
+; Out		: Nothing
+; Infomation	: Nothing
+;=======================================================================;
+
+AnmEndBit	equ	7
+KageActBit	equ	6
+
+	INITNDS		PikaDemoWork
+	NDS	1	,P_MoveParam
+	NDS	1	,P_MoveNo
+	NDS	1	,P_AnimeParam
+	NDS	1	,P_AnimeNo
+	NDS	1	,P_AnimeWork
+	NDS	1	,P_Pattern
+	NDS	1	,P_XPOS
+	NDS	1	,P_YPOS
+	NDS	1	,P_DX
+	NDS	1	,P_DY
+	NDS	1	,P_WORK0
+	NDS	1	,P_WORK1
+	NDS	1	,P_WORK2
+	NDS	1	,P_WORK3
+	
+
+
+	public	PikaAnimeMain
+
+PikaAnimeMain:
+	ld	a,b
+	ld	(PikaAnmTblBank),a
+	ld	a,l
+	ld	(PikaAnmTblAddress),a
+	ld	a,h
+	ld	(PikaAnmTblAddress + 1),a
+
+	call	pika_hero_exchange
+
+loop$:
+	call	GetAnimeData
+	jr	nc,end$
+
+	call	PikaAnimeLoop
+
+	jr	loop$
+
+end$:
+	call	pika_hero_exchange
+
+	call	wait_vb
+
+	ret
+
+
+
+;-----------------------------------------------------------------
+; Exchange Position of Actor Data Hero & Pika
+;  to Increase Priority of Pika Actor (Nobody cover Pika Actor!)
+;
+; ピカチュウの表示プライオリティをあげるために、もっとも
+; 高いプライオリティになる主人公のactor_table の位置を操作する。
+; そのため、一時的に主人公とピカチュウのプライオリティをいれかえる。
+;
+;-----------------------------------------------------------------
+pika_hero_exchange:
+	ld	a,(oam_flg)
+	push	af
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	push	hl
+	push	de
+	push	bc
+
+	ld	hl,actor_table
+	ld	de,PIKA_ACT_TABLE
+	ld	c,16
+	call	exchange_sub$
+
+	ld	hl,actor_table + 0100h
+	ld	de,PIKA_ACT_TABLE + 0100h
+	ld	c,16
+	call	exchange_sub$
+
+	pop	bc
+	pop	de
+	pop	hl
+
+	pop	af
+	ld	(oam_flg),a
+	ret
+	
+exchange_sub$:
+loop$:
+	ld	b,(hl)
+	ld	a,(de)
+	ld	(hli),a
+	ld	a,b
+	ld	(de),a
+	inc	de
+	dec	c
+	jr	nz,loop$
+	ret
+
+
+
+
+;--------------------------------------------------
+; ピカチュウアニメーションデータの読み込み
+;
+;
+;--------------------------------------------------
+GetAnimeData:
+	call	GetByteData
+	cp	Pika_End
+	ret	z
+
+	ld	c,a
+	ld	b,00h
+	ld	hl,PikaActCmdTable
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	(P_MoveNo),a
+
+	ld	a,(hli)
+	cp	DATA_REQ
+	jr	nz,setmvparam$
+
+	call	GetByteData
+
+setmvparam$:
+	ld	(P_MoveParam),a
+
+	ld	a,(hli)
+	ld	(P_AnimeNo),a
+
+	ld	a,(hli)
+	cp	DATA_REQ
+	jr	nz,setanmparam$
+
+	call	GetByteData
+
+setanmparam$:
+	ld	(P_AnimeParam),a
+
+	xor	a
+	ld	(P_AnimeWork),a
+
+	scf
+	ret
+
+
+
+
+;---------------------------------------------------------
+; ピカチュウアニメ（１コマンド分）の実行
+;
+;
+;---------------------------------------------------------
+	public	PikaAnimeLoop
+PikaAnimeLoop:
+	xor	a
+	ld	(PikaMoveRetFlag),a
+	ld	(P_Work0),a		; move counter
+	ld	(P_Work1),a		; anime counter
+;	ld	(P_Work2),a
+;	ld	(P_Work3),a
+
+	ld	a,(actor_table + 0107h)
+	push	af
+
+
+loop$:
+;	ld	bc,PIKA_ACT_TABLE
+	ld	bc,actor_table			; ピカチュウのアクターは臨時に
+						; 主人公の位置に登録されている
+
+	ld	a,(P_MoveNo)
+	ld	hl,PikaMoveSubTable
+	call	tbl_jp$
+	
+	ld	a,(P_AnimeNo)
+	ld	hl,PikaAnimeSubTable
+	call	tbl_jp$
+
+	call	set_oam_data$
+
+	call	check_shadow$
+
+	call	wait_vb
+	call	wait_vb
+
+	ld	hl,PikaMoveRetFlag
+	bit	AnmEndBit,(hl)
+	jr	z,loop$
+
+
+	pop	af
+	ld	(actor_table + 0107h),a
+
+	scf
+	ret
+
+tbl_jp$:
+	ld	e,a
+	ld	d,00h
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+
+set_oam_data$:
+	LD_HL	bc,002h
+	ld	a,(P_Pattern)
+	ld	(hl),a			; +002:actor_pattern
+	ld	a,(P_YPOS)
+	ld	d,a
+	ld	a,(P_DY)
+	add	a,d
+	LD_HL	bc,004h
+	ld	(hl),a			; +004:local_y
+	ld	a,(P_XPOS)
+	ld	d,a
+	ld	a,(P_DX)
+	add	a,d
+	LD_HL	bc,006h
+	ld	(hl),a			; +006:local_x
+
+	ld	hl,PikaMoveRetFlag
+	bit	KageActBit,(hl)
+	ret	z
+
+	LD_HL	bc,0107h		; +107:asimoto
+	ld	(hl),00h		; ジャンプ中は足元を隠さない
+	
+	ret
+
+
+check_shadow$:
+	ld	hl,PikaMoveRetFlag
+	bit	KageActBit,(hl)
+	res	KageActBit,(hl)
+
+	ld	hl,obs_map_step
+	res	6,(hl)
+	ret	z			; shadow off --> return
+
+	set	6,(hl)
+	call	SetPikaShadow
+	ret
+
+
+
+
+
+;=======================================================================;
+; Category	: Pikachu Reaction Demo Program
+; 		; Define Table For Pika's Animation Command
+; Author	: tama
+; Bank-No.	: G_BANK3f
+; Infomation	: For Pikachu Animation & Move Control Code
+;=======================================================================;
+
+PikaActCmdTable:
+	INITGLOBALNUM	Pika_Init
+	db	MoveInitCode
+	db	0
+	db	InitAnimeNo
+	db	0
+
+;----
+	GLOBALNUM	Pika_Go_Front
+	db	NormalFrontMoveCode
+	db	DATA_REQ
+	db	NormalWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_Back
+	db	NormalBackMoveCode
+	db	DATA_REQ
+	db	NormalWalkNo
+	db	0
+	
+	GLOBALNUM	Pika_Go_Left
+	db	NormalLeftMoveCode
+	db	DATA_REQ
+	db	NormalWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_Right
+	db	NormalRightMoveCode
+	db	DATA_REQ
+	db	NormalWalkNo
+	db	0
+
+
+	GLOBALNUM	Pika_Go_FrontLeft
+	db	FrontLeftMoveCode
+	db	DATA_REQ
+	db	NormalWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_FrontRight
+	db	FrontRightMoveCode
+	db	DATA_REQ
+	db	NormalWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_BackLeft
+	db	BackLeftMoveCode
+	db	DATA_REQ
+	db	NormalWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_BackRight
+	db	BackRightMoveCode
+	db	DATA_REQ
+	db	NormalWalkNo
+	db	0
+
+
+;----
+	GLOBALNUM	Pika_Slide_Front
+	db	NormalFrontMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	0
+
+	GLOBALNUM	Pika_Slide_Back
+	db	NormalBackMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	0
+	
+	GLOBALNUM	Pika_Slide_Left
+	db	NormalLeftMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	0
+
+	GLOBALNUM	Pika_Slide_Right
+	db	NormalRightMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	0
+
+
+	GLOBALNUM	Pika_Slide_FrontLeft
+	db	FrontLeftMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	0
+
+	GLOBALNUM	Pika_Slide_FrontRight
+	db	FrontRightMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	0
+
+	GLOBALNUM	Pika_Slide_BackLeft
+	db	BackLeftMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	0
+
+	GLOBALNUM	Pika_Slide_BackRight
+	db	BackRightMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	0
+
+
+;----
+	GLOBALNUM	Pika_Roll_Front
+	db	NormalFrontMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Roll_Back
+	db	NormalBackMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+	
+	GLOBALNUM	Pika_Roll_Left
+	db	NormalLeftMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Roll_Right
+	db	NormalRightMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+
+
+	GLOBALNUM	Pika_Roll_FrontLeft
+	db	FrontLeftMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Roll_FrontRight
+	db	FrontRightMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Roll_BackLeft
+	db	BackLeftMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Roll_BackRight
+	db	BackRightMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+
+;----
+	GLOBALNUM	Pika_Jump_Front
+	db	NormalFrontMoveCode
+	db	DATA_REQ
+	db	NormalJumpNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Jump_Back
+	db	NormalBackMoveCode
+	db	DATA_REQ
+	db	NormalJumpNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Jump_Left
+	db	NormalLeftMoveCode
+	db	DATA_REQ
+	db	NormalJumpNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Jump_Right
+	db	NormalRightMoveCode
+	db	DATA_REQ
+	db	NormalJumpNo
+	db	DATA_REQ
+
+
+; セル単位で移動、グローバル座標も変化、方向は絶対方向指定
+;----
+CEL_DOT_LEN_HALF	equ	CEL_DOT_LEN / 2
+
+	GLOBALNUM	Pika_Run_South
+	db	SouthMoveCode
+	db	SPD2 + CEL_DOT_LEN_HALF
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Run_North
+	db	NorthMoveCode
+	db	SPD2 + CEL_DOT_LEN_HALF
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Run_West
+	db	WestMoveCode
+	db	SPD2 + CEL_DOT_LEN_HALF
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Run_East
+	db	EastMoveCode
+	db	SPD2 + CEL_DOT_LEN_HALF
+	db	ForceWalkNo
+	db	0
+
+
+	GLOBALNUM	Pika_Run_SouthWest
+	db	SouthWestMoveCode
+	db	SPD2 + CEL_DOT_LEN_HALF
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Run_SouthEast
+	db	SouthEastMoveCode
+	db	SPD2 + CEL_DOT_LEN_HALF
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Run_NorthWest
+	db	NorthWestMoveCode
+	db	SPD2 + CEL_DOT_LEN_HALF
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Run_NorthEast
+	db	NorthEastMoveCode
+	db	SPD2 + CEL_DOT_LEN_HALF
+	db	ForceWalkNo
+	db	0
+
+;----
+	GLOBALNUM	Pika_Go_South
+	db	SouthMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_North
+	db	NorthMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_West
+	db	WestMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_East
+	db	EastMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_SouthWest
+	db	SouthWestMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_SouthEast
+	db	SouthEastMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_NorthWest
+	db	NorthWestMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceWalkNo
+	db	0
+
+	GLOBALNUM	Pika_Go_NorthEast
+	db	NorthEastMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceWalkNo
+	db	0
+
+;----
+	GLOBALNUM	Pika_Jump_South
+	db	SouthMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceJumpNo
+	db	JMPCNT16 + 8 - 1
+
+	GLOBALNUM	Pika_Jump_North
+	db	NorthMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceJumpNo
+	db	JMPCNT16 + 8 - 1
+
+	GLOBALNUM	Pika_Jump_West
+	db	WestMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceJumpNo
+	db	JMPCNT16 + 8 - 1
+
+	GLOBALNUM	Pika_Jump_East
+	db	EastMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceJumpNo
+	db	JMPCNT16 + 8 - 1
+
+	GLOBALNUM	Pika_Jump_SouthWest
+	db	SouthWestMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceJumpNo
+	db	JMPCNT16 + 8 - 1
+
+	GLOBALNUM	Pika_Jump_SouthEast
+	db	SouthEastMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceJumpNo
+	db	JMPCNT16 + 8 - 1
+
+	GLOBALNUM	Pika_Jump_NorthWest
+	db	NorthWestMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceJumpNo
+	db	JMPCNT16 + 8 - 1
+
+	GLOBALNUM	Pika_Jump_NorthEast
+	db	NorthEastMoveCode
+	db	SPD1 + CEL_DOT_LEN
+	db	ForceJumpNo
+	db	JMPCNT16 + 8 - 1
+
+;----
+	GLOBALNUM	Pika_Site_South
+	db	SiteSouthCode
+	db	SPD1 + CEL_DOT_LEN
+	db	StandingNo
+	db	00
+
+	GLOBALNUM	Pika_Site_North
+	db	SiteNorthCode
+	db	SPD1 + CEL_DOT_LEN
+	db	StandingNo
+	db	00
+
+	GLOBALNUM	Pika_Site_West
+	db	SiteWestCode
+	db	SPD1 + CEL_DOT_LEN
+	db	StandingNo
+	db	00
+
+	GLOBALNUM	Pika_Site_East
+	db	SiteEastCode
+	db	SPD1 + CEL_DOT_LEN
+	db	StandingNo
+	db	00
+
+
+;----
+	GLOBALNUM	Pika_RightRoll
+	db	NoMoveCode
+	db	DATA_REQ
+	db	MigiKaitenNo
+	db	0
+
+	GLOBALNUM	Pika_LeftRoll
+	db	NoMoveCode
+	db	DATA_REQ
+	db	HidariKaitenNo
+	db	0
+
+	GLOBALNUM	Pika_Rolling
+	db	NoMoveCode
+	db	DATA_REQ
+	db	KaitenNo
+	db	DATA_REQ
+
+;----
+	GLOBALNUM	Pika_Jump_Here
+	db	NoMoveCode
+	db	DATA_REQ
+	db	NormalJumpNo
+	db	DATA_REQ
+
+	GLOBALNUM	Pika_Jump_Capsule
+	db	NoMoveCode
+	db	DATA_REQ
+	db	CapJumpNo
+	db	DATA_REQ
+
+;----
+	GLOBALNUM	Pika_Wait_Move
+	db	NoMoveCode
+	db	DATA_REQ
+	db	StandingNo
+	db	00			;dummy
+
+	GLOBALNUM	Pika_End
+
+
+
+
+
+;=======================================================================;
+; Category	: Pikachu Reaction Demo Program
+; Author	: tama
+; Bank-No.	: G_BANK3f
+; Infomation	: For Pikachu OBJ move Control
+;=======================================================================;
+
+PikaMoveSubTable:
+	initndw	SampleMove	,SampleMvCode
+	ndw	MoveInit	,MoveInitCode
+	ndw	NoMove		,NoMoveCode
+
+	ndw	NormalFrontMove	,NormalFrontMoveCode
+	ndw	NormalBackMove	,NormalBackMoveCode
+	ndw	NormalLeftMove	,NormalLeftMoveCode
+	ndw	NormalRightMove	,NormalRightMoveCode
+	ndw	FrontLeftMove	,FrontLeftMoveCode
+	ndw	FrontRightMove	,FrontRightMoveCode
+	ndw	BackLeftMove	,BackLeftMoveCode
+	ndw	BackRightMove	,BackRightMoveCode
+
+	ndw	GoSouthMove	,SouthMoveCode
+	ndw	GoNorthMove	,NorthMoveCode
+	ndw	GoWestMove	,WestMoveCode
+	ndw	GoEastMove	,EastMoveCode
+	ndw	GoSouthWestMove	,SouthWestMoveCode
+	ndw	GoSouthEastMove	,SouthEastMoveCode
+	ndw	GoNorthWestMove	,NorthWestMoveCode
+	ndw	GoNorthEastMove	,NorthEastMoveCode
+	ndw	SiteSouthSet	,SiteSouthCode
+	ndw	SiteNorthSet	,SiteNorthCode
+	ndw	SiteWestSet	,SiteWestCode
+	ndw	SiteEastSet	,SiteEastCode
+
+	ndw	MoveEnd		,MoveEndCode
+
+
+SetMvSubEnd:
+	ld	a,(PikaMoveRetFlag)
+	set	AnmEndBit,a
+	ld	(PikaMoveRetFlag),a
+
+	ret
+
+
+
+SampleMove:
+MoveEnd:
+	call	SetMvSubEnd
+	ret
+
+
+MoveInit:
+;	ld	bc,PIKA_ACT_TABLE
+	LD_HL	bc,004h
+	ld	a,(hl)
+	ld	(P_YPOS),a
+	LD_HL	bc,006h
+	ld	a,(hl)
+	ld	(P_XPOS),a
+	xor	a
+	ld	(P_DY),a
+	ld	(P_DX),a
+	call	SetMvSubEnd
+	ret
+
+
+
+NoMove:
+	call	MoveCntDown
+	ret	nz
+
+	call	SetMvSubEnd
+	ret
+	
+
+
+
+NormalFrontMove:
+	call	GetRealSite
+	jr	NormalMoveSame
+
+
+NormalBackMove:
+	call	GetRealSite
+	xor	04h			; reflect site
+	jr	NormalMoveSame
+
+NormalLeftMove:
+	call	GetRealSite
+	ld	hl,leftcnvtbl$
+	call	CnvSame
+	jr	NormalMoveSame
+leftcnvtbl$:
+	db	SOUTH_SITE_VALUE,	EAST_SITE_VALUE
+	db	NORTH_SITE_VALUE,	WEST_SITE_VALUE
+	db	WEST_SITE_VALUE,	SOUTH_SITE_VALUE
+	db	EAST_SITE_VALUE,	NORTH_SITE_VALUE
+	db	0ffh
+	
+NormalRightMove:
+	call	GetRealSite
+	ld	hl,rightcnvtbl$
+	call	CnvSame
+	jr	NormalMoveSame
+
+rightcnvtbl$:
+	db	SOUTH_SITE_VALUE,	WEST_SITE_VALUE
+	db	NORTH_SITE_VALUE,	EAST_SITE_VALUE
+	db	WEST_SITE_VALUE,	NORTH_SITE_VALUE
+	db	EAST_SITE_VALUE,	SOUTH_SITE_VALUE
+	db	0ffh
+
+FrontLeftMove:
+	call	GetRealSite
+	ld	hl,frlfcnvtbl$
+	call	CnvSame
+	jr	NanameMoveSame
+frlfcnvtbl$:
+	db	SOUTH_SITE_VALUE,	S_E_SITE_VALUE
+	db	NORTH_SITE_VALUE,	N_W_SITE_VALUE
+	db	WEST_SITE_VALUE,	S_W_SITE_VALUE
+	db	EAST_SITE_VALUE,	N_E_SITE_VALUE
+
+FrontRightMove:
+	call	GetRealSite
+	ld	hl,frrtcnvtbl$
+	call	CnvSame
+	jr	NanameMoveSame
+frrtcnvtbl$:
+	db	SOUTH_SITE_VALUE,	S_W_SITE_VALUE
+	db	NORTH_SITE_VALUE,	N_E_SITE_VALUE
+	db	WEST_SITE_VALUE,	N_W_SITE_VALUE
+	db	EAST_SITE_VALUE,	S_E_SITE_VALUE
+
+BackLeftMove:
+	call	GetRealSite
+	ld	hl,bklfcnvtbl$
+	call	CnvSame
+	jr	NanameMoveSame
+bklfcnvtbl$:
+	db	SOUTH_SITE_VALUE,	N_E_SITE_VALUE
+	db	NORTH_SITE_VALUE,	S_W_SITE_VALUE
+	db	WEST_SITE_VALUE,	S_E_SITE_VALUE
+	db	EAST_SITE_VALUE,	N_W_SITE_VALUE
+
+BackRightMove:
+	call	GetRealSite
+	ld	hl,bkrtcnvtbl$
+	call	CnvSame
+	jr	NanameMoveSame
+bkrtcnvtbl$:
+	db	SOUTH_SITE_VALUE,	N_W_SITE_VALUE
+	db	NORTH_SITE_VALUE,	S_E_SITE_VALUE
+	db	WEST_SITE_VALUE,	N_E_SITE_VALUE
+	db	EAST_SITE_VALUE,	S_W_SITE_VALUE
+
+
+NanameMoveSame:
+NormalMoveSame:
+	rrca
+	rrca
+	and	00000111b
+
+	ld	e,a
+	call	GetMoveSpeed
+	ld	d,a
+	call	NormalMoveSub
+
+	call	MoveCntDown
+	ret	nz
+
+	call	SetMvSubEnd
+	ret
+
+CnvSame:
+	push	de
+	ld	d,a
+srchloop$:
+	ld	a,(hli)
+	cp	d
+	jr	z,hit$
+	inc	hl
+	cp	0ffh
+	jr	nz,srchloop$
+	pop	de
+	ret
+hit$:
+	ld	a,(hl)
+	pop	de
+	scf
+	ret
+
+
+GoSouthMove
+	ld	a,00h
+	jr	ForceWalkSame
+GoNorthMove
+	ld	a,01h
+	jr	ForceWalkSame
+GoWestMove
+	ld	a,02h
+	jr	ForceWalkSame
+GoEastMove
+	ld	a,03h
+	jr	ForceWalkSame
+
+GoSouthWestMove:
+	ld	e,04h
+	jr	ForceNanameWalkSame
+GoSouthEastMove:
+	ld	e,05h
+	jr	ForceNanameWalkSame
+GoNorthWestMove:
+	ld	e,06h
+	jr	ForceNanameWalkSame
+GoNorthEastMove:
+	ld	e,07h
+	jr	ForceNanameWalkSame
+
+
+ForceWalkSame:
+	ld	e,a
+	call	SetRealSite
+ForceNanameWalkSame:
+	call	GetMoveSpeed
+	ld	d,a
+	push	de
+	call	NormalMoveSub
+	pop	de
+
+	call	MoveCntDown
+	ret	nz
+
+	ld	a,e
+	call	ChgGlobalYX
+	call	SetMvSubEnd
+	ret
+
+SiteSouthSet:
+	ld	a,00h
+	jr	OnlySetSiteSame
+SiteNorthSet:
+	ld	a,01h
+	jr	OnlySetSiteSame
+SiteWestSet:
+	ld	a,02h
+	jr	OnlySetSiteSame
+SiteEastSet:
+	ld	a,03h
+	jr	OnlySetSiteSame
+
+OnlySetSiteSame:
+;	ld	bc,PIKA_ACT_TABLE
+	call	SetRealSite
+
+	call	SetMvSubEnd
+	ret
+
+
+
+;----------------------------------
+; In:	d regs	dot step
+;	e regs	move site
+;----------------------------------
+	public	NormalMoveSub
+NormalMoveSub:
+	push	de
+	ld	d,00h
+	ld	hl,site_tbl$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	pop	de
+	ld	a,d			; dot step 
+
+	jp	(hl)
+site_tbl$:
+	dw	south$
+	dw	north$
+	dw	west$
+	dw	east$
+	dw	southwest$	; 04
+	dw	southeast$	; 05
+	dw	northwest$	; 06
+	dw	northeast$	; 07
+
+south$:
+	ld	d,00h
+	ld	e,a
+	jr	set$
+north$:
+	ld	d,00h
+	cpl
+	inc	a
+	ld	e,a
+	jr	set$
+west$:
+	cpl
+	inc	a
+	ld	d,a
+	ld	e,00h
+	jr	set$
+east$:
+	ld	d,a
+	ld	e,00h
+	jr	set$
+
+southwest$:
+	ld	e,a
+	cpl
+	inc	a
+	ld	d,a
+	jr	set$
+
+southeast$:
+	ld	e,a
+	ld	d,a
+	jr	set$
+
+northwest$:
+	cpl
+	inc	a
+	ld	e,a
+	ld	d,a
+	jr	set$
+
+northeast$:
+	ld	d,a
+	cpl
+	inc	a
+	ld	e,a
+	jr	set$
+
+set$:
+	ld	a,(P_XPOS)
+	add	a,d
+	ld	(P_XPOS),a
+	ld	a,(P_YPOS)
+	add	a,e
+	ld	(P_YPOS),a
+
+	ret
+
+	
+
+
+
+
+
+
+
+;=======================================================================;
+; Category	: Pikachu Reaction Demo Program
+; Author	: tama
+; Bank-No.	: G_BANK3f
+; Infomation	: for Pikachu Animation Pattern Control 
+;		:
+;=======================================================================;
+
+	public	PikaAnimeSubTable
+PikaAnimeSubTable:
+	initndw	InitAnime	,InitAnimeNo
+	ndw	NormalWalk	,NormalWalkNo
+	ndw	ForceWalk	,ForceWalkNo
+	ndw	Kaiten		,KaitenNo
+	ndw	MigiKaiten	,MigiKaitenNo
+	ndw	HidariKaiten	,HidariKaitenNo
+	ndw	Standing	,StandingNo
+	ndw	NormalJump	,NormalJumpNo
+	ndw	ForceJump	,ForceJumpNo
+	ndw	CapJump		,CapJumpNo
+	ndw	AnimeEnd	,AnimeEndNo
+
+
+SetShadowMode:
+	ld	hl,PikaMoveRetFlag
+	set	KageActBit,(hl)
+	ret
+
+
+
+InitAnime:
+;	ld	bc,PIKA_ACT_TABLE
+	LD_HL	bc,007h
+	xor	a
+	ld	(hli),a			; PCC
+	ld	(hl),a			; PWC
+
+	call	GetChrPos
+	ld	d,a
+	call	GetRealSite
+	or	d
+	ld	(P_Pattern),a
+	ret
+
+AnimeEnd:
+	ret
+
+Standing:
+	call	GetChrPos
+	ld	d,a
+	call	GetNowSite
+	or	d
+	ld	(P_Pattern),a
+	ret
+
+
+ForceWalk:
+	call	GetChrPos
+	ld	d,a
+	call	GetRealSite
+	or	d
+	ld	d,a
+	jr	WalkAnimeSame
+
+NormalWalk:
+	call	GetChrPos
+	ld	d,a
+	call	GetNowSite
+	or	d
+	ld	d,a
+
+WalkAnimeSame:
+	LD_HL	bc,008h
+
+	call	AnimeCntDown
+	jr	nz,pass$
+
+	inc	(hl)
+pass$:
+	ld	a,(hl)
+	rrca
+	rrca
+	and	00000011b
+	or	d
+	ld	(P_Pattern),a
+
+	ret
+
+
+	public	ForceJump
+ForceJump:
+	call	GetRealSite
+	ld	d,a
+	jr	JumpAnimeSame
+
+	public	NormalJump
+NormalJump:
+	call	GetNowSite
+	ld	d,a
+JumpAnimeSame:
+	call	GetChrPos
+	or	d
+	ld	d,a
+	call	NormalWalkTempo
+	or	d
+	ld	(P_Pattern),a
+
+	call	CalcJumpVal
+	ld	(P_DY),a
+	and	a
+	ret	z
+	call	SetShadowMode
+	ret
+
+CapJump:
+	call	GetRealSite
+	ld	d,a
+	call	GetChrPos
+	or	d
+	ld	(P_Pattern),a
+
+	call	CalcJumpVal
+	ld	(P_DY),a
+	ret
+
+	public	Kaiten
+Kaiten:
+	ld	a,(P_AnimeParam)
+	and	01000000b
+	cp	ROLL_RIGHT_SW
+	jr	z,MigiKaiten
+	jr	HidariKaiten
+
+
+
+	public	MigiKaiten
+MigiKaiten:
+;	ld	bc,PIKA_ACT_TABLE
+
+	call	GetNowSite
+	ld	d,a
+
+	call	AnimeCntDown
+	jr	nz,setpat$
+	
+	ld	hl,RollingTableTop
+srchloop$:
+	ld	a,(hli)
+	cp	d
+	jr	nz,srchloop$
+	ld	d,(hl)
+
+setpat$:
+	call	GetChrPos
+	or	d
+
+	ld	(P_Pattern),a
+	ret
+
+
+	public	HidariKaiten
+HidariKaiten:
+;	ld	bc,PIKA_ACT_TABLE
+
+	call	GetNowSite
+	ld	d,a
+
+	call	AnimeCntDown
+	jr	nz,setpat$
+	
+	ld	hl,RollingTableTail
+srchloop$:
+	ld	a,(hld)
+	cp	d
+	jr	nz,srchloop$
+	ld	d,(hl)
+
+setpat$:
+	call	GetChrPos
+	or	d
+
+	ld	(P_Pattern),a
+	ret
+
+
+
+RollingTableTop:
+	db	SOUTH_SITE_VALUE
+	db	WEST_SITE_VALUE
+	db	NORTH_SITE_VALUE
+	db	EAST_SITE_VALUE
+	db	SOUTH_SITE_VALUE
+;	db	WEST_SITE_VALUE
+;	db	NORTH_SITE_VALUE
+;	db	EAST_SITE_VALUE
+RollingTableTail:
+
+
+
+
+NormalWalkTempo:
+	push	hl
+	LD_HL	bc,007h
+	ld	a,(hl)
+	inc	a
+	and	03h
+	ld	(hli),a
+	jr	nz,end$
+
+	ld	a,(hl)
+	inc	a
+	and	03h
+	ld	(hl),a
+end$:
+	ld	a,(hl)
+	pop	hl
+	ret
+
+	public	GetChrPos
+GetChrPos:
+	push	hl
+	LD_HL	bc,010eh
+	ld	a,(hl)
+	dec	a
+	swap	a
+	pop	hl
+	ret
+
+	public	GetNowSite
+GetNowSite:
+	push	hl
+	LD_HL	bc,002h
+	ld	a,(hl)
+	and	00001100b
+	pop	hl
+	ret
+
+	public	GetRealSite
+GetRealSite:
+	push	hl
+	LD_HL	bc,009h
+	ld	a,(hl)
+	and	00001100b
+	pop	hl
+	ret
+
+	public	SetRealSite
+SetRealSite:
+	push	hl
+	LD_HL	bc,009h
+	add	a,a
+	add	a,a
+	and	00001100b
+	ld	(hl),a
+	pop	hl
+	ret
+
+	public	MoveCntDown
+MoveCntDown:
+	ld	hl,P_Work0
+	inc	(hl)
+	ld	a,(P_MoveParam)
+	and	00011111b		; move count = 0 to 31
+	inc	a
+	cp	(hl)
+	ret	nz
+	ld	(hl),00h
+	ret
+
+	public	GetMoveSpeed
+GetMoveSpeed:
+	ld	a,(P_MoveParam)		;.XX.....
+	swap	a			;.....XX.
+	rrca				;......XX
+	and	00000011b		; move speed = 0 to 3
+	inc	a
+	ret
+
+	public	AnimeCntDown
+AnimeCntDown:
+	ld	hl,P_Work1
+	inc	(hl)
+	ld	a,(P_AnimeParam)
+	and	00001111b		; anime count = 0 to 15
+	inc	a
+	cp	(hl)
+	ret	nz
+	ld	(hl),00h
+	ret
+
+	public	CalcJumpVal
+CalcJumpVal:
+	call	GetJumpVal
+	ld	a,(P_Work1)
+	add	a,e
+	ld	(P_Work1),a
+	add	a,32
+	ld	e,a
+	push	hl
+	push	bc
+	call	calcSin
+	pop	bc
+	pop	hl
+	ret
+
+GetJumpVal:
+	ld	a,(P_AnimeParam)
+	and	0fh
+	inc	a
+setheight$:
+	ld	d,a			; jump max height
+	ld	a,(P_AnimeParam)
+	swap	a
+	and	00000111b
+	ld	e,a
+	ld	a,1
+	jr	z,setangle$
+loop$:
+	add	a,a
+	dec	e
+	jr	nz,loop$
+setangle$:
+	ld	e,a			; angle increase value(1,2,4,8,16)
+	ret
+
+
+	public	ChgGlobalYX
+ChgGlobalYX:
+	push	bc
+	ld	c,a
+	ld	b,00h
+	ld	hl,vector_table$
+	add	hl,bc
+	add	hl,bc
+	ld	d,(hl)
+	inc	hl
+	ld	e,(hl)
+	pop	bc
+
+	LD_HL	bc,0104h
+	ld	a,(hl)			; +104:global_y
+	add	a,e
+	ld	(hli),a
+	ld	a,(hl)			; +105:global_x
+	add	a,d
+	ld	(hl),a
+	
+	ret
+
+vector_table$:
+	db	000h,001h
+	db	000h,0ffh
+	db	0ffh,000h
+	db	001h,000h
+
+	db	0ffh,001h
+	db	001h,001h
+	db	0ffh,0ffh
+	db	001h,0ffh
+
+
+;===========================================================
+;
+;===========================================================
+	
+	public	SetPikaShadow
+SetPikaShadow:
+	push	bc
+	push	de
+	push	hl
+
+	ld	bc,4 * 4 * 9 + oam_buf
+	ld	a,(P_YPOS)
+	ld	e,a
+	ld	a,(P_XPOS)
+	ld	d,a
+	ld	hl,shadowpat$
+	call	set_pat_sub
+
+	pop	hl
+	pop	de
+	pop	bc
+	ret
+
+HREV		equ	020h
+VREV		equ	040h
+KAGECHR		equ	0ffh
+
+shadowpat$:
+  ifn	1
+	db	2
+	db	00+12,00,KAGECHR,00
+	db	00+12,08,KAGECHR,HREV
+  else
+	db	4
+	db	00+08,00,KAGECHR,00
+	db	00+08,08,KAGECHR,HREV
+	db	08+08,00,KAGECHR,VREV
+	db	08+08,08,KAGECHR,HREV+VREV
+  endif
+
+
+
+set_pat_sub:
+	ld	a,e
+	add	a,10h
+	ld	e,a
+	ld	a,d
+	add	a,08h
+	ld	d,a
+
+	ld	a,(hli)
+loop$:
+	push	af
+
+	ld	a,(hli)
+	add	a,e
+	ld	(bc),a		; y pos
+	inc	bc
+	ld	a,(hli)
+	add	a,d
+	ld	(bc),a		; x pos
+	inc	bc
+	ld	a,(hli)
+	ld	(bc),a		; chr code
+	inc	bc
+	ld	a,(hli)
+	ld	(bc),a		; attribute
+	inc	bc
+
+	pop	af
+	dec	a
+	jr	nz,loop$
+	ret
+
+
+
+;------------------------------------------------------
+;
+;------------------------------------------------------
+	extern	set_fnt_sub
+	extern	set_chr_sub
+	extern	OBJ_PIKACYU
+
+
+	public	ShadowChrSet
+
+ShadowChrSet:
+	ld	hl,8ff0h
+	ld	de,shadow$
+	ld	bc,G_BANK3f * 256 + 1
+	jp	set_fnt_sub
+shadow$:
+;	db	000h,000h,000h,000h,007h,01fh,03fh,07fh
+	db	007h,01fh,03fh,07fh,07fh,03fh,01fh,007h
+
+MiniCapChrSet:
+	ld	hl,8fe0h
+	ld	de,minicapchr
+	ld	bc,G_BANK3f * 256 + 1
+	jp	set_fnt_sub
+
+ForceRewritePikatoCap:
+	ld	hl,80c0h
+	ld	a,3
+loop$:
+	push	af
+	push	hl
+	ld	de,minicapchr
+	ld	bc,G_BANK3f * 256 + 4
+	call	set_chr_sub
+	pop	hl
+	ld	de,10h * 4
+	add	hl,de
+	pop	af
+	dec	a
+	jr	nz,loop$
+	ret
+	
+minicapchr:
+	db	000h,000h,000h,000h,00ch,00ch,012h,01eh
+	db	021h,03fh,033h,02dh,01eh,012h,00ch,00ch
+blankandcap:
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+	db	000h,000h,000h,000h,000h,000h,000h,000h
+
+
+ForcePikaChrSet:
+	ld	de,OBJ_PIKACYU
+	ld	bc,G_BANK3f * 100h + 12
+	ld	hl,10h * 12 + 8000h
+	push	bc
+  ifn	pm_jmsg
+	push	hl
+	push	de
+  endif
+	call	set_chr_sub
+
+  ifn	pm_jmsg
+	pop	de
+	ld	hl,10h * 12
+	add	hl,de
+	ld	d,h
+	ld	e,l
+	pop	hl
+	ld	bc,0800h
+	add	hl,bc
+  else
+	ld	de,10h * 12 + OBJ_PIKACYU
+	ld	hl,10h * 12 + 8800h
+	ld	a,(pika_anime_offset)
+	and	a
+	jr	z,fpChrSet_0$
+	ld	de,10h * 12 + OBJ_PIKACYU
+	ld	hl,8cc0h
+fpChrSet_0$:
+  endif
+	pop	bc
+
+;	ld	hl,10h * 12 + 8800h
+	call	set_chr_sub
+
+	call	ShadowChrSet
+
+	call	MiniCapChrSet
+
+	ret
+	
+
+
+nibi_event:
+	ld	a,(mapno)
+	cp	T3R6F1
+	ret	nz
+
+	extern	reset_pika_sleep
+	call	reset_pika_sleep
+
+	call	site_hero_sub
+
+	ret
+
+
+kutiba_event:
+	ld	a,(mapno)
+	cp	T6R2F1
+	ret	nz
+
+	call	reset_pika_sleep
+
+	call	site_hero_sub
+
+	ret
+
+
+masaki_event:
+	ld	a,(mapno)
+	cp	R25R1F1
+	ret	nz
+
+	call	reset_pika_sleep
+
+	ret
+
+
+
+rewrite_map:
+	call	put_map
+	call	actor_blanch
+	call	put_wait
+
+	ret
+
+
+
+
+  ifn	0
+
+;--------------------------------------------------------
+; 雷エフェクト用ルーチン
+; 未完成、未使用。
+;--------------------------------------------------------
+pikapika_effect:
+	ld	a,(BGP)
+	ld	b,a
+	ld	a,(OBP1)
+	ld	c,a
+	push	bc
+
+	call	pal_change_main$
+
+	pop	bc
+	ld	a,b
+	ld	(BGP),a
+	ld	a,c
+	ld	(OBP1),a
+	ret
+
+pal_change_main$:
+	ld	hl,test_pallette
+loop$:
+	ld	c,3
+	call	wait_vb_s
+	call	set_pallette$
+	jr	nc,loop$
+	ret
+
+set_pallette$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,end$
+	ld	(BGP),a
+	ld	(OBP1),a
+	xor	a
+	ret
+end$:
+	scf
+	ret
+
+	public	test_pallette:
+test_pallette:
+	db	0e4h,01bh,0e4h,01bh
+	db	0e4h,01bh,0e4h,01bh
+	db	0e4h,01bh,0e4h,01bh
+	db	0e4h,01bh,0e4h,01bh
+	db	0e4h,01bh,0e4h,01bh
+	db	0ffh
+
+;e4	11 10 01 00
+;1b	00 01 10 11
+;1f	00 01 11 11
+
+  endif
+
+
+;=======================================================================;
+; Category	: calculate sin/cos integer value
+; Author	: Original by tetsu
+; Bank-No.	: G_BANK3f
+; In		: e reg  	angle(0 to 63)
+;		: d reg 	value to multiply
+; Out		: h reg  	integer value of result
+;		; (l reg  	decimal value of result)
+;=======================================================================;
+
+calcCos:
+	ld	a,e
+	add	a,16
+	jr	calcSame
+
+calcSin:
+	ld	a,e
+
+calcSame:
+	and	00111111b
+	cp	20h
+	jr	nc,minus$
+plus$:
+	call	SinCalc$
+	ld	a,h
+	ret
+minus$:
+	and	00011111b
+	call	SinCalc$
+	ld	a,h
+;	xor	11111111b
+	cpl
+	inc	a
+	ret
+
+SinCalc$:
+	ld	e,a
+	ld	a,d
+	ld	d,00h
+	ld	hl,IntSinTable
+	add	hl,de
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+multi$:				; (i)a = A, (i)de = B, (i)l = float
+	ld	hl,000h		; (o)hl = A*B
+calcloop1$:
+	srl	a
+	jr	nc,calcloop2$
+	add	hl,de
+calcloop2$:
+	sla	e
+	rl	d
+	and	a
+	jr	nz,calcloop1$
+	ret
+
+;---------------------------------------------------------------;
+;		      sin cos table				;
+;---------------------------------------------------------------;
+IntSinTable:
+	dw	 00000h,00019h,00032h,0004Ah
+	dw	 00062h,00079h,0008Eh,000A2h
+	dw	 000B5h,000C6h,000D5h,000E2h
+	dw	 000EDh,000F5h,000FBh,000FFh
+
+	dw	 00100h,000FFh,000FBh,000F5h
+	dw	 000EDh,000E2h,000D5h,000C6h
+	dw	 000B5h,000A2h,0008Eh,00079h
+	dw	 00062h,0004Ah,00032h,00019h
+
+
+
+;---------------------------------------------------------------;
+; ピカチュウの顔をなつき度\ご機嫌度できめる。
+; さくしゃ：森本茂樹（うま好き）
+; get_pika_face_no
+; out : a = face No
+;---------------------------------------------------------------;
+	public	get_pika_face_no			; for debug
+get_pika_face_no:
+	ld	hl,face_dankai$
+	ld	a,(pika_friendly + 1)			; gokigen
+	ld	d,a
+loop1$:
+	ld	a,(hli)
+	inc	hl
+	cp	d
+	jr	c,loop1$
+
+	dec	hl
+	ld	e,(hl)
+
+	ld	hl,face_no_tbl$
+	ld	a,(pika_friendly)
+	ld	d,a
+	ld	bc,6
+loop2$:
+	ld	a,(hl)
+	cp	d
+	jr	nc,just$
+
+	add	hl,bc
+	jr	loop2$
+
+just$:
+	ld	d,0
+	add	hl,de
+	ld	a,(hl)					; face No
+	ret
+
+
+
+  ifn 0
+
+face_dankai$:
+	db	040,01
+	db	127,02
+	db	128,03
+	db	210,04
+	db	255,05
+
+face_no_tbl$:
+	db	050,09,03,06,08,08
+	db	100,09,03,05,08,08
+	db	150,09,03,01,08,07
+	db	200,03,03,04,08,07
+	db	255,03,03,02,08,10
+
+  else
+
+face_dankai$:
+	db	040,01
+	db	127,02
+	db	128,03
+	db	210,04
+	db	255,05
+
+face_no_tbl$:
+	db	050,14,14,06,13,13
+	db	100,09,09,05,12,12
+	db	130,03,03,01,08,08
+	db	160,03,03,04,15,15
+	db	200,17,17,07,02,02
+	db	250,17,17,16,10,10
+	db	255,17,17,19,20,20
+
+  endif
+
+
+
+
+
+  ifn	ASSEMBLE__BANK_CHANGE
+bank3c	group	G_BANK3c
+  else
+bank30	group	G_BANK30
+  endif
+
+
+
+;============================================================
+; ピカチュウイベントルーチン
+;
+;
+;============================================================
+
+
+;----------------------------------------------------
+; ピカチュウがいて、ふまれる位置だったらよける。
+; In	: b regs	踏まれる方向コード
+;	: hl regs	よけるアニメデータ
+;----------------------------------------------------
+  ifn	1
+	public	chk_pika_escape
+
+chk_pika_escape:
+	ld	a,(obs_pikachu)
+	bit	7,a
+	ret	z
+
+	ld	a,(chyari_flg)
+	and	a
+	ret	nz
+
+	push	hl
+	push	bc
+
+	extern	get_site_to_pika	;
+	ld	hl,get_site_to_pika	; ピカチュウの自機に対する位置を
+	ld	b,G_BANK3f		; 返す（Eレジスタ=方向)
+	call	bank_push_call		;
+
+	pop	bc
+	pop	hl
+	ld	a,b
+	cp	e
+	ret	nz
+
+	push	hl
+	ld	a,(oam_flg)
+	push	af
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	ld	hl,ShadowChrSet
+	ld	b,G_BANK3f
+	call	bank_push_call
+
+	pop	af
+	ld	(oam_flg),a
+	pop	hl
+
+	call	PikaEventAnime
+
+	extern	init_buf_cmd
+	ld	hl,init_buf_cmd
+	ld	b,G_BANK3f
+	call	bank_push_call
+
+	ret
+
+
+
+
+  else
+
+chk_pika_escape:
+	ld	a,(obs_pikachu)		; 自分のピカチュウを連れていない
+	bit	7,a			;
+	jr	z,ng$			;	
+
+	ld	a,(chyari_flg)		; 歩きじゃないのでピカチュウが 
+	and	a			; いない
+	jr	nz,ng$			;
+
+	push	hl
+	push	bc
+
+	extern	get_site_to_pika	; 
+	ld	hl,get_site_to_pika	; 
+	ld	b,G_BANK3f		; 
+	call	bank_push_call
+
+	pop	bc
+	pop	hl
+	ld	a,b
+	cp	e
+	jr	nz,ng$
+
+	push	hl
+	ld	a,(oam_flg)
+	push	af
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	call	ShadowChrSet
+
+	pop	af
+	ld	(oam_flg),a
+	pop	hl
+
+	ld	c,0ffh
+	ret
+ng$:
+	xor	a
+	ld	c,a
+	ret
+
+  endif
+
+
+
+
+
+

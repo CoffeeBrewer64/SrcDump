@@ -1,0 +1,137 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		macro.h
+	include		group.def
+
+
+bank15	group	G_BANK15
+
+
+	public	ev_road4
+	public	msg_road4
+
+	
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+	extern	hotel_kanban
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+seq_r4		equ	seq_ctrl_buf + 9
+
+
+ev_road4:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,r4_tbl
+	ld	a,(seq_r4)
+	call	battle_sequence
+	ld	(seq_r4),a
+
+	ret
+
+
+
+r4_tbl:
+	initndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+
+msg_road4:
+	msgndw	msg1,msg_neechyan1
+	ndw	msg3,msg_mini1
+	ndw	capsule_item,MsgCapsule1
+	ndw	hotel_kanban,msg_pmc
+	ndw	kanban2,msg_kanban2
+	ndw	kanban3,msg_kanban3
+
+
+dealer_talk:
+d_talk2:
+	db	msg_mini1,030h
+	dw	ev_r4 + 0
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+	db	0ffh
+
+
+msg1:
+	extern	msg1_0_ROAD04
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_ROAD04	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg3_0:
+	extern	msg3_0_1_ROAD04
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_1_ROAD04	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_2_ROAD04
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_2_ROAD04	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_3_ROAD04
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_3_ROAD04	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_4_ROAD04
+	db I_MSG2	; mvmsg追加
+	dw kanban2_4_ROAD04	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban3:
+	extern	kanban3_5_ROAD04
+	db I_MSG2	; mvmsg追加
+	dw kanban3_5_ROAD04	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+

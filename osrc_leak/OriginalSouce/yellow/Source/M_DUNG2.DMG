@@ -1,0 +1,348 @@
+	include		group.def
+
+bank1f	group	G_MUSIC3
+;
+;	Dungeon2 (Dungeon.mus vi Arrenge)
+;
+; 1994.10.26
+	public	Dungeon21
+	public	Dungeon22
+	public	Dungeon23
+	public	Dungeon24
+;----------------------------------------
+; ----- CODE -----
+Dungeon21:
+;----------------------------------------
+	db	0edh,000h,090h
+	db	0f0h,077h
+	db	0ech,003h
+	db	0e8h
+	db	0eah,00ah,014h
+loop10$:
+	db	0dch,0b2h
+; 1
+	db	0e4h,043h
+	db	043h
+	db	043h
+	db	043h
+; 2
+	db	0a3h
+	db	0a3h
+	db	0a3h
+	db	0a3h
+; 3
+	db	043h
+	db	043h
+	db	043h
+	db	043h
+; 4
+	db	0e3h,013h
+	db	013h
+	db	013h
+	db	013h
+; 5
+	db	0e5h,043h
+	db	043h
+	db	043h
+	db	043h
+; 6
+	db	0a3h
+	db	0a3h
+	db	0a3h
+	db	0a3h
+; 7
+	db	0e6h,071h
+	db	0a3h
+	db	071h
+	db	0e5h,013h
+	db	0e6h,071h
+	db	0a1h
+; 8
+	db	0b1h
+	db	071h
+	db	0e5h,013h
+	db	0e6h,071h
+	db	093h
+	db	061h
+	db	0feh,2
+	dw	loop10$
+	db	0dch,01fh
+; 9
+	db	0e5h,04fh
+; 10
+	db	00fh
+; 11
+	db	02fh
+; 12
+	db	0e6h,0afh
+; 13
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0feh,0
+	dw	loop10$
+;----------------------------------------
+Dungeon22:
+;----------------------------------------
+	db	0eah,00bh,015h
+loop20$:
+	db	0ech,003h
+	db	0dch,0c2h
+; 1
+	db	0e5h,043h
+	db	043h
+	db	043h
+	db	043h
+; 2
+	db	003h
+	db	003h
+	db	003h
+	db	003h
+; 3
+	db	043h
+	db	043h
+	db	043h
+	db	043h
+; 4
+	db	003h
+	db	003h
+	db	003h
+	db	003h
+; 5
+	db	0b3h
+	db	0b3h
+	db	0b3h
+	db	0b3h
+; 6
+	db	0e4h,063h
+	db	063h
+	db	063h
+	db	063h
+; 7
+	db	023h
+	db	023h
+	db	023h
+	db	023h
+; 8
+	db	073h
+	db	073h
+	db	073h
+	db	063h
+	db	0feh,2
+	dw	loop20$
+; 9
+	db	0e5h,041h
+	db	071h
+	db	041h
+	db	031h
+	db	041h
+	db	041h
+	db	0e3h,041h
+	db	0c1h
+; 10
+	db	031h
+	db	0c1h
+	db	021h
+	db	0c1h
+	db	011h
+	db	001h
+	db	0e4h,041h
+	db	071h
+; 11
+	db	0e5h,0a1h
+	db	011h
+	db	0a1h
+	db	091h
+	db	0a1h
+	db	071h
+	db	0e3h,071h
+	db	0c1h
+; 12
+	db	061h
+	db	0c1h
+	db	051h
+	db	0c1h
+	db	041h
+	db	031h
+	db	021h
+	db	011h
+; 13
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0dch,0c7h
+	db	0ech,001h
+; 9
+	db	0e4h,04fh
+; 10
+	db	02fh
+; 11
+	db	00fh
+; 12
+	db	02fh
+	db	0feh,0
+	dw	loop20$
+;----------------------------------------
+Dungeon23:
+;----------------------------------------
+	db	0dch,013h
+	db	0eah,008h,026h
+loop30$:
+; 1
+	db	0fdh
+	dw	sub32$
+	db	0feh,16
+	dw	loop30$
+			; 2*8
+; 2
+	db	043h
+	db	0c3h
+	db	0c3h
+	db	043h
+	db	003h
+	db	0c3h
+	db	0c3h
+	db	003h
+	db	023h
+	db	0c3h
+	db	0c3h
+	db	023h
+	db	0e5h,0a3h
+	db	0c3h
+	db	0c3h
+	db	0a3h
+loop31$:
+	db	0e3h,041h
+	db	0c1h
+	db	0b1h
+	db	0c1h
+	db	0a1h
+	db	0c1h
+	db	0e2h,021h
+	db	0c1h
+; 6
+	db	011h
+	db	0c1h
+	db	0e3h,081h
+	db	0c1h
+	db	071h
+	db	0c1h
+	db	0b1h
+	db	0c1h
+; 4
+	db	0a1h
+	db	0c1h
+	db	041h
+	db	0c1h
+	db	031h
+	db	0c1h
+	db	091h
+	db	0c1h
+; 5
+	db	081h
+	db	0c1h
+	db	041h
+	db	0c1h
+	db	061h
+	db	0c1h
+	db	031h
+	db	0c1h
+	db	0feh,3
+	dw	loop31$
+	db	0e4h,043h
+	db	0b3h
+	db	0a3h
+	db	0e3h,023h
+; 6
+	db	013h
+	db	0e4h,083h
+	db	073h
+	db	0b3h
+; 4
+	db	0a3h
+	db	043h
+	db	033h
+	db	093h
+; 5
+	db	083h
+	db	043h
+	db	063h
+	db	033h
+	db	0e5h,04fh
+	db	00fh
+	db	02fh
+	db	0e6h,0afh
+	db	0e5h,04fh
+	db	05fh
+	db	07fh
+	db	0e5h,0bfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0fdh
+	dw	sub32$
+	db	0fdh
+	dw	sub32$
+	db	0fdh
+	dw	sub32$
+	db	0fdh
+	dw	sub32$
+	db	0fdh
+	dw	sub32$
+	db	0fdh
+	dw	sub32$
+	db	0fdh
+	dw	sub32$
+	db	0fdh
+	dw	sub32$
+	db	0feh,0
+	dw	loop30$
+sub31$:
+	db	0e6h,071h
+	db	0a3h
+	db	071h
+	db	0e5h,013h
+	db	0e6h,071h
+	db	091h
+;
+	db	0a1h
+	db	071h
+	db	0e5h,013h
+	db	0e6h,071h
+	db	0a1h
+	db	071h
+	db	0c1h
+	db	0ffh
+sub32$:
+	db	0e4h,041h
+	db	0c3h
+	db	0e5h,040h
+	db	0c2h
+	db	040h
+	db	0c0h
+	db	0e4h,063h
+	db	0ffh
+;----------------------------------------
+Dungeon24:
+;----------------------------------------
+	db	0dch
+loop40$:
+	db	0b3h,0ch
+	db	0b3h,0dh
+	db	0b3h,0ch
+	db	0b3h,0ah
+	db	0b3h,0ch
+	db	0b3h,0dh
+	db	0b3h,0bh
+	db	0b3h,09h
+	db	0feh,0
+	dw	loop40$
+
+

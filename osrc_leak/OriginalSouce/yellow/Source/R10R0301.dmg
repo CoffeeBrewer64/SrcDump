@@ -1,0 +1,277 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	r10_room3
+
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+	extern	gyaarth_play
+	extern	se_wait
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+
+seq_r10r3f1	equ	seq_ctrl_buf + 73h
+
+
+r10_room3:
+ysiz	=	18
+xsiz	=	20
+	db	BUILDING_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	ydun_1			; map data adrs
+	dw	msg_r10r3f1		; message tbl adrs
+	dw	ev_r10r3f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r10r3f1
+
+
+ev_r10r3f1:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,r10r3f1_tbl
+	ld	a,(seq_r10r3f1)
+	call	battle_sequence
+	ld	(seq_r10r3f1),a
+
+	ret
+
+
+r10r3f1_tbl:
+	initndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+msg_r10r3f1:
+	msgndw	msg1,msg_biriri1
+	ndw	msg2,msg_biriri2
+	ndw	msg3,msg_biriri3
+	ndw	msg4,msg_biriri4
+	ndw	msg5,msg_biriri5
+	ndw	msg6,msg_biriri6
+	ndw	msg7,msg_biriri7
+	ndw	msg8,msg_biriri8
+	ndw	msg9,msg_thunder
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	capsule_item,msg_capsule3
+	ndw	capsule_item,msg_capsule4
+	ndw	capsule_item,msg_capsule5
+
+
+dealer_talk:
+d_talk1:
+	db	msg_biriri1,000h
+	dw	ev_r10 + 2
+	dw	msg1_0
+	dw	msg1_after
+	dw	msg1_win
+	dw	msg1_win
+
+d_talk2:
+	db	msg_biriri2,000h
+	dw	ev_r10 + 2
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk3:
+	db	msg_biriri3,000h
+	dw	ev_r10 + 2
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk4:
+	db	msg_biriri4,000h
+	dw	ev_r10 + 2
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk5:
+	db	msg_biriri5,000h
+	dw	ev_r10 + 2
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+d_talk6:
+	db	msg_biriri6,000h
+	dw	ev_r10 + 2
+	dw	msg6_0
+	dw	msg6_after
+	dw	msg6_win
+	dw	msg6_win
+
+d_talk7:
+	db	msg_biriri7,000h
+	dw	ev_r10 + 2
+	dw	msg7_0
+	dw	msg7_after
+	dw	msg7_win
+	dw	msg7_win
+
+d_talk8:
+	db	msg_biriri8,000h
+	dw	ev_r10 + 2
+	dw	msg8_0
+	dw	msg8_after
+	dw	msg8_win
+	dw	msg8_win
+
+d_talk9:
+	db	msg_thunder,000h
+	dw	ev_r10 + 2
+	dw	msg9_0
+	dw	msg9_after
+	dw	msg9_win
+	dw	msg9_win
+
+	db	0ffh
+
+
+DEALERTALK:
+	call	DealerTalking
+	ld	a,(AdrsDealerTalk + 9)
+	ld	(seq_r10r3f1),a
+	jp	msg_return
+
+
+msg1:
+	db	CALL_MSG
+	ld	hl,d_talk1
+	jr	DEALERTALK
+
+
+msg2:
+	db	CALL_MSG
+	ld	hl,d_talk2
+	jr	DEALERTALK
+
+
+msg3:
+	db	CALL_MSG
+	ld	hl,d_talk3
+	jr	DEALERTALK
+
+
+msg4:
+	db	CALL_MSG
+	ld	hl,d_talk4
+	jr	DEALERTALK
+
+
+msg5:
+	db	CALL_MSG
+	ld	hl,d_talk5
+	jr	DEALERTALK
+
+
+msg6:
+	db	CALL_MSG
+	ld	hl,d_talk6
+	jr	DEALERTALK
+
+
+msg7:
+	db	CALL_MSG
+	ld	hl,d_talk7
+	jr	DEALERTALK
+
+
+msg8:
+	db	CALL_MSG
+	ld	hl,d_talk8
+	jr	DEALERTALK
+
+
+msg9:
+	db	CALL_MSG
+	ld	hl,d_talk9
+	jr	DEALERTALK
+
+
+msg1_0:
+msg1_win:
+msg1_after:
+msg2_0:
+msg2_win:
+msg2_after:
+msg3_0:
+msg3_win:
+msg3_after:
+msg4_0:
+msg4_win:
+msg4_after:
+msg5_0:
+msg5_win:
+msg5_after:
+msg6_0:
+msg6_win:
+msg6_after:
+msg7_0:
+msg7_win:
+msg7_after:
+msg8_0:
+msg8_win:
+msg8_after:
+	extern	msg8_after_0_R10R0301
+	db I_MSG2	; mvmsg追加
+	dw msg8_after_0_R10R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg9_0:
+msg9_win:
+msg9_after:
+	extern	msg9_after_1_R10R0301
+	db I_MSG2	; mvmsg追加
+	dw msg9_after_1_R10R0301	; mvmsg追加
+	db 028h	; mvmsg追加
+	db	CALL_MSG
+
+	ld	a,75				; wanriki-
+	call	gyaarth_play
+	call	se_wait
+	
+	jp	msg_return
+
+
+sxy_r10r3f1:
+	include	..\sxy\r10r0301.sxy
+ydun_1:
+	include	..\mapdata\ydun_1.map
+

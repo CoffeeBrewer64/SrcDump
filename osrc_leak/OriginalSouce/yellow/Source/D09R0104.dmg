@@ -1,0 +1,742 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	vanish.def
+	include	dealer.def
+	include	banktool.def
+	include	pm_debug.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d9_room1_4f
+
+	extern	D9R1F4msg9
+
+	extern	put_wait
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+	extern	musdoor
+	extern	SEplay
+
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+
+seq_d9r1f4	equ	seq_ctrl_buf + 44h
+
+
+d9_room1_4f:
+ysiz	=	12
+xsiz	=	15
+	db	BUILDING_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	azito_b4		; map data adrs
+	dw	msg_d9r1f4		; message tbl adrs
+	dw	ev_d9r1f4		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d9r1f4
+
+
+ev_d9r1f4:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d9r1f4_tbl
+	ld	a,(seq_d9r1f4)
+	call	battle_sequence
+	ld	(seq_d9r1f4),a
+
+	ret
+
+
+return:
+	ld	hl,ev_d9 + 06h
+	bit	0,(hl)				; ロケット団との対戦確認
+	res	0,(hl)				; ロケット団との対戦確認
+	call	nz,r_vanish
+
+	xor	a
+	ld	(cancel_key),a
+
+set_seq:
+	ld	(seq_d9r1f4),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+r_vanish:
+	ld	a,<D9R1F4msg2				; Kojiro
+	call	vanish
+	ld	a,<D9R1F4msg3				; Musashi
+	call	vanish
+
+	ret
+
+
+d9r1f4_tbl:
+;	initndw	battle_main,seq_battle_main
+	initndw	Main,SeqMain
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+	ndw	vs_after,seq_vs_after
+
+	ndw	KojiroGo,SeqKojiroGo
+	ndw	KojiroStep,SeqKojiroStep
+	ndw	KojiroArrive,SeqKojiroArrive
+
+	ndw	MusashiGo,SeqMusashiGo
+	ndw	MusashiStep,SeqMusashiStep
+	ndw	MusashiArrive,SeqMusashiArrive
+
+	ndw	RocketBattle,SeqRocketBattle
+	ndw	BattleAfter,SeqBattleAfter
+	ndw	VanishReady,SeqVanishReady
+	ndw	VanishEnd,SeqVanishEnd
+
+
+vs_after:
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	hl,ev_d9 + 6
+	set	7,(hl)				; win
+
+	ld	a,msg_after
+	ld	(work1),a
+	call	talk_map
+
+	call	n_to_b
+
+	ld	a,< D9R1F4msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,< D9R1F4msg8
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	call	actor_blanch
+
+	call	b_to_n
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	hl,ptn_data
+	set	5,(hl)
+
+	ld	a,SeqMain
+
+	ld	(seq_d9r1f4),a
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+Main:
+  ifn	pm_debug
+	extern	DebugKeyHook
+	call	DebugKeyHook				; B-Button 
+	ret	nz
+  endif
+
+	ld	a,(ev_d9 + 06h)
+	bit	2,a
+	call	z,MuKo
+
+	ld	a,(ev_d9 + 06h)
+	bit	4,a
+	call	z,battle_main
+
+	ret
+
+
+
+; ロケット団登場！！
+	extern	init_hero_anime
+	extern	set_now_music
+
+	extern	MusicStop
+	extern	direct_play
+	extern	musrocket
+	extern	musraibaru
+
+MuKo:
+	ld	a,(mapscloll_y)
+	cp	00eh
+	ret	nz
+
+	ld	hl,ev_d9 + 06h
+	res	3,(hl)				; default position(left)
+
+	ld	a,(mapscloll_x)
+	cp	018h
+	jr	z,hit$
+
+	ld	a,(mapscloll_x)
+	cp	019h
+	ret	nz
+
+	ld	hl,ev_d9 + 06h
+	set	3,(hl)				; position(right)
+
+hit$:
+	xor	a
+	ld	(joy_status),a
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	call	MusicStop
+	ld	c,MUSIC_BANK4_NO
+	ld	a,<musrocket
+	call	direct_play
+
+	call	actor_blanch
+	call	put_wait
+
+	call	actor_blanch
+	call	put_wait
+
+	ld	a,01h
+	ld	(wait_pass_flg),a		; メッセージ強制解除オン
+
+	ld	a,MsgOmachi
+	ld	(work1),a
+	call	talk_map
+
+	xor	a
+	ld	(wait_pass_flg),a		; メッセージ強制解除オフ
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,<D9R1F4msg2			; Kojiro
+	call	appear
+
+	ld	a,<D9R1F4msg3			; Nusashi
+	call	appear
+
+	ld	a,SeqKojiroGo
+	call	set_seq
+
+	ret
+
+
+StepKojiro:
+	db	A_D_RUN
+
+StepMusashi:
+	db	A_D_RUN
+	db	A_D_RUN
+	db	A_D_RUN
+;	db	A_D_RUN
+	db	A_E
+
+
+KojiroGo:
+	ld	de,StepKojiro				; 5-Steps(hero is left)
+
+	ld	a,(ev_d9 + 06h)
+	bit	3,a
+	jr	z,hero_left$
+
+	ld	de,StepMusashi				; 4-Steps(hero is right)
+
+hero_left$:
+	ld	a,MsgKojiro
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqKojiroStep
+	call	set_seq
+
+	ret
+
+KojiroStep:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+KojiroArrive:
+	ld	a,02h
+	ld	(actor_table + 021h),a
+	ld	a,08h
+	ld	(actor_table + 029h),a
+
+	ld	a,(ev_d9 + 06h)
+	bit	3,a
+	jr	z,hero_left$
+
+	ld	a,00h
+	ld	(actor_table + 029h),a
+
+hero_left$:
+	call	put_wait
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+MusashiGo:
+	ld	de,StepMusashi				; 4-Steps(hero is right)
+
+	ld	a,(ev_d9 + 06h)
+	bit	3,a
+	jr	z,hero_left$
+
+	ld	de,StepKojiro				; 5-Steps(hero is left)
+
+hero_left$:
+	ld	a,MsgMusashi
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqMusashiStep
+	call	set_seq
+
+	ret
+
+
+MusashiStep:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+MusashiArrive:
+	ld	a,02h
+	ld	(actor_table + 031h),a
+	ld	a,00h
+	ld	(actor_table + 039h),a
+
+	ld	a,(ev_d9 + 06h)
+	bit	3,a
+	jr	z,hero_left$
+
+	ld	a,0ch
+	ld	(actor_table + 039h),a
+
+hero_left$:
+	call	put_wait
+
+	ld	a,MsgRocketStart		; ロケット団バトル前
+	ld	(work1),a
+	call	talk_map
+
+RocketBattle:
+	ld	hl,event_flg
+	set	6,(hl)				; 特殊バトルモードを示唆
+	set	7,(hl)				; バトル直後にメッセージあり
+
+	ld	hl,msg2_win			; hero lose
+	ld	de,msg2_lose			; hero win
+	call	set_battle_msg
+
+	ld	a,d_member
+	ld	(event_fight_no),a
+	ld	a,43
+	ld	(take_mons_ptn),a
+
+	xor	a
+	ld	(joy_status),a
+	ld	(cancel_key),a
+
+	ld	hl,ev_d9 + 06h
+	set	0,(hl)				; ロケット団との対戦確認
+
+	ld	a,SeqBattleAfter
+	call	set_seq
+
+	ret
+
+
+BattleAfter:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,(fighting_flg)
+	cp	0ffh
+	jp	z,return			; to okido school(losing)
+
+	ld	a,02h
+	ld	(actor_table + 021h),a
+	ld	(actor_table + 031h),a
+	xor	a
+	ld	(actor_table + 029h),a
+	ld	(actor_table + 039h),a
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,01h
+	ld	(wait_pass_flg),a		; メッセージ強制解除オン
+
+	ld	a,MsgRocketAfter
+	ld	(work1),a			; msg_after
+	call	talk_map
+
+	xor	a
+	ld	(wait_pass_flg),a		; メッセージ強制解除オフ
+
+	call	MusicStop
+	ld	c,MUSIC_BANK4_NO
+	ld	a,<musrocket
+	call	direct_play
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqVanishReady
+	call	set_seq
+
+	ret
+
+
+VanishReady:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	call	n_to_b
+
+	ld	a,<D9R1F4msg2			; Kojiro
+	call	vanish
+	ld	a,<D9R1F4msg3			; Musashi
+	call	vanish
+
+	call	actor_blanch
+	call	put_wait
+
+	call	b_to_n
+
+	ld	a,SeqVanishEnd
+	call	set_seq
+
+	ret
+
+
+VanishEnd:
+	call	set_now_music
+
+	xor	a
+	ld	(joy_status),a
+	ld	(cancel_key),a
+
+	ld	hl,ev_d9 + 06h
+	set	2,(hl)
+
+	ld	a,SeqMain
+	call	set_seq
+
+	ret
+
+
+appear:
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	call	actor_blanch
+	call	put_wait
+
+	ret
+
+
+vanish:
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ret
+
+
+
+
+msg_d9r1f4:
+	msgndw	msg1,msg_procket		; さかき
+	ndw	msg2,MsgKojiro			; コジロウ
+	ndw	msg3,MsgMUsashi			; ムサシ
+	ndw	msg4,msg_member3		; 団員
+
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	capsule_item,msg_capsule3
+	ndw	capsule_item,msg_capsule4
+	ndw	capsule_item,msg_capsule5
+
+	ndw	msg1_after,msg_after
+
+	ndw	msg2_0,MsgOmachi
+	ndw	msg2_start,MsgRocketStart
+	ndw	msg2_after,MsgRocketAfter
+
+
+dealer_talk:
+d_talk1:
+d_talk2:
+d_talk3:
+	db	msg_member3,010h
+	dw	ev_d9 + 6
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+	db	0ffh
+
+
+
+
+; 三木さんすてきぃー！！
+msg2:
+msg3:
+	db	EOM
+
+
+msg2_0:
+	extern	msg2_0_0_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_0_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	c,0ah
+	call	wait_vb_s
+
+	ld	a,08h
+	ld	(watashi_muki),a		; look under
+
+	ld	a,00h				; hero
+	ld	(usr_buf + 18),a
+	ld	a,00h				; gyoe@
+	ld	(usr_buf + 19),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	ld	c,20
+	call	wait_vb_s
+
+	jp	msg_return
+
+
+msg2_start:
+	extern	msg2_start_1_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg2_start_1_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+msg2_lose:
+	extern	msg2_lose_2_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg2_lose_2_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_3_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_3_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	c,040h
+	call	wait_vb_s
+
+	jp	msg_return
+
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_d9 + 6)
+	bit	7,a				; check battle
+	jp	nz,after$
+
+	ld	hl,msg1_0
+	call	put_win_msg
+
+	ld	hl,event_flg
+	set	6,(hl)
+	set	7,(hl)
+
+	ld	hl,msg1_win			; hero lose
+	ld	de,msg1_win			; hero win
+	call	set_battle_msg
+
+	ld	a,(work1)
+	ld	(sv_msg_no),a
+	call	set_battle
+	call	set_battle_data
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	a,seq_vs_after
+	ld	(seq_d9r1f4),a
+	ld	(AdrsDealerTalk + 9),a
+
+	jr	rts$
+
+
+after$:
+	ld	hl,msg1_after
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0:
+	extern	msg1_0_4_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_4_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_5_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_5_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_6_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_6_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg4_0:
+	extern	msg4_0_7_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_7_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_8_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_8_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	WAIT
+
+	db	CALL_MSG
+
+	ld	hl,ev_d9 + 6
+	set	6,(hl)
+
+	ld	a,< D9R1F4msg9
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	jp	msg_return
+
+
+msg4_after:
+	db	CALL_MSG
+
+	ld	hl,msg4_after_0$
+	call	put_win_msg
+
+  ifn	0
+	ld	hl,ev_d9 + 6
+	bit	6,(hl)
+	set	6,(hl)
+	jr	nz,rts$
+
+	ld	a,< D9R1F4msg9
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+rts$:
+  endif
+	jp	msg_return
+
+
+msg4_after_0$:
+	extern	msg4_after_0_9_D09R0104
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_0_9_D09R0104	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d9r1f4:
+	include	..\sxy\d09r0104.sxy
+
+
+azito_b4:
+	include	..\mapdata\azito_b4.map
+
+
+
+
+
+

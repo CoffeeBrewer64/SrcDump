@@ -1,0 +1,143 @@
+
+	include	common.def
+	include	banktool.def
+
+
+	extern	bank2bank
+	extern	hit_check
+	extern	CountUpPattern
+;;	extern	actor_table_upper
+;;	extern	actor_table_lower
+
+
+
+bank1	group	1
+
+
+
+	public	watashi
+
+watashi:
+	ld	a,(actor_table + 100h)
+	and	a
+	jr	z,under_check$			; hidden timer check
+
+	cp	0ffh
+	jr	z,hidden$
+
+	dec	a
+	ld	(actor_table + 100h),a		; hidden timer count down
+
+	jr	hidden$
+
+
+under_check$:
+	ld	a,(9 * 20 + 8 + dmy_vram)
+	ld	(actwork4),a			; chr code under hero
+	cp	060h				; back the BG ( hide ) check
+	jr	c,no_hidden$
+
+hidden$:
+	ld	a,0ffh
+	ld	(actor_table + 2),a		; +002: actor pattern = vanish 
+
+	ret
+
+
+no_hidden$:
+	ld	a,(oam_flg)			; actor_put(vblankで呼ばれる)と
+	push	af				; hit_checkは同じワークを使っている！！
+	ld	a,0ffh				; のでhit_checkを呼び出し中は
+	ld	(oam_flg),a			; actor_putをオフにする！
+
+	call	hit_check
+
+	pop	af				; by tama,98/06/04
+	ld	(oam_flg),a			; デバッグでーす。
+
+	ld	h,> actor_table
+
+	ld	a,(scloll_cnt)
+	and	a
+	jr	nz,walk_step$
+
+	ld	a,(watashi_muki)
+	bit	2,a
+	jr	z,z10$
+
+	xor	a				; sita
+	jr	set_site$
+
+z10$:
+	bit	3,a
+	jr	z,z20$
+
+	ld	a,4				; ue
+	jr	set_site$
+
+z20$:
+	bit	1,a
+	jr	z,z30$
+
+	ld	a,8				; hidari
+	jr	set_site$
+
+z30$:
+	bit	0,a
+	jr	z,no_walk$
+
+	ld	a,12				; migi
+	jr	set_site$
+
+
+set_site$:
+	ld	(actor_table + 9),a		; u,d,l,r
+
+	ld	a,(talking_flg)
+	bit	0,a				; check mode of talking
+;	jr	nz,no_walk$
+	jr	z,walk_step$
+
+no_walk$:				; no key
+	xor	a
+	ld	(actor_table + 7),a		; +007:PCC
+	ld	(actor_table + 8),a		; +007:PWC
+
+	call	set_pat$
+	jr	chk_ashimoto$
+
+
+walk_step$:
+	ld	a,(obs_map_step)
+	bit	7,a
+	jr	nz,chk_ashimoto$
+
+	call	CountUpPattern
+
+	call	set_pat$
+
+
+chk_ashimoto$:
+	ld	a,(actwork4)
+	ld	c,a
+	ld	a,(kusamura_chr)
+	cp	c
+	ld	a,0
+	jr	nz,z91$
+
+	ld	a,080h
+
+z91$:
+	ld	(actor_table + 107h),a		; encount character set
+
+	ret
+
+
+set_pat$:
+	ld	a,(actor_table + 8)		; actor = action + pattern
+	ld	b,a
+	ld	a,(actor_table + 9)
+	add	a,b
+	ld	(actor_table + 2),a
+	ret
+

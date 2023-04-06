@@ -1,0 +1,938 @@
+
+	include		pm_debug.def
+	include		group.def
+
+bank20	group	G_MUSHEAD4		;bank28->bank20Ç…ïœçXÅië∫êÏÅj
+
+;*****************************************
+;*					*
+;*	   MUSIC DATA (BANK 1F)		*
+;*					*
+;*   (c)copyright 1991 Junichi.Masuda	*
+;*	  all rights reserved		*
+;*					*
+;*****************************************
+
+	org	4000h
+
+	public	msadr4
+	public	drumend4
+	public	bgmfirst4
+	public	bgmend4
+	public	musend4
+	public	monsfirst4
+	public	monsend4
+
+	public	muspi4
+	public	muscasino2
+	public	musnami4
+	public	musnamijump4
+	public	musnamifall4
+	public	musnamicursor4
+	public	musnamihold4
+	public	musnamifanfare4
+	public	musprinter4
+	public	musrocket
+	public	mussakaki
+
+; Monster Voice Effect (Top Number)
+	public	mushariusagi4
+
+	extern	Naminori0131
+	extern	Naminori0132
+	extern	Naminori0133
+	extern	MUS_Rocket1
+	extern	MUS_Rocket2
+	extern	MUS_Rocket3
+	extern	Sakaki011
+	extern	Sakaki012
+	extern	Sakaki013
+	extern	Sakaki014
+
+drum04:						; dummy
+	db	0FFh
+	db	0FFh
+	db	0FFh
+
+msadr4	equ * - 3
+MSADRS:
+	db	007h
+	dw	drum14
+	db	007h
+	dw	drum24
+	db	007h
+	dw	drum34
+	db	007h
+	dw	drum44
+	db	007h
+	dw	drum54
+	db	007h
+	dw	drum64
+	db	007h
+	dw	drum74
+	db	007h
+	dw	drum84
+	db	007h
+	dw	drum94
+	db	007h
+	dw	druma4
+	db	007h
+	dw	drumb4
+	db	007h
+	dw	drumc4
+	db	007h
+	dw	drumd4
+	db	007h
+	dw	drume4
+	db	007h
+	dw	drumf4
+	db	007h
+	dw	drum104
+	db	007h
+	dw	drum114
+	db	007h
+	dw	drum124
+	db	007h
+	dw	drum134
+
+drumend4		equ	* - MSADRS / 3 + 1
+
+
+
+monsfirst4	equ	* - MSADRS / 3 + 1
+mushariusagi4		equ	* - MSADRS / 3 + 1
+	include mvoice.h
+
+
+
+monsend4		equ	* - MSADRS / 3 + 1
+
+
+
+;-------------------------------------------------------;
+;		   Normal Sound Effects			;
+;	    Common "mushead2.src" And "mushead4.src"	;
+;-------------------------------------------------------;
+musfanfare		equ	* - MSADRS / 3 + 1
+	db	084h
+	dw	Fanfare114
+	db	005h
+	dw	Fanfare124
+	db	006h
+	dw	Fanfare134
+
+musfanfare5		equ	* - MSADRS / 3 + 1
+	db	084h
+	dw	Fanfare514
+	db	005h
+	dw	Fanfare524
+	db	006h
+	dw	Fanfare534
+
+muswngo4:		equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	wngo4
+muskusuri4:		equ	* - MSADRS / 3 + 1		; All Bank
+	db	004h
+	dw	kusuri4
+musitemuse4:		equ	* - MSADRS / 3 + 1		; All Bank
+	db	004h
+	dw	itemuse4
+mussyu4:		equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	syu4
+musrinrin4:		equ	* - MSADRS / 3 + 1
+muspi4			equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	rinrin4
+
+;-----------------------------------------------;
+
+musnami4	equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	nami4
+
+musnamijump4	equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	namijump4
+
+musnamifall4	equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	namifall4
+
+musnamicursor4	equ	* - MSADRS / 3 + 1
+	db	004h
+	dw	namicursor4
+
+musnamihold4	equ	* - MSADRS / 3 + 1
+	db	007h
+	dw	namihold4
+
+musnamifanfare4		equ	* - MSADRS / 3 + 1
+	db	084h
+	dw	Fanfare51
+	db	005h
+	dw	Fanfare52
+	db	006h
+	dw	Fanfare53
+
+;-------------------------------------------------------;
+;			  Music				;
+;-------------------------------------------------------;
+bgmfirst4	equ	* - MSADRS / 3
+
+muscasino2			equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	Naminori0131
+	db	001h
+	dw	Naminori0132
+	db	002h
+	dw	Naminori0133
+
+musrocket			equ	* - MSADRS / 3 + 1
+	db	080h
+	dw	MUS_Rocket1
+	db	001h
+	dw	MUS_Rocket2
+	db	002h
+	dw	MUS_Rocket3
+mussakaki			equ	* - MSADRS / 3 + 1
+	db	0c0h
+	dw	Sakaki011
+	db	001h
+	dw	Sakaki012
+	db	002h
+	dw	Sakaki013
+	db	003h
+	dw	Sakaki014
+
+musprinter4			equ	* - MSADRS / 3 + 1
+	db	002h
+	dw	PrinterMusic3
+
+bgmend4		equ	* - MSADRS / 3
+musend4		equ	* - MSADRS / 3 + 1
+
+
+
+drum14:						; Snare Drum 
+	db	020h,0c1h,033h
+	db	0FFh
+drum24:						; Snare Drum 
+	db	020h,0b1h,033h
+	db	0FFh
+drum34:						; Snare Drum 
+	db	020h,0a1h,033h
+	db	0FFh
+drum44:						; Snare Drum 
+	db	020h,081h,033h
+	db	0FFh
+drum54:						; SE Snare Drum 
+	db	027h,084h,037h
+	db	026h,084h,036h
+	db	025h,083h,035h
+	db	024h,083h,034h
+	db	023h,082h,033h
+	db	022h,081h,032h
+	db	0FFh
+drum64:						; BEATS Snare Drum 
+	db	020h,051h,02ah
+	db	0FFh
+
+drum74:						; DOUBLE Snare Drum 
+	db	021h,041h,02bh
+	db	020h,061h,02ah
+	db	0FFh
+
+drum84:						; CLOSE Hi-Hat
+	db	020h,081h,010h
+	db	0FFh
+
+drum94:						; HI Tom
+	db	020h,082h,023h
+	db	0FFh
+druma4:						; MID Tom
+	db	020h,082h,025h
+	db	0FFh
+drumb4:						; LOW Tom
+	db	020h,082h,026h
+	db	0FFh
+drumc4:						; CLOSE Hi-Hat
+	db	020h,0a1h,010h
+	db	0FFh
+drumd4:						; OPEN Hi-Hat
+	db	020h,0a2h,011h
+	db	0FFh
+drume4:						; Snare Drum 
+	db	020h,0a2h,050h
+	db	0FFh
+drumf4:						; Rim Shot 
+	db	020h,0a1h,018h
+	db	020h,031h,033h
+	db	0FFh
+
+drum104:					; Rim Shot 2
+	db	022h,091h,028h
+	db	020h,071h,018h
+	db	0FFh
+
+drum114:						; Snare Drum 
+	db	020h,091h,022h
+	db	0FFh
+drum124:						; Snare Drum 
+	db	020h,071h,022h
+	db	0FFh
+drum134:						; Snare Drum 
+	db	020h,061h,022h
+	db	0FFh
+
+
+
+
+; --- SOUND EFFECTS ---
+
+rinrin4:
+	db	0ech,002h
+	db	020h,091h,0c0h,007h
+	db	020h,081h,0d0h,007h
+	db	020h,091h,0c0h,007h
+	db	02ch,0a1h,0d0h,007h
+	db	0ffh
+syu4:
+	db	021h,0e2h,033h
+	db	028h,0e1h,022h
+	db	0ffh
+itemuse4:
+	db	0ech,002h
+	db	010h,014h
+	db	024h,0f2h,000h,006h
+	db	024h,0f2h,000h,006h
+	db	010h,017h
+	db	02fh,0f2h,000h,006h
+	db	010h,008h
+	db	0ffh
+kusuri4:
+	db	0ech,002h
+	db	010h,017h
+	db	02fh,0f0h,0f0h,004h
+	db	02fh,0f2h,050h,006h
+	db	010h,008h
+	db	0ffh
+wngo4:
+	db	0ech,002h
+	db	010h,03ah
+	db	024h,0f2h,000h,002h
+	db	010h,022h
+	db	028h,0e2h,000h,002h
+	db	010h,008h
+	db	0ffh
+
+
+
+nami4:
+	db	026h,0f1h,011h
+	db	027h,0f2h,022h
+	db	028h,0f3h,033h
+	db	029h,0f4h,042h
+	db	02ah,0f5h,033h
+	db	02bh,0f6h,022h
+	db	02ch,0f7h,011h
+;	db	02ch,0f7h,001h
+	db	0ffh
+
+namijump4:
+	db	0ech,002h
+	db	023h,0c4h,060h,007h
+	db	020h,0a4h,040h,007h
+	db	022h,0c4h,040h,007h
+	db	020h,0a4h,060h,007h
+	db	02fh,0c1h,060h,007h
+	db	0ffh
+
+namicursor4:
+	db	0ech,002h
+	db	023h,0b4h,0c0h,007h
+	db	020h,0a1h,080h,007h
+	db	0ffh
+
+namihold4:
+	db	022h,0f1h,032h
+	db	022h,000h,000h
+	db	024h,0e6h,021h
+	db	0ffh
+
+namifall4:
+	db	023h,0f3h,066h
+	db	023h,033h,053h
+	db	027h,0f5h,051h
+	db	0ffh
+
+;----------------------------------------
+Fanfare51:
+;----------------------------------------
+	db	0f8h
+	db	0edh,001h,000h
+	db	0f0h,077h
+	db	0ech,002h
+	db	0e8h
+	db	0d5h,0b4h
+; P1-1
+	db	0e4h,023h
+	db	003h
+	db	0e5h,097h
+; P1-2
+	db	0d5h,0b2h
+	db	0e4h,031h
+	db	031h
+	db	021h
+	db	001h
+	db	001h
+	db	0e5h,0a1h
+	db	0d5h,0b4h
+	db	0e4h,007h
+	db	0ffh
+;----------------------------------------
+Fanfare52:
+;----------------------------------------
+	db	0f8h
+	db	0eah,08h,027h
+	db	0ech,002h
+; P2-1
+	db	0d5h,0c5h
+	db	0e4h,093h
+	db	053h
+	db	007h
+; P2-2
+	db	0d5h,0c2h
+	db	0a1h
+	db	0a1h
+	db	0a1h
+	db	071h
+	db	071h
+	db	0a1h
+	db	0d5h,0c4h
+	db	097h
+	db	0ffh
+;----------------------------------------
+Fanfare53:
+;----------------------------------------
+	db	0f8h
+; P3-1
+	db	0d5h,010h
+	db	0e3h,053h
+	db	033h
+	db	007h
+; P3-2
+	db	030h
+	db	0c0h
+	db	030h
+	db	0c0h
+	db	040h
+	db	0c0h
+	db	050h
+	db	0c0h
+	db	050h
+	db	0c0h
+	db	070h
+	db	0c0h
+	db	097h
+	db	0ffh
+
+
+
+; --- MONSTERS VOICE ---
+
+	include mvoice.dat
+
+;----------------------------------------
+PrinterMusic3:
+;----------------------------------------
+	db	$ed,$01,$00
+	db	$dc,$10
+	db	$e4,$b5
+	db	$e3,$10
+	db	$c0
+	db	$e4,$b5
+	db	$e3,$10
+	db	$c0
+; P3-2
+	db	$e4,$b0
+	db	$c0
+	db	$e3,$40
+	db	$c0
+	db	$30
+	db	$c0
+	db	$10
+	db	$c0
+	db	$e4,$b0
+	db	$c0
+	db	$90
+	db	$c0
+	db	$80
+	db	$c0
+	db	$60
+	db	$c0
+loop30$:
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+; P3-8
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+; P3-9
+	db	$60
+	db	$c0
+	db	$90
+	db	$c0
+	db	$60
+	db	$c0
+	db	$90
+	db	$c0
+	db	$60
+	db	$c0
+	db	$e3,$10
+	db	$00
+	db	$10
+	db	$c0
+	db	$e4,$60
+	db	$c0
+; P3-10
+	db	$40
+	db	$c0
+	db	$80
+	db	$c0
+	db	$40
+	db	$c0
+	db	$80
+	db	$c0
+	db	$40
+	db	$c0
+	db	$e3,$40
+	db	$30
+	db	$40
+	db	$c0
+	db	$e4,$30
+	db	$c0
+; P3-11
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+; P3-12
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+; P3-13
+	db	$60
+	db	$c0
+	db	$90
+	db	$c0
+	db	$60
+	db	$c0
+	db	$90
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$90
+	db	$c0
+	db	$80
+	db	$c0
+	db	$60
+	db	$c0
+; P3-14
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$10
+	db	$c0
+	db	$20
+	db	$c0
+; P3-15
+	db	$30
+	db	$c0
+	db	$60
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$60
+	db	$c0
+	db	$30
+	db	$c0
+	db	$60
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$60
+	db	$c0
+; P3-16
+	db	$40
+	db	$c0
+	db	$80
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$80
+	db	$c0
+	db	$40
+	db	$c0
+	db	$80
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$80
+	db	$c0
+; P3-17
+	db	$60
+	db	$c0
+	db	$90
+	db	$c0
+	db	$10
+	db	$c0
+	db	$90
+	db	$c0
+	db	$60
+	db	$c0
+	db	$90
+	db	$c0
+	db	$10
+	db	$c0
+	db	$90
+	db	$c0
+; P3-18
+	db	$b0
+	db	$a0
+	db	$b0
+	db	$c0
+	db	$40
+	db	$c0
+	db	$60
+	db	$c0
+	db	$80
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$10
+	db	$c0
+	db	$20
+	db	$c0
+; P3-19
+	db	$30
+	db	$c0
+	db	$60
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$60
+	db	$c0
+	db	$30
+	db	$c0
+	db	$60
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$60
+	db	$c0
+; P3-20
+	db	$40
+	db	$c0
+	db	$80
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$80
+	db	$c0
+	db	$40
+	db	$c0
+	db	$80
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$80
+	db	$c0
+; P3-21
+	db	$60
+	db	$c0
+	db	$90
+	db	$c0
+	db	$10
+	db	$c0
+	db	$90
+	db	$c0
+	db	$60
+	db	$c0
+	db	$90
+	db	$c0
+	db	$60
+	db	$c0
+	db	$30
+	db	$c0
+; P3-22
+	db	$b0
+	db	$c0
+	db	$b0
+	db	$c0
+	db	$90
+	db	$c0
+	db	$90
+	db	$c0
+	db	$80
+	db	$c0
+	db	$e5,$b0
+	db	$c0
+	db	$e4,$10
+	db	$c0
+	db	$30
+	db	$c0
+	db	$fe,0
+	dw	loop30$
+
+;----------------------------------------
+Fanfare114:
+;----------------------------------------
+	db	0f8h
+	db	0edh,001h,000h
+	db	0f0h,077h
+	db	0eah,06h,026h
+	db	0ech,002h
+	db	0e8h
+; P1-1
+	db	0d4h,0b1h
+	db	0e5h,081h
+	db	081h
+	db	081h
+;					b
+	db	0dch,0b3h
+	db	0e4h,043h
+	db	0ffh
+;----------------------------------------
+Fanfare124:
+;----------------------------------------
+	db	0f8h
+	db	0eah,08h,027h
+	db	0ech,002h
+; P2-1
+	db	0d4h,0c1h
+	db	0e4h,041h
+	db	041h
+	db	041h
+;					g#
+	db	0dch,0c3h
+	db	0b3h
+	db	0ffh
+;----------------------------------------
+Fanfare134:
+;----------------------------------------
+; P3-1
+	db	0f8h
+	db	0d4h,010h
+	db	0e4h,0b0h
+	db	0c0h
+	db	0b0h
+	db	0c0h
+	db	0b0h
+	db	0c0h
+	db	0dch,010h
+;				oct 3	e
+;					r
+	db	0e4h,0b1h
+	db	0c1h
+	db	0ffh
+
+
+
+
+
+
+	;
+	;	fanfare1
+	;
+	;	Converting on Thu May 25 06:44:08 1978
+	;
+	;				by ver 1.02
+	;
+;----------------------------------------
+Fanfare113:
+;----------------------------------------
+	db	0f8h
+	db	0edh,001h,000h
+	db	0f0h,077h
+	db	0eah,06h,026h
+	db	0ech,002h
+	db	0e8h
+; P1-1
+	db	0d4h,0b1h
+	db	0e5h,081h
+	db	081h
+	db	081h
+;					b
+	db	0dch,0b3h
+	db	0e4h,043h
+	db	0ffh
+;----------------------------------------
+Fanfare123:
+;----------------------------------------
+	db	0f8h
+	db	0eah,08h,027h
+	db	0ech,002h
+; P2-1
+	db	0d4h,0c1h
+	db	0e4h,041h
+	db	041h
+	db	041h
+;					g#
+	db	0dch,0c3h
+	db	0b3h
+	db	0ffh
+;----------------------------------------
+Fanfare133:
+;----------------------------------------
+; P3-1
+	db	0f8h
+	db	0d4h,010h
+	db	0e4h,0b0h
+	db	0c0h
+	db	0b0h
+	db	0c0h
+	db	0b0h
+	db	0c0h
+	db	0dch,010h
+;				oct 3	e
+;					r
+	db	0e4h,0b1h
+	db	0c1h
+	db	0ffh
+
+;----------------------------------------
+Fanfare514:
+;----------------------------------------
+	db	0f8h
+	db	0edh,001h,000h
+	db	0f0h,077h
+	db	0ech,002h
+	db	0e8h
+	db	0d5h,0b4h
+; P1-1
+	db	0e4h,023h
+	db	003h
+	db	0e5h,097h
+; P1-2
+	db	0d5h,0b2h
+	db	0e4h,031h
+	db	031h
+	db	021h
+	db	001h
+	db	001h
+	db	0e5h,0a1h
+	db	0d5h,0b4h
+	db	0e4h,007h
+	db	0ffh
+;----------------------------------------
+Fanfare524:
+;----------------------------------------
+	db	0f8h
+	db	0eah,08h,027h
+	db	0ech,002h
+; P2-1
+	db	0d5h,0c5h
+	db	0e4h,093h
+	db	053h
+	db	007h
+; P2-2
+	db	0d5h,0c2h
+	db	0a1h
+	db	0a1h
+	db	0a1h
+	db	071h
+	db	071h
+	db	0a1h
+	db	0d5h,0c4h
+	db	097h
+	db	0ffh
+;----------------------------------------
+Fanfare534:
+;----------------------------------------
+	db	0f8h
+; P3-1
+	db	0d5h,010h
+	db	0e3h,053h
+	db	033h
+	db	007h
+; P3-2
+	db	030h
+	db	0c0h
+	db	030h
+	db	0c0h
+	db	040h
+	db	0c0h
+	db	050h
+	db	0c0h
+	db	050h
+	db	0c0h
+	db	070h
+	db	0c0h
+	db	097h
+	db	0ffh
+
+
+

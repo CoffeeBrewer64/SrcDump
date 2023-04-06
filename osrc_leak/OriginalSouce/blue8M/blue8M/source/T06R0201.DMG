@@ -1,0 +1,334 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank16	group	G_BANK16
+
+
+	public	t6_room2
+
+
+	extern	se_wait
+	extern	gyaarth_play
+	extern	yes_no
+
+
+MANIA_TYPE	equ	16
+EXIT		=	0ffh
+
+
+t6_room2:
+ysiz	=	4
+xsiz	=	4
+	db	MANIA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	daisuki			; map data adrs
+	dw	msg_t6r2f1		; message tbl adrs
+	dw	ev_t6r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t6r2f1
+
+
+ev_t6r2f1:
+	jp	init_for_talkmap
+
+
+	extern	check_pack
+
+CheckClubEvent:
+	ld	a,(ev_t6_2 + 0)
+	bit	1,a
+	ret	nz
+
+	ld	b,6				; bicycle
+	call	check_pack
+	ret	nz
+
+	ld	b,45				; hiki-kae-ken
+	jp	check_pack
+
+
+
+msg_t6r2f1:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+	dw	msg4
+	dw	msg5
+	dw	msg6
+	dw	kanban1
+	dw	kanban2
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t6_2)
+	bit	7,a				; check first coversation
+	jr	nz,later$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	ld	hl,ev_t6_2
+	set	6,(hl)
+
+	jr	rts$
+
+
+later$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	hl,ev_t6_2
+	res	7,(hl)
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,(ev_t6_2)
+	bit	6,a				; check first coversation
+	jr	nz,later$
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	ld	hl,ev_t6_2
+	set	7,(hl)
+
+	jr	rts$
+
+
+later$:
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+	ld	hl,ev_t6_2
+	res	6,(hl)
+
+rts$:
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_2_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_2_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_3_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_3_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	ld	a,84
+	call	gyaarth_play
+	call	se_wait
+	
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_4_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_4_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,msg4_0$
+	call	put_win_msg
+
+	ld	a,58
+	call	gyaarth_play
+	call	se_wait
+	
+	jp	msg_return
+
+
+msg4_0$:
+	extern	msg4_0_5_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_5_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg5:
+	db	CALL_MSG
+
+	call	CheckClubEvent
+	jr	nz,obtain$
+
+	ld	hl,msg5_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	hl,msg5_1$
+	call	put_win_msg
+
+	ld	bc,45 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg5_2$
+	call	put_win_msg
+
+	ld	hl,ev_t6_2
+	set	1,(hl)
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg5_5$
+	call	put_win_msg
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg5_3$
+	call	put_win_msg
+
+	jr	rts$
+
+
+obtain$:
+	ld	hl,msg5_4$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg5_0$:
+	extern	msg5_0_6_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_6_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_1$:
+	extern	msg5_1_7_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_1_7_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_2$:
+	extern	msg5_2_8_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_8_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	FANFARE6
+	extern	msg5_2_9_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_9_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_3$:
+	extern	msg5_3_10_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_3_10_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_4$:
+	extern	msg5_4_11_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_4_11_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_5$:
+	extern	msg5_5_12_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg5_5_12_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	extern	msg6_13_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg6_13_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	extern	kanban1_14_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw kanban1_14_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_15_T06R0201
+	db I_MSG2	; mvmsg追加
+	dw kanban2_15_T06R0201	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+sxy_t6r2f1:
+	include	..\sxy\t06r0201.sxy
+
+
+daisuki:
+	include ..\mapdata\daisuki.map
+
+

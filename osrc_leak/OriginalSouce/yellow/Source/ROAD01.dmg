@@ -1,0 +1,162 @@
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		macro.h
+	include		group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	road1_event
+	public	road1_msg
+
+	extern	bank_push_call
+
+
+road1_event:
+	call	init_for_talkmap
+
+	ret
+
+
+road1_msg: 
+	msgndw	msg1,msg_friend
+	ndw	msg2,msg_boy
+	ndw	kanban1,msg_borad1
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg01
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg02
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban1:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kanban01
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+msg01:
+	ld	hl,ev_r1
+	bit	0,(hl)
+	set	0,(hl)
+	jr	nz,second$			; message(2nd)
+
+	ld	hl,msg1_0$
+	call	put_win_msg			; item plesent
+
+	ld	bc,20 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg1_1$
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg1_3$
+
+	jr	rts$
+
+
+second$:
+	ld	hl,msg1_2$
+	
+rts$:
+	call	put_win_msg
+
+	ret
+
+
+msg1_0$:
+	extern	msg1_0_0_ROAD01
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_ROAD01	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_ROAD01
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_ROAD01	; mvmsg追加
+	db 028h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg1_2$:
+	extern	msg1_2_2_ROAD01
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_ROAD01	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_3_ROAD01
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_ROAD01	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg02:
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	ret
+
+
+msg2_0$:
+	extern	msg2_0_4_ROAD01
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_4_ROAD01	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban01:
+	ld	hl,kanban1_0$
+	call	put_win_msg
+
+	ret
+
+
+kanban1_0$:
+	extern	kanban1_0_5_ROAD01
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_5_ROAD01	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+

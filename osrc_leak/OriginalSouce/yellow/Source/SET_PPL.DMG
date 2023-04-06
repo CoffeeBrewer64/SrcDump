@@ -1,0 +1,210 @@
+	include		common.def
+	include		fntequ.def
+	include		map.def
+	include		banktool.def
+	include		sgb_col.def
+	include		maptype.def
+	include		macro.h
+	include		group.def
+
+
+bank0	group	G_BANK0
+
+
+
+
+ACTSIZ		equ	0010h
+ACTOVL		equ	0010h
+
+
+	extern	memset
+
+
+	public	set_people
+
+set_people:
+	ld	a,(hli)
+	ld	(murabito_cnt),a
+
+	push	hl
+	push	de
+	push	bc
+
+	call	cls_act_tbl
+	call	set_hide_code
+
+	ld	hl,hito_tbl
+	ld	bc,0020h
+	xor	a
+	call	memset
+
+	pop	bc
+	pop	de
+	pop	hl			; Map Table Address Rewrite
+
+	ld	a,(murabito_cnt)	; murabito counter load
+	and	a
+	ret	z
+
+	ld	b,a			; Counter Push
+	ld	c,00h			; Additional Counter
+	ld	de,actor_table + ACTOVL
+
+set_people_pat$:
+	ld	a,(hli)			; murabito  no pattan code
+	ld	(de),a			; Set Actor Table(Top)
+
+	inc	d			; Next Actor Table
+	ld	a,e
+	add	a,4			; Address 4Byte Skip ... +4
+	ld	e,a
+	ld	a,(hli)			; global y set
+	ld	(de),a
+	inc	e			; Next Address       ... +5
+	ld	a,(hli)			; global x set
+	ld	(de),a	
+	inc	e			; Next Address       ... +6
+	ld	a,(hli)
+	ld	(de),a			; move flg set	
+	ld	a,(hli)
+	ld	(work2),a		; moving(stepping) attribute
+	ld	a,(hli)
+	ld	(work3),a		; message number code
+
+	push	bc
+	call	init_attribute
+	pop	bc			; load 1
+
+	dec	d		
+	ld	a,e			; next actor
+	add	a,10
+	ld	e,a
+
+	inc	c			; C reg * 2
+	inc	c
+
+	dec	b
+	jr	nz,set_people_pat$
+
+	ret
+
+
+
+
+cls_act_tbl:
+	ld	hl,actor_table + ACTOVL	  ; Actor Table Address (0C210h)
+	ld	de,actor_table + ACTOVL + 256 ; Actor Table Address (0C310h)
+	xor	a
+;	ld	b,ACTOR_MAX - 1 * ACTSIZ
+	ld	b,ACTOR_MAX - 2 * ACTSIZ
+
+loop$:					;--- Actor Table Clear --- 
+	ld	(hli),a			; Normal Character Actor Clear
+	ld	(de),a			; Hiden  Character Actor Clear
+	inc	e			; Hiden Low Address Table Count Up
+	dec	b			; Count Down of Table Size
+	jr	nz,loop$		; Loop Checker. Going 'cls1$'
+
+	ret
+
+
+
+
+set_hide_code:					; -------- Hide Actor_Pattern
+	ld	hl,actor_table + ACTOVL + 2	; Actor Table Address (0C212h)
+	ld	de,ACTSIZ			; Skip Size (16Byte)
+;	ld	c,ACTOR_MAX - 1
+	ld	c,ACTOR_MAX - 2
+
+loop$:
+	ld	(hl),0ffh		; hide code
+	add	hl,de
+	dec	c
+	jr	nz,loop$
+
+	ret
+
+
+
+
+init_attribute:
+	push	hl				; save 1
+
+	ld	b,00h
+	ld	hl,hito_tbl
+	add	hl,bc
+	ld	a,(work2)
+	ld	(hli),a				; attribute
+
+	ld	a,(work3)
+	ld	(hl),a				; message number
+
+	ld	a,(work3)
+	ld	(work2),a			; save code(bit-6, bit-7)
+	and	03fh
+	ld	(hl),a				; mask code rewrite
+
+	pop	hl				; load base data address
+
+	ld	a,(work2)			; message number
+	bit	6,a				; dealer as battle type
+	jr	nz,battle_type$
+
+	bit	7,a				; capsule type with item
+	jr	nz,capsule_type$
+
+
+normal_obj$:
+	push	hl
+
+	ld	hl,obj_attribute
+	add	hl,bc
+	xor	a
+	ld	(hli),a
+	ld	(hl),a
+
+	pop	hl
+
+	ret
+
+
+battle_type$:
+	ld	a,(hli)
+	ld	(work2),a			; battle type dealer number
+	ld	a,(hli)
+	ld	(work3),a			; pattern of taking monster
+
+	push	hl				; save base data address
+
+	ld	hl,obj_attribute
+	add	hl,bc
+	ld	a,(work2)
+	ld	(hli),a				; set dealer number
+	ld	a,(work3)
+	ld	(hl),a				; set taking pattern
+
+	pop	hl
+
+	ret
+
+
+
+capsule_type$:
+	ld	a,(hli)
+	ld	(work2),a			; number of item in capsule
+
+	push	hl				; save base data address
+
+	ld	hl,obj_attribute
+	add	hl,bc
+	ld	a,(work2)
+	ld	(hli),a				; set item number
+	xor	a
+	ld	(hl),a				; identity of item
+
+	pop	hl
+
+	ret
+
+
+

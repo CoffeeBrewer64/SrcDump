@@ -1,0 +1,110 @@
+
+
+
+
+;============================================================
+; Pikacyu work area define
+;============================================================
+
+INITNDS		macro	m_symbol
+m_counter	=	m_symbol
+		endm
+
+NDS		macro	m_amount,m_symbol
+m_symbol	equ	m_counter
+m_counter	=	m_counter + m_amount
+		endm
+
+
+	INITNDS		pika_work
+
+	NDS	1	,pika_status
+	NDS	1	,pika_set_pos
+	NDS	1	,pika_dy_sv
+	NDS	1	,pika_dx_sv
+	NDS	1	,pika_hit_site
+	NDS	1	,pika_hit_cnt
+	NDS	1	,pika_hit_flag
+
+	NDS	1	,PIKA_ANM_CNT
+	NDS	10h	,PIKA_ANM_BUF
+
+	NDS	1	,pika_test_work
+	NDS	1	,pika_face_work
+
+	NDS	1	,PikaAnmTblBank
+	NDS	2	,PikaAnmTblAddress
+	NDS	1	,PikaMoveRetFlag
+
+	NDS	10h	,PikaDemoWork
+
+  ifn	0
+	NDS	1	,P_MoveParam
+	NDS	1	,P_MoveNo
+	NDS	1	,P_AnimeParam
+	NDS	1	,P_AnimeNo
+	NDS	1	,P_AnimeWork
+	NDS	1	,P_Pattern
+	NDS	1	,P_XPOS
+	NDS	1	,P_YPOS
+	NDS	1	,P_DX
+	NDS	1	,P_DY
+	NDS	1	,P_WORK0
+	NDS	1	,P_WORK1
+	NDS	1	,P_WORK2
+	NDS	1	,P_WORK3
+  endif
+
+
+
+
+;-----------------------------------------------------
+; pika_status bit define
+;-----------------------------------------------------
+PIKA_ACT_OFF	equ	7
+JUMP_START	equ	6
+LANDING_SW	equ	5
+MAP2MAP_SW	equ	4
+NOT_SHOW_SW	equ	3
+WAIT_STATUS	equ	2
+SLEEP_SW	equ	1
+
+
+
+;-----------------------------------------------------
+; fixed number for valiable routines
+;-----------------------------------------------------
+PIKA_CODE	equ	73		; pikacyu OBJ charactor code
+
+PIKACYU_NO	equ	84		; Prot-type Pockemon Number
+
+PIKA_ACT_NO	equ	15		;
+
+PIKA_ACT_TABLE		equ	0010h * 15 + actor_table 
+
+;-----------------------------------------------------
+; pika start position to hero
+; (set to "pika_set_pos")
+;-----------------------------------------------------
+NORMAL_PIKA_SET		equ	0
+SIDE_PIKA_SET		equ	1	;
+RIGHT_PIKA_SET		equ	1	;
+AFTER_PIKA_SET		equ	2
+EXIT_PIKA_SET		equ	3
+DOWN_PIKA_SET		equ	4
+UP_PIKA_SET		equ	5
+LEFT_PIKA_SET		equ	6
+FRONT_PIKA_SET		equ	7
+
+
+
+;-------------------------------------------------------
+; Macro to access actor parameter 
+;-------------------------------------------------------
+LD_HL	macro	a_register,a_value
+	ld	hl,a_value
+	add	hl,a_register
+	endm
+
+
+

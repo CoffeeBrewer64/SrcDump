@@ -1,0 +1,170 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	r6_room1
+
+
+	extern	CheckAssignPos
+	extern	drink_check
+	extern	bank_push_call
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+	extern	put_wait
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+seq_r6r1f1	equ	seq_ctrl_buf + 70
+
+
+r6_room1:  
+ysiz	=	3
+xsiz	=	4
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gate5_6  	 	; map data adrs
+	dw	msg_tbl 		; message tbl adrs
+	dw	event 			; event routine adrs
+	db	0			; map link flg
+	dw	room_str 
+
+
+event:
+	call	init_for_talkmap
+
+	ld	hl,r6r1f1_tbl
+	ld	a,(seq_r6r1f1)
+	call	table_jump
+
+	ret
+
+
+r6r1f1_tbl:
+	initndw	gate_check,seq_gate_check
+	ndw	step,seq_step
+
+
+gate_check:
+	ld	a,(ev_special + 0)
+	bit	6,a
+	ret	nz
+
+	ld	hl,stopper$
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,01h
+	ld	(watashi_muki),a
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	b,016h
+	ld	hl,drink_check
+	call	bank_push_call
+	ld	a,(DA_BUF + 0)
+	and	a
+	jr	nz,obtained$
+
+	ld	a,msg_keibi1
+	ld	(work1),a
+	call	talk_map
+
+	call	step_back
+
+	ld	a,seq_step
+	ld	(seq_r6r1f1),a
+
+	ret
+
+
+obtained$:
+	ld	hl,ev_special + 0
+	set	6,(hl)
+
+	ld	a,msg_keibi2
+	ld	(work1),a
+	jp	talk_map
+
+
+stopper$:
+	db	002h,003h
+	db	002h,004h
+	db	0ffh
+
+
+
+step:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	call	put_wait
+
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_r6r1f1),a
+
+	ret
+
+
+step_back:
+	ld	hl,obs_system
+	set	7,(hl)				; hero demonstration mode on
+
+	ld	a,W_D				; animetion pattern
+	ld	(ctrl_move_val),a
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	xor	a
+	ld	(actor_table + 106h),a		; animetion switch on
+	ld	(auto_move_msk),a		; key check off
+
+	ret
+
+
+	extern	GateKeeper
+	extern	GK1_0
+	extern	GK1_1
+
+msg_tbl:
+	msgndw	GateKeeper,msg_keibi
+	ndw	GK1_0,msg_keibi1
+	ndw	GK1_1,msg_keibi2
+
+
+room_str:
+	include	..\sxy\r06r0101.sxy
+
+
+gate5_6:
+	include	..\mapdata\5_6gate.map
+

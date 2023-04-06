@@ -1,0 +1,233 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		macro.h
+	include		group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t5_room6
+
+
+	extern	set_objdata
+	extern	set_objdata_main
+	extern	gyaarth_play
+	extern	minka_a
+	extern	get_pet_name_0
+	extern	put_wait
+	extern	mul_any
+	extern	yes_no
+	extern	name_change
+	extern	bank_push_call
+	extern	pal_off_put_wait
+	extern	pop_vram_m
+	extern	color_rewrite
+	
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t5_room6:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_a			; map data adrs
+	dw	msg_t5r6f1  		; message tbl adrs
+	dw	ev_t5r6f1     		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t5r6f1   
+
+
+ev_t5r6f1:     
+	jp	init_for_talkmap
+
+
+yes_no_call:
+	call	put_win_msg
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+
+	ret
+
+
+oya_check:
+	ld	hl,my_cap_oya
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, MONS_NAME_LEN
+ else
+	ld	bc,6
+ endif
+	ld	a,(sel_item_pos)
+	call	mul_any
+
+	ld	de,my_name
+ ifn	ASSEMBLE__ENGLISH
+	ld	c, MONS_NAME_LEN
+ else
+	ld	c,6
+ endif
+	call	check$
+	jr	c,not$
+
+	ld	hl,my_cap_data + 12
+	ld	bc,CAPDATA_LEN
+	ld	a,(sel_item_pos)
+	call	mul_any
+
+	ld	de,gb_no			; my_id_no
+	ld	c,2
+
+check$:
+	ld	a,(de)
+	cp	(hl)
+	jr	nz,not$
+	inc	hl
+	inc	de
+	dec	c
+	jr	nz,check$
+
+	and	a
+
+	ret
+
+
+not$:
+	scf
+
+	ret
+
+
+
+msg_t5r6f1:
+	dw	msg1
+
+
+msg1:
+	db	CALL_MSG
+
+	call	push_vram_m
+
+	ld	hl,msg1_0$
+	call	yes_no_call
+	jr	nz,cancel$
+
+	ld	hl,msg1_1$		;”どの  ポケモンの
+	call	put_win_msg		;  ニックネームをうらなうかね？”
+
+	xor	a
+	ld	(ef_size),a
+	ld	(oam_flg),a
+;	========================		; 並び替えのセレクトボタンに関するバグ修正
+ ifn	ASSEMBLE__ENGLISH			; ゲームフリーク森本氏よりのメール('98 8/3
+	ld	(select_allow),a		; 原田さん受け) に従って変更する
+ endif						;
+;	========================		;
+	call	cap_list
+
+	push	af
+	call	pal_off_put_wait
+	call	set_objdata
+	call	color_reset
+	pop	af
+	jr	c,cancel$
+
+	call	get_pet_name_0
+
+	call	oya_check
+	ld	hl,msg1_6$		;”うむ  ××か！  これはすばらしいニックネームだ”
+	jr	c,exit$			;”けちの  つけようもない！。。。”
+
+	ld	hl,msg1_2$		;”うーむ××か....なかなかいい  ニックネームを。。。”
+	call	yes_no_call		;”。。。つけて あげようか？ どうかね？”
+	jr	nz,cancel$
+
+	ld	hl,msg1_3$		;”そうか  では
+	call	put_win_msg		;”どんな  ニックネームにしようかな”
+
+
+	ld	b,1
+	ld	hl,name_change
+	call	bank_push_call
+	jr	c,cancel$
+
+	ld	hl,msg1_4$		;”よし  これからこのポケモンは○○だ！。。。”
+
+exit$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+cancel$:			
+	ld	hl,msg1_5$		;”そうか
+					;  わかった  また  きなさいよ”
+	jr	exit$
+
+
+
+msg1_0$:
+	extern	msg1_0_0_T05R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T05R0601	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T05R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T05R0601	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_T05R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T05R0601	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+
+msg1_3$:
+	extern	msg1_3_3_T05R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_T05R0601	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_4$:
+	extern	msg1_4_4_T05R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_4_T05R0601	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+
+msg1_5$:
+	extern	msg1_5_5_T05R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_5_5_T05R0601	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_6$:
+	extern	msg1_6_6_T05R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_6_6_T05R0601	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+	
+
+sxy_t5r6f1:   
+	include	..\sxy\t05r0601.sxy
+
+

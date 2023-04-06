@@ -1,0 +1,20 @@
+; 05/11/98		21:16:42
+dun_tbl$:
+	db	00ch
+ie_tbl$:
+	db	001h
+	db	007h,000h,008h,D3R1F2
+kanban_tbl$:
+	db	002h
+	db	001h,004h,2
+	db	002h,001h,3
+hito_tbl$:
+	db	001h
+	db	SENTHOU
+	db	002h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	001h
+ram_map_tbl$:
+	dw	009h * 004h + 001h + ram_map
+	db	007h,000h

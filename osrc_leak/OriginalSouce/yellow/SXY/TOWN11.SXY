@@ -1,0 +1,122 @@
+; 11/21/95		17:13:42
+machi_tbl$:
+	db	00fh
+ie_tbl$:
+	db	008h
+	db	005h,007h,000h,T11R1F1
+	db	003h,01ah,000h,T11R2F1
+	db	003h,022h,000h,T11R3F1
+	db	00bh,00dh,000h,T11R4F1
+	db	00bh,019h,000h,T11R5F1
+	db	015h,012h,000h,T11R6F1
+	db	01dh,009h,000h,T11R7F1
+	db	01dh,01dh,000h,T11R8F1
+kanban_tbl$:
+	db	00ah
+	db	005h,011h,16
+	db	005h,01Bh,17
+	db	005h,023h,18
+	db	00Bh,01Ah,19
+	db	013h,027h,20
+	db	015h,005h,21
+	db	015h,00Fh,22
+	db	01Dh,00Ah,23
+	db	01Dh,01Bh,24
+	db	013h,001h,25
+hito_tbl$:
+;	db	00fh
+	db	00eh
+	db	DANIN
+	db	006h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	DANIN
+	db	008h+4,014h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	002h
+	db	DANIN
+	db	004h+4,022h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	003h
+	db	DANIN
+	db	00Ch+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+	db	DANIN
+	db	019h+4,00Bh+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	005h
+	db	DANIN
+	db	00Dh+4,020h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	006h
+	db	DANIN
+	db	01Eh+4,012h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	007h
+	db	KENKYUIN
+	db	00Eh+4,008h+4			; Y, X
+	db	0feh				; random move mode
+	db	000h				; moving site
+	db	008h
+	db	SHAINM
+	db	017h+4,017h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	009h
+	db	SHAINW
+	db	01Eh+4,011h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	00ah
+	db	HOTELM
+	db	00Ch+4,01Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	00bh
+	db	TORI
+	db	00Ch+4,01Fh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	00ch
+	db	PHILIP
+	db	008h+4,012h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	00dh
+	db	DANIN
+	db	016h+4,012h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	00eh
+  ifn	0
+	db	DANIN
+	db	016h+4,013h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	00fh
+  endif
+ram_map_tbl$:
+	dw	01ah * 003h + 004h + ram_map
+	db	005h,007h
+	dw	01ah * 002h + 00eh + ram_map
+	db	003h,01ah
+	dw	01ah * 002h + 012h + ram_map
+	db	003h,022h
+	dw	01ah * 006h + 007h + ram_map
+	db	00bh,00dh
+	dw	01ah * 006h + 00dh + ram_map
+	db	00bh,019h
+	dw	01ah * 00bh + 00ah + ram_map
+	db	015h,012h
+	dw	01ah * 00fh + 005h + ram_map
+	db	01dh,009h
+	dw	01ah * 00fh + 00fh + ram_map
+	db	01dh,01dh

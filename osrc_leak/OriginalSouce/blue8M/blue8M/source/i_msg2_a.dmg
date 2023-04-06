@@ -1,0 +1,573 @@
+
+	include		fntequ.def
+	include		group.def
+	include		common.def
+	include		fight.def
+	include		pm_debug.def
+
+
+
+bank2a		group	02ah
+	public	koukan_msg_0_WORLDMAP
+koukan_msg_0_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	zi_,yya_,a_
+	db	home@
+	db	ke__,bou@,bu__,ru__,wo_,spc@,tu_,na_,i_,de_,tenten2@,to_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_k_,usf_a_,usf_y_,comma@,spc@
+	db	usf_c_,usf_o_,usf_n_,usf_n_,usf_e_,usf_c_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_c_,usf_a_,usf_b_,usf_l_,usf_e_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_s_,usf_o_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank2a		group	02ah
+	public	get_msg_1_WORLDMAP
+get_msg_1_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	to_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	wo_,spc@,ko_,u_,ka_,n_,si_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,usf_d_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,usf_f_,usf_o_,usf_r_
+	db	gyo3@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	gyoe@
+	db	EOM,EOM
+  endif
+
+bank2a		group	02ah
+	public	msg1_0_2_WORLDMAP
+msg1_0_2_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,sa_,ga_,si_,te_,ru_,n_,da_,gyoe@
+	db	normal@
+	db	ki_,mi_,spc@
+	db	mo_,ttu_,te_,ta_,ra_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	to_
+	db	home@
+	db	ko_,u_,ka_,n_,si_,yo_,u_,ze_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	gyoe@,spc@
+	db	usf_w,usf_a_,usf_n_,usf_n_,usf_a_
+	db	normal@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,spc@
+	db	usf_o_,usf_n_,usf_e_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	hate@,spc@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg1_1_3_WORLDMAP
+msg1_1_3_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,n_,na_,bou@
+	db	home@
+	db	tenten2@,ma_,ttu_,spc@,i_,ttu_,ka_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,usf_w_,usf_w_,usf_w_,gyoe@
+	db	home@
+	db	usf_o,usf_h_,spc@
+	db	usf_w_,usf_e_,usf_l_,usf_l_,kten@,kten@,kten@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg1_2_4_WORLDMAP
+msg1_2_4_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,na_,n_,da_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	zi_,yya_,spc@,na_,i_,zi_,yya_,n_
+	db	normal@
+	db	mo_,si_,spc@,tu_,ka_,ma_,e_,ta_,ra_
+	db	home@
+	db	ma_,ttu_,sa_,ki_,ni_,spc@,ko_,ko_,he_,spc@
+	db	ko_,i_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,hate@,spc@
+	db	usf_t,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_n_,usf_o_,usf_t_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	gyoe@
+	db	normal@
+	db	usf_i,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_o_,usf_n_,usf_e_,comma@
+	db	home@
+	db	usf_c_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_b_,usf_a_,usf_c_,usf_k_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg1_3_5_WORLDMAP
+msg1_3_5_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	sa__,n__,ki__,yyu__,bou@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_y_,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_n_,usf_k_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg1_after_6_WORLDMAP
+msg1_after_6_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,re_,no_,spc@,ya_,ttu_,ta_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,i__,i__,da_,ro_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_s_,usf_n_,apt_t_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_o_,usf_l_,usf_d_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,usf_g_,usf_r_,usf_e_,usf_a_,usf_t_,hate@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg2_0_7_WORLDMAP
+msg2_0_7_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,re_,ko_,re_
+	db	home@
+	db	ki_,mi_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,mo_,ttu_,to_,ru_,hate@
+	db	normal@
+	db	wa_,si_,no_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	to_
+	db	home@
+	db	ko_,u_,ka_,n_,spc@,si_,na_,i_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_l_,usf_l_,usf_o_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_r_,usf_e_,gyoe@,spc@
+	db	usf_d,usf_o_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_
+	db	normal@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	hate@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg2_1_8_WORLDMAP
+msg2_1_8_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,bou@,spc@,mu__,ri__,ni_,spc@,to_,ha_,spc@,i_,wa_,n_,ga_
+	db	tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_e_,usf_l_,usf_l_,comma@,spc@
+	db	usf_i_,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_d_,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,kten@,kten@,kten@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg2_2_9_WORLDMAP
+msg2_2_9_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,mu_,hate@
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	de_,ha_,spc@,na_,i_,zi_,yya_,na_,i_,ka_
+	db	normal@
+	db	te_,ni_,spc@,i_,re_,ta_,spc@,to_,ki_,ha_
+	db	home@
+	db	yo_,ro_,si_,ku_,spc@,ta_,no_,mu_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_m_,usf_m_,usf_m_,hate@,spc@
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,usf_n_,apt_t_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	kten@
+	db	normal@
+	db	usf_t,usf_h_,usf_i_,usf_n_,usf_k_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_m_,usf_e_,spc@
+	db	usf_w_,usf_h_,usf_e_,usf_n_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_o_,usf_n_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg2_3_10_WORLDMAP
+msg2_3_10_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ri_,ga_,to_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_n_,usf_k_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg2_after_11_WORLDMAP
+msg2_after_11_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,u_,ka_,n_,si_,ta_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	ga_
+	db	home@
+	db	si_,n_,ka_,spc@,si_,o_,ttu_,ta_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_m_,usf_e_
+	db	normal@
+	db	usf_w_,usf_e_,usf_n_,usf_t_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_e_,usf_v_,usf_o_,usf_l_,usf_v_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg3_0_12_WORLDMAP
+msg3_0_12_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ne_,bou@,spc@,ki_,mi_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,mo_,ttu_,te_,ru_,hate@
+	db	normal@
+	db	wa_,ta_,si_,no_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	to_
+	db	home@
+	db	to_,ri_,ka_,e_,te_,spc@,ku_,re_,na_,i_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_i_,gyoe@,spc@
+	db	usf_d,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	hate@
+	db	normal@
+	db	usf_w,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,spc@
+	db	usf_i_,usf_t_
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	hate@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg3_1_13_WORLDMAP
+msg3_1_13_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i__,ya__,na_,ra_,spc@,si_,yyo_,bou@,ga_,na_,i_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_t_,usf_o_,usf_o_,spc@
+	db	usf_b_,usf_a_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg3_2_14_WORLDMAP
+msg3_2_14_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,ko_,re_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	zi_,yya_,spc@,na_,i_,wa_,bou@
+	db	normal@
+	db	te_,ni_,spc@,i_,re_,ta_,ra_
+	db	home@
+	db	ze_,ttu_,ta_,i_,spc@,to_,ri_,ka_,e_,te_,yo_,ne_,ttu_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	kten@,kten@,kten@,usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_n_,usf_o_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	kten@
+	db	normal@
+	db	usf_i,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_o_,usf_n_,usf_e_,comma@
+	db	home@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_m_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg3_3_15_WORLDMAP
+msg3_3_15_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ri_,ga_,to_,ne_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_n_,usf_k_,usf_s_,spc@
+	db	usf_p_,usf_a_,usf_l_,gyoe@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	msg3_after_16_WORLDMAP
+msg3_after_16_WORLDMAP:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,ge_,n_,ki_,hate@
+	db	home@
+	db	wa_,ta_,si_,no_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	ha_,spc@,ge_,n_,ki_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_o_,usf_w_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_o_,usf_l_,usf_d_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + GET_MONS_NAME_@@
+	db	D_MSG
+	db	hate@
+	db	normal@
+	db	usf_m,usf_y_,spc@
+	db	EOM
+	db	I_MSG
+	dw	auto_move_val + TRADE_MONS_NAME_@@
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_
+	db	home@
+	db	usf_d_,usf_o_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_g_,usf_r_,usf_e_,usf_a_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank2a		group	02ah
+	public	noiai_msg_17_WORLDMAP
+noiai_msg_17_WORLDMAP:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,a_,i_,gi_,ri_,de_
+	db	home@
+	db	ki_,re_,so_,u_,na_,spc@,mo_,no_,ga_,spc@,a_,ri_,ma_,se_,n_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_i_,usf_s_,usf_n_,apt_t_
+	db	home@
+	db	usf_a_,usf_n_,usf_y_,usf_t_,usf_h_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_c,usf_u,usf_t,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank2a		group	02ah
+	public	iai_msg_18_WORLDMAP
+iai_msg_18_WORLDMAP:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ha_,home@
+	db	i_,a_,i_,gi_,ri_,de_,spc@,ki_,ri_,ma_,ku_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_h_,usf_a_,usf_c_,usf_k_,usf_e_,usf_d_
+	db	home@
+	db	usf_a_,usf_w_,usf_a_,usf_y_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_c,usf_u,usf_t,gyoe@
+	db	EOMwaiteom
+  endif
+

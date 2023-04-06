@@ -1,0 +1,40 @@
+; 09/24/95		18:25:14
+machi_tbl$:
+	db	043h
+ie_tbl$:
+	db	005h
+	db	003h,006h,001h,T9R1F1
+	db	003h,012h,000h,T9R2F1
+	db	009h,006h,000h,T9R3F1
+	db	00bh,00bh,000h,T9R4F1
+	db	00bh,00fh,000h,T9R5F1
+kanban_tbl$:
+	db	005h
+	db	005h,009h,3
+	db	00Bh,010h,4
+	db	00Bh,00Ch,5
+	db	00Bh,009h,6
+	db	003h,00Dh,7
+hito_tbl$:
+	db	002h
+	db	NEECHYAN
+	db	005h+4,00Ch+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	001h
+	db	GSAN
+	db	006h+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+ram_map_tbl$:
+	dw	010h * 002h + 004h + ram_map
+	db	003h,006h
+	dw	010h * 002h + 00ah + ram_map
+	db	003h,012h
+	dw	010h * 005h + 004h + ram_map
+	db	009h,006h
+	dw	010h * 006h + 006h + ram_map
+	db	00bh,00bh
+	dw	010h * 006h + 008h + ram_map
+	db	00bh,00fh

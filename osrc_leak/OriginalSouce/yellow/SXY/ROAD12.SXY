@@ -1,0 +1,90 @@
+; 05/26/98		21:27:33
+michi_tbl$:
+	db	043h
+ie_tbl$:
+	db	004h
+	db	00fh,00ah,000h,R12R1F1
+	db	00fh,00bh,000h,R12R1F1
+	db	015h,00ah,002h,R12R1F1
+	db	04dh,00bh,000h,R12R2F1
+kanban_tbl$:
+	db	002h
+	db	00Dh,00Dh,11
+	db	03Fh,00Bh,12
+hito_tbl$:
+	db	00ah
+	db	KABINERU
+	db	03Eh+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+	db	SEINEN
+	db	01Fh+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	002h+040h			; battle type
+	db	0d6h				; dealer number
+	db	003h				; taking pattern 
+	db	SEINEN
+	db	027h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	003h+040h			; battle type
+	db	0d6h				; dealer number
+	db	004h				; taking pattern 
+	db	TRAINERM
+	db	05Ch+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	004h+040h			; battle type
+	db	0cdh				; dealer number
+	db	009h				; taking pattern 
+	db	NIICHYAN
+	db	04Ch+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	005h+040h			; battle type
+	db	0dch				; dealer number
+	db	002h				; taking pattern 
+	db	SEINEN
+	db	028h+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	006h+040h			; battle type
+	db	0d6h				; dealer number
+	db	005h				; taking pattern 
+	db	SEINEN
+	db	034h+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	007h+040h			; battle type
+	db	0d6h				; dealer number
+	db	006h				; taking pattern 
+	db	SEINEN
+	db	057h+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	008h+040h			; battle type
+	db	0d6h				; dealer number
+	db	00bh				; taking pattern 
+	db	CAPSULE
+	db	023h+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	009h+080h			; capsule type
+	db	0d8h				; item number
+	db	CAPSULE
+	db	059h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00ah+080h			; capsule type
+	db	025h				; item number
+ram_map_tbl$:
+	dw	010h * 008h + 006h + ram_map
+	db	00fh,00ah
+	dw	010h * 008h + 006h + ram_map
+	db	00fh,00bh
+	dw	010h * 00bh + 006h + ram_map
+	db	015h,00ah
+	dw	010h * 027h + 006h + ram_map
+	db	04dh,00bh

@@ -1,0 +1,1275 @@
+;************************************************************************
+;************************************************************************
+;* Project name		: Pocket Monsters 2				*
+;* Source name		: common.def					*
+;* rewrited date	: 1996/05/17					*
+;************************************************************************
+;		puball
+
+	ERRTAG
+
+;***********************************************************************************************
+;	ポケモン英語版用  定数定義
+
+ASSEMBLE__ENGLISH	=	1		; アセンブルスイッチ  0:５文字版、1:１０文字版
+
+ ifn	ASSEMBLE__ENGLISH
+MONS_NAME_LEN		=	11		; ポケモン名				(EOMを含む)
+WAZA_LEN		=	14		; ポケモン技名				(EOMを含む)
+WAZA_NAME_LEN		=	WAZA_LEN * 4	; ポケモン技名４種類の画面表示用
+TOWN_NAME_LEN		=	17		; 街名		using only in gym map	(EOMを含む)
+LEADER_NAME_LEN		=	11		; リーダー名	using only in gym map	(EOMを含む)
+DEALER_NAME_LEN		=	13		; Dealer Name
+DEALER_MONS_NO_LEN	=	14		; わざを覚える、忘れるポケモン名もしくはわざ名
+ITEM_NAME_LEN		=	13		; アイテム名				(EOMを含む)
+MONS_MAX		=	20		; １ボックスのポケモン数
+						;（１ボックス２０匹、１２ボックス２４０匹にする）
+ else
+
+MONS_NAME_LEN		=	6		; Monster name max length
+WAZA_NAME_LEN		=	8 * 4		; 8 word * 4 kind
+TOWN_NAME_LEN		=	5		; using only in gym map
+LEADER_NAME_LEN		=	4		; using only in gym map
+DEALER_NAME_LEN		=	11		; Dealer Name
+DEALER_MONS_NO_LEN	=	6
+MONS_MAX		=	30		; Lots of putting at home capsules
+
+ endif
+
+RIVAL_NAME_LEN		=	MONS_NAME_LEN	; ライバル名  (EOMを含む)
+JUNIOR_NAME_LEN		=	6		; ワークバッファとして使用  terminal work
+GEIN_NAME_LEN		=	21		; 名前、エンカウント等のバッファとして使用
+DENDOU_LEN		=	16		; 殿堂入りポケモン１匹に使用するＲＡＭサイズ
+
+
+;下記の３つのバッファは連続配置しなければいけない。
+; "T06R0601.DMG" sea_set:  memset(anime_buf[], 14h, 180) をしている！！
+ANIME_BUF_SIZE		=	60
+WORK_ANIME_BUF_SIZE	=	60
+CTRL_MOVE_VAL_SIZE	=	60
+
+;下記の２つのバッファは連続配置しなければいけない。
+; "PLAY2.DMG" play22:  send_byts(dmy_map2, goods_gold, 17) をしている！！
+GOODS_GOLD_SIZE		=	6 + 1
+RND_TABLE_SIZE		=	10
+
+
+;****  定数を追加  ****
+
+PLAYER_NAME_LEN		=	8		; 主人公名、ライバル名の入力最大文字数 (EOMを含む)
+						;(英訳の都合上人名は７文字に制限する仕様になった)
+
+MONS_NAME_BANK		=	7		; １５１匹モンスター名配列の配置バンク
+						; （１０文字にしたのでバンクＥより分離した）
+TABLE_DATA_DS_SIZE	=	20		; sizeof( table_data )
+
+POKEMON_BOX_MAX		=	12		; ポケモンボックス数
+						;（１ボックス２０匹、１２ボックス２４０匹にする）
+
+SAFARI_BALL_MAX		=	30		; サファリボールの初期値
+SAFARI_FEE		=	500		; サファリゾーン入場料
+
+;****サファリゾーン入場料を計算する場合（t08r0501.dmg）**********
+;****                      表示する場合（i_msg2_7.dmg）で使用****
+;SAFARI_FEE == ＄９９９以下の場合は以下の式でＯＫ。
+SAFARI_FEE_HH		=	SAFARI_FEE / 100 / 10
+SAFARI_FEE_HL		=	SAFARI_FEE / 100 % 10
+SAFARI_FEE_LH		=	SAFARI_FEE % 100 / 10
+SAFARI_FEE_LL		=	SAFARI_FEE % 100 % 10
+
+
+;*****	通信交換等で使用する usr_buf[] の 各変数のオフセット値を定義する  *****
+ ifn	ASSEMBLE__ENGLISH
+USR_BUF_SIZE		=	35	; ユーザーバッファサイズ	
+MY_MONS_No_@		=	0		; 自分が送るポケモン番号
+YOUR_MONS_No_@		=	1		; 相手が送るポケモン番号
+MY_OYA_NAME_@		=	4	;4～14	; 自分が送るポケモンのおや名（１０文字分）
+MY_MONS_IDNo_@		=	15	;15,16	; 自分が送るポケモンの IDNo.
+YOUR_OYA_NAME_@		=	17	;17～27	; 相手が送るポケモンのおや名（１０文字分）
+YOUR_MONS_IDNo_@	=	28	;28,29	; 相手が送るポケモンの IDNo.
+FREE_AREA_@		=	30	;30～	; ＯＢＪ表示等で使用される
+USR_BUF_END		=	USR_BUF_SIZE - 1
+
+ else
+USR_BUF_SIZE		=	30
+MY_MONS_No_@		=	0
+YOUR_MONS_No_@		=	1
+MY_OYA_NAME_@		=	4	;4～9
+MY_MONS_IDNo_@		=	10	;10,11
+YOUR_OYA_NAME_@		=	12	;12～17
+YOUR_MONS_IDNo_@	=	18	;18,19
+FREE_AREA_@		=	20	;20～	; 20,21,27,28,29 はＯＢＪ表示等で使用される
+USR_BUF_END		=	USR_BUF_SIZE - 1
+ endif
+;******************************************************************************
+
+;*****	ポケモン交換で使用する auto_move_val[] の 各変数のオフセット値を定義する  *****
+;*****		"WORLDMAP.DMG"  monster_trade()等で使用				  *****
+ ifn	ASSEMBLE__ENGLISH
+AUTO_MOVE_VAL_SIZE	=	40	; バッファサイズ
+TRADE_MONS_No_@@	=	0		; 送るポケモン番号
+MSG_ADRS_@@		=	1	;1,2	; save msg_address_tbl
+MSG_COUNT_@@		=	3		; msg_count
+TRADE_MONS_NAME_@@	=	4	;4～14	; 送るポケモン名（１０文字版）
+GET_MONS_NAME_@@	=	15	;15～25 ; 受け取るポケモン名（１０文字版）
+PET_NAME_@@		=	26	;26～	; save pet_name	？？？ 【注意！】
+GET_MONS_No_@@		=	37		; 受け取るポケモン番号
+
+ else
+AUTO_MOVE_VAL_SIZE	=	40	; バッファサイズ
+TRADE_MONS_No_@@	=	0		; 送るポケモン番号
+MSG_ADRS_@@		=	1	;1,2	; save msg_address_tbl
+MSG_COUNT_@@		=	3		; msg_count
+TRADE_MONS_NAME_@@	=	4	;4～9	; 送るポケモン名（５文字版）
+GET_MONS_NAME_@@	=	10	;10～15 ; 受け取るポケモン名（５文字版）
+PET_NAME_@@		=	16	;16～	; save pet_name	？？？ 【注意！】
+GET_MONS_No_@@		=	22		; 受け取るポケモン番号
+ endif
+;**************************************************************************************
+
+
+;	変数を追加
+;us_display_flg		ds	1		; １０文字表示にするために固定表示位置を可変に変更
+						; する必要のあるルーチン用
+HP_DSPSTYLE_BIT		=	0		; (us_display_flg.bit0) 0:棒グラフの下、1:右に表示
+CURSOR_Y_INTERVAL_BIT	=	1		; ▲カーソルのＹ方向移動間隔を指定
+						; (us_display_flg.bit1) 0:40h(2ｷｬﾗ),1:20h(1ｷｬﾗ)毎
+PUT_MSG_CR@_BIT		=	2		; put_msg() の cr@ コマンド処理を通常の 0:HL+=40
+						; から 1:HL+=20 に変更する（戦闘画面のポケモン技
+						; 選択ウィンドウで使用する）
+
+;***********************************************************************************************
+
+
+;*****************************
+;* Hard ware control address *
+;*****************************
+;**********************
+;* DMG Memory address *
+;**********************
+CHAR_DATA	equ	08000h		; Character data(OBJ)
+CHAR_SIG	equ	08800h		; OBJ & BG
+CHAR_BG		equ	09000h		; BG
+CHAR_BACK1	equ	09800h		; BackGround data choose 1
+CHAR_BACK2	equ	09c00h		; BackGround data choose 2
+EX_RAM		equ	0a000h		; Ex-work RAM
+WORK_RAM	equ	0c000h		; Work RAM
+OAM_RAM		equ	0fe00h		; OAM-RAM (4byte unit OBJ * 40)
+
+;********************
+;* Control register *
+;********************
+IFL		equ	0ff0fh		; warikomi youkyu 
+IE		equ	0ffffh		; warikomi kyoka
+P1		equ	0ff00h		; Port ( P10 - P15 )
+SB		equ	0ff01h		; SIO Data
+SC		equ	0ff02h		; SIO Control
+DIV		equ	0ff04h		; debaidaa register
+TIMA		equ	0ff05h		; TIMER Counter
+TMA		equ	0ff06h		; TIMER mojyuro
+TAC		equ	0ff07h		; TIMER Control
+LCDC		equ	0ff40h		; LCD Controler
+STAT		equ	0ff41h		; LCDC status info.
+SCY		equ	0ff42h		; Scroll point Y
+SCX		equ	0ff43h		; Scroll point X
+LY		equ	0ff44h		; LCDC point Y
+LYC		equ	0ff45h		; LCDC compair
+DMA		equ	0ff46h		; DMA tensou OR Address
+BGP		equ	0ff47h		; BG side pattern
+OBP0		equ	0ff48h		; OBJ side pallet data 0 
+OBP1		equ	0ff49h		; OBJ side pallet data 1
+WY		equ	0ff4ah		; Window open address Y
+WX		equ	0ff4bh		; Window open address X
+
+; 6Apr,1998 村川追加ここから
+;-- CGB Control Register --
+KEY1		equ	0ff4dh
+VBK		equ	0ff4fh
+HDMA1		equ	0ff51h
+HDMA2		equ	0ff52h
+HDMA3		equ	0ff53h
+HDMA4		equ	0ff54h
+HDMA5		equ	0ff55h
+RP		equ	0ff56h
+BCPS		equ	0ff68h
+BCPD		equ	0ff69h
+OCPS		equ	0ff6ah
+OCPD		equ	0ff6bh
+SVBK		equ	0ff70h
+; 6Apr,1998 村川追加ここまで
+
+
+;-- Sound Control Register --
+NR10		equ	0ff10h
+NR11		equ	0ff11h
+NR12		equ	0ff12h
+NR13		equ	0ff13h
+NR14		equ	0ff14h
+NR21		equ	0ff16h
+NR22		equ	0ff17h
+NR23		equ	0ff18h
+NR24		equ	0ff19h
+NR30		equ	0ff1ah
+NR31		equ	0ff1bh
+NR32		equ	0ff1ch
+NR33		equ	0ff1dh
+NR34		equ	0ff1eh
+NR41		equ	0ff20h
+NR42		equ	0ff21h
+NR43		equ	0ff22h
+NR44		equ	0ff23h
+NR50		equ	0ff24h
+NR51		equ	0ff25h
+NR52		equ	0ff26h
+waveram		equ	0ff30h
+
+RAMCS		equ	00000h		; RAM CS Gate data
+ROMBANK		equ	02000h		; ROM bank select 01H to 0fH
+RAMBANK		equ	04000h		; RAM bank select 0 to 3
+ROMRAM		equ	06000h		; ROM/RAM select 0 to 1
+
+
+;***********************
+;* EQU as Map controll *
+;***********************
+ACTOR_MAX	equ	010h
+TABLE_AREA	equ	010h
+
+
+;************************
+;* To connect other one *
+;************************
+OYA		equ	01h
+KO		equ	02h
+CONNECT		equ	03h
+
+;*********************
+;* Allow Mask Define *
+;*********************
+BT_A		equ	01h		; A Button	= bit 0
+BT_B		equ	02h		; B Button	= bit 1
+BT_SE		equ	04h		; Select Button = bit 2
+BT_ST 		equ	08h		; Start  Button	= bit 3
+BT_R		equ	010h		; Right Key	= bit 4
+BT_L 		equ	020h		; Left	Key	= bit 5
+BT_U		equ	040h		; Up	Key	= bit 6
+BT_D		equ	080h		; Down  key	= bit 7
+
+
+;************************
+;* Table asign number 	*
+;* only strings table	*
+;************************
+ASGN_MONS_NAME	equ	1		; Get Monster Name
+ASGN_WAZA_NAME	equ	2		; Get Skill Name
+ASGN_BADGE	equ	3		; Get Badge Name	←このコードが呼ばれることはない！ 2Apr,1998 村川追加
+ASGN_ITEM_NAME	equ	4		; Get Item Name 
+ASGN_CAP_NAME	equ	5		; Get Capusle Name(I have Monster)
+ASGN_GEIN_NAME	equ	6		; Get gein_cap_name (Data)
+ASGN_DEALER	equ	7		; dealer_name_tbl
+ASGN_RANK_NAME  equ 	8		; Monster Trainer Name 
+
+;**********************************************************
+;* Data set asign number / Use By sel_item_param function *
+;**********************************************************
+SAVE_CAP	equ	1
+ITEM_SEAL	equ	2		; item    uru
+ITEM_BUY 	equ 	3		; item    kau
+CAP_SEAL	equ	4		; capsule uru
+CAP_BUY		equ	5		; capsule kau
+
+;****************************************************************
+;* Monster Character Data & Monster Data(Name Data) Bank Define *
+;****************************************************************
+MONS_CHR1_BANK	equ	09h		; Monster Number  1 -  26
+MONS_CHR2_BANK	equ	0ah		; Monster Number 27 -  52
+MONS_CHR3_BANK	equ	0bh		; Monster Number 53 -  74
+MONS_CHR4_BANK	equ	0ch		; Monster Number 75 - 104
+MONS_CHR5_BANK	equ	0dh		; Monster Number105 - 132
+MONS_CHR6_BANK	equ	10h		; Monster Number133 - 149
+MONS_CHR7_BANK	equ	11h		; Monster Number150 - 175
+MONS_CHR8_BANK	equ	12h		; Monster Number176 - 200
+DEALERCHR1_BANK	equ	13h		; Dealer  Number  1 - 43
+DEALERCHR2_BANK	equ	14h		; Dealer  Number
+MONS_DATA_BANK	equ	0eh		; Monster Name & Data
+FIGHT_WAZA_BANK equ	0fh		; Fight & Skill Data
+
+;****************************************************************
+;*			Music Bank Define			*
+;****************************************************************
+MUSIC_BANK1_NO	equ	2		; MUSIC bank change area 1
+MUSIC_BANK2_NO	equ	8		; MUSIC bank change area 2
+MUSIC_BANK3_NO	equ	01fh		; MUSIC bank change area 2
+
+
+;**********************
+;* Window Type Define *
+;**********************
+MESSAGE_WIN	equ	01		; Message Window
+SYSTEM_WIN	equ	02		; System Window
+CAP_WIN    	equ	03		; Capsule List Fream
+STR_ESC_WIN	equ	04		; Monster STR or Escape
+ITEM_WIN	equ	05		; Item List Fream
+USE_SPLIT_WIN	equ	06		; Item Use or Split
+STATUS_WIN	equ	07		; Status Window
+CONFIG_WIN	equ	08		; Config Window
+MES_SPEED_WIN	equ	09		; Message Speed Low or Hi
+LOAD_DATA_WIN	equ	10 		; Data Load / Fast or Continue
+BATTLE_COM_WIN	equ	11 		; Battle Command Window
+CHK_CHG_WIN	equ	12 		; Monster Status Check or Change
+SHOP_WIN	equ	13 		; Shop Window Frame Display
+SHOP_COM_WIN    equ	14 		; Shop Command Window
+MONEY_WIN	equ	15 		; Money Window Frame
+MAP_WIN		equ	16  		; Chizu Frame Display
+MONS_FRM_WIN	equ	17  		; Monster in Map Fream Display
+ABORT_WIN	equ	18  		; Timer.src Use Abort Message
+KANE_WIN 	equ	19   		; Print Money Window
+YES_NO_WIN	equ	20   		;
+URU_KAU_WIN     equ	21   		; Shop Command Window
+CAP_SEL_WIN	equ	22   		; Capsule Command Window Frame
+CAPCOM_WIN	equ	23   		; Capsule Command Window	
+WORK9_WIN	equ	24  		;
+YES_NO_ONLY	equ	25
+
+;**************************
+;* Monster data follow up *
+;**************************
+MONS_SIZE_POS	equ	10		; Monster's image (X,Y)
+F_IMG_ADRS_POS	equ	11		; Byte pos of monster's flont image
+B_IMG_ADRS_POS	equ	13		; Byte pos of monster's back image
+CAP_MAX		equ	6		; Lots of taking capsules
+ITEM_MAX	equ	20		; Lots of taking items (New)
+;MONS_MAX	equ	40		; Lots of putting at home capsules
+;;MONS_MAX	equ	30		; Lots of putting at home capsules
+CAPDATA_LEN	equ	44		; Save monster data length
+MONSDATA_LEN	equ	33		; Save monster data length
+;;MONS_NAME_LEN	equ	11		; Monster name max length
+FIGHT_DT_LEN	equ	25		; Using length of fighting para-data
+CTRL_BYTE	equ	2		; Array controll bytes length
+MONS_TBL_SIZE	equ	28		; Monster data table size (ROM)
+MONS_NO		equ	11		; 'mymons_data' & 'enemy_data'
+DEALERTBL_SIZE	equ	16		; Dealer data table size
+
+STOCK_DATA_MAX	equ	50
+
+MONS_HP		equ	1
+MONS_ATTACK	equ	2
+MONS_DEFENCE	equ	3
+MONS_QUICK	equ	4
+MONS_FIRE	equ	5
+MONS_WATER	equ	6
+MONS_THUNDER	equ	7
+MONS_CATCH	equ	8
+MONS_EXP 	equ	9
+MONS_XYSIZE	equ	10
+MONS_FRONT_ADS	equ	11
+MONS_BACK_ADS	equ	13
+MONS_PAT1	equ	15
+MONS_PAT2	equ	16
+MONS_PAT3	equ	17
+MONS_PAT4	equ	18
+MONS_RANK	equ	19
+
+;****************
+;* Mapping work *
+;****************
+MAX_SCR_X	equ	20		; CELL_UNIT_X * 5(MAP)
+MAX_SCR_Y	equ	18		; CELL_UNIT_Y * 4.5(MAP)
+PLANE_SIZE	equ	392		; Uncompress area size
+
+; 23Apr,1998 村川追加ここから
+;************************************
+;* 図鑑解説文表示時の送りキャンセル *
+;************************************
+OKURI_CANCEL	equ	2
+; 村川追加ここまで
+
+
+;*****************************
+;*    Music Area Work Ram    *
+;*****************************
+workram0		group	0
+	org	0c000h
+
+	PUBON
+
+oct_init_val	equ	07h
+
+vblank_fg	ds	1
+mus_num		ds	1
+muspausefg	ds	1	; pause flag (1 = OFF / 0 = ON)
+calldrum_fg	ds	1	; call drum flag (3 part condetion value)
+balance_mask	ds	1	; default = $ff
+
+vol_rec		ds	1	; volume recover (Capsule Monsters Only)
+
+mus_adrs	ds	16
+mus_stack	ds	16
+
+condetion	ds	8
+
+com_fg		ds	8	; command flag		0 bit : chorus switch
+				;			1 bit : call
+				;			2 bit : effect 2x
+				;			3 bit : vibrato (u/d)
+				;			4 bit : portamento
+				;			5 bit : portamento (u/d)
+				;			6 bit : duty changer
+
+eff_fg		ds	8	; effect flag		0 bit : $f8 command
+
+duty_val	ds	8	; c = 0,1,4,5 part use (4bytes)
+dc_val		ds	8	; duty changer changing value
+
+vib_wait	ds	8	; vibrato wait counter
+vib_wave	ds	8	; vibrato up down value
+vib_wave_wait	ds	8	; vibrato up down wait counter
+vib_tone	ds	8	; low tone value (vibrato use)
+vib_work	ds	8	; vibrato wait value
+
+por_len		ds	8	; portamento length (porta speed)
+por_addi	ds	8	; portamento add (int)
+por_addf	ds	8	; portamento add (float)
+por_addt	ds	8	; portamento add  temp (float recover)
+por_svalh	ds	8	; portamento start high tone value 
+por_svall	ds	8	; portamento start low tone value 
+por_evalh	ds	8	; portamento end high tone value 
+por_evall	ds	8	; portamento end low tone value 
+
+sound_len	ds	8
+loop_val	ds	8
+D_tempo		ds	8	; D com tempo (init tempo)
+
+tempo_counter	ds	8
+
+oct_val		ds	8
+env_val		ds	8	; envelope
+
+wave_num	ds	2	; wave number
+
+bgm_tempo	ds	2	; 1byte = tempo(int), 2byte = tempo(float)
+se_tempo	ds	2
+
+work		ds	2
+
+music_flag		ds	1	; 0 : SE / !0 : Music
+music_bank_flg		ds	1	; Note! Non Save Ram!
+music_bank_flg_back	ds	1	; Fadeplay Used (Next Backup)
+
+mons_voice_offset	ds	1	; Voice Tone Offset
+mons_voice_tempo	ds	1	; Voice Speed
+
+
+;*****************************
+;* Map controll data defines *
+;*****************************
+workram		group	0
+
+	org	0c100h
+
+actor_table	ds	0200h			; actor table size = $200  
+
+oam_buf		ds	0a0h			; OAM buffer max size = $A0
+
+dmy_vram	ds	MAX_SCR_X * MAX_SCR_Y	; 20 x 18
+dmy_map		ds	24*20			; 
+ram_map		ds	1300			; Ram Map Area size 1300
+
+haji_buf	ds	2*20			; 
+allow_pos	ds	2			; allow position Y,X
+allow_cnt	ds	1			; allow counter
+allow_spc	ds	1
+allow_max	ds	1			; allow counter Max
+allow_msk	ds	1			; use key data mask 
+allow_old	ds	1			; before allow data
+allow_sv_mons	ds	1
+allow_sv_item	ds	1
+allow_sv_sys	ds	1
+allow_sv_waza	ds	1
+allow_sv_fight	ds	1
+allow_dv_adr	ds	2
+allow_wv_adr	ds	2
+allow_ret_flg	ds	1
+
+select_allow	ds	1
+scloll_sv	ds	1
+scloll_sw	ds	1			; scroll switch
+play_tbl_cnt	ds	1
+init_flg	ds	1
+msg_sv		ds	2			; message address save area
+wait_pass_flg	ds	1
+
+read_buf	ds	5
+send_buf	ds	5
+send_send_cnt	ds	2
+my_or_gein	ds	1
+allow_loop_flg	ds	1
+
+no_key_cnt	ds	1
+
+stage_no	ds	1			; observe stage number
+obs_obj		ds	1			; observe OBJ number
+
+function_id	ds	1			; "bank2bank" using
+sv_adrs1_h	ds	1			; "bank2bank" using
+sv_adrs1_l	ds	1			; "bank2bank" using
+sv_adrs2_h	ds	1			; "bank2bank" using
+sv_adrs2_l	ds	1			; "bank2bank" using
+sv_adrs3_h	ds	1			; "bank2bank" using
+sv_adrs3_l	ds	1			; "bank2bank" using
+
+obs_actor	ds	1			; using actor observe routine
+battle_vs	ds	1			; for dealer pm-battle
+demo_flag	ds	4
+
+anime_buf	ds	ANIME_BUF_SIZE		; animetion buffer
+work_anime_buf	ds	WORK_ANIME_BUF_SIZE	; Work Anime buffer 
+ctrl_move_val	ds	CTRL_MOVE_VAL_SIZE	; other actor's auto step
+auto_move_val	ds	AUTO_MOVE_VAL_SIZE	; Auto Move Pattern
+anime_cnt	ds	1			; Animeation Counter
+ctrl_move_cnt	ds	1
+ctrl_move_msk	ds	1
+auto_move_cnt	ds	1			; Auto Move Counter
+auto_move_msk	ds	1			; Auto Move Effectively Button
+auto_move_step	ds	1			; animetion step count value
+
+usr_buf		ds	USR_BUF_SIZE		; every using, every broken
+obs_event	ds	10			; observe event (use work only)
+work_event	ds	1			; for each event scene(timely)
+
+cancel_key	ds	1			; cancel key assign bit array
+para_work	ds	1
+
+table_data	ds	TABLE_DATA_DS_SIZE
+dmy_map2	ds	20*18
+
+yes_no_map	ds	6*5
+
+waza_se_cnt	ds	1
+
+now_bank_num	ds	1  			; push_bank, pop_bank
+chg_bank_num	ds	1 			; push_bank, pop_bank
+shop_flg	ds	1		 	; Use Shop Command
+kachi_make	ds	1			; battle winner
+win_cancel	ds	1			; Message Window Cancel
+event_check	ds	1			; Use in map event only one
+sv_under	ds	1			; saved character before step
+obs_anime_step	ds	1
+seq_demo	ds	1			; for each demonstration
+priority_buffer	ds	1			; priority reading
+sv_bank2bank	ds	1			; 04ah
+sv_msg_no	ds	1			; save message number in event
+action_pattern	ds	1			; using in "act_move.src"
+demo_adrs_h	ds	1			; demo work timely use
+demo_adrs_l	ds	1			; demo work timely use
+together	ds	1			; demo work timely use
+work_counter	ds	1			; demo work counter
+timing_switch	ds	1			; observe value in "act_move"
+
+cgb_flg		ds	1			; ColorGameBoy check flag	6Apr,1998 村川追加
+
+sgb_flg		ds	1			; SuperGameBoy check flag
+sgbatr_buf	ds	1
+sgbcol_buf	ds	16
+sgb_work	ds	30			; 注意！このバッファと次の"str_buf"はペアで使われることがあるので
+							; 位置関係をかえてはいけない！ 6Apr,1998 村川追加
+
+;********************
+;* Work buffer area *
+;********************
+str_buf		ds	20		; string buffer size 20
+town_name	ds	TOWN_NAME_LEN	; using only in gym map
+leader_name	ds	LEADER_NAME_LEN	; using only in gym map
+shop_item_tbl	ds	16		; shop item table Max 10 item's
+item_list_adrs	ds	2		; from my_cap_tbl
+item_name_adrs	ds	2		; from my_cap_name
+item_gold_adrs	ds	2		; change !!
+sel_item_no	ds	1		; select in window item(mons) number
+sel_item_pos	ds	1		; select in window position
+gold_req	ds	1
+mons_or_item	ds	1		; Monster or Item ninsiki flag
+cap_or_mons	ds	1		; temoti or azuke ninshiki flag
+item_kosuu	ds	1		; eranda item no kosuu
+take_item_kosuu	ds	1		; motte iru item no kosuu
+monsdata_dmy	ds	CAPDATA_LEN
+talking_flg	ds	1		; talk sitenai = 0, suru = 1
+scloll_cnt	ds	1
+flont_chr	ds	1
+fade_play_fg	ds	1		; music fadeout function
+fade_play_wait	ds	1
+fade_play_cou	ds	1
+now_music	ds	1		; Now Playing Music number
+oam_flg		ds	1
+
+
+;***************************
+;* To use proc as fighting *
+;***************************
+e_kougeki	ds	6		; battle parameter (enemy)  
+m_kougeki	ds	6		; battle parameter (my)
+enemy_no	ds	1		; enemy monster number
+mymons_no	ds	1		; my    monster number
+enemy_data	ds	47		; enemy monster data
+mymons_data	ds	40		; my    monster data
+dealer_no	ds	1		; dealer number
+dealer_number	ds	1  		; dealer number
+dealer_chr_adr	ds	2		; dealer image data address
+dealer_take	ds	1		; number of take monster
+dealer_mons_no	ds	DEALER_MONS_NO_LEN	; use monster number
+dealer_item1	ds	1		; use item number
+dealer_item2	ds	1		; use item number
+dealer_gold	ds	2		; bcd data 
+dealer_work1	ds	1		; not use 
+dealer_work2	ds	1		; not use 
+dealer_name	ds	DEALER_NAME_LEN	; Dealer Name
+fighting_flg	ds	1		; case of battle (0-2)
+fight_join_flg	ds	1		; dono pokemon ga sentouni sanka sitaka 
+event_fight_no	ds	1		; number = dealer No + 200
+demo_fight_no	ds	1		; case of demo fight
+zokusei_flg	ds	1		; 1 = event_fight no ato talk_map ni iku
+championcap_no	ds	1		; 1 kara 8
+take_mons_ptn	ds	1		; dealer no motte iru monster pattern
+critical_flg	ds	1		; 1 = critical attack
+avoid_flg	ds	1		; 1 = avoid
+mymons_cond1	ds	1		; my monster condition in the fight
+mymons_cond2	ds	1		; my monster condition in the fight
+mymons_cond3	ds	1		; my monster condition in the fight
+mymons_cond4	ds	1		; my monster condition in the fight
+mymons_cond5	ds	1		; my monster condition in the fight
+enemy_cond1	ds	1		; enemy monster condition in the fight
+enemy_cond2	ds	1		; enemy monster condition in the fight
+enemy_cond3	ds	1		; enemy monster condition in the fight
+enemy_cond4	ds	1		; enemy monster condition in the fight
+enemy_cond5	ds	1		; enemy monster condition in the fight
+m_renzoku_cnt1	ds	1		; my monster renzoku kougeki counter
+m_renzoku_cnt2	ds	1		; my monster renzoku condition counter
+m_renzoku_cnt3	ds	1		; my monster renzoku condition counter
+m_renzoku_cnt4	ds	1		; my monster renzoku condition counter
+m_renzoku_cnt5	ds	1		; my monster renzoku condition counter
+e_renzoku_cnt1	ds	1		; enemy mons renzoku kougeki counter
+e_renzoku_cnt2	ds	1		; enemy mons renzoku condition counter
+e_renzoku_cnt3	ds	1		; enemy mons renzoku condition counter
+e_renzoku_cnt4	ds	1		; enemy mons renzoku condition counter
+e_renzoku_cnt5	ds	1		; enemy mons renzoku condition counter
+m_gaman		ds	2		; aite no kougeki wo tameru
+e_gaman		ds	2		; aite no kougeki wo tameru
+
+mogura_flg	ds	1		; 1 = dungeon kara escape
+yuuichi_gold	ds	3		; Decimal value(000000 - 999999)
+
+
+
+;****************
+;* Effect 
+;****************
+;=======================================================;
+;							;
+;	Assigned each area using in effect process	;
+;							;
+;=======================================================;
+; notice buffer
+effect_no	ds	1			; number of effect kind
+ef_size		ds	1			; character lots
+ef_char_x	ds	1			; X lots character
+ef_char_y	ds	1			; Y lots character
+ef_se_no	ds	1			; SE
+effect_x	ds	1			; pattern left-upper X
+effect_y	ds	1			; pattern left-upper Y
+pinchi_flg	ds	1
+ef_oam_cnt	ds	1
+ef_element	ds	1
+ef_pctime	ds	1
+ef_ptn		ds	1
+ef_buf		ds	1
+ef_timer	ds	1
+ef_count1	ds	1
+ef_count2	ds	1
+
+msb_adrs1	ds	1
+lsb_adrs1	ds	1
+msb_adrs2	ds	1
+lsb_adrs2	ds	1
+msb_adrs3	ds	1
+lsb_adrs3	ds	1
+msb_adrs4	ds	1
+lsb_adrs4	ds	1
+ef_adr1_l	ds	1
+ef_adr1_h	ds	1
+ef_adr2_l	ds	1
+ef_adr2_h	ds	1
+ef_adr3_l	ds	1
+ef_adr3_h	ds	1
+
+ef_adr4_h	ds	1
+ef_adr4_l	ds	1
+ef_oamadr_h	ds	1
+ef_oamadr_l	ds	1
+ef_anime 	ds	1
+
+el_c		ds	1			; element count
+
+window_shake_flag	ds	1		; Window Used Flag
+
+
+;************************
+;* Uncompress data area *
+;************************
+;---value ---
+dot_cou_x       ds      1
+dot_cou_y       ds      1
+dot_x           ds      1
+dot_y           ds      1
+data_buff       ds      1
+bit_cou         ds      1
+byte_pos        ds      1
+plane_fg	ds	1
+comp_type	ds	1
+reverse_fg	ds	1
+ 
+;--- address ---
+comp_data_adrs  ds      2
+img_area_adrs   ds      2
+area_pos_adrs   ds      2
+xor0_tbl_adrs	ds	2
+xor1_tbl_adrs	ds	2
+
+tbl_pos		ds	1		; the positon of each tables
+tbl_number	ds	1		; asign table number
+tbl_bank	ds	1		; the beleave in some bank
+mons_data	ds	MONS_TBL_SIZE
+data_wrt_flag	ds	1
+efect_turn	ds	1		; Continue of efect
+attack_flag	ds	1		; Allowed attack 
+power_value1	ds	2
+power_value2	ds	2
+musiyoke_flg	ds	1		; no encount counter
+
+waza_swap	ds	5		; data + eod
+waza_name	ds	WAZA_NAME_LEN	; 8 word * 4 kind
+
+map_type_sv	ds	1		; map type save area     
+chyari_sv	ds	1		; chyari flag save area 
+set_data_flg	ds	1		; Table Data Set Pattern Flag
+tukamae_flg	ds	1		; catch monster
+fightbegin_flg	ds	1		; 1 = syujinkou ga gamen ni deteiru
+in_dat		ds	1		; monster/item number table work
+nigerarenai_flg	ds	1		; 1 = nigerunoni shippai
+nige_cnt	ds	1		; nigeru wo erabu gotoni count up
+shinka_flg	ds	1		; 0 = shinka shitenai
+
+bank_vblank	ds	1		; vblank.src only use bank number area
+bank_stack	ds	1		; Bank Number Save Area (Moved)    
+
+
+
+;*************************
+;* Player & Monster data *
+;*************************
+check_flg	ds	1		; Item Seal Check flag (1.Can't 0.Can)
+disp_win_mode	ds	1		; Display Window Mode
+ptn_data	ds	1		; work as save of actor pattern code
+mons_level	ds	1		; monster level save
+work_stack	ds	2		; timely using in "talkmap.src"
+tbl_max		ds	1		; Table Max Number
+tuushin_flg	ds	1		; 1 or 2 = tuushinchuu
+itwk0		ds	1		; using "yes_no_window" as mode
+func_ret	ds	1		; Function Return Use Param Area
+push_btn	ds	1		; push button code
+
+temp_box_s	ds	1		; single temporary
+temp_box_g	ds	10		; grope temporaries
+
+tm_count	ds	1		; timer in v-blank
+stepping	ds	1		; each time observe
+walking		ds	1		; switching observe
+
+goods_number	ds	3 + 1
+
+; 注意！ goods_gold[] と rnd_table[] は 連続配置にしておくこと ( 参照 "PLAY2.DMG" play22: )
+goods_gold	ds	GOODS_GOLD_SIZE		; == 6 + 1
+rnd_table	ds	RND_TABLE_SIZE		; == 10  random numbers for terminal fight
+
+junior_name	ds	JUNIOR_NAME_LEN	; terminal work
+
+
+;**********************
+;* Save data area top *
+;**********************
+
+my_name		ds	MONS_NAME_LEN			; Mons name length
+
+pm_cap_start:
+my_cap_tbl	ds	CAP_MAX + CTRL_BYTE		; Mons number(take)
+my_cap_data	ds	CAPDATA_LEN * CAP_MAX		; Mons data(take)
+my_cap_oya	ds	MONS_NAME_LEN * CAP_MAX		; Mons name(take)
+my_cap_name	ds	MONS_NAME_LEN * CAP_MAX		; Mons name(take)
+pm_cap_end:
+
+; 図鑑：捕まえたポケモンのビットが立つ（bit0～bit7に向かってポケモン図鑑番号順に並んでいる）
+zukan_flg	ds	19				; 152 bit observe
+; 図鑑：みつけたポケモンのビットが立つ（bit0～bit7に向かってポケモン図鑑番号順に並んでいる）
+zukan_flg2	ds	19				; 152 bit observe
+
+my_item_tbl	ds	ITEM_MAX * 2 + CTRL_BYTE	; Item number(new)
+my_gold		ds	3		; Money
+
+rival_name     	ds	RIVAL_NAME_LEN			; rival name
+
+my_lvl		ds	1		; <bit7>戦闘アニメーション 0:ON, 1:OFF
+					; <bit6>試合のルール 0:いれかえ, 1:かちぬき
+					; <bit5～0>level
+
+my_badge	ds	2		; badge taken status
+
+msg_speed	ds	1		; Message speed(0:hayai/1:osoi)
+
+gb_no		ds	2		; GameBoy ID number
+
+map_music	ds	1	; Map Music
+map_music_bank	ds	1	; Map Music Bank
+base_color	ds	1
+
+;---------------------------------------; no change line
+mapno		ds	1		; map data
+mapadr2		ds	2
+mapscloll_y	ds	1
+mapscloll_x	ds	1
+mapscloll_y4	ds	1
+mapscloll_x4	ds	1
+mapno_stack	ds	1		; Map Number Stack Area
+mapold_x	ds	1		; feeld x haba
+
+map_type	ds	1		; Map Type
+mapysize	ds	1		; Map Y Size
+mapxsize	ds	1		; Map X Size
+mapadr		ds	2		; Map Data Address
+map_msg_tbl_adr	ds	2		; Message Table Address
+map_event	ds	2		; Event Routine Address
+map_link_flg	ds	1		; Map Link Flag	 Bit 3/U 2/D 1/L 0/R
+
+mapcat_up	ds	1	; Up Side
+mapcat_up_adr	ds	2		; map no address
+mapcat_up_adr2	ds	2		; Ram map address
+mapcat_up_siz	ds	1		; X size(haba)
+mapcat_up_siz2	ds	1		; hontai no X size
+mapcat_up_y	ds	1		; Y
+mapcat_up_x	ds	1		; X
+mapcat_up_adr3	ds	2		; Ram Map Address
+mapcat_dw	ds	1	; Down Side
+mapcat_dw_adr	ds	2		; sita no map no address
+mapcat_dw_adr2	ds	2		; Ram map Address
+mapcat_dw_siz	ds	1		; X Size(haba)
+mapcat_dw_siz2	ds	1		; hontai no X size
+mapcat_dw_y	ds	1		; Y
+mapcat_dw_x	ds	1	 	; X
+mapcat_dw_adr3	ds	2		; Ram Map Address
+mapcat_l	ds	1	; Left Side
+mapcat_l_adr	ds	2		; hidari no map no Address
+mapcat_l_adr2	ds	2		; Ram Map Address
+mapcat_l_siz	ds	1		; Y Size(haba)
+mapcat_l_siz2	ds	1		; hontai no Y size
+mapcat_l_y	ds	1		; Y
+mapcat_l_x	ds	1		; X
+mapcat_l_adr3	ds	2		; Ram Map Address
+mapcat_r	ds	1	; Right Side
+mapcat_r_adr	ds	2		; migi no map no Address
+mapcat_r_adr2	ds	2		; Ram Map Address
+mapcat_r_siz	ds	1		; Y Size(haba)
+mapcat_r_siz2	ds	1		; hontai no Y size
+mapcat_r_y	ds	1		; Y
+mapcat_r_x	ds	1		; X
+mapcat_r_adr3	ds	2		; Ram Map Address
+map_obj_setdata	ds	11		; map object setdata
+map_obj_type	ds	1		; map object type
+
+maptbl2_adrs	ds	2 		; Include Data Top Address
+map_str_no	ds	1		; Town.Road.Dungeon Number
+chr_tbl_no	ds	1		; tureru Character Table Number
+mapclscell	ds	1		; Hani gai chell block number
+
+ie_cnt		ds	1		; ie no kazu
+ie_tbl		ds	4*32		; ie no table ( Y , X , ID , No ) 4*16
+ram_map_id	ds	1		; ram_map Numaber
+ie_adrs		ds	4*32		; ie Address Table(old 4*10)4*16
+
+kanban_cnt	ds	1		; kanban no kazu
+kanban_tbl	ds	2*16		; kanban Table (Y, X)
+kanban_msg_no	ds	1*16		; Message Number
+
+murabito_cnt	ds	1		; murabito no kazu
+grobal_y	ds	1		; 
+grobal_x	ds	1		;
+
+hito_tbl	ds	2 * 16		; attr & message number
+obj_attribute	ds	2 * 16		; for dealer pm-battle & capsule
+
+mapysize2	ds	1		; Map Size Y
+mapxsize2	ds	1		; Map Size X
+mapvramadr	ds	2		; Map Vram Address
+;---------------------------------------; no change line
+
+watashi_muki	ds	1		; Jiki houkou ($8:U $4:D $2:L $1:R)
+watashi_muki2	ds	1		;  	        ''          
+watashi_muki3	ds	1		;   		''
+
+map_data_bank	ds	1
+mapcelladr	ds	2
+mapimgadr	ds	2
+arukeru_tbl	ds	2
+table_chrs	ds	3
+kusamura_chr	ds	1
+chr_out_limits	ds	4		; character code as out limits of map
+
+my_stock_item	ds	100 + CTRL_BYTE	; Azuketa Item 50 item (tblno,itemno)	
+
+pm_box_no	ds	2
+dendou_no	ds	2
+coin		ds	2
+
+vanish_flag	ds	32 + 8		; 256 obj + 64 obj(extend)
+vanish_group	ds	32 + 2		; 2byte * 16 + end-code
+seq_ctrl_buf	ds	256		; sequence control each map
+pick_flag	ds	16		; 128 items(pick up)
+
+chyari_flg	ds	1		; Character sikibetu  
+bg_change_flg	ds	10		; 80 place save status
+
+save_event_flg	ds	10
+
+rival_monster	ds	1		; present monster
+okido_monster	ds	1		; present monster
+hero_monster	ds	1		; present monster
+
+ev_something	ds	16
+ev_special	ds	2		; special commands & invoke events
+ev_champ	ds	1		; wins of battle in each gym
+obs_door	ds	1		; observe door some system
+obs_walk_flag	ds	1		; palyer stepping observe
+event_flg	ds	1		; each event work flag set
+obs_player	ds	2		; player status observe
+obs_system	ds	2		; system status observe
+;  obs_system.<d5> : ON -> (joy_status)=(joy_on)=(joy_off)= 0  "CONT.DMG" chk_all_cancel$: 参照
+;
+;
+game_mode	ds	4
+obs_map_step	ds	1		; observe action in "mapper"
+comment_flag	ds	4
+elevator	ds	4		; flagset + work
+checker_flag	ds	4
+trash_switch	ds	4
+
+
+;----------------;
+; map event flag ;
+;----------------;
+ev_t1		ds	1
+ev_t1_1		ds	2
+ev_t1_2		ds	1
+ev_t1_3		ds	1
+
+ev_t2		ds	1
+ev_t2_1		ds	1
+ev_t2_2		ds	1
+ev_t2_3		ds	1
+ev_t2_4		ds	1
+ev_t2_5		ds	2
+
+ev_t3		ds	1
+ev_t3_1		ds	1
+ev_t3_2		ds	1
+ev_t3_3		ds	1
+ev_t3_4		ds	1
+ev_t3_5		ds	1
+ev_t3_6		ds	1
+
+ev_t4		ds	1
+ev_t4_1		ds	1		
+ev_t4_2		ds	1		
+ev_t4_3		ds	1		
+ev_t4_4		ds	1		
+ev_t4_5		ds	1		
+ev_t4_6		ds	1		
+ev_t4_7		ds	1		
+
+ev_t5		ds	1
+ev_t5_1		ds	1
+ev_t5_2		ds	8
+ev_t5_3		ds	1
+ev_t5_4		ds	1
+ev_t5_5		ds	1
+
+ev_t6		ds	1
+ev_t6_1		ds	1
+ev_t6_2		ds	1
+ev_t6_3		ds	1
+ev_t6_4		ds	1
+ev_t6_5		ds	1
+ev_t6_6		ds	1
+ev_t6_7		ds	1
+
+ev_t7		ds	1
+ev_t7_1		ds	2
+ev_t7_2		ds	1
+ev_t7_3		ds	1
+ev_t7_4		ds	2
+ev_t7_5		ds	3
+ev_t7_6		ds	1
+ev_t7_7		ds	1
+ev_t7_8		ds	1
+ev_t7_9		ds	1
+ev_t7_10	ds	1
+
+ev_t8		ds	2
+ev_t8_1		ds	2
+ev_t8_2		ds	2
+ev_t8_3		ds	2
+ev_t8_4		ds	2
+ev_t8_5		ds	2
+ev_t8_6		ds	2
+ev_t8_7		ds	2
+
+ev_t9		ds	2
+ev_t9_1		ds	2
+ev_t9_2		ds	3
+ev_t9_3		ds	8
+ev_t9_4		ds	2
+ev_t9_5		ds	2
+
+ev_t10		ds	2
+
+ev_t11		ds	2
+ev_t11_1	ds	4
+ev_t11_2	ds	2
+ev_t11_3	ds	2
+ev_t11_4	ds	2
+ev_t11_5	ds	2
+ev_t11_6	ds	2
+ev_t11_7	ds	2
+ev_t11_8	ds	2
+
+ev_r1		ds	2
+ev_r2		ds	2
+ev_r3		ds	2
+ev_r4		ds	2
+ev_r5		ds	2
+ev_r6		ds	2
+ev_r7		ds	2
+ev_r8		ds	2
+ev_r9		ds	2
+ev_r10		ds	4
+ev_r11		ds	2
+ev_r12		ds	2
+ev_r13		ds	2
+ev_r14		ds	2
+ev_r15		ds	2
+ev_r16		ds	2
+ev_r17		ds	2
+ev_r18		ds	2
+ev_r19		ds	2
+ev_r20		ds	2
+ev_r21		ds	2
+ev_r22		ds	2
+ev_r23		ds	2
+ev_r24		ds	2
+ev_r25		ds	2
+
+
+ev_d1   	ds	2
+ev_d2	 	ds	2
+ev_d3	 	ds	20
+ev_d4	 	ds	2
+ev_d5	 	ds	2
+ev_d6	 	ds	2
+ev_d7	 	ds	2
+ev_d8	 	ds	2
+ev_d9	 	ds	16
+ev_d10		ds	34
+ev_d11		ds	6
+ev_d12		ds	18
+ev_d13		ds	4
+ev_d14		ds	26
+ev_d15		ds	2
+ev_d16		ds	8
+
+
+;****************
+;* Station work *
+;****************					; １０文字版		５文字版
+gein_name	ds	GEIN_NAME_LEN			; 21			21
+gein_cap_tbl	ds	CAP_MAX + CTRL_BYTE		;  6 + 2 = 8		 6 + 2 = 8
+gein_cap_data	ds	CAPDATA_LEN * CAP_MAX		; 44 * 6 = 264		44 + 6 = 264
+gein_cap_oya	ds	MONS_NAME_LEN * CAP_MAX		; 11 * 6 = 66		 6 * 6 = 36
+gein_cap_name	ds	MONS_NAME_LEN * CAP_MAX		; 11 * 6 = 66		 6 * 6 = 36
+gein_dmy:						;	計425		計365
+ ifn	ASSEMBLE__ENGLISH
+GEIN_WORK_SIZE	=	gein_dmy - gein_name		; "play2.dmg" で使用
+ endif
+
+AdrsDealerTalk	ds	10 + 7		; +7 は通信転送用にダミーでつけておく
+					;	詳細は "PLAY2.DMG" play22:  を参照のこと
+
+play_time_h	ds	2		; playing time as hour(000--999)
+play_time_m	ds	1		; playing time as minute(000--059)
+play_time_s	ds	1		; playing time as minute(000--059)
+play_time_cnt	ds	1		; time counter
+
+CountDownTime	ds	1		; time counter
+safari_ball_cnt	ds	1		; for "safari zone" event
+
+benriya_flg	ds	1
+benri_mons_name	ds	MONS_NAME_LEN
+benri_mons_oya	ds	MONS_NAME_LEN
+benri_mons_data	ds	MONSDATA_LEN
+ 
+my_data_end:
+
+
+
+pm_box_start:
+my_mons_tbl	ds	MONS_MAX + CTRL_BYTE		; Mons number(home)
+my_mons_data	ds	MONSDATA_LEN * MONS_MAX		; Mons data(home)
+my_mons_oya	ds	MONS_NAME_LEN * MONS_MAX	; Mons name(home)
+my_mons_name	ds	MONS_NAME_LEN * MONS_MAX	; Mons name(home)
+pm_box_end:
+
+
+
+workram2	group	0
+	org	0ff80h
+
+
+dmasub		ds	0ah
+soft_reset_counter	ds	1	; "cont.src" Used
+work0		ds	1		; work area
+work1		ds	1		; work area
+work2		ds	1		; work area
+work3		ds	1		; work area
+actwork0	ds	1		; work area (actor_table)  
+actwork1	ds	1		;	   ''
+actwork2	ds	1		;          ''
+actwork3	ds	1		;          ''
+actwork4	ds	1		;          ''
+actwork5	ds	1		;          ''
+calc_work0	ds	1
+calc_work1	ds	1
+calc_work2	ds	1
+calc_work3	ds	1
+calc_work4	ds	1
+calc_work5	ds	1
+calc_work6	ds	1
+calc_work7	ds	1
+calc_work8	ds	1
+calc_work9	ds	1
+divwk1		ds	3
+divwk2		ds	3
+divwk3		ds	3
+sio_req		ds	1
+sio_flg		ds	1
+sio_oya_ko	ds	1	
+sio_init_flg	ds	1
+TD		ds	1
+RD		ds	1
+headerx		ds	1
+headery		ds	1
+window_y	ds	1		; Display start window Y position
+joy_data	ds	1		; Key Data (=I/O Level)
+joy_off		ds	1		; Key Off this time
+joy_on		ds	1		; Key On this time
+joy_status	ds	1		; Key Status
+joy_repeat	ds	1
+joy_abrepeat	ds	1
+cont_joy_flg	ds	1		; 1:repeat press observe
+rombankno	ds	1		; Now Rom Bank Number 
+bankst		ds	1		; Bank Stack Save Area             
+all_put_req	ds	1		; all put flag 0:Don't put 1:All put
+all_put_cnt	ds	1
+all_putadr_l	ds	1
+all_putadr_h	ds	1
+cell_put_cnt	ds	1		; Cell Put Counter
+stack_sv	ds	2		; stack pointer address save area
+b_prt_buf	ds	5		; Back Ground Data Buffer
+chr_mv_buf	ds	5		; Character Data Move Buffer 
+fnt_mv_buf	ds	5		; Font Data Move Buffer
+haji_put_buf	ds	3		; Screen Side Data Buffer
+random		ds	2
+vb_count	ds	1		; Vblank Count (?)
+vb_sw		ds	1		; Vblank Switch(?)
+wave_flg	ds	1		; Flg
+wave_cnt	ds	1		; Count
+wdt_cnt		ds	1
+actlow		ds	1		; actor low address	
+DA_BUF		ds	6			; direct access buffer
+dmy_box1	ds	1		; Work area but not use other
+dmy_box2	ds	1		; Work area but not use other
+dmy_box3	ds	1		; Work area but not use other
+dmy_box4	ds	1		; Work area but not use other
+temp_box1	ds	1			; not allow using
+temp_box2	ds	1			; not allow using
+temp_box3	ds	1			; not allow using
+temp_box4	ds	1			; not allow using
+temp_box5	ds	1			; not allow using
+temp_box6	ds	1			; not allow using
+sv_box01	ds	1			; not allow using
+sv_box02	ds	1			; not allow using
+sv_box03	ds	1			; not allow using
+sv_box04	ds	1			; not allow using
+sv_box05	ds	1			; not allow using
+sv_box06	ds	1			; not allow using
+sv_box07	ds	1			; not allow using
+sv_box08	ds	1			; not allow using
+attack_turn	ds	1			; 0 = my turn : 1 = enemy turn
+okuri_cansel	ds	1		; put_msg_sで出力する時に使用 0 = okuri : 2 = okuri cancel	23Apr,1998 村川追加
+level_up_difference	ds	1	; updata_expとwaza_lean_chkで使用。29May,1998 村川追加 -> もう使用してません。削除可能
+
+
+;***********************************************************************************************
+;	ポケモン英語版用に変数を追加
+
+us_display_flg		ds	1		; １０文字表示にするために固定表示位置を可変に変更
+;	us_display_flg.HP_DSPSTYLE_BIT		0:棒グラフの下、1:右に表示
+;	us_display_flg.CURSOR_Y_INTERVAL_BIT	0:40h(2ｷｬﾗ),1:20h(1ｷｬﾗ)毎
+;	us_display_flg.PUT_MSG_CR@_BIT		0:HL+=40,1:HL+=20
+
+cursor_init_xpos	ds	1		; カーソル▲のＸ座標初期位置設定用
+
+cont_buf		ds	1		; キー入力用バッファ（キー入力チャタリング対策用）
+syscom_trans_flg	ds	1		; ＳＧＢカラーコマンド転送中
+; （注意！）キー入力をＶブランク割り込み中にしたために、ＳＧＢコマンドを転送途中に
+;	    Ｖブランク割り込みが発生し、ポート（Ｐ１）をアクセスする危険がある）
+
+;***********************************************************************************************
+
+;********************************
+;*				*
+;*	back up ram area	*
+;*				*
+;********************************
+extram		group	0
+
+	org	0a000h
+
+savedata:
+plane2_area	ds	PLANE_SIZE
+plane0_area	ds	PLANE_SIZE
+plane1_area	ds	PLANE_SIZE
+		ds	0100h
+SaveStart:
+MynameStart:
+		ds	MONS_NAME_LEN
+MydataStart:
+		ds	my_data_end - zukan_flg
+ActorData:
+		ds	200h
+MycapStart:
+		ds	pm_cap_end - pm_cap_start
+MymonsStart:
+		ds	pm_box_end - pm_box_start
+s_wave_flg:
+		ds	1
+SaveEnd: 
+
+CheckSum:	
+		ds	1
+
+	PUBOFF
+

@@ -1,0 +1,388 @@
+	include		group.def
+
+bank20	group	G_MUSIC4		;bank28->bank20Ç…ïœçXÅië∫êÏÅj
+
+	;
+	;	Raibaru014
+	;
+	;	Converting on Tue Feb 21 21:59:33 1995
+	;
+	;				by ver 1.02
+	;
+	public	M_Rocket1
+	public	M_Rocket2
+	public	M_Rocket3
+;----------------------------------------
+M_Rocket1:
+;----------------------------------------
+	db	0edh,000h,064h
+	db	0feh,0
+	dw	Raibaru111_in
+Raibaru11:
+	db	0edh,000h,070h
+Raibaru111_in:
+	db	0f0h,077h
+	db	0ech,003h
+	db	0eah,06h,034h
+	db	0e8h
+; P1-1
+	db	0dch,0b3h
+	db	0e4h,020h
+	db	010h
+	db	000h
+	db	0e5h,0b0h
+	db	0a1h
+	db	090h
+	db	080h
+	db	070h
+	db	060h
+	db	055h
+; P1-2
+	db	020h
+	db	0c2h
+	db	020h
+	db	0c4h
+	db	091h
+	db	071h
+	db	091h
+RaibaruLoop10:
+; P1-3
+	db	0b3h
+	db	0a1h
+	db	093h
+	db	071h
+	db	0e4h,003h
+; P1-4
+	db	021h
+	db	0c3h
+	db	023h
+	db	011h
+	db	001h
+	db	0e5h,0b1h
+; P1-5
+	db	0e4h,003h
+	db	041h
+	db	023h
+	db	001h
+	db	0e5h,0b3h
+; P1-6
+	db	0e4h,001h
+	db	0c3h
+	db	073h
+	db	071h
+	db	061h
+	db	041h
+; P1-7
+	db	021h
+	db	061h
+	db	0e5h,091h
+	db	0e4h,021h
+	db	061h
+	db	0e5h,091h
+	db	0e4h,021h
+	db	0e5h,021h
+; P1-8
+	db	0e4h,021h
+	db	0c1h
+	db	0e5h,021h
+	db	0e4h,003h
+	db	0e5h,0b1h
+	db	0a1h
+	db	0b1h
+; P1-9
+	db	0e4h,001h
+	db	051h
+	db	0e5h,071h
+	db	0e4h,001h
+	db	051h
+	db	031h
+	db	001h
+	db	0e5h,0a1h
+; P1-10
+	db	071h
+	db	0c3h
+	db	0a3h
+	db	0e4h,001h
+	db	0e5h,0a1h
+	db	0e4h,001h
+; P1-11
+	db	0dch,0b7h
+	db	0e5h,073h
+	db	021h
+	db	055h
+	db	063h
+; P1-12
+	db	021h
+	db	0c3h
+	db	023h
+	db	0dch,0b3h
+	db	091h
+	db	071h
+	db	091h
+	db	0feh,0
+	dw	RaibaruLoop10
+;----------------------------------------
+M_Rocket2:
+;----------------------------------------
+	db	0edh,000h,064h
+	db	0feh,0
+	dw	Raibaru121_in
+Raibaru21:
+	db	0edh,000h,070h
+Raibaru121_in:
+	db	0f0h,077h
+	db	0ech,003h
+	db	0eah,06h,034h
+	db	0e8h
+	db	0dch,0b3h
+	db	0e5h,020h
+	db	0c2h
+	db	020h
+	db	0c4h
+	db	091h
+	db	071h
+	db	091h
+	db	0feh,0
+	dw	RaibaruLoop10
+;----------------------------------------
+Raibaru12:
+;----------------------------------------
+	db	0ech,003h
+	db	0eah,0ah,026h
+; P2-1
+	db	0dch,0c7h
+	db	0e4h,0b0h
+	db	0a0h
+	db	090h
+	db	080h
+	db	071h
+	db	060h
+	db	050h
+	db	040h
+	db	030h
+	db	025h
+; P2-2
+	db	0e5h,070h
+	db	0c2h
+	db	070h
+	db	0c2h
+	db	020h
+	db	0c0h
+	db	0e4h,021h
+	db	051h
+	db	061h
+RaibaruLoop20:
+	db	0dch,0c7h
+; P2-3
+	db	073h
+	db	021h
+	db	055h
+	db	063h
+; P2-4
+	db	071h
+	db	0c3h
+	db	073h
+	db	071h
+	db	0a1h
+	db	0b1h
+; P2-5
+	db	0e3h,003h
+	db	0e4h,071h
+	db	0a5h
+	db	0b3h
+; P2-6
+	db	0e3h,001h
+	db	0c3h
+	db	003h
+	db	001h
+	db	0e4h,0b1h
+	db	0e3h,001h
+; P2-7
+	db	0dch,0b0h
+	db	02fh
+	db	0dch,0b5h
+	db	025h
+; P2-8 --- tied
+	db	0dch,0c7h
+	db	053h
+	db	021h
+	db	001h
+	db	021h
+; P2-9
+	db	0dch,0b0h
+	db	007h
+	db	0dch,0c7h
+	db	007h
+; P2-10
+	db	0e4h,001h
+	db	0c3h
+	db	0a3h
+	db	071h
+	db	051h
+; P2-11 -
+	db	0dch,0b0h
+	db	07fh
+	db	0dch,0b3h
+	db	071h
+; P2-12
+	db	0e5h,071h
+	db	0c3h
+	db	073h
+	db	0e4h,021h
+	db	051h
+	db	061h
+	db	0feh,0
+	dw	RaibaruLoop20
+;----------------------------------------
+Raibaru22:
+;----------------------------------------
+	db	0ech,003h
+	db	0eah,0ah,026h
+	db	0dch,0c7h
+	db	0e5h,070h
+	db	0c2h
+	db	070h
+	db	0c2h
+	db	020h
+	db	0c0h
+	db	0e4h,021h
+	db	051h
+	db	061h
+	db	0feh,0
+	dw	RaibaruLoop20
+;----------------------------------------
+M_Rocket3:
+;----------------------------------------
+;		vib 0 20
+; P3-1
+	db	0dch,014h
+	db	0e3h,021h
+	db	0c1h
+	db	011h
+	db	0c1h
+	db	001h
+	db	0c1h
+	db	0e4h,0b1h
+	db	0c1h
+; P3-2
+	db	070h
+	db	0c2h
+	db	070h
+	db	0c2h
+	db	070h
+	db	0c0h
+	db	070h
+	db	0c0h
+	db	070h
+	db	0c0h
+	db	070h
+	db	0c0h
+RaibaruLoop30:
+; P3-3
+	db	071h
+	db	0e3h,021h
+	db	0e4h,071h
+	db	0c1h
+	db	0e3h,021h
+	db	0e4h,071h
+	db	0c1h
+	db	0e3h,021h
+; P3-4
+	db	0e4h,071h
+	db	0c3h
+	db	0e3h,023h
+	db	0e4h,071h
+	db	0a1h
+	db	0b1h
+; P3-5
+	db	071h
+	db	0e3h,001h
+	db	0e4h,071h
+	db	0c1h
+	db	0e3h,001h
+	db	0e4h,071h
+	db	0c1h
+	db	0b1h
+; P3-6
+	db	0e3h,001h
+	db	0c3h
+	db	003h
+	db	001h
+	db	0e4h,0b1h
+	db	091h
+; P3-7
+	db	061h
+	db	091h
+	db	0c1h
+	db	061h
+	db	091h
+	db	061h
+	db	0c1h
+	db	091h
+; P3-8
+	db	061h
+	db	091h
+	db	0c1h
+	db	061h
+	db	091h
+	db	061h
+	db	0e3h,021h
+	db	0e4h,091h
+; P3-9
+	db	041h
+	db	0e3h,001h
+	db	0c1h
+	db	0e4h,041h
+	db	0e3h,001h
+	db	0e4h,041h
+	db	051h
+	db	071h
+; P3-10
+	db	041h
+	db	0c3h
+	db	041h
+	db	0e3h,001h
+	db	0e4h,0b1h
+	db	0a1h
+	db	091h
+; P3-11
+	db	071h
+	db	0a1h
+	db	0c1h
+	db	071h
+	db	0a1h
+	db	071h
+	db	0c1h
+	db	0a1h
+; P3-12
+	db	071h
+	db	0e3h,021h
+	db	0e4h,071h
+	db	0c1h
+	db	0e3h,021h
+	db	0e4h,071h
+	db	0c1h
+	db	0e3h,021h
+	db	0feh,0
+	dw	RaibaruLoop30
+;----------------------------------------
+Raibaru23:
+;----------------------------------------
+	db	0dch,014h
+; P3-2
+	db	0e4h,070h
+	db	0c2h
+	db	070h
+	db	0c2h
+	db	070h
+	db	0c0h
+	db	070h
+	db	0c0h
+	db	070h
+	db	0c0h
+	db	070h
+	db	0c0h
+	db	0feh,0
+	dw	RaibaruLoop30
+
+

@@ -1,0 +1,63 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t9_room5
+
+	extern	shop_2			; map data adrs
+	extern	item_town_9L
+
+
+SHOP_TYPE	equ	2
+EXIT		=	0ffh
+
+
+t9_room5:
+ysiz	=	4
+xsiz	=	4
+	db	SHOP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	shop_2			; map data adrs
+	dw	t9_room5_msg		; message tbl adrs
+	dw	t9_room5_event		; event routine adrs
+	db	0			; map link flg
+	dw	t9_room5_str
+
+
+t9_room5_event:
+	jp	init_for_talkmap
+
+
+
+t9_room5_msg:
+	dw	item_town_9L
+	dw	msg2$
+	dw	msg3$
+
+
+msg2$:
+	extern	msg2_0_T09R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T09R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_1_T09R0501
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T09R0501	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+t9_room5_str:
+	include	..\sxy\t09r0501.sxy
+

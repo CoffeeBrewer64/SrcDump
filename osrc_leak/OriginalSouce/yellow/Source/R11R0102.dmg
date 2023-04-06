@@ -1,0 +1,172 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	r11_room1_2f
+
+	extern	bank2bank		
+	extern	yes_no		
+	extern	check_money		
+	extern	gate2f
+	extern	init_for_talk2
+	extern	bouen
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+r11_room1_2f:  
+ysiz	=	4
+xsiz	=	4
+	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gate2f			; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	jp	init_for_talk2
+
+
+msg_tbl:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+	dw	msg4
+	
+
+msg1:
+	db	CALL_MSG
+
+	extern	matsumiya000
+	ld	a,<matsumiya000
+	ld	(usr_buf),a
+	ld	a,B_MONSTER_TRADE
+	call	bank2bank
+
+contabwaitmsgret:
+;	call	cont_abwait
+	jp	msg_return
+	
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,(ev_r11 + 1)
+;	bit	7,a
+;	jr	nz,yet$
+	add	a,a
+	jr	c,yet$
+	
+
+	ld	a,30
+	ld	(DA_BUF + 0),a
+	ld	a,71
+	ld	(DA_BUF + 1),a
+	ld	(in_dat),a
+	call	get_item_name
+;	ld	hl,table_data
+	ld	h,d
+	ld	l,e
+	ld	de,anime_buf + 0
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, ITEM_NAME_LEN
+ else
+	ld	bc,9
+ endif
+	call	block_move
+
+	ld	a,98				; "Assistant"
+	call	bank2bank
+	ld	a,(DA_BUF + 0)
+;	cp	1				; check to success
+	dec	a
+	jr	nz,rts$
+
+	ld	hl,ev_r11 + 1
+	set	7,(hl)
+
+yet$:
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+rts$:
+;	call	cont_abwait
+;	jp	msg_return
+	jr	contabwaitmsgret
+
+
+msg2_0$:
+	extern	msg2_0_0_R11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_0_R11R0102	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	a,(actor_table + 009h)
+	cp	004h
+;	jr	nz,rst2$
+	jp	nz,bouen
+	
+	ld	a,(ev_r12 + 1)
+	bit	7,a
+	ld	hl,msg3_0$
+	jr	z,rst$
+
+	ld	hl,msg3_1$
+
+rst$:
+	call	put_win_msg
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_1_R11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_1_R11R0102	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_1$:
+	extern	msg3_1_2_R11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_2_R11R0102	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg4:
+	db	CALL_MSG
+	ld	hl,msg4_1
+	jp	bouen
+
+msg4_1:
+	extern	msg4_1_3_R11R0102
+	db I_MSG2	; mvmsg追加
+	dw msg4_1_3_R11R0102	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\r11r0102.sxy
+

@@ -1,0 +1,1122 @@
+	include		common.def
+	include		map.def
+	include		banktool.def
+	include		few_mac.h
+
+
+bank3	group	3
+
+
+	public	cast_up_map
+	public	cast_up_table
+
+
+	public	T1msg1
+	public	T2msg5
+	public	T2msg7
+	public	T2msg8
+	public	T3msg3
+	public	T3msg5
+	public	T4msg1
+	public	T4msg2
+	public	T4msg6
+	public	T4msg10
+	public	T4msg11
+	public	T11msg1
+	public	T11msg2
+	public	T11msg3
+	public	T11msg4
+	public	T11msg5
+	public	T11msg6
+	public	T11msg7
+	public	T11msg8
+	public	T11msg9
+	public	T11msg10
+	public	T11msg11
+	public	T11msg12
+	public	T11msg13
+	public	T11msg14
+	public	T11msg15
+	public	R2msg1
+	public	R2msg2
+	public	R9msg10
+	public	R12msg1
+	public	R12msg9
+	public	R12msg10
+	public	R16msg7
+	public	R22msg1
+	public	R22msg2
+	public	R24msg1
+	public	R25msg10
+
+
+	public	T1R2F1msg1
+	public	T1R2F1msg2
+	public	T1R2F1msg3
+
+	public	yT1R2F1msg1
+	public	yT1R2F1msg2
+	public	yT1R2F1msg3
+
+
+	public	T1R3F1msg1
+	public	T1R3F1msg2
+;	public	T1R3F1msg3
+;	public	T1R3F1msg4
+	public	T1R3F1msg5
+	public	T1R3F1msg6
+	public	T1R3F1msg7
+	public	T1R3F1msg8
+	public	T2R5F1msg1
+	public	T2R5F1msg11
+	public	T3R1F1msg5
+	public	T4R2F1msg2
+	public	T4R7F1msg1
+	public	T4R7F1msg2
+	public	T4R7F1msg3
+	public	T4R7F1msg4
+
+	public	T5R2F2msg1
+	public	T5R2F3msg4
+	public	T5R2F4msg4
+	public	T5R2F4msg5
+	public	T5R2F4msg6
+	public	T5R2F5msg6
+	public	T5R2F6msg4
+	public	T5R2F6msg5
+
+	public	T5R2F7msg1
+	public	T5R2F7msg2
+	public	T5R2F7msg3
+
+	public	T5R3F1msg5
+
+;	public	T6R2F1msg7
+
+	public	T7R2F5msg2
+	public	T7R5F1msg11
+	public	T8R4F1msg2
+	public	T9R1F1msg2
+	public	T9R1F1msg3
+	public	T11R2F1msg6
+	public	T11R2F1msg7
+	public	T11R6F1msg1
+	public	R10R3F1msg1
+	public	R10R3F1msg2
+	public	R10R3F1msg3
+	public	R10R3F1msg4
+	public	R10R3F1msg5
+	public	R10R3F1msg6
+	public	R10R3F1msg7
+	public	R10R3F1msg8
+	public	R10R3F1msg9
+	public	R10R3F1msg10
+	public	R10R3F1msg11
+	public	R10R3F1msg12
+	public	R10R3F1msg13
+	public	R10R3F1msg14
+	public	R23R1F1msg6
+	public	R23R1F1msg7
+	public	R23R1F1msg8
+	public	R23R1F1msg9
+	public	R23R1F1msg10
+	public	R23R1F1msg13
+	public	R25R1F1msg1
+	public	R25R1F1msg2
+	public	R25R1F1msg3
+;	public	R25R1F1msg4
+	public	D1R1F1msg5
+	public	D1R1F1msg6
+	public	D1R1F1msg7
+	public	D2R1F1msg8
+	public	D2R1F1msg9
+	public	D2R1F1msg10
+	public	D2R1F1msg11
+	public	D2R1F1msg12
+
+	public	D2R1F3msg2
+	public	D2R1F3msg6
+	public	D2R1F3msg7
+	public	D2R1F3msg8
+	public	D2R1F3msg9
+	public	D2R1F3msg10
+
+	public	D3R1F2msg2
+	public	D3R1F8msg10
+	public	D3R1F9msg6
+	public	D3R1F9msg9
+	public	D3R1F10msg9
+	public	D3R1F10msg10
+	public	D3R1F10msg11
+	public	D8R1F1msg5
+	public	D8R1F1msg6
+	public	D8R1F1msg10
+	public	D9R1F1msg6
+	public	D9R1F1msg7
+	public	D9R1F2msg2
+	public	D9R1F2msg3
+	public	D9R1F2msg4
+	public	D9R1F2msg5
+	public	D9R1F3msg3
+	public	D9R1F3msg4
+
+	public	D9R1F4msg1
+	public	D9R1F4msg2
+	public	D9R1F4msg3
+	public	D9R1F4msg5
+	public	D9R1F4msg6
+	public	D9R1F4msg7
+	public	D9R1F4msg8
+	public	D9R1F4msg9
+
+	public	D10R1F1msg1
+	public	D10R1F1msg2
+	public	D10R1F1msg3
+	public	D10R1F1msg4
+	public	D10R1F1msg5
+	public	D10R1F2msg2
+	public	D10R1F2msg3
+	public	D10R1F2msg4
+	public	D10R1F3msg2
+	public	D10R1F3msg3
+	public	D10R1F3msg4
+	public	D10R1F3msg5
+	public	D10R1F3msg6
+	public	D10R1F3msg7
+	public	D10R1F4msg2
+	public	D10R1F4msg3
+	public	D10R1F4msg4
+	public	D10R1F4msg5
+	public	D10R1F4msg6
+	public	D10R1F4msg7
+	public	D10R1F4msg8
+	public	D10R1F5msg6
+	public	D10R1F5msg7
+	public	D10R1F5msg8
+	public	D10R1F5msg9
+	public	D10R1F5msg10
+	public	D10R1F6msg5
+	public	D10R1F6msg6
+	public	D10R1F6msg7
+	public	D10R1F6msg8
+	public	D10R1F6msg9
+	public	D10R1F6msg10
+	public	D10R1F6msg11
+	public	D10R1F7msg2
+	public	D10R1F7msg3
+	public	D10R1F7msg4
+	public	D10R1F8msg2
+	public	D10R1F8msg3
+	public	D10R1F8msg4
+	public	D10R1F9msg1
+	public	D10R1F9msg2
+	public	D10R1F9msg3
+	public	D10R1F9msg4
+	public	D10R1F9msg5
+	public	D10R1F9msg6
+
+	public	D10R1F10msg3
+	public	D10R1F10msg4
+	public	D10R1F10msg5
+	public	D10R1F10msg6
+
+	public	D10R2F6msg2
+	public	D11R1F1msg2
+	public	D11R1F2msg3
+	public	D11R1F2msg4
+	public	D11R1F3msg3
+	public	D11R1F3msg4
+	public	D11R1F3msg5
+	public	D11R1F3msg6
+	public	D11R1F3msg8
+	public	D12R1F1msg4
+	public	D12R1F1msg5
+	public	D12R1F1msg6
+	public	D12R1F1msg7
+	public	D12R1F2msg4
+	public	D12R1F2msg5
+	public	D12R1F3msg1
+	public	D12R1F3msg2
+	public	D12R1F3msg3
+	public	D12R1F3msg4
+
+	public	D13R1F1msg1
+	public	D13R1F1msg2
+	public	D13R1F1msg3
+	public	D13R1F1msg4
+
+	public	D13R1F2msg1
+	public	D13R1F2msg2
+	public	D13R1F2msg3
+	public	D13R1F2msg4
+	public	D13R1F2msg5
+
+;	public	D14R1F1msg3
+;	public	D14R1F2msg1
+;	public	D14R1F3msg1
+;	public	D14R1F4msg3
+;	public	D14R1F4msg4
+;	public	D14R1F5msg1
+;	public	D14R1F5msg2
+;	public	D14R1F6msg1
+;	public	D14R1F6msg2
+;	public	D14R1F7msg2
+;	public	D14R1F8msg3
+;	public	D14R1F8msg4
+;	public	D14R1F9msg6
+;	public	D14R1F10msg2
+;	public	D14R1F11msg2
+;	public	D14R1F12msg2
+;	public	D14R1F13msg1
+	public	D14R1F15msg2
+
+	public	R20R1F1msg1
+	public	R20R1F1msg2
+	public	D16R1F1msg1
+	public	D16R1F1msg2
+	public	D16R1F2msg1
+	public	D16R1F2msg2
+	public	D16R1F3msg2
+	public	D16R1F3msg3
+	public	D16R1F3msg5
+	public	D16R1F3msg6
+	public	D16R1F4msg1
+	public	D16R1F4msg2
+
+	public	VanishBottom
+
+
+
+cast_up_map:
+	dw	t1_tbl
+	dw	t2_tbl
+	dw	t3_tbl
+	dw	t4_tbl
+	dw	t5_tbl
+	dw	t6_tbl
+	dw	t7_tbl
+	dw	t8_tbl
+	dw	t9_tbl
+	dw	t10_tbl
+	dw	t11_tbl
+	dw	t12_tbl
+
+	dw	r1_tbl
+	dw	r2_tbl
+	dw	r3_tbl
+	dw	r4_tbl
+	dw	r5_tbl
+	dw	r6_tbl
+	dw	r7_tbl
+	dw	r8_tbl
+	dw	r9_tbl
+	dw	r10_tbl
+	dw	r11_tbl
+	dw	r12_tbl
+	dw	r13_tbl
+	dw	r14_tbl
+	dw	r15_tbl
+	dw	r16_tbl
+	dw	r17_tbl
+	dw	r18_tbl
+	dw	r19_tbl
+	dw	r20_tbl
+	dw	r21_tbl
+	dw	r22_tbl
+	dw	r23_tbl
+	dw	r24_tbl
+	dw	r25_tbl
+
+	dw	t1r1f1_tbl
+	dw	t1r1f2_tbl
+	dw	t1r2f1_tbl
+	dw	t1r3f1_tbl
+
+	dw	t2r1f1_tbl
+	dw	t2r2f1_tbl
+	dw	t2r3f1_tbl
+	dw	t2r4f1_tbl
+	dw	t2r5f1_tbl
+
+	dw	r2r1f1_tbl
+	dw	r2r2f1_tbl
+	dw	r2r3f1_tbl
+	dw	r2r4f1_tbl
+	dw	r2r5f1_tbl
+
+	dw	d1r1f1_tbl
+
+	dw	t3r1f1_tbl
+	dw	t3r1f2_tbl
+	dw	t3r2f1_tbl
+	dw	t3r3f1_tbl
+	dw	t3r4f1_tbl
+	dw	t3r5f1_tbl
+	dw	t3r6f1_tbl
+
+	dw	d2r1f1_tbl
+	dw	d2r1f2_tbl
+	dw	d2r1f3_tbl
+
+	dw	t4r1f1_tbl
+	dw	t4r2f1_tbl
+	dw	t4r3f1_tbl
+	dw	t4r4f1_tbl
+	dw	t4r5f1_tbl
+	dw	t4r6f1_tbl
+
+	dw	r4r1f1_tbl
+	dw	t4r1f2_tbl
+
+	dw	r5r1f1_tbl
+	dw	r5r2f1_tbl
+	dw	r5r3f1_tbl
+
+	dw	r6r1f1_tbl
+	dw	r6r2f1_tbl
+	dw	r6r2f2_tbl
+
+	dw	r7r1f1_tbl
+	dw	r7r2f1_tbl
+	dw	r7r3f1_tbl
+
+	dw	r8r1f1_tbl
+	dw	r8r2f1_tbl
+
+	dw	r10r1f1_tbl
+	dw	r10r2f1_tbl
+	dw	r10r3f1_tbl
+
+	dw	r11r1f1_tbl
+	dw	r11r2f1_tbl
+	dw	r11r1f2_tbl
+
+	dw	r12r1f1_tbl
+
+	dw	r25r1f1_tbl
+
+	dw	t6r1f1_tbl
+	dw	t6r2f1_tbl
+	dw	t6r3f1_tbl
+	dw	t6r4f1_tbl
+	dw	t6r5f1_tbl
+	dw	t6r6f1_tbl
+
+	dw	d3r1f1_tbl
+	dw	d3r1f2_tbl
+	dw	d3r1f3_tbl
+	dw	d3r1f4_tbl
+	dw	d3r1f5_tbl
+	dw	d3r1f6_tbl
+	dw	d3r1f7_tbl
+	dw	d3r1f8_tbl
+	dw	d3r1f9_tbl
+	dw	d3r1f10_tbl
+
+	dw	d14r1f1_tbl
+	dw	d14r1f2_tbl
+	dw	d14r1f3_tbl
+	dw	d14r1f4_tbl
+	dw	d14r1f5_tbl
+	dw	d14r1f6_tbl
+	dw	d14r1f7_tbl
+	dw	d14r1f8_tbl
+	dw	d14r1f9_tbl
+	dw	d14r1f10_tbl
+	dw	d14r1f11_tbl
+	dw	d14r1f12_tbl
+	dw	d14r1f13_tbl
+	dw	d14r1f14_tbl
+
+	dw	d4r1f1_tbl
+
+	dw	d14r1f15_tbl
+
+	dw	d6r1f1_tbl
+
+	dw	t7r1f1_tbl
+	dw	t7r1f2_tbl
+	dw	t7r1f3_tbl
+	dw	t7r1f4_tbl
+	dw	t7r1f5_tbl
+	dw	t7r1f6_tbl
+	dw	t7r2f1_tbl
+	dw	t7r2f2_tbl
+	dw	t7r2f3_tbl
+	dw	t7r2f4_tbl
+	dw	t7r2f5_tbl
+	dw	t7r3f1_tbl
+	dw	t7r4f1_tbl
+	dw	t7r5f1_tbl
+	dw	t7r6f1_tbl
+	dw	t7r7f1_tbl
+	dw	t7r8f1_tbl
+	dw	t7r9f1_tbl
+	dw	t7r10f1_tbl
+
+	dw	t5r1f1_tbl
+	dw	t5r2f1_tbl
+	dw	t5r2f2_tbl
+	dw	t5r2f3_tbl
+	dw	t5r2f4_tbl
+	dw	t5r2f5_tbl
+	dw	t5r2f6_tbl
+	dw	t5r2f7_tbl
+	dw	t5r3f1_tbl
+	dw	t5r4f1_tbl
+	dw	t5r5f1_tbl
+
+	dw	t8r1f1_tbl
+	dw	t8r2f1_tbl
+	dw	t8r3f1_tbl
+	dw	t8r4f1_tbl
+	dw	t8r5f1_tbl
+	dw	t8r6f1_tbl
+	dw	t8r7f1_tbl
+
+	dw	d16r1f1_tbl
+	dw	d16r1f2_tbl
+	dw	d16r1f3_tbl
+	dw	d16r1f4_tbl
+
+	dw	t6r8f1_tbl
+	dw	t8r8f1_tbl
+
+	dw	t9r1f1_tbl
+	dw	t9r2f1_tbl
+	dw	t9r3f1_tbl
+	dw	t9r3f2_tbl
+	dw	t9r3f3_tbl
+	dw	t9r3f4_tbl
+	dw	t9r4f1_tbl
+	dw	t9r5f1_tbl
+	dw	t9r6f1_tbl
+
+	dw	t10r1f1_tbl
+
+	dw	t11r1f1_tbl
+	dw	t11r1f2_tbl
+	dw	t11r2f1_tbl
+	dw	t11r3f1_tbl
+	dw	t11r4f1_tbl
+	dw	t11r5f1_tbl
+	dw	t11r6f1_tbl
+	dw	t11r7f1_tbl
+	dw	t11r8f1_tbl
+
+	dw	r15r1f1_tbl
+	dw	r15r1f2_tbl
+
+	dw	r16r1f1_tbl
+	dw	r16r1f2_tbl
+	dw	r16r2f1_tbl
+	dw	r16r3f1_tbl
+
+	dw	r18r1f1_tbl
+	dw	r18r1f2_tbl
+
+	dw	r20r1f1_tbl
+
+	dw	r22r1f1_tbl
+
+	dw	r23r1f1_tbl
+
+	dw	r12r1f2_tbl
+
+	dw	t6r7f1_tbl
+
+	dw	d7r1f1_tbl
+
+	dw	d8r1f1_tbl
+
+	dw	d9r1f1_tbl
+	dw	d9r1f2_tbl
+	dw	d9r1f3_tbl
+	dw	d9r1f4_tbl
+	dw	d9r1f5_tbl
+	dw	d9r1f6_tbl			; dummy
+	dw	d9r1f7_tbl			; dummy
+	dw	d9r1f8_tbl			; dummy
+
+	dw	d10r1f1_tbl
+	dw	d10r1f2_tbl
+	dw	d10r1f3_tbl
+	dw	d10r1f4_tbl
+	dw	d10r1f5_tbl
+	dw	d10r1f6_tbl
+	dw	d10r1f7_tbl
+
+	dw	d11r1f1_tbl
+	dw	d11r1f2_tbl
+	dw	d11r1f3_tbl
+
+	dw	d12r1f1_tbl
+	dw	d12r1f2_tbl
+	dw	d12r1f3_tbl
+	dw	d12r1f4_tbl
+	dw	d12r1f5_tbl
+	dw	d12r1f6_tbl
+	dw	d12r1f7_tbl
+	dw	d12r1f8_tbl
+	dw	d12r1f9_tbl
+
+	dw	d13r1f1_tbl
+	dw	d13r1f2_tbl
+
+	dw	t4r7f1_tbl
+
+	dw	t5r6f1_tbl
+
+	dw	t4r8f1_tbl
+
+	dw	r20r2f1_tbl
+
+	dw	d15r1f1_tbl
+
+	dw	d10r1f8_tbl
+	dw	d10r1f9_tbl
+	dw	d10r1f10_tbl
+	dw	d10r1f11_tbl
+	dw	d10r2f1_tbl
+	dw	d10r2f2_tbl
+
+	dw	t0r1f1_tbl
+	dw	t0r1f2_tbl
+
+	dw	d10r2f3_tbl
+	dw	d10r2f4_tbl
+	dw	d10r2f5_tbl
+	dw	d10r2f6_tbl
+
+	dw	d14r1f16_tbl
+	dw	d14r1f17_tbl
+	dw	d14r1f18_tbl
+
+	dw	r19r1f1_tbl	; by tama,98/04/10
+
+	db	0ffh,0ffh
+
+
+t5_tbl:
+t6_tbl:
+t7_tbl:
+t8_tbl:
+t10_tbl:
+t12_tbl:
+r1_tbl:
+r3_tbl:
+r5_tbl:
+r6_tbl:
+r7_tbl:
+r8_tbl:
+r10_tbl:
+r11_tbl:
+r13_tbl:
+r14_tbl:
+r17_tbl:
+r18_tbl:
+r19_tbl:
+r20_tbl:
+r21_tbl:
+t1r1f2_tbl:
+t2r1f1_tbl:
+t2r2f1_tbl:
+t2r3f1_tbl:
+t2r4f1_tbl:
+r2r1f1_tbl:
+r2r2f1_tbl:
+r2r3f1_tbl:
+r2r4f1_tbl:
+r2r5f1_tbl:
+t3r1f2_tbl:
+t3r2f1_tbl:
+t3r3f1_tbl:
+t3r4f1_tbl:
+t3r5f1_tbl:
+t3r6f1_tbl:
+d2r1f2_tbl:
+t4r1f1_tbl:
+t4r1f2_tbl:
+t4r3f1_tbl:
+t4r4f1_tbl:
+t4r5f1_tbl:
+t4r6f1_tbl:
+t4r8f1_tbl:
+r4r1f1_tbl:
+r5r1f1_tbl:
+r5r2f1_tbl:
+r5r3f1_tbl:
+r6r1f1_tbl:
+r6r2f1_tbl:
+r6r2f2_tbl:
+r7r1f1_tbl:
+r7r2f1_tbl:
+r7r3f1_tbl:
+r8r1f1_tbl:
+r8r2f1_tbl:
+r10r1f1_tbl:
+r10r2f1_tbl:
+r11r1f1_tbl:
+r11r2f1_tbl:
+r11r1f2_tbl:
+r12r1f1_tbl:
+t6r1f1_tbl:
+t6r3f1_tbl:
+t6r4f1_tbl:
+t6r5f1_tbl:
+t6r6f1_tbl:
+t6r7f1_tbl:
+t6r8f1_tbl:
+d3r1f1_tbl:
+d3r1f3_tbl:
+d3r1f4_tbl:
+d3r1f5_tbl:
+d3r1f6_tbl:
+d3r1f7_tbl:
+d3r1f24_tbl:
+d4r1f1_tbl:
+d5r1f1_tbl:
+d6r1f1_tbl:
+t7r1f1_tbl:
+t7r1f2_tbl:
+t7r1f3_tbl:
+t7r1f4_tbl:
+t7r1f5_tbl:
+t7r1f6_tbl:
+t7r2f1_tbl:
+t7r2f2_tbl:
+t7r2f3_tbl:
+t7r2f4_tbl:
+t7r3f1_tbl:
+t7r4f1_tbl:
+t7r6f1_tbl:
+t7r7f1_tbl:
+t7r8f1_tbl:
+t7r10f1_tbl:
+t5r1f1_tbl:
+t5r2f1_tbl:
+t5r4f1_tbl:
+t5r5f1_tbl:
+t5r6f1_tbl:
+t8r1f1_tbl:
+t8r2f1_tbl:
+t8r3f1_tbl:
+t8r5f1_tbl:
+t8r6f1_tbl:
+t8r7f1_tbl:
+t8r8f1_tbl:
+t8r12f1_tbl:
+t8r13f1_tbl:
+t9r2f1_tbl:
+t9r3f1_tbl:
+t9r3f2_tbl:
+t9r3f3_tbl:
+t9r3f4_tbl:
+t9r4f1_tbl:
+t9r5f1_tbl:
+t9r6f1_tbl:
+t10r1f1_tbl:
+t11r1f1_tbl:
+t11r1f2_tbl:
+t11r3f1_tbl:
+t11r4f1_tbl:
+t11r5f1_tbl:
+t11r7f1_tbl:
+t11r8f1_tbl:
+r15r1f1_tbl:
+r15r1f2_tbl:
+r16r1f2_tbl:
+r16r2f1_tbl:
+r16r3f1_tbl:
+r18r1f1_tbl:
+r18r1f2_tbl:
+r22r1f1_tbl:
+r12r1f2_tbl:
+d7r1f1_tbl:
+d9r1f5_tbl:
+d12r1f5_tbl:
+d12r1f7_tbl:
+d12r1f8_tbl:
+d12r1f9_tbl:
+t5r2f8_tbl:
+r4r3f1_tbl:
+d15r1f1_tbl:
+d10r1f11_tbl:
+d10r2f1_tbl:
+d10r2f2_tbl:
+t0r1f1_tbl:
+t0r1f2_tbl:
+d10r2f3_tbl:
+d10r2f4_tbl:
+d10r2f5_tbl:
+r20r2f1_tbl:
+r16r1f1_tbl:
+d9r1f6_tbl:
+d9r1f7_tbl:
+d9r1f8_tbl:
+r23_tbl:
+d12r1f6_tbl:
+t9_tbl:
+t7r9f1_tbl:
+t1r1f1_tbl:
+d14r1f1_tbl:
+d14r1f2_tbl:
+d14r1f3_tbl:
+d14r1f5_tbl:
+d14r1f6_tbl:
+d14r1f7_tbl:
+d14r1f8_tbl:
+d14r1f9_tbl:
+d14r1f10_tbl:
+d14r1f11_tbl:
+d14r1f12_tbl:
+d14r1f13_tbl:
+d14r1f14_tbl:
+d14r1f16_tbl:
+d14r1f17_tbl:
+d14r1f18_tbl:
+r19r1f1_tbl:
+t6r2f1_tbl:
+	db	0ffh,0ffh,0ffh
+
+
+cast_up_table:
+t1_tbl:
+	initndb	T1,		1,	B_REQ_OBJ_VANISH,	T1msg1
+t2_tbl:
+	ndb	T2,		5,	B_REQ_OBJ_APPEAR,	T2msg5
+	ndb	T2,		7,	B_REQ_OBJ_VANISH,	T2msg7
+	ndb	T2,		8,	B_REQ_OBJ_VANISH,	T2msg8
+t3_tbl:
+	ndb	T3,		3,	B_REQ_OBJ_APPEAR,	T3msg3
+	ndb	T3,		5,	B_REQ_OBJ_APPEAR,	T3msg5
+t4_tbl:
+	ndb	T4,		1,	B_REQ_OBJ_VANISH,	T4msg1
+	ndb	T4,		2,	B_REQ_OBJ_APPEAR,	T4msg2
+	ndb	T4,		6,	B_REQ_OBJ_VANISH,	T4msg6	; 1-7
+	ndb	T4,		10,	B_REQ_OBJ_APPEAR,	T4msg10	; 2-0
+	ndb	T4,		11,	B_REQ_OBJ_APPEAR,	T4msg11
+t11_tbl:
+	ndb	T11,		1,	B_REQ_OBJ_APPEAR,	T11msg1
+	ndb	T11,		2,	B_REQ_OBJ_APPEAR,	T11msg2
+	ndb	T11,		3,	B_REQ_OBJ_APPEAR,	T11msg3
+	ndb	T11,		4,	B_REQ_OBJ_APPEAR,	T11msg4
+	ndb	T11,		5,	B_REQ_OBJ_APPEAR,	T11msg5
+	ndb	T11,		6,	B_REQ_OBJ_APPEAR,	T11msg6	; 2-7
+	ndb	T11,		7,	B_REQ_OBJ_APPEAR,	T11msg7	; 3-0
+	ndb	T11,		8,	B_REQ_OBJ_VANISH,	T11msg8
+	ndb	T11,		9,	B_REQ_OBJ_VANISH,	T11msg9
+	ndb	T11,		10,	B_REQ_OBJ_VANISH,	T11msg10
+	ndb	T11,		11,	B_REQ_OBJ_VANISH,	T11msg11
+	ndb	T11,		12,	B_REQ_OBJ_VANISH,	T11msg12
+	ndb	T11,		13,	B_REQ_OBJ_VANISH,	T11msg13
+	ndb	T11,		14,	B_REQ_OBJ_APPEAR,	T11msg14	; 3-7
+	ndb	T11,		15,	B_REQ_OBJ_VANISH,	T11msg15	; 4-0
+r2_tbl:
+	ndb	R2,		1,	B_REQ_OBJ_APPEAR,	R2msg1
+	ndb	R2,		2,	B_REQ_OBJ_APPEAR,	R2msg2
+r4_tbl:
+	ndb	R4,		3,	B_REQ_OBJ_APPEAR,	R4msg3
+r9_tbl:
+	ndb	R9,		10,	B_REQ_OBJ_APPEAR,	R9msg10
+r12_tbl:
+	ndb	R12,		1,	B_REQ_OBJ_APPEAR,	R12msg1
+	ndb	R12,		9,	B_REQ_OBJ_APPEAR,	R12msg9
+	ndb	R12,		10,	B_REQ_OBJ_APPEAR,	R12msg10
+r15_tbl:
+	ndb	R15,		11,	B_REQ_OBJ_APPEAR,	R15msg11
+r16_tbl:
+	ndb	R16,		7,	B_REQ_OBJ_APPEAR,	R16msg7
+r22_tbl:
+	ndb	R22,		1,	B_REQ_OBJ_VANISH,	R22msg1
+	ndb	R22,		2,	B_REQ_OBJ_VANISH,	R22msg2
+r24_tbl:
+	ndb	R24,		1,	B_REQ_OBJ_APPEAR,	R24msg1
+	ndb	R24,		8,	B_REQ_OBJ_APPEAR,	R24msg8
+r25_tbl:
+	ndb	R25,		10,	B_REQ_OBJ_APPEAR,	R25msg10
+t1r2f1_tbl:
+	ndb	T1R2F1,		1,	B_REQ_OBJ_APPEAR,	T1R2F1msg1
+	ndb	T1R2F1,		2,	B_REQ_OBJ_VANISH,	T1R2F1msg2
+	ndb	T1R2F1,		3,	B_REQ_OBJ_APPEAR,	T1R2F1msg3
+t1r3f1_tbl:
+  ifn	0
+	ndb	T1R3F1,		1,	B_REQ_OBJ_APPEAR,	T1R3F1msg1
+	ndb	T1R3F1,		2,	B_REQ_OBJ_APPEAR,	T1R3F1msg2
+	ndb	T1R3F1,		3,	B_REQ_OBJ_APPEAR,	T1R3F1msg3
+	ndb	T1R3F1,		4,	B_REQ_OBJ_APPEAR,	T1R3F1msg4
+	ndb	T1R3F1,		5,	B_REQ_OBJ_VANISH,	T1R3F1msg5
+	ndb	T1R3F1,		6,	B_REQ_OBJ_APPEAR,	T1R3F1msg6
+	ndb	T1R3F1,		7,	B_REQ_OBJ_APPEAR,	T1R3F1msg7
+	ndb	T1R3F1,		8,	B_REQ_OBJ_VANISH,	T1R3F1msg8
+  else
+	ndb	T1R3F1,		1,	B_REQ_OBJ_APPEAR,	T1R3F1msg1
+	ndb	T1R3F1,		2,	B_REQ_OBJ_APPEAR,	T1R3F1msg2
+	ndb	T1R3F1,		3,	B_REQ_OBJ_VANISH,	T1R3F1msg5
+	ndb	T1R3F1,		4,	B_REQ_OBJ_APPEAR,	T1R3F1msg6
+	ndb	T1R3F1,		5,	B_REQ_OBJ_APPEAR,	T1R3F1msg7
+	ndb	T1R3F1,		6,	B_REQ_OBJ_VANISH,	T1R3F1msg8
+  endif
+t2r5f1_tbl:
+	ndb	T2R5F1,		1,	B_REQ_OBJ_APPEAR,	T2R5F1msg1
+	ndb	T2R5F1,		11,	B_REQ_OBJ_APPEAR,	T2R5F1msg11
+t3r1f1_tbl:
+	ndb	T3R1F1,		5,	B_REQ_OBJ_APPEAR,	T3R1F1msg5
+t4r2f1_tbl:
+	ndb	T4R2F1,		2,	B_REQ_OBJ_APPEAR,	T4R2F1msg2
+t4r7f1_tbl:
+	ndb	T4R7F1,		1,	B_REQ_OBJ_APPEAR,	T4R7F1msg1
+	ndb	T4R7F1,		2,	B_REQ_OBJ_APPEAR,	T4R7F1msg2
+	ndb	T4R7F1,		3,	B_REQ_OBJ_APPEAR,	T4R7F1msg3
+	ndb	T4R7F1,		4,	B_REQ_OBJ_APPEAR,	T4R7F1msg4
+t5r2f2_tbl:
+	ndb	T5R2F2,		1,	B_REQ_OBJ_APPEAR,	T5R2F2msg1
+t5r2f3_tbl:
+	ndb	T5R2F3,		4,	B_REQ_OBJ_APPEAR,	T5R2F3msg4
+t5r2f4_tbl:
+	ndb	T5R2F4,		4,	B_REQ_OBJ_APPEAR,	T5R2F4msg4
+	ndb	T5R2F4,		5,	B_REQ_OBJ_APPEAR,	T5R2F4msg5
+	ndb	T5R2F4,		6,	B_REQ_OBJ_APPEAR,	T5R2F4msg6
+t5r2f5_tbl:
+	ndb	T5R2F5,		6,	B_REQ_OBJ_APPEAR,	T5R2F5msg6
+t5r2f6_tbl:
+	ndb	T5R2F6,		4,	B_REQ_OBJ_APPEAR,	T5R2F6msg4
+	ndb	T5R2F6,		5,	B_REQ_OBJ_APPEAR,	T5R2F6msg5
+t5r2f7_tbl:
+	ndb	T5R2F7,		1,	B_REQ_OBJ_VANISH,	T5R2F7msg1
+	ndb	T5R2F7,		2,	B_REQ_OBJ_VANISH,	T5R2F7msg2
+	ndb	T5R2F7,		3,	B_REQ_OBJ_APPEAR,	T5R2F7msg3
+t5r3f1_tbl:
+	ndb	T5R3F1,		5,	B_REQ_OBJ_VANISH,	T5R3F1msg5
+
+;t6r2f1_tbl:
+;	ndb	T6R2F1,		7,	B_REQ_OBJ_VANISH,	T6R2F1msg7
+
+t7r2f5_tbl:
+	ndb	T7R2F5,		2,	B_REQ_OBJ_APPEAR,	T7R2F5msg2
+t7r5f1_tbl:
+	ndb	T7R5F1,		11,	B_REQ_OBJ_APPEAR,	T7R5F1msg11
+t8r4f1_tbl:
+	ndb	T8R4F1,		2,	B_REQ_OBJ_APPEAR,	T8R4F1msg2
+t9r1f1_tbl:
+	ndb	T9R1F1,		2,	B_REQ_OBJ_APPEAR,	T9R1F1msg2
+	ndb	T9R1F1,		3,	B_REQ_OBJ_APPEAR,	T9R1F1msg3
+t11r2f1_tbl:
+	ndb	T11R2F1,	6,	B_REQ_OBJ_APPEAR,	T11R2F1msg6
+	ndb	T11R2F1,	7,	B_REQ_OBJ_APPEAR,	T11R2F1msg7
+t11r6f1_tbl:
+	ndb	T11R6F1,	1,	B_REQ_OBJ_VANISH,	T11R6F1msg1
+r10r3f1_tbl:
+	ndb	R10R3F1,	1,	B_REQ_OBJ_APPEAR,	R10R3F1msg1
+	ndb	R10R3F1,	2,	B_REQ_OBJ_APPEAR,	R10R3F1msg2
+	ndb	R10R3F1,	3,	B_REQ_OBJ_APPEAR,	R10R3F1msg3
+	ndb	R10R3F1,	4,	B_REQ_OBJ_APPEAR,	R10R3F1msg4
+	ndb	R10R3F1,	5,	B_REQ_OBJ_APPEAR,	R10R3F1msg5
+	ndb	R10R3F1,	6,	B_REQ_OBJ_APPEAR,	R10R3F1msg6
+	ndb	R10R3F1,	7,	B_REQ_OBJ_APPEAR,	R10R3F1msg7
+	ndb	R10R3F1,	8,	B_REQ_OBJ_APPEAR,	R10R3F1msg8
+	ndb	R10R3F1,	9,	B_REQ_OBJ_APPEAR,	R10R3F1msg9
+	ndb	R10R3F1,	10,	B_REQ_OBJ_APPEAR,	R10R3F1msg10
+	ndb	R10R3F1,	11,	B_REQ_OBJ_APPEAR,	R10R3F1msg11
+	ndb	R10R3F1,	12,	B_REQ_OBJ_APPEAR,	R10R3F1msg12
+	ndb	R10R3F1,	13,	B_REQ_OBJ_APPEAR,	R10R3F1msg13
+	ndb	R10R3F1,	14,	B_REQ_OBJ_APPEAR,	R10R3F1msg14
+r23r1f1_tbl:
+	ndb	R23R1F1,	6,	B_REQ_OBJ_APPEAR,	R23R1F1msg6
+	ndb	R23R1F1,	7,	B_REQ_OBJ_APPEAR,	R23R1F1msg7
+	ndb	R23R1F1,	8,	B_REQ_OBJ_APPEAR,	R23R1F1msg8
+	ndb	R23R1F1,	9,	B_REQ_OBJ_APPEAR,	R23R1F1msg9
+	ndb	R23R1F1,	10,	B_REQ_OBJ_APPEAR,	R23R1F1msg10
+	ndb	R23R1F1,	13,	B_REQ_OBJ_APPEAR,	R23R1F1msg13
+r25r1f1_tbl:
+	ndb	R25R1F1,	1,	B_REQ_OBJ_APPEAR,	R25R1F1msg1
+	ndb	R25R1F1,	2,	B_REQ_OBJ_VANISH,	R25R1F1msg2
+	ndb	R25R1F1,	3,	B_REQ_OBJ_VANISH,	R25R1F1msg3
+;	ndb	R25R1F1,	4,	B_REQ_OBJ_VANISH,	R25R1F1msg4
+d1r1f1_tbl:
+	ndb	D1R1F1,		5 + 2,	B_REQ_OBJ_APPEAR,	D1R1F1msg5
+	ndb	D1R1F1,		6 + 2,	B_REQ_OBJ_APPEAR,	D1R1F1msg6
+	ndb	D1R1F1,		7 + 2,	B_REQ_OBJ_APPEAR,	D1R1F1msg7
+d2r1f1_tbl:
+	ndb	D2R1F1,		8,	B_REQ_OBJ_APPEAR,	D2R1F1msg8
+	ndb	D2R1F1,		9,	B_REQ_OBJ_APPEAR,	D2R1F1msg9
+	ndb	D2R1F1,		10,	B_REQ_OBJ_APPEAR,	D2R1F1msg10
+	ndb	D2R1F1,		11,	B_REQ_OBJ_APPEAR,	D2R1F1msg11
+	ndb	D2R1F1,		12,	B_REQ_OBJ_APPEAR,	D2R1F1msg12
+	ndb	D2R1F1,		13,	B_REQ_OBJ_APPEAR,	D2R1F1msg13
+d2r1f3_tbl:
+	ndb	D2R1F3,		2,	B_REQ_OBJ_VANISH,	D2R1F3msg2
+	ndb	D2R1F3,		6,	B_REQ_OBJ_VANISH,	D2R1F3msg6
+	ndb	D2R1F3,		7,	B_REQ_OBJ_APPEAR,	D2R1F3msg7
+	ndb	D2R1F3,		8,	B_REQ_OBJ_APPEAR,	D2R1F3msg8
+	ndb	D2R1F3,		9,	B_REQ_OBJ_APPEAR,	D2R1F3msg9
+	ndb	D2R1F3,		10,	B_REQ_OBJ_APPEAR,	D2R1F3msg10
+d3r1f2_tbl:
+	ndb	D3R1F2,		2,	B_REQ_OBJ_VANISH,	D3R1F2msg2
+d3r1f8_tbl:
+	ndb	D3R1F8,		10,	B_REQ_OBJ_APPEAR,	D3R1F8msg10
+d3r1f9_tbl:
+	ndb	D3R1F9,		6,	B_REQ_OBJ_APPEAR,	D3R1F9msg6
+	ndb	D3R1F9,		9,	B_REQ_OBJ_APPEAR,	D3R1F9msg9
+d3r1f10_tbl:
+	ndb	D3R1F10,	9,	B_REQ_OBJ_APPEAR,	D3R1F10msg9
+	ndb	D3R1F10,	10,	B_REQ_OBJ_APPEAR,	D3R1F10msg10
+	ndb	D3R1F10,	11,	B_REQ_OBJ_APPEAR,	D3R1F10msg11
+d8r1f1_tbl:
+	ndb	D8R1F1,		5,	B_REQ_OBJ_APPEAR,	D8R1F1msg5
+	ndb	D8R1F1,		6,	B_REQ_OBJ_APPEAR,	D8R1F1msg6
+	ndb	D8R1F1,		10,	B_REQ_OBJ_APPEAR,	D8R1F1msg10
+d9r1f1_tbl:
+	ndb	D9R1F1,		6,	B_REQ_OBJ_APPEAR,	D9R1F1msg6
+	ndb	D9R1F1,		7,	B_REQ_OBJ_APPEAR,	D9R1F1msg7
+d9r1f2_tbl:
+	ndb	D9R1F2,		2,	B_REQ_OBJ_APPEAR,	D9R1F2msg2
+	ndb	D9R1F2,		3,	B_REQ_OBJ_APPEAR,	D9R1F2msg3
+	ndb	D9R1F2,		4,	B_REQ_OBJ_APPEAR,	D9R1F2msg4
+	ndb	D9R1F2,		5,	B_REQ_OBJ_APPEAR,	D9R1F2msg5
+d9r1f3_tbl:
+	ndb	D9R1F3,		3,	B_REQ_OBJ_APPEAR,	D9R1F3msg3
+	ndb	D9R1F3,		4,	B_REQ_OBJ_APPEAR,	D9R1F3msg4
+d9r1f4_tbl:
+	ndb	D9R1F4,		1,	B_REQ_OBJ_APPEAR,	D9R1F4msg1
+	ndb	D9R1F4,		2,	B_REQ_OBJ_VANISH,	D9R1F4msg2
+	ndb	D9R1F4,		3,	B_REQ_OBJ_VANISH,	D9R1F4msg3
+	ndb	D9R1F4,		5,	B_REQ_OBJ_APPEAR,	D9R1F4msg5
+	ndb	D9R1F4,		6,	B_REQ_OBJ_APPEAR,	D9R1F4msg6
+	ndb	D9R1F4,		7,	B_REQ_OBJ_APPEAR,	D9R1F4msg7
+	ndb	D9R1F4,		8,	B_REQ_OBJ_VANISH,	D9R1F4msg8
+	ndb	D9R1F4,		9,	B_REQ_OBJ_VANISH,	D9R1F4msg9
+d10r1f1_tbl:
+	ndb	D10R1F1,	1,	B_REQ_OBJ_APPEAR,	D10R1F1msg1
+	ndb	D10R1F1,	2,	B_REQ_OBJ_APPEAR,	D10R1F1msg2
+	ndb	D10R1F1,	3,	B_REQ_OBJ_APPEAR,	D10R1F1msg3
+	ndb	D10R1F1,	4,	B_REQ_OBJ_APPEAR,	D10R1F1msg4
+	ndb	D10R1F1,	5,	B_REQ_OBJ_APPEAR,	D10R1F1msg5
+d10r1f2_tbl:
+	ndb	D10R1F2,	2,	B_REQ_OBJ_APPEAR,	D10R1F2msg2
+	ndb	D10R1F2,	3,	B_REQ_OBJ_APPEAR,	D10R1F2msg3
+	ndb	D10R1F2,	4,	B_REQ_OBJ_APPEAR,	D10R1F2msg4
+d10r1f3_tbl:
+	ndb	D10R1F3,	2,	B_REQ_OBJ_APPEAR,	D10R1F3msg2
+	ndb	D10R1F3,	3,	B_REQ_OBJ_APPEAR,	D10R1F3msg3
+	ndb	D10R1F3,	4,	B_REQ_OBJ_APPEAR,	D10R1F3msg4
+	ndb	D10R1F3,	5,	B_REQ_OBJ_APPEAR,	D10R1F3msg5
+	ndb	D10R1F3,	6,	B_REQ_OBJ_APPEAR,	D10R1F3msg6
+	ndb	D10R1F3,	7,	B_REQ_OBJ_APPEAR,	D10R1F3msg7
+d10r1f4_tbl:
+	ndb	D10R1F4,	2,	B_REQ_OBJ_APPEAR,	D10R1F4msg2
+	ndb	D10R1F4,	3,	B_REQ_OBJ_APPEAR,	D10R1F4msg3
+	ndb	D10R1F4,	4,	B_REQ_OBJ_APPEAR,	D10R1F4msg4
+	ndb	D10R1F4,	5,	B_REQ_OBJ_APPEAR,	D10R1F4msg5
+	ndb	D10R1F4,	6,	B_REQ_OBJ_APPEAR,	D10R1F4msg6
+	ndb	D10R1F4,	7,	B_REQ_OBJ_APPEAR,	D10R1F4msg7
+	ndb	D10R1F4,	8,	B_REQ_OBJ_APPEAR,	D10R1F4msg8
+d10r1f5_tbl:
+	ndb	D10R1F5,	6,	B_REQ_OBJ_APPEAR,	D10R1F5msg6
+	ndb	D10R1F5,	7,	B_REQ_OBJ_APPEAR,	D10R1F5msg7
+	ndb	D10R1F5,	8,	B_REQ_OBJ_APPEAR,	D10R1F5msg8
+	ndb	D10R1F5,	9,	B_REQ_OBJ_APPEAR,	D10R1F5msg9
+	ndb	D10R1F5,	10,	B_REQ_OBJ_APPEAR,	D10R1F5msg10
+d10r1f6_tbl:
+	ndb	D10R1F6,	5,	B_REQ_OBJ_APPEAR,	D10R1F6msg5
+	ndb	D10R1F6,	6,	B_REQ_OBJ_APPEAR,	D10R1F6msg6
+	ndb	D10R1F6,	7,	B_REQ_OBJ_APPEAR,	D10R1F6msg7
+	ndb	D10R1F6,	8,	B_REQ_OBJ_APPEAR,	D10R1F6msg8
+	ndb	D10R1F6,	9,	B_REQ_OBJ_APPEAR,	D10R1F6msg9
+	ndb	D10R1F6,	10,	B_REQ_OBJ_APPEAR,	D10R1F6msg10
+	ndb	D10R1F6,	11,	B_REQ_OBJ_APPEAR,	D10R1F6msg11
+	ndb	D10R1F6,	12,	B_REQ_OBJ_APPEAR,	D10R1F6msg12
+d10r1f7_tbl:
+	ndb	D10R1F7,	2,	B_REQ_OBJ_APPEAR,	D10R1F7msg2
+	ndb	D10R1F7,	3,	B_REQ_OBJ_APPEAR,	D10R1F7msg3
+	ndb	D10R1F7,	4,	B_REQ_OBJ_APPEAR,	D10R1F7msg4
+d10r1f8_tbl:
+	ndb	D10R1F8,	2,	B_REQ_OBJ_APPEAR,	D10R1F8msg2
+	ndb	D10R1F8,	3,	B_REQ_OBJ_APPEAR,	D10R1F8msg3
+	ndb	D10R1F8,	4,	B_REQ_OBJ_APPEAR,	D10R1F8msg4
+d10r1f9_tbl:
+	ndb	D10R1F9,	1,	B_REQ_OBJ_APPEAR,	D10R1F9msg1
+	ndb	D10R1F9,	2,	B_REQ_OBJ_APPEAR,	D10R1F9msg2
+	ndb	D10R1F9,	3,	B_REQ_OBJ_APPEAR,	D10R1F9msg3
+	ndb	D10R1F9,	4,	B_REQ_OBJ_APPEAR,	D10R1F9msg4
+	ndb	D10R1F9,	5,	B_REQ_OBJ_APPEAR,	D10R1F9msg5
+	ndb	D10R1F9,	6,	B_REQ_OBJ_APPEAR,	D10R1F9msg6
+d10r1f10_tbl:
+	ndb	D10R1F10,	3,	B_REQ_OBJ_APPEAR,	D10R1F10msg3
+	ndb	D10R1F10,	4,	B_REQ_OBJ_APPEAR,	D10R1F10msg4
+	ndb	D10R1F10,	5,	B_REQ_OBJ_APPEAR,	D10R1F10msg5
+	ndb	D10R1F10,	6,	B_REQ_OBJ_APPEAR,	D10R1F10msg6
+d10r2f6_tbl:
+	ndb	D10R2F6,	2,	B_REQ_OBJ_APPEAR,	D10R2F6msg2
+d11r1f1_tbl:
+	ndb	D11R1F1,	2,	B_REQ_OBJ_APPEAR,	D11R1F1msg2
+d11r1f2_tbl:
+	ndb	D11R1F2,	3,	B_REQ_OBJ_APPEAR,	D11R1F2msg3
+	ndb	D11R1F2,	4,	B_REQ_OBJ_APPEAR,	D11R1F2msg4
+d11r1f3_tbl:
+	ndb	D11R1F3,	3,	B_REQ_OBJ_APPEAR,	D11R1F3msg3
+	ndb	D11R1F3,	4,	B_REQ_OBJ_APPEAR,	D11R1F3msg4
+	ndb	D11R1F3,	5,	B_REQ_OBJ_APPEAR,	D11R1F3msg5
+	ndb	D11R1F3,	6,	B_REQ_OBJ_APPEAR,	D11R1F3msg6
+	ndb	D11R1F3,	8,	B_REQ_OBJ_APPEAR,	D11R1F3msg8
+d12r1f1_tbl:
+	ndb	D12R1F1,	1,	B_REQ_OBJ_APPEAR,	D12R1F1msg4
+	ndb	D12R1F1,	2,	B_REQ_OBJ_APPEAR,	D12R1F1msg5
+	ndb	D12R1F1,	3,	B_REQ_OBJ_APPEAR,	D12R1F1msg6
+	ndb	D12R1F1,	4,	B_REQ_OBJ_APPEAR,	D12R1F1msg7
+d12r1f2_tbl:
+	ndb	D12R1F2,	1,	B_REQ_OBJ_APPEAR,	D12R1F2msg4
+	ndb	D12R1F2,	2,	B_REQ_OBJ_APPEAR,	D12R1F2msg5
+d12r1f3_tbl:
+	ndb	D12R1F3,	1,	B_REQ_OBJ_APPEAR,	D12R1F3msg1
+	ndb	D12R1F3,	2,	B_REQ_OBJ_APPEAR,	D12R1F3msg2
+	ndb	D12R1F3,	3,	B_REQ_OBJ_APPEAR,	D12R1F3msg3
+	ndb	D12R1F3,	4,	B_REQ_OBJ_APPEAR,	D12R1F3msg4
+d12r1f4_tbl:
+	ndb	D12R1F4,	1,	B_REQ_OBJ_APPEAR,	D12R1F4msg1
+d13r1f1_tbl:
+	ndb	D13R1F1,	1,	B_REQ_OBJ_APPEAR,	D13R1F1msg1
+	ndb	D13R1F1,	2,	B_REQ_OBJ_APPEAR,	D13R1F1msg2
+	ndb	D13R1F1,	3,	B_REQ_OBJ_APPEAR,	D13R1F1msg3
+	ndb	D13R1F1,	4,	B_REQ_OBJ_APPEAR,	D13R1F1msg4
+d13r1f2_tbl:
+	ndb	D13R1F2,	1,	B_REQ_OBJ_APPEAR,	D13R1F2msg1
+	ndb	D13R1F2,	2,	B_REQ_OBJ_APPEAR,	D13R1F2msg2
+	ndb	D13R1F2,	3,	B_REQ_OBJ_APPEAR,	D13R1F2msg3
+	ndb	D13R1F2,	4,	B_REQ_OBJ_APPEAR,	D13R1F2msg4
+	ndb	D13R1F2,	5,	B_REQ_OBJ_APPEAR,	D13R1F2msg5
+d14r1f4_tbl:
+	ndb	D14R1F4,	3,	B_REQ_OBJ_APPEAR,	D14R1F4msg3
+	ndb	D14R1F4,	4,	B_REQ_OBJ_APPEAR,	D14R1F4msg4
+d14r1f15_tbl:
+	ndb	D14R1F15,	2,	B_REQ_OBJ_VANISH,	D14R1F15msg2
+r20r1f1_tbl:
+	ndb	R20R1F1,	1,	B_REQ_OBJ_APPEAR,	R20R1F1msg1
+	ndb	R20R1F1,	2,	B_REQ_OBJ_APPEAR,	R20R1F1msg2
+d16r1f1_tbl:
+	ndb	D16R1F1,	1,	B_REQ_OBJ_VANISH,	D16R1F1msg1
+	ndb	D16R1F1,	2,	B_REQ_OBJ_VANISH,	D16R1F1msg2
+d16r1f2_tbl:
+	ndb	D16R1F2,	1,	B_REQ_OBJ_VANISH,	D16R1F2msg1
+	ndb	D16R1F2,	2,	B_REQ_OBJ_VANISH,	D16R1F2msg2
+d16r1f3_tbl:
+	ndb	D16R1F3,	2,	B_REQ_OBJ_APPEAR,	D16R1F3msg2
+	ndb	D16R1F3,	3,	B_REQ_OBJ_APPEAR,	D16R1F3msg3
+	ndb	D16R1F3,	5,	B_REQ_OBJ_VANISH,	D16R1F3msg5
+	ndb	D16R1F3,	6,	B_REQ_OBJ_VANISH,	D16R1F3msg6
+d16r1f4_tbl:
+	ndb	D16R1F4,	1,	B_REQ_OBJ_VANISH,	D16R1F4msg1
+	ndb	D16R1F4,	2,	B_REQ_OBJ_VANISH,	D16R1F4msg2
+	ndb	D16R1F4,	3,	B_REQ_OBJ_APPEAR,	D16R1F4msg3
+
+
+y_t01r0201:
+	ndb	T1R2F1,		1,	B_REQ_OBJ_APPEAR,	yT1R2F1msg1
+	ndb	T1R2F1,		2,	B_REQ_OBJ_VANISH,	yT1R2F1msg2
+	ndb	T1R2F1,		3,	B_REQ_OBJ_APPEAR,	yT1R2F1msg3
+
+
+vanish_bottom:
+	ndb	0ffh,		1,	B_REQ_OBJ_APPEAR,	VanishBottom
+
+

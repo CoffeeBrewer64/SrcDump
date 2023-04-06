@@ -1,0 +1,179 @@
+;=======================================================================;
+;=======================================================================;
+;									;
+;			 Color Special Effects				;
+;									;
+;=======================================================================;
+;=======================================================================;
+
+	include		common.def
+	include		banktool.def
+	include		se.def
+
+	extern	wait_vb_s
+	extern	ready2ready
+
+
+bank12	group	18
+
+;=======================================================;
+;							;
+;		      Black Flash			;
+;							;
+;	    Palette 0, Color Black Function		;
+;							;
+;	IN : Breg	Black Color Level (1-3)		;
+;=======================================================;
+BLACK_FLASH_WAIT	equ	4
+
+	public	black_flash
+
+black_flash:
+	call	ready2ready			; recover Breg value
+
+	ld	a,(BGP)
+	or	b
+	ld	(BGP),a
+	ld	c,BLACK_FLASH_WAIT
+	call	wait_vb_s
+	ld	a,(BGP)
+	and	0fch
+	ld	(BGP),a
+	ret
+
+
+
+;=======================================================;
+;							;
+;		      Color Black			;
+;							;
+;	   Palette 1-3, Color Black Function		;
+;							;
+;=======================================================;
+
+
+;=======================================================;
+;							;
+;		       Color White			;
+;							;
+;	   Palette 1-2, Color White Function		;
+;							;
+;=======================================================;
+
+
+;=======================================================;
+;							;
+;		      Color Random			;
+;							;
+;	Palette 1-3, 4 Color Random Function		;
+;							;
+;=======================================================;
+
+
+;=======================================================;
+;							;
+;		       Color Swap			;
+;							;
+;	   Palette 1-3, Color Swap Function		;
+;							;
+;=======================================================;
+
+
+
+
+
+
+
+
+;=======================================================================;
+;=======================================================================;
+;									;
+;		         Window Special Effects				;
+;									;
+;=======================================================================;
+;=======================================================================;
+
+
+;=======================================================;
+;							;
+;		  Window Shake System			;
+;							;
+;	IN : Breg	Shake Size			;
+;=======================================================;
+SHAKE_Y_WAIT	equ	3
+SHAKE_X_WAIT	equ	4
+SHAKE_X_WAIT2	equ	1
+
+	public	window_shake_y
+	public	window_shake_x
+
+window_shake_y:
+	call	ready2ready		; recover Breg value
+
+	ld	a,01h
+	ld	(window_shake_flag),a	; vblank Window Init Cancel
+
+	xor	a
+loop$:
+	ld	(calc_work1),a		; Work
+	call	shake_y
+	call	shake_y
+	dec	b			; Shake Down Size
+	ld	a,b
+	jr	nz,loop$
+
+	xor	a
+	ld	(window_shake_flag),a	; vblank Window Init
+	ret
+
+
+shake_y:
+	ld	a,(calc_work1)
+	xor	b
+	ld	(calc_work1),a
+	ld	(WY),a
+	ld	c,SHAKE_Y_WAIT
+	jp	wait_vb_s
+
+
+window_shake_x:
+	call	ready2ready		; recover Breg value
+
+	xor	a
+loop$:
+	ld	(calc_work2),a		; Work
+	call	shake_x
+
+	ld	c,SHAKE_X_WAIT2
+	call	wait_vb_s
+
+	call	shake_x
+	dec	b			; Shake Down Size
+	ld	a,b
+	jr	nz,loop$
+
+	ld	a,7
+	ld	(WX),a
+	ret
+
+
+shake_x:
+	ld	a,(calc_work2)
+	xor	b
+	ld	(calc_work2),a
+	bit	7,a				; Check MSB
+	jr	z,set$
+	xor	a				; X < 0 : X = 0
+set$:
+	add	a,7				; X => 7 (Hardware Infomation)
+	ld	(WX),a
+	ld	c,SHAKE_X_WAIT
+	jp	wait_vb_s
+
+
+
+
+
+
+
+

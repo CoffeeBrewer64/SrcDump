@@ -1,0 +1,539 @@
+;=======================================================================;
+; yellow version 1998/03/19
+;=======================================================================;
+	include		common.def
+	include		fntequ.def
+	include		anime.def
+	include		maphead.def
+	include		banktool.def
+	include		pm_debug.def
+	include		dealer.def
+	include		vanish.def
+	include		macro.h
+	include		group.def
+
+
+bank6	group	G_BANK6
+
+
+	public	ev_town01
+	public	msg_town01
+
+
+	extern	put_wait
+	extern	bank_push_call
+	extern	bank2bank
+	extern	table_jump
+	extern	memset
+	extern	yes_no
+	extern	actor_anime_set
+	extern	acttbl_l_adrs
+	extern	acttbl_h_adrs
+	extern	set_battle_msg
+	extern	set_battle
+	extern	missing
+	extern	set_battle_data
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	SetActorSite
+
+	extern	musohkido
+	extern	direct_play
+	extern	MusicStop
+
+
+seq_t1		equ	seq_ctrl_buf + 1	; event sequence number
+
+
+ev_town01:
+	ld	a,(ev_t1_3)
+	bit	4,a				; check obtained pm-ball
+	jr	z,no_obtain_ball$
+
+	ld	hl,ev_t1
+	set	6,(hl)				; just after obtained pm
+
+no_obtain_ball$:
+	call	init_for_talkmap
+
+	ld	hl,town01_tbl
+	ld	a,(seq_t1)    
+	jp	table_jump			; event routine address (hl)
+
+
+
+
+;-----------------------------;
+; event routine address table ;
+;-----------------------------;
+	public	town01_tbl
+
+town01_tbl:
+	initndw	t1_main,seq_t1_main		; check invoke the event
+	ndw	okido_event,seq_okido_event	; hero encount to PIKA
+	ndw	okido_step0,seq_okido_step0	; okido be ready to comes
+	ndw	okido_step1,seq_okido_step1	; okido comes(observe)
+	ndw	okido_pika,seq_okido_pika
+	ndw	okio_pika_get,seq_okido_pika_get
+	ndw	okido_step01,seq_okido_step01	; okido comes(observe)
+	ndw	obs_demo1,seq_obs_demo1
+
+	ndw	t1_free,seq_t1_free
+	ndw	t1_normal,seq_t1_normal
+
+
+
+
+t1_main:
+	ld	a,(ev_t1)
+	bit	0,a				; check finished event"okido"
+	ret	nz
+
+	ld	a,(mapscloll_y)
+	cp	00h				;  y = 00h
+	ret	nz
+
+	ld	hl,ev_t1
+	res	5,(hl)				; left position
+
+	ld	a,(mapscloll_x)
+	cp	0ah				; x = 0ah, 0bh
+	jr	z,left$
+
+	set	5,(hl)				; right position
+
+left$:
+	xor	a
+	ld	(joy_status),a			; clear key buffer
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,08h
+	ld	(watashi_muki),a		; look upper
+
+	call	MusicStop
+
+	ld	a,MUSIC_BANK1_NO		; Set Bank
+	ld	c,a
+	ld	a,<musohkido			; okido music
+	call	direct_play
+
+	ld	hl,ev_t1_3
+	set	7,(hl)				; missing okido in boarder
+
+	ld	a,seq_okido_event
+	ld	(seq_t1),a
+
+	ret
+
+
+
+
+;-------------------;
+; okido event start ;
+;-------------------;
+okido_event:
+	ld	a,0fch
+	ld	(cancel_key),a			; allowed "A" & "B" buttons
+
+	xor	a
+	ld	(event_check),a			; first talk
+
+	ld	a,msg_okido
+	ld	(work1),a
+	call	talk_map			; "o-i matunojya!!"
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	hl,actor_table + 0100h + 014h	; why??? nazo!! by nori
+	ld	a,008h
+	ld	(hli),a
+	ld	a,00eh
+	ld	(hl),a				; okido position reset
+
+	ld	a,T1msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	ld	a,02h
+	ld	(actor_table + 011h),a		; stop
+	ld	a,04h
+	ld	(actor_table + 019h),a		; upper site
+
+	ld	a,seq_okido_step0
+	ld	(seq_t1),a
+
+	ret
+
+
+okido_step0:
+	call	put_wait
+
+	ld	a,00h
+	ld	(mapscloll_y),a
+
+	ld	a,01h
+	ld	(calc_work6),a			; point of view as command
+	ld	a,msg_okido
+	swap	a				; * 010h
+	ld	(calc_work0),a
+	ld	a,B_OFFSET_ADRS
+	call	bank2bank			; get character position
+
+	ld	hl,calc_work0
+	dec	(hl)				; front psoition ( north step )
+;	dec	(hl)				; front psoition ( north step )
+
+	ld	a,B_MK_ANIME
+	call	bank2bank			; get animetion commands
+
+	ld	de,work_anime_buf
+	ld	a,msg_okido
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,seq_okido_step1
+	ld	(seq_t1),a
+
+	ret
+
+
+okido_step1:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+	ld	a,0fch
+	ld	(cancel_key),a			; allowed "A" & "B" buttons
+
+	ld	a,01h
+	ld	(event_check),a			; second talk
+
+	ld	a,02h
+	ld	(actor_table + 011h),a		; stop
+	ld	a,04h
+	ld	(actor_table + 019h),a		; upper
+
+	ld	a,msg_okido
+	ld	(work1),a
+	call	talk_map			; "a bu na i to ko0 da ttu ta"
+
+	ld	a,0ffh
+	ld	(cancel_key),a			; all key cancel
+
+	ld	a,02h
+	ld	(actor_table + 011h),a		; stop
+
+	ld	a,(ev_t1)
+	bit	5,a
+	ld	a,0ch
+	jr	z,left$
+
+	ld	a,08h
+
+left$:
+	ld	(actor_table + 019h),a
+
+	ld	a,seq_okido_pika
+	ld	(seq_t1),a
+
+	ret
+
+
+okido_pika:
+	ld	a,0fch
+	ld	(cancel_key),a			; allowed "A" & "B" buttons
+
+	xor	a
+	ld	(scloll_sv),a
+	ld	a,04h
+	ld	(demo_fight_no),a
+	ld	a,84
+	ld	(event_fight_no),a
+	ld	a,5
+	ld	(mons_level),a
+
+	ld	a,seq_okido_pika_get
+	ld	(seq_t1),a
+
+	ret
+
+
+okio_pika_get:
+	ld	a,02h
+	ld	(event_check),a			; third talk
+
+	ld	a,msg_okido
+	ld	(work1),a
+	call	talk_map			; "fu-"
+
+	ld	a,02h
+	ld	(actor_table + 011h),a		; stop
+	ld	a,04h
+	ld	(actor_table + 019h),a		; upper
+
+	ld	a,msg_okido121
+	ld	(work1),a
+	call	talk_map			; "abunaitokojyatta"
+
+	ld	a,0ffh
+	ld	(cancel_key),a			; all key cancel
+
+	ld	a,seq_okido_step01
+	ld	(seq_t1),a
+
+	ret
+
+
+okido_step01:
+	xor	a
+	ld	(actor_table + 09h),a		; look lower
+
+	ld	a,msg_okido
+	ld	(sv_msg_no),a
+
+	xor	a
+	ld	(seq_demo),a			; demo sequence number
+	ld	a,01h
+	ld	(demo_flag + 0),a		; town01 1st event
+	ld	a,(rombankno)
+	ld	(demo_flag + 1),a		; demo prg bank
+
+	ld	a,seq_obs_demo1
+	ld	(seq_t1),a
+
+	ret
+
+
+obs_demo1:
+	ld	a,(demo_flag + 0)
+	and	a
+	ret	nz
+
+	ld	a,seq_t1_free
+	ld	(seq_t1),a
+
+	ret
+
+
+
+
+t1_free:
+	ld	a,(ev_t1_2)
+	bit	2,a				; switch end
+	jr	nz,other$
+
+	and	00000011b			; townmap + inout step
+	cp	00000011b
+	jr	nz,other$
+
+	ld	hl,ev_t1_2
+	set	2,(hl)				; once exist(from t01r0201)
+
+	ld	a,T1R2F1msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH		; townmap
+	call	bank2bank
+
+	ld	a,T1R2F1msg2
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR		; replaced sister 
+	jp	bank2bank
+
+
+other$:
+	ld	a,(ev_t1_3)
+	bit	4,a				; obtain "monster-ball * 5"
+	ret	z
+
+	ld	hl,ev_t1_3
+	set	6,(hl)				; message table change(t1r3f1)
+
+t1_normal:
+	ret
+
+
+
+;--------------------;
+; conversation event ;
+;--------------------;
+msg_town01:
+	msgndw	msg1,msg_okido
+	ndw	msg2,msg_woman1
+	ndw	msg3,msg_man1
+
+	ndw	kan1,msg_labo
+	ndw	kan2,msg_info1
+	ndw	kan3,msg_myhome
+	ndw	kan4,msg_rivalhome
+
+	ndw	msg121,msg_okido121
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(event_check)
+	and	a
+	jr	nz,second$
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg1_0$
+
+	jr	rts$
+
+
+second$:
+	dec	a
+	jr	nz,third$
+
+	ld	hl,msg1_1$
+
+	jr	rts$
+
+
+third$:
+	ld	hl,msg1_2$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	c,10
+	call	wait_vb_s
+
+	ld	a,04h
+	ld	(watashi_muki),a		; look under
+
+	ld	a,00h				; hero
+	ld	(usr_buf + 18),a
+	ld	a,00h				; gyoe@
+	ld	(usr_buf + 19),a
+	ld	a,B_BIKKURI
+	call	bank2bank
+
+	jp	msg_return
+
+
+msg1_1$:
+	extern	msg1_1_1_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg121:
+	extern	msg121_3_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw msg121_3_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_4_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw msg2_4_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_5_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw msg3_5_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kan1:
+	extern	kan1_6_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw kan1_6_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kan2:
+  ifn	pm_debug
+	db	CALL_MSG
+
+	ld	a,<VanishBottom
+	inc	a
+	ld	(temp_box_s),a
+
+	ld	hl,kan1_0$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+kan1_0$:
+	db	N_MSG
+	dw	temp_box_s
+	db	013h				; 1 = byte 3 = ketasuu
+	db	D_MSG
+   ifn	pm_jmsg
+	db	bi__,ttu__,to__
+   else
+	db	usf_b_,usf_i_,usf_t_
+   endif
+	db	EOMeom
+  else
+	extern	kan1_0_7_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw kan1_0_7_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+  endif
+
+
+kan3:
+	extern	kan3_8_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw kan3_8_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kan4:
+	extern	kan4_9_TOWN01
+	db I_MSG2	; mvmsg追加
+	dw kan4_9_TOWN01	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1526 @@
+common.DMG                                         98-08-04 19:23:53......PAGE 0001
+
+LINE#  LOC   CODE       LINE
+
+
+    1  0000                  ;************************************************************************
+    2  0000                  ;************************************************************************
+    3  0000                  ;* Project name         : Pocket Monsters 2                             *
+    4  0000                  ;* Source name          : common.def                                    *
+    5  0000                  ;* rewrited date        : 1996/05/17                                    *
+    6  0000                  ;************************************************************************
+    7  0000                  ;               puball
+    8  0000                  
+    9  0000                          ERRTAG
+   10  0000                  
+   11  0000                  ;***********************************************************************************************
+   12  0000                  ;       ................  ........
+   13  0000                  
+   14 (0001)                 ASSEMBLE__ENGLISH       =       1               ; ..................  0:..........1:..........
+   15  0000                  
+   16  0000                   ifn    ASSEMBLE__ENGLISH
+   17 (000B)                 MONS_NAME_LEN           =       11              ; ..........                            (EOM......)
+   18 (000E)                 WAZA_LEN                =       14              ; ............                          (EOM......)
+   19 (0038)                 WAZA_NAME_LEN           =       WAZA_LEN * 4    ; ..............................
+   20 (0011)                 TOWN_NAME_LEN           =       17              ; ....          using only in gym map   (EOM......)
+   21 (000B)                 LEADER_NAME_LEN         =       11              ; ..........    using only in gym map   (EOM......)
+   22 (000D)                 DEALER_NAME_LEN         =       13              ; Dealer Name
+   23 (000E)                 DEALER_MONS_NO_LEN      =       14              ; ............................................
+   24 (000D)                 ITEM_NAME_LEN           =       13              ; ..........                            (EOM......)
+   25 (0014)                 MONS_MAX                =       20              ; ......................
+   26  0000                                                                  ;................................................
+   37  0000                   endif
+   38  0000                  
+   39 (000B)                 RIVAL_NAME_LEN          =       MONS_NAME_LEN   ; ..........  (EOM......)
+   40 (0006)                 JUNIOR_NAME_LEN         =       6               ; ........................  terminal work
+   41 (0015)                 GEIN_NAME_LEN           =       21              ; ........................................
+   42 (0010)                 DENDOU_LEN              =       16              ; ..........................................
+   43  0000                  
+   44  0000                  
+   45  0000                  ;..................................................
+   46  0000                  ; "T06R0601.DMG" sea_set:  memset(anime_buf[], 14h, 180) ..............
+   47 (003C)                 ANIME_BUF_SIZE          =       60
+   48 (003C)                 WORK_ANIME_BUF_SIZE     =       60
+   49 (003C)                 CTRL_MOVE_VAL_SIZE      =       60
+   50  0000                  
+   51  0000                  ;..................................................
+   52  0000                  ; "PLAY2.DMG" play22:  send_byts(dmy_map2, goods_gold, 17) ..............
+   53 (0007)                 GOODS_GOLD_SIZE         =       6 + 1
+   54 (000A)                 RND_TABLE_SIZE          =       10
+   55  0000                  
+   56  0000                  
+   57  0000                  ;****  ..........  ****
+   58  0000                  
+   59 (0008)                 PLAYER_NAME_LEN         =       8               ; .................................... (EOM......)
+   60  0000                                                                  ;(..............................................)
+   61  0000                  
+   62 (0007)                 MONS_NAME_BANK          =       7               ; ....................................
+   63  0000                                                                  ; ..........................................
+   64 (0014)                 TABLE_DATA_DS_SIZE      =       20              ; sizeof( table_data )
+   65  0000                  
+   66 (000C)                 POKEMON_BOX_MAX         =       12              ; ..................
+
+
+
+
+
+common.DMG                                        ......PAGE 0002
+
+LINE#  LOC   CODE       LINE
+
+
+   67  0000                                                                  ;................................................
+   68  0000                  
+   69 (001E)                 SAFARI_BALL_MAX         =       30              ; ......................
+   70 (01F4)                 SAFARI_FEE              =       500             ; ....................
+   71  0000                  
+   72  0000                  ;****....................................t08r0501.dmg..**********
+   73  0000                  ;****                      ..............i_msg2_7.dmg........****
+   74  0000                  ;SAFARI_FEE == ....................................
+   75 (0000)                 SAFARI_FEE_HH           =       SAFARI_FEE / 100 / 10
+   76 (0005)                 SAFARI_FEE_HL           =       SAFARI_FEE / 100 % 10
+   77 (0000)                 SAFARI_FEE_LH           =       SAFARI_FEE % 100 / 10
+   78 (0000)                 SAFARI_FEE_LL           =       SAFARI_FEE % 100 % 10
+   79  0000                  
+   80  0000                  
+   81  0000                  ;*****  .................... usr_buf[] .. ..............................  *****
+   82  0000                   ifn    ASSEMBLE__ENGLISH
+   83 (0023)                 USR_BUF_SIZE            =       35      ; ......................        
+   84 (0000)                 MY_MONS_No_@            =       0               ; ......................
+   85 (0001)                 YOUR_MONS_No_@          =       1               ; ......................
+   86 (0004)                 MY_OYA_NAME_@           =       4       ;4..14  ; ........................................
+   87 (000F)                 MY_MONS_IDNo_@          =       15      ;15,16  ; .................... IDNo.
+   88 (0011)                 YOUR_OYA_NAME_@         =       17      ;17..27 ; ........................................
+   89 (001C)                 YOUR_MONS_IDNo_@        =       28      ;28,29  ; .................... IDNo.
+   90 (001E)                 FREE_AREA_@             =       30      ;30..   ; ........................
+   91 (0022)                 USR_BUF_END             =       USR_BUF_SIZE - 1
+   92  0000                  
+  103  0000                   endif
+  104  0000                  ;******************************************************************************
+  105  0000                  
+  106  0000                  ;*****  ...................... auto_move_val[] .. ..............................  *****
+  107  0000                  ;*****          "WORLDMAP.DMG"  monster_trade()........                           *****
+  108  0000                   ifn    ASSEMBLE__ENGLISH
+  109 (0028)                 AUTO_MOVE_VAL_SIZE      =       40      ; ..............
+  110 (0000)                 TRADE_MONS_No_@@        =       0               ; ................
+  111 (0001)                 MSG_ADRS_@@             =       1       ;1,2    ; save msg_address_tbl
+  112 (0003)                 MSG_COUNT_@@            =       3               ; msg_count
+  113 (0004)                 TRADE_MONS_NAME_@@      =       4       ;4..14  ; ............................
+  114 (000F)                 GET_MONS_NAME_@@        =       15      ;15..25 ; ................................
+  115 (001A)                 PET_NAME_@@             =       26      ;26..   ; save pet_name ...... ..........
+  116 (0025)                 GET_MONS_No_@@          =       37              ; ....................
+  117  0000                  
+  127  0000                   endif
+  128  0000                  ;**************************************************************************************
+  129  0000                  
+  130  0000                  
+  131  0000                  ;       ..........
+  132  0000                  ;us_display_flg         ds      1               ; ................................................
+  133  0000                                                                  ; ........................
+  134 (0000)                 HP_DSPSTYLE_BIT         =       0               ; (us_display_flg.bit0) 0:..............1:........
+  135 (0001)                 CURSOR_Y_INTERVAL_BIT   =       1               ; ................................
+  136  0000                                                                  ; (us_display_flg.bit1) 0:40h(2·¬×),1:20h(1·¬×)..
+  137 (0002)                 PUT_MSG_CR@_BIT         =       2               ; put_msg() .. cr@ .................... 0:HL+=40
+  138  0000                                                                  ; .... 1:HL+=20 ................................
+  139  0000                                                                  ; ..........................
+  140  0000                  
+  141  0000                  ;***********************************************************************************************
+
+
+
+
+
+common.DMG                                        ......PAGE 0003
+
+LINE#  LOC   CODE       LINE
+
+
+  142  0000                  
+  143  0000                  
+  144  0000                  ;*****************************
+  145  0000                  ;* Hard ware control address *
+  146  0000                  ;*****************************
+  147  0000                  ;**********************
+  148  0000                  ;* DMG Memory address *
+  149  0000                  ;**********************
+  150 (8000)                 CHAR_DATA       equ     08000h          ; Character data(OBJ)
+  151 (8800)                 CHAR_SIG        equ     08800h          ; OBJ & BG
+  152 (9000)                 CHAR_BG         equ     09000h          ; BG
+  153 (9800)                 CHAR_BACK1      equ     09800h          ; BackGround data choose 1
+  154 (9C00)                 CHAR_BACK2      equ     09c00h          ; BackGround data choose 2
+  155 (A000)                 EX_RAM          equ     0a000h          ; Ex-work RAM
+  156 (C000)                 WORK_RAM        equ     0c000h          ; Work RAM
+  157 (FE00)                 OAM_RAM         equ     0fe00h          ; OAM-RAM (4byte unit OBJ * 40)
+  158  0000                  
+  159  0000                  ;********************
+  160  0000                  ;* Control register *
+  161  0000                  ;********************
+  162 (FF0F)                 IFL             equ     0ff0fh          ; warikomi youkyu 
+  163 (FFFF)                 IE              equ     0ffffh          ; warikomi kyoka
+  164 (FF00)                 P1              equ     0ff00h          ; Port ( P10 - P15 )
+  165 (FF01)                 SB              equ     0ff01h          ; SIO Data
+  166 (FF02)                 SC              equ     0ff02h          ; SIO Control
+  167 (FF04)                 DIV             equ     0ff04h          ; debaidaa register
+  168 (FF05)                 TIMA            equ     0ff05h          ; TIMER Counter
+  169 (FF06)                 TMA             equ     0ff06h          ; TIMER mojyuro
+  170 (FF07)                 TAC             equ     0ff07h          ; TIMER Control
+  171 (FF40)                 LCDC            equ     0ff40h          ; LCD Controler
+  172 (FF41)                 STAT            equ     0ff41h          ; LCDC status info.
+  173 (FF42)                 SCY             equ     0ff42h          ; Scroll point Y
+  174 (FF43)                 SCX             equ     0ff43h          ; Scroll point X
+  175 (FF44)                 LY              equ     0ff44h          ; LCDC point Y
+  176 (FF45)                 LYC             equ     0ff45h          ; LCDC compair
+  177 (FF46)                 DMA             equ     0ff46h          ; DMA tensou OR Address
+  178 (FF47)                 BGP             equ     0ff47h          ; BG side pattern
+  179 (FF48)                 OBP0            equ     0ff48h          ; OBJ side pallet data 0 
+  180 (FF49)                 OBP1            equ     0ff49h          ; OBJ side pallet data 1
+  181 (FF4A)                 WY              equ     0ff4ah          ; Window open address Y
+  182 (FF4B)                 WX              equ     0ff4bh          ; Window open address X
+  183  0000                  
+  184  0000                  ; 6Apr,1998 ................
+  185  0000                  ;-- CGB Control Register --
+  186 (FF4D)                 KEY1            equ     0ff4dh
+  187 (FF4F)                 VBK             equ     0ff4fh
+  188 (FF51)                 HDMA1           equ     0ff51h
+  189 (FF52)                 HDMA2           equ     0ff52h
+  190 (FF53)                 HDMA3           equ     0ff53h
+  191 (FF54)                 HDMA4           equ     0ff54h
+  192 (FF55)                 HDMA5           equ     0ff55h
+  193 (FF56)                 RP              equ     0ff56h
+  194 (FF68)                 BCPS            equ     0ff68h
+  195 (FF69)                 BCPD            equ     0ff69h
+  196 (FF6A)                 OCPS            equ     0ff6ah
+  197 (FF6B)                 OCPD            equ     0ff6bh
+
+
+
+
+
+common.DMG                                        ......PAGE 0004
+
+LINE#  LOC   CODE       LINE
+
+
+  198 (FF70)                 SVBK            equ     0ff70h
+  199  0000                  ; 6Apr,1998 ................
+  200  0000                  
+  201  0000                  
+  202  0000                  ;-- Sound Control Register --
+  203 (FF10)                 NR10            equ     0ff10h
+  204 (FF11)                 NR11            equ     0ff11h
+  205 (FF12)                 NR12            equ     0ff12h
+  206 (FF13)                 NR13            equ     0ff13h
+  207 (FF14)                 NR14            equ     0ff14h
+  208 (FF16)                 NR21            equ     0ff16h
+  209 (FF17)                 NR22            equ     0ff17h
+  210 (FF18)                 NR23            equ     0ff18h
+  211 (FF19)                 NR24            equ     0ff19h
+  212 (FF1A)                 NR30            equ     0ff1ah
+  213 (FF1B)                 NR31            equ     0ff1bh
+  214 (FF1C)                 NR32            equ     0ff1ch
+  215 (FF1D)                 NR33            equ     0ff1dh
+  216 (FF1E)                 NR34            equ     0ff1eh
+  217 (FF20)                 NR41            equ     0ff20h
+  218 (FF21)                 NR42            equ     0ff21h
+  219 (FF22)                 NR43            equ     0ff22h
+  220 (FF23)                 NR44            equ     0ff23h
+  221 (FF24)                 NR50            equ     0ff24h
+  222 (FF25)                 NR51            equ     0ff25h
+  223 (FF26)                 NR52            equ     0ff26h
+  224 (FF30)                 waveram         equ     0ff30h
+  225  0000                  
+  226 (0000)                 RAMCS           equ     00000h          ; RAM CS Gate data
+  227 (2000)                 ROMBANK         equ     02000h          ; ROM bank select 01H to 0fH
+  228 (4000)                 RAMBANK         equ     04000h          ; RAM bank select 0 to 3
+  229 (6000)                 ROMRAM          equ     06000h          ; ROM/RAM select 0 to 1
+  230  0000                  
+  231  0000                  
+  232  0000                  ;***********************
+  233  0000                  ;* EQU as Map controll *
+  234  0000                  ;***********************
+  235 (0010)                 ACTOR_MAX       equ     010h
+  236 (0010)                 TABLE_AREA      equ     010h
+  237  0000                  
+  238  0000                  
+  239  0000                  ;************************
+  240  0000                  ;* To connect other one *
+  241  0000                  ;************************
+  242 (0001)                 OYA             equ     01h
+  243 (0002)                 KO              equ     02h
+  244 (0003)                 CONNECT         equ     03h
+  245  0000                  
+  246  0000                  ;*********************
+  247  0000                  ;* Allow Mask Define *
+  248  0000                  ;*********************
+  249 (0001)                 BT_A            equ     01h             ; A Button      = bit 0
+  250 (0002)                 BT_B            equ     02h             ; B Button      = bit 1
+  251 (0004)                 BT_SE           equ     04h             ; Select Button = bit 2
+  252 (0008)                 BT_ST           equ     08h             ; Start  Button = bit 3
+  253 (0010)                 BT_R            equ     010h            ; Right Key     = bit 4
+
+
+
+
+
+common.DMG                                        ......PAGE 0005
+
+LINE#  LOC   CODE       LINE
+
+
+  254 (0020)                 BT_L            equ     020h            ; Left  Key     = bit 5
+  255 (0040)                 BT_U            equ     040h            ; Up    Key     = bit 6
+  256 (0080)                 BT_D            equ     080h            ; Down  key     = bit 7
+  257  0000                  
+  258  0000                  
+  259  0000                  ;************************
+  260  0000                  ;* Table asign number   *
+  261  0000                  ;* only strings table   *
+  262  0000                  ;************************
+  263 (0001)                 ASGN_MONS_NAME  equ     1               ; Get Monster Name
+  264 (0002)                 ASGN_WAZA_NAME  equ     2               ; Get Skill Name
+  265 (0003)                 ASGN_BADGE      equ     3               ; Get Badge Name        .................................. 2Apr,1998 ........
+  266 (0004)                 ASGN_ITEM_NAME  equ     4               ; Get Item Name 
+  267 (0005)                 ASGN_CAP_NAME   equ     5               ; Get Capusle Name(I have Monster)
+  268 (0006)                 ASGN_GEIN_NAME  equ     6               ; Get gein_cap_name (Data)
+  269 (0007)                 ASGN_DEALER     equ     7               ; dealer_name_tbl
+  270 (0008)                 ASGN_RANK_NAME  equ     8               ; Monster Trainer Name 
+  271  0000                  
+  272  0000                  ;**********************************************************
+  273  0000                  ;* Data set asign number / Use By sel_item_param function *
+  274  0000                  ;**********************************************************
+  275 (0001)                 SAVE_CAP        equ     1
+  276 (0002)                 ITEM_SEAL       equ     2               ; item    uru
+  277 (0003)                 ITEM_BUY        equ     3               ; item    kau
+  278 (0004)                 CAP_SEAL        equ     4               ; capsule uru
+  279 (0005)                 CAP_BUY         equ     5               ; capsule kau
+  280  0000                  
+  281  0000                  ;****************************************************************
+  282  0000                  ;* Monster Character Data & Monster Data(Name Data) Bank Define *
+  283  0000                  ;****************************************************************
+  284 (0009)                 MONS_CHR1_BANK  equ     09h             ; Monster Number  1 -  26
+  285 (000A)                 MONS_CHR2_BANK  equ     0ah             ; Monster Number 27 -  52
+  286 (000B)                 MONS_CHR3_BANK  equ     0bh             ; Monster Number 53 -  74
+  287 (000C)                 MONS_CHR4_BANK  equ     0ch             ; Monster Number 75 - 104
+  288 (000D)                 MONS_CHR5_BANK  equ     0dh             ; Monster Number105 - 132
+  289 (0010)                 MONS_CHR6_BANK  equ     10h             ; Monster Number133 - 149
+  290 (0011)                 MONS_CHR7_BANK  equ     11h             ; Monster Number150 - 175
+  291 (0012)                 MONS_CHR8_BANK  equ     12h             ; Monster Number176 - 200
+  292 (0013)                 DEALERCHR1_BANK equ     13h             ; Dealer  Number  1 - 43
+  293 (0014)                 DEALERCHR2_BANK equ     14h             ; Dealer  Number
+  294 (000E)                 MONS_DATA_BANK  equ     0eh             ; Monster Name & Data
+  295 (000F)                 FIGHT_WAZA_BANK equ     0fh             ; Fight & Skill Data
+  296  0000                  
+  297  0000                  ;****************************************************************
+  298  0000                  ;*                      Music Bank Define                       *
+  299  0000                  ;****************************************************************
+  300 (0002)                 MUSIC_BANK1_NO  equ     2               ; MUSIC bank change area 1
+  301 (0008)                 MUSIC_BANK2_NO  equ     8               ; MUSIC bank change area 2
+  302 (001F)                 MUSIC_BANK3_NO  equ     01fh            ; MUSIC bank change area 2
+  303  0000                  
+  304  0000                  
+  305  0000                  ;**********************
+  306  0000                  ;* Window Type Define *
+  307  0000                  ;**********************
+  308 (0001)                 MESSAGE_WIN     equ     01              ; Message Window
+  309 (0002)                 SYSTEM_WIN      equ     02              ; System Window
+
+
+
+
+
+common.DMG                                        ......PAGE 0006
+
+LINE#  LOC   CODE       LINE
+
+
+  310 (0003)                 CAP_WIN         equ     03              ; Capsule List Fream
+  311 (0004)                 STR_ESC_WIN     equ     04              ; Monster STR or Escape
+  312 (0005)                 ITEM_WIN        equ     05              ; Item List Fream
+  313 (0006)                 USE_SPLIT_WIN   equ     06              ; Item Use or Split
+  314 (0007)                 STATUS_WIN      equ     07              ; Status Window
+  315 (0008)                 CONFIG_WIN      equ     08              ; Config Window
+  316 (0009)                 MES_SPEED_WIN   equ     09              ; Message Speed Low or Hi
+  317 (000A)                 LOAD_DATA_WIN   equ     10              ; Data Load / Fast or Continue
+  318 (000B)                 BATTLE_COM_WIN  equ     11              ; Battle Command Window
+  319 (000C)                 CHK_CHG_WIN     equ     12              ; Monster Status Check or Change
+  320 (000D)                 SHOP_WIN        equ     13              ; Shop Window Frame Display
+  321 (000E)                 SHOP_COM_WIN    equ     14              ; Shop Command Window
+  322 (000F)                 MONEY_WIN       equ     15              ; Money Window Frame
+  323 (0010)                 MAP_WIN         equ     16              ; Chizu Frame Display
+  324 (0011)                 MONS_FRM_WIN    equ     17              ; Monster in Map Fream Display
+  325 (0012)                 ABORT_WIN       equ     18              ; Timer.src Use Abort Message
+  326 (0013)                 KANE_WIN        equ     19              ; Print Money Window
+  327 (0014)                 YES_NO_WIN      equ     20              ;
+  328 (0015)                 URU_KAU_WIN     equ     21              ; Shop Command Window
+  329 (0016)                 CAP_SEL_WIN     equ     22              ; Capsule Command Window Frame
+  330 (0017)                 CAPCOM_WIN      equ     23              ; Capsule Command Window        
+  331 (0018)                 WORK9_WIN       equ     24              ;
+  332 (0019)                 YES_NO_ONLY     equ     25
+  333  0000                  
+  334  0000                  ;**************************
+  335  0000                  ;* Monster data follow up *
+  336  0000                  ;**************************
+  337 (000A)                 MONS_SIZE_POS   equ     10              ; Monster's image (X,Y)
+  338 (000B)                 F_IMG_ADRS_POS  equ     11              ; Byte pos of monster's flont image
+  339 (000D)                 B_IMG_ADRS_POS  equ     13              ; Byte pos of monster's back image
+  340 (0006)                 CAP_MAX         equ     6               ; Lots of taking capsules
+  341 (0014)                 ITEM_MAX        equ     20              ; Lots of taking items (New)
+  342  0000                  ;MONS_MAX       equ     40              ; Lots of putting at home capsules
+  343  0000                  ;;MONS_MAX      equ     30              ; Lots of putting at home capsules
+  344 (002C)                 CAPDATA_LEN     equ     44              ; Save monster data length
+  345 (0021)                 MONSDATA_LEN    equ     33              ; Save monster data length
+  346  0000                  ;;MONS_NAME_LEN equ     11              ; Monster name max length
+  347 (0019)                 FIGHT_DT_LEN    equ     25              ; Using length of fighting para-data
+  348 (0002)                 CTRL_BYTE       equ     2               ; Array controll bytes length
+  349 (001C)                 MONS_TBL_SIZE   equ     28              ; Monster data table size (ROM)
+  350 (000B)                 MONS_NO         equ     11              ; 'mymons_data' & 'enemy_data'
+  351 (0010)                 DEALERTBL_SIZE  equ     16              ; Dealer data table size
+  352  0000                  
+  353 (0032)                 STOCK_DATA_MAX  equ     50
+  354  0000                  
+  355 (0001)                 MONS_HP         equ     1
+  356 (0002)                 MONS_ATTACK     equ     2
+  357 (0003)                 MONS_DEFENCE    equ     3
+  358 (0004)                 MONS_QUICK      equ     4
+  359 (0005)                 MONS_FIRE       equ     5
+  360 (0006)                 MONS_WATER      equ     6
+  361 (0007)                 MONS_THUNDER    equ     7
+  362 (0008)                 MONS_CATCH      equ     8
+  363 (0009)                 MONS_EXP        equ     9
+  364 (000A)                 MONS_XYSIZE     equ     10
+  365 (000B)                 MONS_FRONT_ADS  equ     11
+
+
+
+
+
+common.DMG                                        ......PAGE 0007
+
+LINE#  LOC   CODE       LINE
+
+
+  366 (000D)                 MONS_BACK_ADS   equ     13
+  367 (000F)                 MONS_PAT1       equ     15
+  368 (0010)                 MONS_PAT2       equ     16
+  369 (0011)                 MONS_PAT3       equ     17
+  370 (0012)                 MONS_PAT4       equ     18
+  371 (0013)                 MONS_RANK       equ     19
+  372  0000                  
+  373  0000                  ;****************
+  374  0000                  ;* Mapping work *
+  375  0000                  ;****************
+  376 (0014)                 MAX_SCR_X       equ     20              ; CELL_UNIT_X * 5(MAP)
+  377 (0012)                 MAX_SCR_Y       equ     18              ; CELL_UNIT_Y * 4.5(MAP)
+  378 (0188)                 PLANE_SIZE      equ     392             ; Uncompress area size
+  379  0000                  
+  380  0000                  ; 23Apr,1998 ................
+  381  0000                  ;************************************
+  382  0000                  ;* ................................ *
+  383  0000                  ;************************************
+  384 (0002)                 OKURI_CANCEL    equ     2
+  385  0000                  ; ................
+  386  0000                  
+  387  0000                  
+  388  0000                  ;*****************************
+  389  0000                  ;*    Music Area Work Ram    *
+  390  0000                  ;*****************************
+  391  0000                  workram0                group   0
+  392  0000                          org     0c000h
+  393  C000                  
+  394  C000                          PUBON
+  395  C000                  
+  396 (0007)                 oct_init_val    equ     07h
+  397  C000                  
+  398  C000                  vblank_fg       ds      1
+  399  C001                  mus_num         ds      1
+  400  C002                  muspausefg      ds      1       ; pause flag (1 = OFF / 0 = ON)
+  401  C003                  calldrum_fg     ds      1       ; call drum flag (3 part condetion value)
+  402  C004                  balance_mask    ds      1       ; default = $ff
+  403  C005                  
+  404  C005                  vol_rec         ds      1       ; volume recover (Capsule Monsters Only)
+  405  C006                  
+  406  C006                  mus_adrs        ds      16
+  407  C016                  mus_stack       ds      16
+  408  C026                  
+  409  C026                  condetion       ds      8
+  410  C02E                  
+  411  C02E                  com_fg          ds      8       ; command flag          0 bit : chorus switch
+  412  C036                                                  ;                       1 bit : call
+  413  C036                                                  ;                       2 bit : effect 2x
+  414  C036                                                  ;                       3 bit : vibrato (u/d)
+  415  C036                                                  ;                       4 bit : portamento
+  416  C036                                                  ;                       5 bit : portamento (u/d)
+  417  C036                                                  ;                       6 bit : duty changer
+  418  C036                  
+  419  C036                  eff_fg          ds      8       ; effect flag           0 bit : $f8 command
+  420  C03E                  
+  421  C03E                  duty_val        ds      8       ; c = 0,1,4,5 part use (4bytes)
+
+
+
+
+
+common.DMG                                        ......PAGE 0008
+
+LINE#  LOC   CODE       LINE
+
+
+  422  C046                  dc_val          ds      8       ; duty changer changing value
+  423  C04E                  
+  424  C04E                  vib_wait        ds      8       ; vibrato wait counter
+  425  C056                  vib_wave        ds      8       ; vibrato up down value
+  426  C05E                  vib_wave_wait   ds      8       ; vibrato up down wait counter
+  427  C066                  vib_tone        ds      8       ; low tone value (vibrato use)
+  428  C06E                  vib_work        ds      8       ; vibrato wait value
+  429  C076                  
+  430  C076                  por_len         ds      8       ; portamento length (porta speed)
+  431  C07E                  por_addi        ds      8       ; portamento add (int)
+  432  C086                  por_addf        ds      8       ; portamento add (float)
+  433  C08E                  por_addt        ds      8       ; portamento add  temp (float recover)
+  434  C096                  por_svalh       ds      8       ; portamento start high tone value 
+  435  C09E                  por_svall       ds      8       ; portamento start low tone value 
+  436  C0A6                  por_evalh       ds      8       ; portamento end high tone value 
+  437  C0AE                  por_evall       ds      8       ; portamento end low tone value 
+  438  C0B6                  
+  439  C0B6                  sound_len       ds      8
+  440  C0BE                  loop_val        ds      8
+  441  C0C6                  D_tempo         ds      8       ; D com tempo (init tempo)
+  442  C0CE                  
+  443  C0CE                  tempo_counter   ds      8
+  444  C0D6                  
+  445  C0D6                  oct_val         ds      8
+  446  C0DE                  env_val         ds      8       ; envelope
+  447  C0E6                  
+  448  C0E6                  wave_num        ds      2       ; wave number
+  449  C0E8                  
+  450  C0E8                  bgm_tempo       ds      2       ; 1byte = tempo(int), 2byte = tempo(float)
+  451  C0EA                  se_tempo        ds      2
+  452  C0EC                  
+  453  C0EC                  work            ds      2
+  454  C0EE                  
+  455  C0EE                  music_flag              ds      1       ; 0 : SE / !0 : Music
+  456  C0EF                  music_bank_flg          ds      1       ; Note! Non Save Ram!
+  457  C0F0                  music_bank_flg_back     ds      1       ; Fadeplay Used (Next Backup)
+  458  C0F1                  
+  459  C0F1                  mons_voice_offset       ds      1       ; Voice Tone Offset
+  460  C0F2                  mons_voice_tempo        ds      1       ; Voice Speed
+  461  C0F3                  
+  462  C0F3                  
+  463  C0F3                  ;*****************************
+  464  C0F3                  ;* Map controll data defines *
+  465  C0F3                  ;*****************************
+  466  0000                  workram         group   0
+  467  0000                  
+  468  0000                          org     0c100h
+  469  C100                  
+  470  C100                  actor_table     ds      0200h                   ; actor table size = $200  
+  471  C300                  
+  472  C300                  oam_buf         ds      0a0h                    ; OAM buffer max size = $A0
+  473  C3A0                  
+  474  C3A0                  dmy_vram        ds      MAX_SCR_X * MAX_SCR_Y   ; 20 x 18
+  475  C508                  dmy_map         ds      24*20                   ; 
+  476  C6E8                  ram_map         ds      1300                    ; Ram Map Area size 1300
+  477  CBFC                  
+
+
+
+
+
+common.DMG                                        ......PAGE 0009
+
+LINE#  LOC   CODE       LINE
+
+
+  478  CBFC                  haji_buf        ds      2*20                    ; 
+  479  CC24                  allow_pos       ds      2                       ; allow position Y,X
+  480  CC26                  allow_cnt       ds      1                       ; allow counter
+  481  CC27                  allow_spc       ds      1
+  482  CC28                  allow_max       ds      1                       ; allow counter Max
+  483  CC29                  allow_msk       ds      1                       ; use key data mask 
+  484  CC2A                  allow_old       ds      1                       ; before allow data
+  485  CC2B                  allow_sv_mons   ds      1
+  486  CC2C                  allow_sv_item   ds      1
+  487  CC2D                  allow_sv_sys    ds      1
+  488  CC2E                  allow_sv_waza   ds      1
+  489  CC2F                  allow_sv_fight  ds      1
+  490  CC30                  allow_dv_adr    ds      2
+  491  CC32                  allow_wv_adr    ds      2
+  492  CC34                  allow_ret_flg   ds      1
+  493  CC35                  
+  494  CC35                  select_allow    ds      1
+  495  CC36                  scloll_sv       ds      1
+  496  CC37                  scloll_sw       ds      1                       ; scroll switch
+  497  CC38                  play_tbl_cnt    ds      1
+  498  CC39                  init_flg        ds      1
+  499  CC3A                  msg_sv          ds      2                       ; message address save area
+  500  CC3C                  wait_pass_flg   ds      1
+  501  CC3D                  
+  502  CC3D                  read_buf        ds      5
+  503  CC42                  send_buf        ds      5
+  504  CC47                  send_send_cnt   ds      2
+  505  CC49                  my_or_gein      ds      1
+  506  CC4A                  allow_loop_flg  ds      1
+  507  CC4B                  
+  508  CC4B                  no_key_cnt      ds      1
+  509  CC4C                  
+  510  CC4C                  stage_no        ds      1                       ; observe stage number
+  511  CC4D                  obs_obj         ds      1                       ; observe OBJ number
+  512  CC4E                  
+  513  CC4E                  function_id     ds      1                       ; "bank2bank" using
+  514  CC4F                  sv_adrs1_h      ds      1                       ; "bank2bank" using
+  515  CC50                  sv_adrs1_l      ds      1                       ; "bank2bank" using
+  516  CC51                  sv_adrs2_h      ds      1                       ; "bank2bank" using
+  517  CC52                  sv_adrs2_l      ds      1                       ; "bank2bank" using
+  518  CC53                  sv_adrs3_h      ds      1                       ; "bank2bank" using
+  519  CC54                  sv_adrs3_l      ds      1                       ; "bank2bank" using
+  520  CC55                  
+  521  CC55                  obs_actor       ds      1                       ; using actor observe routine
+  522  CC56                  battle_vs       ds      1                       ; for dealer pm-battle
+  523  CC57                  demo_flag       ds      4
+  524  CC5B                  
+  525  CC5B                  anime_buf       ds      ANIME_BUF_SIZE          ; animetion buffer
+  526  CC97                  work_anime_buf  ds      WORK_ANIME_BUF_SIZE     ; Work Anime buffer 
+  527  CCD3                  ctrl_move_val   ds      CTRL_MOVE_VAL_SIZE      ; other actor's auto step
+  528  CD0F                  auto_move_val   ds      AUTO_MOVE_VAL_SIZE      ; Auto Move Pattern
+  529  CD37                  anime_cnt       ds      1                       ; Animeation Counter
+  530  CD38                  ctrl_move_cnt   ds      1
+  531  CD39                  ctrl_move_msk   ds      1
+  532  CD3A                  auto_move_cnt   ds      1                       ; Auto Move Counter
+  533  CD3B                  auto_move_msk   ds      1                       ; Auto Move Effectively Button
+
+
+
+
+
+common.DMG                                        ......PAGE 0010
+
+LINE#  LOC   CODE       LINE
+
+
+  534  CD3C                  auto_move_step  ds      1                       ; animetion step count value
+  535  CD3D                  
+  536  CD3D                  usr_buf         ds      USR_BUF_SIZE            ; every using, every broken
+  537  CD60                  obs_event       ds      10                      ; observe event (use work only)
+  538  CD6A                  work_event      ds      1                       ; for each event scene(timely)
+  539  CD6B                  
+  540  CD6B                  cancel_key      ds      1                       ; cancel key assign bit array
+  541  CD6C                  para_work       ds      1
+  542  CD6D                  
+  543  CD6D                  table_data      ds      TABLE_DATA_DS_SIZE
+  544  CD81                  dmy_map2        ds      20*18
+  545  CEE9                  
+  546  CEE9                  yes_no_map      ds      6*5
+  547  CF07                  
+  548  CF07                  waza_se_cnt     ds      1
+  549  CF08                  
+  550  CF08                  now_bank_num    ds      1                       ; push_bank, pop_bank
+  551  CF09                  chg_bank_num    ds      1                       ; push_bank, pop_bank
+  552  CF0A                  shop_flg        ds      1                       ; Use Shop Command
+  553  CF0B                  kachi_make      ds      1                       ; battle winner
+  554  CF0C                  win_cancel      ds      1                       ; Message Window Cancel
+  555  CF0D                  event_check     ds      1                       ; Use in map event only one
+  556  CF0E                  sv_under        ds      1                       ; saved character before step
+  557  CF0F                  obs_anime_step  ds      1
+  558  CF10                  seq_demo        ds      1                       ; for each demonstration
+  559  CF11                  priority_buffer ds      1                       ; priority reading
+  560  CF12                  sv_bank2bank    ds      1                       ; 04ah
+  561  CF13                  sv_msg_no       ds      1                       ; save message number in event
+  562  CF14                  action_pattern  ds      1                       ; using in "act_move.src"
+  563  CF15                  demo_adrs_h     ds      1                       ; demo work timely use
+  564  CF16                  demo_adrs_l     ds      1                       ; demo work timely use
+  565  CF17                  together        ds      1                       ; demo work timely use
+  566  CF18                  work_counter    ds      1                       ; demo work counter
+  567  CF19                  timing_switch   ds      1                       ; observe value in "act_move"
+  568  CF1A                  
+  569  CF1A                  cgb_flg         ds      1                       ; ColorGameBoy check flag       6Apr,1998 ........
+  570  CF1B                  
+  571  CF1B                  sgb_flg         ds      1                       ; SuperGameBoy check flag
+  572  CF1C                  sgbatr_buf      ds      1
+  573  CF1D                  sgbcol_buf      ds      16
+  574  CF2D                  sgb_work        ds      30                      ; ........................"str_buf"..............................
+  575  CF4B                                                                          ; ............................ 6Apr,1998 ........
+  576  CF4B                  
+  577  CF4B                  ;********************
+  578  CF4B                  ;* Work buffer area *
+  579  CF4B                  ;********************
+  580  CF4B                  str_buf         ds      20              ; string buffer size 20
+  581  CF5F                  town_name       ds      TOWN_NAME_LEN   ; using only in gym map
+  582  CF70                  leader_name     ds      LEADER_NAME_LEN ; using only in gym map
+  583  CF7B                  shop_item_tbl   ds      16              ; shop item table Max 10 item's
+  584  CF8B                  item_list_adrs  ds      2               ; from my_cap_tbl
+  585  CF8D                  item_name_adrs  ds      2               ; from my_cap_name
+  586  CF8F                  item_gold_adrs  ds      2               ; change !!
+  587  CF91                  sel_item_no     ds      1               ; select in window item(mons) number
+  588  CF92                  sel_item_pos    ds      1               ; select in window position
+  589  CF93                  gold_req        ds      1
+
+
+
+
+
+common.DMG                                        ......PAGE 0011
+
+LINE#  LOC   CODE       LINE
+
+
+  590  CF94                  mons_or_item    ds      1               ; Monster or Item ninsiki flag
+  591  CF95                  cap_or_mons     ds      1               ; temoti or azuke ninshiki flag
+  592  CF96                  item_kosuu      ds      1               ; eranda item no kosuu
+  593  CF97                  take_item_kosuu ds      1               ; motte iru item no kosuu
+  594  CF98                  monsdata_dmy    ds      CAPDATA_LEN
+  595  CFC4                  talking_flg     ds      1               ; talk sitenai = 0, suru = 1
+  596  CFC5                  scloll_cnt      ds      1
+  597  CFC6                  flont_chr       ds      1
+  598  CFC7                  fade_play_fg    ds      1               ; music fadeout function
+  599  CFC8                  fade_play_wait  ds      1
+  600  CFC9                  fade_play_cou   ds      1
+  601  CFCA                  now_music       ds      1               ; Now Playing Music number
+  602  CFCB                  oam_flg         ds      1
+  603  CFCC                  
+  604  CFCC                  
+  605  CFCC                  ;***************************
+  606  CFCC                  ;* To use proc as fighting *
+  607  CFCC                  ;***************************
+  608  CFCC                  e_kougeki       ds      6               ; battle parameter (enemy)  
+  609  CFD2                  m_kougeki       ds      6               ; battle parameter (my)
+  610  CFD8                  enemy_no        ds      1               ; enemy monster number
+  611  CFD9                  mymons_no       ds      1               ; my    monster number
+  612  CFDA                  enemy_data      ds      47              ; enemy monster data
+  613  D009                  mymons_data     ds      40              ; my    monster data
+  614  D031                  dealer_no       ds      1               ; dealer number
+  615  D032                  dealer_number   ds      1               ; dealer number
+  616  D033                  dealer_chr_adr  ds      2               ; dealer image data address
+  617  D035                  dealer_take     ds      1               ; number of take monster
+  618  D036                  dealer_mons_no  ds      DEALER_MONS_NO_LEN      ; use monster number
+  619  D044                  dealer_item1    ds      1               ; use item number
+  620  D045                  dealer_item2    ds      1               ; use item number
+  621  D046                  dealer_gold     ds      2               ; bcd data 
+  622  D048                  dealer_work1    ds      1               ; not use 
+  623  D049                  dealer_work2    ds      1               ; not use 
+  624  D04A                  dealer_name     ds      DEALER_NAME_LEN ; Dealer Name
+  625  D057                  fighting_flg    ds      1               ; case of battle (0-2)
+  626  D058                  fight_join_flg  ds      1               ; dono pokemon ga sentouni sanka sitaka 
+  627  D059                  event_fight_no  ds      1               ; number = dealer No + 200
+  628  D05A                  demo_fight_no   ds      1               ; case of demo fight
+  629  D05B                  zokusei_flg     ds      1               ; 1 = event_fight no ato talk_map ni iku
+  630  D05C                  championcap_no  ds      1               ; 1 kara 8
+  631  D05D                  take_mons_ptn   ds      1               ; dealer no motte iru monster pattern
+  632  D05E                  critical_flg    ds      1               ; 1 = critical attack
+  633  D05F                  avoid_flg       ds      1               ; 1 = avoid
+  634  D060                  mymons_cond1    ds      1               ; my monster condition in the fight
+  635  D061                  mymons_cond2    ds      1               ; my monster condition in the fight
+  636  D062                  mymons_cond3    ds      1               ; my monster condition in the fight
+  637  D063                  mymons_cond4    ds      1               ; my monster condition in the fight
+  638  D064                  mymons_cond5    ds      1               ; my monster condition in the fight
+  639  D065                  enemy_cond1     ds      1               ; enemy monster condition in the fight
+  640  D066                  enemy_cond2     ds      1               ; enemy monster condition in the fight
+  641  D067                  enemy_cond3     ds      1               ; enemy monster condition in the fight
+  642  D068                  enemy_cond4     ds      1               ; enemy monster condition in the fight
+  643  D069                  enemy_cond5     ds      1               ; enemy monster condition in the fight
+  644  D06A                  m_renzoku_cnt1  ds      1               ; my monster renzoku kougeki counter
+  645  D06B                  m_renzoku_cnt2  ds      1               ; my monster renzoku condition counter
+
+
+
+
+
+common.DMG                                        ......PAGE 0012
+
+LINE#  LOC   CODE       LINE
+
+
+  646  D06C                  m_renzoku_cnt3  ds      1               ; my monster renzoku condition counter
+  647  D06D                  m_renzoku_cnt4  ds      1               ; my monster renzoku condition counter
+  648  D06E                  m_renzoku_cnt5  ds      1               ; my monster renzoku condition counter
+  649  D06F                  e_renzoku_cnt1  ds      1               ; enemy mons renzoku kougeki counter
+  650  D070                  e_renzoku_cnt2  ds      1               ; enemy mons renzoku condition counter
+  651  D071                  e_renzoku_cnt3  ds      1               ; enemy mons renzoku condition counter
+  652  D072                  e_renzoku_cnt4  ds      1               ; enemy mons renzoku condition counter
+  653  D073                  e_renzoku_cnt5  ds      1               ; enemy mons renzoku condition counter
+  654  D074                  m_gaman         ds      2               ; aite no kougeki wo tameru
+  655  D076                  e_gaman         ds      2               ; aite no kougeki wo tameru
+  656  D078                  
+  657  D078                  mogura_flg      ds      1               ; 1 = dungeon kara escape
+  658  D079                  yuuichi_gold    ds      3               ; Decimal value(000000 - 999999)
+  659  D07C                  
+  660  D07C                  
+  661  D07C                  
+  662  D07C                  ;****************
+  663  D07C                  ;* Effect 
+  664  D07C                  ;****************
+  665  D07C                  ;=======================================================;
+  666  D07C                  ;                                                       ;
+  667  D07C                  ;       Assigned each area using in effect process      ;
+  668  D07C                  ;                                                       ;
+  669  D07C                  ;=======================================================;
+  670  D07C                  ; notice buffer
+  671  D07C                  effect_no       ds      1                       ; number of effect kind
+  672  D07D                  ef_size         ds      1                       ; character lots
+  673  D07E                  ef_char_x       ds      1                       ; X lots character
+  674  D07F                  ef_char_y       ds      1                       ; Y lots character
+  675  D080                  ef_se_no        ds      1                       ; SE
+  676  D081                  effect_x        ds      1                       ; pattern left-upper X
+  677  D082                  effect_y        ds      1                       ; pattern left-upper Y
+  678  D083                  pinchi_flg      ds      1
+  679  D084                  ef_oam_cnt      ds      1
+  680  D085                  ef_element      ds      1
+  681  D086                  ef_pctime       ds      1
+  682  D087                  ef_ptn          ds      1
+  683  D088                  ef_buf          ds      1
+  684  D089                  ef_timer        ds      1
+  685  D08A                  ef_count1       ds      1
+  686  D08B                  ef_count2       ds      1
+  687  D08C                  
+  688  D08C                  msb_adrs1       ds      1
+  689  D08D                  lsb_adrs1       ds      1
+  690  D08E                  msb_adrs2       ds      1
+  691  D08F                  lsb_adrs2       ds      1
+  692  D090                  msb_adrs3       ds      1
+  693  D091                  lsb_adrs3       ds      1
+  694  D092                  msb_adrs4       ds      1
+  695  D093                  lsb_adrs4       ds      1
+  696  D094                  ef_adr1_l       ds      1
+  697  D095                  ef_adr1_h       ds      1
+  698  D096                  ef_adr2_l       ds      1
+  699  D097                  ef_adr2_h       ds      1
+  700  D098                  ef_adr3_l       ds      1
+  701  D099                  ef_adr3_h       ds      1
+
+
+
+
+
+common.DMG                                        ......PAGE 0013
+
+LINE#  LOC   CODE       LINE
+
+
+  702  D09A                  
+  703  D09A                  ef_adr4_h       ds      1
+  704  D09B                  ef_adr4_l       ds      1
+  705  D09C                  ef_oamadr_h     ds      1
+  706  D09D                  ef_oamadr_l     ds      1
+  707  D09E                  ef_anime        ds      1
+  708  D09F                  
+  709  D09F                  el_c            ds      1                       ; element count
+  710  D0A0                  
+  711  D0A0                  window_shake_flag       ds      1               ; Window Used Flag
+  712  D0A1                  
+  713  D0A1                  
+  714  D0A1                  ;************************
+  715  D0A1                  ;* Uncompress data area *
+  716  D0A1                  ;************************
+  717  D0A1                  ;---value ---
+  718  D0A1                  dot_cou_x       ds      1
+  719  D0A2                  dot_cou_y       ds      1
+  720  D0A3                  dot_x           ds      1
+  721  D0A4                  dot_y           ds      1
+  722  D0A5                  data_buff       ds      1
+  723  D0A6                  bit_cou         ds      1
+  724  D0A7                  byte_pos        ds      1
+  725  D0A8                  plane_fg        ds      1
+  726  D0A9                  comp_type       ds      1
+  727  D0AA                  reverse_fg      ds      1
+  728  D0AB                   
+  729  D0AB                  ;--- address ---
+  730  D0AB                  comp_data_adrs  ds      2
+  731  D0AD                  img_area_adrs   ds      2
+  732  D0AF                  area_pos_adrs   ds      2
+  733  D0B1                  xor0_tbl_adrs   ds      2
+  734  D0B3                  xor1_tbl_adrs   ds      2
+  735  D0B5                  
+  736  D0B5                  tbl_pos         ds      1               ; the positon of each tables
+  737  D0B6                  tbl_number      ds      1               ; asign table number
+  738  D0B7                  tbl_bank        ds      1               ; the beleave in some bank
+  739  D0B8                  mons_data       ds      MONS_TBL_SIZE
+  740  D0D4                  data_wrt_flag   ds      1
+  741  D0D5                  efect_turn      ds      1               ; Continue of efect
+  742  D0D6                  attack_flag     ds      1               ; Allowed attack 
+  743  D0D7                  power_value1    ds      2
+  744  D0D9                  power_value2    ds      2
+  745  D0DB                  musiyoke_flg    ds      1               ; no encount counter
+  746  D0DC                  
+  747  D0DC                  waza_swap       ds      5               ; data + eod
+  748  D0E1                  waza_name       ds      WAZA_NAME_LEN   ; 8 word * 4 kind
+  749  D119                  
+  750  D119                  map_type_sv     ds      1               ; map type save area     
+  751  D11A                  chyari_sv       ds      1               ; chyari flag save area 
+  752  D11B                  set_data_flg    ds      1               ; Table Data Set Pattern Flag
+  753  D11C                  tukamae_flg     ds      1               ; catch monster
+  754  D11D                  fightbegin_flg  ds      1               ; 1 = syujinkou ga gamen ni deteiru
+  755  D11E                  in_dat          ds      1               ; monster/item number table work
+  756  D11F                  nigerarenai_flg ds      1               ; 1 = nigerunoni shippai
+  757  D120                  nige_cnt        ds      1               ; nigeru wo erabu gotoni count up
+
+
+
+
+
+common.DMG                                        ......PAGE 0014
+
+LINE#  LOC   CODE       LINE
+
+
+  758  D121                  shinka_flg      ds      1               ; 0 = shinka shitenai
+  759  D122                  
+  760  D122                  bank_vblank     ds      1               ; vblank.src only use bank number area
+  761  D123                  bank_stack      ds      1               ; Bank Number Save Area (Moved)    
+  762  D124                  
+  763  D124                  
+  764  D124                  
+  765  D124                  ;*************************
+  766  D124                  ;* Player & Monster data *
+  767  D124                  ;*************************
+  768  D124                  check_flg       ds      1               ; Item Seal Check flag (1.Can't 0.Can)
+  769  D125                  disp_win_mode   ds      1               ; Display Window Mode
+  770  D126                  ptn_data        ds      1               ; work as save of actor pattern code
+  771  D127                  mons_level      ds      1               ; monster level save
+  772  D128                  work_stack      ds      2               ; timely using in "talkmap.src"
+  773  D12A                  tbl_max         ds      1               ; Table Max Number
+  774  D12B                  tuushin_flg     ds      1               ; 1 or 2 = tuushinchuu
+  775  D12C                  itwk0           ds      1               ; using "yes_no_window" as mode
+  776  D12D                  func_ret        ds      1               ; Function Return Use Param Area
+  777  D12E                  push_btn        ds      1               ; push button code
+  778  D12F                  
+  779  D12F                  temp_box_s      ds      1               ; single temporary
+  780  D130                  temp_box_g      ds      10              ; grope temporaries
+  781  D13A                  
+  782  D13A                  tm_count        ds      1               ; timer in v-blank
+  783  D13B                  stepping        ds      1               ; each time observe
+  784  D13C                  walking         ds      1               ; switching observe
+  785  D13D                  
+  786  D13D                  goods_number    ds      3 + 1
+  787  D141                  
+  788  D141                  ; ...... goods_gold[] .. rnd_table[] .. ...................... ( .... "PLAY2.DMG" play22: )
+  789  D141                  goods_gold      ds      GOODS_GOLD_SIZE         ; == 6 + 1
+  790  D148                  rnd_table       ds      RND_TABLE_SIZE          ; == 10  random numbers for terminal fight
+  791  D152                  
+  792  D152                  junior_name     ds      JUNIOR_NAME_LEN ; terminal work
+  793  D158                  
+  794  D158                  
+  795  D158                  ;**********************
+  796  D158                  ;* Save data area top *
+  797  D158                  ;**********************
+  798  D158                  
+  799  D158                  my_name         ds      MONS_NAME_LEN                   ; Mons name length
+  800  D163                  
+  801  D163                  pm_cap_start:
+  802  D163                  my_cap_tbl      ds      CAP_MAX + CTRL_BYTE             ; Mons number(take)
+  803  D16B                  my_cap_data     ds      CAPDATA_LEN * CAP_MAX           ; Mons data(take)
+  804  D273                  my_cap_oya      ds      MONS_NAME_LEN * CAP_MAX         ; Mons name(take)
+  805  D2B5                  my_cap_name     ds      MONS_NAME_LEN * CAP_MAX         ; Mons name(take)
+  806  D2F7                  pm_cap_end:
+  807  D2F7                  
+  808  D2F7                  ; ......................................bit0..bit7..........................................
+  809  D2F7                  zukan_flg       ds      19                              ; 152 bit observe
+  810  D30A                  ; ......................................bit0..bit7..........................................
+  811  D30A                  zukan_flg2      ds      19                              ; 152 bit observe
+  812  D31D                  
+  813  D31D                  my_item_tbl     ds      ITEM_MAX * 2 + CTRL_BYTE        ; Item number(new)
+
+
+
+
+
+common.DMG                                        ......PAGE 0015
+
+LINE#  LOC   CODE       LINE
+
+
+  814  D347                  my_gold         ds      3               ; Money
+  815  D34A                  
+  816  D34A                  rival_name      ds      RIVAL_NAME_LEN                  ; rival name
+  817  D355                  
+  818  D355                  my_lvl          ds      1               ; <bit7>.................. 0:ON, 1:OFF
+  819  D356                                                          ; <bit6>............ 0:........, 1:........
+  820  D356                                                          ; <bit5..0>level
+  821  D356                  
+  822  D356                  my_badge        ds      2               ; badge taken status
+  823  D358                  
+  824  D358                  msg_speed       ds      1               ; Message speed(0:hayai/1:osoi)
+  825  D359                  
+  826  D359                  gb_no           ds      2               ; GameBoy ID number
+  827  D35B                  
+  828  D35B                  map_music       ds      1       ; Map Music
+  829  D35C                  map_music_bank  ds      1       ; Map Music Bank
+  830  D35D                  base_color      ds      1
+  831  D35E                  
+  832  D35E                  ;---------------------------------------; no change line
+  833  D35E                  mapno           ds      1               ; map data
+  834  D35F                  mapadr2         ds      2
+  835  D361                  mapscloll_y     ds      1
+  836  D362                  mapscloll_x     ds      1
+  837  D363                  mapscloll_y4    ds      1
+  838  D364                  mapscloll_x4    ds      1
+  839  D365                  mapno_stack     ds      1               ; Map Number Stack Area
+  840  D366                  mapold_x        ds      1               ; feeld x haba
+  841  D367                  
+  842  D367                  map_type        ds      1               ; Map Type
+  843  D368                  mapysize        ds      1               ; Map Y Size
+  844  D369                  mapxsize        ds      1               ; Map X Size
+  845  D36A                  mapadr          ds      2               ; Map Data Address
+  846  D36C                  map_msg_tbl_adr ds      2               ; Message Table Address
+  847  D36E                  map_event       ds      2               ; Event Routine Address
+  848  D370                  map_link_flg    ds      1               ; Map Link Flag  Bit 3/U 2/D 1/L 0/R
+  849  D371                  
+  850  D371                  mapcat_up       ds      1       ; Up Side
+  851  D372                  mapcat_up_adr   ds      2               ; map no address
+  852  D374                  mapcat_up_adr2  ds      2               ; Ram map address
+  853  D376                  mapcat_up_siz   ds      1               ; X size(haba)
+  854  D377                  mapcat_up_siz2  ds      1               ; hontai no X size
+  855  D378                  mapcat_up_y     ds      1               ; Y
+  856  D379                  mapcat_up_x     ds      1               ; X
+  857  D37A                  mapcat_up_adr3  ds      2               ; Ram Map Address
+  858  D37C                  mapcat_dw       ds      1       ; Down Side
+  859  D37D                  mapcat_dw_adr   ds      2               ; sita no map no address
+  860  D37F                  mapcat_dw_adr2  ds      2               ; Ram map Address
+  861  D381                  mapcat_dw_siz   ds      1               ; X Size(haba)
+  862  D382                  mapcat_dw_siz2  ds      1               ; hontai no X size
+  863  D383                  mapcat_dw_y     ds      1               ; Y
+  864  D384                  mapcat_dw_x     ds      1               ; X
+  865  D385                  mapcat_dw_adr3  ds      2               ; Ram Map Address
+  866  D387                  mapcat_l        ds      1       ; Left Side
+  867  D388                  mapcat_l_adr    ds      2               ; hidari no map no Address
+  868  D38A                  mapcat_l_adr2   ds      2               ; Ram Map Address
+  869  D38C                  mapcat_l_siz    ds      1               ; Y Size(haba)
+
+
+
+
+
+common.DMG                                        ......PAGE 0016
+
+LINE#  LOC   CODE       LINE
+
+
+  870  D38D                  mapcat_l_siz2   ds      1               ; hontai no Y size
+  871  D38E                  mapcat_l_y      ds      1               ; Y
+  872  D38F                  mapcat_l_x      ds      1               ; X
+  873  D390                  mapcat_l_adr3   ds      2               ; Ram Map Address
+  874  D392                  mapcat_r        ds      1       ; Right Side
+  875  D393                  mapcat_r_adr    ds      2               ; migi no map no Address
+  876  D395                  mapcat_r_adr2   ds      2               ; Ram Map Address
+  877  D397                  mapcat_r_siz    ds      1               ; Y Size(haba)
+  878  D398                  mapcat_r_siz2   ds      1               ; hontai no Y size
+  879  D399                  mapcat_r_y      ds      1               ; Y
+  880  D39A                  mapcat_r_x      ds      1               ; X
+  881  D39B                  mapcat_r_adr3   ds      2               ; Ram Map Address
+  882  D39D                  map_obj_setdata ds      11              ; map object setdata
+  883  D3A8                  map_obj_type    ds      1               ; map object type
+  884  D3A9                  
+  885  D3A9                  maptbl2_adrs    ds      2               ; Include Data Top Address
+  886  D3AB                  map_str_no      ds      1               ; Town.Road.Dungeon Number
+  887  D3AC                  chr_tbl_no      ds      1               ; tureru Character Table Number
+  888  D3AD                  mapclscell      ds      1               ; Hani gai chell block number
+  889  D3AE                  
+  890  D3AE                  ie_cnt          ds      1               ; ie no kazu
+  891  D3AF                  ie_tbl          ds      4*32            ; ie no table ( Y , X , ID , No ) 4*16
+  892  D42F                  ram_map_id      ds      1               ; ram_map Numaber
+  893  D430                  ie_adrs         ds      4*32            ; ie Address Table(old 4*10)4*16
+  894  D4B0                  
+  895  D4B0                  kanban_cnt      ds      1               ; kanban no kazu
+  896  D4B1                  kanban_tbl      ds      2*16            ; kanban Table (Y, X)
+  897  D4D1                  kanban_msg_no   ds      1*16            ; Message Number
+  898  D4E1                  
+  899  D4E1                  murabito_cnt    ds      1               ; murabito no kazu
+  900  D4E2                  grobal_y        ds      1               ; 
+  901  D4E3                  grobal_x        ds      1               ;
+  902  D4E4                  
+  903  D4E4                  hito_tbl        ds      2 * 16          ; attr & message number
+  904  D504                  obj_attribute   ds      2 * 16          ; for dealer pm-battle & capsule
+  905  D524                  
+  906  D524                  mapysize2       ds      1               ; Map Size Y
+  907  D525                  mapxsize2       ds      1               ; Map Size X
+  908  D526                  mapvramadr      ds      2               ; Map Vram Address
+  909  D528                  ;---------------------------------------; no change line
+  910  D528                  
+  911  D528                  watashi_muki    ds      1               ; Jiki houkou ($8:U $4:D $2:L $1:R)
+  912  D529                  watashi_muki2   ds      1               ;               ''          
+  913  D52A                  watashi_muki3   ds      1               ;               ''
+  914  D52B                  
+  915  D52B                  map_data_bank   ds      1
+  916  D52C                  mapcelladr      ds      2
+  917  D52E                  mapimgadr       ds      2
+  918  D530                  arukeru_tbl     ds      2
+  919  D532                  table_chrs      ds      3
+  920  D535                  kusamura_chr    ds      1
+  921  D536                  chr_out_limits  ds      4               ; character code as out limits of map
+  922  D53A                  
+  923  D53A                  my_stock_item   ds      100 + CTRL_BYTE ; Azuketa Item 50 item (tblno,itemno)   
+  924  D5A0                  
+  925  D5A0                  pm_box_no       ds      2
+
+
+
+
+
+common.DMG                                        ......PAGE 0017
+
+LINE#  LOC   CODE       LINE
+
+
+  926  D5A2                  dendou_no       ds      2
+  927  D5A4                  coin            ds      2
+  928  D5A6                  
+  929  D5A6                  vanish_flag     ds      32 + 8          ; 256 obj + 64 obj(extend)
+  930  D5CE                  vanish_group    ds      32 + 2          ; 2byte * 16 + end-code
+  931  D5F0                  seq_ctrl_buf    ds      256             ; sequence control each map
+  932  D6F0                  pick_flag       ds      16              ; 128 items(pick up)
+  933  D700                  
+  934  D700                  chyari_flg      ds      1               ; Character sikibetu  
+  935  D701                  bg_change_flg   ds      10              ; 80 place save status
+  936  D70B                  
+  937  D70B                  save_event_flg  ds      10
+  938  D715                  
+  939  D715                  rival_monster   ds      1               ; present monster
+  940  D716                  okido_monster   ds      1               ; present monster
+  941  D717                  hero_monster    ds      1               ; present monster
+  942  D718                  
+  943  D718                  ev_something    ds      16
+  944  D728                  ev_special      ds      2               ; special commands & invoke events
+  945  D72A                  ev_champ        ds      1               ; wins of battle in each gym
+  946  D72B                  obs_door        ds      1               ; observe door some system
+  947  D72C                  obs_walk_flag   ds      1               ; palyer stepping observe
+  948  D72D                  event_flg       ds      1               ; each event work flag set
+  949  D72E                  obs_player      ds      2               ; player status observe
+  950  D730                  obs_system      ds      2               ; system status observe
+  951  D732                  ;  obs_system.<d5> : ON -> (joy_status)=(joy_on)=(joy_off)= 0  "CONT.DMG" chk_all_cancel$: ....
+  952  D732                  ;
+  953  D732                  ;
+  954  D732                  game_mode       ds      4
+  955  D736                  obs_map_step    ds      1               ; observe action in "mapper"
+  956  D737                  comment_flag    ds      4
+  957  D73B                  elevator        ds      4               ; flagset + work
+  958  D73F                  checker_flag    ds      4
+  959  D743                  trash_switch    ds      4
+  960  D747                  
+  961  D747                  
+  962  D747                  ;----------------;
+  963  D747                  ; map event flag ;
+  964  D747                  ;----------------;
+  965  D747                  ev_t1           ds      1
+  966  D748                  ev_t1_1         ds      2
+  967  D74A                  ev_t1_2         ds      1
+  968  D74B                  ev_t1_3         ds      1
+  969  D74C                  
+  970  D74C                  ev_t2           ds      1
+  971  D74D                  ev_t2_1         ds      1
+  972  D74E                  ev_t2_2         ds      1
+  973  D74F                  ev_t2_3         ds      1
+  974  D750                  ev_t2_4         ds      1
+  975  D751                  ev_t2_5         ds      2
+  976  D753                  
+  977  D753                  ev_t3           ds      1
+  978  D754                  ev_t3_1         ds      1
+  979  D755                  ev_t3_2         ds      1
+  980  D756                  ev_t3_3         ds      1
+  981  D757                  ev_t3_4         ds      1
+
+
+
+
+
+common.DMG                                        ......PAGE 0018
+
+LINE#  LOC   CODE       LINE
+
+
+  982  D758                  ev_t3_5         ds      1
+  983  D759                  ev_t3_6         ds      1
+  984  D75A                  
+  985  D75A                  ev_t4           ds      1
+  986  D75B                  ev_t4_1         ds      1               
+  987  D75C                  ev_t4_2         ds      1               
+  988  D75D                  ev_t4_3         ds      1               
+  989  D75E                  ev_t4_4         ds      1               
+  990  D75F                  ev_t4_5         ds      1               
+  991  D760                  ev_t4_6         ds      1               
+  992  D761                  ev_t4_7         ds      1               
+  993  D762                  
+  994  D762                  ev_t5           ds      1
+  995  D763                  ev_t5_1         ds      1
+  996  D764                  ev_t5_2         ds      8
+  997  D76C                  ev_t5_3         ds      1
+  998  D76D                  ev_t5_4         ds      1
+  999  D76E                  ev_t5_5         ds      1
+ 1000  D76F                  
+ 1001  D76F                  ev_t6           ds      1
+ 1002  D770                  ev_t6_1         ds      1
+ 1003  D771                  ev_t6_2         ds      1
+ 1004  D772                  ev_t6_3         ds      1
+ 1005  D773                  ev_t6_4         ds      1
+ 1006  D774                  ev_t6_5         ds      1
+ 1007  D775                  ev_t6_6         ds      1
+ 1008  D776                  ev_t6_7         ds      1
+ 1009  D777                  
+ 1010  D777                  ev_t7           ds      1
+ 1011  D778                  ev_t7_1         ds      2
+ 1012  D77A                  ev_t7_2         ds      1
+ 1013  D77B                  ev_t7_3         ds      1
+ 1014  D77C                  ev_t7_4         ds      2
+ 1015  D77E                  ev_t7_5         ds      3
+ 1016  D781                  ev_t7_6         ds      1
+ 1017  D782                  ev_t7_7         ds      1
+ 1018  D783                  ev_t7_8         ds      1
+ 1019  D784                  ev_t7_9         ds      1
+ 1020  D785                  ev_t7_10        ds      1
+ 1021  D786                  
+ 1022  D786                  ev_t8           ds      2
+ 1023  D788                  ev_t8_1         ds      2
+ 1024  D78A                  ev_t8_2         ds      2
+ 1025  D78C                  ev_t8_3         ds      2
+ 1026  D78E                  ev_t8_4         ds      2
+ 1027  D790                  ev_t8_5         ds      2
+ 1028  D792                  ev_t8_6         ds      2
+ 1029  D794                  ev_t8_7         ds      2
+ 1030  D796                  
+ 1031  D796                  ev_t9           ds      2
+ 1032  D798                  ev_t9_1         ds      2
+ 1033  D79A                  ev_t9_2         ds      3
+ 1034  D79D                  ev_t9_3         ds      8
+ 1035  D7A5                  ev_t9_4         ds      2
+ 1036  D7A7                  ev_t9_5         ds      2
+ 1037  D7A9                  
+
+
+
+
+
+common.DMG                                        ......PAGE 0019
+
+LINE#  LOC   CODE       LINE
+
+
+ 1038  D7A9                  ev_t10          ds      2
+ 1039  D7AB                  
+ 1040  D7AB                  ev_t11          ds      2
+ 1041  D7AD                  ev_t11_1        ds      4
+ 1042  D7B1                  ev_t11_2        ds      2
+ 1043  D7B3                  ev_t11_3        ds      2
+ 1044  D7B5                  ev_t11_4        ds      2
+ 1045  D7B7                  ev_t11_5        ds      2
+ 1046  D7B9                  ev_t11_6        ds      2
+ 1047  D7BB                  ev_t11_7        ds      2
+ 1048  D7BD                  ev_t11_8        ds      2
+ 1049  D7BF                  
+ 1050  D7BF                  ev_r1           ds      2
+ 1051  D7C1                  ev_r2           ds      2
+ 1052  D7C3                  ev_r3           ds      2
+ 1053  D7C5                  ev_r4           ds      2
+ 1054  D7C7                  ev_r5           ds      2
+ 1055  D7C9                  ev_r6           ds      2
+ 1056  D7CB                  ev_r7           ds      2
+ 1057  D7CD                  ev_r8           ds      2
+ 1058  D7CF                  ev_r9           ds      2
+ 1059  D7D1                  ev_r10          ds      4
+ 1060  D7D5                  ev_r11          ds      2
+ 1061  D7D7                  ev_r12          ds      2
+ 1062  D7D9                  ev_r13          ds      2
+ 1063  D7DB                  ev_r14          ds      2
+ 1064  D7DD                  ev_r15          ds      2
+ 1065  D7DF                  ev_r16          ds      2
+ 1066  D7E1                  ev_r17          ds      2
+ 1067  D7E3                  ev_r18          ds      2
+ 1068  D7E5                  ev_r19          ds      2
+ 1069  D7E7                  ev_r20          ds      2
+ 1070  D7E9                  ev_r21          ds      2
+ 1071  D7EB                  ev_r22          ds      2
+ 1072  D7ED                  ev_r23          ds      2
+ 1073  D7EF                  ev_r24          ds      2
+ 1074  D7F1                  ev_r25          ds      2
+ 1075  D7F3                  
+ 1076  D7F3                  
+ 1077  D7F3                  ev_d1           ds      2
+ 1078  D7F5                  ev_d2           ds      2
+ 1079  D7F7                  ev_d3           ds      20
+ 1080  D80B                  ev_d4           ds      2
+ 1081  D80D                  ev_d5           ds      2
+ 1082  D80F                  ev_d6           ds      2
+ 1083  D811                  ev_d7           ds      2
+ 1084  D813                  ev_d8           ds      2
+ 1085  D815                  ev_d9           ds      16
+ 1086  D825                  ev_d10          ds      34
+ 1087  D847                  ev_d11          ds      6
+ 1088  D84D                  ev_d12          ds      18
+ 1089  D85F                  ev_d13          ds      4
+ 1090  D863                  ev_d14          ds      26
+ 1091  D87D                  ev_d15          ds      2
+ 1092  D87F                  ev_d16          ds      8
+ 1093  D887                  
+
+
+
+
+
+common.DMG                                        ......PAGE 0020
+
+LINE#  LOC   CODE       LINE
+
+
+ 1094  D887                  
+ 1095  D887                  ;****************
+ 1096  D887                  ;* Station work *
+ 1097  D887                  ;****************                                       ; ..........            ........
+ 1098  D887                  gein_name       ds      GEIN_NAME_LEN                   ; 21                    21
+ 1099  D89C                  gein_cap_tbl    ds      CAP_MAX + CTRL_BYTE             ;  6 + 2 = 8             6 + 2 = 8
+ 1100  D8A4                  gein_cap_data   ds      CAPDATA_LEN * CAP_MAX           ; 44 * 6 = 264          44 + 6 = 264
+ 1101  D9AC                  gein_cap_oya    ds      MONS_NAME_LEN * CAP_MAX         ; 11 * 6 = 66            6 * 6 = 36
+ 1102  D9EE                  gein_cap_name   ds      MONS_NAME_LEN * CAP_MAX         ; 11 * 6 = 66            6 * 6 = 36
+ 1103  DA30                  gein_dmy:                                               ;       ..425           ..365
+ 1104  DA30                   ifn    ASSEMBLE__ENGLISH
+ 1105 (01A9)                 GEIN_WORK_SIZE  =       gein_dmy - gein_name            ; "play2.dmg" ......
+ 1106  DA30                   endif
+ 1107  DA30                  
+ 1108  DA30                  AdrsDealerTalk  ds      10 + 7          ; +7 ................................
+ 1109  DA41                                                          ;       ...... "PLAY2.DMG" play22:  ............
+ 1110  DA41                  
+ 1111  DA41                  play_time_h     ds      2               ; playing time as hour(000--999)
+ 1112  DA43                  play_time_m     ds      1               ; playing time as minute(000--059)
+ 1113  DA44                  play_time_s     ds      1               ; playing time as minute(000--059)
+ 1114  DA45                  play_time_cnt   ds      1               ; time counter
+ 1115  DA46                  
+ 1116  DA46                  CountDownTime   ds      1               ; time counter
+ 1117  DA47                  safari_ball_cnt ds      1               ; for "safari zone" event
+ 1118  DA48                  
+ 1119  DA48                  benriya_flg     ds      1
+ 1120  DA49                  benri_mons_name ds      MONS_NAME_LEN
+ 1121  DA54                  benri_mons_oya  ds      MONS_NAME_LEN
+ 1122  DA5F                  benri_mons_data ds      MONSDATA_LEN
+ 1123  DA80                   
+ 1124  DA80                  my_data_end:
+ 1125  DA80                  
+ 1126  DA80                  
+ 1127  DA80                  
+ 1128  DA80                  pm_box_start:
+ 1129  DA80                  my_mons_tbl     ds      MONS_MAX + CTRL_BYTE            ; Mons number(home)
+ 1130  DA96                  my_mons_data    ds      MONSDATA_LEN * MONS_MAX         ; Mons data(home)
+ 1131  DD2A                  my_mons_oya     ds      MONS_NAME_LEN * MONS_MAX        ; Mons name(home)
+ 1132  DE06                  my_mons_name    ds      MONS_NAME_LEN * MONS_MAX        ; Mons name(home)
+ 1133  DEE2                  pm_box_end:
+ 1134  DEE2                  
+ 1135  DEE2                  
+ 1136  DEE2                  
+ 1137  0000                  workram2        group   0
+ 1138  0000                          org     0ff80h
+ 1139  FF80                  
+ 1140  FF80                  
+ 1141  FF80                  dmasub          ds      0ah
+ 1142  FF8A                  soft_reset_counter      ds      1       ; "cont.src" Used
+ 1143  FF8B                  work0           ds      1               ; work area
+ 1144  FF8C                  work1           ds      1               ; work area
+ 1145  FF8D                  work2           ds      1               ; work area
+ 1146  FF8E                  work3           ds      1               ; work area
+ 1147  FF8F                  actwork0        ds      1               ; work area (actor_table)  
+ 1148  FF90                  actwork1        ds      1               ;          ''
+ 1149  FF91                  actwork2        ds      1               ;          ''
+
+
+
+
+
+common.DMG                                        ......PAGE 0021
+
+LINE#  LOC   CODE       LINE
+
+
+ 1150  FF92                  actwork3        ds      1               ;          ''
+ 1151  FF93                  actwork4        ds      1               ;          ''
+ 1152  FF94                  actwork5        ds      1               ;          ''
+ 1153  FF95                  calc_work0      ds      1
+ 1154  FF96                  calc_work1      ds      1
+ 1155  FF97                  calc_work2      ds      1
+ 1156  FF98                  calc_work3      ds      1
+ 1157  FF99                  calc_work4      ds      1
+ 1158  FF9A                  calc_work5      ds      1
+ 1159  FF9B                  calc_work6      ds      1
+ 1160  FF9C                  calc_work7      ds      1
+ 1161  FF9D                  calc_work8      ds      1
+ 1162  FF9E                  calc_work9      ds      1
+ 1163  FF9F                  divwk1          ds      3
+ 1164  FFA2                  divwk2          ds      3
+ 1165  FFA5                  divwk3          ds      3
+ 1166  FFA8                  sio_req         ds      1
+ 1167  FFA9                  sio_flg         ds      1
+ 1168  FFAA                  sio_oya_ko      ds      1       
+ 1169  FFAB                  sio_init_flg    ds      1
+ 1170  FFAC                  TD              ds      1
+ 1171  FFAD                  RD              ds      1
+ 1172  FFAE                  headerx         ds      1
+ 1173  FFAF                  headery         ds      1
+ 1174  FFB0                  window_y        ds      1               ; Display start window Y position
+ 1175  FFB1                  joy_data        ds      1               ; Key Data (=I/O Level)
+ 1176  FFB2                  joy_off         ds      1               ; Key Off this time
+ 1177  FFB3                  joy_on          ds      1               ; Key On this time
+ 1178  FFB4                  joy_status      ds      1               ; Key Status
+ 1179  FFB5                  joy_repeat      ds      1
+ 1180  FFB6                  joy_abrepeat    ds      1
+ 1181  FFB7                  cont_joy_flg    ds      1               ; 1:repeat press observe
+ 1182  FFB8                  rombankno       ds      1               ; Now Rom Bank Number 
+ 1183  FFB9                  bankst          ds      1               ; Bank Stack Save Area             
+ 1184  FFBA                  all_put_req     ds      1               ; all put flag 0:Don't put 1:All put
+ 1185  FFBB                  all_put_cnt     ds      1
+ 1186  FFBC                  all_putadr_l    ds      1
+ 1187  FFBD                  all_putadr_h    ds      1
+ 1188  FFBE                  cell_put_cnt    ds      1               ; Cell Put Counter
+ 1189  FFBF                  stack_sv        ds      2               ; stack pointer address save area
+ 1190  FFC1                  b_prt_buf       ds      5               ; Back Ground Data Buffer
+ 1191  FFC6                  chr_mv_buf      ds      5               ; Character Data Move Buffer 
+ 1192  FFCB                  fnt_mv_buf      ds      5               ; Font Data Move Buffer
+ 1193  FFD0                  haji_put_buf    ds      3               ; Screen Side Data Buffer
+ 1194  FFD3                  random          ds      2
+ 1195  FFD5                  vb_count        ds      1               ; Vblank Count (?)
+ 1196  FFD6                  vb_sw           ds      1               ; Vblank Switch(?)
+ 1197  FFD7                  wave_flg        ds      1               ; Flg
+ 1198  FFD8                  wave_cnt        ds      1               ; Count
+ 1199  FFD9                  wdt_cnt         ds      1
+ 1200  FFDA                  actlow          ds      1               ; actor low address     
+ 1201  FFDB                  DA_BUF          ds      6                       ; direct access buffer
+ 1202  FFE1                  dmy_box1        ds      1               ; Work area but not use other
+ 1203  FFE2                  dmy_box2        ds      1               ; Work area but not use other
+ 1204  FFE3                  dmy_box3        ds      1               ; Work area but not use other
+ 1205  FFE4                  dmy_box4        ds      1               ; Work area but not use other
+
+
+
+
+
+common.DMG                                        ......PAGE 0022
+
+LINE#  LOC   CODE       LINE
+
+
+ 1206  FFE5                  temp_box1       ds      1                       ; not allow using
+ 1207  FFE6                  temp_box2       ds      1                       ; not allow using
+ 1208  FFE7                  temp_box3       ds      1                       ; not allow using
+ 1209  FFE8                  temp_box4       ds      1                       ; not allow using
+ 1210  FFE9                  temp_box5       ds      1                       ; not allow using
+ 1211  FFEA                  temp_box6       ds      1                       ; not allow using
+ 1212  FFEB                  sv_box01        ds      1                       ; not allow using
+ 1213  FFEC                  sv_box02        ds      1                       ; not allow using
+ 1214  FFED                  sv_box03        ds      1                       ; not allow using
+ 1215  FFEE                  sv_box04        ds      1                       ; not allow using
+ 1216  FFEF                  sv_box05        ds      1                       ; not allow using
+ 1217  FFF0                  sv_box06        ds      1                       ; not allow using
+ 1218  FFF1                  sv_box07        ds      1                       ; not allow using
+ 1219  FFF2                  sv_box08        ds      1                       ; not allow using
+ 1220  FFF3                  attack_turn     ds      1                       ; 0 = my turn : 1 = enemy turn
+ 1221  FFF4                  okuri_cansel    ds      1               ; put_msg_s.................. 0 = okuri : 2 = okuri cancel      23Apr,1998 ........
+ 1222  FFF5                  level_up_difference     ds      1       ; updata_exp..waza_lean_chk........29May,1998 ........ -> ............................
+ 1223  FFF6                  
+ 1224  FFF6                  
+ 1225  FFF6                  ;***********************************************************************************************
+ 1226  FFF6                  ;       ............................
+ 1227  FFF6                  
+ 1228  FFF6                  us_display_flg          ds      1               ; ................................................
+ 1229  FFF7                  ;       us_display_flg.HP_DSPSTYLE_BIT          0:..............1:........
+ 1230  FFF7                  ;       us_display_flg.CURSOR_Y_INTERVAL_BIT    0:40h(2·¬×),1:20h(1·¬×)..
+ 1231  FFF7                  ;       us_display_flg.PUT_MSG_CR@_BIT          0:HL+=40,1:HL+=20
+ 1232  FFF7                  
+ 1233  FFF7                  cursor_init_xpos        ds      1               ; ................................
+ 1234  FFF8                  
+ 1235  FFF8                  cont_buf                ds      1               ; ................................................
+ 1236  FFF9                  syscom_trans_flg        ds      1               ; ..........................
+ 1237  FFFA                  ; ................................................................................
+ 1238  FFFA                  ;           ....................................................................
+ 1239  FFFA                  
+ 1240  FFFA                  ;***********************************************************************************************
+ 1241  FFFA                  
+ 1242  FFFA                  ;********************************
+ 1243  FFFA                  ;*                              *
+ 1244  FFFA                  ;*      back up ram area        *
+ 1245  FFFA                  ;*                              *
+ 1246  FFFA                  ;********************************
+ 1247  0000                  extram          group   0
+ 1248  0000                  
+ 1249  0000                          org     0a000h
+ 1250  A000                  
+ 1251  A000                  savedata:
+ 1252  A000                  plane2_area     ds      PLANE_SIZE
+ 1253  A188                  plane0_area     ds      PLANE_SIZE
+ 1254  A310                  plane1_area     ds      PLANE_SIZE
+ 1255  A498                                  ds      0100h
+ 1256  A598                  SaveStart:
+ 1257  A598                  MynameStart:
+ 1258  A598                                  ds      MONS_NAME_LEN
+ 1259  A5A3                  MydataStart:
+ 1260  A5A3                                  ds      my_data_end - zukan_flg
+ 1261  AD2C                  ActorData:
+
+
+
+
+
+common.DMG                                        ......PAGE 0023
+
+LINE#  LOC   CODE       LINE
+
+
+ 1262  AD2C                                  ds      200h
+ 1263  AF2C                  MycapStart:
+ 1264  AF2C                                  ds      pm_cap_end - pm_cap_start
+ 1265  B0C0                  MymonsStart:
+ 1266  B0C0                                  ds      pm_box_end - pm_box_start
+ 1267  B522                  s_wave_flg:
+ 1268  B522                                  ds      1
+ 1269  B523                  SaveEnd: 
+ 1270  B523                  
+ 1271  B523                  CheckSum:       
+ 1272  B523                                  ds      1
+ 1273  B524                  
+ 1274  B524                          PUBOFF
+ 1275  B524                  
+ 1275  B524 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+common.DMG                                        ......PAGE 0024
+
+LINE#  LOC   CODE       LINE
+
+
+No Errors
+ 13611/405744 bytes Symbol Space Used 
+

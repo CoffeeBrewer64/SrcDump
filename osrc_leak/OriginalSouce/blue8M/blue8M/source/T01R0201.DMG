@@ -1,0 +1,197 @@
+
+	include		common.def
+	include		fntequ.def
+	include		anime.def
+	include		maphead.def
+	include		banktool.def
+	include		pm_debug.def
+	include		vanish.def
+	include		macro.h
+	include		group.def
+
+
+;bank7	group	G_BANK7
+bank6	group	G_BANK6
+
+
+	public	t1_room2
+
+
+	extern	yes_no
+	extern	bank2bank
+	extern	table_jump
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+seq_t1r2f1		equ	seq_ctrl_buf + 003h
+
+
+t1_room2:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_a			; map data adrs
+	dw	msg_t1r2f1		; message tbl adrs
+	dw	ev_t1r2f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t1r2f1
+
+
+ev_t1r2f1:
+	call	init_for_talkmap
+
+	ld	hl,event_t1r2f1
+	ld	a,(seq_t1r2f1)
+	jp	table_jump
+
+
+
+event_t1r2f1:
+	initndw	main_t1r2f1,seq_main_t1r2f1
+	ndw	sister_info,seq_sister_info
+
+
+main_t1r2f1:
+	ld	hl,ev_t1_2
+	set	1,(hl)				; into rival's house
+
+	ld	a,seq_sister_info
+	ld	(seq_t1r2f1),a
+
+	ret
+
+
+sister_info:
+	ret
+
+
+
+msg_t1r2f1:
+	msgndw	msg1,msg_sister1
+	ndw	msg2,msg_sister2
+	ndw	msg3,msg_map
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t1_2)
+	bit	0,a				; check taking town-map
+	jr	nz,bring$
+
+	ld	a,(ev_t1_3)
+	bit	5,a				; check taking guide book
+	jr	nz,bring_pm$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+bring_pm$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	bc,5 * 256 + 1			; town-map
+	call	take_item
+	jr	nc,bring_over$
+
+	ld	a,T1R2F1msg3
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	ld	hl,ev_t1_2
+	set	0,(hl)				; bring on town-map(for town01)
+
+	jr	rts$
+
+
+bring$:
+	ld	hl,msg1_4$
+	call	put_win_msg
+
+	jr	rts$
+
+
+bring_over$:
+	ld	hl,msg1_3$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T01R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T01R0201	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T01R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T01R0201	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_T01R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T01R0201	; mvmsg追加
+	db 025h	; mvmsg追加
+	db	FANFARE6
+	db	EOM
+
+
+msg1_3$:
+	extern	msg1_3_3_T01R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_T01R0201	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_4$:
+	extern	msg1_4_4_T01R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_4_T01R0201	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_5_T01R0201
+	db I_MSG2	; mvmsg追加
+	dw msg2_5_T01R0201	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_6_T01R0201
+	db I_MSG2	; mvmsg追加
+	dw msg3_6_T01R0201	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t1r2f1:
+	include	..\sxy\t01r0201.sxy
+
+
+minka_a:
+	include	..\mapdata\minka_a.map
+

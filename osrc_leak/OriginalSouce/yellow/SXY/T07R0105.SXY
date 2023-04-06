@@ -1,0 +1,27 @@
+; 04/28/98		00:43:01
+dun_tbl$:
+	db	042h
+ie_tbl$:
+	db	001h
+	db	002h,00fh,000h,T7R6F1
+kanban_tbl$:
+	db	004h
+	db	001h,00Ah,3
+	db	001h,00Bh,4
+	db	002h,00Ch,5
+	db	002h,00Dh,6
+hito_tbl$:
+	db	002h
+	db	NIICHYAN
+	db	004h+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	001h
+	db	LOLITA
+	db	005h+4,005h+4			; Y, X
+	db	0feh				; random move mode
+	db	000h				; moving site
+	db	002h
+ram_map_tbl$:
+	dw	010h * 002h + 008h + ram_map
+	db	002h,00fh

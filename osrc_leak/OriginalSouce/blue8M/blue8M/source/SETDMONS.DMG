@@ -1,0 +1,206 @@
+
+	include	common.def
+	include	pm_debug.def
+	include	banktool.def
+
+
+	public	set_dealer_mons
+
+	extern	add_capsule_new
+	extern	bank2bank
+	extern	mul_any
+
+
+banke	group	14
+;********************************
+;	set_dealer_mons		*
+;********************************
+set_dealer_mons:
+	ld	a,(tuushin_flg)
+	and	a	
+	ret	nz
+
+	ld	hl,gein_cap_tbl
+	xor	a
+	ld	(hli),a				; gein no monster suu wo clear
+;	ld	a,0ffh
+	dec	a
+	ld	(hl),a
+
+	ld	a,(event_fight_no)
+;	sub	200
+;	dec	a
+	sub	201
+	add	a,a				; * 2
+	ld	hl,dealer_mons_tbl
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	a,(take_mons_ptn)
+	ld	b,a
+loop1$:
+	dec	b
+	jr	z,set$
+loop2$:
+	ld	a,(hli)
+	and	a
+	jr	nz,loop2$
+
+	jr	loop1$
+
+set$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,special_set$
+	ld	(mons_level),a
+
+set_loop$:
+	ld	a,(hli)
+	and	a
+	jr	z,set_gold$
+	
+	ld	(sel_item_no),a
+	ld	a,1
+	ld	(my_or_gein),a			; 1 = gein
+	push	hl
+	call	add_capsule_new
+	pop	hl
+	jr	set_loop$
+	
+special_set$:
+	ld	a,(hli)
+	and	a
+	jr	z,leader_mons_chk$
+	
+	ld	(mons_level),a
+	ld	a,(hli)
+	ld	(sel_item_no),a
+	ld	a,1
+	ld	(my_or_gein),a			; 1 = gein
+	push	hl
+	call	add_capsule_new
+	pop	hl
+	jr	special_set$
+
+leader_mons_chk$:
+	ld	a,(championcap_no)
+	and	a
+	jr	z,sitennou_chk$
+
+	dec	a
+	add	a,a
+	ld	c,a
+	ld	b,0
+	ld	hl,leader_waza_tbl$
+	add	hl,bc
+	ld	a,(hli)
+	ld	d,(hl)
+	
+	ld	hl,gein_cap_data + 10
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+	
+	ld	(hl),d
+	jr	set_gold$
+
+sitennou_chk$:
+	ld	a,(event_fight_no)
+	sub	200
+	ld	b,a
+	ld	hl,siten_waza_tbl$
+sitennou_loop$:
+	ld	a,(hli)
+	cp	b
+	jr	z,siten_set$
+
+	inc	hl
+	inc	a
+	jr	nz,sitennou_loop$
+	
+	ld	a,b
+	cp	43
+	jr	z,rival_waza$
+
+	jr	set_gold$
+
+siten_set$:
+	ld	a,(hl)
+	ld	(CAPDATA_LEN*4 + 10 + gein_cap_data),a
+	jr	set_gold$
+
+rival_waza$:
+	ld	a,143
+	ld	(gein_cap_data + 10),a
+	
+	ld	a,(rival_monster)
+	cp	153
+	ld	b,72
+	jr	z,set_rival_waza$
+	cp	176
+	ld	b,126
+	jr	z,set_rival_waza$
+	ld	b,59
+
+set_rival_waza$:
+	ld	a,b
+	ld	(CAPDATA_LEN*5 + 10 + gein_cap_data),a
+	
+set_gold$:
+	xor	a
+	ld	de,yuuichi_gold
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	ld	(de),a
+
+	ld	a,(mons_level)
+	ld	b,a				; loop counter
+
+calc_loop$:
+	ld	hl,dealer_gold + 1
+	ld	c,2
+
+	push	bc
+
+	ld	a,B_BCD_ADD
+	call	bank2bank
+
+	pop	bc
+
+	inc	de
+	inc	de
+	dec	b
+	jr	nz,calc_loop$
+
+	ret
+
+leader_waza_tbl$:
+	db	1,117
+	db	1,61
+	db	2,85
+	db	2,72
+	db	3,92
+	db	3,149
+	db	3,126
+	db	4,90
+
+siten_waza_tbl$:
+	db	44,59	
+	db	33,90	
+	db	46,92	
+	db	47,112	
+	db	0ffh
+
+dealer_mons_tbl:
+	include	..\data\dmons.sym
+	include	..\data\dmons.dat
+
+
+
+

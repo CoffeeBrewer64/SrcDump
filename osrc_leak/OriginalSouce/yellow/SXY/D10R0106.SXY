@@ -1,0 +1,93 @@
+; 06/06/98		01:32:17
+dun_tbl$:
+	db	02eh
+ie_tbl$:
+	db	006h
+	db	000h,010h,001h,D10R1F7
+	db	000h,016h,000h,D10R1F5
+	db	000h,012h,000h,D10R1F11
+	db	007h,005h,003h,D10R1F10
+	db	003h,005h,008h,D10R1F2
+	db	00fh,015h,003h,D10R1F4
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	00bh
+	db	SHAINM
+	db	005h+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	SHAINM
+	db	00Dh+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	002h
+	db	SHAINM
+	db	00Ah+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	003h
+	db	SHAINW
+	db	008h+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+	db	DANIN
+	db	001h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	005h+040h			; battle type
+	db	0e6h				; dealer number
+	db	020h				; taking pattern 
+	db	KENKYUIN
+	db	00Dh+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	006h+040h			; battle type
+	db	0e4h				; dealer number
+	db	008h				; taking pattern 
+	db	DANIN
+	db	002h+4,014h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	007h+040h			; battle type
+	db	0e6h				; dealer number
+	db	021h				; taking pattern 
+	db	DANIN
+	db	00Eh+4,013h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	008h+040h			; battle type
+	db	0e6h				; dealer number
+	db	022h				; taking pattern 
+	db	RIVAL
+	db	007h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	009h
+	db	CAPSULE
+	db	009h+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00ah+080h			; capsule type
+	db	027h				; item number
+	db	CAPSULE
+	db	00Bh+4,018h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00bh+080h			; capsule type
+	db	0cbh				; item number
+ram_map_tbl$:
+	dw	013h * 001h + 009h + ram_map
+	db	000h,010h
+	dw	013h * 001h + 00ch + ram_map
+	db	000h,016h
+	dw	013h * 001h + 00ah + ram_map
+	db	000h,012h
+	dw	013h * 004h + 003h + ram_map
+	db	007h,005h
+	dw	013h * 002h + 003h + ram_map
+	db	003h,005h
+	dw	013h * 008h + 00bh + ram_map
+	db	00fh,015h

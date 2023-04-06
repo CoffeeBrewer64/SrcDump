@@ -1,0 +1,44 @@
+; 11/25/95		17:01:57
+dun_tbl$:
+	db	001h
+ie_tbl$:
+	db	003h
+	db	011h,00ah,001h,EXIT
+	db	011h,00bh,001h,EXIT
+	db	009h,012h,001h,T5R2F2
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	005h
+	db	DEPAGA
+	db	00Dh+4,00Fh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	001h
+	db	OBASAN
+	db	008h+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+	db	OSSAN2
+	db	00Ch+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	003h
+	db	NEECHYAN
+	db	007h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+	db	KITOUSHI
+	db	007h+4,011h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	005h
+ram_map_tbl$:
+	dw	010h * 009h + 006h + ram_map
+	db	011h,00ah
+	dw	010h * 009h + 006h + ram_map
+	db	011h,00bh
+	dw	010h * 005h + 00ah + ram_map
+	db	009h,012h

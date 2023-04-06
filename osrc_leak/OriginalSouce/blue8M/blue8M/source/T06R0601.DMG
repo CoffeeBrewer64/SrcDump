@@ -1,0 +1,338 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t6_room6
+
+	extern	wait_vb
+	extern	direct_play
+	extern	migihaji_put
+	extern	puthaji_tate
+	extern	put_all
+	extern	put_wait
+	extern	memset
+	extern	chrmove
+	extern	set_oam_buf16
+	extern	kemuri_set
+	extern	bank_push_call
+	extern	set_jiki
+	extern	musboboo
+	extern	musship
+	extern	mussea
+	extern	se_wait
+	extern	se_play
+	
+
+
+PORT_TYPE	equ	14
+EXIT		=	0ffh
+
+
+t6_room6:
+ysiz	=	6
+xsiz	=	14
+	db	PORT_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	port			; map data adrs
+	dw	msg_t6r6f1		; message tbl adrs
+	dw	ev_t6r6f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t6r6f1
+
+
+ev_t6r6f1:
+	call	init_for_talkmap
+
+	ld	hl,ev_d3 + 12			; iaigiri get?
+	bit	4,(hl)
+	jr	nz,step
+
+	bit	0,(hl)
+	ret	z
+
+	ld	a,(ram_map_id)
+	cp	1
+	ret	nz
+
+	bit	2,(hl)				; ship leaved
+	jp	z,ship_leave
+
+auto_move:
+	set	4,(hl)
+
+	call	put_wait
+
+	ld	hl,obs_system
+	set	7,(hl)				; hero demonstration mode on
+
+	ld	hl,ctrl_move_val + 0
+	ld	a,040h				; animetion pattern
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	ld	a,3				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	xor	a
+	ld	(actor_table + 106h),a		; animetion switch on
+	ld	(auto_move_msk),a		; key check off
+
+	dec	a
+	ld	(cancel_key),a
+
+	ret
+
+
+step:
+	bit	5,(hl)
+	ret	nz
+
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	(cancel_key),a
+
+	set	5,(hl)
+
+	ret
+	
+
+ship_leave:
+	set	2,(hl)
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+	ld	(music_flag),a
+	call	play
+
+	ld	c,MUSIC_BANK3_NO
+	ld	a,mussea
+	call	direct_play
+
+	ld	b,1eh
+	ld	hl,kemuri_set
+	call	bank_push_call
+	
+	xor	a			; hero site change 
+	ld	(actor_table + 2),a
+	ld	c,120
+	call	wait_vb_s
+
+	ld	b,9ch			; map_put in dmy_vram
+	call	put_all
+	
+	ld	hl,20*10 + dmy_vram	; ship -> wave 
+	ld	bc,20*6
+	ld	a,14h
+	call	memset
+
+	ld	a,1			; dmy_vram -> window
+	ld	(all_put_req),a
+	call	put_wait
+	xor	a
+	ld	(all_put_req),a
+	ld	(usr_buf),a
+	ld	(OBP1),a
+	ld	a,58h
+	ld	(usr_buf + 1),a
+
+	ld	hl,mapvramadr		; mapvramadr save
+	ld	c,(hl)
+	inc	hl
+	ld	b,(hl)
+	push	bc
+	push	hl
+
+	ld	a,musship
+	call	se_play
+
+	ld	a,0ffh
+	ld	(oam_flg),a
+
+	ld	d,0
+	ld	e,8
+
+sprit0$:
+	ld	hl,2			; right wave_set
+	add	hl,bc
+	ld	a,l
+	ld	(mapvramadr),a
+	ld	a,h
+	ld	(mapvramadr + 1),a
+	push	hl
+	push	de
+	call	migihaji_put
+	call	objset$
+	pop	de
+
+	ld	b,16			; right wave_set count
+
+sprit1$:
+	call	obj1$
+	ld	c,8			; ship move count
+sprit2$:
+	call	ship_move
+	dec	c
+	jr	nz,sprit2$
+
+	inc	d
+	dec	b
+	jr	nz,sprit1$
+
+	pop	bc
+	dec	e
+	jr	nz,sprit0$
+
+	xor	a
+	ld	(WY),a
+	ld	(window_y),a		; window up
+
+	call	sea_set
+
+	ld	a,144			; window down
+	ld	(window_y),a
+	
+	ld	a,1
+	ld	(oam_flg),a
+
+	pop	hl			; mapvramadr load
+	pop	bc
+	ld	(hl),b
+	dec	hl
+	ld	(hl),c
+	call	set_jiki
+
+	ld	hl,ie_cnt
+	dec	(hl)
+
+	ret
+
+
+obj1$:
+	push	bc
+	push	de
+	ld	hl,4*4 + 1 + oam_buf
+	ld	a,(usr_buf)
+	swap	a
+	ld	c,a
+	ld	de,4
+
+obj2$:
+	inc	(hl)
+	inc	(hl)
+	add	hl,de
+	dec	c
+	jr	nz,obj2$
+
+	pop	de
+	pop	bc
+	ret
+
+
+objset$:
+	ld	a,(usr_buf + 1)
+	sub	10h
+	ld	(usr_buf + 1),a
+	ld	c,a
+	ld	b,64h
+	ld	a,(usr_buf)
+	inc	a
+	ld	(usr_buf),a
+
+	ld	a,1
+	ld	de,kemuri_tbl$
+	call	set_oam_buf16
+	ret
+
+kemuri_tbl$:
+	db	0fch,010h,0fdh,010h,0feh,010h,0ffh,010h
+
+
+
+ship_move:
+	ld	h,d
+	ld	l,10*8
+	call	spritsub1$
+
+	ld	h,0
+	ld	l,16*8
+
+spritsub1$:
+	ld	a,(LY)
+	cp	l
+	jr	nz,spritsub1$
+
+	ld	a,h
+	ld	(SCX),a
+
+spritsub2$:
+	ld	a,(LY)
+	cp	h
+	jr	z,spritsub2$
+	ret
+
+
+sea_set:
+	ld 	hl,anime_buf		; wave_chr
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, ANIME_BUF_SIZE + WORK_ANIME_BUF_SIZE + CTRL_MOVE_VAL_SIZE
+ else
+	ld	bc,180
+ endif
+	ld	a,14h
+	call	memset
+
+	ld	hl,32*10 + 9800h	; elase ship
+	ld	de,anime_buf
+	ld	bc,2*6
+	call	chrmove
+
+;	ld	hl,20*4 + 8 + ram_map
+;	ld	(hli),1
+;	ld	(hli),0dh
+;	ld	(hli),0dh
+;	ld	(hl),1
+
+	ld	hl,20*5 + 8 + ram_map
+	ld	a,0dh
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	a,musship
+;	ld	a,musboboo
+	call	play
+	ld	c,120
+	call	wait_vb_s
+	ret
+
+
+msg_t6r6f1:
+	dw	msg1$
+
+
+msg1$:
+	extern	msg1_0_T06R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T06R0601	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t6r6f1:
+	include	..\sxy\t06r0601.sxy
+
+
+port:
+	include	..\mapdata\port.map
+
+
+

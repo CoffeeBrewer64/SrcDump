@@ -1,0 +1,114 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t4_room1
+
+
+	extern	bank2bank
+
+	extern	minka_c
+
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t4_room1:
+
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_c			; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_tbl:
+	msgndw	msg1,msg_uminoie1
+	ndw	msg2,msg_neechyan1
+	ndw	kanban1,msg_kanban1
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	b,228
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+	and	b
+	jr	z,no_get$
+
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	jr	rts$
+
+
+no_get$:
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T04R0101	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T04R0101	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_2_T04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_T04R0101	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	extern	kanban1_3_T04R0101
+	db I_MSG2	; mvmsg追加
+	dw kanban1_3_T04R0101	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\t04r0101.sxy
+
+
+
+
+
+
+
+

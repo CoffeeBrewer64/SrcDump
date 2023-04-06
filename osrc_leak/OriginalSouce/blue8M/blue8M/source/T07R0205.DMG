@@ -1,0 +1,80 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	vanish.def
+	include	banktool.def
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t7_room2_5f
+
+
+	extern	look_guide
+	extern	bank2bank
+	extern	bank_push_call
+
+
+	extern	minka_b
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t7_room2_5f:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_b			; map data adrs
+	dw	msg_t7r2f5
+	dw	ev_t7r2f5		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r2f5
+
+
+ev_t7r2f5:
+	jp	init_for_talkmap
+
+
+
+msg_t7r2f5:
+	dw	msg1
+	dw	msg2
+
+
+msg1:
+	extern	msg1_0_T07R0205
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T07R0205	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	bc,102*100h + 25
+	extern	take_monster
+	call	take_monster
+	jr	nc,rts$
+
+	ld	a,T7R2F5msg2
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+rts$:
+	jp	msg_return
+
+
+
+sxy_t7r2f5:
+	include	..\sxy\t07r0205.sxy
+
+
+

@@ -1,0 +1,56 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+	include	pm_debug.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t4_room7
+
+	extern	capsule_item
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+t4_room7:				; Thunder Live Dungeon 
+ysiz	=	9
+xsiz	=	15
+	db	DOUKUTU_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	tori_1f			; map data adrs
+	dw	msg_t4r7f1		; message tbl adrs
+	dw	ev_t4r7f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t4r7f1
+
+
+ev_t4r7f1:
+	jp	init_for_talkmap
+
+
+
+msg_t4r7f1:
+	dw	capsule_item
+	dw	capsule_item
+	dw	capsule_item
+	dw	capsule_item
+
+
+sxy_t4r7f1:
+	include	..\sxy\t04r0701.sxy
+
+
+tori_1f:
+  ifn	YELLOW_VERSION
+	include	..\mapdata\yend_01.map
+  else
+;	include	..\mapdata\end01.map   
+	include	..\mapdata\nend01.map   
+  endif
+
+

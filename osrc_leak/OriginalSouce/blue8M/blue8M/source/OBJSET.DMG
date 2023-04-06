@@ -1,0 +1,877 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+
+
+bank5 	group	5
+
+	public	set_objects
+
+	extern	chrset
+	extern	chrmove
+	extern	objct
+	extern	objct2
+	extern	objct3
+	extern	objct4
+	extern	objct5
+	extern	objct6
+	extern	komono
+
+;=======================================================;
+;							;
+;		       Set Objects			;
+;							;
+;		Object Transfer For VRAM		;
+;							;
+;=======================================================;
+OBJ_CHARA_BANK1		equ	05h
+OBJ_CHARA_BANK2		equ	04h
+OBJ_CHARA_BANK3		equ	03h
+
+set_objects:
+	call	town_road_check
+	ret	c			; town or road wo set shita toki
+
+	ld	hl,actor_table 
+	ld	de,actor_table  + 10dh
+loop$:					; actor_table + 0 -> actor_table + 10d
+	ld	a,(hl)			; trancefer
+	ld	(de),a
+	ld	a,10h
+	add	a,e
+	ld	e,a
+	ld	a,10h
+	add	a,l
+	ld	l,a
+	jr	nz,loop$
+
+;	call	set_objects_main	; minka ya dungeon no toki
+;	ret
+
+set_objects_main:
+	ld	a,(murabito_cnt)	
+	and	a
+	jr	nz,init$
+	ret
+
+init$:
+	ld	c,a
+	ld	b,16			; Actor Max = 16 = Table Max
+	ld	hl,actor_table + 10dh	
+	xor	a
+	ld	(work3),a
+actor_no_trans$:
+	ld	a,(hli)
+	ld	(hld),a			; actor No transfer			
+	ld	a,l
+	add	a,010h
+	ld	l,a
+	dec	b
+	jr	nz,actor_no_trans$
+
+	ld	hl,actor_table + 11eh	; pass my chara		    hl = C21Eh
+loop$:
+	ld	de,actor_table + 11dh	; 			    de = C21Dh	
+loop1$:
+	ld	a,e
+	and	0f0h
+	ld	b,a
+	ld	a,l
+	and	0f0h
+	cp	b			; de and hl sign same actor pos?
+	jr	z,set_data$
+	
+	ld	a,(de)
+	cp	(hl)
+	jp	z,next_actor$
+	
+	ld	a,e
+	add	a,010h
+	ld	e,a	
+	jr	loop1$
+
+set_data$:
+	ld	de,actor_table + 10eh	; de = C20Eh
+	ld	b,1
+set_data_loop$:
+	ld	a,e
+	add	a,010h
+	ld	e,a
+	ld	a,l
+	cp	e			; de and hl sign same actor pos?
+	jr	z,set_data2$
+
+	ld	a,(de)
+	cp	11
+	jr	nc,set_data_loop$	; komono
+
+	cp	b
+	jr	c,set_data_loop$
+
+	ld	b,a
+	jr	set_data_loop$
+
+set_data2$:
+	inc	b			
+	ld	a,b
+	push	af
+	ld	a,(hl)
+	ld	b,a			; b = actor No
+	cp	61	
+	jr	c,set_data3$
+
+	pop	af
+	ld	a,(work3)		; work3 = 0 or 1
+	add	a,11			; a = 11 or 12
+	jr	set_data4$
+
+set_data3$:
+	pop	af
+set_data4$:
+	ld	(hl),a			; a = set chara data pos
+	ld	(work2),a
+	ld	a,b			; b = actor No
+
+	dec	a
+;	dec	a
+	add	a,a			; * 2
+	add	a,a			; * 4
+	push	bc			; save c =  actor counter
+	push	hl			; actor_table address save
+
+	ld	hl,obj_table
+	jr	nc,set_data5$
+
+	inc	h
+
+set_data5$:
+	add	a,l
+	ld	l,a
+	jr	nc,z2$
+	inc	h
+z2$:
+
+	push	hl			; Table Data Address
+	call	get_data
+
+	push	af
+	push	de
+	push	bc
+
+	ld	hl,CHAR_DATA		; 8000h
+	ld	bc,000c0h
+	ld	a,(work2)			; a = set chara data pos
+	cp	11
+	jr	nc,z4$				; obj = komono
+
+	ld	d,a
+	dec	d
+z3$:
+	add	hl,bc
+	dec	d
+	jr	nz,z3$
+	jr	z5$
+
+z4$:
+	ld	hl,CHAR_DATA + 007c0h	; 87c0h
+	ld	a,(work3)
+	and	a
+	jr	nz,z5$
+	ld	hl,CHAR_DATA + 00780h	; 8780h
+	inc	a
+	ld	(work3),a
+z5$:
+	pop	bc
+	pop	de
+	pop	af
+
+	push	hl
+	push	hl			; 
+	ld	h,d			;
+	ld	l,e			;
+	pop	de			; HL <-> DE
+
+	ld	b,a
+	ld	a,(talking_flg)
+	bit	0,a
+	jr	nz,pass$
+
+	ld	a,b
+	ld	b,0
+
+	call	chrset
+
+pass$:
+	pop	de			; HL -> DE
+	pop	hl			; Table Data Address
+
+	ld	a,(work2)	
+	cp	11
+	jr	nc,pass2$			; obj = komono
+
+	push	de
+	call	get_data
+
+	push	af
+;	ld	a,08h			; DE + 800h
+;	add	a,d
+;	ld	d,a
+;------------------------------------------  CHECK! by sige 95-04-17
+	ld	a,0c0h
+	add	a,e
+	ld	e,a
+	jr	nc,pass1$
+	
+	inc	d
+pass1$:
+;------------------------------------------
+	ld	a,(talking_flg)
+	bit	0,a
+	jr	nz,chrmove$
+
+	pop	af
+	pop	hl			; DE -> HL
+	set	3,h			; VRAM High Address To 0X8XXh
+
+	push	hl			; 
+	ld	h,d			;
+	ld	l,e			;
+	pop	de			; HL <-> DE
+
+	call	chrset
+
+	jr	pass2$
+
+chrmove$:
+	pop	af
+	pop	hl			; DE -> HL
+	set	3,h			; VRAM High Address To 0X8XXh
+	ld	b,a			; bank
+	swap	c			; / 16
+	call	chrmove
+
+pass2$:
+
+	pop	hl
+	pop	bc
+	jr	next_actor2$
+
+next_actor$:
+	inc	de
+	ld	a,(de)
+	ld	(hl),a
+
+next_actor2$:
+	ld	a,l 
+	add	a,010h
+	ld	l,a	
+	dec	c
+	jp	nz,loop$
+
+	ld	hl,actor_table + 10dh
+	ld	b,16
+clr_loop$:				; actor_table + 100h area clear
+	xor	a
+	ld	(hl),a
+	ld 	a,10h
+	add	a,l
+	ld	l,a
+	dec	b
+	jr	nz,clr_loop$
+
+	ret
+
+get_data:
+	ld	a,(hli)			; DE : Set Character Data Address
+	ld	e,a
+	ld	a,(hli)
+	ld	d,a
+
+	ld	a,(hli)			; BC : Set Character Size
+	ld 	c,a
+	xor	a
+	ld	b,a
+
+	ld	a,(hli)			; A  : Set Character Data Bank
+	ret
+
+town_road_check:
+	ld	a,(mapno)		; new map number
+	cp	T1R1F1
+	ret	nc			; town or road janai
+
+	ld	hl,obj_type_table$
+	add	a,l
+	ld	l,a
+	jr	nc,z10$
+	inc	h
+z10$:
+	ld	a,(hl)			; obj type
+	cp	0f0h
+	call	nc,special_set$
+ 
+	ld	b,a
+
+	ld	a,(talking_flg)
+	bit	0,a
+	jr	nz,z20$
+
+	ld	a,(map_obj_type)
+	cp	b
+	jr	z,actor_no_set$		; map type ga kawaranai
+
+z20$:
+	ld	a,b
+	ld	(map_obj_type),a
+	dec	a
+	ld	b,a
+	sla	a			; * 2
+	ld	c,a
+	sla	a			; * 4
+	sla	a			; * 8
+	add	a,c			; * 10
+	add	a,b			; * 11
+	
+	ld	de,obj_set_table$
+	add	a,e
+	ld	e,a
+	jr	nc,z30$
+
+	inc	d
+z30$:
+	ld	hl,actor_table + 10dh
+	ld	a,1
+	ld	(hl),a
+	ld	bc,map_obj_setdata
+code_set_loop$:				; obj_set_table$ -> actor_table + 10d
+					;                -> map_obj_setdata
+	ld	a,10h
+	add	a,l
+	ld	l,a
+	ld	a,(de)
+	ld	(hl),a
+	ld	(bc),a
+	inc	de
+	inc	bc
+	ld	a,l
+	cp	0bdh	
+	jr	nz,code_set_loop$
+
+	ld	b,4
+clr_loop$:
+	ld	a,10h
+	add	a,l
+	ld	l,a
+	xor	a
+	ld	(hl),a
+	dec	b
+	jr	nz,clr_loop$
+	
+	ld	a,(murabito_cnt)
+	push	af
+;	ld	a,9				; change 95-06-20
+	ld	a,11
+	ld	(murabito_cnt),a
+	call	set_objects_main
+	pop	af
+	ld	(murabito_cnt),a
+
+	ld	hl,actor_table + 11eh
+	ld	b,15
+clr_loop2$:					; +10e wo clear
+	xor	a
+	ld	(hl),a				; +10e wo clear
+	ld	a,10h
+	add	a,l
+	ld	l,a
+	dec	b
+	jr	nz,clr_loop2$
+
+actor_no_set$:
+	ld	hl,actor_table + 010h
+no_set_loop$:
+	ld	c,0				; position counter
+	ld	a,(hl)
+	and	a
+	jr	z,loop2_pass$
+
+	ld	b,a
+	ld	de,map_obj_setdata
+
+no_set_loop2$:
+	inc	c
+	ld	a,(de)
+	inc	de
+	cp	b
+	jr	nz,no_set_loop2$
+
+	inc	c
+loop2_pass$:
+	push	hl
+
+	inc	h
+	ld	a,0eh
+	add	a,l
+	ld	l,a
+	ld	a,c
+	ld	(hl),a
+	
+	pop	hl
+	
+	ld	a,10h
+	add	a,l
+	ld	l,a
+	and	a
+	jr	nz,no_set_loop$
+
+	scf
+	ret
+	
+special_set$:
+	cp	0f8h
+	jr	z,special_special$
+
+	ld	hl,xy_compare_table$
+	and	00fh
+	dec	a
+	sla	a			; * 2
+	sla	a			; * 4
+	add	a,l
+	ld	l,a
+	jr	nc,z40$
+	inc	h
+z40$:
+	ld	a,(hli)			; a = 1 ... X zahyou wo kuraberu
+					; a = 2 ... Y zahyou wo kuraberu
+	cp	1
+	ld	a,(hli)			; kuraberu zahyou
+	ld	b,a
+	jr	z,x_zahyou$
+
+	ld	a,(mapscloll_y)
+	jr	compare$
+	
+x_zahyou$:
+	ld	a,(mapscloll_x)
+compare$:
+	cp	b
+	jr	c,kettei$
+
+	inc	hl
+kettei$:
+	ld	a,(hl)			; kettei sita obj type
+	
+	ret
+	
+special_special$:			; road20
+	ld	hl,mapscloll_x
+	ld	a,(hl)
+	cp	02bh
+	ld	a,1
+	ret	c
+	
+	ld	a,(hl)
+	cp	03eh
+	ld	a,10
+	ret	nc
+	
+	ld	a,(hl)
+	cp	037h
+	ld	b,08h
+	jr	nc,z37$
+
+	ld	b,0dh
+z37$:
+	ld	a,(mapscloll_y)
+	cp	b
+	ld	a,10
+	ret	c
+	
+	ld	a,1
+	ret
+
+
+obj_type_table$:
+	db	1			; town1
+	db	1			; town2
+	db	2			; town3
+	db	2			; town4
+	db	3			; town5
+	db	4			; town6
+	db	5			; town7
+	db	10			; town8
+	db	1			; town9
+	db	6			; town10
+	db	7			; town11 yamabuki
+	db	1			; town12
+
+	db	1			; road1
+	db	0f1h			; road2
+	db	2			; road3
+	db	2			; road4
+	db	0f9h			; road5
+	db	0fah			; road6
+	db	0fbh			; road7
+	db	0fch			; road8
+
+	db	2			; road9
+	db	0f2h			; road10
+	db	0f3h			; road11
+	db	0f4h			; road12
+	db	8			; road13
+	db	8			; road14
+	db	0f5h			; road15
+	db	0f6h			; road16
+	db	9			; road17
+	db	0f7h			; road18
+	db	10			; road19
+	db	0f8h			; road20
+	db	1			; road21
+	db	1			; road22
+	db	6			; road23
+	db	2			; road24
+	db	2			; road25
+
+xy_compare_table$:       
+	db	002h,025h,02,01	 ; y zahyou <  25h nara obj type = 2 
+			     	 ; y zahyou >= 25h nara obj type = 1 
+	db	002h,032h,02,03
+	db	001h,039h,04,08
+	db	002h,015h,03,08
+	db	001h,008h,10,08
+	db	001h,018h,09,05
+	db	001h,022h,09,10
+	db	001h,035h,01,10
+
+	db	002h,021h,02,07
+	db	002h,002h,07,04
+	db	001h,011h,05,07
+	db	001h,003h,07,03
+
+obj_set_table$:
+	db	RIVAL,SHOUNEN,NEECHYAN,SEINEN,TRAINERM		; obj type 1
+	db	GSAN,UMIRYU,OOKIDO,SWIMMER,CAPSULE,72
+
+	db	SHOUNEN,DANIN,NIICHYAN,MORIMORI,MONSTER		; obj type 2
+	db	RIVAL,KEIBI,TRAINERW,TRAINERM,CAPSULE,KAREKI
+
+	db	LOLITA,NEECHYAN,NIICHYAN,MORIMORI,GSAN		; obj type 3
+	db	MONSTER,TRAINERW,TRAINERM,KEIBI,CAPSULE,KAREKI
+
+	db	HOTELW,NIICHYAN,SHOUNEN,GSAN,MONSTER		; obj type 4
+	db	KEIBI,FUNANORI,TRAINERW,TRAINERM,CAPSULE,KAREKI
+
+	db	LOLITA,CHIKIN,NEECHYAN,SEINEN,OSSAN		; obj type 5
+	db	GSAN2,MONSTER,KEIBI,DANIN,CAPSULE,KABINERU
+
+	db	SHOUNEN,DANPEI,MONSTER,RIVAL,TRAINERW		; obj type 6
+	db	TRAINERM,SWIMMER,KEIBI,GSAN,CAPSULE,KAREKI
+
+	db	DANIN,KENKYUIN,SHAINM,SHAINW,HOTELM		; obj type 7
+	db	TORI,PHILIP,TRAINERM,MONSTER,CAPSULE,KAREKI
+
+	db	CYCLE,NIICHYAN,OSSAN,TRAINERW,TRAINERM		; obj type 8
+	db	HOTELW,SEINEN,PHILIP,MONSTER,CAPSULE,KABINERU
+
+	db	CYCLE,TRAINERM,SHAINM,SEINEN,PHILIP		; obj type 9
+	db	MORIMORI,GSAN,OSSAN,NIICHYAN,CAPSULE,KABINERU
+
+	db	TORI,TRAINERM,MARUMON,SEINEN,GSAN		; obj type 10
+	db	MONSTER,UMIRYU,SWIMMER,SHOUNEN,CAPSULE,KASEKI
+
+obj_table:
+					; JIBUN
+	dw	objct + 0000h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; RIVAL
+	dw	objct + 0180h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; OOKIDO
+	dw	objct + 0300h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; SHOUNEN
+	dw	objct + 0480h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; MONSTER
+	dw	objct + 0600h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; TRAINERW
+	dw	objct + 0780h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; TRAINERM
+	dw	objct + 0900h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; LOLITA
+	dw	objct + 0a80h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; TORI
+	dw	objct + 0c00h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; OSSAN
+	dw	objct + 0d80h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+
+					; GSAN
+	dw	objct2 + 0000h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; NIICHYAN
+	dw	objct2 + 0180h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; NEECHYAN
+	dw	objct2 + 0300h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; MORIMORI
+	dw	objct2 + 0480h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; HOTELW
+	dw	objct2 + 0600h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; HOTELM
+	dw	objct2 + 0780h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; ANE
+	dw	objct2 + 0900h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; CYCLE
+	dw	objct2 + 0a80h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; FUNANORI
+	dw	objct2 + 0c00h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; COOK
+	dw	objct2 + 0d80h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+
+					; CHARIYA
+	dw	objct3 + 0000h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; FUJI 
+	dw	objct3 + 00c0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; BOSS
+	dw	objct3 + 0240h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; DANIN
+	dw	objct3 + 03c0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; KITOUSHI
+	dw	objct3 + 0540h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; BOY
+	dw	objct3 + 06c0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; SHAINW
+	dw	objct3 + 0840h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; OBASAN
+	dw	objct3 + 09c0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; NANAMI
+	dw	objct3 + 0b40h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; WATARU
+	dw	objct3 + 0cc0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+
+					; DUMMY (OTOUSAN)
+	dw	objct4 + 0000h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; KENKYUIN
+	dw	objct4 + 0000h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; PHILIP
+	dw	objct4 + 0180h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; SWIMMER
+	dw	objct4 + 0300h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; SYLPHMAN
+	dw	objct4 + 0480h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; DANPEI
+	dw	objct4 + 0540h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; GSAN2
+	dw	objct4 + 0600h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; SHOPMAN
+	dw	objct4 + 06c0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; UMINOIE
+	dw	objct4 + 0780h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; BASAN
+	dw	objct4 + 0840h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+
+					; HOTELMAN
+	dw	objct5 + 0000h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; DEPAGA
+	dw	objct5 + 00c0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; SHATHOU
+	dw	objct5 + 0180h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; SHAINM
+	dw	objct5 + 0240h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; ENTHOU
+	dw	objct5 + 0300h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; SENTHOU
+	dw	objct5 + 03c0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; SEINEN
+	dw	objct5 + 0480h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; KAKUTOU
+	dw	objct5 + 0600h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; KEIBIIN
+	dw	objct5 + 0780h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; DUMMY (SENNIN)
+	dw	objct5 + 0780h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+
+					; OKAASAN
+	dw	objct6 + 0000h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; OSSAN2
+	dw	objct6 + 00c0h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; CHIKIN
+	dw	objct6 + 0180h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; DUMMY (GAMERW)
+	dw	objct6 + 0240h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; GAMERM
+	dw	objct6 + 0240h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; MARUMON
+	dw	objct6 + 0300h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; KIKUKO
+	dw	objct6 + 0480h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; SHIVA
+	dw	objct6 + 0600h		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; KANNA 
+	dw	objct6 + 0780h 		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+					; UMIRYU (RAPLUS)
+	dw	objct6 + 0900h 		; Character Data Address
+	db	10h*12			; Character Data Size
+	db	OBJ_CHARA_BANK1		; Character Data Bank
+
+					; CAPSULE
+	dw	komono + 0000h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; KASEKI
+	dw	komono + 0040h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; IWA
+	dw	komono + 0080h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; MAIL
+	dw	komono + 00c0h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; DIARY
+	dw	komono + 0100h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; SYORUI
+	dw	komono + 0140h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; KABIGON
+	dw	komono + 0180h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; DUMMY (DOOR)
+	dw	komono + 01c0h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; KOHAKU
+	dw	komono + 01c0h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; DUMMY (KOORI)
+	dw	komono + 0200h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; DUMMY (KAREKI)
+	dw	komono + 0200h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank
+					; NEMUGSAN
+	dw	komono + 0200h		; Character Data Address
+	db	10h*4			; Character Data Size
+	db	OBJ_CHARA_BANK2		; Character Data Bank

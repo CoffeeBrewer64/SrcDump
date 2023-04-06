@@ -1,0 +1,77 @@
+; 11/14/95		23:12:12
+dun_tbl$:
+	db	00fh
+ie_tbl$:
+	db	003h
+	db	011h,00fh,007h,EXIT
+	db	011h,010h,007h,EXIT
+	db	004h,011h,001h,D9R1F1
+kanban_tbl$:
+	db	001h
+	db	004h,009h,12
+hito_tbl$:
+	db	00bh
+	db	HOTELW
+	db	006h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+	db	SHOPMAN
+	db	006h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h
+	db	OSSAN
+	db	00Ah+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	003h
+	db	HOTELW
+	db	00Dh+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	004h
+	db	UMINOIE
+	db	00Bh+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	005h
+	db	OBASAN
+	db	00Bh+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	006h
+	db	DANPEI
+	db	00Eh+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	007h
+	db	GSAN
+	db	00Fh+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	008h
+	db	SHOPMAN
+	db	00Bh+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	009h
+	db	HOTELM
+	db	00Dh+4,011h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	00ah
+	db	DANIN
+	db	005h+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	00bh+040h			; battle type
+	db	0e6h				; dealer number
+	db	007h				; taking pattern 
+ram_map_tbl$:
+	dw	010h * 009h + 008h + ram_map
+	db	011h,00fh
+	dw	010h * 009h + 009h + ram_map
+	db	011h,010h
+	dw	010h * 003h + 009h + ram_map
+	db	004h,011h

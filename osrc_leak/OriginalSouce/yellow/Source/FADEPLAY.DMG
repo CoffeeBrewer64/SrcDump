@@ -1,0 +1,70 @@
+
+	include	common.def
+
+bank0	group	0
+
+;*************************************************
+;**						**
+;**	      MUSIC FADEOUT AND START		**
+;**	copyright 16.Oct.1990 Junichi.Masuda	**
+;**						**
+;**	(i) (fede_play_fg) <- fadeout time	**
+;**	(i) Areg <- Next Music Number		**
+;**	call play				**
+;*************************************************
+	public	fadeplay			; Bank 2
+
+	extern	play
+	extern	MusicStop			; Original Bank Initialize
+
+fadeplay:
+	ld	a,(fade_play_fg)
+	and	a
+	jr	nz,z1$
+	ld	a,(obs_walk_flag)
+	bit	1,a				; Sound Volume Controlling!
+	ret	nz				; (zukan Or pokemon List)
+	ld	a,077h
+	ld	(NR50),a			; volume recover
+	ret
+z1$:
+	ld	a,(fade_play_cou)
+	and	a
+	jr	z,z2$
+	dec	a
+	ld	(fade_play_cou),a
+	ret
+z2$:
+	ld	a,(fade_play_wait)
+	ld	(fade_play_cou),a
+
+	ld	a,(NR50)
+	and	a
+	jr	z,z3$
+	ld	b,a
+	and	00fh
+	dec	a
+	ld	c,a
+	ld	a,b
+	and	0f0h
+	swap	a
+	dec	a
+	swap	a
+	or	c
+	ld	(NR50),a
+	ret
+z3$:
+	ld	a,(fade_play_fg)
+	ld	b,a
+	xor	a
+	ld	(fade_play_fg),a
+
+	call	MusicStop			; Original Bank Initialize
+
+	ld	a,(music_bank_flg_back)
+	ld	(music_bank_flg),a		; Music Bank Change
+
+	ld	a,b
+	ld	(music_flag),a
+	jp	play
+

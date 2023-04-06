@@ -1,0 +1,76 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	t11_room7
+
+
+	extern	hotel1
+	extern	hotel_sio
+
+
+HOTEL_TYPE	equ	6
+EXIT		=	0ffh
+
+
+t11_room7:
+ysiz	=	4
+xsiz	=	7
+	db	HOTEL_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	hotel1			; map data adrs
+	dw	msg_t11r7f1		; message tbl adrs
+	dw	ev_t11r7f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t11r7f1
+
+
+ev_t11r7f1:
+	call	hotel_sio
+	jp	init_for_talkmap
+
+
+
+msg_t11r7f1:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+	dw	msg4
+
+
+
+msg1:
+	db	HOTEL
+
+
+msg2:
+	extern	msg2_0_T11R0701
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T11R0701	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_1_T11R0701
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T11R0701	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	0f6h			; term girl
+
+
+
+sxy_t11r7f1:
+	include	..\sxy\t11r0701.sxy
+

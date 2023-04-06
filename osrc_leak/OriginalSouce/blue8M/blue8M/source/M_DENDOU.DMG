@@ -1,0 +1,127 @@
+	include		group.def
+
+bank1f	group	G_MUSIC3
+	;
+	;	Dendou01
+	;
+	;	Converting on Wed Sep 27 17:33:56 1995
+	;
+	;				by ver 1.02
+	;
+	public	Dendou1
+	public	Dendou2
+	public	Dendou3
+;----------------------------------------
+Dendou1:
+;----------------------------------------
+	db	0edh,000h,070h
+	db	0f0h,077h
+	db	0ech,003h
+	db	0eah,0ch,022h
+	db	0e8h
+	db	0dch,0b3h
+; P1-1
+	db	0cfh
+; P1-2
+	db	0cfh
+; P1-3
+	db	0cfh
+; P1-4
+	db	0cbh
+	db	0e5h,020h
+	db	040h
+	db	050h
+	db	060h
+loop10$:
+; P1-5
+	db	0dch,080h
+	db	0e4h,00fh
+; P1-6
+	db	04fh
+; P1-7
+	db	06fh
+; P1-8
+	db	0dch,060h
+	db	05fh
+	db	0feh,3
+	dw	loop10$
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0cfh
+	db	0feh,0
+	dw	loop10$
+;----------------------------------------
+Dendou2:
+;----------------------------------------
+	db	0eah,08h,025h
+	db	0ech,003h
+; P2-1
+loop20$:
+	db	0dch,0c4h
+	db	0e5h,071h
+	db	021h
+	db	071h
+	db	099h
+; P2-2
+	db	071h
+	db	021h
+	db	071h
+	db	0e4h,003h
+	db	0e5h,0b3h
+	db	091h
+; P2-3
+	db	071h
+	db	021h
+	db	071h
+	db	099h
+; P2-4
+	db	051h
+	db	001h
+	db	051h
+	db	0a3h
+	db	093h
+	db	051h
+	db	0feh,0
+	dw	loop20$
+;----------------------------------------
+Dendou3:
+;----------------------------------------
+; P3-1
+loop30$:
+	db	0dch,012h
+loop31$:
+	db	0e4h,021h
+	db	071h
+	db	021h
+	db	071h
+	db	021h
+	db	071h
+	db	021h
+	db	071h
+	db	0feh,12
+	dw	loop31$
+; P3-9
+	db	023h
+	db	073h
+	db	023h
+	db	073h
+; P3-10
+	db	043h
+	db	073h
+	db	043h
+	db	073h
+; P3-11
+	db	063h
+	db	093h
+	db	063h
+	db	093h
+; P3-12
+	db	043h
+	db	073h
+	db	043h
+	db	073h
+	db	0feh,0
+	dw	loop30$
+
+

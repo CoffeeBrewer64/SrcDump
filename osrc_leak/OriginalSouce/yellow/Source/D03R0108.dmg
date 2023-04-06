@@ -1,0 +1,320 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	d3_room8
+
+
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+	extern	gyaarth_play
+
+
+SHIP_TYPE	equ	13
+EXIT		=	0ffh
+
+
+seq_d3r1f8	equ	seq_ctrl_buf + 018h
+
+
+d3_room8:
+ysiz	=	8
+xsiz	=	12
+	db	SHIP_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	shroom1			; map data adrs
+	dw	msg_d3r1f8  	 	; message tbl adrs
+	dw	ev_d3r1f8     		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d3r1f8  
+
+
+ev_d3r1f8:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d3r1f8_tbl
+	ld	a,(seq_d3r1f8)
+	call	battle_sequence
+	ld	(seq_d3r1f8),a
+
+	ret
+
+
+d3r1f8_tbl:
+	initndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+msg_d3r1f8:
+	msgndw	msg1,msg_estrange1
+	ndw	msg2,msg_estrange2
+	ndw	msg3,msg_tanpan
+	ndw	msg4,msg_mini
+	ndw	msg5,msg_neechyan1
+	ndw	msg6,msg_ossan
+	ndw	msg7,msg_lolita
+	ndw	msg8,msg_marumon
+	ndw	msg9,msg_neechyan2
+	ndw	capsule_item,msg_capsule1
+	ndw	msg11,msg_hotelm
+
+
+dealer_talk:
+d_talk1:
+	db	msg_estrange1,020h
+	dw	ev_d3 + 14
+	dw	msg1_0
+	dw	msg1_after
+	dw	msg1_win
+	dw	msg1_win
+
+d_talk2:
+	db	msg_estrange2,030h
+	dw	ev_d3 + 14
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk3:
+	db	msg_tanpan,020h
+	dw	ev_d3 + 14
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk4:
+	db	msg_mini,020h
+	dw	ev_d3 + 14
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg8:
+	extern	msg8_0_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg8_0_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	CALL_MSG
+
+	ld	a,101				; "puku-rin"
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+
+
+msg1_0:
+	extern	msg1_0_1_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_1_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_2_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_2_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_3_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_3_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_0:
+	extern	msg2_0_4_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_4_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_5_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_5_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_6_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_6_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_0:
+	extern	msg3_0_7_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_7_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_8_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_8_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_9_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_9_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_0:
+	extern	msg4_0_10_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_10_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_11_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_11_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_12_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_12_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	extern	msg5_13_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg5_13_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	extern	msg6_14_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg6_14_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7:
+	extern	msg7_15_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg7_15_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg9:
+	extern	msg9_16_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg9_16_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg11:
+	extern	msg11_17_D03R0108
+	db I_MSG2	; mvmsg追加
+	dw msg11_17_D03R0108	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d3r1f8:  
+	include	..\sxy\d03r0108.sxy
+
+shroom1:
+	include	..\mapdata\shroom1.map
+

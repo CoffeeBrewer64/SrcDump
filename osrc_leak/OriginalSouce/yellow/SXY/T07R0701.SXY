@@ -1,0 +1,29 @@
+; 04/28/98		00:43:30
+dun_tbl$:
+	db	00fh
+ie_tbl$:
+	db	002h
+	db	007h,004h,009h,EXIT
+	db	007h,005h,009h,EXIT
+kanban_tbl$:
+	db	003h
+	db	002h,002h,3
+	db	002h,004h,4
+	db	002h,006h,5
+hito_tbl$:
+	db	002h
+	db	OSSAN2
+	db	004h+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+	db	GSAN
+	db	003h+4,007h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	002h
+ram_map_tbl$:
+	dw	00bh * 004h + 003h + ram_map
+	db	007h,004h
+	dw	00bh * 004h + 003h + ram_map
+	db	007h,005h

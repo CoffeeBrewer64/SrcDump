@@ -1,0 +1,101 @@
+
+	include		group.def
+
+bank1f	group	G_MUSIC3
+	;
+	;	Dealer01
+	;
+	;	Converting on Sat Mar  4 18:31:17 1995
+	;
+	;				by ver 1.02
+	;
+	public	Dealer11
+	public	Dealer12
+	public	Dealer13
+;----------------------------------------
+Dealer11:
+;----------------------------------------
+	db	0edh,000h,07ch
+	db	0f0h,077h
+	db	0ech,002h
+	db	0e8h
+	db	0dch,0b1h
+	db	0c3h
+	db	0e5h,021h
+	db	011h
+	db	0dch,04fh
+	db	023h
+loop10$:
+; P1-2
+	db	0dch,0a1h
+	db	023h
+	db	023h
+	db	023h
+	db	0dch,070h
+	db	023h
+	db	0feh,0
+	dw	loop10$
+;----------------------------------------
+Dealer12:
+;----------------------------------------
+	db	0ech,001h
+	db	0dch,0b6h
+; P2-1
+	db	0e5h,0b1h
+	db	0a1h
+	db	0b7h
+loop20$:
+	db	0dch,0c2h
+; P2-2
+	db	0e4h,031h
+	db	021h
+	db	011h
+	db	001h
+	db	0e5h,0b3h
+	db	0b3h
+; P2-3
+	db	0b3h
+	db	0b3h
+	db	0b3h
+	db	0dch,04fh
+	db	0a3h
+; P2-4
+	db	0dch,0c2h
+	db	071h
+	db	081h
+	db	091h
+	db	0a1h
+	db	0b3h
+	db	0b3h
+; P2-5
+	db	0b3h
+	db	0b3h
+	db	0b3h
+	db	0dch,03fh
+	db	0a3h
+	db	0dch,0c2h
+	db	0feh,0
+	dw	loop20$
+;----------------------------------------
+Dealer13:
+;----------------------------------------
+	db	0dch,010h
+; P3-1
+	db	0c7h
+	db	0e4h,060h
+	db	0c0h
+	db	050h
+	db	0c0h
+loop30$:
+; P3-2
+	db	060h
+	db	0c2h
+	db	060h
+	db	0c2h
+	db	060h
+	db	0c2h
+	db	0a3h
+	db	0feh,0
+	dw	loop30$
+
+

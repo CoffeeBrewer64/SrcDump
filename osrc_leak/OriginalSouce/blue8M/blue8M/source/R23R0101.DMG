@@ -1,0 +1,436 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include	macro.h
+	include	group.def
+
+
+bank14	group	G_BANK14
+
+
+	public	r23_room1
+
+
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+	extern	CheckActorPos
+	extern	CheckAssignPos
+	extern	rock_on
+	extern	FallToHole
+
+	extern	gyaarth_play
+	extern	se_wait
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+seq_r23r1f1	equ	seq_ctrl_buf + 4fh
+
+
+r23_room1:
+ysiz	=	9
+xsiz	=	15
+	db	DOUKUTU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	iwa_1f			; map data adrs
+	dw	msg_r23r1f1		; message tbl adrs
+	dw	ev_r23r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r23r1f1
+
+
+ev_r23r1f1:
+	ld	hl,ptn_data + 0
+	bit	6,(hl)
+	res	6,(hl)
+	call	nz,last_init$
+
+	ld	hl,ptn_data + 0
+	bit	5,(hl)
+	res	5,(hl)				; event clear switch
+	call	nz,bg_init$
+
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,r23r1f1_tbl
+	ld	a,(seq_r23r1f1)
+	call	battle_sequence
+	ld	(seq_r23r1f1),a
+
+	ret
+
+
+last_init$:
+	ld	hl,ev_d14 + 6
+	res	7,(hl)
+
+
+bg_init$:
+	ld	a,(ev_r23 + 1)
+	bit	0,a
+	jr	z,other$
+
+	push	af
+
+	ld	a,014h + 01h
+	ld	bc,004h * 0100h + 003h
+	call	bgcell_change$
+
+	pop	af
+
+other$:
+	bit	7,a
+	ret	z
+
+	ld	a,01ch + 01h
+	ld	bc,007h * 0100h + 00bh
+
+bgcell_change$:
+	ld	(el_c),a
+	ld	a,B_BGCELL_CHANGE
+	call	bank2bank
+
+	ret
+
+
+
+r23r1f1_tbl:
+	initndw	R23R1F1main,SeqR23R1F1main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+
+R23R1F1main:
+	ld	hl,switch_pos$
+	call	CheckActorPos
+	jp	nc,battle_main
+
+	ld	hl,ev_r23 + 1
+
+	ld	a,(usr_buf + 0)
+	cp	2
+	jr	z,oth$
+
+	bit	0,(hl)
+	set	0,(hl)				; switch on(010h,001h)
+	ret	nz
+
+	jr	open$
+
+
+oth$:
+	bit	7,(hl)
+	set	7,(hl)				; switch on(010h,009h)
+	ret	nz
+
+open$:
+	ld	hl,ptn_data
+	set	5,(hl)
+
+	ret
+
+
+
+switch_pos$:
+	db	010h,001h
+	db	010h,009h
+	db	0ffh
+
+
+
+msg_r23r1f1:
+	msgndw	msg1,msg_karate
+	ndw	msg2,msg_gypsy
+	ndw	msg3,msg_circus
+	ndw	msg4,msg_mania
+	ndw	msg5,msg_jack
+	ndw	msg6,msg_fire
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	capsule_item,msg_capsule3
+	ndw	capsule_item,msg_capsule4
+	ndw	rock_on,msg_iwa1
+	ndw	rock_on,msg_iwa2
+	ndw	rock_on,msg_iwa3		; fall to hole
+
+
+
+dealer_talk:
+d_talk1:
+	db	msg_karate,040h
+	dw	ev_r23 + 1
+	dw	msg1_0
+	dw	msg1_after
+	dw	msg1_win
+	dw	msg1_win
+
+d_talk2:
+	db	msg_gypsy,030h
+	dw	ev_r23 + 1
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk3:
+	db	msg_circus,030h
+	dw	ev_r23 + 1
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk4:
+	db	msg_mania,010h
+	dw	ev_r23 + 1
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk5:
+	db	msg_jack,030h
+	dw	ev_r23 + 1
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+d_talk6:
+	db	msg_fire,000h
+	dw	ev_r23 + 1
+	dw	msg6_0
+	dw	msg6_0
+	dw	msg6_0
+	dw	msg6_0
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk5
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg6:
+	db	CALL_MSG
+
+	ld	hl,d_talk6
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg6_0:
+	extern	msg6_0_0_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg6_0_0_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,73				; fire--
+	call	gyaarth_play
+	call	se_wait
+	
+	jp	msg_return
+
+
+
+msg1_0:
+	extern	msg1_0_1_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_1_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_win:
+	extern	msg1_win_2_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_win_2_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_after:
+	extern	msg1_after_3_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_after_3_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_0:
+	extern	msg2_0_4_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_4_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_5_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_5_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_6_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_6_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg3_0:
+	extern	msg3_0_7_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_7_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_8_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_8_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_9_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_9_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_0:
+	extern	msg4_0_10_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_10_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_11_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_11_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_12_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_12_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg5_0:
+	extern	msg5_0_13_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_13_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_14_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_14_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_15_R23R0101
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_15_R23R0101	; mvmsg追加
+	db 023h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+sxy_r23r1f1:
+	include	..\sxy\r23r0101.sxy
+
+
+iwa_1f:
+	include	..\mapdata\iwa_1f.map
+

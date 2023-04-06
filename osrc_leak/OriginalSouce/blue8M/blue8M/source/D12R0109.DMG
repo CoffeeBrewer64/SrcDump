@@ -1,0 +1,73 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d12_room1_9f
+
+
+	extern	skoya1
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+d12_room1_9f:
+ysiz	=	4
+xsiz	=	4
+	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	skoya1			; map data adrs
+	dw	msg_d12r1f9		; message tbl adrs
+	dw	ev_d12r1f9		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d12r1f9
+
+
+ev_d12r1f9:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_d12r1f9:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+
+
+
+msg1$:
+	extern	msg1_0_D12R0109
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_D12R0109	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_D12R0109
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_D12R0109	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_2_D12R0109
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_D12R0109	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d12r1f9:
+	include	..\sxy\d12r0109.sxy
+

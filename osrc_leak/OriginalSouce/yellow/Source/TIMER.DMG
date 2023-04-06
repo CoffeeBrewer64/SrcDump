@@ -1,0 +1,48 @@
+
+	include	common.def
+	include	fntequ.def
+
+bank0	group	0
+
+	public	wdt
+
+	extern	wait_vb
+	extern	MusicStop
+	extern  step_prn_win
+
+wdt:
+	reti
+  ifn 0 
+	push	af
+
+	ld	a,(tuushin_flg)		; add by sige 95-02-27
+	cp	2			; 
+	jr	z,pass1$		;
+
+	ld	a,(wdt_cnt)
+	inc	a
+	ld	(wdt_cnt),a		; wdt_cnt
+	cp	60			; change by sige 95-03-06
+	jr	c,pass1$
+
+	call	MusicStop
+
+	ld	a,001h
+	ld	(IE),a
+	ld	(all_put_req),a
+
+	ei
+
+	ld	a,ABORT_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+
+boon1$:
+	jp	boon1$
+
+pass1$:
+	pop	af
+	reti
+
+  endif
+

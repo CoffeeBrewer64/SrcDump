@@ -1,0 +1,621 @@
+
+ 	include	common.def
+ 	include	pm_debug.def
+
+	public	encount
+	public	encount_tbl
+
+	extern	block_move
+
+bank3	group	3
+
+encount:
+;	xor	a
+;	ld	(gein_name),a
+;	ld	(gein_cap_data),a
+	ld	hl,encount_tbl
+	ld	a,(mapno)
+;	add	a,a			; * 2
+;	jr	nc,pass1$
+
+;	inc	h
+;pass1$:
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	ld	a,(hli)
+	ld	(gein_name),a
+	and	a
+	jr	z,water_encount$	; encount ritsu = 0%
+
+	push	hl
+	ld	de,gein_name + 1
+	ld	bc,20
+	call	block_move
+	pop	hl
+	ld	bc,20
+	add	hl,bc
+	
+water_encount$:
+	ld	a,(hli)
+	ld	(gein_cap_data),a
+	and	a
+	ret	z			; water encount ritsu = 0%
+	
+	ld	de,gein_cap_data + 1
+	ld	bc,20
+	jp	block_move
+
+	
+encount_tbl:
+	dw	town_1$		; 0
+	dw	town_2$		; 1
+	dw	town_3$		; 2
+	dw	town_4$		; 3
+	dw	town_5$		; 4
+	dw	town_6$		; 5
+	dw	town_7$		; 6
+	dw	town_8$		; 7
+	dw	town_9$		; 8
+	dw	town_10$	; 9
+	dw	town_11$	; 10
+	dw	town_12$	; 11
+
+	dw	road_1$		; 12
+	dw	road_2$		; 13
+	dw	road_3$		; 14
+	dw	road_4$		; 15
+	dw	road_5$		; 16
+	dw	road_6$		; 17
+	dw	road_7$		; 18
+	dw	road_8$		; 19
+	dw	road_9$		; 20
+	dw	road_10$	; 21
+	dw	road_11$	; 22
+	dw	road_12$	; 23
+	dw	road_13$	; 24
+	dw	road_14$	; 25
+	dw	road_15$	; 26
+	dw	road_16$	; 27
+	dw	road_17$	; 28
+	dw	road_18$	; 29
+	dw	road_19$	; 30
+	dw	road_20$	; 31
+	dw	road_21$	; 32
+	dw	road_22$	; 33
+	dw	road_23$	; 34
+	dw	road_24$	; 35
+	dw	road_25$	; 36
+
+	dw	t1r1f1$		; 37
+	dw	t1r1f2$		; 38
+	dw	t1r2f1$		; 39
+	dw	t1r3f1$		; 40
+
+	dw	t2r1f1$		; 41
+	dw	t2r2f1$		; 42
+	dw	t2r3f1$		; 43
+	dw	t2r4f1$		; 44
+	dw	t2r5f1$		; 45
+
+	dw	r2r1f1$		; 46
+	dw	r2r2f1$		; 47
+	dw	r2r3f1$		; 48
+	dw	r2r4f1$		; 49
+	dw	r2r5f1$		; 50
+	
+	dw	d1r1f1$		; 51
+
+	dw	t3r1f1$		; 52
+	dw	t3r1f2$		; 53
+	dw	t3r2f1$		; 54
+	dw	t3r3f1$		; 55
+	dw	t3r4f1$		; 56
+	dw	t3r5f1$		; 57
+	dw	t3r6f1$		; 58
+
+	dw	d2r1f1$		; 59
+	dw	d2r1f2$		; 60
+	dw	d2r1f3$		; 61
+
+	dw	t4r1f1$		; 62
+	dw	t4r2f1$		; 63
+	dw	t4r3f1$		; 64
+	dw	t4r4f1$		; 65
+	dw	t4r5f1$		; 66
+	dw	t4r6f1$		; 67
+
+	dw	r4r1f1$		; 68
+	dw	r4r2f1$		; 69
+
+	dw	r5r1f1$		; 70
+	dw	r5r2f1$		; 71
+	dw	r5r3f1$		; 72
+
+	dw	r6r1f1$		; 73
+	dw	r6r2f1$		; 74
+	dw	r6r2f2$		; 75
+
+	dw	r7r1f1$		; 76
+	dw	r7r2f1$		; 77
+	dw	r7r3f1$		; 78
+
+	dw	r8r1f1$		; 79
+	dw	r8r2f1$		; 80
+
+	dw	r10r1f1$	; 81
+	dw	r10r2f1$	; 82
+	dw	r10r3f1$	; 83
+
+	dw	r11r1f1$	; 84
+	dw	r11r2f1$	; 85
+	dw	r11r1f2$	; 86
+
+	dw	r12r1f1$	; 87
+
+	dw	r25r1f1$	; 88
+
+	dw	t6r1f1$		; 89
+	dw	t6r2f1$		; 90
+	dw	t6r3f1$		; 91
+	dw	t6r4f1$		; 92
+	dw	t6r5f1$		; 93
+	dw	t6r6f1$		; 94
+
+	dw	d3r1f1$		; 95
+	dw	d3r1f2$		; 96
+	dw	d3r1f3$		; 97
+	dw	d3r1f4$		; 98
+	dw	d3r1f5$		; 99
+	dw	d3r1f6$		; 100
+	dw	d3r1f7$		; 101
+	dw	d3r1f8$		; 102
+	dw	d3r1f9$		; 103
+	dw	d3r1f10$	; 104
+	dw	d14r1f1$	; 105
+	dw	d14r1f2$	; 106
+	dw	d14r1f3$	; 107
+	dw	d14r1f4$	; 108
+	dw	d14r1f5$	; 109
+	dw	d14r1f6$	; 110
+	dw	d14r1f7$	; 111
+	dw	d14r1f8$	; 112
+	dw	d14r1f9$	; 113
+	dw	d14r1f10$	; 114
+	dw	d14r1f11$	; 115
+	dw	d14r1f12$	; 116
+	dw	d14r1f13$	; 117
+
+	dw	d3r1f24$	; 118
+
+	dw	d4r1f1$		; 119
+	dw	d5r1f1$		; 120
+	dw	d6r1f1$ 	; 121
+
+	dw	t7r1f1$		; 122 
+	dw	t7r1f2$		; 123 
+	dw	t7r1f3$		; 124 
+	dw	t7r1f4$		; 125 
+	dw	t7r1f5$		; 126 
+	dw	t7r1f6$		; 127 
+	dw	t7r2f1$		; 128
+	dw	t7r2f2$		; 129
+	dw	t7r2f3$		; 130
+	dw	t7r2f4$		; 131
+	dw	t7r2f5$		; 132
+	dw	t7r3f1$		; 133
+	dw	t7r4f1$		; 134
+	dw	t7r5f1$		; 135
+	dw	t7r6f1$		; 136
+	dw	t7r7f1$		; 137
+	dw	t7r8f1$		; 138
+	dw	t7r9f1$		; 139
+	dw	t7r10f1$	; 140
+
+	dw	t5r1f1$		; 141	
+	dw	t5r2f1$		; 142
+	dw	t5r2f2$		; 143
+	dw	t5r2f3$		; 144
+	dw	t5r2f4$		; 145
+	dw	t5r2f5$		; 146
+	dw	t5r2f6$		; 147
+	dw	t5r2f7$		; 148
+	dw	t5r3f1$		; 149
+	dw	t5r4f1$		; 150
+	dw	t5r5f1$		; 151
+
+	dw	t8r1f1$		; 152
+	dw	t8r2f1$		; 153
+	dw	t8r3f1$		; 154
+	dw	t8r4f1$		; 155
+	dw	t8r5f1$		; 156
+	dw	t8r6f1$		; 157
+	dw	t8r7f1$		; 158
+
+	dw	d16r1f1$	; 159
+	dw	d16r1f2$	; 160
+	dw	d16r1f3$	; 161
+	dw	d16r1f4$	; 162
+
+	dw	t8r12f1$	; 163
+	dw	t8r13f1$	; 164
+
+	dw	t9r1f1$		; 165
+	dw	t9r2f1$		; 166
+	dw	t9r3f1$		; 167
+	dw	t9r3f2$		; 168
+	dw	t9r3f3$		; 169
+	dw	t9r3f4$		; 170
+	dw	t9r4f1$		; 171
+	dw	t9r5f1$		; 172
+	dw	t9r6f1$		; 173
+
+	dw	t10r1f1$	; 174	
+
+	dw	t11r1f1$	; 175
+	dw	t11r1f2$	; 176
+	dw	t11r2f1$	; 177
+	dw	t11r3f1$	; 178
+	dw	t11r4f1$	; 179
+	dw	t11r5f1$	; 180
+	dw	t11r6f1$	; 181
+	dw	t11r7f1$	; 182
+	dw	t11r8f1$	; 183
+
+	dw	r15r1f1$	; 184
+	dw	r15r1f2$	; 185
+
+	dw	r16r1f1$	; 186
+	dw	r16r1f2$	; 187
+	dw	r16r2f1$	; 188
+	dw	r16r3f1$	; 189
+
+	dw	r18r1f1$	; 190
+	dw	r18r1f2$	; 191
+
+	dw	r20r1f1$	; 192
+
+	dw	r22r1f1$	; 193
+
+	dw	r23r1f1$	; 194
+
+	dw	r12r1f2$	; 195
+
+	dw	t6r7f1$		; 196
+
+	dw	d7r1f1$		; 197
+
+	dw	d8r1f1$		; 198
+
+	dw	d9r1f1$		; 199
+	dw	d9r1f2$		; 200
+	dw	d9r1f3$		; 201
+	dw	d9r1f4$		; 202
+	dw	d9r1f5$		; 203
+	dw	d9r1f6$		; 204
+	dw	d9r1f7$		; 205
+	dw	d9r1f8$		; 206
+
+	dw	d10r1f1$	; 207
+	dw	d10r1f2$	; 208
+	dw	d10r1f3$	; 209
+	dw	d10r1f4$	; 210
+	dw	d10r1f5$	; 211
+	dw	d10r1f6$	; 212
+	dw	d10r1f7$	; 213
+
+	dw	d11r1f1$	; 214
+	dw	d11r1f2$	; 215
+	dw	d11r1f3$	; 216
+
+	dw	d12r1f1$	; 217
+	dw	d12r1f2$	; 218
+	dw	d12r1f3$	; 219
+	dw	d12r1f4$	; 220
+	dw	d12r1f5$	; 221
+	dw	d12r1f6$	; 222
+	dw	d12r1f7$	; 223
+	dw	d12r1f8$	; 224
+	dw	d12r1f9$	; 225
+
+	dw	d13r1f1$	; 226
+	dw	d13r1f2$	; 227
+
+	dw	t4r7f1$		; 228
+
+	dw	t5r2f8$		; 229
+
+	dw	r4r3f1$		; 230
+
+	dw	r20r2f1$ 	; 231
+
+	dw	d15r1f1$ 	; 232
+
+	dw	d10r1f8$ 	; 233
+	dw	d10r1f9$ 	; 234
+	dw	d10r1f10$ 	; 235
+	dw	d10r1f11$ 	; 236
+	dw	d10r2f1$ 	; 237
+	dw	d10r2f2$ 	; 238
+
+	dw	t0r1f1$ 	; 239
+	dw	t0r1f2$ 	; 240
+
+	dw	d10r2f3$ 	; 241
+	dw	d10r2f4$ 	; 242
+	dw	d10r2f5$ 	; 243
+	dw	d10r2f6$ 	; 244
+
+	dw	d14r1f16$ 	; 245
+	dw	d14r1f17$ 	; 246
+	dw	d14r1f18$ 	; 247
+
+	dw	0ffffh		; table end
+
+
+;;;;;;;
+t10r1f1$:
+d10r2f1$:
+d10r2f2$:
+d10r2f3$:
+d10r2f4$:
+d10r2f5$:
+
+town_1$:		; 0
+town_2$:		; 1
+town_3$:		; 2
+town_4$:		; 3
+town_5$:		; 4
+town_6$:		; 5
+town_7$:		; 6
+town_8$:		; 7
+town_9$:		; 8
+town_10$:		; 9
+town_11$:		; 10
+town_12$:		; 11
+
+t1r1f1$:		; 37
+t1r1f2$:		; 38
+t1r2f1$:		; 39
+t1r3f1$:		; 40
+
+t2r1f1$:		; 41
+t2r2f1$:		; 42
+t2r3f1$:		; 43
+t2r4f1$:		; 44
+t2r5f1$:		; 45
+
+r2r1f1$:		; 46
+r2r2f1$:		; 47
+r2r3f1$:		; 48
+r2r4f1$:		; 49
+r2r5f1$:		; 50
+
+t3r1f1$:		; 52
+t3r1f2$:		; 53
+t3r2f1$:		; 54
+t3r3f1$:		; 55
+t3r4f1$:		; 56
+t3r5f1$:		; 57
+t3r6f1$:		; 58
+
+t4r1f1$:		; 62
+t4r2f1$:		; 63
+t4r3f1$:		; 64
+t4r4f1$:		; 65
+t4r5f1$:		; 66
+t4r6f1$:		; 67
+
+;road_16$:
+
+r4r1f1$:		; 68
+r4r2f1$:		; 69
+
+r5r1f1$:		; 70
+r5r2f1$:		; 71
+r5r3f1$:		; 72
+
+r6r1f1$:		; 73
+r6r2f1$:		; 74
+r6r2f2$:		; 75
+
+r7r1f1$:		; 76
+r7r2f1$:		; 77
+r7r3f1$:		; 78
+
+r8r1f1$:		; 79
+r8r2f1$:		; 80
+
+r10r1f1$:		; 81
+;r10r3f1$:		; 83
+
+r11r1f1$:		; 84
+r11r2f1$:		; 85
+r11r1f2$:		; 86
+
+r12r1f1$:		; 87
+
+r25r1f1$:		; 88
+
+t6r1f1$:		; 89
+t6r2f1$:		; 90
+t6r3f1$:		; 91
+t6r4f1$:		; 92
+t6r5f1$:		; 93
+t6r6f1$:		; 94
+
+d3r1f1$:		; 95
+d3r1f2$:		; 96
+d3r1f3$:		; 97
+d3r1f4$:		; 98
+d3r1f5$:		; 99
+d3r1f6$:		; 100
+d3r1f7$:		; 101
+d3r1f8$:		; 102
+d3r1f9$:		; 103
+d3r1f10$:		; 104
+d14r1f1$:		;
+d14r1f2$:		;
+d14r1f3$:		;
+d14r1f5$:		;
+d14r1f6$:		;
+d14r1f7$:		;
+d14r1f8$:		; 
+d14r1f9$:		;
+d14r1f10$:		; 114
+d14r1f11$:		; 115
+d14r1f12$:		; 116
+d14r1f13$:		; 117
+d3r1f24$:		; 118
+
+d4r1f1$:		; 119
+d5r1f1$:		; 120
+d6r1f1$: 		; 121
+
+t7r1f1$:		; 122 
+t7r1f2$:		; 123 
+t7r1f3$:		; 124 
+t7r1f4$:		; 125 
+t7r1f5$:		; 126 
+t7r1f6$:		; 127 
+t7r2f1$:		; 128
+t7r2f2$:		; 129
+t7r2f3$:		; 130
+t7r2f4$:		; 131
+t7r2f5$:		; 132
+t7r3f1$:		; 133
+t7r4f1$:		; 134
+t7r5f1$:		; 135
+t7r6f1$:		; 136
+t7r7f1$:		; 137
+t7r8f1$:		; 138
+t7r9f1$:		; 139
+t7r10f1$:		; 140
+
+t5r1f1$:		; 141	
+
+t5r3f1$:		; 149
+t5r4f1$:		; 150
+t5r5f1$:		; 151
+
+t8r1f1$:		; 152
+t8r2f1$:		; 153
+t8r3f1$:		; 154
+t8r4f1$:		; 155
+t8r5f1$:		; 156	
+t8r6f1$:		; 157
+t8r7f1$:		; 158
+
+t8r12f1$:		; 163
+t8r13f1$:		; 164
+
+t9r2f1$:		; 166
+t9r3f1$:		; 167
+t9r3f2$:		; 168
+t9r3f3$:		; 169
+t9r3f4$:		; 170
+t9r4f1$:		; 171
+t9r5f1$:		; 172
+t9r6f1$:		; 173
+
+t10r2f1$:		; 174
+
+t11r1f1$:		; 175
+t11r1f2$:		; 176
+t11r2f1$:		; 177
+t11r3f1$:		; 178
+t11r4f1$:		; 179
+t11r5f1$:		; 180
+t11r6f1$:		; 181
+t11r7f1$:		; 182
+t11r8f1$:		; 183
+
+r15r1f1$:		; 184
+r15r1f2$:		; 185
+
+r16r1f1$:		; 186
+r16r1f2$:		; 187
+r16r2f1$:		; 188
+r16r3f1$:		; 189
+
+r18r1f1$:		; 190
+r18r1f2$:		; 191
+
+r22r1f1$:		; 193
+
+r12r1f2$:		; 195
+
+t6r7f1$:		; 196
+
+;d7r1f1$:		; 197
+
+d9r1f1$:		; 199
+d9r1f2$:		; 200
+d9r1f3$:		; 201
+d9r1f4$:		; 202
+d9r1f5$:		; 203
+d9r1f6$:		; 204
+d9r1f7$:		; 205
+d9r1f8$:		; 206
+
+d10r1f3$:		; 209
+d10r1f4$:		; 210
+d10r1f5$:		; 211
+d10r1f6$:		; 212
+
+d12r1f5$:		; 221
+d12r1f6$:		; 222
+d12r1f7$:		; 223
+d12r1f8$:		; 224
+d12r1f9$:		; 225
+
+t5r2f8$:		; 229
+
+r4r3f1$:		; 230
+
+r20r2f1$:		; 231
+
+d10r1f1$:		; 236
+d10r1f2$:		; 237
+d10r1f7$:		; 232
+d10r1f8$:		; 233
+d10r1f9$:		; 234
+d10r1f10$:		; 235
+d10r1f11$:		; 236
+;d10r2f2$:		; 238
+
+t0r1f1$:		; 239
+t0r1f2$:		; 240
+
+;d10r2f3$:		; 241
+;d10r2f4$:		; 242
+;d10r2f5$:		; 243
+d10r2f6$:		; 244
+d14r1f16$:		; 245
+d14r1f17$:		; 246
+d14r1f18$:		; 247
+	db	00			; encount ritsu
+	db	00			; water encount ritsu
+
+  ifn pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+    ifn	pm_jmsg
+	include	..\data\encount.dat	; blue version ,96/07/25,by tama
+    else
+	include	..\data\encountb.dat	; us blue
+    endif
+   else
+	;-----<red version>-----
+	include	..\data\encountr.dat	; red
+   endif
+  else
+	;-----<green version>-----
+	include	..\data\encountb.dat	; green
+  endif
+

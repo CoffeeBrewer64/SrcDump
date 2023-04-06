@@ -1,0 +1,94 @@
+ACTSUB.DMG:	ld	hl,save_event_flg + 0		; arrive map
+A_MOVE.DMG:	ld	a,(event_flg)			; no site change 
+BATTLE.DMG:	ld	hl,event_flg
+BATTLE.DMG:	ld	hl,event_flg
+BATTLE.DMG:	ld	a,(save_event_flg + 8)
+BATTLE.DMG:	ld	(save_event_flg + 8),a
+BATTLE.DMG:	ld	hl,event_flg
+C_EFFECT.DMG:	ld	a,(save_event_flg + 9)
+C_EFFECT.DMG:	ld	(save_event_flg + 9),a
+C_EFFECT.DMG:	ld	(save_event_flg + 9),a
+D02R0103.DMG:;	ld	a,(event_flg)
+D02R0103.DMG:	ld	hl,event_flg
+D02R0103.DMG:	ld	hl,event_flg
+D03R0102.DMG:	ld	hl,event_flg
+D03R0107.DMG:	ld	hl,event_flg
+D03R0107.DMG:	ld	hl,event_flg
+D08R0101.DMG:	ld	hl,event_flg
+D08R0101.DMG:	ld	a,(event_flg)
+D09R0104.DMG:	ld	hl,event_flg
+D09R0104.DMG:	ld	hl,event_flg
+D10R0106.DMG:	ld	hl,event_flg
+D10R0110.DMG:	ld	hl,event_flg
+D10R0110.DMG:	ld	hl,event_flg
+D11R0102.DMG:	ld	a,(event_flg)
+D11R0102.DMG:	ld	hl,event_flg
+D14R0115.DMG:	ld	hl,event_flg
+DEBUG.DMG:	ld	(event_flg),a		; dealer message off
+EV_TOOL.DMG:	ld	a,(save_event_flg + 2)	
+EV_TOOL.DMG:	ld	a,(save_event_flg + 3)
+EV_TOOL.DMG:	ld	(save_event_flg + 2),a
+EV_TOOL.DMG:	ld	(save_event_flg + 3),a
+MAPPER.DMG:	ld	hl,event_flg
+MAPPER.DMG:	ld	hl,event_flg
+MAPPER.DMG:	ld	hl,event_flg
+MAPPER.DMG:	ld	a,(event_flg)
+MAPPER.DMG:;	ld	hl,event_flg
+MAPSUB.DMG:	ld	de,save_event_flg + 2		; hosuu_count
+NEWMAP.DMG:	ld	hl,event_flg
+NEWMAP.DMG:	ld	hl,event_flg
+NEWMAP.DMG:	ld	hl,event_flg
+NEWMAP.DMG:	ld	a,(event_flg)
+NEWMAP.DMG:;	ld	hl,event_flg
+OBSERVE.DMG:	ld	a,(event_flg)
+OBSERVE.DMG:	ld	hl,event_flg
+PLAY1.DMG:	ld	(event_flg),a
+PLAY1.DMG:	ld	(event_flg),a
+PLAY1.DMG:	ld	(event_flg),a			; for terminal room
+PLAY1.DMG:	ld	a,(event_flg)			; for terminal mode
+PLAY1.DMG:	ld	a,(event_flg)
+PLAY1.DMG:;	(event_flg)		valued in terminal mode(game_mode#2=0)	;
+PLAY1.DMG:	ld	a,(event_flg)
+PLAY1.DMG:	ld	hl,event_flg
+PLAY1.DMG:	ld	(save_event_flg + 0),a		; allowed warp all town
+PLAY1.DMG:	ld	(save_event_flg + 1),a		; allowed warp all town
+PLAY2.DMG:	ld	(event_flg),a
+PLAY2.DMG:	ld	(event_flg),a
+PLAY2.DMG:	ld	(event_flg),a
+PLAY2.DMG:	ld	(event_flg),a
+ROAD22.DMG:	ld	hl,event_flg
+ROAD22.DMG:	ld	hl,event_flg
+ROAD24.DMG:	ld	hl,event_flg
+T00R0101.DMG:	ld	hl,event_flg
+T00R0102.DMG:	ld	hl,event_flg
+T01R0301.DMG:	ld	hl,event_flg
+T02R0501.DMG:	ld	hl,event_flg
+T03R0201.DMG:	ld	hl,event_flg
+T04R0401.DMG:	ld	hl,event_flg
+T05R0202.DMG:	ld	hl,event_flg
+T05R0206.DMG:	ld	a,(event_flg)
+T05R0207.DMG:	ld	hl,event_flg
+T05R0207.DMG:	ld	hl,event_flg
+T06R0401.DMG:	ld	hl,event_flg
+T07R0401.DMG:	ld	hl,event_flg
+T07R0501.DMG:	ld	hl,event_flg
+T08R0501.DMG:	ld	(save_event_flg + 2),a		; safari step
+T08R0501.DMG:	ld	(save_event_flg + 2),a		;
+T08R0501.DMG:	ld	(save_event_flg + 2),a
+T08R0501.DMG:	ld	(save_event_flg + 3),a		; 500(10) --> HEX + 2step
+T08R0501.DMG:	ld	hl,save_event_flg + 2
+T08R0601.DMG:	ld	hl,event_flg
+T09R0201.DMG:	ld	hl,event_flg
+T09R0304.DMG:	ld	a,(save_event_flg + 5)
+T09R0304.DMG:	ld	a,(save_event_flg + 5)
+T09R0304.DMG:	ld	(save_event_flg + 4),a
+T09R0304.DMG:	ld	(save_event_flg + 5),a
+T09R0304.DMG:	ld	a,(save_event_flg + 4)
+T09R0304.DMG:	ld	a,(save_event_flg + 5)
+T09R0304.DMG:	ld	a,(save_event_flg + 4)
+T11R0201.DMG:	ld	hl,event_flg
+T11R0301.DMG:	ld	hl,event_flg
+TOWN04.DMG:	ld	hl,event_flg
+TOWN04.DMG:	ld	hl,event_flg
+WORLDMAP.DMG:	ld	a,(save_event_flg + 0)
+WORLDMAP.DMG:	ld	a,(save_event_flg + 1)

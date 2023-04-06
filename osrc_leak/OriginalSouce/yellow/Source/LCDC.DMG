@@ -1,0 +1,376 @@
+
+	include	common.def
+	include	laster.h
+
+bank0	group	0
+
+
+
+
+
+;===============================================;
+;						;
+;	LASTER	ROUTINE				;
+;           IN : LasterReq			;
+;		 0       = No Operation		;
+;		 MSB_On  = Field Laster		;
+;		 MSB_Off = LasterBuffer USE	;
+;		 	   (0~6Bit..Low 0ffXXh) ;
+;===============================================;
+
+
+	public	int_lcdc
+
+int_lcdc:
+;--------- H_BLANK USE --------------------------------
+	push	af
+	ld	a,(LasterReq)
+	and	a
+	jr	z,ret$
+
+	push	hl
+for_ram$:
+	ld	a,(LY)
+	ld	l,a
+	ld	h,> LasterBuffer
+
+	ld	h,(hl)
+
+	ld	a,(LasterReq)
+	ld	l,a
+	ld	a,h
+	ld	h,0ffh
+	ld	(hl),a
+	pop	hl
+ret$:
+	pop	af
+	reti
+
+;------------------------------------------------------
+
+
+
+	public	arukeru_tbl_check
+	extern	bank_change
+
+arukeru_tbl_check:
+	ld	a,(rombankno)
+	push	af
+	ld	a,1
+	call	bank_change
+
+	call	walk_tbl_check
+
+	pop	bc
+	ld	a,b
+	call	bank_change
+	ret
+
+
+bank1	group	1
+
+
+;------------------------------------------------------
+; check arukeru_tbl 
+; In:	c regs		left btm chr code of the cell
+; Out:	carry ON	not exists same chr code
+;------------------------------------------------------
+	public	walk_tbl_check
+
+walk_tbl_check:
+	ld	hl,arukeru_tbl
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,end$
+	cp	c
+	jr	nz,loop$
+	xor	a
+	ret
+end$:
+	scf
+	ret
+
+
+;---------------------------------------------------------;
+; CE no char number no hidari shita wo miteiru By Junichi ;
+;---------------------------------------------------------;
+	public	bui_nukemichi
+
+bui_nukemichi:
+	db	00bh
+	db	00ch
+	db	013h
+	db	015h
+	db	018h
+	db	0ffh
+
+
+	public	bui_machi
+bui_machi:
+	db	000h
+	db	010h
+	db	01bh				; Genkan
+	db	020h
+	db	021h
+	db	023h				; jimen 1
+	db	02ch
+	db	02dh
+	db	02eh
+	db	030h
+	db	031h
+	db	033h
+	db	039h				; jimen 2
+	db	03ch				; jimen 3       
+;	db	03dh				; kareki
+	db	03eh
+	db	052h
+	db	054h
+	db	058h
+	db	05bh
+	db	0ffh
+
+
+	public	bui_room
+bui_room:
+	db	001h
+	db	002h
+	db	003h
+	db	011h
+	db	012h
+	db	013h
+	db	014h				; Genkan mat
+	db	01ch				; Kaidan Ue
+	db	01ah				; Kaidan Sita
+	db	0ffh
+
+	public	bui_miseyado
+bui_miseyado:
+	db	011h		
+	db	01ah		
+	db	01ch		
+	db	03ch		
+	db	05eh		
+	db	0ffh
+
+	public	bui_school
+bui_school:
+	db	011h
+	db	016h
+	db	019h
+;	db	01fh
+	db	02bh
+	db	03ch
+	db	03dh
+	db	03fh
+	db	04ah
+	db	04ch
+	db	04dh
+	db	003h
+	db	0ffh
+
+	public	bui_dungeon
+bui_dungeon:
+	db	01eh
+	db	020h	
+	db	02eh
+	db	030h				; Kusamura (Encount)
+	db	034h
+	db	037h
+	db	039h
+	db	03ah
+	db	040h
+	db	051h
+	db	052h
+;	db	055h
+;	db	056h
+	db	05ah
+	db	05ch
+	db	05eh
+	db	05fh
+	db	0ffh 
+
+	public	bui_minka
+bui_minka:
+	db	001h
+	db	012h
+	db	014h
+	db	028h
+	db	032h
+	db	037h
+	db	044h
+	db	054h
+	db	05ch
+	db	0ffh 
+
+	public	bui_gatehaku
+bui_gatehaku:
+	db	001h
+	db	012h
+	db	014h
+	db	01ah
+	db	01ch
+	db	037h
+	db	038h
+	db	03bh			; Door (NEW)
+	db	03ch
+	db	05eh
+	db	0ffh
+
+	public	bui_ship
+bui_ship:
+	db	004h
+	db	00dh
+	db	017h
+	db	01dh
+	db	01eh
+	db	023h
+	db	034h
+	db	037h
+	db	039h
+	db	04ah
+	db	0ffh
+
+
+	public	bui_port
+bui_port:
+	db	00ah
+	db	01ah
+	db	032h
+	db	03bh
+	db	0ffh
+
+
+	public	bui_tower
+bui_tower:
+	db	001h
+	db	010h
+	db	013h
+	db	01bh
+	db	022h
+	db	042h
+	db	052h
+	db	0ffh
+
+	public	bui_daimania
+bui_daimania:
+	db	004h
+	db	00fh
+	db	015h
+	db	01fh
+	db	03bh
+	db	045h
+	db	047h
+	db	055h
+	db	056h
+	db	0ffh
+
+	public	bui_doukutu
+bui_doukutu:
+	db	005h
+	db	015h
+	db	018h
+	db	01ah
+	db	020h
+	db	021h
+	db	022h
+	db	02ah
+	db	02dh
+	db	030h
+;	db	03ch
+;	db	041h
+	db	0ffh		; dummy
+	db	0ffh
+
+	public	bui_depart
+bui_depart:
+	db	014h
+	db	017h
+	db	01ah
+	db	01ch
+	db	020h
+	db	038h
+	db	045h
+	db	0ffh
+
+	public	bui_manshon
+bui_manshon:
+	db	001h
+	db	005h
+	db	011h
+	db	012h
+	db	014h
+	db	01ah
+	db	01ch
+	db	02ch
+	db	053h
+	db	0ffh
+
+	public	bui_kenkyujo
+bui_kenkyujo:
+	db	00ch
+	db	026h
+	db	016h
+	db	01eh
+	db	034h
+	db	037h
+	db	0ffh
+
+	public	bui_cycle
+bui_cycle:
+	db	00fh
+	db	01ah
+	db	01fh
+	db	026h
+	db	028h
+	db	029h
+	db	02ch
+	db	02dh
+	db	02eh
+	db	02fh
+	db	041h
+	db	0ffh
+
+	public	bui_building
+bui_building:
+	db	001h
+	db	010h
+	db	011h
+	db	013h
+	db	01bh
+	db	020h
+	db	021h
+	db	022h
+	db	030h
+	db	031h
+	db	032h
+	db	042h
+	db	043h
+	db	048h
+	db	052h
+	db	055h
+	db	058h
+	db	05eh
+	db	0ffh
+
+	public	bui_centering
+bui_centering:
+	db	01bh
+	db	023h
+	db	02ch
+	db	02dh
+	db	03bh
+	db	045h
+	db	0ffh
+
+	public	bui_uminoie
+bui_uminoie:
+	db	001h
+	db	011h
+	db	012h
+	db	014h
+	db	0ffh
+

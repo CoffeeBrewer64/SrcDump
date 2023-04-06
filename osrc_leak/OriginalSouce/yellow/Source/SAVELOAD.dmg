@@ -1,0 +1,1216 @@
+	include		common.def
+	include		fntequ.def
+	include		banktool.def
+	include		macro.h
+	include		pm_debug.def
+
+
+	extern	actor_blanch
+	extern	memset
+	extern	ev_msg_adrs_load
+	extern	ev_msg_adrs_save
+	extern	mul_any
+	extern	block_move
+	extern	se_play
+	extern	wait_vb_s
+	extern	wait_vb
+	extern	put_win_msg
+	extern	put_window
+	extern	put_msg
+	extern	put_bcd
+	extern	allow
+	extern	yes_no
+	extern	play
+	extern	se_wait
+	extern	step_prn_win
+	extern	mussave
+	extern	dvram_cls
+	extern	set_kana
+	extern	set_serifu
+	extern	bank_push_call
+
+
+BOX_LENGTH	equ	pm_box_end - pm_box_start		;length
+BOX_START	equ	0a000h
+PM_BOX1		equ	0a000h
+PM_BOX2		equ	PM_BOX1 + BOX_LENGTH
+PM_BOX3		equ	PM_BOX2 + BOX_LENGTH
+PM_BOX4		equ	PM_BOX3 + BOX_LENGTH
+ ifn	ASSEMBLE__ENGLISH
+PM_BOX5		equ	PM_BOX4 + BOX_LENGTH		; 英語版では１ボックス２０匹
+PM_BOX6		equ	PM_BOX5 + BOX_LENGTH		; 全１２ボックス２４０匹に変更
+BOX_SUM		equ	PM_BOX6 + BOX_LENGTH		; （ワークＲＡＭ使用を減らして
+ else							;   スタック領域を確保するため）
+BOX_SUM		equ	PM_BOX4 + BOX_LENGTH
+ endif
+BOX_END		equ	BOX_SUM + 1
+
+
+
+bank1c	group	28
+
+
+;*************************************************************************;
+;*                                                                       *;
+;*  LOAD  				                                 *;
+;*                                                                       *;
+;*                                                                       *;
+;*                                                                       *;
+;*************************************************************************;
+	public	load_data
+	public	load_my_data
+	public	load_mons_data
+	public	load_mycap_data
+	public	load_tuusin_data
+
+
+;=========================================================================;
+;   LOAD_DATA   (all_data load)						  ;
+;   	  OUT : Areg  
+;   	      :       1 = DATA BREAK!					  ;
+;   	      :       2 =  LOAD OK!					  ;
+;=========================================================================;
+load_data:
+	call	dvram_cls
+	call	set_kana
+	call	set_serifu
+
+	call	load_my_data
+	jr	c,error$
+
+	call	load_mons_data
+	jr	c,error$
+
+	call	load_mycap_data
+	jr	c,error$
+
+	ld	a,2
+
+	jr	exit$
+
+
+error$:
+	ld	hl,obs_system
+	push	hl
+	set	6,(hl)
+
+	ld	hl,error_msg$
+	call	put_win_msg
+	ld	c,100
+	call	wait_vb_s
+
+	pop	hl
+	res	6,(hl)
+
+	ld	a,1
+
+exit$:
+	ld	(ef_buf),a
+
+	ret	
+
+
+error_msg$:
+	extern	error_msg_0_SAVELOAD
+	db I_MSG2	; mvmsg追加
+	dw error_msg_0_SAVELOAD	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+;=========================================================================;
+;   LOAD_MY_DATA (my_data load)						  ;
+;       OUT  : Cflg 0 = LOAD OK!					  ;
+;            :      1 = LOAD NG!					  ;
+;=========================================================================;
+load_my_data:
+	call	sram_open
+
+	ld	a,001h
+	ld	(RAMBANK),a			; ram-bank = 1
+
+	ld	hl,SaveStart
+	ld	bc,SaveEnd - SaveStart
+	call	sum_check
+	ld	c,a
+	ld	a,(CheckSum + 0)
+	cp	c
+	jp	z,z1$
+
+	ld	hl,SaveStart
+	ld	bc,SaveEnd - SaveStart
+	call	sum_check
+	ld	c,a
+	ld	a,(CheckSum + 0)
+	cp	c
+	jp	nz,sum_error
+
+z1$:
+	ld	hl,MynameStart  
+	ld	de,my_name
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, MONS_NAME_LEN
+ else
+	ld	bc,6
+ endif
+	call	block_move			; loading save data
+
+	ld	hl,MydataStart
+	ld	de,zukan_flg
+	ld	bc,my_data_end - zukan_flg
+	call	block_move			; loading save data
+
+	ld	hl,map_type
+	set	7,(hl)				; switch of "get_map_info"
+
+	ld	hl,ActorData
+	ld	de,actor_table
+	ld	bc,512
+	call	block_move
+
+	ld	a,(s_wave_flg)
+	ld	(wave_flg),a
+
+	ld	hl,MymonsStart
+	ld	de,pm_box_start			;Ram
+	ld	bc,pm_box_end - pm_box_start	;length
+	call	block_move
+
+	and	a
+
+	jp	load_ok
+
+
+
+
+;=========================================================================;
+;   LOAD_MONS_DATA (mons_data load)					  ;
+;       OUT  : Cflg 0 = LOAD OK!					  ;
+;            :      1 = LOAD NG!					  ;
+;=========================================================================;
+load_mons_data:
+	call	sram_open
+	ld	a,001h
+	ld	(RAMBANK),a
+
+	ld	hl,SaveStart
+	ld	bc,SaveEnd - SaveStart
+	call	sum_check
+	ld	c,a
+	ld	a,(CheckSum + 0)
+	cp	c
+	jr	nz,sum_error
+
+	ld	hl,MymonsStart
+	ld	de,pm_box_start				;Ram
+	ld	bc,pm_box_end - pm_box_start		;length
+	call	block_move
+	and	a
+
+	jp	load_ok
+
+
+
+	
+;=========================================================================;
+;   LOAD_MYCAP_DATA (mons_data load)					  ;
+;       OUT  : Cflg 0 = LOAD OK!					  ;
+;            :      1 = LOAD NG!					  ;
+;=========================================================================;
+load_mycap_data:
+	call	sram_open
+	ld	a,001h
+	ld	(RAMBANK),a
+
+	ld	hl,SaveStart
+	ld	bc,SaveEnd - SaveStart
+	call	sum_check
+	ld	c,a
+	ld	a,(CheckSum + 0)
+	cp	c
+	jp	nz,sum_error
+
+	ld	hl,MycapStart			;Ram
+	ld	de,pm_cap_start			;SAVERam
+	ld	bc,pm_cap_end - pm_cap_start	;length
+	call	block_move
+
+	ld	hl,MydataStart
+	ld	de,zukan_flg
+	ld	bc,38
+	call	block_move			; loading save data
+	and	a
+
+	jp	load_ok
+
+
+sum_error:
+	scf	 			;C_flg set   Load_NG!
+
+load_ok:	
+	call	sram_close
+
+	ret
+
+
+
+
+;=========================================================================;
+;   LOAD_TUUSIN_DATA   (tuusin_data load)				  ;
+;=========================================================================;
+load_tuusin_data:
+	call	load_my_data
+	call	load_mons_data
+	jp	load_mycap_data
+
+
+
+
+
+
+;*************************************************************************;
+;*                                                                       *;
+;*  SAVE  				                                 *;
+;*                                                                       *;
+;*                                                                       *;
+;*                                                                       *;
+;*************************************************************************;
+	public	save_data
+	public	save_my_data
+	public	save_mons_data
+	public	save_mycap_data
+	public	save_tuusin_data
+
+
+;=========================================================================;
+;   SAVE_DATA   (all_data save)						  ;
+;=========================================================================;
+	extern	saving_status
+
+save_data:
+	ld	b,001h
+	ld	hl,saving_status
+	call	bank_push_call
+
+	ld	c,0ah
+	call	wait_vb_s
+
+	ld	hl,save_msg1$		;”ここまでの かつやくを
+	call	yes_no$			;  ポケモンレポートに かきこみますか？”
+	and	a
+	ret	nz
+
+	ld	c,0ah
+	call	wait_vb_s
+
+	ld	a,(ef_buf)
+	cp	01h
+	jr	z,do_save$
+
+	call	gbid_check
+	jr	z,do_save$
+
+	ld	hl,save_msg3$		;”まえに かきこまれた レポートが
+	call	yes_no$			;  きえて しまいますが
+	and	a			;  うえから かいても いいですか？”
+	ret	nz
+
+do_save$:
+	call	save_all
+
+	ld	hl,save_msg2_0$		;”ポケモンレポートに かきこんでいます”
+	call	put_win_msg
+
+	ld	c,080h
+	call	wait_vb_s
+	ld	hl,save_msg2$		;”my_name@ はしっかり
+	call	put_win_msg		;  レポートにしっかり かきのこした！”
+
+	ld	c,00ah
+	call	wait_vb_s
+
+	ld	a,mussave
+	call	se_play
+	call	se_wait
+
+	ld	c,30
+	call	wait_vb_s
+
+	ret
+
+
+yes_no$:
+	call	put_win_msg
+ ifn	ASSEMBLE__ENGLISH
+  ifn	pm_jmsg
+	ld	hl,7 * 20 + 14 + dmy_vram
+	ld	bc,8 * 100h + 15
+  else
+	ld	hl,7 * 20 + 0 + dmy_vram
+	ld	bc,8 * 100h + 1
+  endif
+ else
+	ld	hl,007h * 014h + 000h + dmy_vram
+	ld	bc,008h * 100h + 001h
+ endif
+	ld	a,YES_NO_WIN
+	ld	(disp_win_mode),a
+	call	step_prn_win
+
+	ld	a,(allow_cnt)
+
+	ret
+
+
+save_msg1$:
+	extern	save_msg1_1_SAVELOAD
+	db I_MSG2	; mvmsg追加
+	dw save_msg1_1_SAVELOAD	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+save_msg2_0$:
+	extern	save_msg2_0_2_SAVELOAD
+	db I_MSG2	; mvmsg追加
+	dw save_msg2_0_2_SAVELOAD	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+save_msg2$:
+	extern	save_msg2_3_SAVELOAD
+	db I_MSG2	; mvmsg追加
+	dw save_msg2_3_SAVELOAD	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+save_msg3$:
+	extern	save_msg3_4_SAVELOAD
+	db I_MSG2	; mvmsg追加
+	dw save_msg3_4_SAVELOAD	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+;=========================================================================;
+;   SAVE_MY_DATA   (my_data save)					  ;
+;=========================================================================;
+save_my_data:
+	call	sram_open
+	ld	a,001h
+	ld	(RAMBANK),a
+
+	ld	hl,my_name
+	ld	de,MynameStart 
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc, MONS_NAME_LEN
+ else
+	ld	bc,6
+ endif
+	call	block_move
+
+	ld	hl,zukan_flg
+	ld	de,MydataStart 
+	ld	bc,my_data_end - zukan_flg
+	call	block_move
+
+	ld	hl,actor_table
+	ld	de,ActorData
+	ld	bc,200h
+	call	block_move
+
+	ld	hl,pm_box_start			;Ram
+	ld	de,MymonsStart
+	ld	bc,pm_box_end - pm_box_start	;length
+	call	block_move
+
+	ld	a,(wave_flg)
+	ld	(s_wave_flg),a
+
+	ld	hl,SaveStart
+	ld	bc,SaveEnd - SaveStart
+	call	sum_check
+	ld	(CheckSum + 0),a
+
+	call	sram_close
+
+	ret
+
+
+
+
+;=========================================================================;
+;   SAVE_MONS_DATA   (mons_data save)					  ;
+;=========================================================================;
+save_mons_data:
+	call	sram_open
+	ld	a,001h
+	ld	(RAMBANK),a
+
+	ld	hl,pm_box_start			;Ram
+	ld	de,MymonsStart
+	ld	bc,pm_box_end - pm_box_start	;length
+	call	block_move
+
+	ld	hl,SaveStart
+	ld	bc,SaveEnd - SaveStart
+	call	sum_check
+	ld	(CheckSum + 0),a
+
+	call	sram_close
+
+	ret
+
+
+
+	
+;=========================================================================;
+;   SAVE_MYCAP_DATA   (mons_data save)					  ;
+;=========================================================================;
+save_mycap_data:
+	call	sram_open
+	ld	a,001h
+	ld	(RAMBANK),a
+
+	ld	hl,pm_cap_start			;Ram
+	ld	de,MycapStart			;SAVERam
+	ld	bc,pm_cap_end - pm_cap_start	;length
+	call	block_move
+
+	ld	hl,zukan_flg
+	ld	de,MydataStart
+	ld	bc,38
+	call	block_move			; loading save data
+
+; --------------------------------------- add by sige 98/06/04 ---------
+	ld	hl,pika_friendly
+	ld	de,MydataStart + pika_friendly - zukan_flg
+
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hl)
+	ld	(de),a
+; --------------------------------------- add by sige 98/06/04 ---------
+
+	ld	hl,SaveStart
+	ld	bc,SaveEnd - SaveStart
+	call	sum_check
+	ld	(CheckSum + 0),a
+
+	call	sram_close
+
+	ret
+
+
+
+
+;=========================================================================;
+;   SAVE_TUUSIN_DATA   (tuusin_data save)				  ;
+;=========================================================================;
+	public	save_all
+
+save_all:
+save_tuusin_data:
+	ld	a,2
+	ld	(ef_buf),a
+
+	call	save_my_data
+	call	save_mons_data
+	jp	save_mycap_data
+
+
+;*************************************************************************;
+;*                                                                       *;
+;*  OTHERS  				                                 *;
+;*                                                                       *;
+;*                                                                       *;
+;*                                                                       *;
+;*************************************************************************;
+;=================================================;
+;  CHECK_SUM                                      ;
+;       IN  : HL = top_address                    ;
+;           : BC = data_length                    ;
+;       OUT : A  = CheckSum                       ;
+;=================================================;
+sum_check:
+	ld	d,0
+
+loop$:
+	ld	a,(hli)
+	add	a,d
+	ld	d,a				; data code easy adding
+
+	dec	bc				; load data lots count down
+	ld	a,b
+	or	c
+	jr	nz,loop$
+
+	ld	a,d
+	cpl
+
+	ret
+
+ ifn	ASSEMBLE__ENGLISH
+;（注意！）ポケモン英語版用に追加
+; 各ボックス単位でサムチェックを取っておく（値は BOX_SUM の後から順次入れていく）
+;
+sum_check_1box:
+
+	ld	hl,BOX_START
+	ld	de,BOX_SUM + 1
+	ld	b,POKEMON_BOX_MAX / 2
+_10$:	push	bc
+
+	push	de
+	ld	bc,BOX_LENGTH
+	call	sum_check		; return A= サムチェック値 , HL= 次のボックスのアドレス
+	pop	de
+	ld	(de),a			; DE= BOX_SUM[1,2,3..,POKEMON_BOX_MAX/2]
+	inc	de
+
+	pop	bc
+	dec	b
+	jr	nz, _10$
+
+	ret
+ endif
+
+;=================================================;
+;  POKEMON_DATA BANK_POSSITION SET                ;
+;     IN  : pm_box_no = pm_bank_no.		  ;
+;         : A_reg = pm_bank_no.   		  ;
+;     OUT : HL = pm_bank_possition 		  ;
+;         : B  = RAMBANK_no. 			  ;
+;=================================================;
+pm_bank_get:
+	ld	hl,pm_bank_tbl
+	ld	a,(pm_box_no)
+	and	7fh
+ ifn	ASSEMBLE__ENGLISH
+	cp	POKEMON_BOX_MAX / 2
+ else
+	cp	4
+ endif
+	ld	b,2
+	jr	c,bank2$
+	inc	b				; else B= ﾊﾞﾝｸ 3
+ ifn	ASSEMBLE__ENGLISH
+	sub	POKEMON_BOX_MAX / 2
+ else
+	and	3				; (pm_box_no) 4～7 -> 0～3 に代える
+ endif
+bank2$:
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	add	hl,de
+	
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ret
+
+pm_bank_tbl:			;(pm_box_no)
+	dw	PM_BOX1		;  0	6
+	dw	PM_BOX2		;  1	7
+	dw	PM_BOX3		;  2	8
+	dw	PM_BOX4		;  3	9
+ ifn	ASSEMBLE__ENGLISH
+	dw	PM_BOX5		;  4	10
+	dw	PM_BOX6		;  5	11
+ endif
+
+;=================================================;
+;  AZUKARI BANK_CHANGE	                          ;
+;     IN  : pm_box_no = pm_bank_no. old		  ;
+;     OUT : pm_box_no = pm_bank_no. new		  ;
+;=================================================;
+	public	azukari_bank
+
+azukari_bank:
+	ld	hl,change_yesno$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	ret	nz
+
+	ld	hl,pm_box_no
+	bit	7,(hl)
+	call	z,bank_initialize		; 全ポケモンボックスをクリア（０匹に）する
+	
+	call	bank_menu
+	call	actor_blanch
+
+;----------------------------------------------------------------
+;loop$:
+;----------------------------------------------------------------
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl, us_display_flg
+	set	CURSOR_Y_INTERVAL_BIT,(hl)	; Ｙ方向移動間隔を１キャラ毎にする
+	call	allow
+	ld	hl, us_display_flg
+	res	CURSOR_Y_INTERVAL_BIT,(hl)	; Ｙ方向移動間隔を元に戻す（２キャラ毎）
+ else
+	call	allow
+ endif
+	bit	1,a
+	ret	nz
+	
+	ld	a,mussave
+	call	se_play
+	call	se_wait
+
+;----------------------------------------------------------------
+;	ld	a,(allow_cnt)
+;	cp	7
+;	ret	z
+;
+;	ld	b,1fh
+;	extern	zukan_fanfare
+;	ld	hl,zukan_fanfare
+;	call	bank_push_call
+;	jr	loop$
+;----------------------------------------------------------------
+	call	pm_bank_get		; my_mons_tbl -> PM_BOX
+	ld	e,l
+	ld	d,h
+	ld	hl,my_mons_tbl
+	call	bank_move
+
+	ld	a,(allow_cnt)		; PM_BOX -> my_mons_tbl
+	set	7,a
+	ld	(pm_box_no),a
+	call	pm_bank_get
+	ld	de,my_mons_tbl
+	call	bank_move
+
+	ld	hl,map_msg_tbl_adr
+	ld	de,usr_buf
+	ld	a,(hli)
+	ld	(de),a
+	inc	de
+	ld	a,(hl)
+	ld	(de),a
+
+	call	ev_msg_adrs_load
+	call	save_all		; save all
+	ld	hl,usr_buf		; ←プログラムミスだが、
+	call	ev_msg_adrs_save	; とりあえず、問題はないようなので、
+					; ほっておきます。
+	ret
+
+
+change_yesno$:
+	extern	change_yesno_5_SAVELOAD
+	db I_MSG2	; mvmsg追加
+	dw change_yesno_5_SAVELOAD	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+;=================================================;
+;  AZUKARI BANK MOVE                              ;
+;=================================================;
+bank_move:
+	push	hl
+	call	sram_open
+	ld	a,b
+	ld	(RAMBANK),a
+
+	ld	bc,BOX_LENGTH
+	call	block_move
+
+	pop	hl
+	xor	a
+	ld	(hli),a
+	dec	a
+	ld	(hl),a
+
+	ld	hl,BOX_START
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,BOX_SUM - BOX_START
+ else
+	ld	bc,BOX_END - BOX_START		; BOX_SUM まで足しこんでサムチェックをとっている！
+ endif
+	call	sum_check
+	ld	(BOX_SUM),a
+
+;	======================
+ ifn	ASSEMBLE__ENGLISH			; （注意！）ポケモン英語版用に追加
+	call	sum_check_1box			; 各ボックス単位でサムチェックを取っておく
+ endif						; BOX_SUM[1,2,3..,POKEMON_BOX_MAX/2]
+;	======================
+
+	call	sram_close
+
+	ret
+
+
+
+
+;=================================================;
+;  AZUKARI BANK MEMU PUT                          ;
+;=================================================;
+bank_menu:
+	xor	a
+	ld	(all_put_req),a
+	ld	a,BT_A + BT_B
+	ld	(allow_msk),a
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,POKEMON_BOX_MAX -1
+	ld	(allow_max),a
+	ld	a,1
+ else
+	ld	a,7				; カーソルＹ方向移動数（ == ポケモンボックス数）
+	ld	(allow_max),a
+	ld	a,2				; ▲カーソルＹ座標
+ endif
+	ld	(allow_pos + 0),a
+	ld	a,12				; ▲カーソルＸ座標
+	ld	(allow_pos + 1),a
+	xor	a
+	ld	(scloll_sw),a
+	ld	a,(pm_box_no)
+	and	7fh
+	ld	(allow_cnt),a
+	ld	(allow_old),a
+						;*-----------------*
+	SET_WIN_POS	0,0,10,3		;|いまのボックス ８|
+	call	put_window			;*-----------------*
+
+	ld	hl,chgbankno_msg$		;”ポケモン ボックスを
+	call	put_win_msg			;  えらんでください   ”
+
+ ifn	ASSEMBLE__ENGLISH
+	SET_WIN_POS	11,0,19,13
+ else
+	SET_WIN_POS	11,0,19,17
+ endif
+	call	put_window
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl,us_display_flg
+	set	PUT_MSG_CR@_BIT,(hl)		; cr@ を HL += 20 にする
+	ld	de,msg1$			; ”ボックス１、ボックス２、・・・、ボックス８”
+	S_POS	13,1
+	call	put_msg
+	ld	hl,us_display_flg
+	res	PUT_MSG_CR@_BIT,(hl)		; cr@ を元に戻す (HL += 40)
+ else
+	S_POS	13,2
+	ld	de,msg1$			; ”ボックス１、ボックス２、・・・、ボックス８”
+	call	put_msg
+ endif
+
+	ld	a,(pm_box_no)
+	and	7fh
+ ifn	ASSEMBLE__ENGLISH
+	cp	10 -1
+	jr	c, _10$
+	sub	10 -1				; if ( 9<=(pm_box_no)<=15 )
+	S_POS	8,2
+	ld	(hl),n1@			; S_POS(8,2) = '1'
+	add	a,n0@
+	jr	_20$
+_10$:	add	a,n1@
+_20$:
+ else
+	add	a,n1@
+ endif
+	ld	(20*2 + 9 + dmy_vram),a		; S_POS(9,2) = n1@[(pm_box_no)&0x7F]  ボックス番号
+
+	S_POS	1,2
+	ld	de,msg2$			;”いまのボックス”
+	call	put_msg
+
+	call	bank_mons_check			; 各ボックスにポケモンがいるかどうかを調べる
+						; return  usr_buf[0..7] = 各ボックスのポケモン
+ ifn	ASSEMBLE__ENGLISH
+	S_POS	18,1
+	ld	de,usr_buf
+	ld	bc,20
+	ld	a, POKEMON_BOX_MAX
+ else
+	S_POS	18,2
+	ld	de,usr_buf
+	ld	bc,40
+	ld	a,8
+ endif
+loop$:
+	push	af
+	ld	a,(de)
+	and	a
+	jr	z,next$				; ボックスにポケモンがいる場合
+	ld	(hl),78h			; 78h == ◎  ポケモンボールマークキャラクタ
+next$:						; を付ける
+	add	hl,bc
+	inc	de
+	pop	af
+	dec	a
+	jr	nz,loop$
+
+	ld	a,1
+	ld	(all_put_req),a
+
+	ret
+
+
+chgbankno_msg$:
+	extern	chgbankno_msg_6_SAVELOAD
+	db I_MSG2	; mvmsg追加
+	dw chgbankno_msg_6_SAVELOAD	; mvmsg追加
+	db 029h	; mvmsg追加
+	db	EOM
+
+
+msg1$:
+  ifn	pm_jmsg
+	db	bo__,ttu__,ku__,su__,n1@,cr@		; ボックス１
+	db	bo__,ttu__,ku__,su__,n2@,cr@		; ボックス２
+	db	bo__,ttu__,ku__,su__,n3@,cr@		; ボックス３
+	db	bo__,ttu__,ku__,su__,n4@,cr@		; ボックス４
+	db	bo__,ttu__,ku__,su__,n5@,cr@		; ボックス５
+	db	bo__,ttu__,ku__,su__,n6@,cr@		; ボックス６
+	db	bo__,ttu__,ku__,su__,n7@,cr@		; ボックス７
+    ifn ASSEMBLE__ENGLISH
+	db	bo__,ttu__,ku__,su__,n8@,cr@		; ボックス８
+	db	bo__,ttu__,ku__,su__,n9@,cr@		; ボックス９
+	db	bo__,ttu__,ku__,su__,n1@,n0@,cr@	; ボックス１０
+	db	bo__,ttu__,ku__,su__,n1@,n1@,cr@	; ボックス１１
+	db	bo__,ttu__,ku__,su__,n1@,n2@,EOM	; ボックス１２
+    else
+	db	bo__,ttu__,ku__,su__,n8@,EOM		; ボックス８
+    endif
+  else
+	db	usf_b,usf_o,usf_x,spc@,n1@,cr@		; BOX 1
+	db	usf_b,usf_o,usf_x,spc@,n2@,cr@		; BOX 2
+	db	usf_b,usf_o,usf_x,spc@,n3@,cr@		; BOX 3 
+	db	usf_b,usf_o,usf_x,spc@,n4@,cr@		; BOX 4
+	db	usf_b,usf_o,usf_x,spc@,n5@,cr@		; BOX 5 
+	db	usf_b,usf_o,usf_x,spc@,n6@,cr@		; BOX 6
+	db	usf_b,usf_o,usf_x,spc@,n7@,cr@		; BOX 7
+    ifn ASSEMBLE__ENGLISH
+	db	usf_b,usf_o,usf_x,spc@,n8@,cr@		; BOX 8
+	db	usf_b,usf_o,usf_x,spc@,n9@,cr@		; BOX 9
+	db	usf_b,usf_o,usf_x,n1@,n0@,cr@		; BOX10
+	db	usf_b,usf_o,usf_x,n1@,n1@,cr@		; BOX11
+	db	usf_b,usf_o,usf_x,n1@,n2@,EOM		; BOX12
+    else
+	db	usf_b,usf_o,usf_x,spc@,n8@,EOM		; BOX 8
+    endif
+  endif
+
+msg2$:
+  ifn	pm_jmsg
+	db	i_,ma_,no_,bo__,ttu__,ku__,su__,EOM		; いまのボックス	
+  else
+	db	usf_b,usf_o,usf_x,spc@,usf_n,usf_o_,kten@,EOM	; BOX No.
+  endif
+
+;=================================================;
+;  AZUKARI BANK_INIT	                          ;
+;=================================================;
+	public	bank_initialize
+
+bank_initialize:
+	call	sram_open
+
+	ld	a,002h
+	ld	(RAMBANK),a
+	call	bank_init$
+
+	ld	a,003h
+	ld	(RAMBANK),a
+	call	bank_init$
+
+	call	sram_close
+
+	ret
+
+	
+bank_init$:
+	ld	hl,PM_BOX1
+	call	init$
+	ld	hl,PM_BOX2
+	call	init$
+	ld	hl,PM_BOX3
+	call	init$
+	ld	hl,PM_BOX4
+	call	init$
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	hl,PM_BOX5
+	call	init$
+	ld	hl,PM_BOX6
+	call	init$
+ endif
+
+	ld	hl,BOX_START
+ ifn	ASSEMBLE__ENGLISH
+	ld	bc,BOX_SUM - BOX_START
+ else
+	ld	bc,BOX_END - BOX_START		; BOX_SUM まで足しこんでサムチェックをとっている！
+ endif
+	call	sum_check
+	ld	(BOX_SUM),a
+
+;	======================
+ ifn	ASSEMBLE__ENGLISH			; （注意！）ポケモン英語版用に追加
+	call	sum_check_1box			; 各ボックス単位でサムチェックを取っておく
+ endif						; BOX_SUM[1,2,3..,POKEMON_BOX_MAX/2]
+;	======================
+	ret
+
+
+init$:	
+	xor	a
+	ld	(hli),a			;   0 : ポケモン個数＝＝０
+	dec	a
+	ld	(hl),a			; $FF : データ終了コード
+	ret
+
+
+;=================================================;
+;  AZUKARI BANK_CHECK	                          ;
+;=================================================;
+bank_mons_check:
+	ld	hl,usr_buf
+	push	hl
+
+	call	sram_open
+
+	ld	a,002h
+	ld	(RAMBANK),a
+	call	bank_chk$
+
+	ld	a,003h
+	ld	(RAMBANK),a
+	call	bank_chk$
+
+	call	sram_close
+
+	pop	hl
+	ld	a,(pm_box_no)
+	and	7fh
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+
+	ld	a,(my_mons_tbl)
+	ld	(hl),a
+
+	ret
+
+
+bank_chk$:
+	ld	a,(PM_BOX1)
+	ld	(hli),a
+	ld	a,(PM_BOX2)
+	ld	(hli),a
+	ld	a,(PM_BOX3)
+	ld	(hli),a
+	ld	a,(PM_BOX4)
+	ld	(hli),a
+
+ ifn	ASSEMBLE__ENGLISH
+	ld	a,(PM_BOX5)
+	ld	(hli),a
+	ld	a,(PM_BOX6)
+	ld	(hli),a
+ endif
+	ret
+
+
+
+
+;=================================================;
+;  SAVE ID_NO CHECK	                          ;
+;=================================================;
+OLD_ID		equ	MydataStart  + gb_no - zukan_flg
+
+gbid_check:
+	call	sram_open
+	ld	a,001h
+	ld	(RAMBANK),a
+
+	ld	a,(MynameStart) 
+	and	a
+	jr	z,z1$
+
+	ld	hl,SaveStart
+	ld	bc,SaveEnd - SaveStart
+	call	sum_check
+	ld	c,a
+	ld	a,(CheckSum + 0)
+	cp	c
+	jr	nz,z1$
+
+	ld	hl,OLD_ID
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	a,(gb_no)
+	cp	l
+	jr	nz,z1$
+
+	ld	a,(gb_no + 1)
+	cp	h
+
+z1$:
+	ld	a,000h
+	ld	(ROMRAM),a
+	ld	(RAMCS),a
+
+	ret
+
+
+
+
+;=================================================;
+;  DENDOU SAVE & LOAD	 	                  ;
+;=================================================;
+ ifn	ASSEMBLE__ENGLISH
+DENDOU_LENGTH	equ	DENDOU_LEN * CAP_MAX	; ポケモン６匹分
+ else
+DENDOU_LENGTH	equ	6*10h
+ endif
+DENDOU_AREA	equ	50*DENDOU_LENGTH
+DENDOU_START	equ	PLANE_SIZE*3 + 100h + 0a000h
+DENDOU_END	equ	DENDOU_START + DENDOU_AREA
+
+	public	dendou_load
+	public	dendou_save
+
+dendou_save:
+	ld	a,(dendou_no)		; save no.
+	dec	a
+	cp	50
+	jr	nc,dendou_max$
+
+	ld	hl,DENDOU_START
+	ld	bc,DENDOU_LENGTH
+	call	mul_any
+
+	ld	e,l
+	ld	d,h
+	ld	hl,anime_buf
+	ld	bc,DENDOU_LENGTH
+
+	jr	dendou_move
+
+
+dendou_max$:
+	ld	hl,DENDOU_LENGTH*1 + DENDOU_START
+	ld	de,DENDOU_START 
+	ld	bc,DENDOU_AREA - DENDOU_LENGTH
+				;(=DENDOU_AREA - DENDOU_LENGTH*1)
+	call	dendou_move
+	
+	ld	hl,anime_buf
+	ld	de,DENDOU_END - DENDOU_LENGTH
+				;(=DENDOU_END - DENDOU_LENGTH*1)
+	ld	bc,DENDOU_LENGTH
+
+	jr	dendou_move
+
+
+dendou_load:
+	ld	hl,DENDOU_START
+	ld	bc,DENDOU_LENGTH
+	ld	a,(usr_buf)		; req no.
+	call	mul_any
+
+	ld	de,anime_buf
+	ld	bc,DENDOU_LENGTH
+
+dendou_move:
+	call	sram_open
+	xor	a
+	ld	(RAMBANK),a
+
+	call	block_move
+
+	call	sram_close
+
+	ret
+
+
+
+
+;=================================================;
+;  AZUKARI BANK ALL_INIT	                  ;
+;=================================================;
+	public	bank_all_init
+
+bank_all_init:
+	call	sram_open
+
+  ifn	1
+	ld	a,4
+
+init_loop$:
+	dec	a
+	push	af
+	call	bank_init$
+	pop	af
+	jr	nz,init_loop$
+  else
+	xor	a
+	call	bank_init$
+	ld	a,1
+	call	bank_init$
+	ld	a,2
+	call	bank_init$
+	ld	a,3
+	call	bank_init$
+  endif
+
+	call	sram_close
+
+	ret
+
+
+bank_init$:
+	ld	(RAMBANK),a
+
+	ld	hl,0a000h
+	ld	bc,2000h
+	ld	a,0ffh
+	jp	memset
+
+
+
+
+;=======================================================================;
+; function : open & close for SRAM
+;=======================================================================;
+sram_open:
+	ld	a,001h
+	ld	(ROMRAM),a
+	ld	a,00ah
+	ld	(RAMCS),a
+
+	ret
+
+
+
+sram_close:
+	ld	a,00h				; save "flag"
+	ld	(ROMRAM),a
+	ld	(RAMCS),a
+
+	ret
+
+
+

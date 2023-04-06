@@ -1,0 +1,179 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room8
+
+
+	extern	bank2bank
+
+
+DEPART_TYPE	equ	18
+EXIT		=	0ffh
+
+
+t7_room8:
+ysiz	=	4
+xsiz	=	5
+	db	DEPART_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	shokudo		 	; map data adrs
+	dw	msg_t7r8f1		; message adrs
+	dw	event_t7r8f1		; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event_t7r8f1:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t7r8f1:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+	dw	msg4
+	dw	msg5
+
+
+msg1:
+	extern	msg1_0_T07R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T07R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_T07R0801
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T07R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_2_T07R0801
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T07R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_3_T07R0801
+	db I_MSG2	; mvmsg追加
+	dw msg4_3_T07R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	a,(ev_t7_8)
+	bit	0,a
+	jr	nz,yet$
+
+	ld	hl,msg5_0$
+	call	put_win_msg
+
+	ld	bc,69 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,ev_t7_8
+	set	0,(hl)
+
+	ld	hl,msg5_1$
+	call	put_win_msg
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg5_2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg5_3$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg5_0$:
+	extern	msg5_0_4_T07R0801
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_4_T07R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_1$:
+	extern	msg5_1_5_T07R0801
+	db I_MSG2	; mvmsg追加
+	dw msg5_1_5_T07R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	FANFARE6
+	db	EOM
+
+
+msg5_2$:
+	extern	msg5_2_6_T07R0801
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_6_T07R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_3$:
+	extern	msg5_3_7_T07R0801
+	db I_MSG2	; mvmsg追加
+	dw msg5_3_7_T07R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str: 
+	include	..\sxy\t07r0801.sxy
+
+
+shokudo:
+	include	..\mapdata\shokudo.map
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,131 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		banktool.def
+	include		macro.h
+	include		group.def
+
+
+;bank6	group	G_BANK6
+bank11	group	G_BANK11
+
+
+	public	town5_event
+	public	town5_msg
+
+
+	extern	yes_no
+
+	extern	pf_kanban
+	extern	hotel_kanban
+
+
+town5_event:
+	jp	init_for_talkmap
+
+
+town5_msg:
+	msgndw	msg1,msg_lolita1
+	ndw	msg2,msg_ossan1
+	ndw	msg3,msg_gsan1
+
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+	ndw	pf_kanban,msg_kanban3
+	ndw	hotel_kanban,msg_kanban4
+	ndw	kanban5,msg_kanban5
+	ndw	kanban6,msg_kanban6
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	ld	hl,msg1_2$
+	jr	nz,no$
+
+	ld	hl,msg1_1$
+
+no$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_3_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw msg2_3_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_4_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw msg3_4_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	extern	kanban1_5_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw kanban1_5_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_6_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw kanban2_6_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban5:
+	extern	kanban5_7_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw kanban5_7_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban6:
+	extern	kanban6_8_TOWN05
+	db I_MSG2	; mvmsg追加
+	dw kanban6_8_TOWN05	; mvmsg追加
+	db 029h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+

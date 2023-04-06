@@ -1,0 +1,27 @@
+; 10/01/95		06:17:31
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	004h
+	db	005h,003h,002h,EXIT
+	db	005h,004h,002h,EXIT
+	db	000h,003h,001h,EXIT
+	db	000h,004h,001h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	001h
+	db	KEIBI
+	db	002h+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	001h
+ram_map_tbl$:
+	dw	00ah * 003h + 002h + ram_map
+	db	005h,003h
+	dw	00ah * 003h + 003h + ram_map
+	db	005h,004h
+	dw	00ah * 001h + 002h + ram_map
+	db	000h,003h
+	dw	00ah * 001h + 003h + ram_map
+	db	000h,004h

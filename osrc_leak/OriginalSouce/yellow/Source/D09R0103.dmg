@@ -1,0 +1,317 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d9_room1_3f
+
+	extern	CheckSlip
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	muspyun
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+	extern	SEplay
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+
+seq_d9r1f3	equ	seq_ctrl_buf + 43h
+
+
+d9_room1_3f:
+ysiz	=	14
+xsiz	=	15
+	db	BUILDING_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	azito_b3		; map data adrs
+	dw	msg_d9r1f3		; message tbl adrs
+	dw	ev_d9r1f3		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d9r1f3
+
+
+ev_d9r1f3:
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d9r1f3_tbl
+	ld	a,(seq_d9r1f3)
+	call	battle_sequence
+	ld	(seq_d9r1f3),a
+
+	ret
+
+
+d9r1f3_tbl:
+	initndw	SlipCheck,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+	ndw	ObsSlip,SeqObsSlip
+
+
+SlipCheck:
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	a,(mapscloll_x)
+	ld	c,a
+	ld	hl,SlipPoint
+	call	CheckSlip
+	cp	0ffh
+	jp	z,battle_main
+
+	ld	hl,obs_map_step
+	set	7,(hl)				; hero animetion mode on
+
+	extern	init_hero_anime
+	call	init_hero_anime
+
+	ld	a,muspyun
+	call	SEplay
+
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,SeqObsSlip
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+SlipPoint:
+	db	00dh,00ah
+	dw	slip1$
+	db	013h,00ah
+	dw	slip2$
+	db	012h,00bh
+	dw	slip3$
+	db	00bh,00ch
+	dw	slip4$
+	db	011h,00ch
+	dw	slip5$
+	db	014h,00ch
+	dw	slip6$
+	db	010h,00dh
+	dw	slip7$
+	db	00bh,00eh
+	dw	slip8$
+	db	00fh,00eh
+	dw	slip9$
+	db	011h,00eh
+	dw	slip10$
+	db	013h,00eh
+	dw	slip11$
+	db	010h,00fh
+	dw	slip12$
+	db	012h,00fh
+	dw	slip13$
+	db	00dh,010h
+	dw	slip14$
+	db	00ch,011h
+	dw	slip15$
+	db	010h,012h
+	dw	slip16$
+	db	0ffh
+
+;slip1$:
+;	db	W_R,4,A_E
+slip2$:
+	db	W_R,4
+	db	A_U,4
+	db	W_R,4
+	db	A_E
+slip3$:
+	db	W_D,4
+	db	W_R,4
+	db	A_E
+slip4$:
+	db	W_L,2,A_E
+slip5$:
+	db	W_R,4
+	db	W_U,2
+	db	W_R,2
+	db	A_E
+slip6$:
+	db	W_R,4
+	db	W_U,2
+	db	W_R,2
+	db	W_U,3
+	db	A_E
+slip1$:
+slip7$:
+slip9$:
+	db	W_R,4,A_E
+slip8$:
+slip12$:
+	db	W_R,2,A_E
+;slip9$:
+;	db	W_R,4,A_E
+slip10$:
+	db	W_R,4
+	db	W_U,2
+	db	A_E
+slip11$:
+	db	W_R,4
+	db	W_U,4
+	db	A_E
+;slip12$:
+;	db	W_R,2,A_E
+slip13$:
+slip15$:
+	db	W_D,4,A_E
+slip14$:
+	db	W_U,2,A_E
+;slip15$:
+;	db	W_D,4,A_E
+slip16$:
+	db	W_U,1,A_E
+
+
+	extern	kurukuru
+
+ObsSlip:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	jp	nz,kurukuru
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	hl,obs_map_step
+	res	7,(hl)				; hero animetion mode on
+
+	ld	a,seq_battle_main
+	ld	(AdrsDealerTalk + 9),a
+
+	ret
+
+
+
+msg_d9r1f3:
+;	msgndw	msg1,msg_science
+	msgndw	msg2,msg_member1
+	ndw	msg3,msg_member2
+;	ndw	msg4,msg_jack
+;	ndw	msg5,msg_gamble
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+
+
+dealer_talk:
+d_talk2:
+	db	msg_member1,020h
+	dw	ev_d9 + 4
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk3:
+	db	msg_member2,040h
+	dw	ev_d9 + 4
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+	db	0ffh
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg2_0:
+	extern	msg2_0_0_D09R0103
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_0_D09R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_1_D09R0103
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_1_D09R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_2_D09R0103
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_2_D09R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg3_0:
+	extern	msg3_0_3_D09R0103
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_3_D09R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_4_D09R0103
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_4_D09R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_5_D09R0103
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_5_D09R0103	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d9r1f3:
+	include	..\sxy\d09r0103.sxy
+
+
+azito_b3:
+	include	..\mapdata\azito_b3.map
+

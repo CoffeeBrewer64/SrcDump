@@ -1,0 +1,604 @@
+
+	include	common.def
+	include	group.def
+
+bank8	group	G_MUSIC2
+
+;*************************************************
+;**     POCKET MONSTER MUSIC MAIN ROUTINE	**
+;**						**
+;**	 Copyright 1.Nov.1994	Ver 3.00	**
+;**						**
+;**		  Fight Music Bank		**
+;**		 (Bank 2, P-Bank 8)		**
+;**						**
+;**		  by Junichi.Masuda		**
+;**						**
+;*************************************************
+
+	public	initialize2
+
+	public	set_fue_music
+	extern	fue2
+	extern	se_play
+
+	extern	musfanfare82
+	extern	play
+
+	extern	msadr2
+	extern	bgmfirst2
+	extern	bgmend2
+	extern	drumend2
+	extern	monsfirst2
+	extern	monsend2
+	extern	wazafirst2
+	extern	wazaend2
+	extern	musend2
+
+	extern	BGMinitialize
+	extern	SEinitialize
+	extern	BGMSEinitialize
+;**************************************************
+;**		INITIALIZE			**
+;**						**
+;**************************************************
+initialize2:
+	ld	(mus_num),a
+
+	ld	a,(mus_num)
+	cp	0ffh
+	jp	z,bgmseINIT
+	cp	bgmfirst2
+	jp	z,seINIT
+	jp	c,seINIT
+	cp	bgmend2
+	jr	z,bgmINIT
+	jp	nc,seINIT
+bgmINIT:
+	call	BGMinitialize
+
+	jp	setADRS
+
+
+seINIT:
+	ld	l,a
+	ld      e,a
+
+	ld      h,000h
+	ld      d,h
+	add     hl,hl
+	add     hl,de
+	ld      de,msadr2
+	add     hl,de
+	ld	a,h
+	ld	(work+0),a
+	ld	a,l
+	ld	(work+1),a
+	ld      a,(hl)
+	and	0c0h
+	rlca
+	rlca
+	ld	c,a
+loop$:
+	ld	d,c
+	ld	a,c
+	add	a,a
+	add	a,c
+	ld	c,a
+	ld	b,000h
+	ld	a,(work+0)
+	ld	h,a
+	ld	a,(work+1)
+	ld	l,a
+	add	hl,bc
+	ld	c,d
+	ld      a,(hl)
+	and     00fh
+	ld      e,a
+	ld      d,000h
+	ld      hl,condetion
+	add     hl,de
+	ld      a,(hl)
+	and     a
+	jr      z,z1$
+	ld	a,e
+	cp	007h
+	jr	nz,z3$
+	ld      a,(mus_num)
+	cp	drumend2
+	jr	nc,z2$
+	ret				; mus_num < drumend
+z2$:
+	ld	a,(hl)
+	cp	drumend2		; playing sound = music drum ?
+	jr	z,z1$
+	jr	c,z1$
+z3$:
+	ld      a,(mus_num)
+	cp      (hl)                    ; priority check
+	jr      z,z1$                    ;   drumend : hi  bgmfirst : low
+	jr	c,z1$
+	ret				; condetion < mus_num
+z1$:
+	call	SEinitialize
+
+	ld	a,c
+	and	a
+	jp	z,setADRS
+	dec	c
+	jp	loop$
+
+bgmseINIT:				; Areg = 0FFh
+	call	BGMSEinitialize
+	ret
+
+
+
+setADRS:
+	ld	a,(mus_num)
+	ld	l,a
+	ld	e,a
+	ld	h,000h
+	ld	d,h
+	add	hl,hl
+	add	hl,de
+	ld	de,msadr2
+	add	hl,de
+	ld	e,l
+	ld	d,h
+	ld	hl,mus_adrs
+z1$:
+	ld	a,(de)
+	ld	b,a
+	rlca
+	rlca
+	and	003h			; number of sound (2 bits)
+	ld	c,a
+	ld	a,b
+	and	00fh			; sound number
+	ld	b,c
+	inc	b
+	inc	de
+	ld	c,000h
+z2$:
+	cp	c
+	jr	z,z3$
+	inc	c
+	inc	hl			; music address inc
+	inc	hl
+	jr	z2$
+z3$:
+	push	af
+	push	hl
+	push	bc
+;	push	af
+	ld	b,000h
+	ld	c,a
+;	ld	hl,condetion		; set condetion
+;	add	hl,bc
+;	ld	a,(mus_num)
+;	ld	(hl),a
+
+;	pop	af
+	cp	003h			; 3-7 com_fg set
+	jr	c,z4$
+	ld	hl,com_fg
+	add	hl,bc
+	set	2,(hl)
+z4$:
+	pop	bc
+	pop	hl
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+
+	pop	af
+	push	hl
+	push	bc
+	ld	b,000h
+	ld	c,a
+	ld	hl,condetion		; set condetion
+	add	hl,bc
+	ld	a,(mus_num)
+	ld	(hl),a
+	pop	bc
+	pop	hl
+
+	inc	c
+	dec	b
+	ld	a,b
+	and	a
+	ld	a,(de)
+	inc	de
+	jr	nz,z2$
+
+; Monster Voice (CAPSULE MONSTERS ONLY)
+	ld	a,(mus_num)
+	cp	monsfirst2
+	jr	nc,z10$
+	jr	noMONS$
+z10$:
+	ld	a,(mus_num)
+	cp	monsend2
+	jr	z,noMONS$
+	jr	c,z11$
+	jr	noMONS$
+z11$:
+	ld	hl,condetion+4
+	ld	(hli),a			; sound A
+	ld	(hli),a			; sound B
+	ld	(hli),a			; sound C
+	ld	(hl),a			; Noise
+
+	ld	hl,mus_adrs+12		; sound C address set
+	ld	de,monsDUMMYadrs
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+
+	ld	a,(vol_rec)
+	and	a
+	jr	nz,noMONS$
+	ld	a,(NR50)
+	ld	(vol_rec),a
+
+	ld	a,077h
+	ld	(NR50),a
+noMONS$:
+	ret
+
+
+monsDUMMYadrs:
+	db	0ffh
+
+	
+
+;-----------------------------------------------;
+;	          Set Fue Music			;
+;						;
+;	   Not Process Over Is Break!		;
+;-----------------------------------------------;
+set_fue_music:
+	ld	a,musfanfare82
+	call	se_play
+
+	ld	hl,mus_adrs+8			; SE Address
+	ld	de,end_dummy_adrs
+	call	set_address
+
+	ld	de,end_dummy_adrs2
+	call	set_address
+
+	ld	de,fue2
+set_address:
+	ld	a,e
+	ld	(hli),a
+	ld	a,d
+	ld	(hli),a
+	ret
+
+end_dummy_adrs:
+	db	0edh,001h,000h
+end_dummy_adrs2:
+	db	0f8h
+	db	0d8h,000h
+	db	0c4h
+	db	0c6h
+	db	0c4h
+	db	0c4h
+	db	0c4h
+	db	0c4h
+	db	0ffh
+
+
+
+
+;**************************************************
+;**		INITIALIZE(SUB)			**
+;**************************************************
+	public	BGMinitMain
+	public	SEinitMain
+	public	BGMSEinitMain
+BGMinitMain:
+	xor	a
+	ld	(vblank_fg),a
+	ld	(calldrum_fg),a
+	ld	(bgm_tempo+1),a		; float
+
+	ld	(wave_num+0),a
+	ld	(wave_num+1),a
+
+	ld	d,008h
+	ld	hl,mus_stack
+	call	clearBYTE
+
+	ld	hl,mus_adrs
+	call	clearBYTE
+
+	ld	d,004h
+	ld	hl,condetion
+	call	clearBYTE
+
+	ld	hl,com_fg
+	call	clearBYTE
+
+	ld	hl,duty_val
+	call	clearBYTE
+
+	ld	hl,dc_val
+	call	clearBYTE
+
+	ld	hl,vib_wait
+	call	clearBYTE
+
+	ld	hl,vib_wave
+	call	clearBYTE
+
+	ld	hl,vib_wave_wait
+	call	clearBYTE
+
+	ld	hl,vib_tone
+	call	clearBYTE
+
+	ld	hl,vib_work
+	call	clearBYTE
+
+	ld	hl,eff_fg
+	call	clearBYTE
+
+	ld	hl,por_len			; portamento
+	call	clearBYTE
+
+	ld	hl,por_addi
+	call	clearBYTE
+
+	ld	hl,por_addf
+	call	clearBYTE
+
+	ld	hl,por_addt
+	call	clearBYTE
+
+	ld	hl,por_svalh
+	call	clearBYTE
+
+	ld	hl,por_svall
+	call	clearBYTE
+
+	ld	hl,por_evalh
+	call	clearBYTE
+
+	ld	hl,por_evall
+	call	clearBYTE
+
+	ld	a,001h
+	ld	hl,loop_val
+	call	clearBYTE
+
+	ld	hl,sound_len
+	call	clearBYTE
+
+	ld	hl,D_tempo
+	call	clearBYTE
+
+	ld	(bgm_tempo+0),a		; int
+
+	ld	a,0ffh
+	ld	(balance_mask),a
+
+	xor	a
+	ld	(NR50),a
+
+	ld	a,008h
+	ld	(NR10),a			; sweep off
+
+	ld	a,000h
+	ld	(NR51),a			; all sound flag reset
+
+	xor	a
+	ld	(NR30),a			; sound 3 stop
+	ld      a,080h
+	ld	(NR30),a			; sound 3 output
+
+	ld	a,077h
+	ld	(NR50),a
+	ret
+
+SEinitMain:
+	xor	a			; se init
+
+	push	de
+	ld	h,d
+	ld	l,e
+	add	hl,hl
+	ld	d,h
+	ld	e,l
+
+	ld	hl,mus_stack
+	add	hl,de
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,mus_adrs
+	add	hl,de
+	ld	(hli),a
+	ld	(hl),a
+
+	pop	de
+
+	ld	hl,condetion
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,com_fg
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,duty_val
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,dc_val
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_wait
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_wave
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_wave_wait
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_tone
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,vib_work
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_len			; portamento
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_addi
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_addf
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_addt
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_svalh
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_svall
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_evalh
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,por_evall
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,eff_fg
+	add	hl,de
+	ld	(hl),a
+
+	ld	a,001h
+
+	ld	hl,loop_val
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,sound_len
+	add	hl,de
+	ld	(hl),a
+
+	ld	hl,D_tempo
+	add	hl,de
+	ld	(hl),a
+
+
+	ld	a,e
+	cp	004h
+	ret	nz
+	ld	a,008h
+	ld	(NR10),a		; sweep off
+	ret
+
+BGMSEinitMain:
+	ld	a,080h
+	ld	(NR52),a		; all sound on
+	ld	(NR30),a		; sound 3 output
+
+	xor	a
+	ld	(NR51),a		; sound	fg
+	ld	(NR32),a		; sound 3 no sound
+
+	ld	a,008h
+	ld	(NR10),a		; no sweep
+
+	ld	(NR12),a		; enverope
+	ld	(NR22),a
+	ld	(NR42),a
+
+	ld	a,040h
+	ld	(NR14),a		; renzoku counter
+	ld	(NR24),a
+	ld	(NR44),a
+
+	ld	a,077h
+	ld	(NR50),a		; volume
+
+	xor	a
+	ld	(vblank_fg),a
+	ld	(calldrum_fg),a
+	ld	(muspausefg),a
+
+	ld	(bgm_tempo+1),a		; float
+	ld	(se_tempo+1),a
+
+	ld	(wave_num+0),a
+	ld	(wave_num+1),a
+
+; 0 Clear mus_adrs , mus_stack , condetion , com_fg , eff_fg , duty_val , dc_val
+;	  vib_wait , vib_wave , vib_wave_wait , vib_tone , vib_work
+;	  por_len , por_addi , por_addf , por_addt , por_svalh , por_svall
+;	  por_evalh & por_evall
+
+	ld	d,0b0h
+	ld	hl,mus_adrs
+	call	clearBYTE
+
+; 1 Setting sound_len , loop_val & D_tempo
+
+	ld	a,001h
+	ld	d,018h
+	ld	hl,sound_len
+	call	clearBYTE
+
+	ld	(bgm_tempo+0),a		; int
+	ld	(se_tempo+0),a
+
+	ld	a,0ffh
+	ld	(balance_mask),a
+	ret
+
+
+
+
+
+clearBYTE:				; (i)hl = clear adrs ,(i)a = clear val
+	ld	b,d			; (i)d = loop number , b = break
+z1$:
+	ld	(hli),a
+	dec	b
+	jr	nz,z1$
+	ret
+
+
+
+
+
+
+
+
+
+
+

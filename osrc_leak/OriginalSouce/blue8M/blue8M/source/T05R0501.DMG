@@ -1,0 +1,100 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		macro.h
+	include		group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	t5_room5
+
+
+	extern	gyaarth_play
+	extern	minka_a
+	
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t5_room5:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_a			; map data adrs
+	dw	msg_t5r5f1  		; message tbl adrs
+	dw	ev_t5r5f1     		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t5r5f1   
+
+
+ev_t5r5f1:     
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t5r5f1:
+	dw	msg1
+	dw	msg2
+
+
+msg1:
+	extern	msg1_0_T05R0501
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T05R0501	; mvmsg追加
+	db 026h	; mvmsg追加
+	db	CALL_MSG
+
+	ld	a,17
+	call	gyaarth_play
+
+	jp	msg_return
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,(ev_r16 + 1)
+	bit	7,a
+	jr	nz,help$
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+help$:
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+msg2_0$:
+	extern	msg2_0_1_T05R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_1_T05R0501	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_2_T05R0501
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_2_T05R0501	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t5r5f1:   
+	include	..\sxy\t05r0501.sxy
+
+
+

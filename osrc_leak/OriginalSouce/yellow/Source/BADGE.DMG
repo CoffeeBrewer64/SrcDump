@@ -1,0 +1,84 @@
+;---------------------------------------- 
+; 	New Scenario Versition
+;
+;	Rank & Badge Table
+;
+;----------------------------------------
+
+	include	fntequ.def
+
+	public	badge_tbl
+	public	rank_tbl		; My Character Ranking Table
+
+
+bank1	group	1
+
+;---------------------------------------------------------------;
+;	status badge name data table				;
+;		all string length is less than 7 letters	;
+;---------------------------------------------------------------;
+badge_tbl:
+badge_1$:
+	db	ka_,mi_,na_,ri_,ba__,ttu__,di__
+	db	EOM
+badge_2$:
+	db	ka_,i_,ga_,ra_,ba__,ttu__,di__
+	db	EOM
+badge_3$:
+	db	o_,zi_,zo_,u_,ba__,ttu__,di__
+	db	EOM
+badge_4$:
+	db	ha_,ya_,bu_,sa_,ba__,ttu__,di__
+	db	EOM
+badge_5$:
+	db	hi_,n_,ya_,ri_,ba__,ttu__,di__
+	db	EOM
+badge_6$:
+	db	na_,ka_,yo_,si_,ba__,ttu__,di__
+	db	EOM
+badge_7$:
+	db	ba__,ra__,ba__,ttu__,di__
+	db	EOM
+badge_8$:
+	db	hi_,no_,ta_,ma_,ba__,ttu__,di__
+	db	EOM
+badge_9$:
+	db	go__,bou@,ru__,do__,ba__,ttu__,di__
+	db	EOM
+
+
+
+;---------------------------------------
+; Monster Tranaer's Rank Name 
+;--------------------------------------
+rank_tbl:
+rank_0$:	; Badge Number = 0
+	db	ta_,ma_,go_
+	db	EOM
+rank_1$:	; Badge Number = 1
+	db	hi_,yo_,ko_
+	db	EOM
+rank_2$:	; Badge Number = 2
+	db	bu__,ro__,n__,zu__
+	db	EOM
+rank_3$:	; Badge Number = 3
+	db	si__,ru__,ba__,bou@
+	db	EOM
+rank_4$:	; Badge Number = 4
+	db	go__,bou@,ru__,do__
+	db	EOM
+rank_5$:	; Badge Number = 5
+	db	pu__,ti__,ki__,yya__,pu__,te__,n__
+	db	EOM
+rank_6$:	; Badge Number = 6
+	db	ki__,yya__,pu__,te__,n__
+	db	EOM
+rank_7$:	; Badge Number = 7
+	db	pu__,ti__,ma__,su__,ta__,bou@
+	db	EOM
+rank_8$:	; Badge Number = 8
+	db	ma__,su__,ta__,bou@
+	db	EOM
+rank_9$:	; Badge Number = 9  ... Ending After The Battle Win
+	db	e__,ku__,se__,re__,n__,to__
+

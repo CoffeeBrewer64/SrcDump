@@ -1,0 +1,248 @@
+
+	include	common.def
+	include	group.def
+
+bank20	group	G_MUSIC4	;bank28->bank20Ç…ïœçXÅië∫êÏÅj
+
+;*************************************************
+;**     POCKET MONSTER MUSIC MAIN ROUTINE	**
+;**						**
+;**	 Copyright 1.Nov.1994	Ver 3.00	**
+;**						**
+;**		  ETC Music Bank		**
+;**		 (Bank 3, P-Bank 1f)		**
+;**						**
+;**		  by Junichi.Masuda		**
+;**						**
+;*************************************************
+
+	public	initialize4			;BMUSIC4.G_MUSIC4(#20)
+
+	extern	msadr4				;MUSHEAD4.G_MUSHEAD4(#20)
+	extern	bgmfirst4			;MUSHEAD4.G_MUSHEAD4(#20)
+	extern	bgmend4				;MUSHEAD4.G_MUSHEAD4(#20)
+	extern	drumend4			;MUSHEAD4.G_MUSHEAD4(#20)
+	extern	monsfirst4			;MUSHEAD4.G_MUSHEAD4(#20)
+	extern	monsend4			;MUSHEAD4.G_MUSHEAD4(#20)
+	extern	musend4				;MUSHEAD4.G_MUSHEAD4(#20)
+
+	extern	BGMinitialize		;PLAY.G_BANK0(#00)
+	extern	SEinitialize		;PLAY.G_BANK0(#00)
+	extern	BGMSEinitialize		;PLAY.G_BANK0(#00)
+;**************************************************
+;**		INITIALIZE			**
+;**						**
+;**************************************************
+initialize4:
+	ld	(mus_num),a
+
+	ld	a,(mus_num)
+	cp	0ffh
+	jp	z,bgmseINIT
+	cp	bgmfirst4
+	jp	z,seINIT
+	jp	c,seINIT
+	cp	bgmend4
+	jr	z,bgmINIT
+	jp	nc,seINIT
+bgmINIT:
+	call	BGMinitialize
+	jp	setADRS
+
+
+seINIT:
+	ld	l,a
+	ld      e,a
+
+	ld      h,000h
+	ld      d,h
+	add     hl,hl
+	add     hl,de
+	ld      de,msadr4
+	add     hl,de
+	ld	a,h
+	ld	(work+0),a
+	ld	a,l
+	ld	(work+1),a
+	ld      a,(hl)
+	and	0c0h
+	rlca
+	rlca
+	ld	c,a
+loop$:
+	ld	d,c
+	ld	a,c
+	add	a,a
+	add	a,c
+	ld	c,a
+	ld	b,000h
+	ld	a,(work+0)
+	ld	h,a
+	ld	a,(work+1)
+	ld	l,a
+	add	hl,bc
+	ld	c,d
+	ld      a,(hl)
+	and     00fh
+	ld      e,a
+	ld      d,000h
+	ld      hl,condetion
+	add     hl,de
+	ld      a,(hl)
+	and     a
+	jr      z,z1$
+	ld	a,e
+	cp	007h
+	jr	nz,z3$
+	ld      a,(mus_num)
+	cp	drumend4
+	jr	nc,z2$
+	ret				; mus_num < drumend
+z2$:
+	ld	a,(hl)
+	cp	drumend4		; playing sound = music drum ?
+	jr	z,z1$
+	jr	c,z1$
+z3$:
+	ld      a,(mus_num)
+	cp      (hl)                    ; priority check
+	jr      z,z1$                    ;   drumend : hi  bgmfirst : low
+	jr	c,z1$
+	ret				; condetion < mus_num
+z1$:
+	call	SEinitialize
+
+	ld	a,c
+	and	a
+	jp	z,setADRS
+	dec	c
+	jp	loop$
+
+bgmseINIT:				; Areg = 0FFh
+	call	BGMSEinitialize
+	ret
+
+
+
+setADRS:
+	ld	a,(mus_num)
+	ld	l,a
+	ld	e,a
+	ld	h,000h
+	ld	d,h
+	add	hl,hl
+	add	hl,de
+	ld	de,msadr4
+	add	hl,de
+	ld	e,l
+	ld	d,h
+	ld	hl,mus_adrs
+z1$:
+	ld	a,(de)
+	ld	b,a
+	rlca
+	rlca
+	and	003h			; number of sound (2 bits)
+	ld	c,a
+	ld	a,b
+	and	00fh			; sound number
+	ld	b,c
+	inc	b
+	inc	de
+	ld	c,000h
+z2$:
+	cp	c
+	jr	z,z3$
+	inc	c
+	inc	hl			; music address inc
+	inc	hl
+	jr	z2$
+z3$:
+	push	af
+	push	hl
+	push	bc
+;	push	af
+	ld	b,000h
+	ld	c,a
+;	ld	hl,condetion		; set condetion
+;	add	hl,bc
+;	ld	a,(mus_num)
+;	ld	(hl),a
+
+;	pop	af
+	cp	003h			; 3-7 com_fg set
+	jr	c,z4$
+	ld	hl,com_fg
+	add	hl,bc
+	set	2,(hl)
+z4$:
+	pop	bc
+	pop	hl
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+	ld	a,(de)
+	ld	(hli),a
+	inc	de
+
+	pop	af
+	push	hl
+	push	bc
+	ld	b,000h
+	ld	c,a
+	ld	hl,condetion		; set condetion
+	add	hl,bc
+	ld	a,(mus_num)
+	ld	(hl),a
+	pop	bc
+	pop	hl
+
+	inc	c
+	dec	b
+	ld	a,b
+	and	a
+	ld	a,(de)
+	inc	de
+	jr	nz,z2$
+
+; Monster Voice (CAPSULE MONSTERS ONLY)
+	ld	a,(mus_num)
+	cp	monsfirst4
+	jr	nc,z10$
+	jr	noMONS$
+z10$:
+	ld	a,(mus_num)
+	cp	monsend4
+	jr	z,noMONS$
+	jr	c,z11$
+	jr	noMONS$
+z11$:
+	ld	hl,condetion+4
+	ld	(hli),a			; sound A
+	ld	(hli),a			; sound B
+	ld	(hli),a			; sound C
+	ld	(hl),a			; Noise
+
+	ld	hl,mus_adrs+12		; sound C address set
+	ld	de,monsDUMMYadrs
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+
+	ld	a,(vol_rec)
+	and	a
+	jr	nz,noMONS$
+	ld	a,(NR50)
+	ld	(vol_rec),a
+
+	ld	a,077h
+	ld	(NR50),a
+noMONS$:
+	ret
+
+monsDUMMYadrs:
+	db	0ffh
+
+ 
+	
+

@@ -1,0 +1,220 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+
+
+bank7	group	G_BANK7
+
+
+	public	r5_room1
+
+	public	GateKeeper
+	public	GK1_0
+	public	GK1_1
+
+
+	extern	bank_push_call
+	extern	drink_check
+	extern	table_jump
+	extern	put_wait
+	extern	CheckAssignPos
+	extern	init_hero_anime
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+seq_r5		equ		seq_ctrl_buf + 072h
+
+
+r5_room1:  
+ysiz	=	3
+xsiz	=	4
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	gate5_6 	 	; map data adrs
+	dw	msg_r5r1f1 		; message tbl adrs
+	dw	ev_r5r1f1 			; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r5r1f1
+
+
+ev_r5r1f1:
+	call	init_for_talkmap
+
+	ld	a,(seq_r5)
+	ld	hl,r5_tbl
+	jp	table_jump
+
+
+
+r5_tbl:
+	initndw	check,seq_check
+	ndw	step,seq_step
+
+
+step_back:
+	ld	a,W_U				; animetion pattern
+	ld	(ctrl_move_val),a
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	jp	init_hero_anime
+
+
+check:
+	ld	a,(ev_special + 0)
+	bit	6,a
+	ret	nz
+
+	ld	hl,stopper$
+	call	CheckAssignPos
+	ret	nc
+
+	ld	a,02h
+	ld	(watashi_muki),a
+
+invoke$:
+	xor	a
+	ld	(joy_status),a
+
+	ld	b,016h
+	ld	hl,drink_check
+	call	bank_push_call
+	ld	a,(DA_BUF + 0)
+	and	a
+	jr	nz,obtained$
+
+	ld	a,msg_keibi1
+	ld	(work1),a
+	call	talk_map
+
+	call	step_back
+
+	ld	a,seq_step
+	ld	(seq_r5),a
+
+	ret
+
+
+obtained$:
+	ld	a,msg_keibi2
+	ld	(work1),a
+	call	talk_map
+
+	ld	hl,ev_special + 0
+	set	6,(hl)
+
+	ret
+
+
+stopper$:
+	db	003h,003h
+	db	003h,004h
+	db	0ffh
+
+
+step:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	call	put_wait
+
+	xor	a
+	ld	(cancel_key),a
+	ld	(seq_r5),a
+
+	ret
+
+
+msg_r5r1f1:
+	msgndw	GateKeeper,msg_keibi
+	ndw	GK1_0,msg_keibi1
+	ndw	GK1_1,msg_keibi2
+
+
+GateKeeper:
+	db	CALL_MSG
+
+	ld	a,(ev_special + 0)
+	bit	6,a
+	jr	nz,pass$
+
+	ld	b,016h
+	ld	hl,drink_check
+	call	bank_push_call
+	ld	a,(DA_BUF + 0)
+	and	a
+	jr	nz,yet$
+
+	ld	hl,GK1_0
+	call	put_win_msg
+
+	call	step_back
+
+	ld	a,seq_step
+	ld	(seq_r5),a
+
+	jp	msg_return
+
+
+yet$:
+	ld	hl,GK1_1
+	call	put_win_msg
+
+	ld	hl,ev_special + 0
+	set	6,(hl)
+
+	jp	msg_return
+
+
+pass$:
+	ld	hl,GK1_2
+	call	put_win_msg
+
+	jp	msg_return
+
+
+
+GK1_0:
+	extern	GK1_0_0_R05R0101
+	db I_MSG2	; mvmsg追加
+	dw GK1_0_0_R05R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+GK1_1:
+	extern	GK1_1_1_R05R0101
+	db I_MSG2	; mvmsg追加
+	dw GK1_1_1_R05R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db	FANFARE6
+	extern	GK1_1_2_R05R0101
+	db I_MSG2	; mvmsg追加
+	dw GK1_1_2_R05R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+GK1_2:
+	extern	GK1_2_3_R05R0101
+	db I_MSG2	; mvmsg追加
+	dw GK1_2_3_R05R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_r5r1f1:
+	include	..\sxy\r05r0101.sxy
+
+
+gate5_6:
+	include	..\mapdata\5_6gate.map
+

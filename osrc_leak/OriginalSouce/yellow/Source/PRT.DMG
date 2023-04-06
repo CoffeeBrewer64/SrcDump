@@ -1,0 +1,710 @@
+
+	include	pm_debug.def
+	include	common.def
+
+bank0	group	0
+
+	public	all_put
+	public	block_prt
+	public	chr_move
+	public	fnt_move
+	public	haji_put
+	public	wave
+;	public	sign_boad
+
+
+
+haji_put:
+	ld	a,(haji_put_buf)
+	and	a
+	ret	z
+
+	ld	b,a
+	xor	a
+	ld	(haji_put_buf),a
+
+	dec	b
+	jr	nz,yoko1$
+
+;******* tate haji ********
+	ld	hl,haji_buf
+	ld	a,(haji_put_buf + 1)
+	ld	e,a			; mapvramadrs low byte
+	ld	a,(haji_put_buf + 2)
+	ld	d,a			; mapvramadrs high byte
+	ld	c,18			; tate counter = 18
+
+tate1$:
+	ld	a,(hli)			; haji_buf in data & HL++
+	ld	(de),a			; mapvramadrs <- dmy_vram 
+	inc	de			; next mapvramadrs
+	ld	a,(hli)
+	ld	(de),a
+
+	ld	a,31
+	add	a,e			; mapvramadrs + 31 -> X position
+	ld	e,a
+	jr	nc,tate2$
+
+	inc	d			; keta agari
+tate2$:
+	ld	a,d
+	and	003h
+	or	098h
+	ld	d,a
+
+	dec	c			; count down
+	jr	nz,tate1$
+
+	xor	a
+	ld	(haji_put_buf),a	; haji_put_buf = 0
+
+	ret
+;****** yoko haji ******
+yoko1$:
+	ld	hl,haji_buf
+	ld	a,(haji_put_buf + 1)
+	ld	e,a			; mapvramadrs low
+	ld	a,(haji_put_buf + 2)
+	ld	d,a			; mapvramadrs high
+	push	de			; save mapvramadrs
+	call	yokosub1$
+	pop	de			; load mapvramadrs
+	ld	a,32
+	add	a,e
+	ld	e,a			; mapvramadrs low address + 32
+yokosub1$:
+	ld	c,10			; yoko counter (1chell?)
+yoko2$:
+	ld	a,(hli)			; HL = haji_buf / A = in data
+	ld	(de),a			; DE = mapvramadrs
+	inc	de			; next mapvramadrs
+	ld	a,(hli)
+	ld	(de),a
+
+	ld	a,e
+	inc	a
+	and	01fh
+	ld	b,a
+	ld	a,e
+	and	0e0h
+	or	b
+	ld	e,a
+
+	dec	c			; count down
+	jr	nz,yoko2$
+
+	ret
+
+all_put:
+	ld	a,(all_put_req)
+	and	a
+	ret	z			; if A=0 Don't All Put , return
+
+  ifn	YELLOW_VERSION
+	ld	(stack_sv),sp
+  else
+	ldhl	sp,0			; HL <- SP + 0
+	ld	a,h
+	ld	(stack_sv),a		; stack pointer address save
+	ld	a,l
+	ld	(stack_sv+1),a
+  endif
+
+	ld	a,(all_put_cnt)
+	and	a
+	jr	z,all1$			; if A=0 then 'all1$'
+
+	dec	a
+	jr	z,all2$
+
+	ld	hl,12*20 + dmy_vram	; HL = Dmy_vram + Y=12 poistion
+	ld	sp,hl			; Stack Pointer <- HL 
+	ld	a,(all_putadr_h)	; HL = BG Disp Area2 + Y=12 pos 
+	ld	h,a
+	ld	a,(all_putadr_l)
+	ld	l,a
+	ld	de,12*32
+	add	hl,de
+;	ld	hl,12*32 + CHAR_BACK2	; HL = BG Disp Area2 + Y=12 pos 
+	xor	a			; A reg init
+	jr	all_10$
+all1$:
+	ld	hl,dmy_vram		; HL = Dmy_vram 
+	ld	sp,hl			; Stack Pointer <- HL
+	ld	a,(all_putadr_h)	; HL = BG Disp Area2 
+	ld	h,a
+	ld	a,(all_putadr_l)
+	ld	l,a
+;	ld	hl,CHAR_BACK2		; HL = BG Disp Area 2
+	ld	a,1
+	jr	all_10$
+all2$:
+	ld	hl,6*20 + dmy_vram	; HL = Dmy_vram + Y=6 position
+
+	ld	sp,hl			; stack pointer in dmy_vram address
+	ld	a,(all_putadr_h)	; HL = BG Disp Area2 + Y=6 pos 
+	ld	h,a
+	ld	a,(all_putadr_l)
+	ld	l,a
+	ld	de,6*32
+	add	hl,de
+;	ld	hl,6*32 + CHAR_BACK2	; HL = BG disp Area 2
+	ld	a,2			; A=2
+all_10$:
+	ld	(all_put_cnt),a
+	ld	b,6
+all_move:
+	pop	de			; DE = 00000h(?)
+	ld	(hl),e			; BG Disp Area 2 <- 0 de umeteiru
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+
+	ld	a,13
+	add	a,l
+	ld	l,a
+	jr	nc,z90$
+
+	inc	h
+z90$:
+	dec	b
+	jr	nz,all_move
+
+  ifn	YELLOW_VERSION
+	ld	a,(stack_sv)		; stack_sv -> HL rewrite
+	ld	l,a
+	ld	a,(stack_sv+1)
+	ld	h,a
+  else
+	ld	a,(stack_sv)		; stack_sv -> HL rewrite
+	ld	h,a
+	ld	a,(stack_sv+1)
+	ld	l,a
+  endif
+	ld	sp,hl
+
+	ret
+
+block_prt:
+	ld	a,(b_prt_buf)		; in data check
+	and	a
+	ret	z
+
+  ifn	YELLOW_VERSION
+	ld	(stack_sv),sp
+  else
+	ldhl	sp,0
+	ld	a,h
+	ld	(stack_sv),a		; hl -> stack_sv 
+	ld	a,l
+	ld	(stack_sv+1),a
+  endif
+
+	ld	a,(b_prt_buf+0)		; sp = data adrs
+	ld	l,a			; HL = dvram address 94.2.2 Ubu
+	ld	a,(b_prt_buf+1)
+	ld	h,a
+	ld	sp,hl
+
+	ld	a,(b_prt_buf+2)		; hl = vram adrs <- matigai?
+	ld	l,a			; HL = BG Diap Area Address
+	ld	a,(b_prt_buf+3)
+	ld	h,a
+
+	ld	a,(b_prt_buf+4)		; b = y cnt
+	ld	b,a
+
+	xor	a
+	ld	(b_prt_buf),a
+
+	jr	all_move
+
+fnt_move:
+	ld	a,(fnt_mv_buf + 0)		; in data check
+	and	a
+	ret	z				; if A=0 then Return
+
+  ifn	YELLOW_VERSION
+	ld	(stack_sv),sp
+  else
+	ldhl	sp,0
+	ld	a,h
+	ld	(stack_sv),a			; HL in data save
+	ld	a,l
+	ld	(stack_sv+1),a
+  endif
+
+	ld	a,(fnt_mv_buf+1)		; sp = data adrs
+	ld	l,a				; HL = Font Data Address
+	ld	a,(fnt_mv_buf+2)
+	ld	h,a
+	ld	sp,hl
+
+	ld	a,(fnt_mv_buf+3)		; hl = vram adrs(dummy)
+	ld	l,a
+	ld	a,(fnt_mv_buf+4)
+	ld	h,a
+
+	ld	a,(fnt_mv_buf+0)		; b = y cnt
+	ld	b,a
+
+	xor	a
+	ld	(fnt_mv_buf+0),a
+
+move1$:
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+	ld	(hl),d
+	inc	hl
+
+	dec	b				; Y Counter --
+	jr	nz,move1$
+
+  ifn	YELLOW_VERSION
+	ld	(fnt_mv_buf+1),sp
+	ld	sp,hl
+	ld	(fnt_mv_buf+3),sp
+  else
+	ld	a,l
+	ld	(fnt_mv_buf+3),a		; dvram address rewrite
+	ld	a,h
+	ld	(fnt_mv_buf+4),a
+
+	ldhl	sp,0
+	ld	a,l
+	ld	(fnt_mv_buf+1),a		; Font Data Address rewrite
+	ld	a,h
+	ld	(fnt_mv_buf+2),a
+  endif
+
+  ifn	YELLOW_VERSION
+	ld	a,(stack_sv)			; stack save area in data
+	ld	l,a
+	ld	a,(stack_sv+1)
+	ld	h,a				; rewrite process		
+  else
+	ld	a,(stack_sv)			; stack save area in data
+	ld	h,a				; rewrite process		
+	ld	a,(stack_sv+1)
+	ld	l,a
+  endif
+	ld	sp,hl				; load stack pointer
+
+	ret
+
+chr_move:
+	ld	a,(chr_mv_buf + 0)		; in data check
+	and	a
+	ret	z
+
+  ifn	YELLOW_VERSION
+	ld	(stack_sv),sp
+  else
+	ldhl	sp,0				; HL <- SP + 0
+	ld	a,h
+	ld	(stack_sv),a			; vram adrs save
+	ld	a,l
+	ld	(stack_sv+1),a
+  endif
+
+	ld	a,(chr_mv_buf+1)		; sp = data adrs
+	ld	l,a				; HL = Char Data Address
+	ld	a,(chr_mv_buf+2)
+	ld	h,a
+	ld	sp,hl
+
+	ld	a,(chr_mv_buf+3)		; hl = vram adrs
+	ld	l,a
+	ld	a,(chr_mv_buf+4)
+	ld	h,a
+
+	ld	a,(chr_mv_buf+0)		; b = y cnt -- machgai?
+						; b = Data Length / 16
+	ld	b,a
+
+	xor	a
+	ld	(chr_mv_buf+0),a
+
+move1$:
+	pop	de				; DE = 00000h
+	ld	(hl),e				; dvram address <- 0
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	l
+
+	pop	de
+	ld	(hl),e
+	inc	l
+	ld	(hl),d
+	inc	hl
+
+	dec	b
+	jr	nz,move1$
+
+  ifn	YELLOW_VERSION
+	ld	(chr_mv_buf +1),sp
+	ld	sp,hl
+	ld	(chr_mv_buf+3),sp
+
+	ld	a,(stack_sv)
+	ld	l,a
+	ld	a,(stack_sv+1)
+	ld	h,a
+	ld	sp,hl
+  else
+	ld	a,l
+	ld	(chr_mv_buf+3),a
+	ld	a,h
+	ld	(chr_mv_buf+4),a
+
+	ldhl	sp,0
+	ld	a,l
+	ld	(chr_mv_buf+1),a
+	ld	a,h
+	ld	(chr_mv_buf+2),a
+
+	ld	a,(stack_sv)
+	ld	h,a
+	ld	a,(stack_sv+1)
+	ld	l,a
+	ld	sp,hl
+  endif
+
+	ret
+
+wave:
+
+WAVECHR1	=	014h
+HANACHR1	=	003h
+
+;	ld	a,(all_put_req)
+;	and	a
+;	ret	nz
+
+	ld	a,(wave_flg)		; wave flag 
+	and	a
+	ret	z			; if Z=1 return 
+
+	ld	a,(LY)		;水面のキャラが黒くバケるバグの修正。
+	cp	090h		;Ｖブランクから外れてる場合は処理しない。
+	ret	c			;（村川）
+
+	ld	a,(wave_cnt)		; wave count
+	inc	a			; wave count++
+	ld	(wave_cnt),a
+	cp	20			; if A not= 20 
+	ret	c			;    then return
+
+	cp	21			
+	jr	z,flower
+
+	ld	hl,WAVECHR1 * 16 + CHAR_BG ; HL = 09140h
+	ld	c,16			; counter = 16
+
+	ld	a,(ef_element)
+	inc	a
+	and	07h
+	ld	(ef_element),a
+
+	and	4
+	jr	nz,left$
+
+right$:
+	ld	a,(hl)			; in data load
+	rrca
+	ld	(hli),a
+	dec	c			; count down
+	jr	nz,right$
+	jr	next$
+left$:
+	ld	a,(hl)			; in data load
+	rlca
+	ld	(hli),a
+	dec	c			; count down
+	jr	nz,left$
+next$:
+	ld	a,(wave_flg)		; wave flag 
+	rrca
+	ret	nc			; wave and flower 
+
+	xor	a
+	ld	(wave_cnt),a		; wave counter = 0
+
+	ret
+
+
+flower:
+	xor	a
+	ld	(wave_cnt),a		; wave counter = 0
+
+  ifn 0
+	ld	a,(ef_element)
+	and	1
+
+	ld	hl,hana1
+	jr	z,z1$
+	ld	hl,hana2
+  else
+	ld	a,(ef_element)
+	and	3
+	cp	2
+	ld	hl,hana1
+	jr	c,z1$
+
+	ld	hl,hana2
+	jr	z,z1$
+
+	ld	hl,hana3
+  endif
+
+z1$:
+	ld	de,HANACHR1 * 16 + CHAR_BG ; HL = 09030h
+	ld	c,16			; counter = 16
+loop$:
+	ld	a,(hli)			; in data load
+	ld	(de),a
+	inc	de
+	dec	c			; count down
+	jr	nz,loop$
+
+	ret
+
+hana1:
+	db	081h,000h,000h,018h,000h,024h,085h,05Ah	; 0
+	db	01Ch,042h,018h,0A5h,000h,07Eh,081h,018h
+hana2:
+	db	081h,000h,000h,00Ch,000h,012h,082h,02Dh	; 1
+	db	00Eh,0E1h,00Ch,073h,000h,03Eh,081h,018h
+hana3:
+	db	081h,018h,000h,024h,004h,05Ah,09Dh,042h	; 2
+	db	018h,024h,000h,0DBh,000h,07Eh,081h,018h
+
+  ifn 0
+hana1:
+	db	0BAh,018h,065h,064h,09Ah,082h,09Bh,082h	; 0
+	db	0E6h,064h,09Bh,0FEh,0F6h,07Ch,05Dh,018h
+hana2:
+	db	0AEh,00Ch,073h,032h,0CDh,041h,04Dh,041h	; 1
+	db	0B2h,0F2h,04Dh,07Fh,0AAh,03Eh,05Dh,01Ch
+hana1:
+	db	0A2h,018h,001h,064h,018h,082h,019h,082h	; 0
+	db	002h,064h,065h,09Ah,08Ah,074h,045h,018h
+hana2:
+	db	0A2h,00Ch,041h,032h,08Ch,041h,00Ch,041h	; 1
+	db	040h,0B2h,022h,05Dh,094h,02Ah,041h,01Ch
+ endif
+
+  ifn 0
+	ld	a,(wave_flg)		; wave flag 
+	and	a
+	ret	z			; if Z=1 return 
+
+	ld	a,(wave_cnt)		; wave count
+	inc	a			; wave count++
+	ld	(wave_cnt),a
+	cp	20			; if A not= 20 
+	ret	c			;    then return
+
+	ld	hl,WAVECHR1 * 16 + CHAR_BG ; HL = 09140h
+	ld	c,16			; counter = 16
+
+z1$:
+	ld	a,(hl)			; in data load
+	rrca
+	ld	(hli),a
+	dec	c			; count down
+	jr	nz,z1$
+
+	xor	a
+	ld	(wave_cnt),a		; wave counter = 0
+	ret
+  endif
+
+  ifn 0
+	ld	a,(wave_flg)		; wave flag 
+	and	a
+	ret	z			; if Z=1 return 
+
+	ld	a,(wave_cnt)		; wave count
+	inc	a			; wave count++
+	ld	(wave_cnt),a
+	cp	20			; if A not= 20 
+	ret	c			;    then return
+
+	ld	a,(ef_se_no)
+	inc	a
+	cp	4
+	jr	c,z1$
+	xor	a
+z1$:	
+	ld	(ef_se_no),a
+	
+	ld	hl,wave_tbl$
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	add	hl,bc
+
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,WAVECHR1 * 16 + CHAR_BG ; HL = 09140h
+	ld	c,16			; counter = 16
+loop$:
+	ld	a,(hli)			; in data load
+	ld	(de),a
+	inc	de
+	dec	c			; count down
+	jr	nz,loop$
+
+	xor	a
+	ld	(wave_cnt),a		; wave counter = 0
+
+	ret
+
+wave_tbl$:
+	dw	wave1
+	dw	wave2
+	dw	wave3
+	dw	wave2
+
+wave1:
+	db	000h,0DEh,000h,05Ch,000h,0F9h,000h,0FBh	; 0
+	db	000h,0FDh,000h,0F7h,000h,0E6h,000h,0FEh
+wave2:
+	db	000h,0BDh,000h,05Ch,000h,0F3h,000h,0FBh	; 1
+	db	000h,0FBh,000h,0F7h,000h,0CDh,000h,0FEh
+wave3:
+	db	000h,07Bh,000h,05Ch,000h,0E7h,000h,0FBh	; 2
+	db	000h,0F7h,000h,0F7h,000h,09Bh,000h,0FEh
+  endif
+
+
+
+

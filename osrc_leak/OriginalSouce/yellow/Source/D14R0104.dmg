@@ -1,0 +1,230 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+;bank1d	group	G_BANK1d
+bank17	group	G_BANK17
+
+
+	public	d14_room1_4f
+
+
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+	extern	rock_on
+	extern	CheckActorPos
+	extern	CheckAssignPos
+
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+seq_d14r1f4	equ	seq_ctrl_buf + 61h
+
+
+d14_room1_4f:
+ysiz	=	9
+xsiz	=	10
+	db	DOUKUTU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	silf_b4			; map data adrs
+	dw	msg_d14r1f4		; message tbl adrs
+	dw	ev_d14r1f4		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d14r1f4
+
+
+ev_d14r1f4:
+	ld	hl,ptn_data
+	bit	5,(hl)
+	res	5,(hl)
+	call	nz,switch_rock
+
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d14r1f4_tbl
+	ld	a,(seq_d14r1f4)
+	call	battle_sequence
+	ld	(seq_d14r1f4),a
+
+	ret
+
+
+switch_rock:
+	ld	a,(ev_d14 + 6)
+	bit	7,a
+	ret	z
+
+	ld	a,01ch + 001h
+	ld	(el_c),a
+	ld	bc,6 * 256 + 4
+	ld	a,B_BGCELL_CHANGE
+	jp	bank2bank
+
+
+
+d14r1f4_tbl:
+	initndw	D14R1F4main,SeqD14R1F4main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+D14R1F4main:
+	ld	a,(ev_d14 + 6)
+	bit	7,a				; switch check
+	jp	nz,battle_main
+
+	ld	hl,switch_pos$
+	call	CheckActorPos
+	jp	nc,battle_main
+
+	ld	a,(work1)		;チャンピョンロードを怪力なしで抜けるバグ修正。
+	cp	00fh			;スイッチの上にいるのがピカチュウならスキップ
+	jp	z,battle_main	;する。（村川）
+
+	ld	hl,ptn_data
+	set	5,(hl)
+
+	ld	hl,ev_d14 + 6
+	set	7,(hl)				; switch on
+
+	ret
+
+
+switch_pos$:
+	db	00dh,011h
+	db	0ffh
+
+
+msg_d14r1f4:
+	msgndw	msg2,msg_elite_w
+	ndw	msg4,msg_elite_m
+	ndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	rock_on,msg_iwa1		; moving rock
+	ndw	rock_on,msg_iwa2
+	ndw	rock_on,msg_iwa3
+
+
+dealer_talk:
+d_talk2:
+	db	msg_elite_w,020h
+	dw	ev_d14 + 6
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk4:
+	db	msg_elite_m,020h
+	dw	ev_d14 + 6
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+	db	0ffh
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg2_0:
+	extern	msg2_0_0_D14R0104
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_0_D14R0104	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_1_D14R0104
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_1_D14R0104	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_2_D14R0104
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_2_D14R0104	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_0:
+	extern	msg4_0_3_D14R0104
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_3_D14R0104	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_4_D14R0104
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_4_D14R0104	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_5_D14R0104
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_5_D14R0104	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_d14r1f4:
+	include	..\sxy\d14r0104.sxy
+
+
+silf_b4:
+	include	..\mapdata\silf_b4.map
+

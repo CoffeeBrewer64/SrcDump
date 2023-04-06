@@ -1,0 +1,875 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		anime.def
+	include		vanish.def
+	include		banktool.def
+	include		macro.h
+	include		group.def
+	include		pika.def
+	include		pikaanm.h
+
+;------- びっくりマークの種類 ----------------
+BIKKURI_MARK	equ	0
+QUESTION_MARK	equ	1
+NIKONIKO_MARK	equ	2
+DOKURO_MARK	equ	3
+HEART_MARK	equ	4
+THUNDER_MARK	equ	5
+ZZZ_MARK	equ	6
+SAKANA_MARK	equ	7
+;---------------------------------------------
+
+
+HERO_SITE	equ	actor_table + 009h	
+
+
+
+
+bank7	group	G_BANK7
+
+
+	public	r25_room1
+
+
+	extern	bank_push_call
+	extern	bank2bank
+	extern	table_jump
+	extern	actor_anime_set   
+	extern	yes_no
+	extern	obj_stepping
+	extern	obj_stopping
+	extern	save_position
+	extern	load_position
+	extern	put_wait
+	extern	gyaarth_play
+
+	extern	mk_trace_cmd
+	extern	init_hero_anime
+	extern	SetActorSite			;
+
+	extern	set_pika_invisible
+	extern	set_pika_visible
+
+	extern	set_pika_sleep
+	extern	chk_pika_sleep
+
+	extern	PikaEventAnime
+
+MANIA_TYPE	equ	16
+EXIT		=	0ffh
+
+
+seq_r25r1f1	equ	seq_ctrl_buf + 071h
+
+
+r25_room1:  
+ysiz	=	4
+xsiz	=	4
+	db	MANIA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	mania			; map data adrs
+	dw	msg_r25r1f1		; message tbl adrs
+	dw	ev_r25r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_r25r1f1
+
+
+
+
+
+
+ev_r25r1f1:
+	call	StartStageCheck
+
+	call	init_for_talkmap
+
+	ld	a,(seq_r25r1f1)
+	ld	hl,new_r25r1f1_tbl
+	call	table_jump
+
+	ret
+
+
+
+
+
+
+;■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+;■■■■■■  イベントシーケンステーブル  ■■■■■■■■■■■■■■
+;■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+new_r25r1f1_tbl:
+	initndw	MasakiMonsEvent		,Seq_MasakiMonsEvent
+
+	ndw	MasakiMonsFree		,Seq_MasakiMonsFree
+
+	ndw	MasakiMonsAnmInit	,Seq_MasakiMonsAnmInit
+	ndw	MasakiMonsAnmWait	,Seq_MasakiMonsAnmWait
+
+	ndw	MasakiMachineFree	,Seq_MasakiMachineFree
+
+	ndw	MasakiHumanAnmInit	,Seq_MasakiHumanAnmInit
+	ndw	MasakiHumanAnmWait	,Seq_MasakiHumanAnmWait
+
+	ndw	HeroToMasakiAnmInit	,Seq_HeroToMasakiAnmInit
+	ndw	HeroToMasakiAnmWait	,Seq_HeroToMasakiAnmWait
+
+	ndw	AllEventEnd		,Seq_AllEventEnd
+
+
+
+
+;========================================================================
+; 部屋に入った直後、イベント状態をフラグから判断、シーケンスを振り分ける
+;========================================================================
+;------------------------------------------------------------------
+; ev_r25 + 1 のフラグ内容
+; 0th bit:
+; 1th bit:
+;	２５番道路ディーラーの管理フラグ
+; 2th bit:
+; 	未使用
+;
+; 3th bit:
+; パソコンで転送マシンを操作するとセットされる(ev_tool)
+; 4th bit:
+; マサキから船のチケットをもらうとセットされる
+; 5th bit:
+; マサキがマシンから出るとセットされる
+; 6th bit:
+; マサキがマシンに入るとセットされる
+; 7th bit:
+; すべてのイベントが終了するとroad25.dmgでセットされる
+;------------------------------------------------------------------
+
+
+StartStageCheck:
+	ld	hl,yellow_event + 00h
+	bit	7,(hl)
+	set	7,(hl)				; ピカチュウイベント状態
+	ret	nz				; (毒ダメージをフックする)
+
+	ld	hl,ev_r25 + 1
+	bit	5,(hl)
+	jr	z,set_first$			; マサキはポケモンのまま
+
+;	bit	4,(hl)				; チケットをもらわないと
+;	jr	z,set_second$			; 完全には終わっていない
+
+	jr	set_last$
+
+set_first$:
+	ld	a,Seq_MasakiMonsEvent
+	jr	set_same$
+
+
+set_last$:
+	ld	a,Seq_AllEventEnd
+
+set_same$:
+	ld	(seq_r25r1f1),a
+	ret
+
+
+;------------------------------------------------
+; ピカチュウを連れているときはイベント発生
+;------------------------------------------------
+MasakiMonsEvent:
+	ld	a,(obs_pikachu)			; ピカチュウがいない
+	bit	7,a				; →イベントおきない
+	jr	z,event_end$			;
+
+	extern	check_pika_cond			; ピカチュウの状態異常を
+	ld	hl,check_pika_cond		; チェックする
+	ld	b,G_BANK3f			; carry ON = 異常あり
+	call	bank_push_call			;
+	jr	c,event_end$
+
+	ld	hl,PikaToMasaki_1st		; 一連のイベント\
+	ld	b,G_BANK3c			;  ピカチュウ固定モードセット
+	call	bank_push_call			;（特殊表情のスイッチでもある）
+
+event_end$:
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,Seq_MasakiMonsFree
+	ld	(seq_r25r1f1),a
+	ret
+
+	
+;------------------------------------------------
+; このシーケンスはポケモン状態のマサキに話しかけると
+; 次に遷移します。それまで空ループです。
+;------------------------------------------------
+MasakiMonsFree:
+	ret
+
+;------------------------------------------------
+; ポケモンマサキが機械に入るアニメの準備
+;------------------------------------------------
+MasakiMonsAnmInit:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+;	ld	a,04h
+;	ld	(actor_table + 049h),a
+
+	ld	a,(HERO_SITE)
+	and	a
+	ld	de,into_machine1$
+	jr	nz,normal$
+
+	call	chk_pika_sleep			; 固定中は関係ないよ。
+	jr	nz,curve$			;
+
+	ld	hl,pika_avoid_r25r0101
+  ifn	ASSEMBLE__BANK_CHANGE
+	ld	b,G_BANK3c
+  else
+	ld	b,G_BANK30
+  endif
+	call	bank_push_call
+	
+curve$:
+	ld	de,into_machine2$
+
+normal$:
+	ld	a,msg_monster1
+	ld	(work1),a
+	call	actor_anime_set
+
+	ld	a,Seq_MasakiMonsAnmWait
+	ld	(seq_r25r1f1),a
+
+	ret
+
+
+into_machine1$:
+	db	A_U
+	db	A_U
+	db	A_U
+	db	A_E
+
+
+into_machine2$:
+	db	A_R
+	db	A_U
+	db	A_U
+	db	A_L
+	db	A_U
+	db	A_E
+
+
+;------------------------------------------------
+; ポケモンマサキが機械に入るアニメが
+; 終わるまで空ループ
+;------------------------------------------------
+MasakiMonsAnmWait:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+
+	ld	a,R25R1F1msg1			; 
+	ld	(obs_obj),a			; ポケモンマサキのＯＢＪ消去
+	ld	a,B_REQ_OBJ_VANISH		;
+	call	bank2bank			;
+
+	call	chk_pika_sleep			; ピカチュウ場所固定モード
+	jr	z,next_seq$			; ＝この場合、マサキを不思議がる
+						;	イベントが発動している
+
+	ld	hl,to_machine_a$
+
+	ld	a,(HERO_SITE)
+	and	a
+	jr	nz,do_anm$
+
+	ld	hl,to_machine_b$
+
+do_anm$:
+	call	PikaEventAnime			; 機械に駆け寄るアニメ
+
+	ld	hl,event_with_pika		; ハテナ顔表示
+	ld	b,G_BANK3f			;
+	call	bank_push_call			; 
+
+
+next_seq$:
+	xor	a
+	ld	(cancel_key),a
+
+	ld	hl,ev_r25 + 1			; マサキが機械の中に
+	set	6,(hl)				; 入ったことを示すフラグ
+
+	ld	a,Seq_MasakiMachineFree
+	ld	(seq_r25r1f1),a
+	ret
+
+to_machine_a$:
+	db	Pika_Init
+	db	Pika_Run_North
+	db	Pika_Run_North
+	db	Pika_Run_North
+	db	Pika_End
+
+to_machine_b$:
+	db	Pika_Init
+	db	Pika_Run_North
+	db	Pika_Run_West
+	db	Pika_Run_North
+	db	Pika_Run_North
+	db	Pika_Run_East
+	db	Pika_Site_North
+	db	Pika_End
+
+;------------------------------------------------
+; マサキのパソコンを操作するまで空ループ 
+;------------------------------------------------
+MasakiMachineFree:
+	ld	a,(ev_r25 + 1)			; パソコンで転送装置を操作すると
+	bit	3,a				; セットされる
+	ret	z
+
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	a,Seq_MasakiHumanAnmInit
+	ld	(seq_r25r1f1),a
+	ret
+
+
+;------------------------------------------------
+; 人間マサキの機械から出てくるアニメ準備
+;------------------------------------------------
+MasakiHumanAnmInit:
+	ld	a,msg_niichyan1
+	ld	(sv_msg_no),a
+	ld	a,00ch
+	ld	(sv_box01),a
+	ld	a,040h
+	ld	(sv_box02),a
+	ld	a,002h + 004h
+	ld	(sv_box03),a
+	ld	a,001h + 004h
+	ld	(sv_box04),a
+	call	load_position
+
+	ld	a,R25R1F1msg2			; 人間マサキのＯＢＪ表示
+	ld	(obs_obj),a			;
+	ld	a,B_REQ_OBJ_APPEAR		;
+	call	bank2bank			;
+
+	ld	c,8
+	call	wait_vb_s
+
+	ld	hl,obs_pikachu			;
+	bit	7,(hl)				; 自分のピカチュウを連れていない
+	jr	z,set_masaki_anm$		; ときはとばす！
+
+	call	chk_pika_sleep			; ピカチュウが固定モードじゃない
+	jr	z,set_masaki_anm$		; ときもとばす！
+
+	ld	a,msg_niichyan1			;
+	ld	(work1),a			;
+	ld	a,00h				; マサキを下向きに
+	ld	(work2),a			;
+	call	SetActorSite			;
+
+	ld	hl,pikaanime$			; ピカチュウ左を向く
+	call	PikaEventAnime			;
+
+	ld	a,PIKA_ACT_NO			;
+	ld	(usr_buf + 18),a		; ピカチュウにびっくりマーク
+	ld	a,<BIKKURI_MARK			;
+	ld	(usr_buf + 19),a		;
+	ld	a,<B_BIKKURI			;
+	call	bank2bank
+
+	ld	hl,event_with_pika		; 顔グラフィック呼び出し
+	ld	b,G_BANK3f			;
+	call	bank_push_call			;
+
+
+set_masaki_anm$:
+	ld	a,msg_niichyan1
+	ld	(work1),a
+	ld	de,from_machine$
+	call	actor_anime_set
+
+	ld	a,Seq_MasakiHumanAnmWait
+	ld	(seq_r25r1f1),a
+
+	ret
+
+from_machine$:
+	db	A_D
+	db	A_R
+	db	A_R
+	db	A_R
+	db	A_D
+	db	A_E
+
+pikaanime$:
+	db	Pika_Init
+	db	Pika_Site_West
+	db	Pika_End
+
+
+;------------------------------------------------
+; 人間マサキが機械から出てくるアニメが
+; 終わるまで空ループ
+;------------------------------------------------
+MasakiHumanAnmWait:
+	ld	a,(obs_system)
+	bit	0,a
+	ret	nz
+
+						; マサキが人間に戻ったフラグ 
+	ld	hl,ev_r25 + 1			; ＝これがｏｎならピカチュウに話し掛けた
+	set	5,(hl)				;   ときに位置固定モード解除となる。
+
+	ld	hl,ev_r25 + 0			; 「だれかのパソコン」
+	set	0,(hl)				; →「マサキのパソコン」になる
+
+	ld	a,Seq_HeroToMasakiAnmInit
+	ld	(seq_r25r1f1),a
+	ret
+
+
+	
+
+
+;------------------------------------------------
+; 自機がマサキの前に移動するアニメ準備
+;------------------------------------------------
+HeroToMasakiAnmInit:
+	xor	a
+	ld	(watashi_muki),a
+	ld	a,04h
+	ld	(HERO_SITE),a
+
+	ld	a,0fch
+	ld	(cancel_key),a
+
+	ld	de,hero_step$
+	ld	hl,ctrl_move_val
+	call	mk_trace_cmd
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	call	init_hero_anime
+
+	ld	a,Seq_HeroToMasakiAnmWait
+	ld	(seq_r25r1f1),a
+
+	ret
+
+hero_step$:
+	db	W_R,3
+	db	A_E
+
+
+
+
+;------------------------------------------------
+; 自機がマサキの前に行くまで空ループ
+;------------------------------------------------
+HeroToMasakiAnmWait:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+
+	xor	a				;
+	ld	(watashi_muki),a		; 自機を上向きに
+	ld	a,04h				;
+	ld	(HERO_SITE),a			;
+
+	ld	a,msg_niichyan1			;
+	ld	(work1),a			;
+	ld	a,00h				; マサキを下向きに
+	ld	(work2),a			;
+	call	SetActorSite			;
+
+	xor	a
+	ld	(cancel_key),a
+
+	ld	a,msg_niichyan1			; チケットをもらうイベント
+	ld	(work1),a			;
+	call	talk_map			;
+
+	ld	a,Seq_AllEventEnd
+	ld	(seq_r25r1f1),a
+	ret
+
+
+AllEventEnd:
+	ret
+
+
+
+;==========================================================================
+
+
+;■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+;■■■  メッセージテーブル  ■■■■■■■■■■■■■■■■■■■■■
+;■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+msg_r25r1f1:
+	msgndw	msg1,msg_monster1
+	ndw	msg2,msg_niichyan1
+	ndw	msg3,msg_niichyan2
+
+	ndw	msg4,msg_stophero
+
+msg4:
+	extern	msg4_0_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+  ifn	0
+	ndw	msg4,MsgPikacyu
+	ndw	stock,msg_stock
+	ndw	pika_bikkuri,MsgPikaBikkuri
+
+	public	MsgPikacyu
+	public	MsgPikaBikkuri
+
+stock:
+	db	MONSSTOCK
+  endif
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg01
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg02
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,msg03
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+
+
+sxy_r25r1f1:
+	include	..\sxy\r25r0101.sxy
+
+
+mania:
+	include ..\mapdata\mania.map
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+;===============================================
+; ポケモン状態のマサキ
+;===============================================
+msg01:
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+loop$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	a,Seq_MasakiMonsAnmInit
+	ld	(seq_r25r1f1),a
+
+	ret
+
+
+no$:
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	jr	loop$
+
+
+msg1_0$:
+	extern	msg1_0_1_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_1_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_2_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_2_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_3_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_3_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+;===============================================
+; 人間に戻ったマサキ
+;===============================================
+msg02:
+	ld	a,(ev_r25 + 1)			; チケットをもらった後は
+	bit	4,a				; セットされている
+	jr	nz,after$			;
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	ld	bc,63 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+	ld	hl,ev_r25 + 1			; もらった後なので
+	set	4,(hl)				; セットする
+
+	extern	T4msg6
+	ld	a,< T4msg6
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank
+
+	extern	T4msg11
+	ld	a,< T4msg11
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+after$:
+	ld	hl,msg2_3$
+	call	put_win_msg
+
+	ret
+
+
+full$:
+	ld	hl,msg2_2$
+	call	put_win_msg
+
+	ret
+
+
+msg2_0$:
+	extern	msg2_0_4_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_4_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_5_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_5_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db	FANFARE6
+	db	WAIT
+	db	EOM
+
+
+msg2_2$:
+	extern	msg2_2_6_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_2_6_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_3$:
+	extern	msg2_3_7_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_3_7_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg03:
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	ret
+
+
+msg3_0$:
+	extern	msg3_0_8_R25R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_8_R25R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+
+
+
+;====================================================================
+; イベントの状態でピカチュウの表情を変える
+;
+; Out	: e regs	表情コード
+;====================================================================
+	extern	Feel23No			; はてな(長い声)
+	extern	Feel27No			; びっくりがお
+	extern	MasakiEvent0No			; はてな→連れ歩きに戻す
+	extern	MasakiEvent1No			; はてな(短い声)
+
+
+	public	SelFaceInMasakiEvent
+
+SelFaceInMasakiEvent:
+	ld	a,(mapno)
+	cp	<R25R1F1
+	jr	nz,check_other$
+
+	call	chk_pika_sleep
+	jr	z,check_other$
+
+	ld	a,(seq_r25r1f1)			; マサキが人間に戻った
+	cp	Seq_MasakiHumanAnmInit		; 直後のシーケンス
+	ld	e,<Feel27No			; びっくり顔「ぴっぴかちゅう！」
+	ret	z
+
+	cp	Seq_MasakiMonsEvent		; はじめてポケモンマサキを見たとき
+	ld	e,<Feel23No			; ハテナ顔「ぴかぴかぴかちゅう？」
+	ret	z
+
+	ld	hl,ev_r25 + 1			; マサキが人間に戻ったら
+	bit	5,(hl)				; セットされるフラグ
+	ld	e,<MasakiEvent1No		; ハテナ顔「ぴーかー」
+	ret	z
+
+	ld	e,<MasakiEvent0No		; ハテナ顔→
+						;   ピカチュウ固定モード解除
+	ret
+
+check_other$:
+	ld	e,0ffh				; 通常の判断を戻ってから行う
+	ret
+
+
+
+
+
+;-------------------------------------------------------
+; ピカチュウを連れているときの
+;	ポケモンマサキに駆け寄るイベント発生
+;-------------------------------------------------------
+PikaToMasaki_1st:
+	ld	a,0ffh
+	ld	(cancel_key),a
+	xor	a
+	ld	(watashi_muki),a
+
+	call	actor_blanch			; 初期化処理
+	call	actor_blanch			; actor描画１回目
+
+	ld	hl,to_masaki$			; ポケモンマサキに駆け寄る
+	call	PikaEventAnime			; アニメ
+
+	ld	a,PIKA_ACT_NO			;
+	ld	(usr_buf + 18),a		; ハテナマークを出す
+	ld	a,<QUESTION_MARK		;
+	ld	(usr_buf + 19),a		;
+	ld	a,<B_BIKKURI			;
+	call	bank2bank			;
+
+						; ピカチュウ場所固定モード
+	call	set_pika_sleep			; (同時にこのマップ内での
+						; 特殊表情モードのスイッチでもある)
+
+	extern	event_with_pika			;  ハテナ顔を出す
+	ld	hl,event_with_pika		; 
+	ld	b,G_BANK3f			; 
+	call	bank_push_call			; 
+	ret
+
+to_masaki$:
+	db	Pika_Init
+	db	Pika_Run_East
+	db	Pika_Run_East
+	db	Pika_Run_East
+	db	Pika_Run_North
+	db	Pika_End
+
+
+
+  ifn	ASSEMBLE__BANK_CHANGE
+bank3c	group	G_BANK3c
+  else
+bank30	group	G_BANK30
+  endif
+
+pika_avoid_r25r0101:
+	ld	hl,pika_anm1$
+	ld	b,04h
+	extern	chk_pika_escape
+	call	chk_pika_escape
+
+	ld	hl,pika_anm2$
+	ld	b,0ch
+	call	chk_pika_escape
+	ret
+
+pika_anm1$:
+	db	Pika_Init
+	db	Pika_Run_West
+	db	Pika_Run_South
+	db	Pika_Site_East
+	db	Pika_End
+
+pika_anm2$:
+	db	Pika_Init
+	db	Pika_Run_North
+	db	Pika_Run_West
+	db	Pika_Run_West
+	db	Pika_Run_South
+	db	Pika_Site_East
+	db	Pika_End
+
+
+

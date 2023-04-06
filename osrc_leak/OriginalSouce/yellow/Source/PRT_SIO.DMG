@@ -1,0 +1,79 @@
+;===============================================================
+;
+;	Printer SIO
+;			1998 Tetsu
+;
+;===============================================================
+	include	common.def
+	include	group.def
+	include	printer.h
+
+bank0	group	G_BANK0
+
+	public	PrinterSio
+	public	SioWatchDog
+
+	extern	PrintSioMain
+;===============================================================
+;
+;	Printer SIO
+;
+;===============================================================
+PrinterSio
+	ld	a,(rombankno)
+	push	af
+	ld	a,G_BANK3a
+	extern	bank_change
+	call	bank_change
+;	ld	(rombankno),a
+;	ld	(ROMBANK),a
+
+	call	PrintSioMain
+
+	pop	af
+	call	bank_change
+;	ld	(rombankno),a
+;	ld	(ROMBANK),a
+_NoSioInt
+	ret
+
+;===============================================================
+;
+;	SIO WatchDog
+;
+;===============================================================
+	extern	PSIO_NULLNo
+
+SioWatchDog
+	ld	a,(ext_system+0)	;Printer Connect?
+	bit	0,a
+	ret	z
+
+	ld	a,(ext_system+1)	;In Packet Trans?
+	and	a
+	ret	nz
+
+	ld	hl,NULLcount
+	inc	(hl)
+	ld	a,(hl)		
+	cp	6			;16.6msec~6=99.6msec < 100msec
+	ret	c
+	xor	a
+	ld	(hl),a
+
+	ld	a,PSIO_NULLNo
+	ld	(ext_system+1),a	;NULL Packet Trans Req
+
+	ld	a,PREAMBLE_1
+	ld	(SB),a
+	ld	a,00000001b
+	ld	(SC),a
+	ld	a,10000001b
+	ld	(SC),a
+	ret
+
+
+
+
+
+

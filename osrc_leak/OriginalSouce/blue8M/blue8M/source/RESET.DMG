@@ -1,0 +1,189 @@
+;---------------------------;
+; reset at interrupt timing ;
+;---------------------------;
+
+	include	common.def
+	include	banktool.def
+	include	sgb_col.def
+	include	group.def
+
+
+bank0	group	G_BANK0
+
+	public	reset
+	public	soft_reset
+	public	music_all_bank_init
+	public	chrarea_clr
+
+	extern	bank2bank
+	extern	opning_marushi
+	extern	bank_push_call
+	extern	dmaset
+	extern	lcdc_stop
+	extern	lcdc_on
+	extern	oam_clr
+	extern	main
+	extern	cls
+	extern	play
+	extern	n_to_b
+	extern	wait_vb_s
+	extern	palset
+	extern	pal_off
+	extern	color_set
+	extern	memset
+
+	
+SOFT_RESET_COUNT	equ	010h		; Minimum Value = 1
+
+
+soft_reset:
+	call	music_all_bank_init
+
+	call	pal_off				; Normal Color To White Color
+
+	ld	c,20h				; Fade Wait Count
+	call	wait_vb_s
+
+
+reset:
+	di
+
+	xor	a
+	ld	(IFL),a
+	ld	(IE),a
+
+	ld	(SCX),a
+	ld	(SCY),a
+	ld	(SB),a
+	ld	(SC),a
+	ld	(WX),a
+	ld	(WY),a
+
+	ld	(TMA),a
+	ld	(TAC),a
+	ld	(BGP),a
+	ld	(OBP0),a
+	ld	(OBP1),a
+
+	ld	a,080h
+	ld	(LCDC),a
+	call	lcdc_stop
+
+	ld	sp,0dfffh
+
+	ld	hl,0c000h
+	ld	bc,02000h
+
+z1$:
+	ld	(hl),0
+	inc	hl
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,z1$
+
+	call	chrarea_clr
+
+	ld	hl,0ff80h
+	ld	bc,07fh				; clear ff80-fffe
+	call	memset
+
+	call	oam_clr				; oam area clear
+
+	ld	a,001h
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+
+	call	dmaset				; oam area -> DMA
+
+	xor	a
+	ld	(wave_flg),a
+	ld	(STAT),a
+	ld	(headerx),a
+	ld	(headery),a
+	ld	(IFL),a
+
+	ld	a,00dh
+	ld	(IE),a
+
+	ld	a,144
+	ld	(window_y),a
+	ld	(WY),a
+
+	ld	a,7
+	ld	(WX),a
+
+	ld	a,0ffh
+	ld	(sio_oya_ko),a
+
+	ld	h,098h
+	call	cls				; 9800 - 9bfff <- @spc
+	ld	h,09ch
+	call	cls				; 9c00 - 9ffff <- @spc
+
+	ld	a,0e3h				; window on 09c00h
+	ld	(LCDC),a
+
+	ld	a,SOFT_RESET_COUNT
+	ld	(soft_reset_counter),a
+
+	call	music_all_bank_init
+
+	ei
+
+	ld	a,B_SGB_CHECK
+	call	bank2bank
+	
+	ld	a,MUSIC_BANK3_NO		; Title Music Bank
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+
+	ld	a,09ch
+	ld	(all_putadr_h),a
+	xor	a
+	ld	(all_putadr_l),a
+
+	dec	a
+	ld	(oam_flg),a
+
+	ld	a,B_TEST_DEMO
+	call	bank2bank
+
+;	ld	a,8			;add 960911
+;	ld	(fade_play_fg),a
+;	ld	a,0ffh
+;	call	play
+
+	call	lcdc_stop
+	call	chrarea_clr
+	call	palset
+
+	call	oam_clr
+	ld	a,0e3h				; window on 09c00h
+	ld	(LCDC),a
+
+	jp	main
+
+
+chrarea_clr:
+	ld	hl,CHAR_DATA			; clear 8000-9fff
+	ld	bc,02000h
+	xor	a
+	jp	memset
+
+
+
+music_all_bank_init:
+	ld	a,MUSIC_BANK1_NO		; Bank 2
+	ld	(music_bank_flg),a
+	ld	(music_bank_flg_back),a
+
+	xor	a
+	ld	(fade_play_fg),a
+	ld	(music_flag),a
+	ld	(now_music),a
+
+	dec	a
+
+	jp	play
+

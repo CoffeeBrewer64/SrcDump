@@ -1,0 +1,34 @@
+; 11/29/95		18:03:38
+dun_tbl$:
+	db	017h
+ie_tbl$:
+	db	005h
+	db	007h,002h,002h,EXIT
+	db	007h,003h,002h,EXIT
+	db	004h,008h,000h,T9R3F2
+	db	004h,00ch,000h,T9R3F3
+	db	004h,010h,000h,T9R3F4
+kanban_tbl$:
+	db	004h
+	db	002h,003h,2
+	db	004h,009h,3
+	db	004h,00Dh,4
+	db	004h,011h,5
+hito_tbl$:
+	db	001h
+	db	UMINOIE
+	db	003h+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h
+ram_map_tbl$:
+	dw	00fh * 004h + 002h + ram_map
+	db	007h,002h
+	dw	00fh * 004h + 002h + ram_map
+	db	007h,003h
+	dw	00fh * 003h + 005h + ram_map
+	db	004h,008h
+	dw	00fh * 003h + 007h + ram_map
+	db	004h,00ch
+	dw	00fh * 003h + 009h + ram_map
+	db	004h,010h

@@ -1,0 +1,476 @@
+
+	include		pm_debug.def
+	include		common.def
+
+	include		maphead.def
+
+	public		actor_put
+
+	extern	oam_off
+	extern	wait_vb
+	extern	pattern_table
+;;	extern	musdamage
+;;	extern	mussymbal
+;;	extern	musdie
+;;	extern	sprclr
+	extern	cont
+;;	extern	itemlist
+	extern	reset
+
+bank1	group	1
+
+
+pattern_box		equ	vanish_flag + 39
+ACTOR_LAST_ADRS		equ	ACTOR_MAX * TABLE_AREA + actor_table 
+
+;********************************************************
+;*							*	
+;*	ACTOR_PUT					*
+;*							*
+;*	+0 ---	actor code				*
+;*	+1 	action code				*
+;*	+2 ---	actor pattern				*
+;*	+3	Y.dot					*
+;*	+4 ---	 Y					*
+;*	+5	X.dot					*
+;*	+6 ---	 X					*
+;*	+7	others					*
+;*							*
+;*	(oam_flg)					*
+;*		0 = OFF, 1 = ON , 0ffh = no access	*
+;*							*
+;********************************************************
+
+actor_put:
+	ld	a,(oam_flg)
+	dec	a
+	jr	z,acc_on$			; OAM access ON
+
+	cp	0ffh
+	ret	nz				; OAM No access
+
+	ld	(oam_flg),a			; OAM access OFF
+
+	jp	oam_off
+
+
+  ifn	YELLOW_VERSION
+
+;=======================================================================;
+; Category	: Make OAM Data with Actor Data
+; Author	: No Name G.F.Member
+; Bank-No.	: G_BANK1
+; In		: Nothing
+; Out		: Nothing
+; Infomation	: actwork0	actor number * 10h(actor_table pointer)
+;		: actwork1	OAM address pointer
+;		: actwork2	dot x position 
+;		: actwork3	dot y position 
+;		: actwork4
+;		: actwork5	kusamura effect work area
+;		: pattern_box	actor pattern work area
+;		: comment by tama,98/04/14
+;=======================================================================;
+
+	extern	new_pattern_table
+
+acc_on$:
+	xor	a
+	ld	(actwork1),a
+
+loop_top$:
+	ld	(actwork0),a			; "actor_table" low address
+
+	ld	e,a
+	ld	d,> actor_table
+	ld	a,(de)				; +0 actor code
+	and	a
+	jp	z,next$				; No active actor
+
+	inc	e
+	inc	e
+	ld	a,(de)				; +2 actor pattern code
+	ld	(pattern_box),a
+
+	cp	0ffh				; check vanish status
+	jr	nz,appear$
+
+
+	call	apcom				; actor_table data setting
+
+	jr	next$
+
+appear$:
+	cp	0a0h
+	jr	c,normalchr$	
+
+	ld	a,000h
+
+	jr	getpat$
+	
+normalchr$:
+	and	00fh
+
+getpat$:
+	ld	c,a				; actor pattern code
+	ld	b,00h
+	ld	hl,new_pattern_table
+	add	hl,bc
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	push	de				; +002:
+	inc	d
+
+	ld	a,e
+	add	a,005h
+	ld	e,a
+	ld	a,(de)				; +107:kusa check area
+	and	080h				; pattern change end mask
+	ld	(actwork5),a
+
+	pop	de
+
+	call	apcom				; actor_table data setting
+
+	ld	a,(actwork1)			; "oam_buf" low address
+	add	a,(hl)
+	cp	4 * 40
+	jr	z,set$
+	jr	nc,clear_oam_rest		; oam area over flow limiter
+
+set$:
+	call	calc_chr_code
+	ld	(pattern_box),a
+
+	ld	a,(actwork1)
+	ld	e,a
+	ld	d,> oam_buf
+
+	ld	a,(hli)				; num of Pattern Data
+	ld	c,a
+
+setloop$:
+	ld	a,(actwork3)			; local Y
+	add	a,010h	
+	add	a,(hl)
+	ld	(de),a				; OAM(Y)
+	inc	hl
+	inc	e
+
+	ld	a,(actwork2)			; local X
+	add	a,008h
+	add	a,(hl)
+	ld	(de),a				; OAM(X)
+	inc	hl
+	inc	e
+
+	ld	a,(pattern_box)			; chr code
+	add	a,(hl)
+  ifn	pm_jmsg
+  else
+	cp	80h
+	jr	c,setloop_0$
+	ld	b,a
+	ld	a,(pika_anime_offset)
+	add	a,b
+setloop_0$:
+  endif
+	ld	(de),a				; OAM(Pattern Code)
+	inc	hl
+	inc	e
+
+	ld	a,(hl)
+	bit	1,a				; grass like mode check
+	jr	z,no_grass$
+
+	ld	a,(actwork5)
+	or	(hl)				; attribute copy
+
+no_grass$:
+	and	0f0h				; cut off no use atr
+  ifn	pm_cgb & pm_cgb_obj_atr
+	bit	4,a
+	jr	z,no_grass_0$
+	or	04h
+no_grass_0$:
+  endif
+	ld	(de),a				; OAM(Attribute Code)
+	inc	hl
+	inc	e
+
+	dec	c				; counter--
+	jr	nz,setloop$
+
+	ld	a,e
+	ld	(actwork1),a
+
+next$:
+	ld	a,(actwork0)
+	add	a,TABLE_AREA
+	cp	< ACTOR_LAST_ADRS
+	jp	nz,loop_top$
+
+
+
+clear_oam_rest:
+	ld	a,(obs_map_step)
+	bit	6,a
+	ld	c,4 * 4 * 10
+	jr	z,clrchk$
+
+	ld	c,4 * 4 * 9
+
+clrchk$:
+	ld	a,(actwork1)		; oam address counter
+	cp	c
+	ret	nc
+
+	ld	l,a
+	ld	h,> oam_buf
+	ld	a,c
+	ld	de,04h
+	ld	b,160
+
+clrloop$:
+	ld	(hl),b
+	add	hl,de
+	cp	l
+	jr	nz,clrloop$
+
+	ret
+
+
+;------------- tail of new actor_put routine -----------------------------
+
+  else
+
+;------------- head of old actor_put routine -----------------------------
+
+
+acc_on$:
+	xor	a
+	ld	(actwork1),a
+
+loop_top$:
+	ld	(actwork0),a			; "actor_table" low address
+;	ld	a,(actwork0)
+	ld	e,a
+	ld	d,> actor_table
+	ld	a,(de)				; +0 actor code
+	and	a
+	jp	z,next$				; No active actor
+
+	inc	e
+	inc	e
+	ld	a,(de)				; +2 actor pattern code
+	ld	(pattern_box),a
+
+	cp	0ffh				; check vanish status
+	jr	nz,appear$
+
+	call	apcom				; actor_table data setting
+
+	jr	next$
+
+
+appear$:
+	cp	0a0h
+	jr	c,z78$	
+
+	and	0fh
+	add	a,10h
+
+	jr	z79$
+
+	
+z78$:
+	and	0fh
+
+z79$:
+	ld	l,a				; actor pattern code
+
+	push	de				; actor_tabel + 0bh save
+	inc	d
+
+	ld	a,e
+	add	a,005h
+	ld	e,a
+	ld	a,(de)				; pattern change time (v-brank)
+	and	080h				; pattern change end mask
+	ld	(actwork5),a			; pattern change time
+
+	pop	de				; actor_table + 2 load
+
+	ld	h,0
+	ld	bc,pattern_table		; word boundary table
+	add	hl,hl
+	add	hl,hl
+	add	hl,bc				; pattern code * 4 + address
+	ld	a,(hli)
+	ld	c,a
+	ld	a,(hli)
+	ld	b,a				; chr define (pattern_table)
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a				; atr define (pattern_table)
+
+	call	apcom				; actor_table data setting
+	ld	a,(actwork1)			; "oam_buf" low address
+  ifn	1
+	cp	4 * 40
+	ret	nc			; oam area over flow limiter
+  endif
+	ld	e,a
+	ld	d,> oam_buf
+
+	call	calc_chr_code
+	ld	(pattern_box),a
+setloop$:
+	ld	a,(actwork3)			; local Y
+	add	a,010h				; Y => 010h : display on LCDC
+	add	a,(hl)				; (pattern_tabel).atr->Y
+	ld	(de),a				; OAM(Y)
+
+	inc	hl
+	ld	a,(actwork2)			; local X
+	add	a,008h				; X => 008h : display on LCDC
+	add	a,(hl)				; (pattern_table).atr->X
+	inc	e
+	ld	(de),a				; OAM(X)
+
+	inc	e
+	ld	a,(bc)				; (pattern_table).chr
+	inc	bc				; next pattern(change pattern)
+
+	push	bc
+	ld	b,a
+	ld	a,(pattern_box)
+	add	a,b
+	pop	bc
+
+	ld	(de),a				; OAM(Pattern Code)
+
+	inc	hl
+	inc	e
+	ld	a,(hl)				; (pattern_table).atr->atr
+	bit	1,a				; grass like mode check
+	jr	z,no_grass$
+
+	ld	a,(actwork5)
+	or	(hl)				; attribute copy
+
+no_grass$:
+	inc	hl
+	ld	(de),a
+	inc	e
+	bit	0,a
+	jr	z,setloop$
+
+	ld	a,e
+	ld	(actwork1),a
+
+next$:
+	ld	a,(actwork0)
+	add	a,TABLE_AREA
+	cp	< ACTOR_LAST_ADRS
+	jp	nz,loop_top$
+
+
+z10$:
+	ld	a,(actwork1)
+	ld	l,a
+	ld	h,> oam_buf
+	ld	de,04h
+	ld	b,0a0h
+
+	ld	a,(obs_map_step)
+	bit	6,a
+	ld	a,0a0h
+	jr	z,z11$
+
+	ld	a,090h
+
+z11$:
+	cp	l
+	ret	z
+
+	ld	(hl),b
+	add	hl,de
+
+	jr	z11$
+
+  endif
+
+
+
+
+;---------------------------------------------------------------------------
+; Set Dot position Value 
+; made by No Name
+; comment by tama
+; In	: de regs	actor_table pointer(now point to +001 area)
+; Out	: actwork2	local dot x position
+; 	: actwork3	local dot y position
+;	: actor_table + 00ah	y position data for hit check
+;	: actor_table + 00bh	x position data for hit check
+; Info	: Please Analyze "hitcheck.dmg". Sorry,I don't know about it.
+;---------------------------------------------------------------------------
+apcom:
+	inc	e
+	inc	e
+	ld	a,(de)				; +4
+	ld	(actwork3),a			; locate Y
+
+	inc	e
+	inc	e
+	ld	a,(de)				; +6
+	ld	(actwork2),a			; locate X
+
+	ld	a,004h
+	add	a,e
+	ld	e,a
+	ld	a,(actwork3)
+	add	a,004h
+	and	0f0h
+	ld	(de),a				; +a hit y
+
+	inc	e
+	ld	a,(actwork2)
+	and	0f0h
+	ld	(de),a				; +b hit x
+
+	ret
+
+
+
+;-----------------------------------------
+;IN:	pattern_box	order of actor chr
+;Out:	a regs		Number of 1st chr
+;-----------------------------------------
+calc_chr_code:
+	push	bc
+
+	ld	a,(pattern_box)
+	swap	a
+	and	0fh
+	cp	0bh				; 2 tu me no komono
+	jr	nz,z5$
+
+	ld	a,07ch
+	jr	z6$
+
+z5$:
+	add	a,a				; * 2
+	add	a,a				; * 4
+	ld	c,a
+	add	a,a				; * 8
+	add	a,c				; *12
+
+z6$:
+	pop	bc
+	ret
+
+

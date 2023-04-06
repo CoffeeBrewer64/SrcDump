@@ -1,0 +1,52 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d13_room1
+
+
+	extern	capsule_item
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+d13_room1:
+ysiz	=	9
+xsiz	=	15
+	db	DOUKUTU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	tori_b1			; map data adrs
+	dw	msg_d13r1f1		; message tbl adrs
+	dw	ev_d13r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d13r1f1
+
+
+ev_d13r1f1:
+	jp	init_for_talkmap
+
+
+msg_d13r1f1:
+	dw	capsule_item
+	dw	capsule_item
+	dw	capsule_item
+
+
+
+sxy_d13r1f1:
+	include	..\sxy\d13r0101.sxy
+
+
+tori_b1:
+;	include	..\mapdata\end02.map
+	include	..\mapdata\nend02.map
+
+

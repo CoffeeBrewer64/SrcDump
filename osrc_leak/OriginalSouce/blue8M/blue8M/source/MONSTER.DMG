@@ -1,0 +1,1077 @@
+
+	include	fntequ.def
+	include	type.def
+	include	voice.h
+	include	pm_debug.def
+	include	group.def
+	include	common.def
+
+banke	group	G_BANKe
+
+	public	mons_tbl
+	public	myu_tbl
+	public	mons_voice_tbl
+	public	monschr182
+	public	monschr183
+	public	monschr184
+
+mons_tbl:
+	include	..\monsdata\monstbl.dat
+
+mons_voice_tbl:
+	include	voice.dat
+
+  ifn	ASSEMBLE__ENGLISH
+bank7	group	G_BANK7
+  endif
+
+	public	mons_name_tbl
+mons_name_tbl:
+	include	..\monsdata\monsname.dat	; "monsdata2.dat"
+
+
+;***** MONSTER IMAGE DATA *****
+
+bank9	group	G_BANK9
+
+
+monschr01:
+;	include	..\monsdata\monsch01.dat
+	include	..\monsdata\pm2f_112.dat		;less memory 
+monschr01b:
+	include	..\monsdata\monsbk01.dat
+monschr02:
+;	include	..\monsdata\monsch02.dat
+	include	..\monsdata\pm2f_115.dat	;more memory
+monschr02b:
+	include	..\monsdata\monsbk02.dat
+monschr03:
+;	include	..\monsdata\monsch03.dat
+	include	..\monsdata\pm2f_032.dat		;less memory 
+monschr03b:
+	include	..\monsdata\monsbk03.dat
+monschr04:
+;	include	..\monsdata\monsch04.dat
+	include	..\monsdata\pm2f_035.dat	;more memory
+monschr04b:
+	include	..\monsdata\monsbk04.dat
+monschr05:
+;	include	..\monsdata\monsch05.dat
+	include	..\monsdata\pm2f_021.dat		;less memory 
+monschr05b:
+	include	..\monsdata\monsbk05.dat
+monschr06:
+;	include	..\monsdata\monsch06.dat
+	include	..\monsdata\pm2f_100.dat	;same memory
+monschr06b:
+	include	..\monsdata\monsbk06.dat
+monschr07:
+;	include	..\monsdata\monsch07.dat
+	include	..\monsdata\pm2f_034.dat	;more memory
+monschr07b:
+	include	..\monsdata\monsbk07.dat
+monschr08:
+;	include	..\monsdata\monsch08.dat
+	include	..\monsdata\pm2f_080.dat		;more memory 
+monschr08b:
+	include	..\monsdata\monsbk08.dat
+monschr09:
+;	include	..\monsdata\monsch09.dat
+	include	..\monsdata\pm2f_002.dat		;less memory 
+monschr09b:
+	include	..\monsdata\monsbk09.dat
+monschr10:
+;	include	..\monsdata\monsch10.dat
+	include	..\monsdata\pm2f_103.dat	;less memory
+monschr10b:
+	include	..\monsdata\monsbk10.dat
+monschr11:
+;	include	..\monsdata\monsch11.dat
+	include	..\monsdata\pm2f_108.dat		;less memory 
+monschr11b:
+	include	..\monsdata\monsbk11.dat
+monschr12:
+;	include	..\monsdata\monsch12.dat
+	include	..\monsdata\pm2f_102.dat	;more memory
+monschr12b:
+	include	..\monsdata\monsbk12.dat
+monschr13:
+;	include	..\monsdata\monsch13.dat
+	include	..\monsdata\pm2f_088.dat	;more memory
+monschr13b:
+	include	..\monsdata\monsbk13.dat
+monschr14:
+;	include	..\monsdata\monsch14.dat
+	include	..\monsdata\pm2f_094.dat		;less memory
+monschr14b:
+	include	..\monsdata\monsbk14.dat
+monschr15:
+;	include	..\monsdata\monsch15.dat
+	include	..\monsdata\pm2f_029.dat		;less memory
+monschr15b:
+	include	..\monsdata\monsbk15.dat
+monschr16:
+;	include	..\monsdata\monsch16.dat
+	include	..\monsdata\pm2f_031.dat	;less memory
+monschr16b:
+	include	..\monsdata\monsbk16.dat
+monschr17:
+;	include	..\monsdata\monsch17.dat
+	include	..\monsdata\pm2f_104.dat		;less memory
+monschr17b:
+	include	..\monsdata\monsbk17.dat
+monschr18:
+;	include	..\monsdata\monsch18.dat
+	include	..\monsdata\pm2f_111.dat		;less memory
+monschr18b:
+	include	..\monsdata\monsbk18.dat
+monschr19:
+;	include	..\monsdata\monsch19.dat
+	include	..\monsdata\pm2f_131.dat		;less memory
+monschr19b:
+	include	..\monsdata\monsbk19.dat
+monschr20:
+;	include	..\monsdata\monsch20.dat
+	include	..\monsdata\pm2f_059.dat	;more memory
+monschr20b:
+	include	..\monsdata\monsbk20.dat
+monschr22:
+;	include	..\monsdata\monsch22.dat
+	include	..\monsdata\pm2f_130.dat	;more memory
+monschr22b:
+	include	..\monsdata\monsbk22.dat
+monschr23:
+;	include	..\monsdata\monsch23.dat
+	include	..\monsdata\pm2f_090.dat		;more memory
+monschr23b:
+	include	..\monsdata\monsbk23.dat
+monschr24:
+;	include	..\monsdata\monsch24.dat
+	include	..\monsdata\pm2f_072.dat	;less memory
+monschr24b:
+	include	..\monsdata\monsbk24.dat
+monschr25:
+;	include	..\monsdata\monsch25.dat
+	include	..\monsdata\pm2f_092.dat		;more memory
+monschr25b:
+	include	..\monsdata\monsbk25.dat
+monschr26:
+;	include	..\monsdata\monsch26.dat
+	include	..\monsdata\pm2f_123.dat	;less memory
+monschr26b:
+	include	..\monsdata\monsbk26.dat
+monschr27:
+;	include	..\monsdata\monsch27.dat
+	include	..\monsdata\pm2f_120.dat		;less memory
+monschr27b:
+	include	..\monsdata\monsbk27.dat
+monschr28:
+;	include	..\monsdata\monsch28.dat
+	include	..\monsdata\pm2f_009.dat		;more memory
+monschr28b:
+	include	..\monsdata\monsbk28.dat
+monschr29:
+;	include	..\monsdata\monsch29.dat
+	include	..\monsdata\pm2f_127.dat	;less memory
+monschr29b:
+	include	..\monsdata\monsbk29.dat
+monschr30:
+;	include	..\monsdata\monsch30.dat
+	include	..\monsdata\pm2f_114.dat	;less memory
+monschr30b:
+	include	..\monsdata\monsbk30.dat
+
+banka	group	G_BANKa
+
+
+monschr31:
+monschr32:
+monschr33:
+;	include	..\monsdata\monsch33.dat
+	include	..\monsdata\pm2f_058.dat		;more memory
+monschr31b:
+monschr32b:
+monschr33b:
+	include	..\monsdata\monsbk33.dat
+monschr34:
+;	include	..\monsdata\monsch34.dat
+	include	..\monsdata\pm2f_095.dat	;less memory
+monschr34b:
+	include	..\monsdata\monsbk34.dat
+monschr35:
+;	include	..\monsdata\monsch35.dat
+	include	..\monsdata\pm2f_022.dat	;less memory
+monschr35b:
+	include	..\monsdata\monsbk35.dat
+monschr36:
+;	include	..\monsdata\monsch36.dat
+	include	..\monsdata\pm2f_016.dat		;less memory
+monschr36b:
+	include	..\monsdata\monsbk36.dat
+monschr37:
+;	include	..\monsdata\monsch37.dat
+	include	..\monsdata\pm2f_079.dat		;more memory
+monschr37b:
+	include	..\monsdata\monsbk37.dat
+monschr38:
+;	include	..\monsdata\monsch38.dat
+	include	..\monsdata\pm2f_064.dat	;less memory
+monschr38b:
+	include	..\monsdata\monsbk38.dat
+monschr39:
+;	include	..\monsdata\monsch39.dat
+	include	..\monsdata\pm2f_075.dat	;less memory
+monschr39b:
+	include	..\monsdata\monsbk39.dat
+monschr40:
+;	include	..\monsdata\monsch40.dat
+	include	..\monsdata\pm2f_113.dat		;more memory
+monschr40b:
+	include	..\monsdata\monsbk40.dat
+monschr41:
+;	include	..\monsdata\monsch41.dat
+	include	..\monsdata\pm2f_067.dat		;less memory
+monschr41b:
+	include	..\monsdata\monsbk41.dat
+monschr42:
+;	include	..\monsdata\monsch42.dat
+	include	..\monsdata\pm2f_122.dat	;less memory
+monschr42b:
+	include	..\monsdata\monsbk42.dat
+monschr43:
+;	include	..\monsdata\monsch43.dat
+	include	..\monsdata\pm2f_106.dat		;less memory
+monschr43b:
+	include	..\monsdata\monsbk43.dat
+monschr44:
+;	include	..\monsdata\monsch44.dat
+	include	..\monsdata\pm2f_107.dat		;more memory
+monschr44b:
+	include	..\monsdata\monsbk44.dat
+monschr45:
+;	include	..\monsdata\monsch45.dat
+	include	..\monsdata\pm2f_024.dat		;more memory
+monschr45b:
+	include	..\monsdata\monsbk45.dat
+monschr46:
+;	include	..\monsdata\monsch46.dat
+	include	..\monsdata\pm2f_047.dat		;more memory
+monschr46b:
+	include	..\monsdata\monsbk46.dat
+monschr47:
+;	include	..\monsdata\monsch47.dat
+	include	..\monsdata\pm2f_054.dat		;more memory
+monschr47b:
+	include	..\monsdata\monsbk47.dat
+monschr48:
+;	include	..\monsdata\monsch48.dat
+	include	..\monsdata\pm2f_096.dat		;more memory
+monschr48b:
+	include	..\monsdata\monsbk48.dat
+monschr49:
+;	include	..\monsdata\monsch49.dat
+	include	..\monsdata\pm2f_076.dat		;less memory 
+monschr49b:
+	include	..\monsdata\monsbk49.dat
+monschr50:
+monschr51:
+;	include	..\monsdata\monsch51.dat
+	include	..\monsdata\pm2f_126.dat		;less memory 
+monschr50b:
+monschr51b:
+	include	..\monsdata\monsbk51.dat
+monschr52:
+monschr53:
+;	include	..\monsdata\monsch53.dat
+	include	..\monsdata\pm2f_125.dat		;less memory 
+monschr52b:
+monschr53b:
+	include	..\monsdata\monsbk53.dat
+monschr54:
+;	include	..\monsdata\monsch54.dat
+	include	..\monsdata\pm2f_082.dat	;less memory
+monschr54b:
+	include	..\monsdata\monsbk54.dat
+monschr55:
+;	include	..\monsdata\monsch55.dat
+	include	..\monsdata\pm2f_109.dat		;more memory 
+monschr55b:
+	include	..\monsdata\monsbk55.dat
+monschr56:
+monschr57:
+;	include	..\monsdata\monsch57.dat
+	include	..\monsdata\pm2f_056.dat		;more memory 
+monschr56b:
+monschr57b:
+	include	..\monsdata\monsbk57.dat
+monschr58:
+;	include	..\monsdata\monsch58.dat
+	include	..\monsdata\pm2f_086.dat		;more memory 
+monschr58b:
+	include	..\monsdata\monsbk58.dat
+monschr59:
+;	include	..\monsdata\monsch59.dat
+	include	..\monsdata\pm2f_050.dat		;more memory 
+monschr59b:
+	include	..\monsdata\monsbk59.dat
+monschr60:
+;	include	..\monsdata\monsch60.dat
+	include	..\monsdata\pm2f_128.dat		;more memory 
+monschr60b:
+	include	..\monsdata\monsbk60.dat
+monschr61:
+monschr62:
+monschr63:
+monschr64:
+;	include	..\monsdata\monsch64.dat
+	include	..\monsdata\pm2f_083.dat		;more memory 
+monschr61b:
+monschr62b:
+monschr63b:
+monschr64b:
+	include	..\monsdata\monsbk64.dat
+monschr65:
+;	include	..\monsdata\monsch65.dat
+	include	..\monsdata\pm2f_048.dat		;more memory
+monschr65b:
+	include	..\monsdata\monsbk65.dat
+monschr66:
+;	include	..\monsdata\monsch66.dat
+	include	..\monsdata\pm2f_149.dat	;less memory
+monschr66b:
+	include	..\monsdata\monsbk66.dat
+monschr67:
+monschr68:
+monschr69:
+monschr70:
+;	include	..\monsdata\monsch70.dat
+	include	..\monsdata\pm2f_084.dat		;more memory
+monschr67b:
+monschr68b:
+monschr69b:
+monschr70b:
+	include	..\monsdata\monsbk70.dat
+monschr71:
+;	include	..\monsdata\monsch71.dat
+	include	..\monsdata\pm2f_060.dat		;less memory 
+monschr71b:
+	include	..\monsdata\monsbk71.dat
+monschr72:
+;	include	..\monsdata\monsch72.dat
+	include	..\monsdata\pm2f_124.dat		;more memory
+monschr72b:
+	include	..\monsdata\monsbk72.dat
+monschr73:
+;	include	..\monsdata\monsch73.dat
+	include	..\monsdata\pm2f_146.dat		;less memory
+monschr73b:
+	include	..\monsdata\monsbk73.dat
+
+
+bankb	group	G_BANKb
+
+
+monschr74:
+;	include	..\monsdata\monsch74.dat
+	include	..\monsdata\pm2f_144.dat		;more memory
+monschr74b:
+	include	..\monsdata\monsbk74.dat
+monschr75:
+;	include	..\monsdata\monsch75.dat
+	include	..\monsdata\pm2f_145.dat	;less memory
+monschr75b:
+	include	..\monsdata\monsbk75.dat
+monschr76:
+;	include	..\monsdata\monsch76.dat
+	include	..\monsdata\pm2f_132.dat		;more memory
+monschr76b:
+	include	..\monsdata\monsbk76.dat
+monschr77:
+;	include	..\monsdata\monsch77.dat
+	include	..\monsdata\pm2f_052.dat		;more memory
+monschr77b:
+	include	..\monsdata\monsbk77.dat
+monschr78:
+;	include	..\monsdata\monsch78.dat
+	include	..\monsdata\pm2f_098.dat		;more memory
+monschr78b:
+	include	..\monsdata\monsbk78.dat
+monschr79:
+monschr80:
+monschr81:
+monschr82:
+;	include	..\monsdata\monsch82.dat
+	include	..\monsdata\pm2f_037.dat		;more memory
+monschr79b:
+monschr80b:
+monschr81b:
+monschr82b:
+	include	..\monsdata\monsbk82.dat
+monschr83:
+;	include	..\monsdata\monsch83.dat
+	include	..\monsdata\pm2f_038.dat		;less memory
+monschr83b:
+	include	..\monsdata\monsbk83.dat
+monschr84:
+;	include	..\monsdata\monsch84.dat
+	include	..\monsdata\pm2f_025.dat		;more memory
+monschr84b:
+	include	..\monsdata\monsbk84.dat
+monschr85:
+;	include	..\monsdata\monsch85.dat
+	include	..\monsdata\pm2f_026.dat		;less memory
+monschr85b:
+	include	..\monsdata\monsbk85.dat
+monschr86:
+monschr87:
+monschr88:
+;	include	..\monsdata\monsch88.dat
+	include	..\monsdata\pm2f_147.dat		;more memory
+monschr86b:
+monschr87b:
+monschr88b:
+	include	..\monsdata\monsbk88.dat
+monschr89:
+;	include	..\monsdata\monsch89.dat
+	include	..\monsdata\pm2f_148.dat		;less memory
+monschr89b:
+	include	..\monsdata\monsbk89.dat
+monschr90:
+;	include	..\monsdata\monsch90.dat
+	include	..\monsdata\pm2f_140.dat		;more memory
+monschr90b:
+	include	..\monsdata\monsbk90.dat
+monschr91:
+;	include	..\monsdata\monsch91.dat
+	include	..\monsdata\pm2f_141.dat		;more memory
+monschr91b:
+	include	..\monsdata\monsbk91.dat
+monschr92:
+;	include	..\monsdata\monsch92.dat
+	include	..\monsdata\pm2f_116.dat		;less memory
+monschr92b:
+	include	..\monsdata\monsbk92.dat
+monschr93:
+;	include	..\monsdata\monsch93.dat
+	include	..\monsdata\pm2f_117.dat		;less memory
+monschr93b:
+	include	..\monsdata\monsbk93.dat
+monschr94:
+monschr95:
+monschr96:
+;	include	..\monsdata\monsch96.dat
+	include	..\monsdata\pm2f_027.dat		;more memory
+monschr94b:
+monschr95b:
+monschr96b:
+	include	..\monsdata\monsbk96.dat
+monschr97:
+;	include	..\monsdata\monsch97.dat
+	include	..\monsdata\pm2f_028.dat		;less memory
+monschr97b:
+	include	..\monsdata\monsbk97.dat
+monschr98:
+;	include	..\monsdata\monsch98.dat
+	include	..\monsdata\pm2f_138.dat		;more memory
+monschr98b:
+	include	..\monsdata\monsbk98.dat
+monschr99:
+;	include	..\monsdata\monsch99.dat
+	include	..\monsdata\pm2f_139.dat		;less memory
+monschr99b:
+	include	..\monsdata\monsbk99.dat
+monschr100:
+;	include	..\monsdata\monsc100.dat
+	include	..\monsdata\pm2f_039.dat		;more memory
+monschr100b:
+	include	..\monsdata\monsb100.dat
+monschr101:
+;	include	..\monsdata\monsc101.dat
+	include	..\monsdata\pm2f_040.dat		;more memory
+monschr101b:
+	include	..\monsdata\monsb101.dat
+monschr102:
+;	include	..\monsdata\monsc102.dat
+	include	..\monsdata\pm2f_133.dat		;more memory
+monschr102b:
+	include	..\monsdata\monsb102.dat
+monschr103:
+;	include	..\monsdata\monsc103.dat
+	include	..\monsdata\pm2f_136.dat		;less memory
+monschr103b:
+	include	..\monsdata\monsb103.dat
+monschr104:
+;	include	..\monsdata\monsc104.dat
+	include	..\monsdata\pm2f_135.dat		;less memory
+monschr104b:
+	include	..\monsdata\monsb104.dat
+monschr105:
+;	include	..\monsdata\monsc105.dat
+	include	..\monsdata\pm2f_134.dat		;less memory
+monschr105b:
+	include	..\monsdata\monsb105.dat
+monschr106:
+;	include	..\monsdata\monsc106.dat
+	include	..\monsdata\pm2f_066.dat		;less memory
+monschr106b:
+	include	..\monsdata\monsb106.dat
+monschr107:
+;	include	..\monsdata\monsc107.dat
+	include	..\monsdata\pm2f_041.dat		;more memory
+monschr107b:
+	include	..\monsdata\monsb107.dat
+monschr108:
+;	include	..\monsdata\monsc108.dat
+	include	..\monsdata\pm2f_023.dat		;more memory
+monschr108b:
+	include	..\monsdata\monsb108.dat
+monschr109:
+;	include	..\monsdata\monsc109.dat
+	include	..\monsdata\pm2f_046.dat		;less memory
+monschr109b:
+	include	..\monsdata\monsb109.dat
+monschr110:
+;	include	..\monsdata\monsc110.dat
+	include	..\monsdata\pm2f_061.dat		;more memory
+monschr110b:
+	include	..\monsdata\monsb110.dat
+monschr111:
+;	include	..\monsdata\monsc111.dat
+	include	..\monsdata\pm2f_062.dat		;less memory 
+monschr111b:
+	include	..\monsdata\monsb111.dat
+monschr112:
+;	include	..\monsdata\monsc112.dat
+	include	..\monsdata\pm2f_013.dat		;more memory
+monschr112b:
+	include	..\monsdata\monsb112.dat
+monschr113:
+;	include	..\monsdata\monsc113.dat
+	include	..\monsdata\pm2f_014.dat		;more memory
+monschr113b:
+	include	..\monsdata\monsb113.dat
+monschr114:
+;	include	..\monsdata\monsc114.dat
+	include	..\monsdata\pm2f_015.dat		;more memory
+monschr114b:
+	include	..\monsdata\monsb114.dat
+
+monschr182:					;add by tama 960906
+;	include	..\monsdata\monsc182.dat
+	include	..\monsdata\kabubone.dat	;add 960913
+
+
+bankc	group	G_BANKc
+
+monschr115:
+monschr116:
+;	include	..\monsdata\monsc116.dat
+	include	..\monsdata\pm2f_085.dat		;less memory
+monschr115b:
+monschr116b:
+	include	..\monsdata\monsb116.dat
+
+
+monschr117:
+;	include	..\monsdata\monsc117.dat
+	include	..\monsdata\pm2f_057.dat		;less memory 
+monschr117b:
+	include	..\monsdata\monsb117.dat
+monschr118:
+;	include	..\monsdata\monsc118.dat
+	include	..\monsdata\pm2f_051.dat		;more memory 
+monschr118b:
+	include	..\monsdata\monsb118.dat
+monschr119:
+;	include	..\monsdata\monsc119.dat
+	include	..\monsdata\pm2f_049.dat		;less memory 
+monschr119b:
+	include	..\monsdata\monsb119.dat
+monschr120:
+;	include	..\monsdata\monsc120.dat
+	include	..\monsdata\pm2f_087.dat		;less memory 
+monschr120b:
+	include	..\monsdata\monsb120.dat
+monschr121:
+monschr122:
+monschr123:
+;	include	..\monsdata\monsc123.dat
+	include	..\monsdata\pm2f_010.dat		;more memory 
+monschr121b:
+monschr122b:
+monschr123b:
+	include	..\monsdata\monsb123.dat
+monschr124:
+;	include	..\monsdata\monsc124.dat
+	include	..\monsdata\pm2f_011.dat		;less memory 
+monschr124b:
+	include	..\monsdata\monsb124.dat
+monschr125:
+;	include	..\monsdata\monsc125.dat
+	include	..\monsdata\pm2f_012.dat		;less memory
+monschr125b:
+	include	..\monsdata\monsb125.dat
+monschr126:
+;	include	..\monsdata\monsc126.dat
+	include	..\monsdata\pm2f_068.dat		;less memory
+monschr126b:
+	include	..\monsdata\monsb126.dat
+monschr127:
+monschr128:
+;	include	..\monsdata\monsc128.dat
+	include	..\monsdata\pm2f_055.dat		;less memory
+monschr127b:
+monschr128b:
+	include	..\monsdata\monsb128.dat
+monschr129:
+;	include	..\monsdata\monsc129.dat
+	include	..\monsdata\pm2f_097.dat		;less memory
+monschr129b:
+	include	..\monsdata\monsb129.dat
+monschr130:
+;	include	..\monsdata\monsc130.dat
+	include	..\monsdata\pm2f_042.dat		;more memory
+monschr130b:
+	include	..\monsdata\monsb130.dat
+monschr131:
+;	include	..\monsdata\monsc131.dat
+	include	..\monsdata\pm2f_150.dat		;less memory
+monschr131b:
+	include	..\monsdata\monsb131.dat
+monschr132:
+;	include	..\monsdata\monsc132.dat
+	include	..\monsdata\pm2f_143.dat		;more memory
+monschr132b:
+	include	..\monsdata\monsb132.dat
+monschr133:
+;	include	..\monsdata\monsc133.dat
+	include	..\monsdata\pm2f_129.dat		;more memory
+monschr133b:
+	include	..\monsdata\monsb133.dat
+monschr134:
+monschr135:
+monschr136:
+;	include	..\monsdata\monsc136.dat
+	include	..\monsdata\pm2f_089.dat		;less memory 
+monschr134b:
+monschr135b:
+monschr136b:
+	include	..\monsdata\monsb136.dat
+monschr137:
+monschr138:
+;	include	..\monsdata\monsc138.dat
+	include	..\monsdata\pm2f_099.dat		;less memory 
+monschr137b:
+monschr138b:
+	include	..\monsdata\monsb138.dat
+monschr139:
+;	include	..\monsdata\monsc139.dat
+	include	..\monsdata\pm2f_091.dat		;less memory
+monschr139b:
+	include	..\monsdata\monsb139.dat
+monschr140:
+monschr141:
+;	include	..\monsdata\monsc141.dat
+	include	..\monsdata\pm2f_101.dat		;less memory
+monschr140b:
+monschr141b:
+	include	..\monsdata\monsb141.dat
+monschr142:
+;	include	..\monsdata\monsc142.dat
+	include	..\monsdata\pm2f_036.dat		;same memory
+monschr142b:
+	include	..\monsdata\monsb142.dat
+monschr143:
+;	include	..\monsdata\monsc143.dat
+	include	..\monsdata\pm2f_110.dat		;more memory
+monschr143b:
+	include	..\monsdata\monsb143.dat
+monschr144:
+;	include	..\monsdata\monsc144.dat
+	include	..\monsdata\pm2f_053.dat		;more memory
+monschr144b:
+	include	..\monsdata\monsb144.dat
+monschr145:
+;	include	..\monsdata\monsc145.dat
+	include	..\monsdata\pm2f_105.dat		;less memory
+monschr145b:
+	include	..\monsdata\monsb145.dat
+monschr146:
+monschr147:
+;	include	..\monsdata\monsc147.dat
+	include	..\monsdata\pm2f_093.dat		;less memory
+monschr146b:
+monschr147b:
+	include	..\monsdata\monsb147.dat
+monschr148:
+;	include	..\monsdata\monsc148.dat
+	include	..\monsdata\pm2f_063.dat		;less memory
+monschr148b:
+	include	..\monsdata\monsb148.dat
+monschr149:
+;	include	..\monsdata\monsc149.dat
+	include	..\monsdata\pm2f_065.dat		;less memory
+monschr149b:
+	include	..\monsdata\monsb149.dat
+monschr150:
+;	include	..\monsdata\monsc150.dat
+	include	..\monsdata\pm2f_017.dat		;less memory
+monschr150b:
+	include	..\monsdata\monsb150.dat
+monschr151:
+;	include	..\monsdata\monsc151.dat
+	include	..\monsdata\pm2f_018.dat		;less memory 
+monschr151b:
+	include	..\monsdata\monsb151.dat
+monschr152:
+;	include	..\monsdata\monsc152.dat
+	include	..\monsdata\pm2f_121.dat		;less memory
+monschr152b:
+	include	..\monsdata\monsb152.dat
+
+
+bankd	group	G_BANKd
+
+monschr153:
+;	include	..\monsdata\monsc153.dat
+	include	..\monsdata\pm2f_001.dat		;more memory
+monschr153b:
+	include	..\monsdata\monsb153.dat
+
+monschr154:
+;	include	..\monsdata\monsc154.dat
+	include	..\monsdata\pm2f_003.dat		;less memory 
+monschr154b:
+	include	..\monsdata\monsb154.dat
+monschr155:
+;	include	..\monsdata\monsc155.dat
+	include	..\monsdata\pm2f_073.dat		;less memory 
+monschr155b:
+	include	..\monsdata\monsb155.dat
+monschr156:
+monschr157:
+;	include	..\monsdata\monsc157.dat
+	include	..\monsdata\pm2f_118.dat		;less memory 
+monschr156b:
+monschr157b:
+	include	..\monsdata\monsb157.dat
+monschr158:
+;	include	..\monsdata\monsc158.dat
+	include	..\monsdata\pm2f_119.dat		;less memory 
+monschr158b:
+	include	..\monsdata\monsb158.dat
+monschr159:
+monschr160:
+monschr161:
+monschr162:
+monschr163:
+;	include	..\monsdata\monsc163.dat
+	include	..\monsdata\pm2f_077.dat		;less memory
+monschr164:
+;	include	..\monsdata\monsc164.dat
+	include	..\monsdata\pm2f_078.dat		;more memory
+monschr159b:
+monschr160b:
+monschr161b:
+monschr162b:
+monschr163b:
+	include	..\monsdata\monsb163.dat
+monschr164b:
+	include	..\monsdata\monsb164.dat
+monschr165:
+;	include	..\monsdata\monsc165.dat
+	include	..\monsdata\pm2f_019.dat		;more memory
+monschr165b:
+	include	..\monsdata\monsb165.dat
+monschr166:
+;	include	..\monsdata\monsc166.dat
+	include	..\monsdata\pm2f_020.dat		;more memory
+monschr166b:
+	include	..\monsdata\monsb166.dat
+monschr167:
+;	include	..\monsdata\monsc167.dat
+	include	..\monsdata\pm2f_033.dat		;less memory
+monschr167b:
+	include	..\monsdata\monsb167.dat
+monschr168:
+;	include	..\monsdata\monsc168.dat
+	include	..\monsdata\pm2f_030.dat		;less memory
+monschr168b:
+	include	..\monsdata\monsb168.dat
+monschr169:
+;	include	..\monsdata\monsc169.dat
+	include	..\monsdata\pm2f_074.dat		;more memory
+monschr169b:
+	include	..\monsdata\monsb169.dat
+monschr170:
+;	include	..\monsdata\monsc170.dat
+	include	..\monsdata\pm2f_137.dat		;more memory
+monschr170b:
+	include	..\monsdata\monsb170.dat
+monschr171:
+;	include	..\monsdata\monsc171.dat
+	include	..\monsdata\pm2f_142.dat		;less memory 
+monschr171b:
+	include	..\monsdata\monsb171.dat
+monschr172:
+monschr173:
+;	include	..\monsdata\monsc173.dat
+	include	..\monsdata\pm2f_081.dat		;more memory
+monschr172b:
+monschr173b:
+	include	..\monsdata\monsb173.dat
+monschr174:
+monschr175:
+monschr176:
+;	include	..\monsdata\monsc176.dat
+	include	..\monsdata\pm2f_004.dat		;more memory
+monschr174b:
+monschr175b:
+monschr176b:
+	include	..\monsdata\monsb176.dat
+monschr177:
+;	include	..\monsdata\monsc177.dat
+	include	..\monsdata\pm2f_007.dat		;less memory
+monschr177b:
+	include	..\monsdata\monsb177.dat
+monschr178:
+;	include	..\monsdata\monsc178.dat
+	include	..\monsdata\pm2f_005.dat		;more memory
+monschr178b:
+	include	..\monsdata\monsb178.dat
+monschr179:
+;	include	..\monsdata\monsc179.dat
+	include	..\monsdata\pm2f_008.dat		;less memory
+monschr179b:
+	include	..\monsdata\monsb179.dat
+monschr180:
+;	include	..\monsdata\monsc180.dat
+	include	..\monsdata\pm2f_006.dat		;less memory
+monschr180b:
+	include	..\monsdata\monsb180.dat
+monschr181:
+monschr181b:
+monschr183:
+;	include	..\monsdata\monsc183.dat
+	include	..\monsdata\putebone.dat	;add 960913
+monschr184:
+	include	..\monsdata\monsc184.dat
+monschr185:
+;	include	..\monsdata\monsc185.dat
+	include	..\monsdata\pm2f_043.dat		;less memory
+monschr185b:
+	include	..\monsdata\monsb185.dat
+monschr186:
+;	include	..\monsdata\monsc186.dat
+	include	..\monsdata\pm2f_044.dat		;less memory
+monschr186b:
+	include	..\monsdata\monsb186.dat
+monschr187:
+;	include	..\monsdata\monsc187.dat
+	include	..\monsdata\pm2f_045.dat		;less memory
+monschr187b:
+	include	..\monsdata\monsb187.dat
+monschr188:
+;	include	..\monsdata\monsc188.dat
+	include	..\monsdata\pm2f_069.dat
+monschr188b:
+	include	..\monsdata\monsb188.dat
+monschr189:
+;	include	..\monsdata\monsc189.dat
+	include	..\monsdata\pm2f_070.dat		;more memory
+monschr189b:
+	include	..\monsdata\monsb189.dat
+monschr190:
+;	include	..\monsdata\monsc190.dat
+;	include	..\monsdata\pm2f_071.dat		;more memory
+	include	..\monsdata\pm2f_tes.dat		;more memory
+monschr190b:
+	include	..\monsdata\monsb190.dat
+
+
+;-----------------------------------------------------------------
+;
+;	New Title demo
+;
+;-----------------------------------------------------------------
+
+
+	public	move_tbl1
+	public	slide_mons
+
+not_move_tbl:
+	db	05h,05h,00h
+
+move_tbl1:			;total 120,step 17
+	db	0a2h,94h,84h,63h,52h,31h,11h,00h
+move_tbl2:			;total 93,step 18
+	db	12h,22h,32h,42h,52h,62h,83h,93h,00h
+
+slide_mons:
+	ld	a,d
+	ld	bc,move_tbl1
+;	ld	d,134
+	ld	d,256 - 120
+;	ld	e,1
+;	ld	e,calculated_speed7 - ball_tbl1
+	ld	e,0
+	
+	and	a
+	jr	nz,main$
+
+	ld	bc,move_tbl2		;go out tbl
+	ld	d,0
+;	ld	e,30
+	ld	e,00h			;point of end mark
+;	ld	e,calculated_speed7 - ball_tbl1
+
+main$:
+sprit:
+	ld	a,(bc)
+	and	a
+	ret	z
+
+	inc	bc
+	push	bc
+
+	ld	b,a
+	and	00fh			;C = lower of byte (counter)
+	ld	c,a
+	ld	a,b
+	and	0f0h			;B = upper of byte (vector)
+	swap	a
+	ld	b,a
+
+loop$:
+	ld	h,d
+	ld	l,9*8
+	call	spritsub1a
+
+	ld	h,0
+	ld	l,17*8
+	call	spritsub1a
+
+	ld	a,d
+	add	a,b
+	ld	d,a
+
+	call	BALL_MOVE_sub
+
+	dec	c
+	jr	nz,loop$
+
+
+	pop	bc
+
+	jr	sprit
+
+
+spritsub1a:
+spritsub1$:
+	ld	a,(LY)
+	cp	l
+	jr	nz,spritsub1$
+
+	ld	a,h
+	ld	(SCX),a
+
+spritsub2$:
+	ld	a,(LY)
+	cp	h
+	jr	z,spritsub2$
+
+	ret
+
+ball_tbl1:
+	db	00h
+
+
+calculated_speed7:
+	db	113,111,110,109,108
+	db	109,110,111,113,116,00h
+
+;	db	116,116,116,116,116,116
+
+
+	public	ball_mover
+ball_mover:
+	ld	a,(usr_buf)
+	cp	176
+	jr	z,pom$
+	cp	177
+	jr	z,pom$
+	cp	153
+	ret	nz
+
+pom$:
+	ld	e,calculated_speed7 - ball_tbl1
+	ld	bc,not_move_tbl
+	ld	d,0
+
+	jp 	sprit
+
+	
+BALL_MOVE_sub:
+	push	de
+	push	hl
+
+	xor	a
+	ld	d,a
+	
+	ld	hl,ball_tbl1
+	add	hl,de
+
+	ld	a,(hl)
+
+	pop	hl
+	pop	de
+
+	and	a
+	ret	z
+
+	
+	ld	(oam_buf+ 40),a
+	inc	e
+
+	ret
+
+
+
+;--------------New title demo is end -------------------------
+
+
+
+bank1	group	G_BANK1
+
+
+monschr21:
+;	include	..\monsdata\monsch21.dat
+;	include	..\monsdata\pm2f_myu.dat
+	include	..\monsdata\pm2f_151.dat
+monschr21b:
+	include	..\monsdata\monsbk21.dat
+
+
+myu_tbl:
+	db	151			; old number = 21
+	db	100			; hit point(max)
+	db	100			; attack point
+	db	100			; defence ratio
+	db	100			; quick ratio
+	db	100			; special ability
+	db	SP_TYPE
+	db	SP_TYPE
+	db	045			; obtain ratio
+	db	064			; experience value
+	db	055h			; Monster yx size
+	dw	monschr21		; BitImage data (front)
+	dw	monschr21b		; BitImage data (back)
+	db	001			; skill 1
+	db	000			; skill 2
+	db	000			; skill 3
+	db	000			; skill 4
+	db	003			; pttern of experience
+	db	11111111b, 11111111b, 11111111b, 11111111b
+	db	11111111b, 11111111b, 11111111b, 11111111b
+
+

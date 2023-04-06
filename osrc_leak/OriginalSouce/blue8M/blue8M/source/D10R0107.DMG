@@ -1,0 +1,343 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank15	group	G_BANK15
+
+
+	public	d10_room1_7f
+
+
+	extern	table_jump
+	extern	bank2bank
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+
+seq_d10r1f7	equ	seq_ctrl_buf + 59h
+
+
+d10_room1_7f:
+ysiz	=	9
+xsiz	=	13
+	db	BUILDING_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	nsilf_3			; map data adrs
+	dw	msg_d10r1f7		; message tbl adrs
+	dw	ev_d10r1f7		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d10r1f7
+
+
+ev_d10r1f7:
+	call	init$
+
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d10r1f7_tbl
+	ld	a,(seq_d10r1f7)
+	call	battle_sequence
+	ld	(seq_d10r1f7),a
+
+	ret
+
+
+
+init$:
+	ld	hl,ptn_data
+	bit	5,(hl)
+	res	5,(hl)
+	ret	z
+
+	ld	hl,where
+	call	check_where
+	call	each_map_door
+
+	ld	a,(ev_d10 + 13)
+	bit	0,a
+	ret	nz
+
+	ld	a,05ch + 003h
+	ld	(el_c),a
+	ld	bc,4 * 256 + 3
+	ld	a,B_BGCELL_CHANGE
+	jp	bank2bank
+
+
+where:
+	db	4,3				; door-1
+	db	0ffh
+
+
+check_where:
+	push	hl
+
+	ld	hl,checker_flag + 0
+	ld	a,(hli)
+	ld	b,a				; mapscloll_y
+	ld	a,(hl)
+	ld	c,a				; mapscloll_x
+
+	xor	a
+	ld	(DA_BUF + 5),a
+
+	pop	hl
+
+lp$:
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,exit$
+
+	push	hl
+	ld	hl,DA_BUF + 5			; 1-origin value(result)
+	inc	(hl)
+	pop	hl
+
+	cp	b
+	jr	z,ok$
+
+	inc	hl
+
+	jr	lp$
+
+
+ok$:
+	ld	a,(hli)
+	cp	c
+	jr	nz,lp$
+
+	ld	hl,checker_flag + 0
+	xor	a
+	ld	(hli),a
+	ld	(hl),a
+
+	ret
+
+
+exit$:
+	xor	a
+	ld	(DA_BUF + 5),a
+
+	ret
+
+
+each_map_door:
+	ld	a,(DA_BUF + 5)
+	and	a
+	ret	z
+
+	ld	hl,ev_d10 + 13
+	set	0,(hl)
+
+	ret
+
+
+d10r1f7_tbl:
+	initndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+msg_d10r1f7:
+	msgndw	msg1,msg_shainm
+	ndw	msg2,msg_member1
+	ndw	msg4,msg_sylpu_w
+	ndw	msg5,msg_member2
+
+
+
+dealer_talk:
+d_talk1:
+	db	msg_member1,040h
+	dw	ev_d10 + 12
+	dw	msg2_0
+	dw	msg2_after
+	dw	msg2_win
+	dw	msg2_win
+
+d_talk3:
+	db	msg_sylpu_w,040h
+	dw	ev_d10 + 12
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk4:
+	db	msg_member2,040h
+	dw	ev_d10 + 12
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+	db	0ffh
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_d10 + 19)
+	bit	7,a
+	ld	hl,msg1_1$
+	jr	nz,win$
+
+	ld	hl,msg1_0$
+
+win$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+
+
+msg2_0:
+	extern	msg2_0_2_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_2_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_win:
+	extern	msg2_win_3_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg2_win_3_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_after:
+	extern	msg2_after_4_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg2_after_4_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_0:
+	extern	msg4_0_5_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_5_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_6_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_6_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_7_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_7_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_0:
+	extern	msg5_0_8_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_8_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_9_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_9_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_10_D10R0107
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_10_D10R0107	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d10r1f7:
+	include	..\sxy\d10r0107.sxy
+
+
+nsilf_3:
+	include	..\mapdata\nsilf_3.map
+

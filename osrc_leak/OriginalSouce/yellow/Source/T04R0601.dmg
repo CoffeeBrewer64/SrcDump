@@ -1,0 +1,67 @@
+
+ 	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	t4_room6
+
+
+	extern	shop  			; map data adrs
+
+	extern	item_town_4C
+
+
+SHOP_TYPE	equ	2
+EXIT		=	0ffh
+
+
+t4_room6:
+ysiz	=	4
+xsiz	=	4
+	db	SHOP_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	shop  			; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	jp	init_for_talkmap
+
+
+msg_tbl:
+	dw	item_town_4C
+	dw	msg2
+	dw	msg3
+
+
+
+msg2:
+	extern	msg2_0_T04R0601
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T04R0601	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_1_T04R0601
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T04R0601	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+room_str:
+	include	..\sxy\t04r0601.sxy
+
+
+

@@ -1,0 +1,476 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include macro.h
+	include group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	t3_room1
+
+
+	extern	bank2bank
+	extern	table_jump
+	extern	fontmove
+	extern	yes_no
+	extern	check_money
+
+	extern	fnt_kana
+	extern	hakubutsu1f
+
+	extern	muschikin
+	extern	se_play
+	extern	se_wait
+
+
+HAKUBUTSU_TYPE	equ	10
+EXIT		=	0ffh
+
+
+seq_t3r1f1	equ	seq_ctrl_buf + 029h
+
+
+t3_room1:  
+ysiz	=	4
+xsiz	=	10
+	db	HAKUBUTSU_TYPE			; map type
+	db	ysiz,xsiz			; yx size
+	dw	hakubutsu1f			; map data adrs
+	dw	t3r1f1_msg			; message tbl adrs
+	dw	t3r1f1_event			; event routine adrs
+	db	0				; map link flg
+	dw	t3r1f1_room_str
+
+
+t3r1f1_event:
+	ld	a,1
+	ld	(win_cancel),a
+	xor	a
+	ld	(wait_pass_flg),a
+
+	ld	hl,event_table
+	ld	a,(seq_t3r1f1)
+	jp	table_jump
+
+
+
+event_table:
+	initndw	ticket_counter,seq_ticket_counter
+	ndw	main_loop,seq_main_loop
+
+
+;------------------------------------;
+; pass check front of ticket counter ;
+;------------------------------------;
+CHECK_Y		equ	004h
+CHECK_XL	equ	009h
+CHECK_XR	equ	00ah
+
+
+ticket_counter:
+	ld	a,(mapscloll_y)
+	cp	CHECK_Y
+	ret	nz
+
+	ld	a,(mapscloll_x)
+	cp	CHECK_XL
+	jr	z,check$
+
+	ld	a,(mapscloll_x)
+	cp	CHECK_XR
+	ret	nz
+
+check$:
+	xor	a
+	ld	(joy_status),a			; key value cancel
+
+	ld	a,msg_ticket
+	ld	(work1),a
+	jp	talk_map
+
+
+
+;------------------------------;
+; normal loop as no trap event ;
+;------------------------------;
+main_loop:
+	ret
+
+
+t3r1f1_msg:
+	msgndw	msg1,msg_ticket
+	ndw	msg2,msg_staff2
+	ndw	msg3,msg_staff3
+	ndw	msg4,msg_staff4
+	ndw	msg5,msg_amber
+
+
+CHECK_UY1	equ	004h
+CHECK_UX1	equ	00dh
+CHECK_UY2	equ	003h
+CHECK_UX2	equ	00ch
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(mapscloll_y)
+	cp	CHECK_UY1
+	jr	nz,next_y$
+
+	ld	a,(mapscloll_x)
+	cp	CHECK_UX1
+	jp	z,in_back_door$
+
+	jr	check_pass$
+
+
+next_y$:
+	cp	CHECK_UY2
+	jr	nz,no_in_back$
+
+	ld	a,(mapscloll_x)
+	cp	CHECK_UX2
+	jp	z,in_back_door$
+
+no_in_back$:
+	ld	a,(ev_t3_1)
+	bit	0,a
+	jr	nz,after$
+
+	ld	hl,info_talk1$
+	call	put_win_msg
+
+	jp	rts$
+
+
+check_pass$:
+	ld	a,(ev_t3_1)
+	bit	0,a
+	jr	z,no_p$
+
+after$:
+	ld	hl,info_talk2$			; after paying
+	call	put_win_msg
+
+	jp	rts$
+
+
+no_p$:
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win			; print taking money
+
+	xor	a
+	ld	(joy_status),a
+
+	ld	hl,how_much$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no_paying$
+
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 1),a
+	ld	a,050h
+	ld	(divwk1 + 2),a
+	call	check_money			; check take money
+	jr	nc,ok$
+
+	ld	hl,less_money$
+	call	put_win_msg
+
+	jp	no_paying$
+
+
+ok$:
+	ld	hl,pay$
+	call	put_win_msg
+
+	ld	hl,ev_t3_1
+	set	0,(hl)
+
+	xor	a
+	ld	(usr_buf + 0),a
+	ld	(usr_buf + 1),a
+	ld	a,050h
+	ld	(usr_buf + 2),a
+	ld	hl,usr_buf + 2
+	ld	de,my_gold + 2
+	ld	c,3
+	ld	a,B_BCD_SUB
+	call	bank2bank
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win			; print taking money
+
+	ld	a,< muschikin
+	call	se_play
+	call	se_wait
+
+	jr	rts2$
+
+
+no_paying$:
+	ld	hl,again$
+	call	put_win_msg
+
+	ld	a,1				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+	ld	a,080h				; animetion pattern
+	ld	(ctrl_move_val),a
+
+	extern	init_hero_anime
+	call	init_hero_anime
+
+	call	actor_blanch
+
+	jr	rts$
+
+
+rts2$:
+	ld	a,seq_main_loop
+	ld	(seq_t3r1f1),a
+
+	jr	rts$
+
+
+in_back_door$:
+	ld	hl,back_door$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	cp	000h
+	jr	nz,no$
+
+	ld	hl,yes_see$
+	call	put_win_msg
+
+	jr	rts$
+
+
+no$:
+	ld	hl,no_see$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+again$:
+	extern	again_0_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw again_0_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+how_much$:
+	extern	how_much_1_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw how_much_1_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+pay$:
+	extern	pay_2_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw pay_2_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+less_money$:
+	extern	less_money_3_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw less_money_3_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+back_door$:
+	extern	back_door_4_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw back_door_4_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+yes_see$:
+	extern	yes_see_5_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw yes_see_5_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+no_see$:
+	extern	no_see_6_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw no_see_6_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+info_talk1$:
+	extern	info_talk1_7_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw info_talk1_7_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+info_talk2$:
+	extern	info_talk2_8_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw info_talk2_8_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_9_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_9_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+msg3:
+	db	CALL_MSG
+
+	ld	a,(ev_t3_1)
+	bit	1,a
+	jr	nz,yet$
+
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	ld	bc,31 * 256 + 1			; misterious amber
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,ev_t3_1
+	set	1,(hl)
+
+	ld	a,T3R1F1msg5
+	ld	(obs_obj),a			; vanish number
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank			; req_obj_vanish
+
+	ld	hl,msg3_0_1$
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg3_2$
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg3_1$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg3_0$:
+	extern	msg3_0_10_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_10_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_0_1$:
+	extern	msg3_0_1_11_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_1_11_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg3_1$:
+	extern	msg3_1_12_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_12_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_2$:
+	extern	msg3_2_13_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_13_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,msg4_0$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg4_0$:
+	extern	msg4_0_14_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_14_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,msg5_0$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg5_0$:
+	extern	msg5_0_15_T03R0101
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_15_T03R0101	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+t3r1f1_room_str:
+	include	..\sxy\t03r0101.sxy
+
+
+
+
+
+
+
+

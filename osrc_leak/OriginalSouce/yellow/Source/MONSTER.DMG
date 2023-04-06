@@ -1,0 +1,1032 @@
+	include	fntequ.def
+	include	type.def
+	include	voice.h
+	include	pm_debug.def
+	include	group.def
+	include	common.def
+
+banke	group	G_BANKe
+
+	public	mons_tbl
+;	public	myu_tbl
+	public	mons_name_tbl
+	public	mons_voice_tbl
+	public	monschr182
+	public	monschr183
+	public	monschr184
+
+mons_tbl:
+	include	..\monsdata\monstbl.dat
+
+mons_voice_tbl:
+	include	voice.dat
+
+bank3a	group	G_BANK3a		;追加（村川） このバンクを変更する場合は MONS_DATA_BANK も変更すること。
+
+mons_name_tbl:
+	include	..\monsdata\monsname.dat	; "monsdata2.dat"
+
+
+;***** MONSTER IMAGE DATA *****
+
+bank9	group	G_BANK9
+
+
+monschr01:
+	include	..\monsdata\pmyf_112.dat		
+monschr01b:
+	include	..\monsdata\monsbk01.dat
+monschr02:
+	include	..\monsdata\pmyf_115.dat	
+monschr02b:
+	include	..\monsdata\monsbk02.dat
+monschr03:
+	include	..\monsdata\pmyf_032.dat		
+monschr03b:
+	include	..\monsdata\monsbk03.dat
+monschr04:
+	include	..\monsdata\pmyf_035.dat	
+monschr04b:
+	include	..\monsdata\monsbk04.dat
+monschr05:
+	include	..\monsdata\pmyf_021.dat
+monschr05b:
+	include	..\monsdata\monsbk05.dat
+monschr06:
+	include	..\monsdata\pmyf_100.dat	
+monschr06b:
+	include	..\monsdata\monsbk06.dat
+monschr07:
+	include	..\monsdata\pmyf_034.dat	
+monschr07b:
+	include	..\monsdata\monsbk07.dat
+monschr08:
+	include	..\monsdata\pmyf_080.dat		
+monschr08b:
+	include	..\monsdata\monsbk08.dat
+monschr09:
+	include	..\monsdata\pmyf_002.dat		
+monschr09b:
+	include	..\monsdata\monsbk09.dat
+monschr10:
+	include	..\monsdata\pmyf_103.dat	
+monschr10b:
+	include	..\monsdata\monsbk10.dat
+monschr11:
+	include	..\monsdata\pmyf_108.dat		
+monschr11b:
+	include	..\monsdata\monsbk11.dat
+monschr12:
+	include	..\monsdata\pmyf_102.dat	
+monschr12b:
+	include	..\monsdata\monsbk12.dat
+monschr13:
+	include	..\monsdata\pmyf_088.dat	
+monschr13b:
+	include	..\monsdata\monsbk13.dat
+monschr14:
+	include	..\monsdata\pmyf_094.dat		
+monschr14b:
+	include	..\monsdata\monsbk14.dat
+monschr15:
+	include	..\monsdata\pmyf_029.dat		
+monschr15b:
+	include	..\monsdata\monsbk15.dat
+monschr16:
+	include	..\monsdata\pmyf_031.dat	
+monschr16b:
+	include	..\monsdata\monsbk16.dat
+monschr17:
+	include	..\monsdata\pmyf_104.dat		
+monschr17b:
+	include	..\monsdata\monsbk17.dat
+monschr18:
+	include	..\monsdata\pmyf_111.dat		
+monschr18b:
+	include	..\monsdata\monsbk18.dat
+monschr19:
+	include	..\monsdata\pmyf_131.dat		
+monschr19b:
+	include	..\monsdata\monsbk19.dat
+monschr20:
+	include	..\monsdata\pmyf_059.dat	
+monschr20b:
+	include	..\monsdata\monsbk20.dat
+monschr21:
+	include	..\monsdata\pmyf_151.dat
+monschr21b:
+	include	..\monsdata\monsbk21.dat
+monschr22:
+	include	..\monsdata\pmyf_130.dat	
+monschr22b:
+	include	..\monsdata\monsbk22.dat
+monschr23:
+	include	..\monsdata\pmyf_090.dat		
+monschr23b:
+	include	..\monsdata\monsbk23.dat
+monschr24:
+	include	..\monsdata\pmyf_072.dat	
+monschr24b:
+	include	..\monsdata\monsbk24.dat
+monschr25:
+	include	..\monsdata\pmyf_092.dat		
+monschr25b:
+	include	..\monsdata\monsbk25.dat
+monschr26:
+	include	..\monsdata\pmyf_123.dat	
+monschr26b:
+	include	..\monsdata\monsbk26.dat
+monschr27:
+	include	..\monsdata\pmyf_120.dat		
+monschr27b:
+	include	..\monsdata\monsbk27.dat
+monschr28:
+	include	..\monsdata\pmyf_009.dat		
+monschr28b:
+	include	..\monsdata\monsbk28.dat
+monschr29:
+	include	..\monsdata\pmyf_127.dat	
+monschr29b:
+	include	..\monsdata\monsbk29.dat
+monschr30:
+	include	..\monsdata\pmyf_114.dat	
+monschr30b:
+	include	..\monsdata\monsbk30.dat
+
+banka	group	G_BANKa
+
+
+monschr31:
+monschr32:
+monschr33:
+	include	..\monsdata\pmyf_058.dat		
+monschr31b:
+monschr32b:
+monschr33b:
+	include	..\monsdata\monsbk33.dat
+monschr34:
+	include	..\monsdata\pmyf_095.dat	
+monschr34b:
+	include	..\monsdata\monsbk34.dat
+monschr35:
+	include	..\monsdata\pmyf_022.dat	
+monschr35b:
+	include	..\monsdata\monsbk35.dat
+monschr36:
+	include	..\monsdata\pmyf_016.dat		
+monschr36b:
+	include	..\monsdata\monsbk36.dat
+monschr37:
+	include	..\monsdata\pmyf_079.dat		
+monschr37b:
+	include	..\monsdata\monsbk37.dat
+monschr38:
+	include	..\monsdata\pmyf_064.dat	
+monschr38b:
+	include	..\monsdata\monsbk38.dat
+monschr39:
+	include	..\monsdata\pmyf_075.dat	
+monschr39b:
+	include	..\monsdata\monsbk39.dat
+monschr40:
+	include	..\monsdata\pmyf_113.dat		
+monschr40b:
+	include	..\monsdata\monsbk40.dat
+monschr41:
+	include	..\monsdata\pmyf_067.dat		
+monschr41b:
+	include	..\monsdata\monsbk41.dat
+monschr42:
+	include	..\monsdata\pmyf_122.dat	
+monschr42b:
+	include	..\monsdata\monsbk42.dat
+monschr43:
+	include	..\monsdata\pmyf_106.dat		
+monschr43b:
+	include	..\monsdata\monsbk43.dat
+monschr44:
+	include	..\monsdata\pmyf_107.dat		
+monschr44b:
+	include	..\monsdata\monsbk44.dat
+monschr45:
+	include	..\monsdata\pmyf_024.dat		
+monschr45b:
+	include	..\monsdata\monsbk45.dat
+monschr46:
+	include	..\monsdata\pmyf_047.dat		
+monschr46b:
+	include	..\monsdata\monsbk46.dat
+monschr47:
+	include	..\monsdata\pmyf_054.dat		
+monschr47b:
+	include	..\monsdata\monsbk47.dat
+monschr48:
+	include	..\monsdata\pmyf_096.dat		
+monschr48b:
+	include	..\monsdata\monsbk48.dat
+monschr49:
+	include	..\monsdata\pmyf_076.dat		
+monschr49b:
+	include	..\monsdata\monsbk49.dat
+monschr50:
+monschr51:
+	include	..\monsdata\pmyf_126.dat		
+monschr50b:
+monschr51b:
+	include	..\monsdata\monsbk51.dat
+monschr52:
+monschr53:
+	include	..\monsdata\pmyf_125.dat		
+monschr52b:
+monschr53b:
+	include	..\monsdata\monsbk53.dat
+monschr54:
+	include	..\monsdata\pmyf_082.dat	
+monschr54b:
+	include	..\monsdata\monsbk54.dat
+monschr55:
+	include	..\monsdata\pmyf_109.dat		
+monschr55b:
+	include	..\monsdata\monsbk55.dat
+monschr56:
+monschr57:
+	include	..\monsdata\pmyf_056.dat		
+monschr56b:
+monschr57b:
+	include	..\monsdata\monsbk57.dat
+monschr58:
+	include	..\monsdata\pmyf_086.dat		
+monschr58b:
+	include	..\monsdata\monsbk58.dat
+monschr59:
+	include	..\monsdata\pmyf_050.dat		
+monschr59b:
+	include	..\monsdata\monsbk59.dat
+monschr60:
+	include	..\monsdata\pmyf_128.dat		
+monschr60b:
+	include	..\monsdata\monsbk60.dat
+monschr61:
+monschr62:
+monschr63:
+monschr64:
+	include	..\monsdata\pmyf_083.dat		
+monschr61b:
+monschr62b:
+monschr63b:
+monschr64b:
+	include	..\monsdata\monsbk64.dat
+monschr65:
+	include	..\monsdata\pmyf_048.dat		
+monschr65b:
+	include	..\monsdata\monsbk65.dat
+monschr66:
+	include	..\monsdata\pmyf_149.dat	
+monschr66b:
+	include	..\monsdata\monsbk66.dat
+monschr67:
+monschr68:
+monschr69:
+monschr70:
+	include	..\monsdata\pmyf_084.dat		
+monschr67b:
+monschr68b:
+monschr69b:
+monschr70b:
+	include	..\monsdata\monsbk70.dat
+monschr71:
+	include	..\monsdata\pmyf_060.dat		
+monschr71b:
+	include	..\monsdata\monsbk71.dat
+monschr72:
+	include	..\monsdata\pmyf_124.dat		
+monschr72b:
+	include	..\monsdata\monsbk72.dat
+monschr73:
+	include	..\monsdata\pmyf_146.dat		
+monschr73b:
+	include	..\monsdata\monsbk73.dat
+
+
+bankb	group	G_BANKb
+
+
+monschr74:
+	include	..\monsdata\pmyf_144.dat		
+monschr74b:
+	include	..\monsdata\monsbk74.dat
+monschr75:
+	include	..\monsdata\pmyf_145.dat	
+monschr75b:
+	include	..\monsdata\monsbk75.dat
+monschr76:
+	include	..\monsdata\pmyf_132.dat		
+monschr76b:
+	include	..\monsdata\monsbk76.dat
+monschr77:
+	include	..\monsdata\pmyf_052.dat		
+monschr77b:
+	include	..\monsdata\monsbk77.dat
+monschr78:
+	include	..\monsdata\pmyf_098.dat		
+monschr78b:
+	include	..\monsdata\monsbk78.dat
+monschr79:
+monschr80:
+monschr81:
+monschr82:
+	include	..\monsdata\pmyf_037.dat		
+monschr79b:
+monschr80b:
+monschr81b:
+monschr82b:
+	include	..\monsdata\monsbk82.dat
+monschr83:
+	include	..\monsdata\pmyf_038.dat		
+monschr83b:
+	include	..\monsdata\monsbk83.dat
+monschr84:
+	include	..\monsdata\pmyf_025.dat		
+monschr84b:
+	include	..\monsdata\monsbk84.dat
+monschr85:
+	include	..\monsdata\pmyf_026.dat		
+monschr85b:
+	include	..\monsdata\monsbk85.dat
+monschr86:
+monschr87:
+monschr88:
+	include	..\monsdata\pmyf_147.dat		
+monschr86b:
+monschr87b:
+monschr88b:
+	include	..\monsdata\monsbk88.dat
+monschr89:
+	include	..\monsdata\pmyf_148.dat		
+monschr89b:
+	include	..\monsdata\monsbk89.dat
+monschr90:
+	include	..\monsdata\pmyf_140.dat		
+monschr90b:
+	include	..\monsdata\monsbk90.dat
+monschr91:
+	include	..\monsdata\pmyf_141.dat		
+monschr91b:
+	include	..\monsdata\monsbk91.dat
+monschr92:
+	include	..\monsdata\pmyf_116.dat		
+monschr92b:
+	include	..\monsdata\monsbk92.dat
+monschr93:
+	include	..\monsdata\pmyf_117.dat		
+monschr93b:
+	include	..\monsdata\monsbk93.dat
+monschr94:
+monschr95:
+monschr96:
+	include	..\monsdata\pmyf_027.dat		
+monschr94b:
+monschr95b:
+monschr96b:
+	include	..\monsdata\monsbk96.dat
+monschr97:
+	include	..\monsdata\pmyf_028.dat		
+monschr97b:
+	include	..\monsdata\monsbk97.dat
+monschr98:
+	include	..\monsdata\pmyf_138.dat		
+monschr98b:
+	include	..\monsdata\monsbk98.dat
+monschr99:
+	include	..\monsdata\pmyf_139.dat		
+monschr99b:
+	include	..\monsdata\monsbk99.dat
+monschr100:
+	include	..\monsdata\pmyf_039.dat		
+monschr100b:
+	include	..\monsdata\monsb100.dat
+monschr101:
+	include	..\monsdata\pmyf_040.dat		
+monschr101b:
+	include	..\monsdata\monsb101.dat
+monschr102:
+	include	..\monsdata\pmyf_133.dat		
+monschr102b:
+	include	..\monsdata\monsb102.dat
+monschr103:
+	include	..\monsdata\pmyf_136.dat		
+monschr103b:
+	include	..\monsdata\monsb103.dat
+monschr104:
+	include	..\monsdata\pmyf_135.dat		
+monschr104b:
+	include	..\monsdata\monsb104.dat
+monschr105:
+	include	..\monsdata\pmyf_134.dat		
+monschr105b:
+	include	..\monsdata\monsb105.dat
+monschr106:
+	include	..\monsdata\pmyf_066.dat		
+monschr106b:
+	include	..\monsdata\monsb106.dat
+monschr107:
+	include	..\monsdata\pmyf_041.dat		
+monschr107b:
+	include	..\monsdata\monsb107.dat
+monschr108:
+	include	..\monsdata\pmyf_023.dat		
+monschr108b:
+	include	..\monsdata\monsb108.dat
+monschr109:
+	include	..\monsdata\pmyf_046.dat		
+monschr109b:
+	include	..\monsdata\monsb109.dat
+monschr110:
+	include	..\monsdata\pmyf_061.dat		
+monschr110b:
+	include	..\monsdata\monsb110.dat
+monschr111:
+	include	..\monsdata\pmyf_062.dat		
+monschr111b:
+	include	..\monsdata\monsb111.dat
+monschr112:
+	include	..\monsdata\pmyf_013.dat
+monschr112b:
+	include	..\monsdata\monsb112.dat
+monschr113:
+	include	..\monsdata\pmyf_014.dat
+monschr113b:
+	include	..\monsdata\monsb113.dat
+monschr114:
+	include	..\monsdata\pmyf_015.dat		
+monschr114b:
+	include	..\monsdata\monsb114.dat
+
+monschr182:					
+	include	..\monsdata\kabubone.dat	
+
+
+bankc	group	G_BANKc
+
+monschr115:
+monschr116:
+	include	..\monsdata\pmyf_085.dat		
+monschr115b:
+monschr116b:
+	include	..\monsdata\monsb116.dat
+
+
+monschr117:
+	include	..\monsdata\pmyf_057.dat		
+monschr117b:
+	include	..\monsdata\monsb117.dat
+monschr118:
+	include	..\monsdata\pmyf_051.dat		
+monschr118b:
+	include	..\monsdata\monsb118.dat
+monschr119:
+	include	..\monsdata\pmyf_049.dat		
+monschr119b:
+	include	..\monsdata\monsb119.dat
+monschr120:
+	include	..\monsdata\pmyf_087.dat		
+monschr120b:
+	include	..\monsdata\monsb120.dat
+monschr121:
+monschr122:
+monschr123:
+	include	..\monsdata\pmyf_010.dat
+monschr121b:
+monschr122b:
+monschr123b:
+	include	..\monsdata\monsb123.dat
+monschr124:
+	include	..\monsdata\pmyf_011.dat
+monschr124b:
+	include	..\monsdata\monsb124.dat
+monschr125:
+	include	..\monsdata\pmyf_012.dat
+monschr125b:
+	include	..\monsdata\monsb125.dat
+monschr126:
+	include	..\monsdata\pmyf_068.dat		
+monschr126b:
+	include	..\monsdata\monsb126.dat
+monschr127:
+monschr128:
+	include	..\monsdata\pmyf_055.dat		
+monschr127b:
+monschr128b:
+	include	..\monsdata\monsb128.dat
+monschr129:
+	include	..\monsdata\pmyf_097.dat		
+monschr129b:
+	include	..\monsdata\monsb129.dat
+monschr130:
+	include	..\monsdata\pmyf_042.dat		
+monschr130b:
+	include	..\monsdata\monsb130.dat
+monschr131:
+	include	..\monsdata\pmyf_150.dat		
+monschr131b:
+	include	..\monsdata\monsb131.dat
+monschr132:
+	include	..\monsdata\pmyf_143.dat		
+monschr132b:
+	include	..\monsdata\monsb132.dat
+monschr133:
+	include	..\monsdata\pmyf_129.dat		
+monschr133b:
+	include	..\monsdata\monsb133.dat
+monschr134:
+monschr135:
+monschr136:
+	include	..\monsdata\pmyf_089.dat		
+monschr134b:
+monschr135b:
+monschr136b:
+	include	..\monsdata\monsb136.dat
+monschr137:
+monschr138:
+	include	..\monsdata\pmyf_099.dat		
+monschr137b:
+monschr138b:
+	include	..\monsdata\monsb138.dat
+monschr139:
+	include	..\monsdata\pmyf_091.dat		
+monschr139b:
+	include	..\monsdata\monsb139.dat
+monschr140:
+monschr141:
+	include	..\monsdata\pmyf_101.dat		
+monschr140b:
+monschr141b:
+	include	..\monsdata\monsb141.dat
+monschr142:
+	include	..\monsdata\pmyf_036.dat		
+monschr142b:
+	include	..\monsdata\monsb142.dat
+monschr143:
+	include	..\monsdata\pmyf_110.dat		
+monschr143b:
+	include	..\monsdata\monsb143.dat
+monschr144:
+	include	..\monsdata\pmyf_053.dat		
+monschr144b:
+	include	..\monsdata\monsb144.dat
+monschr145:
+	include	..\monsdata\pmyf_105.dat		
+monschr145b:
+	include	..\monsdata\monsb145.dat
+monschr146:
+monschr147:
+	include	..\monsdata\pmyf_093.dat		
+monschr146b:
+monschr147b:
+	include	..\monsdata\monsb147.dat
+monschr148:
+	include	..\monsdata\pmyf_063.dat		
+monschr148b:
+	include	..\monsdata\monsb148.dat
+monschr149:
+	include	..\monsdata\pmyf_065.dat		
+monschr149b:
+	include	..\monsdata\monsb149.dat
+monschr150:
+	include	..\monsdata\pmyf_017.dat		
+monschr150b:
+	include	..\monsdata\monsb150.dat
+monschr151:
+	include	..\monsdata\pmyf_018.dat		
+monschr151b:
+	include	..\monsdata\monsb151.dat
+monschr152:
+	include	..\monsdata\pmyf_121.dat		
+monschr152b:
+	include	..\monsdata\monsb152.dat
+
+
+bankd	group	G_BANKd
+
+monschr153:
+	include	..\monsdata\pmyf_001.dat		
+monschr153b:
+	include	..\monsdata\monsb153.dat
+
+monschr154:
+	include	..\monsdata\pmyf_003.dat		
+monschr154b:
+	include	..\monsdata\monsb154.dat
+monschr155:
+	include	..\monsdata\pmyf_073.dat		
+monschr155b:
+	include	..\monsdata\monsb155.dat
+monschr156:
+monschr157:
+	include	..\monsdata\pmyf_118.dat		
+monschr156b:
+monschr157b:
+	include	..\monsdata\monsb157.dat
+monschr158:
+	include	..\monsdata\pmyf_119.dat		
+monschr158b:
+	include	..\monsdata\monsb158.dat
+monschr159:
+monschr160:
+monschr161:
+monschr162:
+monschr163:
+	include	..\monsdata\pmyf_077.dat		
+monschr164:
+	include	..\monsdata\pmyf_078.dat		
+monschr159b:
+monschr160b:
+monschr161b:
+monschr162b:
+monschr163b:
+	include	..\monsdata\monsb163.dat
+monschr164b:
+	include	..\monsdata\monsb164.dat
+monschr165:
+	include	..\monsdata\pmyf_019.dat
+monschr165b:
+	include	..\monsdata\monsb165.dat
+monschr166:
+	include	..\monsdata\pmyf_020.dat
+monschr166b:
+	include	..\monsdata\monsb166.dat
+monschr167:
+	include	..\monsdata\pmyf_033.dat		
+monschr167b:
+	include	..\monsdata\monsb167.dat
+monschr168:
+	include	..\monsdata\pmyf_030.dat		
+monschr168b:
+	include	..\monsdata\monsb168.dat
+monschr169:
+	include	..\monsdata\pmyf_074.dat		
+monschr169b:
+	include	..\monsdata\monsb169.dat
+monschr170:
+	include	..\monsdata\pmyf_137.dat		
+monschr170b:
+	include	..\monsdata\monsb170.dat
+monschr171:
+	include	..\monsdata\pmyf_142.dat		
+monschr171b:
+	include	..\monsdata\monsb171.dat
+monschr172:
+monschr173:
+	include	..\monsdata\pmyf_081.dat		
+monschr172b:
+monschr173b:
+	include	..\monsdata\monsb173.dat
+monschr174:
+monschr175:
+monschr176:
+	include	..\monsdata\pmyf_004.dat
+monschr174b:
+monschr175b:
+monschr176b:
+	include	..\monsdata\monsb176.dat
+monschr177:
+	include	..\monsdata\pmyf_007.dat
+monschr177b:
+	include	..\monsdata\monsb177.dat
+monschr178:
+	include	..\monsdata\pmyf_005.dat		
+monschr178b:
+	include	..\monsdata\monsb178.dat
+monschr179:
+	include	..\monsdata\pmyf_008.dat		
+monschr179b:
+	include	..\monsdata\monsb179.dat
+monschr180:
+	include	..\monsdata\pmyf_006.dat		
+monschr180b:
+	include	..\monsdata\monsb180.dat
+monschr181:
+monschr181b:
+  ifn 0						;cut by tama 960906
+monschr182:
+	include	..\monsdata\monsc182.dat
+  endif
+monschr183:
+	include	..\monsdata\putebone.dat	;add 960913
+monschr184:
+	include	..\monsdata\monsc184.dat
+monschr185:
+	include	..\monsdata\pmyf_043.dat		
+monschr185b:
+	include	..\monsdata\monsb185.dat
+monschr186:
+	include	..\monsdata\pmyf_044.dat		
+monschr186b:
+	include	..\monsdata\monsb186.dat
+monschr187:
+	include	..\monsdata\pmyf_045.dat		
+monschr187b:
+	include	..\monsdata\monsb187.dat
+monschr188:
+	include	..\monsdata\pmyf_069.dat
+monschr188b:
+	include	..\monsdata\monsb188.dat
+monschr189:
+	include	..\monsdata\pmyf_070.dat		
+monschr189b:
+	include	..\monsdata\monsb189.dat
+monschr190:
+	include	..\monsdata\pmyf_071.dat		
+monschr190b:
+	include	..\monsdata\monsb190.dat
+
+
+;-----------------------------------------------------------------
+;
+;	New Title demo
+;
+;-----------------------------------------------------------------
+
+
+  ifn	1
+	public	move_tbl1
+	public	slide_mons
+
+not_move_tbl:
+	db	05h,05h,00h
+  ifn	0
+move_tbl1:			;total 124,step 27
+	db	84h,74h,63h,53h,43h,33h,23h,14h,00
+move_tbl2:			;total 107,step 24
+	db	14h,24h,33h,42h,52h,62h,81h,91h,00
+  endif
+
+move_tbl1:			;total 120,step 17
+	db	0a2h,94h,84h,63h,52h,31h,11h,00h
+move_tbl2:			;total 93,step 18
+	db	12h,22h,32h,42h,52h,62h,83h,93h,00h
+
+slide_mons:
+	ld	a,d
+	ld	bc,move_tbl1
+;	ld	d,134
+	ld	d,256 - 120
+;	ld	e,1
+;	ld	e,calculated_speed7 - ball_tbl1
+	ld	e,0
+	
+	and	a
+	jr	nz,main$
+
+	ld	bc,move_tbl2		;go out tbl
+	ld	d,0
+;	ld	e,30
+	ld	e,00h			;point of end mark
+;	ld	e,calculated_speed7 - ball_tbl1
+
+main$:
+sprit:
+	ld	a,(bc)
+	and	a
+	ret	z
+
+	inc	bc
+	push	bc
+
+	ld	b,a
+	and	00fh			;C = lower of byte (counter)
+	ld	c,a
+	ld	a,b
+	and	0f0h			;B = upper of byte (vector)
+	swap	a
+	ld	b,a
+
+loop$:
+	ld	h,d
+	ld	l,9*8
+	call	spritsub1a
+
+	ld	h,0
+	ld	l,17*8
+	call	spritsub1a
+
+	ld	a,d
+	add	a,b
+	ld	d,a
+
+	call	BALL_MOVE_sub
+
+	dec	c
+	jr	nz,loop$
+
+
+	pop	bc
+
+	jr	sprit
+
+  endif
+
+spritsub1a:
+spritsub1$:
+	ld	a,(LY)
+	cp	l
+	jr	nz,spritsub1$
+
+	ld	a,h
+	ld	(SCX),a
+
+spritsub2$:
+	ld	a,(LY)
+	cp	h
+	jr	z,spritsub2$
+
+	ret
+
+  ifn	0
+ball_tbl1:
+	db	0f0h,0f0h,0f0h,0f0h,0f0h,0f0h,0f0h,0f0h
+	db	0f0h,0f0h,09ch,096h,091h,08ch,078h,074h
+	db	071h,06eh,06ch,06ah,069h,068h,068h,068h
+	db	069h,06ah,06ch,06eh,071h,074h
+	
+	db	074h,071h,06eh,06ch,06ah,069h,068h,068h
+	db	068h,069h,06ah,06ch,06eh,071h,074h,078h
+	db	08ch,091h,096h,09ch,0f0h,0f0h,0f0h,0f0h
+  endif
+
+ball_tbl1:
+	db	00h
+  ifn	0
+;	db	116,116,116,116
+normal speed:
+	db	112,109,106,103,100,98,96,94,92,91,90,89,88,88
+	db	88,89,90,91,92,94,96,98,100,103,106,109,112,116
+high speed:
+	db	109,103,98,94,91,89,88,88
+	db	88,89,91,94,98,103,109,116
+	db	00h
+  endif
+
+  ifn	0
+calculated speed:
+	db	116,114,108,105,102,99,97,95,93,92,91,90,90
+	db	90,91,92,93,95,97,99,102,105,108,114,116
+	db	00h,00h
+calculated speed2:
+	db	116,112,109,105,102,100,97,95,93,91,90,89,88,87,87,86,86
+	db	86,86,87,87,88,89,90,91,93,95,97,100,102,105,109,112,116
+	db	00h
+
+calculated_speed3:
+	db	116,114,112,110,109,108,106,105,104,104,103,103,102,102,101,101
+	db	101,101,102,102,103,103,104,104,105,106,108,109,110,112,114,116
+	db	00h
+
+calculated_speed4:
+	db	116,112,109,106,103,101,100,99,98
+	db	98,99,100,101,103,106,109,112,116
+	db	00h
+
+calculated_speed5:
+	db	116,113,110,108,106,104,103,102,101,100,99,99
+	db	99,99,100,101,102,103,104,106,108,110,113,116
+	db	00h
+
+calculated_speed6:
+	db	113,110,108,106,105,104
+	db	103,104,105,106,108,110,113
+	db	116
+	db	00h
+
+	db	116,116,116,116,116,116,116,116
+	db	116,116,116,116,116,116,116,116
+	db	116,116,116,116,116,116,116,116
+  endif
+
+calculated_speed7:
+	db	113,111,110,109,108
+	db	109,110,111,113,116,00h
+
+;	db	116,116,116,116,116,116
+
+
+  ifn	0
+	db	074h,074h,074h,074h,074h,074h,074h,074h
+	db	074h,06eh,069h,065h,062h,060h,05fh,05eh
+	db	05eh,05fh,060h,062h,065h,069h,06eh,074h
+	db	074h,074h,074h,074h,074h,074h
+  endif
+
+	public	ball_mover
+ball_mover:
+  ifn	0
+	ld	hl,anime_buf
+	inc	(hl)
+	ld	a,5
+	cp	(hl)
+
+	ret	nz
+
+	xor	a
+	ld	(hl),a
+  endif
+	ld	a,(usr_buf)
+	cp	176
+	jr	z,pom$
+	cp	177
+	jr	z,pom$
+	cp	153
+	ret	nz
+
+pom$:
+	ld	e,calculated_speed7 - ball_tbl1
+	ld	bc,not_move_tbl
+	ld	d,0
+
+	jp 	sprit
+
+	
+  ifn	0
+ball_mover_loop$:
+	call	BALL_MOVE_sub
+
+	extern	wait_vb
+	call	wait_vb
+
+	ld	a,e
+	cp	28
+
+	jr	nz,ball_mover_loop$
+
+	ret
+  endif
+
+BALL_MOVE_sub:
+  ifn	0
+	ld	a,e
+;	cp	0ffh
+	cp	28
+	ret	z
+  endif
+
+	push	de
+	push	hl
+
+	xor	a
+	ld	d,a
+	
+	ld	hl,ball_tbl1
+	add	hl,de
+
+	ld	a,(hl)
+
+	pop	hl
+	pop	de
+
+	and	a
+	ret	z
+
+	
+	ld	(oam_buf+ 40),a
+	inc	e
+
+	ret
+
+
+
+;--------------New title demo is end -------------------------
+
+
+  ifn 0
+bank3d	group	G_BANK3d
+
+monschr21:
+	include	..\monsdata\pmyf_151.dat
+monschr21b:
+	include	..\monsdata\monsbk21.dat
+
+
+myu_tbl:
+	db	151			; old number = 21
+	db	100			; hit point(max)
+	db	100			; attack point
+	db	100			; defence ratio
+	db	100			; quick ratio
+	db	100			; special ability
+	db	SP_TYPE
+	db	SP_TYPE
+	db	045			; obtain ratio
+	db	064			; experience value
+	db	055h			; Monster yx size
+	dw	monschr21		; BitImage data (front)
+	dw	monschr21b		; BitImage data (back)
+	db	001			; skill 1
+	db	000			; skill 2
+	db	000			; skill 3
+	db	000			; skill 4
+	db	003			; pttern of experience
+	db	11111111b, 11111111b, 11111111b, 11111111b
+	db	11111111b, 11111111b, 11111111b, 11111111b
+
+  endif
+

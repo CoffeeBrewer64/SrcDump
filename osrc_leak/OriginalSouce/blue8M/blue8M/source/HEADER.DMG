@@ -1,0 +1,219 @@
+
+	include	common.def
+	include		pm_debug.def
+	include		group.def
+
+bank0	group	G_RST
+
+	org	00000h
+
+	public	RST0
+
+	extern	reset
+	extern	sgb_reset
+	extern	vblank
+	extern	sio
+	extern	wdt
+
+RST0:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST1:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST2:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST3:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST4:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST5:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST6:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+RST7:
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+
+;VBLANK
+	jp	vblank
+	db	0, 0, 0, 0, 0
+;LASTER
+	db	0ffh
+	db	0, 0, 0, 0, 0, 0, 0
+;TIMER
+	jp	wdt
+	db	0, 0, 0, 0, 0
+;SERIAL
+	jp	sio
+	db	0, 0, 0, 0, 0
+;PORT
+	reti
+ ifn	ASSEMBLE__ENGLISH
+;********************************************************************************
+;
+;	‰º‹L‚Ì‚UŒÂ‚Ìƒ‹[ƒ`ƒ“‚Í"LCDC.DMG" ‚æ‚è‚±‚±‚ÖˆÚ“®
+;	i‚P‚O‚OˆÈ~‚Ì‚Oƒoƒ“ƒN‚Ì‹ó‚«‚ð‘‚â‚·ˆ×j
+;
+;********************************************************************************
+
+	public	lcdc_stop
+	public	lcdc_on
+	public	oam_clr
+	public	oam_off
+	public	bank_chg_block_m
+	public	block_move
+
+lcdc_stop:
+	xor	a
+	ld	(IFL),a
+	ld	a,(IE)
+	ld	b,a			; interrupt enable list flag saved
+	res	0,a			; v-blank interrupt disenable
+	ld	(IE),a
+z1$:	ld	a,(LY)			; LCDC Y position Get 
+	cp	091h			; 145(V-Blank cyu?)
+	jr	nz,z1$
+	ld	a,(LCDC)
+	and	07fh
+	ld	(LCDC),a		; LCD control stop all
+	ld	a,b
+	ld	(IE),a			; interrupt enable list flag rewrite
+	ret
+
+lcdc_on:
+	ld	a,(LCDC)
+	set	7,a			; LCD control enabled
+	ld	(LCDC),a
+	ret
+
+oam_clr:				; Object Clear
+	xor	a
+	ld	hl,oam_buf		; OAM(0C400h - 0C4A0h)clear
+	ld	b,0a0h
+z1$:	ld	(hli),a
+	dec	b
+	jr	nz,z1$
+	ret
+
+oam_off:				; Object Don't Look
+	ld	a,0a0h
+	ld	hl,oam_buf		; OAM
+	ld	de,00004h		; Skip 4 Byte
+	ld	b,028h
+z1$:	ld	(hl),a			; 0a0h wo oam_buf ni set
+	add	hl,de			; oam_buf count up ( 4byte )
+	dec	b
+	jr	nz,z1$
+	ret
+
+bank_chg_block_m:
+	ld	(yes_no_map),a
+	ld	a,(rombankno)
+	push	af
+	ld	a,(yes_no_map)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	call	block_move
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	ret
+
+block_move:				; HL -> DE ni Byte Move
+	ld	a,(hli)			; A <- (HL) & HL ++
+	ld	(de),a			; (DE) <- A
+	inc	de			; DE ++
+	dec	bc			; counter --
+	ld	a,c			; counter low -> A reg
+	or	b
+	jr	nz,block_move		; if Z not 0 then goto 'block_move'
+	ret				; else
+ else
+	db	0, 0, 0, 0, 0, 0, 0
+ endif
+;********************************************************************************
+
+
+bank0	group	G_HEADER
+
+	org	00100h
+
+	public	header_start
+header_start:
+	db	000h
+	jp	sgb_reset
+	db	0ceh,0edh,066h,066h
+	db	0cch,00dh,000h,00bh
+	db	003h,073h,000h,083h
+	db	000h,00ch,000h,00dh
+	db	000h,008h,011h,01fh
+	db	088h,089h,000h,00eh
+	db	0dch,0cch,06eh,0e6h
+	db	0ddh,0ddh,0d9h,099h
+	db	0bbh,0bbh,067h,063h
+	db	06eh,00eh,0ech,0cch
+	db	0ddh,0dch,099h,09fh
+	db	0bbh,0b9h,033h,03eh
+
+  ifn	pokemon_type
+   ifn	pokemon_type_blue
+	;-----<blue version>-----
+
+	; 134h   0123456789abcdef
+	db	'POKEMON BLUE',0,0,0,0	; 50 4F 4B 45 4D 4F 4E 20 42 4C 55 45 00 00 00 00
+	db	030h,031h		; Maker Code(L, H)
+	db	003h			; Hard Type		
+	db	013h			; Casset Type
+	db	005h			; ROM Size = 8M
+	db	003h			; RAM Size = 256Kbit
+	db	001h			; Country Code
+	db	033h			; Extend Code(New Type ID)
+	db	000h			; Rom Version
+
+	db	0D3h			; Completment
+	db	000h	  		; Sum Check(H)
+	db	000h  			; Sum Check(L)
+
+   else
+	;-----<red version>-----
+
+	; 134h   0123456789abcdef
+	db	'POKEMON RED',0,0,0,0,0	; 50 4F 4B 45 4D 4F 4E 20 52 45 44 00 00 00 00 00
+	db	030h,031h		; Maker Code(L, H)
+	db	003h			; Hard Type
+	db	013h			; Casset Type
+	db	005h			; ROM Size = 8M
+	db	003h			; RAM Size = 256Kbit
+	db	001h			; Country Code
+	db	033h			; Extend Code(New Type ID)
+	db	000h			; Rom Version
+
+	db	020h			; Completment
+	db	000h	  		; Sum Check(H)
+	db	000h  			; Sum Check(L)
+   endif
+  else
+	;-----<green version>-----
+
+	; 134h   0123456789abcdef
+	db	'POKEMON GREEN',0,0,0	; 50 4F 4B 45 4D 4F 4E 20 47 52 45 45 4E 00 00 00
+	db	030h,031h		; Maker Code(L, H)
+	db	003h			; Hard Type
+	db	013h			; Casset Type
+	db	005h			; ROM Size = 8M
+	db	003h			; RAM Size = 256Kbit
+	db	001h			; Country Code
+	db	033h			; Extend Code(New Type ID)
+	db	000h			; Rom Version
+
+	db	08Ah			; Completment
+	db	000h	  		; Sum Check(H)
+	db	000h  			; Sum Check(L)
+  endif
+

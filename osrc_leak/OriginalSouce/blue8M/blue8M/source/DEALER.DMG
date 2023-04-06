@@ -1,0 +1,465 @@
+
+
+	include	common.def
+	include	fntequ.def
+	include	fight.def
+	include	group.def
+	include	pm_debug.def
+
+banke	group	G_BANKe
+
+
+	public	dealer_tbl
+	public	dealer_name_tbl
+	public	dealer_ai
+
+	public	dealerchr25
+	public	dealerchr26
+
+	extern	mul_any
+	extern	block_move
+	extern	waza_tbl
+	extern	zokusei_easy_chk
+	extern	bank_push_call
+	extern	table_search
+
+;---------------------------------------;
+;	dealer ai system		;
+;---------------------------------------;
+dealer_ai:
+	ld	a,10
+	ld	hl,yes_no_map
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hli),a
+	ld	(hl),a
+	
+	ld	a,(e_renzoku_cnt4)
+	swap	a
+	and	0fh
+	jr	z,pass0$
+
+	ld	hl,yes_no_map
+	dec	a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	(hl),50h		; tekitou ni ookina kazu
+
+pass0$:
+	ld	hl,dealer_ai_tbl
+	ld	a,(dealer_no)
+	ld	b,a
+search_loop$:
+	dec	b
+	jr	z,get$
+
+search_loop2$:
+	ld	a,(hli)
+	and	a
+	jr	nz,search_loop2$
+	
+	jr	search_loop$
+
+get$:
+	ld	a,(hl)
+	and	a
+	jp	z,not_ai$			; ai ga nai
+
+	push	hl
+ai_loop$:
+	pop	hl
+	ld	a,(hli)
+	and	a
+	jr	z,set_waza$
+	
+	push	hl
+
+	ld	hl,ai_tbl$
+	dec	a
+	add	a,a
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+
+	ld	de,ai_loop$
+	push	de
+	jp	(hl)
+	
+
+set_waza$:
+set_waza_loop1$:
+	ld	hl,yes_no_map
+	ld	de,enemy_data + 19	; waza address top
+	ld	c,4
+set_waza_loop2$:
+	ld	a,(de)
+	inc	de
+	and	a
+	jr	z,set_waza_loop1$
+
+	dec	(hl)
+	jr	z,just$
+	
+	inc	hl
+	dec	c
+	jr	z,set_waza_loop1$
+	jr	set_waza_loop2$
+	
+just$:
+	ld	a,c
+set_waza_loop3$:
+	inc	(hl)
+	dec	hl
+	inc	a
+	cp	5
+	jr	nz,set_waza_loop3$
+
+	ld	hl,yes_no_map
+	ld	de,enemy_data + 19	; waza address top
+	ld	c,4
+set_waza_loop4$:
+	ld	a,(de)
+	and	a
+	jr	nz,pass1$
+
+	ld	(hl),a
+pass1$:
+	ld	a,(hl)
+;	cp	1
+	dec	a
+	jr	z,pass2$
+	
+	xor	a
+	ld	(hli),a
+	jr	pass3$
+
+pass2$:
+	ld	a,(de)
+	ld	(hli),a
+pass3$:
+	inc	de
+	dec	c
+	jr	nz,set_waza_loop4$
+	
+dealer_ai_ret$:
+	ld	hl,yes_no_map
+	ret
+
+not_ai$:
+	ld	hl,enemy_data + 19
+	ret
+
+
+
+ai_tbl$:
+	dw	ai_1$	; aite ga nemutte iru toki ha sleep kougeki wo shinai
+	dw	ai_2$	; status ga henka suru kougeki wo saisho ni yaru
+	dw	ai_3$	; zokusei de koukateki na mono wo erabu
+	dw	ai_4$	; tonikaku kougeki
+
+
+
+ai_1$:	; ------------- aite ga nemutte iru toki ha sleep kougeki wo shinai
+
+	ld	a,(mymons_data + 15)	; condition
+	and	a
+	ret	z
+	
+	ld	hl,yes_no_map - 1
+	ld	de,enemy_data + 19	; waza address top
+	ld	b,5			; counter
+ai_1_loop$:
+	dec	b
+	ret	z
+
+	inc	hl
+	ld	a,(de)
+	and	a
+	ret	z
+
+	inc	de
+	call	get_waza_data$
+	ld	a,(e_kougeki + 2)	; power 
+	and	a
+	jr	nz,ai_1_loop$
+
+	ld	a,(e_kougeki + 1)	; special attack kind 
+	push	hl
+	push	de
+	push	bc
+	ld	hl,ai_1_tbl$
+	ld	de,1
+	call	table_search
+	pop	bc
+	pop	de
+	pop	hl
+	jr	nc,ai_1_loop$
+
+ai_1_set$:
+	ld	a,(hl)
+	add	a,5
+	ld	(hl),a
+	jr	ai_1_loop$
+
+ai_1_tbl$:
+	db	1,32,66,67,0ffh
+
+
+ai_2$:; ------------- status ga henka suru kougeki wo saisho ni yaru
+
+	ld	a,(ctrl_move_val + FIGHT_CNT)
+	cp	1
+	ret	nz
+
+	ld	hl,yes_no_map - 1
+	ld	de,enemy_data + 19	; waza address top
+	ld	b,5			; counter
+ai_2_loop$:
+	dec	b
+	ret	z
+
+	inc	hl
+	ld	a,(de)
+	and	a
+	ret	z
+
+	inc	de
+	call	get_waza_data$
+	ld	a,(e_kougeki + 1)	; special attack kind 
+
+	cp	10
+	jr	c,ai_2_loop$
+	cp	26
+	jr	c,ai_2_set$
+	cp	50
+	jr	c,ai_2_loop$
+	cp	66
+	jr	c,ai_2_set$
+	jr	ai_2_loop$
+
+ai_2_set$:
+	dec	(hl)
+	jr	ai_2_loop$
+
+
+ai_3$:; ------------- zokusei de koukateki na mono wo erabu
+
+	ld	hl,yes_no_map - 1
+	ld	de,enemy_data + 19	; waza address top
+	ld	b,5			; counter
+ai_3_loop$:
+	dec	b
+	ret	z
+
+	inc	hl
+	ld	a,(de)
+	and	a
+	ret	z
+
+	inc	de
+	call	get_waza_data$
+
+	push	hl
+	push	bc
+	push	de
+
+	ld	hl,zokusei_easy_chk
+	ld	b,0fh
+	call	bank_push_call
+
+	pop	de
+	pop	bc
+	pop	hl
+
+	ld	a,(in_dat)
+	cp	010h
+	jr	z,ai_3_loop$
+	jr	c,ai_3_set$
+
+	dec	(hl)
+	jr	ai_3_loop$
+
+ai_3_set$:
+	push	hl
+	push	de
+	push	bc
+
+	ld	a,(e_kougeki + 3)	; zokusei
+	ld	d,a
+	ld	hl,enemy_data + 19
+	ld	b,5
+	ld	c,0
+ai_3_loop2$:
+	dec	b
+	jr	z,ai_3_loopend2$
+
+	ld	a,(hli)
+	and	a
+	jr	z,ai_3_loopend2$
+
+	call	get_waza_data$
+	ld	a,(e_kougeki + 1)	; special attack kind 
+	cp	40			; hp hanbun
+	jr	z,ai_3_loopend1$
+	cp	41			; kotei damage
+	jr	z,ai_3_loopend1$
+	cp	43			; sorawo tobu
+	jr	z,ai_3_loopend1$
+
+	ld	a,(e_kougeki + 3)	; waza_zokusei 
+	cp	d
+	jr	z,ai_3_loop2$
+	
+	ld	a,(e_kougeki + 2)	; power 
+	and	a
+	jr	nz,ai_3_loopend1$
+	jr	ai_3_loop2$
+	
+ai_3_loopend1$:
+	ld	c,a			; not zero
+ai_3_loopend2$:
+	ld	a,c
+	pop	bc
+	pop	de
+	pop	hl
+
+	and	a
+	jr	z,ai_3_loop$
+	
+	inc	(hl)
+	jr	ai_3_loop$
+
+ai_4$:	; -------------- tonikaku kougeki
+	ret
+
+get_waza_data$:
+	push	hl
+	push	de
+	push	bc
+	dec	a
+	ld	hl,waza_tbl
+	ld	bc,6
+	call	mul_any
+	ld	de,e_kougeki
+	call	block_move
+	pop	bc
+	pop	de
+	pop	hl
+	ret
+
+
+dealer_ai_tbl:
+	include	..\data\dealerai.dat
+
+dealer_tbl:
+	include	..\data\dealertb.dat
+
+dealer_name_tbl:
+	include	..\data\dealernm.dat
+
+bank13	group	G_BANK13
+
+
+
+;****** dealer image data *****
+
+dealerchr01:
+	include	..\data\dealer01.dat
+dealerchr02:
+	include	..\data\dealer02.dat
+dealerchr03:
+	include	..\data\dealer03.dat
+dealerchr04:
+	include	..\data\dealer04.dat
+dealerchr05:
+	include	..\data\dealer05.dat
+dealerchr06:
+	include	..\data\dealer06.dat
+dealerchr07:
+	include	..\data\dealer07.dat
+dealerchr08:
+	include	..\data\dealer08.dat
+dealerchr09:
+	include	..\data\dealer09.dat
+dealerchr10:
+	include	..\data\dealer10.dat
+dealerchr11:
+	include	..\data\dealer11.dat
+dealerchr12:
+	include	..\data\dealer12.dat
+;dealerchr13:
+;	include	..\data\dealer13.dat
+dealerchr14:
+	include	..\data\dealer14.dat
+dealerchr15:
+	include	..\data\dealer15.dat
+dealerchr16:
+	include	..\data\dealer16.dat
+dealerchr17:
+	include	..\data\dealer17.dat
+dealerchr18:
+	include	..\data\dealer18.dat
+dealerchr19:
+	include	..\data\psy.dat
+dealerchr20:
+	include	..\data\dealer20.dat
+dealerchr21:
+dealerchr13:
+	include	..\data\dealer21.dat
+dealerchr22:
+	include	..\data\dealer22.dat
+dealerchr23:
+	include	..\data\dealer23.dat
+dealerchr24:
+	include	..\data\dealer24.dat
+dealerchr25:
+	include	..\data\dealer25.dat
+dealerchr26:
+	include	..\data\dealer26.dat
+dealerchr27:
+;	include	..\data\dealer27.dat
+dealerchr28:
+	include	..\data\dealer28.dat
+dealerchr29:
+	include	..\data\dealer29.dat
+dealerchr30:
+	include	..\data\dealer30.dat
+dealerchr31:
+	include	..\data\dealer31.dat
+dealerchr32:
+	include	..\data\dealer32.dat
+dealerchr33:
+	include	..\data\boss02.dat
+dealerchr34:
+	include	..\data\nusi_02.dat
+dealerchr35:
+	include	..\data\nusi_03.dat
+dealerchr36:
+	include	..\data\nusi_04.dat
+dealerchr37:
+	include	..\data\nusi_05.dat
+dealerchr38:
+	include	..\data\nusi_06.dat
+dealerchr39:				; katsura
+;	include	..\data\nusi_07.dat
+	include	..\data\dealer27.dat
+dealerchr40:
+	include	..\data\nusi_08.dat
+dealerchr41:
+	include	..\data\dealer41.dat
+dealerchr42:
+	include	..\data\dealer42.dat
+dealerchr43:
+	include	..\data\rival.dat
+dealerchr44:
+	include	..\data\boss01.dat
+dealerchr45:
+	include	..\data\dealer45.dat
+dealerchr46:
+	include	..\data\boss03.dat 
+dealerchr47:
+	include	..\data\boss04.dat 

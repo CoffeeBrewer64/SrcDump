@@ -1,0 +1,8005 @@
+
+	include		fntequ.def
+	include		group.def
+	include		common.def
+	include		fight.def
+	include		pm_debug.def
+
+
+
+bank22		group	022h
+	public	msg1_0_0_D16R0104
+msg1_0_0_D16R0104:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	gi__,ya__,bou@,o__,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_g,usf_y_,usf_a_,usf_o_,usf_o_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	kanban1_1_D16R0104
+kanban1_1_D16R0104:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hi__,n__,to__,spc@,i_,wa_,de_,spc@,na_,ga_,re_,wo_
+	db	home@
+	db	se_,ki_,to_,me_,ra_,re_,ru_,ka_,mo_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_o_,usf_u_,usf_l_,usf_d_,usf_e_,usf_r_,usf_s_,spc@
+	db	usf_m_,usf_i_,usf_g_,usf_h_,usf_t_
+	db	home@
+	db	usf_c_,usf_h_,usf_a_,usf_n_,usf_g_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_f_,usf_l_,usf_o_,usf_w_
+	db	gyo3@
+	db	usf_o_,usf_f_,spc@
+	db	usf_w_,usf_a_,usf_t_,usf_e_,usf_r_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	kanban2_2_D16R0104
+kanban2_2_D16R0104:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki__,ke__,n__,gyoe@
+	db	home@
+	db	na_,ga_,re_,ga_,spc@,ha_,ya_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_d,usf_a,usf_n,usf_g,usf_e,usf_r
+	db	home@
+	db	usf_f,usf_a_,usf_s_,usf_t_,spc@
+	db	usf_c_,usf_u_,usf_r_,usf_r_,usf_e_,usf_n_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	torikae_msg_0_D_ACTION
+torikae_msg_0_D_ACTION:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	ha_,home@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	wo_,hi_,ttu_,ko_,me_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	spc@,usf_w_,usf_i_,usf_t_,usf_h_,bou@
+	db	home@
+	db	usf_d_,usf_r_,usf_e_,usf_w_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_1_D_ACTION
+msg_1_D_ACTION:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	ha_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ni_,home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	wo_,spc@,tu_,ka_,ttu_,ta_
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	home@
+	db	usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	gyo3@
+	db	usf_o_,usf_n_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg1_0_DEMO
+msg1_0_DEMO:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	ha_,spc@,bu_,zi_,home@
+	db	EOM
+	db	I_MSG
+	dw	gein_name
+	db	D_MSG
+	db	ni_,spc@,hi_,ki_,to_,ra_,re_,ma_,si_,ta_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	spc@,usf_w_,usf_e_,usf_n_,usf_t_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	EOM
+	db	I_MSG
+	dw	gein_name
+	db	D_MSG
+	db	kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_1_DEMO
+msg1_1_DEMO:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ga_,home@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	wo_,spc@,o_,ku_,ttu_,ta_,ka_,wa_,ri_,ni_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_f,usf_o_,usf_r_,spc@
+	db	myname@
+	db	apt_s_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	comma@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg2_2_DEMO
+msg2_2_DEMO:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	gein_name
+	db	D_MSG
+	db	ha_,home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	wo_,spc@,ku_,re_,ma_,su_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	gein_name
+	db	D_MSG
+	db	spc@,usf_s_,usf_e_,usf_n_,usf_d_,usf_s_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_3_DEMO
+msg1_3_DEMO:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	gein_name
+	db	D_MSG
+	db	ga_,home@
+	db	na_,go_,ri_,wo_,spc@,o_,si_,mi_,na_,ga_,ra_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	gein_name
+	db	D_MSG
+	db	spc@,usf_w_,usf_a_,usf_v_,usf_e_,usf_s_
+	db	home@
+	db	usf_f_,usf_a_,usf_r_,usf_e_,usf_w_,usf_e_,usf_l_,usf_l_,spc@
+	db	usf_a_,usf_s_
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg2_4_DEMO
+msg2_4_DEMO:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	wo_,home@
+	db	o_,ku_,ttu_,te_,ki_,ma_,su_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_
+	db	home@
+	db	usf_t_,usf_r_,usf_a_,usf_n_,usf_s_,usf_f_,usf_e_,usf_r_,usf_r_,usf_e_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_5_DEMO
+msg1_5_DEMO:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	wo_,home@
+	db	ka_,wa_,i_,ga_,ttu_,te_,ya_,ttu_,te_,ku_,da_,sa_,i_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_a_,usf_k_,usf_e_,spc@
+	db	usf_g_,usf_o_,usf_o_,usf_d_,spc@
+	db	usf_c_,usf_a_,usf_r_,usf_e_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_6_DEMO
+msg1_6_DEMO:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,re_,ka_,ra_,home@
+	db	EOM
+	db	I_MSG
+	dw	gein_name
+	db	D_MSG
+	db	no_
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	to_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	gein_name
+	db	D_MSG
+	db	spc@,usf_w_,usf_i_,usf_l_,usf_l_
+	db	home@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg2_7_DEMO
+msg2_7_DEMO:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	no_
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	wo_,home@
+	db	ko_,u_,ka_,n_,si_,ma_,su_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	myname@
+	db	apt_s_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	play_msg_0_EFFECT
+play_msg_0_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	su__,ro__,ttu__,to__,ma__,si__,bou@,n__,ga_,spc@,a_,ru_,gyoe@
+	db	home@
+	db	a_,so_,bi_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_s_,usf_l_,usf_o_,usf_t_,spc@
+	db	usf_m_,usf_a_,usf_c_,usf_h_,usf_i_,usf_n_,usf_e_,gyoe@
+	db	home@
+	db	usf_w,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_p_,usf_l_,usf_a_,usf_y_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	no_coin_msg_1_EFFECT
+no_coin_msg_1_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,i__,n__,ga_,home@
+	db	na_,ku_,na_,ttu_,ti_,yya_,ttu_,ta_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_d,usf_a_,usf_r_,usf_n_,gyoe@
+	db	home@
+	db	usf_r,usf_a_,usf_n_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	bet_msg_2_EFFECT
+bet_msg_2_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,i__,n__,wo_,home@
+	db	na_,n_,ma_,i_,spc@,ka_,ke_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_e_,usf_t_,spc@
+	db	usf_h_,usf_o_,usf_w_,spc@
+	db	usf_m_,usf_a_,usf_n_,usf_y_
+	db	home@
+	db	usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	start_msg_3_EFFECT
+start_msg_3_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	su__,ta__,bou@,to__,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_t_,usf_a_,usf_r_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	tarinai_msg_4_EFFECT
+tarinai_msg_4_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,i__,n__,ga_,spc@,ta_,ri_,ma_,se_,n_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,usf_t_,spc@
+	db	usf_e_,usf_n_,usf_o_,usf_u_,usf_g_,usf_h_
+	db	home@
+	db	usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	replay_msg_5_EFFECT
+replay_msg_5_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,u_,spc@,n1@,ka_,i_,home@
+	db	a_,so_,bi_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_n_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	home@
+	db	usf_g_,usf_o_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_6_EFFECT
+msg1_6_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga_,spc@,so_,ro_,ttu_,ta_,gyoe@,home@
+	db	ko__,i__,n__
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	ma_,i_,spc@,i_,ta_,da_,ki_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	spc@,usf_l_,usf_i_,usf_n_,usf_e_,usf_d_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	home@
+	db	usf_s,usf_c_,usf_o_,usf_r_,usf_e_,usf_d_,spc@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	spc@,usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	hazure_msg_7_EFFECT
+hazure_msg_7_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ha_,zu_,re_,bou@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_t_,usf_i_,usf_m_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	yatta_8_EFFECT
+yatta_8_EFFECT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ya_,ttu_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_y,usf_e_,usf_a_,usf_h_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	msg3_1_0_EFFECTER
+msg3_1_0_EFFECTER:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,zu_,ka_,n_,n@,mi_,tu_,ke_,ta_,ka_,zu_
+	db	EOM
+	db	N_MSG
+	dw	anime_buf + 0
+	db	013h
+	db	D_MSG
+	db	home@
+	db	spc@,spc@,spc@,spc@,spc@,spc@,spc@
+	db	tu_,ka_,ma_,e_,ta_,ka_,zu_
+	db	EOM
+	db	N_MSG
+	dw	anime_buf + 1
+	db	013h
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_d,usf_e,usf_x,spc@
+	db	spc@,spc@
+	db	usf_s,usf_e_,usf_e_,usf_n_,colon2@
+	db	EOM
+	db	N_MSG
+	dw	anime_buf + 0
+	db	013h
+	db	D_MSG
+	db	home@
+	db	spc@,spc@
+	db	spc@,spc@
+	db	spc@,spc@
+	db	spc@,spc@
+	db	spc@,usf_o,usf_w_,usf_n_,usf_e_,usf_d_,colon2@
+	db	EOM
+	db	N_MSG
+	dw	anime_buf + 1
+	db	013h
+	db	EOM
+  endif
+
+bank22		group	022h
+	public	msg3_2_1_EFFECTER
+msg3_2_1_EFFECTER:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,zu_,ka_,n_,spc@,hi_,yyo_,u_,ka_,n@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_d,usf_e,usf_x,spc@
+	db	usf_r,usf_a_,usf_t_,usf_i_,usf_n_,usf_g_
+	db	n@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	figure_before_0_EV_TOOL
+figure_before_0_EV_TOOL:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	town_name
+	db	D_MSG
+	db	spc@,poke@,spc@,zi__,mu__
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	leader_name
+	db	D_MSG
+	db	spc@,ni_,n_,te_,i_,spc@
+	db	trainer@,gyoe@
+	db	gyo3@
+	db	rival@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	town_name
+	db	D_MSG
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_g,usf_y,usf_m
+	db	gyo3@
+	db	usf_l,usf_e,usf_a,usf_d,usf_e,usf_r,colon2@,spc@
+	db	EOM
+	db	I_MSG
+	dw	leader_name
+	db	D_MSG
+	db	normal@
+	db	usf_w,usf_i,usf_n,usf_n,usf_i,usf_n,usf_g,spc@
+	db	usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,usf_s,colon2@
+	db	home@
+	db	rival@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	figure_after_1_EV_TOOL
+figure_after_1_EV_TOOL:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	town_name
+	db	D_MSG
+	db	spc@,poke@,spc@,zi__,mu__
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	leader_name
+	db	D_MSG
+	db	spc@,ni_,n_,te_,i_,spc@
+	db	trainer@,gyoe@
+	db	gyo3@
+	db	rival@
+	db	spc@
+	db	myname@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	town_name
+	db	D_MSG
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_g,usf_y,usf_m
+	db	gyo3@
+	db	usf_l,usf_e,usf_a,usf_d,usf_e,usf_r,colon2@,spc@
+	db	EOM
+	db	I_MSG
+	dw	leader_name
+	db	D_MSG
+	db	normal@
+	db	usf_w,usf_i,usf_n,usf_n,usf_i,usf_n,usf_g,spc@
+	db	usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,usf_s,colon2@
+	db	home@
+	db	rival@
+	db	gyo3@
+	db	myname@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t2_msg_2_EV_TOOL
+sofa_t2_msg_2_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,se__,n__,ta__,bou@,ni_,spc@,a_,zu_,ke_,ru_,to_
+	db	home@
+	db	tu_,ka_,re_,te_,spc@,u_,go_,ke_,na_,i_,gyo3@
+	db	poke@,mo_,spc@,ge_,n_,ki_,ni_,spc@,na_,ru_,yo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_c,usf_e,usf_n,usf_t,usf_e,usf_r,usf_s_
+	db	home@
+	db	usf_h_,usf_e_,usf_a_,usf_l_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_t_,usf_i_,usf_r_,usf_e_,usf_d_,comma@
+	db	gyo3@
+	db	usf_h_,usf_u_,usf_r_,usf_t_,spc@
+	db	usf_o_,usf_r_,spc@
+	db	usf_f_,usf_a_,usf_i_,usf_n_,usf_t_,usf_e_,usf_d_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t3_msg_3_EV_TOOL
+sofa_t3_msg_3_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ho_,aa_,bou@,hi_,yya_,tenten2@,gyoe@
+	db	normal@
+	db	pu__,ri__,n__,no_,spc@,u_,ta_,go_,e_,wo_,spc@
+	db	ki_,ku_,to_,tenten2@
+	db	home@
+	db	ta_,i_,te_,i_,no_,spc@,poke@,ha_,spc@,ne_,mu_,ku_,na_,ru_
+	db	normal@
+	db	tenten2@,so_,si_,te_
+	db	home@
+	db	bo_,ku_,mo_,tenten2@,gu_,bou@,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_a_,usf_w_,usf_n_,gyoe@
+	db	normal@
+	db	usf_w,usf_h_,usf_e_,usf_n_,spc@
+	db	usf_j,usf_i,usf_g,usf_g,usf_l,usf_y,usf_p,usf_u,usf_f,usf_f
+	db	home@
+	db	usf_s_,usf_i_,usf_n_,usf_g_,usf_s_,comma@,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_d_,usf_r_,usf_o_,usf_w_,usf_s_,usf_y_,kten@,kten@,kten@
+	db	normal@
+	db	kten@,kten@,kten@,usf_m,usf_e_,spc@
+	db	usf_t_,usf_o_,usf_o_,kten@,kten@,kten@
+	db	home@
+	db	usf_s,usf_n_,usf_o_,usf_r_,usf_e_,kten@,kten@,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t4_msg_4_EV_TOOL
+sofa_t4_msg_4_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma__,sa__,ki__,spc@,ni_,i_,ti_,yya_,n_
+	db	home@
+	db	poke@,spc@,i_,ttu_,pa_,i_,spc@,mo_,ttu_,te_,ru_,yo_,gyoe@
+	db	normal@
+	db	me_,zu_,ra_,si_,i_,spc@,poke@,mo_
+	db	home@
+	db	a_,tu_,me_,te_,ru_,ttu_,te_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_i,usf_l,usf_l,spc@
+	db	usf_h_,usf_a_,usf_s_,spc@
+	db	usf_l_,usf_o_,usf_t_,usf_s_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	normal@
+	db	usf_h,usf_e_,spc@
+	db	usf_c_,usf_o_,usf_l_,usf_l_,usf_e_,usf_c_,usf_t_,usf_s_,spc@
+	db	usf_r_,usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_o_,usf_n_,usf_e_,usf_s_,spc@
+	db	usf_t_,usf_o_,usf_o_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t5_msg_5_EV_TOOL
+sofa_t5_msg_5_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka__,ra__,ka__,ra__,no_,spc@,si_,yyu_,zo_,ku_,ha_
+	db	home@
+	db	ho_,ne_,wo_,spc@,ka_,bu_,ttu_,te_,ru_,spc@,da_,ro_,hate@
+	db	normal@
+	db	a_,re_,ga_,spc@,ta_,ka_,ku_,spc@,u_,re_,ru_,n_,da_,ttu_,te_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_u,usf_b,usf_o,usf_n,usf_e,usf_s_,spc@
+	db	usf_w_,usf_e_,usf_a_,usf_r_
+	db	home@
+	db	usf_s_,usf_k_,usf_u_,usf_l_,usf_l_,usf_s_,comma@,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,hate@
+	db	normal@
+	db	usf_p,usf_e_,usf_o_,usf_p_,usf_l_,usf_e_,spc@
+	db	usf_w_,usf_i_,usf_l_,usf_l_,spc@
+	db	usf_p_,usf_a_,usf_y_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_l_,usf_o_,usf_t_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_o_,usf_n_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_r4_msg_6_EV_TOOL
+sofa_r4_msg_6_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,wo_,spc@,ta_,ku_,sa_,n_,spc@,tu_,ka_,ma_,e_,te_
+	db	home@
+	db	mo_,ti_,ki_,re_,na_,i_,spc@,to_,ki_,ha_
+	db	normal@
+	db	paso@,spc@,tu_,u_,si_,n_,de_
+	db	home@
+	db	a_,zu_,ke_,ru_,to_,spc@,i_,i_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_t_,usf_o_,usf_o_
+	db	home@
+	db	usf_m_,usf_a_,usf_n_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	gyo3@
+	db	usf_s_,usf_h_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_s_,usf_t_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_m_
+	db	gyo3@
+	db	usf_v_,usf_i_,usf_a_,spc@
+	db	usf_p,usf_c,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_r10_msg_7_EV_TOOL
+sofa_r10_msg_7_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si__,o__,n__,spc@,ta__,u__,n__,de_
+	db	home@
+	db	yu_,u_,re_,i_,spc@,poke@,ga_,spc@,de_,ru_,ttu_,te_,gyo3@
+	db	mi_,n_,na_,spc@,sa_,wa_,i_,de_,ru_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_r_,usf_d_,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_t_
+	db	home@
+	db	usf_g,usf_h,usf_o,usf_s,usf_t,usf_s_,spc@
+	db	usf_h_,usf_a_,usf_u_,usf_n_,usf_t_
+	db	gyo3@
+	db	usf_l,usf_a,usf_v,usf_e,usf_n,usf_d,usf_e,usf_r,spc@
+	db	usf_t,usf_o,usf_w,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_d12_7_msg_8_EV_TOOL
+sofa_d12_7_msg_8_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ku_,mo_,spc@,poke@,to_,ri_,spc@
+	db	si_,ta_,i_,na_,bou@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_i_,usf_s_,usf_h_,spc@
+	db	usf_i,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_
+	db	home@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_d12_8_msg_9_EV_TOOL
+sofa_d12_8_msg_9_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ha_,si_,yya_,gi_,su_,gi_,te_,spc@
+	db	tu_,ka_,re_,ti_,yya_,ttu_,ta_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_t_,usf_i_,usf_r_,usf_e_,usf_d_,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_m_
+	db	home@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_f_,usf_u_,usf_n_,kten@,kten@,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_d12_9_msg_10_EV_TOOL
+sofa_d12_9_msg_10_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si__,ru__,hu__,no_,ti__,bou@,hu__,ga_,spc@
+	db	sa__,hu__,aa__,ri__,zo__,bou@,n__,no_
+	db	home@
+	db	do_,ko_,ka_,ni_,spc@,ka_,ku_,re_,te_,ru_,n_,da_,ttu_,te_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_i,usf_l,usf_p,usf_h,apt_s_,spc@
+	db	usf_m_,usf_a_,usf_n_,usf_a_,usf_g_,usf_e_,usf_r_
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_h_,usf_i_,usf_d_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_s,usf_a,usf_f,usf_a,usf_r,usf_i,spc@
+	db	usf_z,usf_o,usf_n,usf_e,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t6_msg_11_EV_TOOL
+sofa_t6_msg_11_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ta_,si_,ka_,ni_,spc@,re__,be__,ru__,no_,spc@,ta_,ka_,i_
+	db	home@
+	db	poke@,ha_,spc@,tu_,yo_,i_,spc@,ke_,do_,tenten2@
+	db	normal@
+	db	poke@,no_,spc@,ta__,i__,pu__,ni_,spc@,yo_,ttu_,te_
+	db	home@
+	db	ni_,ga_,te_,na_,spc@,a_,i_,te_,ga_,spc@,a_,ru_,spc@,mi_,ta_,i_
+	db	normal@
+	db	ze_,ttu_,ta_,i_,ni_,spc@,tu_,yo_,i_,spc@,poke@,ha_
+	db	home@
+	db	na_,ka_,na_,ka_,spc@,i_,na_,i_,spc@,mi_,ta_,i_,da_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_t_,usf_r_,usf_u_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_h_,usf_i_,usf_g_,usf_h_,usf_e_,usf_r_,spc@
+	db	usf_l_,usf_e_,usf_v_,usf_e_,usf_l_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_w_,usf_i_,usf_l_,usf_l_,spc@
+	db	usf_b_,usf_e_
+	db	gyo3@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_p_,usf_o_,usf_w_,usf_e_,usf_r_,usf_f_,usf_u_,usf_l_,kten@,kten@,kten@
+	db	normal@
+	db	usf_b,usf_u_,usf_t_,comma@,spc@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_w_,usf_i_,usf_l_,usf_l_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_w_,usf_e_,usf_a_,usf_k_
+	db	gyo3@
+	db	usf_p_,usf_o_,usf_i_,usf_n_,usf_t_,usf_s_,spc@
+	db	usf_a_,usf_g_,usf_a_,usf_i_,usf_n_,usf_s_,usf_t_
+	db	gyo3@
+	db	usf_s_,usf_p_,usf_e_,usf_c_,usf_i_,usf_f_,usf_i_,usf_c_,spc@
+	db	usf_t_,usf_y_,usf_p_,usf_e_,usf_s_,kten@
+	db	normal@
+	db	usf_s,usf_o_,comma@,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_n_,usf_o_
+	db	home@
+	db	usf_u_,usf_n_,usf_i_,usf_v_,usf_e_,usf_r_,usf_s_,usf_a_,usf_l_,usf_l_,usf_y_
+	db	gyo3@
+	db	usf_s_,usf_t_,usf_r_,usf_o_,usf_n_,usf_g_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t7_msg_12_EV_TOOL
+sofa_t7_msg_12_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,ku_,mo_,spc@,zi_,te_,n_,si_,yya_,spc@,mo_,ttu_,te_,ta_,ra_
+	db	home@
+	db	sa__,i__,ku__,ri__,n__,gu__,spc@,ro__,bou@,do__,spc@
+	db	i_,ki_,ta_,bou@,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_f_,spc@
+	db	usf_i,spc@
+	db	usf_h_,usf_a_,usf_d_,spc@
+	db	usf_a_,spc@
+	db	usf_b,usf_i,usf_k,usf_e,comma@
+	db	home@
+	db	usf_i,spc@
+	db	usf_w_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_g_,usf_o_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	usf_c,usf_y,usf_c,usf_l,usf_i,usf_n,usf_g,spc@
+	db	usf_r,usf_o,usf_a,usf_d,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t8_msg_13_EV_TOOL
+sofa_t8_msg_13_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ni_,i_,ti_,yya_,n_
+	db	home@
+	db	poke@,spc@,zu_,ka_,n_,spc@,tu_,ku_,ttu_,te_,ru_,spc@
+	db	na_,ra_,gyo3@
+	db	sa__,hu__,aa__,ri__,spc@,zo__,bou@,n__,spc@
+	db	i_,ku_,to_,spc@,i_,i_,yo_
+	db	normal@
+	db	me_,zu_,ra_,si_,i_,spc@,poke@,ga_
+	db	home@
+	db	ta_,ku_,sa_,n_,spc@,ha_,n_,si_,yyo_,ku_,spc@,si_,te_,ru_,ttu_,te_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_,apt_r_,usf_e_,spc@
+	db	usf_s_,usf_t_,usf_u_,usf_d_,usf_y_,usf_i_,usf_n_,usf_g_,spc@
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,comma@,spc@
+	db	usf_v_,usf_i_,usf_s_,usf_i_,usf_t_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_s,usf_a,usf_f,usf_a,usf_r,usf_i,spc@
+	db	usf_z,usf_o,usf_n,usf_e,kten@
+	db	normal@
+	db	usf_i,usf_t_,spc@
+	db	usf_h_,usf_a_,usf_s_,spc@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	usf_s_,usf_o_,usf_r_,usf_t_,usf_s_
+	db	home@
+	db	usf_o_,usf_f_,spc@
+	db	usf_r_,usf_a_,usf_r_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t9_msg_14_EV_TOOL
+sofa_t9_msg_14_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,n_,ka_,ki__,yya__,n__,se__,ru__,spc@,si_,ta_,spc@,a_,to_,mo_
+	db	home@
+	db	poke@,ha_,spc@,wa_,za_,wo_,spc@,o_,bo_,e_,ru_,yo_
+	db	normal@
+	db	wa_,za_,wo_,spc@,o_,bo_,e_,sa_,se_,te_,spc@,i_,ttu_,te_,ka_,ra_
+	db	home@
+	db	si_,n_,ka_,spc@,sa_,se_,ru_,no_,mo_,spc@,ko__,tu__,sa_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_s_,usf_t_,usf_i_,usf_l_,usf_l_
+	db	home@
+	db	usf_l_,usf_e_,usf_a_,usf_r_,usf_n_,spc@
+	db	usf_t_,usf_e_,usf_c_,usf_h_,usf_n_,usf_i_,usf_q_,usf_u_,usf_e_,usf_s_
+	db	gyo3@
+	db	usf_a_,usf_f_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_c_,usf_a_,usf_n_,usf_c_,usf_e_,usf_l_,usf_i_,usf_n_,usf_g_
+	db	gyo3@
+	db	usf_e_,usf_v_,usf_o_,usf_l_,usf_u_,usf_t_,usf_i_,usf_o_,usf_n_,kten@
+	db	normal@
+	db	usf_e,usf_v_,usf_o_,usf_l_,usf_u_,usf_t_,usf_i_,usf_o_,usf_n_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_w_,usf_a_,usf_i_,usf_t_
+	db	home@
+	db	usf_u_,usf_n_,usf_t_,usf_i_,usf_l_,spc@
+	db	usf_n_,usf_e_,usf_w_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_
+	db	gyo3@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_b_,usf_e_,usf_e_,usf_n_,spc@
+	db	usf_l_,usf_e_,usf_a_,usf_r_,usf_n_,usf_e_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	st11_0_15_EV_TOOL
+st11_0_15_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,bou@,a_,tenten2@
+	db	home@
+	db	poke@,spc@,si_,te_,n_,no_,u_,ga_,spc@,ki_,te_,gyo3@
+	db	rocket@,wo_,spc@,ya_,ttu_,tu_,ke_,te_,gyo3@
+	db	ku_,re_,ru_,to_,spc@,i_,i_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,spc@
+	db	usf_w_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_g_,usf_r_,usf_e_,usf_a_,usf_t_
+	db	home@
+	db	usf_i_,usf_f_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_e,usf_l,usf_i,usf_t,usf_e,spc@
+	db	usf_f,usf_o,usf_u,usf_r
+	db	gyo3@
+	db	usf_c_,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_s_,usf_t_,usf_o_,usf_m_,usf_p_,usf_e_,usf_d_
+	db	gyo3@
+	db	usf_t,usf_e,usf_a,usf_m,spc@
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	st11_1_16_EV_TOOL
+st11_1_16_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	rocket@,spc@,ni_,ge_,te_,ttu_,ta_,ne_,gyoe@
+	db	home@
+	db	ko_,re_,ka_,ra_,ha_,spc@,so_,to_,spc@,a_,ru_,i_,te_,mo_,gyo3@
+	db	ti_,ttu_,to_,mo_,spc@,ko_,wa_,ku_,na_,i_,gyoe@,gyo3@
+	db	yo_,ka_,ttu_,ta_,ne_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_e,usf_a,usf_m,spc@
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t,spc@
+	db	usf_t_,usf_o_,usf_o_,usf_k_
+	db	home@
+	db	usf_o_,usf_f_,usf_f_,gyoe@,spc@
+	db	usf_w,usf_e_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_g_,usf_o_
+	db	gyo3@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_s_,usf_a_,usf_f_,usf_e_,usf_l_,usf_y_,spc@
+	db	usf_a_,usf_g_,usf_a_,usf_i_,usf_n_,gyoe@
+	db	gyo3@
+	db	usf_t,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_g_,usf_r_,usf_e_,usf_a_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sofa_t7a_msg_17_EV_TOOL
+sofa_t7a_msg_17_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,bou@,i_,gyoe@,spc@,ri_,yyo_,ko_,u_,spc@,da_,zo_,bou@,gyoe@
+	db	home@
+	db	o_,ne_,e_,ti_,yya_,n_,spc@,da_,i_,su_,ki_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_y_,spc@
+	db	usf_s_,usf_i_,usf_s_,spc@
+	db	usf_b_,usf_r_,usf_o_,usf_u_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_m_,usf_e_
+	db	home@
+	db	usf_o_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_v_,usf_a_,usf_c_,usf_a_,usf_t_,usf_i_,usf_o_,usf_n_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	bookrack_msg_18_EV_TOOL
+bookrack_msg_18_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ho_,n_,da_,na_,ni_,spc@,na_,ra_,n_,de_,i_,ru_,no_,ha_
+	db	home@
+	db	poke@,no_,spc@,ho_,n_,spc@,ba_,ka_,ri_,da_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_r_,usf_a_,usf_m_,usf_m_,usf_e_,usf_d_,spc@
+	db	usf_f_,usf_u_,usf_l_,usf_l_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_b_,usf_o_,usf_o_,usf_k_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_mb_19_EV_TOOL
+msg_mb_19_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	pi__,ttu__,ka__,pi__,ka__,no_,spc@,zi_,te_,n_,si_,yya_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_s_,usf_h_,usf_i_,usf_n_,usf_y_,spc@
+	db	usf_n_,usf_e_,usf_w_
+	db	home@
+	db	usf_b,usf_i,usf_c,usf_y,usf_c,usf_l,usf_e,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	hang_picture1_20_EV_TOOL
+hang_picture1_20_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	su__,ta__,bou@,to__,spc@,bo__,ta__,n__,wo_,spc@
+	db	pu__,si__,yyu__,gyoe@
+	db	home@
+	db	o_,su_,to_,spc@,me__,ni__,yyu__,bou@,ga_,spc@
+	db	hi_,ra_,ku_,na_,ri_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_p,usf_u_,usf_s_,usf_h_,spc@
+	db	usf_s,usf_t,usf_a,usf_r,usf_t,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_o_,usf_p_,usf_e_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_m,usf_e,usf_n,usf_u,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	hang_picture2_0_21_EV_TOOL
+hang_picture2_0_21_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	se__,bou@,bu__,su_,ru_,ni_,ha_,spc@,poke@,spc@
+	db	re__,po__,bou@,to__
+	db	home@
+	db	ko_,ma_,me_,ni_,spc@,ka_,ku_,to_,spc@,i_,i_,na_,ri_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_s,usf_a,usf_v,usf_e,spc@
+	db	usf_o_,usf_p_,usf_t_,usf_i_,usf_o_,usf_n_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_o_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_m,usf_e,usf_n,usf_u
+	db	gyo3@
+	db	usf_s_,usf_c_,usf_r_,usf_e_,usf_e_,usf_n_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	hang_picture2_1_22_EV_TOOL
+hang_picture2_1_22_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,ha_,spc@,ta__,i__,pu__,ni_,spc@,yo_,ttu_,te_
+	db	home@
+	db	to_,ku_,i_,na_,spc@,ta__,i__,pu__,gyo3@
+	db	ni_,ga_,te_,na_,spc@,ta__,i__,pu__,ga_,spc@,i_,ru_,na_,ri_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,usf_l_,usf_l_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_t_,usf_y_,usf_p_,usf_e_,usf_s_
+	db	home@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_s_,usf_t_,usf_r_,usf_o_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	gyo3@
+	db	usf_w_,usf_e_,usf_a_,usf_k_,spc@
+	db	usf_p_,usf_o_,usf_i_,usf_n_,usf_t_,usf_s_
+	db	gyo3@
+	db	usf_a_,usf_g_,usf_a_,usf_i_,usf_n_,usf_s_,usf_t_,spc@
+	db	usf_o_,usf_t_,usf_h_,usf_e_,usf_r_,usf_s_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	safari_end_msg1_23_EV_TOOL
+safari_end_msg1_23_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a__,na__,u__,n__,su__,kako2@
+	db	pi__,n__,po__,bou@,n__,gyoe@
+	db	normal@
+	db	zi_,ka_,n_,ga_,spc@,ki_,ma_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_p,usf_a,colon2@,spc@
+	db	usf_d,usf_i_,usf_n_,usf_g_,bou@,usf_d_,usf_o_,usf_n_,usf_g_,gyoe@
+	db	normal@
+	db	usf_t,usf_i_,usf_m_,usf_e_,apt_s_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	safari_end_msg2_24_EV_TOOL
+safari_end_msg2_24_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a__,na__,u__,n__,su__,kako2@
+	db	sa__,hu__,aa__,ri__,spc@,ge__,bou@,mu__
+	db	home@
+	db	o_,wa_,ri_,spc@,de_,bou@,su_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_p,usf_a,colon2@,spc@
+	db	usf_y,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_s,usf_a,usf_f,usf_a,usf_r,usf_i
+	db	home@
+	db	usf_g,usf_a,usf_m,usf_e,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_o_,usf_v_,usf_e_,usf_r_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	QuizStart_25_EV_TOOL
+QuizStart_25_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,spc@,ku__,i__,zu__,gyoe@
+	db	normal@
+	db	se_,i_,ka_,i_,spc@,su_,ru_,to_,spc@,do__,a__,ga_,spc@,a_,i_,te_
+	db	home@
+	db	tu_,gi_,he_,spc@,su_,su_,me_,ma_,su_,gyoe@
+	db	normal@
+	db	ma_,ti_,ga_,e_,ta_,ra_,spc@,de_,si_,no_,spc@,trainer@,to_
+	db	home@
+	db	ta_,ta_,ka_,ttu_,te_,spc@,i_,ta_,da_,ki_,ma_,su_,gyoe@
+	db	normal@
+	db	ko_,ko_,no_,spc@,ri__,bou@,da__,bou@,ni_,spc@
+	db	a_,u_,spc@,ma_,de_
+	db	home@
+	db	poke@,no_,spc@,ta_,i_,ri_,yyo_,ku_,wo_
+	db	gyo3@
+	db	to_,ttu_,te_,spc@,o_,ki_,ta_,i_,na_,ra_,gyoe@
+	db	normal@
+	db	ga_,n_,ba_,ttu_,te_,spc@,ko_,ta_,e_,te_,spc@
+	db	ku_,da_,sa_,i_,gyoe@
+	db	home@
+	db	de_,ha_,spc@,o_,ko_,ta_,e_,spc@,ku_,da_,sa_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_q,usf_u_,usf_i_,usf_z_,gyoe@
+	db	normal@
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_d_,usf_o_,usf_o_,usf_r_,spc@
+	db	usf_o_,usf_p_,usf_e_,usf_n_,usf_s_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_n_,usf_e_,usf_x_,usf_t_,spc@
+	db	usf_r_,usf_o_,usf_o_,usf_m_,gyoe@
+	db	normal@
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_w_,usf_r_,usf_o_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	home@
+	db	usf_f_,usf_a_,usf_c_,usf_e_,spc@
+	db	usf_a_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,gyoe@
+	db	normal@
+	db	usf_i,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_c_,usf_o_,usf_n_,usf_s_,usf_e_,usf_r_,usf_v_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_g,usf_y,usf_m,spc@
+	db	usf_l,usf_e,usf_a,usf_d,usf_e,usf_r,kten@,kten@,kten@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,usf_n_,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,gyoe@
+	db	home@
+	db	usf_h,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_w_,usf_e_,spc@
+	db	usf_g_,usf_o_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	quiz_001_26_EV_TOOL
+quiz_001_26_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,spc@,ki__,yya__,ta__,pi__,bou@,ga_,spc@
+	db	si_,n_,ka_,su_,ru_,to_
+	db	home@
+	db	ba__,ta__,hu__,ri__,bou@,ni_,spc@,na_,ru_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_a,usf_t,usf_e,usf_r,usf_p,usf_i,usf_e,spc@
+	db	usf_e_,usf_v_,usf_o_,usf_l_,usf_v_,usf_e_,usf_s_
+	db	home@
+	db	usf_i_,usf_n_,usf_t_,usf_o_,spc@
+	db	usf_b,usf_u,usf_t,usf_t,usf_e,usf_r,usf_f,usf_r,usf_e,usf_e,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	quiz_002_27_EV_TOOL
+quiz_002_27_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,spc@,ri__,bou@,gu__,spc@,ni_,n_,te_,i_
+	db	home@
+	db	ba__,ttu__,zi__,ha_,spc@,ze_,n_,bu_,de_,spc@
+	db	n9@,si_,yyu_,ru_,i_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	n9@
+	db	home@
+	db	usf_c_,usf_e_,usf_r_,usf_t_,usf_i_,usf_f_,usf_i_,usf_e_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,spc@
+	db	usf_b,usf_a,usf_d,usf_g,usf_e,usf_s_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	quiz_003_28_EV_TOOL
+quiz_003_28_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ni__,yyo__,ro__,mo__,ha_,spc@,n3@,ka_,i_,spc@,si_,n_,ka_,su_,ru_
+	db	home@
+	db	poke@,spc@,de_,a_,ru_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_p,usf_o,usf_l,usf_i,usf_w,usf_a,usf_g,spc@
+	db	usf_e_,usf_v_,usf_o_,usf_l_,usf_v_,usf_e_,usf_s_,spc@
+	db	n3@
+	db	home@
+	db	usf_t_,usf_i_,usf_m_,usf_e_,usf_s_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	quiz_004_29_EV_TOOL
+quiz_004_29_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka_,mi_,na_,ri_,spc@,ta__,i__,pu__,no_,spc@,wa_,za_,wo_
+	db	home@
+	db	ku_,ri_,da_,si_,ta_,spc@,to_,ki_
+	db	normal@
+	db	zi_,me_,n_,spc@,ta__,i__,pu__,no_,spc@,poke@,ni_,ha_
+	db	home@
+	db	yo_,ku_,spc@,ki_,ku_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,usf_r_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_u_,usf_n_,usf_d_,usf_e_,usf_r_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_
+	db	home@
+	db	usf_e_,usf_f_,usf_f_,usf_e_,usf_c_,usf_t_,usf_i_,usf_v_,usf_e_,spc@
+	db	usf_a_,usf_g_,usf_a_,usf_i_,usf_n_,usf_s_,usf_t_
+	db	gyo3@
+	db	usf_g_,usf_r_,usf_o_,usf_u_,usf_n_,usf_d_,spc@
+	db	usf_e_,usf_l_,usf_e_,usf_m_,usf_e_,usf_n_,usf_t_,bou@
+	db	gyo3@
+	db	usf_t_,usf_y_,usf_p_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	quiz_005_30_EV_TOOL
+quiz_005_30_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,na_,zi_,spc@,re__,be__,ru__,no_,spc@,o_,na_,zi_,spc@,poke@
+	db	home@
+	db	de_,mo_,spc@,tu_,ka_,ma_,e_,ru_,spc@,ta_,bi_,ni_
+	db	gyo3@
+	db	tu_,yo_,sa_,ha_,spc@,ti_,ga_,u_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_s_,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_k_,usf_i_,usf_n_,usf_d_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	gyo3@
+	db	usf_l_,usf_e_,usf_v_,usf_e_,usf_l_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_n_,usf_o_,usf_t_
+	db	gyo3@
+	db	usf_i_,usf_d_,usf_e_,usf_n_,usf_t_,usf_i_,usf_c_,usf_a_,usf_l_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	quiz_006_31_EV_TOOL
+quiz_006_31_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	kako@,skill@,n2@,n8@,kakot@,to_,ha_
+	db	home@
+	db	kako@,si_,ne_,si_,ne_,ko_,u_,se_,n_,kakot@,de_,a_,ru_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_m,n2@,n8@,spc@
+	db	usf_c_,usf_o_,usf_n_,usf_t_,usf_a_,usf_i_,usf_n_,usf_s_
+	db	home@
+	db	usf_t,usf_o,usf_m,usf_b,usf_s,usf_t,usf_o,usf_n,usf_e,usf_r,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	QuizNext_32_EV_TOOL
+QuizNext_32_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ta_,ri_,spc@,de_,su_,gyoe@
+	db	normal@
+	db	sa_,ki_,he_,spc@,su_,su_,n_,de_,spc@,i_,i_,de_,su_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,apt_r_,usf_e_,spc@
+	db	usf_a_,usf_b_,usf_s_,usf_o_,usf_l_,usf_u_,usf_t_,usf_e_,usf_l_,usf_y_
+	db	home@
+	db	usf_c_,usf_o_,usf_r_,usf_r_,usf_e_,usf_c_,usf_t_,gyoe@
+	db	normal@
+	db	usf_g,usf_o_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_r_,usf_o_,usf_u_,usf_g_,usf_h_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	QuizBomb_33_EV_TOOL
+QuizBomb_33_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ba_,ka_,spc@,ha_,zu_,re_,de_,su_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_o_,usf_r_,usf_r_,usf_y_,gyoe@,spc@
+	db	usf_b,usf_a_,usf_d_,spc@
+	db	usf_c_,usf_a_,usf_l_,usf_l_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	pm_books_34_EV_TOOL
+pm_books_34_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,spc@,za_,ttu_,si_,ga_,spc@,na_,ra_,n_,de_,ru_,gyoe@
+	db	normal@
+	db	tenten2@,poke@,spc@,te_,ti_,yyo_,u_
+	db	normal@
+	db	tenten2@,poke@,spc@,gu__,ra__,hu__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_m_,usf_a_,usf_g_,usf_a_,usf_z_,usf_i_,usf_n_,usf_e_,usf_s_,gyoe@
+	db	normal@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_n_,usf_o_,usf_t_,usf_e_,usf_b_,usf_o_,usf_o_,usf_k_,usf_s_,gyoe@
+	db	normal@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_g_,usf_r_,usf_a_,usf_p_,usf_h_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	dim_machine1_35_EV_TOOL
+dim_machine1_35_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	paso@,no_,spc@,ga_,me_,n_,ni_
+	db	home@
+	db	te_,n_,so_,u_,ma__,si__,n__,to_,spc@,de_,te_,ma_,su_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_e,usf_l,usf_e,usf_p,usf_o,usf_r,usf_t,usf_e,usf_r,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_d_,usf_i_,usf_s_,usf_p_,usf_l_,usf_a_,usf_y_,usf_e_,usf_d_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_p,usf_c,spc@
+	db	usf_m_,usf_o_,usf_n_,usf_i_,usf_t_,usf_o_,usf_r_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	dim_machine2_36_EV_TOOL
+dim_machine2_36_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_,spc@,te_,n_,so_,u_,ma__,si__,n__,no_
+	db	home@
+	db	bu_,n_,ri_,spc@,pu__,ro__,gu__,ra__,mu__,wo_,spc@
+	db	ki_,do_,u_,spc@,si_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_i_,usf_n_,usf_i_,usf_t_,usf_i_,usf_a_,usf_t_,usf_e_,usf_d_
+	db	home@
+	db	usf_t,usf_e,usf_l,usf_e,usf_p,usf_o,usf_r,usf_t,usf_e,usf_r,apt_s_,spc@
+	db	usf_c,usf_e_,usf_l_,usf_l_
+	db	gyo3@
+	db	usf_s,usf_e_,usf_p_,usf_a_,usf_r_,usf_a_,usf_t_,usf_o_,usf_r_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	dim_0_37_EV_TOOL
+dim_0_37_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma__,sa__,ki__,ku_,n_,no_
+	db	home@
+	db	o_,ki_,ni_,i_,ri_,spc@,poke@,spc@,ri__,su__,to__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_b,usf_i,usf_l,usf_l,apt_s_,spc@
+	db	usf_f_,usf_a_,usf_v_,usf_o_,usf_r_,usf_i_,usf_t_,usf_e_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l_,usf_i_,usf_s_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dim_select_38_EV_TOOL
+dim_select_38_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,re_,wo_,spc@,mi_,se_,te_,spc@,mo_,ra_,i_,spc@
+	db	ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_i_,usf_c_,usf_h_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_d_,usf_o_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_s_,usf_e_,usf_e_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	okido_lt_off_39_EV_TOOL
+okido_lt_off_39_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	paso@,wo_,spc@,mi_,ru_,to_
+	db	home@
+	db	na_,n_,to_,spc@,de_,n_,si_,me__,bou@,ru__,ga_,spc@
+	db	ki_,te_,i_,ta_,gyoe@
+	db	normal@
+	db	tenten2@,spc@,tenten2@,spc@,tenten2@
+	db	normal@
+	db	poke@,wo_,spc@,tu_,yo_,ku_,spc@,so_,da_,te_,te_
+	db	home@
+	db	ta_,ta_,ka_,u_,spc@,poke@,spc@,trainer@,gyoe@,gyo3@
+	db	ko_,ko_,ni_,spc@,sa_,i_,ki_,yyo_,u_,no_,gyo3@
+	db	trainer@,ga_,spc@,a_,tu_,ma_,ri_,spc@,ma_,si_,ta_
+	db	normal@
+	db	ba_,si_,yyo_,ha_,spc@,se__,ki__,e__,i__,spc@,ko_,u_,ge_,n_,no_
+	db	home@
+	db	poke@,spc@,ri__,bou@,gu__,spc@,ho_,n_,bu_,spc@
+	db	de_,su_,gyoe@,gyo3@
+	db	o__,bou@,ki__,do__,ha_,ka_,se_,mo_,gyo3@
+	db	i_,ti_,do_,spc@,go_,ra_,n_,spc@,ku_,da_,sa_,i_,gyo3@
+	db	tenten2@,spc@,poke@,spc@,ri__,bou@,gu__,spc@,yo_,ri_,gyo3@
+	db	tenten2@,spc@,tenten2@,spc@,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_,spc@
+	db	usf_a_,usf_n_,spc@
+	db	usf_e_,bou@,usf_m_,usf_a_,usf_i_,usf_l_
+	db	home@
+	db	usf_m_,usf_e_,usf_s_,usf_s_,usf_a_,usf_g_,usf_e_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	normal@
+	db	kten@,kten@,kten@
+	db	normal@
+	db	usf_c,usf_a_,usf_l_,usf_l_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_l_,usf_l_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_,gyoe@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_e_,usf_l_,usf_i_,usf_t_,usf_e_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_
+	db	home@
+	db	usf_o_,usf_f_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e
+	db	gyo3@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_r_,usf_e_,usf_a_,usf_d_,usf_y_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_a_,usf_k_,usf_e_
+	db	gyo3@
+	db	usf_o_,usf_n_,spc@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	usf_c_,usf_o_,usf_m_,usf_e_,usf_r_,usf_s_,gyoe@
+	db	normal@
+	db	usf_b,usf_r_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_b_,usf_e_,usf_s_,usf_t_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_s_,usf_e_,usf_e_
+	db	gyo3@
+	db	usf_h_,usf_o_,usf_w_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_r_,usf_a_,usf_t_,usf_e_,spc@
+	db	usf_a_,usf_s_,spc@
+	db	usf_a_
+	db	gyo3@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,gyoe@
+	db	normal@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,spc@
+	db	usf_h,usf_q
+	db	home@
+	db	usf_i,usf_n,usf_d,usf_i,usf_g,usf_o,spc@
+	db	usf_p,usf_l,usf_a,usf_t,usf_e,usf_a,usf_u
+	db	normal@
+	db	usf_p,usf_s,colon2@,spc@
+	db	usf_p,usf_r,usf_o,usf_f,kten@,usf_o,usf_a,usf_k,comma@
+	db	home@
+	db	usf_p_,usf_l_,usf_e_,usf_a_,usf_s_,usf_e_,spc@
+	db	usf_v_,usf_i_,usf_s_,usf_i_,usf_t_,spc@
+	db	usf_u_,usf_s_,gyoe@
+	db	gyo3@
+	db	kten@,kten@,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	NoCoinBox_40_EV_TOOL
+NoCoinBox_40_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,i__,n__,ke__,bou@,su__,wo_,spc@
+	db	mo_,ttu_,te_,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_c,usf_o,usf_i,usf_n,spc@
+	db	usf_c,usf_a,usf_s,usf_e,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_r_,usf_e_,usf_q_,usf_u_,usf_i_,usf_r_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	NoCoin_41_EV_TOOL
+NoCoin_41_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,i__,n__,wo_,spc@
+	db	mo_,ttu_,te_,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	usf_a_,usf_n_,usf_y_,spc@
+	db	usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	slot_tag1_42_EV_TOOL
+slot_tag1_42_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,si_,yyo_,u_,spc@,ti_,yyu_,u_,gyoe@
+	db	home@
+	db	tenten2@,spc@,za_,n_,ne_,n_,spc@,da_,ke_,do_,spc@
+	db	ko_,wa_,re_,te_,ru_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_u,usf_t,spc@
+	db	usf_o,usf_f,spc@
+	db	usf_o,usf_r,usf_d,usf_e,usf_r
+	db	home@
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_b_,usf_r_,usf_o_,usf_k_,usf_e_,usf_n_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	slot_tag2_43_EV_TOOL
+slot_tag2_43_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,si_,yyo_,ku_,zi_,spc@,ti_,yyu_,u_,gyoe@
+	db	home@
+	db	tenten2@,spc@,no_,spc@,hu__,da__,ga_,spc@
+	db	ka_,ke_,te_,a_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_u,usf_t,spc@
+	db	usf_t,usf_o,spc@
+	db	usf_l,usf_u,usf_n,usf_c,usf_h
+	db	home@
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_r_,usf_e_,usf_s_,usf_e_,usf_r_,usf_v_,usf_e_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	slot_tag3_44_EV_TOOL
+slot_tag3_44_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka__,gi__,ga_,spc@,o_,i_,te_,a_,ru_,tenten2@
+	db	home@
+	db	ki_,ttu_,to_,spc@,ko_,re_,ha_,spc@
+	db	da_,re_,ka_,no_,spc@,da_,i_,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_o_,usf_m_,usf_e_,usf_o_,usf_n_,usf_e_,apt_s_,spc@
+	db	usf_k_,usf_e_,usf_y_,usf_s_,gyoe@
+	db	home@
+	db	usf_t,usf_h_,usf_e_,usf_y_,apt_l_,usf_l_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_b_,usf_a_,usf_c_,usf_k_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	term_msg_45_EV_TOOL
+term_msg_45_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ti_,yyo_,ttu_,to_,spc@,ma_,ttu_,te_,ne_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_j,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_a_,spc@
+	db	usf_m_,usf_o_,usf_m_,usf_e_,usf_n_,usf_t_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	Unnya_46_EV_TOOL
+Unnya_46_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	skill@,no_,spc@,pa__,n__,hu__,re__,ttu__,to__,da_,gyoe@,home@
+	db	tenten2@,spc@,tenten2@
+	db	normal@
+	db	skill@,ha_
+	db	home@
+	db	ze_,n_,bu_,de_,spc@,n5@,n0@,si_,yyu_,ru_,i_,gyoe@
+	db	normal@
+	db	hi_,de_,n_,ma__,si__,n__,ha_
+	db	home@
+	db	tu_,ka_,ttu_,te_,mo_,spc@,na_,ku_,na_,ra_,na_,i_,spc@
+	db	ta__,i__,pu__,gyo3@
+	db	ze_,n_,bu_,de_,spc@,n5@,si_,yyu_,ru_,i_,spc@,a_,ri_,ma_,su_
+	db	normal@
+	db	tenten2@,spc@,si__,ru__,hu__,spc@,ka__,n__,pa__,ni__,bou@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_a_,spc@
+	db	usf_p_,usf_a_,usf_m_,usf_p_,usf_h_,usf_l_,usf_e_,usf_t_
+	db	home@
+	db	usf_o_,usf_n_,spc@
+	db	usf_t,usf_m,usf_s_,kten@
+	db	normal@
+	db	kten@,kten@,kten@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	n5@,n0@,spc@
+	db	usf_t,usf_m,usf_s_
+	db	home@
+	db	usf_i_,usf_n_,spc@
+	db	usf_a_,usf_l_,usf_l_,kten@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_a_,usf_l_,usf_s_,usf_o_,spc@
+	db	n5@
+	db	home@
+	db	usf_h,usf_m,usf_s_,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_b_,usf_e_
+	db	gyo3@
+	db	usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_r_,usf_e_,usf_p_,usf_e_,usf_a_,usf_t_,usf_e_,usf_d_,usf_l_,usf_y_,kten@
+	db	normal@
+	db	usf_s,usf_i,usf_l,usf_p,usf_h,spc@
+	db	usf_c,usf_o,kten@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	note_1_47_EV_TOOL
+note_1_47_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,gi_,no_,pe__,bou@,zi__,spc@,a_,ke_,ti_,yya_,o_,u_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_u_,usf_r_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_p_,usf_a_,usf_g_,usf_e_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	note_2_48_EV_TOOL
+note_2_48_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,n_,na_,no_,ko_,kako2@,a_,bou@,gyoe@
+	db	home@
+	db	no__,bou@,to__,spc@,mi_,ti_,yya_,spc@,da_,me_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_g,usf_i,usf_r,usf_l,colon2@,spc@
+	db	usf_h,usf_e_,usf_y_,gyoe@,spc@
+	db	usf_d,usf_o_,usf_n_,apt_t_
+	db	home@
+	db	usf_l_,usf_o_,usf_o_,usf_k_,spc@
+	db	usf_a_,usf_t_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_n_,usf_o_,usf_t_,usf_e_,usf_s_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	note_10_49_EV_TOOL
+note_10_49_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	no__,bou@,to__,wo_,spc@,no_,zo_,i_,ta_,gyoe@
+	db	normal@
+	db	n1@,pe__,bou@,zi__,me_,spc@,tenten2@
+	db	normal@
+	db	poke@,ha_
+	db	home@
+	db	mo__,n__,su__,ta__,bou@,bo__,bou@,ru__,de_,spc@
+	db	tu_,ka_,ma_,e_,te_
+	db	gyo3@
+	db	n6@,tu_,ma_,de_,spc@,mo_,ti_,spc@,a_,ru_,ke_,ru_
+	db	normal@
+	db	poke@,wo_,spc@,so_,da_,te_,te_,spc@,ta_,ta_,ka_,wa_,se_,ru_
+	db	home@
+	db	hi_,to_,wo_,spc@,poke@,spc@,trainer@,to_,i_,u_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_l,usf_o_,usf_o_,usf_k_,usf_e_,usf_d_,spc@
+	db	usf_a_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_n_,usf_o_,usf_t_,usf_e_,usf_b_,usf_o_,usf_o_,usf_k_,gyoe@
+	db	normal@
+	db	usf_f,usf_i_,usf_r_,usf_s_,usf_t_,spc@
+	db	usf_p_,usf_a_,usf_g_,usf_e_,kten@,kten@,kten@
+	db	normal@
+	db	poke@
+	db	spc@,usf_b,usf_a,usf_l,usf_l,usf_s_,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	normal@
+	db	usf_u,usf_p_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	n6@,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_c_,usf_a_,usf_r_,usf_r_,usf_i_,usf_e_,usf_d_,kten@
+	db	normal@
+	db	usf_p,usf_e_,usf_o_,usf_p_,usf_l_,usf_e_,spc@
+	db	usf_w_,usf_h_,usf_o_,spc@
+	db	usf_r_,usf_a_,usf_i_,usf_s_,usf_e_
+	db	home@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_m_,usf_a_,usf_k_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_c_,usf_a_,usf_l_,usf_l_,usf_e_,usf_d_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	note_11_50_EV_TOOL
+note_11_50_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	n2@,pe__,bou@,zi__,me_,spc@,tenten2@
+	db	normal@
+	db	poke@,wo_,spc@,tu_,ka_,ma_,e_,ru_,spc@,to_,ki_,ha_
+	db	home@
+	db	ma_,zu_,spc@,yo_,wa_,ra_,se_,te_,ka_,ra_,gyoe@
+	db	gyo3@
+	db	do_,ku_,ya_,spc@,ya_,ke_,do_,de_
+	db	normal@
+	db	yo_,wa_,ra_,se_,te_,mo_,spc@,i_,i_,yo_,gyoe@
+	db	home@
+	db	ge_,n_,ki_,da_,to_,spc@,u_,ma_,ku_,spc@,to_,re_,na_,i_,ka_,mo_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_e_,usf_c_,usf_o_,usf_n_,usf_d_,spc@
+	db	usf_p_,usf_a_,usf_g_,usf_e_,kten@,kten@,kten@
+	db	normal@
+	db	usf_a,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_l_,usf_t_,usf_h_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_m_,usf_a_,usf_y_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_h_,usf_a_,usf_r_,usf_d_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	usf_c_,usf_a_,usf_t_,usf_c_,usf_h_,comma@,spc@
+	db	usf_s_,usf_o_,spc@
+	db	usf_w_,usf_e_,usf_a_,usf_k_,usf_e_,usf_n_
+	db	gyo3@
+	db	usf_i_,usf_t_,spc@
+	db	usf_f_,usf_i_,usf_r_,usf_s_,usf_t_,gyoe@
+	db	normal@
+	db	usf_p,usf_o_,usf_i_,usf_s_,usf_o_,usf_n_,comma@,spc@
+	db	usf_b_,usf_u_,usf_r_,usf_n_,usf_s_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	home@
+	db	usf_o_,usf_t_,usf_h_,usf_e_,usf_r_,spc@
+	db	usf_d_,usf_a_,usf_m_,usf_a_,usf_g_,usf_e_,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	gyo3@
+	db	usf_e_,usf_f_,usf_f_,usf_e_,usf_c_,usf_t_,usf_i_,usf_v_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	note_12_51_EV_TOOL
+note_12_51_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	n3@,pe__,bou@,zi__,me_,spc@,tenten2@
+	db	normal@
+	db	poke@,do_,u_,si_,wo_,spc@,ta_,ta_,ka_,wa_,se_
+	db	home@
+	db	ka_,tu_,ko_,to_,ha_,spc@,trainer@,ni_,spc@,to_,ttu_,te_
+	db	gyo3@
+	db	sa_,i_,ko_,u_,no_,spc@,yo_,ro_,ko_,bi_,spc@,de_,a_,ru_,gyoe@
+	db	normal@
+	db	ka_,ku_,ti_,no_,spc@,poke@,spc@,zi__,mu__,de_,ha_
+	db	home@
+	db	i_,tu_,mo_,spc@,ha_,ge_,si_,i_
+	db	gyo3@
+	db	ta_,ta_,ka_,i_,ga_,spc@
+	db	ku_,ri_,hi_,ro_,ge_,ra_,re_,te_,ru_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_i_,usf_r_,usf_d_,spc@
+	db	usf_p_,usf_a_,usf_g_,usf_e_,kten@,kten@,kten@
+	db	normal@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_
+	db	home@
+	db	usf_s_,usf_e_,usf_e_,usf_k_,spc@
+	db	usf_o_,usf_t_,usf_h_,usf_e_,usf_r_,usf_s_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	usf_e_,usf_n_,usf_g_,usf_a_,usf_g_,usf_e_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,usf_s_,kten@
+	db	normal@
+	db	usf_b,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,usf_s_,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_c_,usf_o_,usf_n_,usf_s_,usf_t_,usf_a_,usf_n_,usf_t_,usf_l_,usf_y_,spc@
+	db	usf_f_,usf_o_,usf_u_,usf_g_,usf_h_,usf_t_
+	db	gyo3@
+	db	usf_a_,usf_t_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_g,usf_y,usf_m,usf_s_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	note_13_52_EV_TOOL
+note_13_52_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	n4@,pe__,bou@,zi__,me_,spc@,tenten2@
+	db	normal@
+	db	poke@,trainer@,no_,spc@,mo_,ku_,hi_,yyo_,u_,ha_
+	db	home@
+	db	ka_,ku_,ti_,no_,spc@,zi__,mu__,ni_,spc@,i_,ru_
+	db	normal@
+	db	tu_,yo_,i_,spc@,trainer@
+	db	home@
+	db	n8@,ni_,n_,si_,yyu_,u_,wo_,spc@,ta_,o_,su_,ko_,to_,gyoe@
+	db	normal@
+	db	sa_,ra_,ni_,spc@,poke@,ri__,bou@,gu__,spc@,ho_,n_,bu_,ni_,ha_
+	db	home@
+	db	tenten2@,spc@,mo_,u_,re_,tu_,ni_,spc@,tu_,yo_,i_,gyoe@
+	db	normal@
+	db	si_,te_,n_,no_,u_,ga_,spc@,ku_,n_,ri_,n_,spc@,si_,te_,ru_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_f,usf_o_,usf_u_,usf_r_,usf_t_,usf_h_,spc@
+	db	usf_p_,usf_a_,usf_g_,usf_e_,kten@,kten@,kten@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_g_,usf_o_,usf_a_,usf_l_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_
+	db	gyo3@
+	db	usf_i_,usf_s_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_b_,usf_e_,usf_a_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	gyo3@
+	db	usf_t_,usf_o_,usf_p_,spc@
+	db	n8@,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_g,usf_y,usf_m,spc@
+	db	usf_l,usf_e,usf_a,usf_d,usf_e,usf_r,usf_s_,kten@
+	db	normal@
+	db	usf_d,usf_o_,spc@
+	db	usf_s_,usf_o_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_e_,usf_a_,usf_r_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_a_,usf_c_,usf_e_,kten@,kten@,kten@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_e,usf_l,usf_i,usf_t,usf_e,spc@
+	db	usf_f,usf_o,usf_u,usf_r,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_gym11_pic1_53_EV_TOOL
+msg_gym11_pic1_53_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,me_,n_,spc@,so_,ka_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_e,usf_n_,usf_e_,usf_m_,usf_i_,usf_e_,usf_s_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_e_,usf_v_,usf_e_,usf_r_,usf_y_
+	db	home@
+	db	usf_s_,usf_i_,usf_d_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_gym11_pic2_54_EV_TOOL
+msg_gym11_pic2_54_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,n_,ga_,spc@,o_,u_,ho_,u_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_g_,usf_o_,usf_e_,usf_s_,spc@
+	db	usf_a_,usf_r_,usf_o_,usf_u_,usf_n_,usf_d_
+	db	home@
+	db	usf_c_,usf_o_,usf_m_,usf_e_,usf_s_,spc@
+	db	usf_a_,usf_r_,usf_o_,usf_u_,usf_n_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_gym11_figure_55_EV_TOOL
+msg_gym11_figure_55_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka_,ku_,to_,u_,spc@,do_,u_,zi_,yyo_,u_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_f,usf_i,usf_g,usf_h,usf_t,usf_i,usf_n,usf_g,spc@
+	db	usf_d,usf_o,usf_j,usf_o
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	nucleus_info_56_EV_TOOL
+nucleus_info_56_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	se__,ki__,e__,i__,ko_,u_,ge_,n_
+	db	home@
+	db	poke@,ri__,bou@,gu__,spc@,ho_,n_,bu_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_n,usf_d,usf_i,usf_g,usf_o,spc@
+	db	usf_p,usf_l,usf_a,usf_t,usf_e,usf_a,usf_u
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,spc@
+	db	usf_h,usf_q
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	famicom_57_EV_TOOL
+famicom_57_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_
+	db	home@
+	db	hu__,aa__,mi__,ko__,n__,wo_,spc@,si_,te_,ru_,gyoe@
+	db	gyo3@
+	db	tenten2@,spc@,tenten2@,spc@,yo_,si_,gyoe@
+	db	gyo3@
+	db	so_,ro_,so_,ro_,spc@,de_,ka_,ke_,yo_,u_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_i_,usf_s_
+	db	home@
+	db	usf_p_,usf_l_,usf_a_,usf_y_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_s,usf_n,usf_e,usf_s,gyoe@
+	db	gyo3@
+	db	kten@,kten@,kten@,usf_o,usf_k_,usf_a_,usf_y_,gyoe@
+	db	gyo3@
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_t_,usf_i_,usf_m_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_g_,usf_o_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	freezer_info_58_EV_TOOL
+freezer_info_58_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo_,u_,e_,n_,ki_,yyo_,u_,wo_,spc@,no_,zo_,i_,ta_,tenten2@
+	db	normal@
+	db	o_,o_,ki_,na_,spc@,to_,ri_,ga_
+	db	home@
+	db	ki__,ra__,ki__,ra__,spc@,hi_,ka_,ri_,na_,ga_,ra_,gyo3@
+	db	u_,mi_,no_,spc@,ho_,u_,he_,spc@,to_,n_,de_,i_,ku_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_l,usf_o_,usf_o_,usf_k_,usf_e_,usf_d_,spc@
+	db	usf_i_,usf_n_,usf_t_,usf_o_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	home@
+	db	usf_b_,usf_i_,usf_n_,usf_o_,usf_c_,usf_u_,usf_l_,usf_a_,usf_r_,usf_s_,kten@,kten@,kten@
+	db	normal@
+	db	usf_a,spc@
+	db	usf_l_,usf_a_,usf_r_,usf_g_,usf_e_,comma@,spc@
+	db	usf_s_,usf_h_,usf_i_,usf_n_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_b_,usf_i_,usf_r_,usf_d_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_f_,usf_l_,usf_y_,usf_i_,usf_n_,usf_g_
+	db	gyo3@
+	db	usf_t_,usf_o_,usf_w_,usf_a_,usf_r_,usf_d_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_s_,usf_e_,usf_a_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	putera_info_59_EV_TOOL
+putera_info_59_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	me_,zu_,ra_,si_,i_,spc@,ko_,da_,i_,spc@,poke@
+	db	home@
+	db	pu__,te__,ra__,no_,spc@,ka__,se__,ki__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,usf_e,usf_r,usf_o,usf_d,usf_a,usf_c,usf_t,usf_y,usf_l,spc@
+	db	usf_f,usf_o_,usf_s_,usf_s_,usf_i_,usf_l_
+	db	home@
+	db	usf_a,spc@
+	db	usf_p_,usf_r_,usf_i_,usf_m_,usf_i_,usf_t_,usf_i_,usf_v_,usf_e_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	gyo3@
+	db	usf_r_,usf_a_,usf_r_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	kabuto_info_60_EV_TOOL
+kabuto_info_60_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	me_,zu_,ra_,si_,i_,spc@,ko_,da_,i_,spc@,poke@
+	db	home@
+	db	ka__,bu__,to__,pu__,su__,no_,spc@,ka__,se__,ki__
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_k,usf_a,usf_b,usf_u,usf_t,usf_o,usf_p,usf_s,spc@
+	db	usf_f,usf_o_,usf_s_,usf_s_,usf_i_,usf_l_
+	db	home@
+	db	usf_a,spc@
+	db	usf_p_,usf_r_,usf_i_,usf_m_,usf_i_,usf_t_,usf_i_,usf_v_,usf_e_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	gyo3@
+	db	usf_r_,usf_a_,usf_r_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	dict_info_61_EV_TOOL
+dict_info_61_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,poke@,spc@,ko_,u_,za_,gyoe@
+	db	normal@
+	db	tu_,u_,si_,n_,spc@,ke__,bou@,bu__,ru__,wo_,spc@,tu_,ka_,ttu_,ta_
+	db	home@
+	db	a_,so_,bi_,ka_,ta_,spc@,ni_,spc@,tu_,i_,te_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_r,usf_a,usf_i,usf_n,usf_e,usf_r,spc@
+	db	usf_t,usf_i,usf_p,usf_s
+	db	normal@
+	db	usf_u,usf_s_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,spc@
+	db	usf_g,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_l,usf_i_,usf_n_,usf_k_
+	db	home@
+	db	usf_c,usf_a_,usf_b_,usf_l_,usf_e_
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_select_62_EV_TOOL
+dict_select_62_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,no_,spc@,ko_,u_,mo_,ku_,wo_,spc@,yo_,mi_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_i_,usf_c_,usf_h_,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_d_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_d_,usf_o_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_r_,usf_e_,usf_a_,usf_d_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	dict_cable_63_EV_TOOL
+dict_cable_63_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to_,mo_,da_,ti_,no_,spc@,ge__,bou@,mu__,bo__,bou@,i__,to_
+	db	home@
+	db	ke__,bou@,bu__,ru__,de_,spc@,tu_,na_,i_,da_,ra_,gyo3@
+	db	poke@,spc@,se__,n__,ta__,bou@,spc@,mi_,gi_,ga_,wa_,no_,gyo3@
+	db	ka__,u__,n__,ta__,bou@,no_,spc@,o_,ne_,e_,sa_,n_,ga_,gyo3@
+	db	a_,n_,na_,i_,spc@,si_,te_,ku_,re_,ma_,su_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_e_,usf_n_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	usf_l_,usf_i_,usf_n_,usf_k_,usf_e_,usf_d_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_g,usf_a,usf_m,usf_e
+	db	gyo3@
+	db	usf_b,usf_o,usf_y,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_a_,usf_n_,usf_o_,usf_t_,usf_h_,usf_e_,usf_r_
+	db	gyo3@
+	db	usf_g,usf_a,usf_m,usf_e,spc@
+	db	usf_b,usf_o,usf_y,comma@,spc@
+	db	usf_t_,usf_a_,usf_l_,usf_k_,spc@
+	db	usf_t_,usf_o_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_a_,usf_t_,usf_t_,usf_e_,usf_n_,usf_d_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_o_,usf_n_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_a_,usf_n_,usf_y_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_c,usf_e,usf_n,usf_t,usf_e,usf_r,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_colosseum_64_EV_TOOL
+dict_colosseum_64_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,ro__,si__,a__,mu__,ha_
+	db	home@
+	db	to_,mo_,da_,ti_,to_,spc@,ta_,i_,se_,n_,spc@
+	db	su_,ru_,to_,ki_,gyo3@
+	db	ha_,i_,ru_,spc@,he_,ya_,spc@,de_,su_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_c,usf_o,usf_l,usf_o,usf_s,usf_s,usf_e,usf_u,usf_m,spc@
+	db	usf_l_,usf_e_,usf_t_,usf_s_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_p_,usf_l_,usf_a_,usf_y_,spc@
+	db	usf_a_,usf_g_,usf_a_,usf_i_,usf_n_,usf_s_,usf_t_
+	db	gyo3@
+	db	usf_a_,spc@
+	db	usf_f_,usf_r_,usf_i_,usf_e_,usf_n_,usf_d_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_trade_65_EV_TOOL
+dict_trade_65_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to__,re__,bou@,do__,se__,n__,ta__,bou@,ha_,spc@
+	db	to_,mo_,da_,ti_,to_
+	db	home@
+	db	poke@,wo_,spc@,ko_,u_,ka_,n_,spc@,su_,ru_,spc@,to_,ki_,gyo3@
+	db	ha_,i_,ru_,spc@,he_,ya_,spc@,de_,su_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_r,usf_a,usf_d,usf_e,spc@
+	db	usf_c,usf_e,usf_n,usf_t,usf_e,usf_r,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_i_,usf_n_,usf_g_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_info_66_EV_TOOL
+dict_info_66_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ku_,ba_,n_,ni_
+	db	home@
+	db	poke@,ga_,spc@,ta_,ta_,ka_,ttu_,te_,ru_,spc@,to_,ki_
+	db	gyo3@
+	db	o_,ko_,ru_,spc@,ta_,i_,ti_,yyo_,u_,no_
+	db	gyo3@
+	db	he_,n_,ka_,ni_,spc@,tu_,i_,te_,spc@,ka_,ka_,re_,te_,ru_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_b_,usf_l_,usf_a_,usf_c_,usf_k_,usf_b_,usf_o_,usf_a_,usf_r_,usf_d_
+	db	home@
+	db	usf_d_,usf_e_,usf_s_,usf_c_,usf_r_,usf_i_,usf_b_,usf_e_,usf_s_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_s,usf_t,usf_a,usf_t,usf_u,usf_s,spc@
+	db	usf_c_,usf_h_,usf_a_,usf_n_,usf_g_,usf_e_,usf_s_
+	db	gyo3@
+	db	usf_d_,usf_u_,usf_r_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,usf_s_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_select_67_EV_TOOL
+dict_select_67_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,no_,spc@,ko_,u_,mo_,ku_,wo_,spc@,mi_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_i_,usf_c_,usf_h_,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_d_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_d_,usf_o_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_r_,usf_e_,usf_a_,usf_d_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	dict_nemuri_68_EV_TOOL
+dict_nemuri_68_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ne_,te_,si_,ma_,u_,to_,spc@,so_,no_,spc@,a_,i_,da_,ha_
+	db	home@
+	db	ko_,u_,ge_,ki_,spc@,de_,ki_,ma_,se_,n_,gyoe@
+	db	normal@
+	db	ta_,ta_,ka_,i_,spc@,o_,wa_,ttu_,te_,mo_,spc@,ne_,ta_,ma_,ma_
+	db	home@
+	db	ne_,mu_,ke_,za_,ma_,si_,de_,spc@,me_,ga_,spc@,sa_,me_,ma_,su_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_
+	db	home@
+	db	usf_a_,usf_t_,usf_t_,usf_a_,usf_c_,usf_k_,spc@
+	db	usf_i_,usf_f_,spc@
+	db	usf_i_,usf_t_,apt_s_
+	db	gyo3@
+	db	usf_a_,usf_s_,usf_l_,usf_e_,usf_e_,usf_p_,gyoe@
+	db	normal@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_w_,usf_i_,usf_l_,usf_l_,spc@
+	db	usf_s_,usf_t_,usf_a_,usf_y_
+	db	home@
+	db	usf_a_,usf_s_,usf_l_,usf_e_,usf_e_,usf_p_,spc@
+	db	usf_e_,usf_v_,usf_e_,usf_n_,spc@
+	db	usf_a_,usf_f_,usf_t_,usf_e_,usf_r_
+	db	gyo3@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,usf_s_,kten@
+	db	normal@
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_a,usf_w,usf_a,usf_k,usf_e,usf_n,usf_i,usf_n,usf_g,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_w_,usf_a_,usf_k_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_m_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_doku_69_EV_TOOL
+dict_doku_69_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,ku_,wo_,spc@,ku_,ra_,u_,to_
+	db	home@
+	db	ta_,i_,ri_,yyo_,ku_,ga_,spc@,he_,ttu_,te_,spc@,i_,ki_,ma_,su_
+	db	normal@
+	db	ta_,ta_,ka_,i_,spc@,o_,wa_,ttu_,te_,mo_
+	db	home@
+	db	do_,ku_,ha_,spc@,no_,ko_,ri_,ma_,su_,ga_
+	db	gyo3@
+	db	do_,ku_,ke_,si_,de_,spc@,ki_,e_,ma_,su_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_e_,usf_n_,spc@
+	db	usf_p_,usf_o_,usf_i_,usf_s_,usf_o_,usf_n_,usf_e_,usf_d_,comma@,spc@
+	db	usf_a_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,apt_s_,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_l_,usf_t_,usf_h_
+	db	gyo3@
+	db	usf_s_,usf_t_,usf_e_,usf_a_,usf_d_,usf_i_,usf_l_,usf_y_,spc@
+	db	usf_d_,usf_r_,usf_o_,usf_p_,usf_s_,kten@
+	db	normal@
+	db	usf_p,usf_o_,usf_i_,usf_s_,usf_o_,usf_n_,spc@
+	db	usf_l_,usf_i_,usf_n_,usf_g_,usf_e_,usf_r_,usf_s_
+	db	home@
+	db	usf_a_,usf_f_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,usf_s_,kten@
+	db	normal@
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_a_,usf_n_,spc@
+	db	usf_a,usf_n,usf_t,usf_i,usf_d,usf_o,usf_t,usf_e
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_c_,usf_u_,usf_r_,usf_e_,spc@
+	db	usf_p_,usf_o_,usf_i_,usf_s_,usf_o_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_mahi_70_EV_TOOL
+dict_mahi_70_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma__,hi__,su_,ru_,to_,spc@,wa_,za_,ga_
+	db	home@
+	db	to_,ki_,do_,ki_,spc@,de_,na_,ku_,spc@,na_,ri_,ma_,su_,gyoe@
+	db	normal@
+	db	ta_,ta_,ka_,i_,spc@,o_,wa_,ttu_,te_,mo_
+	db	home@
+	db	ma__,hi__,ha_,spc@,no_,ko_,ri_,ma_,su_
+	db	gyo3@
+	db	ma_,ta_,spc@,ma__,hi__,na_,o_,si_,de_,spc@,na_,o_,ri_,ma_,su_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_p,usf_a_,usf_r_,usf_a_,usf_l_,usf_y_,usf_s_,usf_i_,usf_s_,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_
+	db	home@
+	db	usf_m_,usf_a_,usf_k_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_,spc@
+	db	usf_m_,usf_i_,usf_s_,usf_f_,usf_i_,usf_r_,usf_e_,gyoe@
+	db	normal@
+	db	usf_p,usf_a_,usf_r_,usf_a_,usf_l_,usf_y_,usf_s_,usf_i_,usf_s_,spc@
+	db	usf_r_,usf_e_,usf_m_,usf_a_,usf_i_,usf_n_,usf_s_
+	db	home@
+	db	usf_a_,usf_f_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,usf_s_,kten@
+	db	normal@
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_p,usf_a,usf_r,usf_l,usf_y,usf_z,spc@
+	db	usf_h,usf_e,usf_a,usf_l
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_t_,usf_r_,usf_e_,usf_a_,usf_t_,usf_m_,usf_e_,usf_n_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_yakedo_71_EV_TOOL
+dict_yakedo_71_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ya_,ke_,do_,ha_,spc@,ta_,i_,ri_,yyo_,ku_,ga_,spc@,he_,ttu_,te_
+	db	home@
+	db	ko_,u_,ge_,ki_,ri_,yyo_,ku_,to_,spc@,su_,ba_,ya_,sa_,mo_
+	db	gyo3@
+	db	sa_,ga_,ttu_,te_,spc@,si_,ma_,i_,ma_,su_,gyoe@
+	db	normal@
+	db	ta_,ta_,ka_,i_,spc@,o_,wa_,ttu_,te_,mo_
+	db	home@
+	db	ya_,ke_,do_,ha_,spc@,no_,ko_,ri_,ma_,su_
+	db	gyo3@
+	db	ma_,ta_,spc@,ya_,ke_,do_,na_,o_,si_,de_,spc@,na_,o_,ri_,ma_,su_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_b_,usf_u_,usf_r_,usf_n_,spc@
+	db	usf_r_,usf_e_,usf_d_,usf_u_,usf_c_,usf_e_,usf_s_
+	db	home@
+	db	usf_p_,usf_o_,usf_w_,usf_e_,usf_r_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_s_,usf_p_,usf_e_,usf_e_,usf_d_,kten@
+	db	gyo3@
+	db	usf_i,usf_t_,spc@
+	db	usf_a_,usf_l_,usf_s_,usf_o_,spc@
+	db	usf_c_,usf_a_,usf_u_,usf_s_,usf_e_,usf_s_
+	db	gyo3@
+	db	usf_o_,usf_n_,usf_g_,usf_o_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_d_,usf_a_,usf_m_,usf_a_,usf_g_,usf_e_,kten@
+	db	normal@
+	db	usf_b,usf_u_,usf_r_,usf_n_,usf_s_,spc@
+	db	usf_r_,usf_e_,usf_m_,usf_a_,usf_i_,usf_n_
+	db	home@
+	db	usf_a_,usf_f_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,usf_s_,kten@
+	db	normal@
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_b,usf_u,usf_r,usf_n,spc@
+	db	usf_h,usf_e,usf_a,usf_l,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_c_,usf_u_,usf_r_,usf_e_,spc@
+	db	usf_a_,spc@
+	db	usf_b_,usf_u_,usf_r_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dict_koori_72_EV_TOOL
+dict_koori_72_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,o_,ttu_,te_,spc@,si_,ma_,u_,to_
+	db	home@
+	db	ma_,ttu_,ta_,ku_,spc@,u_,go_,ke_,na_,ku_,spc@
+	db	na_,ri_,ma_,su_,gyoe@
+	db	normal@
+	db	ta_,ta_,ka_,i_,spc@,o_,wa_,ttu_,te_,mo_,spc@
+	db	ko_,o_,ttu_,te_,ma_,su_
+	db	home@
+	db	ko_,o_,ri_,na_,o_,si_,de_,spc@,to_,ka_,sa_,na_,i_,to_
+	db	gyo3@
+	db	poke@,ga_,spc@,ka_,wa_,i_,so_,u_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_f_,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_z_,usf_e_,usf_n_,comma@,spc@
+	db	usf_a_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_b_,usf_e_,usf_c_,usf_o_,usf_m_,usf_e_,usf_s_
+	db	gyo3@
+	db	usf_t_,usf_o_,usf_t_,usf_a_,usf_l_,usf_l_,usf_y_,spc@
+	db	usf_i_,usf_m_,usf_m_,usf_o_,usf_b_,usf_i_,usf_l_,usf_e_,gyoe@
+	db	normal@
+	db	usf_i,usf_t_,spc@
+	db	usf_s_,usf_t_,usf_a_,usf_y_,usf_s_,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_z_,usf_e_,usf_n_
+	db	home@
+	db	usf_e_,usf_v_,usf_e_,usf_n_,spc@
+	db	usf_a_,usf_f_,usf_t_,usf_e_,usf_r_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,spc@
+	db	usf_e_,usf_n_,usf_d_,usf_s_,kten@
+	db	normal@
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_i,usf_c,usf_e,spc@
+	db	usf_h,usf_e,usf_a,usf_l,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_t_,usf_h_,usf_a_,usf_w_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	trash_box_73_EV_TOOL
+trash_box_73_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga__,sa__,go__,so__,tenten2@,gyoe@
+	db	home@
+	db	na_,ka_,ha_,spc@,go__,mi__,spc@,ba_,ttu_,ka_,ri_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,usf_p_,usf_e_,comma@,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_
+	db	home@
+	db	usf_o_,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_s_,usf_h_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	trash_hit1_74_EV_TOOL
+trash_hit1_74_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga__,sa__,go__,so__,tenten2@,gyoe@
+	db	home@
+	db	o_,ttu_,to_,gyoe@,spc@,go__,mi__,ba_,ko_,no_,spc@
+	db	so_,ko_,ni_,gyo3@
+	db	su__,i__,ttu__,ti__,ga_,spc@,a_,ttu_,ta_,gyoe@,gyo3@
+	db	o_,si_,te_,spc@,mi_,yo_,u_,gyoe@,spc@
+	db	tenten2@,spc@,po__,ti__,ttu__,to_,na_
+	db	normal@
+	db	de_,n_,do_,u_,do__,a__,no_
+	db	home@
+	db	da_,i_,n1@,spc@,ro__,ttu__,ku__,ga_,spc@,ha_,zu_,re_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_y_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_,spc@
+	db	usf_a_
+	db	home@
+	db	usf_s_,usf_w_,usf_i_,usf_t_,usf_c_,usf_h_,spc@
+	db	usf_u_,usf_n_,usf_d_,usf_e_,usf_r_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_r_,usf_a_,usf_s_,usf_h_,gyoe@
+	db	gyo3@
+	db	usf_t,usf_u_,usf_r_,usf_n_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_o_,usf_n_,gyoe@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	n1@,usf_s_,usf_t_,spc@
+	db	usf_e_,usf_l_,usf_e_,usf_c_,usf_t_,usf_r_,usf_i_,usf_c_
+	db	home@
+	db	usf_l_,usf_o_,usf_c_,usf_k_,spc@
+	db	usf_o_,usf_p_,usf_e_,usf_n_,usf_e_,usf_d_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	trash_hit2_0_75_EV_TOOL
+trash_hit2_0_75_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga__,sa__,go__,so__,tenten2@,gyoe@
+	db	home@
+	db	o_,ttu_,to_,gyoe@,spc@,go__,mi__,ba_,ko_,no_,spc@
+	db	so_,ko_,ni_,gyo3@
+	db	ma_,ta_,spc@,su__,i__,ttu__,ti__,ga_,spc@,a_,ttu_,ta_,gyoe@,gyo3@
+	db	o_,si_,te_,spc@,mi_,yo_,u_,gyoe@,spc@
+	db	tenten2@,spc@,po__,ti__,ttu__,to_,na_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_y_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_
+	db	home@
+	db	usf_a_,usf_n_,usf_o_,usf_t_,usf_h_,usf_e_,usf_r_,spc@
+	db	usf_s_,usf_w_,usf_i_,usf_t_,usf_c_,usf_h_
+	db	gyo3@
+	db	usf_u_,usf_n_,usf_d_,usf_e_,usf_r_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_s_,usf_h_,gyoe@
+	db	gyo3@
+	db	usf_t,usf_u_,usf_r_,usf_n_,spc@
+	db	usf_i_,usf_t_,spc@
+	db	usf_o_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	trash_hit2_1_76_EV_TOOL
+trash_hit2_1_76_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	de_,n_,do_,u_,do__,a__,no_
+	db	home@
+	db	da_,i_,n2@,spc@,ro__,ttu__,ku__,ga_,spc@
+	db	ha_,zu_,re_,ta_,gyoe@
+	db	normal@
+	db	o_,o_,ki_,na_,spc@,de_,n_,do_,u_,do__,a__,ga_
+	db	home@
+	db	ka_,n_,ze_,n_,ni_,spc@,hi_,ra_,i_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	n2@,usf_n_,usf_d_,spc@
+	db	usf_e_,usf_l_,usf_e_,usf_c_,usf_t_,usf_r_,usf_i_,usf_c_
+	db	home@
+	db	usf_l_,usf_o_,usf_c_,usf_k_,spc@
+	db	usf_o_,usf_p_,usf_e_,usf_n_,usf_e_,usf_d_,gyoe@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_t_,usf_o_,usf_r_,usf_i_,usf_z_,usf_e_,usf_d_,spc@
+	db	usf_d_,usf_o_,usf_o_,usf_r_
+	db	home@
+	db	usf_o_,usf_p_,usf_e_,usf_n_,usf_e_,usf_d_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	trash_out_77_EV_TOOL
+trash_out_77_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga__,sa__,go__,so__,tenten2@,gyoe@
+	db	home@
+	db	na_,ka_,ha_,spc@,go__,mi__,spc@,ba_,ttu_,ka_,ri_,gyoe@,gyo3@
+	db	a_,ttu__,gyoe@,spc@,de_,n_,do_,u_,do__,a__,no_,gyo3@
+	db	ro__,ttu__,ku__,ga_,spc@,mo_,do_,ttu_,te_,spc@
+	db	si_,ma_,ttu_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,usf_p_,usf_e_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_
+	db	home@
+	db	usf_o_,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_s_,usf_h_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,kten@
+	db	gyo3@
+	db	usf_h,usf_e_,usf_y_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_e_,usf_l_,usf_e_,usf_c_,usf_t_,usf_r_,usf_i_,usf_c_
+	db	gyo3@
+	db	usf_l_,usf_o_,usf_c_,usf_k_,usf_s_,spc@
+	db	usf_w_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_r_,usf_e_,usf_s_,usf_e_,usf_t_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	item_in_78_EV_TOOL
+item_in_78_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	wo_,spc@,mi_,tu_,ke_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_f_,usf_o_,usf_u_,usf_n_,usf_d_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	item_over_79_EV_TOOL
+item_over_79_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,ka_,si_,spc@
+	db	myname@
+	db	ha_
+	db	home@
+	db	do_,u_,gu_,wo_,spc@,mo_,u_,spc@,mo_,te_,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_u_,usf_t_,comma@,spc@
+	db	myname@
+	db	spc@,usf_h_,usf_a_,usf_s_
+	db	home@
+	db	usf_n_,usf_o_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_r_,usf_o_,usf_o_,usf_m_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	gyo3@
+	db	usf_o_,usf_t_,usf_h_,usf_e_,usf_r_,spc@
+	db	usf_i_,usf_t_,usf_e_,usf_m_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	coin_in_80_EV_TOOL
+coin_in_80_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_
+	db	home@
+	db	ko__,i__,n__,wo_,spc@
+	db	EOM
+	db	B_MSG
+	dw	divwk1 + 1
+	db	0c2h
+	db	D_MSG
+	db	ma_,i_
+	db	spc@,mi_,tu_,ke_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_f_,usf_o_,usf_u_,usf_n_,usf_d_
+	db	home@
+	db	EOM
+	db	B_MSG
+	dw	divwk1 + 1
+	db	0c2h
+	db	D_MSG
+	db	spc@,usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	coin_over_81_EV_TOOL
+coin_over_81_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_
+	db	home@
+	db	ko__,i__,n__,spc@,wo_
+	db	EOM
+	db	B_MSG
+	dw	divwk1 + 1
+	db	0c2h
+	db	D_MSG
+	db	ma_,i_
+	db	spc@,mi_,tu_,ke_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_f_,usf_o_,usf_u_,usf_n_,usf_d_
+	db	home@
+	db	EOM
+	db	B_MSG
+	dw	divwk1 + 1
+	db	0c2h
+	db	D_MSG
+	db	spc@,usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	coin_over_82_EV_TOOL
+coin_over_82_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	normal@
+	db	si_,ka_,si_,spc@
+	db	myname@
+	db	ha_
+	db	home@
+	db	na_,n_,ma_,i_,ka_,spc@
+	db	o_,to_,si_,te_,si_,ma_,ttu_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	normal@
+	db	usf_o,usf_o_,usf_p_,usf_s_,gyoe@,spc@
+	db	usf_d,usf_r_,usf_o_,usf_p_,usf_p_,usf_e_,usf_d_
+	db	home@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	SFmsg0_83_EV_TOOL
+SFmsg0_83_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,se__,ki__,e__,i__,spc@,ko_,u_,ge_,n_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_n,usf_d,usf_i,usf_g,usf_o,spc@
+	db	usf_p,usf_l,usf_a,usf_t,usf_e,usf_a,usf_u
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	SFmsg1_84_EV_TOOL
+SFmsg1_84_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,spc@,trainer@,no_,spc@
+	db	ti_,yyo_,u_,te_,n_,gyoe@
+	db	home@
+	db	poke@,spc@,ri__,bou@,gu__,spc@,ho_,n_,bu_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_u_,usf_l_,usf_t_,usf_i_,usf_m_,usf_a_,usf_t_,usf_e_,spc@
+	db	usf_g_,usf_o_,usf_a_,usf_l_
+	db	home@
+	db	usf_o_,usf_f_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,usf_s_,gyoe@
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,spc@
+	db	usf_h,usf_q
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	SFmsg2_85_EV_TOOL
+SFmsg2_85_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,no_,spc@,sa_,i_,ko_,u_,spc@,ki_,ka_,n_
+	db	home@
+	db	poke@,spc@,ri__,bou@,gu__,spc@,ho_,n_,bu_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_h_,usf_i_,usf_g_,usf_h_,usf_e_,usf_s_,usf_t_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_a_,usf_u_,usf_t_,usf_h_,usf_o_,usf_r_,usf_i_,usf_t_,usf_y_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,spc@
+	db	usf_h,usf_q
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	book_msg_0_86_EV_TOOL
+book_msg_0_86_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,no_,spc@,ho_,n_,ga_,spc@,i_,ttu_,pa_,i_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_r_,usf_a_,usf_m_,usf_m_,usf_e_,usf_d_,spc@
+	db	usf_f_,usf_u_,usf_l_,usf_l_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_b_,usf_o_,usf_o_,usf_k_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	butsudan_msg_87_EV_TOOL
+butsudan_msg_87_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bu_,tu_,da_,n_,spc@,da_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_a_,spc@
+	db	usf_s_,usf_c_,usf_u_,usf_l_,usf_p_,usf_t_,usf_u_,usf_r_,usf_e_
+	db	home@
+	db	usf_o_,usf_f_,spc@
+	db	usf_d,usf_i,usf_g,usf_l,usf_e,usf_t,usf_t,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	elev_msg_88_EV_TOOL
+elev_msg_88_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,ha_,spc@,e__,re__,be__,bou@,ta__,bou@,da_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_a_,usf_n_
+	db	home@
+	db	usf_e_,usf_l_,usf_e_,usf_v_,usf_a_,usf_t_,usf_o_,usf_r_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	map_msg_89_EV_TOOL
+map_msg_89_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ta__,u__,n__,ma__,ttu__,pu__,da_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_t,usf_o,usf_w,usf_n,spc@
+	db	usf_m,usf_a,usf_p,kten@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	shop_msg_90_EV_TOOL
+shop_msg_90_EV_TOOL:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,a_,gyoe@,spc@,poke@,gu__,ttu__,zu__,ga_
+	db	home@
+	db	ta_,ku_,sa_,n_,spc@,so_,ro_,ttu_,te_,ru_,zo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_o_,usf_w_,gyoe@,spc@
+	db	usf_t,usf_o_,usf_n_,usf_s_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_s_,usf_t_,usf_u_,usf_f_,usf_f_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	announce_msg_0_FIGHT
+announce_msg_0_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a__,na__,u__,n__,su__,kako2@
+	db	pi__,n__,po__,bou@,n__,gyoe@
+	db	normal@
+	db	sa__,hu__,aa__,ri__,spc@,bo__,bou@,ru__,wo_
+	db	home@
+	db	ze_,n_,bu_,spc@,na_,ge_,ma_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_p,usf_a,colon2@,spc@
+	db	usf_d,usf_i_,usf_n_,usf_g_,bou@,usf_d_,usf_o_,usf_n_,usf_g_,gyoe@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_a_,usf_r_,usf_e_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	usf_s,usf_a,usf_f,usf_a,usf_r,usf_i,spc@
+	db	usf_b,usf_a,usf_l,usf_l,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	nigeta_msg1_1_FIGHT
+nigeta_msg1_1_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ya_,se_,i_,no_,EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ha_,spc@,ni_,ge_,da_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_l_,usf_d_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	home@
+	db	usf_r_,usf_a_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	nigeta_msg2_2_FIGHT
+nigeta_msg2_2_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	te_,ki_,no_,EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ha_,spc@,ni_,ge_,da_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_e,usf_n_,usf_e_,usf_m_,usf_y_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	home@
+	db	usf_r_,usf_a_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dokuuke_msg_3_FIGHT
+dokuuke_msg_3_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,home@
+	db	do_,ku_,no_,spc@,da__,me__,bou@,zi__,wo_,spc@
+	db	u_,ke_,te_,i_,ru_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_h_,usf_u_,usf_r_,usf_t_,spc@
+	db	usf_b_,usf_y_,spc@
+	db	usf_p_,usf_o_,usf_i_,usf_s_,usf_o_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	yakeuke_msg_4_FIGHT
+yakeuke_msg_4_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,home@
+	db	ya_,ke_,do_,no_,spc@,da__,me__,bou@,zi__,wo_,spc@
+	db	u_,ke_,te_,i_,ru_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_h_,usf_u_,usf_r_,usf_t_,spc@
+	db	usf_b_,usf_y_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_b_,usf_u_,usf_r_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	yadorigi_msg_5_FIGHT
+yadorigi_msg_5_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ya_,do_,ri_,gi_,ga_,spc@
+	db	monsname2@,no_,home@
+	db	ta_,i_,ri_,yyo_,ku_,wo_,spc@,u_,ba_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_l,usf_e,usf_e,usf_c,usf_h,spc@
+	db	usf_s,usf_e,usf_e,usf_d,spc@
+	db	usf_s_,usf_a_,usf_p_,usf_s_
+	db	home@
+	db	monsname2@
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	kachi_msg1_6_FIGHT
+kachi_msg1_6_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	te_,ki_,no_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ha_,spc@,ta_,o_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_e,usf_n_,usf_e_,usf_m_,usf_y_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	home@
+	db	usf_f_,usf_a_,usf_i_,usf_n_,usf_t_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	kachi_msg2_7_FIGHT
+kachi_msg2_7_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_,spc@,si_,yyo_,u_,ki_,n_,to_,si_,te_,home@
+	db	EOM
+	db	B_MSG
+	dw	yuuichi_gold
+	db	0c3h
+	db	D_MSG
+	db	yen@,spc@,te_,ni_,i_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_g_,usf_o_,usf_t_,spc@
+	db	dol@
+	db	EOM
+	db	B_MSG
+	dw	yuuichi_gold
+	db	0c3h
+	db	D_MSG
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_w_,usf_i_,usf_n_,usf_n_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	kachi_msg3_8_FIGHT
+kachi_msg3_8_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	to_,no_,home@
+	db	si_,yyo_,u_,bu_,ni_,spc@,ka_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_d_,usf_e_,usf_f_,usf_e_,usf_a_,usf_t_,usf_e_,usf_d_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	make_msg1_9_FIGHT
+make_msg1_9_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,spc@,ta_,o_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	home@
+	db	usf_f_,usf_a_,usf_i_,usf_n_,usf_t_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	make_msg2_10_FIGHT
+make_msg2_10_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,gi_,no_,spc@,poke@,wo_
+	db	tu_,ka_,i_,ma_,su_,ka_,hate@
+	db	057h
+  else
+	db	D_MSG
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_n_,usf_e_,usf_x_,usf_t_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	rival_msg_11_FIGHT
+rival_msg_11_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	rival@
+	db	kako2@,ya_,ri_,bou@,gyoe@,home@
+	db	ya_,ttu_,pa_,spc@,o_,re_,ttu_,te_,spc@,te_,n_,sa_,i_,hate@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	rival@
+	db	colon2@,spc@
+	db	usf_y,usf_e_,usf_a_,usf_h_,gyoe@,spc@
+	db	usf_a,usf_m_
+	db	home@
+	db	usf_i,spc@
+	db	usf_g_,usf_r_,usf_e_,usf_a_,usf_t_,spc@
+	db	usf_o_,usf_r_,spc@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,hate@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	zenmetsu_msg1_12_FIGHT
+zenmetsu_msg1_12_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	no_,spc@,te_,mo_,to_,ni_,ha_,home@
+	db	ta_,ta_,ka_,e_,ru_,spc@,poke@,ga_,spc@
+	db	i_,na_,i_,gyoe@,normal@
+	db	myname@
+	db	ha_,home@
+	db	me_,no_,ma_,e_,ga_,spc@,ma_,ttu_,ku_,ra_,ni_,spc@
+	db	na_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_i_,usf_s_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_o_,usf_f_
+	db	home@
+	db	usf_u_,usf_s_,usf_e_,usf_a_,usf_b_,usf_l_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	normal@
+	db	myname@
+	db	spc@,usf_b_,usf_l_,usf_a_,usf_c_,usf_k_,usf_e_,usf_d_
+	db	home@
+	db	usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	zenmetsu_msg2_13_FIGHT
+zenmetsu_msg2_13_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	to_,no_,home@
+	db	si_,yyo_,u_,bu_,ni_,spc@,ma_,ke_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_l_,usf_o_,usf_s_,usf_t_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	torikaeru_msg1_14_FIGHT
+torikaeru_msg1_14_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	ha_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	wo_,home@
+	db	ku_,ri_,da_,so_,u_,to_,spc@,si_,te_,i_,ru_,yo_,u_,da_
+	db	normal@
+	db	myname@
+	db	mo_,spc@,poke@,wo_,home@
+	db	to_,ri_,ka_,e_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_
+	db	home@
+	db	usf_a_,usf_b_,usf_o_,usf_u_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_u_,usf_s_,usf_e_
+	db	gyo3@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	gyoe@
+	db	normal@
+	db	usf_w,usf_i_,usf_l_,usf_l_,spc@
+	db	myname@
+	db	home@
+	db	usf_c_,usf_h_,usf_a_,usf_n_,usf_g_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	kuridashi_msg1_15_FIGHT
+kuridashi_msg1_15_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	ha_,home@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	wo_,spc@,ku_,ri_,da_,si_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	spc@,usf_s_,usf_e_,usf_n_,usf_t_
+	db	home@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	chk_life_msg1_16_FIGHT
+chk_life_msg1_16_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ta_,ta_,ka_,u_,spc@,ki_,ri_,yyo_,ku_,ga_,spc@,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_w_,usf_i_,usf_l_,usf_l_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg1_17_FIGHT
+msg1_17_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ni_,ge_,ra_,re_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_c,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_e_,usf_s_,usf_c_,usf_a_,usf_p_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg2_18_FIGHT
+msg2_18_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	da__,me__,da_,gyoe@,home@
+	db	si_,yyo_,u_,bu_,no_,spc@,sa_,i_,ti_,yyu_,u_,ni_
+	db	gyo3@
+	db	a_,i_,te_,ni_,spc@,se_,na_,ka_,ha_,spc@
+	db	mi_,se_,ra_,re_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,apt_s_,spc@
+	db	usf_n_,usf_o_
+	db	home@
+	db	usf_r_,usf_u_,usf_n_,usf_n_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_m_,spc@
+	db	usf_a_
+	db	gyo3@
+	db	usf_t_,usf_r_,usf_a_,usf_i_,usf_n_,usf_e_,usf_r_,spc@
+	db	usf_b_,usf_a_,usf_t_,usf_t_,usf_l_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg3_19_FIGHT
+msg3_19_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	u_,ma_,ku_,spc@,ni_,ge_,ki_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_g,usf_o_,usf_t_,spc@
+	db	usf_a_,usf_w_,usf_a_,usf_y_,spc@
+	db	usf_s_,usf_a_,usf_f_,usf_e_,usf_l_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dougu_dame_msg_20_FIGHT
+dougu_dame_msg_20_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,ko_,de_,ha_,spc@,do_,u_,gu_,wo_,home@
+	db	tu_,ka_,u_,ko_,to_,ha_,spc@,de_,ki_,ma_,se_,n_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,usf_e_,usf_m_,usf_s_,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_b_,usf_e_
+	db	home@
+	db	usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	tori_msg2_21_FIGHT
+tori_msg2_21_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,mo_,u_,de_,te_,i_,ma_,su_
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_
+	db	home@
+	db	usf_a_,usf_l_,usf_r_,usf_e_,usf_a_,usf_d_,usf_y_,spc@
+	db	usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	no_more_msg_22_FIGHT
+no_more_msg_22_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,za_,no_,spc@,no_,ko_,ri_,po__,i__,n__,to__,ga_
+	db	spc@,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,spc@
+	db	usf_p,usf_p,spc@
+	db	usf_l_,usf_e_,usf_f_,usf_t_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	home@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	kanashibari_msg_23_FIGHT
+kanashibari_msg_23_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,za_,wo_,spc@,hu_,u_,zi_,ra_,re_,te_,i_,ru_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_d_,usf_i_,usf_s_,usf_a_,usf_b_,usf_l_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	point_naiyo_msg_24_FIGHT
+point_naiyo_msg_24_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,spc@,da_,su_,ko_,to_,no_,spc@,de_,ki_,ru_,home@
+	db	wa_,za_,ga_,spc@,na_,i_,gyoe@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@,usf_h_,usf_a_,usf_s_,spc@
+	db	usf_n_,usf_o_
+	db	home@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_,spc@
+	db	usf_l_,usf_e_,usf_f_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	renzoku_hit_msg_25_FIGHT
+renzoku_hit_msg_25_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,i_,te_,ni_,spc@
+	db	EOM
+	db	N_MSG
+	dw	m_gaman
+	db	011h				; 1 = byte 1 = ketasuu
+	db	D_MSG
+	db	ka_,i_,spc@,a_,ta_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_h,usf_i_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_e_,usf_n_,usf_e_,usf_m_,usf_y_
+	db	home@
+	db	EOM
+	db	N_MSG
+	dw	m_gaman
+	db	011h
+	db	D_MSG
+	db	spc@,usf_t_,usf_i_,usf_m_,usf_e_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	ghost_msg1_26_FIGHT
+ghost_msg1_26_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,spc@,ko_,wa_,ga_,ttu_,te_,i_,ru_,gyoe@,home@
+	db	wa_,za_,wo_,spc@,da_,su_,ko_,to_,ga_,spc@,de_,ki_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_,spc@
+	db	usf_t_,usf_o_,usf_o_
+	db	home@
+	db	usf_s_,usf_c_,usf_a_,usf_r_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	ghost_msg2_27_FIGHT
+ghost_msg2_27_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	yu_,u_,re_,i_,kako2@,ta__,ti__,sa__,re__,tenten2@
+	db	ta__,ti__,sa__,re__,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_g,usf_h,usf_o,usf_s,usf_t,colon2@,spc@
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_o_,usf_u_,usf_t_,kten@,kten@,kten@
+	db	home@
+	db	usf_g,usf_e_,usf_t_,spc@
+	db	usf_o_,usf_u_,usf_t_,kten@,kten@,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	sleep_msg1_28_FIGHT
+sleep_msg1_28_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,home@
+	db	gu_,u_,gu_,u_,spc@,ne_,mu_,ttu_,te_,i_,ru_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_f_,usf_a_,usf_s_,usf_t_,spc@
+	db	usf_a_,usf_s_,usf_l_,usf_e_,usf_e_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	sleep_msg2_29_FIGHT
+sleep_msg2_29_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,spc@,me_,wo_,sa_,ma_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_w_,usf_o_,usf_k_,usf_e_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	ice_msg1_30_FIGHT
+ice_msg1_30_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,home@
+	db	ko_,o_,ttu_,te_,spc@,si_,ma_,ttu_,te_,spc@
+	db	u_,go_,ka_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_f_,usf_r_,usf_o_,usf_z_,usf_e_,usf_n_,spc@
+	db	usf_s_,usf_o_,usf_l_,usf_i_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	mahi_msg1_31_FIGHT
+mahi_msg1_31_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,home@
+	db	ka_,ra_,da_,ga_,spc@,si_,bi_,re_,te_,spc@
+	db	u_,go_,ke_,na_,i_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_f_,usf_u_,usf_l_,usf_l_,usf_y_,spc@
+	db	usf_p_,usf_a_,usf_r_,usf_a_,usf_l_,usf_y_,usf_z_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	kizetsu_msg_32_FIGHT
+kizetsu_msg_32_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,spc@,hi_,ru_,n_,da_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_f_,usf_l_,usf_i_,usf_n_,usf_c_,usf_h_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	katamatteiru_msg_33_FIGHT
+katamatteiru_msg_33_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,u_,ge_,ki_,no_,spc@,ha_,n_,do_,u_,de_,home@
+	db	monsname2@
+	db	ha_,spc@,u_,go_,ke_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_m_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_r_,usf_e_,usf_c_,usf_h_,usf_a_,usf_r_,usf_g_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	shibari_off_msg_34_FIGHT
+shibari_off_msg_34_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	no_,home@
+	db	ka_,na_,si_,ba_,ri_,ga_,spc@,to_,ke_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_d_,usf_i_,usf_s_,usf_a_,usf_b_,usf_l_,usf_e_,usf_d_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	konran_msg1_35_FIGHT
+konran_msg1_35_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,home@
+	db	ko_,n_,ra_,n_,si_,te_,i_,ru_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_c_,usf_o_,usf_n_,usf_f_,usf_u_,usf_s_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	konran_msg2_36_FIGHT
+konran_msg2_36_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ke_,mo_,spc@,wa_,ka_,ra_,zu_,home@
+	db	zi_,bu_,n_,wo_,spc@,ko_,u_,ge_,ki_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,spc@
+	db	usf_h_,usf_u_,usf_r_,usf_t_,spc@
+	db	usf_i_,usf_t_,usf_s_,usf_e_,usf_l_,usf_f_,spc@
+	db	usf_i_,usf_n_
+	db	home@
+	db	usf_i_,usf_t_,usf_s_,spc@
+	db	usf_c_,usf_o_,usf_n_,usf_f_,usf_u_,usf_s_,usf_i_,usf_o_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	konran_msg3_37_FIGHT
+konran_msg3_37_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	no_,home@
+	db	ko_,n_,ra_,n_,ga_,spc@,to_,ke_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_c_,usf_o_,usf_n_,usf_f_,usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	gaman_msg1_38_FIGHT
+gaman_msg1_38_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,spc@,ga_,ma_,n_,si_,te_,i_,ru_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_s_,usf_a_,usf_v_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_e_,usf_n_,usf_e_,usf_r_,usf_g_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	gaman_msg2_39_FIGHT
+gaman_msg2_39_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	no_,home@
+	db	ga_,ma_,n_,ga_,spc@,to_,ka_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_u_,usf_n_,usf_l_,usf_e_,usf_a_,usf_s_,usf_h_,usf_e_,usf_d_,spc@
+	db	usf_e_,usf_n_,usf_e_,usf_r_,usf_g_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	abareteiru_msg_40_FIGHT
+abareteiru_msg_40_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,spc@,a_,ba_,re_,te_,i_,ru_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_t_,usf_h_,usf_r_,usf_a_,usf_s_,usf_h_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_b_,usf_o_,usf_u_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	shimetsuke_msg1_41_FIGHT
+shimetsuke_msg1_41_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	no_,spc@,ko_,u_,ge_,ki_,ha_,home@
+	db	ma_,da_,spc@,tu_,du_,i_,te_,i_,ru_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_a_,usf_t_,usf_t_,usf_a_,usf_c_,usf_k_,spc@
+	db	usf_c_,usf_o_,usf_n_,usf_t_,usf_i_,usf_n_,usf_u_,usf_e_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	shimetsuke_msg2_42_FIGHT
+shimetsuke_msg2_42_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,home@
+	db	mi_,u_,go_,ki_,ga_,spc@,to_,re_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dasenai_msg_43_FIGHT
+dasenai_msg_43_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	ha_,spc@,ka_,na_,si_,ba_,ri_,de_,home@,EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ga_,da_,se_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_
+	db	gyo3@
+	db	usf_d_,usf_i_,usf_s_,usf_a_,usf_b_,usf_l_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	message_44_FIGHT
+message_44_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	monsname2@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	no_45_FIGHT
+no_45_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	no_,spc@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	home@
+	db	usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	ha_46_FIGHT
+ha_46_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ha_,spc@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	home@
+	db	usf_u_,usf_s_,usf_e_,usf_d_,spc@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	meireimushi_msg_47_FIGHT
+meireimushi_msg_47_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	me_,i_,re_,i_,wo_,mu_,si_,si_,te_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_i_,usf_n_,usf_s_,usf_t_,usf_e_,usf_a_,usf_d_,comma@
+	db	gyo3@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	waza_msg_48_FIGHT
+waza_msg_48_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	str_buf			; waza name
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	EOM
+  endif
+
+bank22		group	022h
+	public	wo_tukatta_msg_49_FIGHT
+wo_tukatta_msg_49_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wo_,spc@,tu_,ka_,ttu_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sita_msg_50_FIGHT
+sita_msg_50_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wo_,spc@,si_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	wo_sita_msg_51_FIGHT
+wo_sita_msg_51_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	kougeki_msg_52_FIGHT
+kougeki_msg_52_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	spc@,ko_,u_,ge_,ki_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	direct_msg_53_FIGHT
+direct_msg_53_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	kawashi_msg_54_FIGHT
+kawashi_msg_54_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,ka_,si_,spc@
+	db	monsname2@
+	db	no_,home@
+	db	ko_,u_,ge_,ki_,ha_,spc@,ha_,zu_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_a_,usf_t_,usf_t_,usf_a_,usf_c_,usf_k_,spc@
+	db	usf_m_,usf_i_,usf_s_,usf_s_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	butukari_msg_55_FIGHT
+butukari_msg_55_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,ki_,o_,i_,spc@,a_,ma_,ttu_,te_,home@
+	db	monsname2@
+	db	ha_
+	db	gyo3@
+	db	zi_,me_,n_,ni_,spc@,bu_,tu_,ka_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	home@
+	db	usf_k_,usf_e_,usf_p_,usf_t_,spc@
+	db	usf_g_,usf_o_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_n_,usf_d_
+	db	gyo3@
+	db	usf_c_,usf_r_,usf_a_,usf_s_,usf_h_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	zenzen_msg_56_FIGHT
+zenzen_msg_56_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname1@
+	db	ni_,ha_,home@
+	db	ze_,n_,ze_,n_,ki_,i_,te_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname1@
+	db	apt_s_
+	db	home@
+	db	usf_u_,usf_n_,usf_a_,usf_f_,usf_f_,usf_e_,usf_c_,usf_t_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	koukanai_msg_57_FIGHT
+koukanai_msg_57_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname1@
+	db	ni_,ha_,home@
+	db	ko_,u_,ka_,ga_,spc@,na_,i_,spc@,mi_,ta_,i_,da_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,spc@
+	db	usf_d_,usf_o_,usf_e_,usf_s_,usf_n_,apt_t_,spc@
+	db	usf_a_,usf_f_,usf_f_,usf_e_,usf_c_,usf_t_
+	db	home@
+	db	monsname1@
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	critical_msg_58_FIGHT
+critical_msg_58_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ki_,yyu_,u_,si_,yyo_,ni_,spc@
+	db	a_,ta_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_c,usf_r_,usf_i_,usf_t_,usf_i_,usf_c_,usf_a_,usf_l_,spc@
+	db	usf_h_,usf_i_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	hissatsu_msg_59_FIGHT
+hissatsu_msg_59_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,ti_,ge_,ki_,spc@,hi_,ttu_,sa_,tu_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_n_,usf_e_,bou@,usf_h_,usf_i_,usf_t_,spc@
+	db	usf_k,usf_o,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	namake_msg1_60_FIGHT
+namake_msg1_60_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,spc@,na_,ma_,ke_,te_,i_,ru_
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_
+	db	home@
+	db	usf_l_,usf_o_,usf_a_,usf_f_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_a_,usf_r_,usf_o_,usf_u_,usf_n_,usf_d_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	namake_msg2_61_FIGHT
+namake_msg2_61_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,spc@,hi_,ru_,ne_,wo_,ha_,zi_,me_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@,usf_b_,usf_e_,usf_g_,usf_a_,usf_n_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_n_,usf_a_,usf_p_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	namake_msg3_62_FIGHT
+namake_msg3_62_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,spc@,i_,u_,ko_,to_,wo_,spc@,ki_,ka_,na_,i_
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@,usf_w_,usf_o_,usf_n_,apt_t_
+	db	home@
+	db	usf_o_,usf_b_,usf_e_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	namake_msg4_63_FIGHT
+namake_msg4_63_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,spc@,so_,ttu_,po_,wo_,spc@,mu_,i_,ta_
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@,usf_t_,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_
+	db	home@
+	db	usf_a_,usf_w_,usf_a_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	namake_msg5_64_FIGHT
+namake_msg5_64_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	ha_,spc@,si_,ra_,n_,pu_,ri_,wo_,si_,ta_
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	home@
+	db	usf_i_,usf_g_,usf_n_,usf_o_,usf_r_,usf_e_,usf_d_,spc@
+	db	usf_o_,usf_r_,usf_d_,usf_e_,usf_r_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	migawari_msg_65_FIGHT
+migawari_msg_65_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	059h
+	db	ni_,spc@,ka_,wa_,ttu_,te_,home@
+	db	bu_,n_,si_,n_,ga_,spc@,ko_,u_,ge_,ki_,wo_,spc@,u_,ke_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_s,usf_u,usf_b,usf_s,usf_t,usf_i,usf_t,usf_u,usf_t,usf_e
+	db	home@
+	db	usf_t_,usf_o_,usf_o_,usf_k_,spc@
+	db	usf_d_,usf_a_,usf_m_,usf_a_,usf_g_,usf_e_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	gyo3@
+	db	monsname1@
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	migawari_die_msg_66_FIGHT
+migawari_die_msg_66_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	059h
+	db	no_,spc@,bu_,n_,si_,n_,ha_,home@
+	db	ki_,e_,te_,si_,ma_,ttu_,ta_,tenten2@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname1@
+	db	apt_s_
+	db	home@
+	db	usf_s,usf_u,usf_b,usf_s,usf_t,usf_i,usf_t,usf_u,usf_t,usf_e,spc@
+	db	usf_b_,usf_r_,usf_o_,usf_k_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	ikari_msg_67_FIGHT
+ikari_msg_67_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	monsname2@,no_,spc@
+	db	i_,ka_,ri_,no_,home@
+	db	bo__,ru__,te__,bou@,zi__,ga_,spc@
+	db	a_,ga_,ttu_,te_,i_,ku_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	monsname2@
+	db	apt_s_
+	db	home@
+	db	usf_r,usf_a,usf_g,usf_e,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_b_,usf_u_,usf_i_,usf_l_,usf_d_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	oumu_ng_msg_68_FIGHT
+oumu_ng_msg_68_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si_,ka_,si_,spc@,o__,u__,mu__,ga_,e_,si_,ha_,cr@
+	db	si_,ttu_,pa_,i_,ni_,o_,wa_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_m,usf_i,usf_r,usf_r,usf_o,usf_r,spc@
+	db	usf_m,usf_o,usf_v,usf_e
+	db	cr@
+	db	usf_f_,usf_a_,usf_i_,usf_l_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	renzoku_hit_msg_69_FIGHT
+renzoku_hit_msg_69_FIGHT:
+  ifn	pm_jmsg
+	db	N_MSG
+	dw	ctrl_move_val + 50
+	db	011h				; 1 = byte 1 = ketasuu
+	db	D_MSG
+	db	ka_,i_,spc@,da__,me__,bou@,zi__,wo_,u_,ke_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_h,usf_i_,usf_t_,spc@
+	db	EOM
+	db	N_MSG
+	dw	ctrl_move_val + 50
+	db	011h
+	db	D_MSG
+	db	spc@,usf_t_,usf_i_,usf_m_,usf_e_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	exp_get_msg_70_FIGHT
+exp_get_msg_70_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ha_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_g_,usf_a_,usf_i_,usf_n_,usf_e_,usf_d_
+	db	home@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	exp_get_msg4_71_FIGHT
+exp_get_msg4_71_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	spc@,ga_,ku_,si_,yyu_,u_,so_,u_,ti_,de_,EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_e,usf_x,usf_p,kten@,usf_a,usf_l,usf_l,comma@
+	db	gyo3@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	exp_get_msg2_72_FIGHT
+exp_get_msg2_72_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	spc@,o_,o_,me_,ni_,EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_a_,spc@
+	db	usf_b_,usf_o_,usf_o_,usf_s_,usf_t_,usf_e_,usf_d_
+	db	gyo3@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	exp_get_msg3_73_FIGHT
+exp_get_msg3_73_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	home@,EOM
+	db	N_MSG
+	dw	str_buf
+	db	024h				; 2 = byte 4 = ketasuu
+	db	D_MSG
+	db	spc@
+	db	ke_,i_,ke_,n_,ti_,wo_,spc@,mo_,ra_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	N_MSG
+	dw	str_buf
+	db	024h
+	db	D_MSG
+	db	spc@,usf_e,usf_x,usf_p,kten@,spc@
+	db	usf_p,usf_o_,usf_i_,usf_n_,usf_t_,usf_s_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	level_up_msg_74_FIGHT
+level_up_msg_74_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ha_,home@,re__,be__,ru__
+	db	EOM
+	db	N_MSG
+	dw	mons_level
+	db	013h				; 1 = byte 3 = ketasuu
+	db	D_MSG
+	db	spc@,ni_,spc@,a_,ga_,ttu_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_g_,usf_r_,usf_e_,usf_w_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_l_,usf_e_,usf_v_,usf_e_,usf_l_,spc@
+	db	EOM
+	db	N_MSG
+	dw	mons_level
+	db	013h
+	db	D_MSG
+	db	gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	monster_msg_75_FIGHT
+monster_msg_75_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,gyoe@,spc@,ya_,se_,i_,no_,home@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ga_,spc@,to_,bi_,da_,si_,te_,ki_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_l_,usf_d_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	home@
+	db	usf_a_,usf_p_,usf_p_,usf_e_,usf_a_,usf_r_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	monster_msg2_76_FIGHT
+monster_msg2_76_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,ri_,a_,ge_,ta_,spc@,EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ga_,home@
+	db	to_,bi_,ka_,ka_,ttu_,te_,ki_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_h_,usf_o_,usf_o_,usf_k_,usf_e_,usf_d_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	gyo3@
+	db	usf_a_,usf_t_,usf_t_,usf_a_,usf_c_,usf_k_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	ghost_msg_77_FIGHT
+ghost_msg_77_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ga_,spc@,home@
+	db	a_,ra_,wa_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	home@
+	db	usf_a_,usf_p_,usf_p_,usf_e_,usf_a_,usf_r_,usf_e_,usf_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	human_msg_78_FIGHT
+human_msg_78_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	ga_,home@
+	db	si_,yyo_,u_,bu_,wo_,spc@,si_,ka_,ke_,te_,ki_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	dealer_name
+	db	D_MSG
+	db	spc@,usf_w_,usf_a_,usf_n_,usf_t_,usf_s_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	scoop_msg_79_FIGHT
+scoop_msg_79_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	si__,ru__,hu__,su__,ko__,bou@,pu__,ga_,spc@,yu_,u_,re_,i_,no_
+	db	home@
+	db	si_,yyo_,u_,ta_,i_,wo_,spc@,mi_,ya_,bu_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_i,usf_l,usf_p,usf_h,spc@
+	db	usf_s,usf_c,usf_o,usf_p,usf_e
+	db	home@
+	db	usf_u_,usf_n_,usf_v_,usf_e_,usf_i_,usf_l_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_g,usf_h,usf_o,usf_s,usf_t,apt_s_,spc@
+	db	usf_i_,usf_d_,usf_e_,usf_n_,usf_t_,usf_i_,usf_t_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	no_scoop_msg_80_FIGHT
+no_scoop_msg_80_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	da_,me_,da_,gyoe@,spc@,yu_,u_,re_,i_,spc@,poke@,no_
+	db	home@
+	db	si_,yyo_,u_,ta_,i_,ga_,spc@,wa_,ka_,ra_,na_,i_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_d,usf_a_,usf_r_,usf_n_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_g,usf_h,usf_o,usf_s,usf_t
+	db	home@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_i,usf_d,apt_d_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	yuke_msg_81_FIGHT
+yuke_msg_81_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	yu_,ke_,ttu_,gyoe@,spc@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_g,usf_o_,gyoe@,spc@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	ittekoi_msg_82_FIGHT
+ittekoi_msg_82_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,ttu_,te_,ko_,i_,gyoe@,spc@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_d,usf_o_,spc@
+	db	usf_i_,usf_t_,gyoe@,spc@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	ganbare_msg_83_FIGHT
+ganbare_msg_83_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ga_,n_,ba_,re_,gyoe@,spc@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_g,usf_e_,usf_t_,apt_m_,gyoe@,spc@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	chance_msg_84_FIGHT
+chance_msg_84_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,i_,te_,ga_,spc@,yo_,wa_,ttu_,te_,i_,ru_,gyoe@,home@
+	db	ti__,yya__,n__,su__,da_,gyoe@,spc@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_e_,usf_n_,usf_e_,usf_m_,usf_y_,apt_s_,spc@
+	db	usf_w_,usf_e_,usf_a_,usf_k_,gyoe@
+	db	home@
+	db	usf_g,usf_e_,usf_t_,apt_m_,gyoe@,spc@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	mons1_85_FIGHT
+mons1_85_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	kaisyuu_msg_86_FIGHT
+kaisyuu_msg_86_FIGHT:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@,EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	I_MSG
+	dw	mymons_data
+	db	D_MSG
+	db	spc@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	mouii_msg_87_FIGHT
+mouii_msg_87_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,u_,i_,i_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_e_,usf_n_,usf_o_,usf_u_,usf_g_,usf_h_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	iizo_msg_88_FIGHT
+iizo_msg_88_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,i_,zo_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_o,usf_k,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	yokuyatta_msg_89_FIGHT
+yokuyatta_msg_89_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	yo_,ku_,ya_,ttu_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_g_,usf_o_,usf_o_,usf_d_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	msg2_90_FIGHT
+msg2_90_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	home@,mo_,do_,re_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	home@
+	db	usf_c,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_b_,usf_a_,usf_c_,usf_k_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	kouka_batugun_91_FIGHT
+kouka_batugun_91_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,u_,ka_,ha_,spc@,ba_,tu_,gu_,n_,da_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_s_,usf_u_,usf_p_,usf_e_,usf_r_
+	db	home@
+	db	usf_e_,usf_f_,usf_f_,usf_e_,usf_c_,usf_t_,usf_i_,usf_v_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	kouka_imahitotu_92_FIGHT
+kouka_imahitotu_92_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,u_,ka_,ha_,spc@,i_,ma_,hi_,to_,tu_,no_,spc@,yo_,u_,da_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_i,usf_t_,apt_s_,spc@
+	db	usf_n_,usf_o_,usf_t_,spc@
+	db	usf_v_,usf_e_,usf_r_,usf_y_
+	db	home@
+	db	usf_e_,usf_f_,usf_f_,usf_e_,usf_c_,usf_t_,usf_i_,usf_v_,usf_e_,kten@,kten@,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	esa_msg_93_FIGHT
+esa_msg_93_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ya_,se_,i_,no_,EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ha_,home@
+	db	e__,sa__,wo_,spc@,ta_,be_,te_,ru_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_l_,usf_d_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_e_,usf_a_,usf_t_,usf_i_,usf_n_,usf_g_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	ishi_msg_94_FIGHT
+ishi_msg_94_FIGHT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ya_,se_,i_,no_,EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	ha_,home@
+	db	o_,ko_,ttu_,te_,ru_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_l_,usf_d_,spc@
+	db	EOM
+	db	I_MSG
+	dw	enemy_data
+	db	D_MSG
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_a_,usf_n_,usf_g_,usf_r_,usf_y_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	nekonikoban_msg_0_FIGHTER
+nekonikoban_msg_0_FIGHTER:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_,spc@,EOM
+	db	B_MSG
+	dw	ctrl_move_val + NEKONIKOBAN 
+	db	0c3h
+	db	D_MSG
+	db	yen@,home@
+	db	hi_,ro_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_p_,usf_i_,usf_c_,usf_k_,usf_e_,usf_d_,spc@
+	db	usf_u_,usf_p_
+	db	home@
+	db	dol@
+	db	EOM
+	db	B_MSG
+	dw	ctrl_move_val + NEKONIKOBAN
+	db	0c3h
+	db	D_MSG
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_clr_0_MAIN
+msg_clr_0_MAIN:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	su_,be_,te_,no_,spc@
+	db	se__,bou@,bu__,de__,bou@,ta__,e__,ri__,a__,wo_
+	db	home@
+	db	ku__,ri__,a__,spc@,si_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_l_,usf_e_,usf_a_,usf_r_,spc@
+	db	usf_a_,usf_l_,usf_l_,spc@
+	db	usf_s_,usf_a_,usf_v_,usf_e_,usf_d_
+	db	home@
+	db	usf_d_,usf_a_,usf_t_,usf_a_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	elevator_0_MAPSUB
+elevator_0_MAPSUB:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,n_,ka_,i_,he_,spc@,i_,ki_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_i_,usf_c_,usf_h_,spc@
+	db	usf_f_,usf_l_,usf_o_,usf_o_,usf_r_,spc@
+	db	usf_d_,usf_o_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,hate@,spc@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	normal_0_MONSLIST
+normal_0_MONSLIST:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,wo_,spc@
+	db	e_,ra_,n_,de_,spc@,ku_,da_,sa_,i_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_h_,usf_o_,usf_o_,usf_s_,usf_e_,spc@
+	db	usf_a_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	item_1_MONSLIST
+item_1_MONSLIST:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,no_,poke@,ni_
+	db	spc@,tu_,ka_,i_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_i_,usf_t_,usf_e_,usf_m_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_c_,usf_h_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	fight_2_MONSLIST
+fight_2_MONSLIST:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,no_,poke@,wo_
+	db	spc@,da_,si_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_b,usf_r_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_o_,usf_u_,usf_t_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_c_,usf_h_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	waza_3_MONSLIST
+waza_3_MONSLIST:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,no_,poke@,ni_
+	db	spc@,o_,si_,e_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_u,usf_s_,usf_e_,spc@
+	db	usf_t,usf_m,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_c_,usf_h_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	trance_4_MONSLIST
+trance_4_MONSLIST:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,ko_,ni_,spc@,i_,do_,u_
+	db	si_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_o_,usf_v_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_w_,usf_h_,usf_e_,usf_r_,usf_e_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	kizu_msg_5_MONSLIST
+kizu_msg_5_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	no_,spc@,ta_,i_,ri_,yyo_,ku_,ga_,home@
+	db	EOM
+	db	N_MSG
+	dw	yes_no_map + 20
+	db	023h
+	db	D_MSG
+	db	spc@,ka_,i_,hu_,ku_,si_,ta_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	home@
+	db	usf_r_,usf_e_,usf_c_,usf_o_,usf_v_,usf_e_,usf_r_,usf_e_,usf_d_,spc@
+	db	usf_b_,usf_y_,spc@
+	db	EOM
+	db	N_MSG
+	dw	yes_no_map + 20
+	db	023h
+	db	D_MSG
+	db	gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	doku_msg_6_MONSLIST
+doku_msg_6_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	no_,spc@,do_,ku_,ha_,home@
+	db	ki_,re_,i_,spc@,sa_,ttu_,pa_,ri_,spc@,na_,ku_,na_,ttu_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_w_,usf_a_,usf_s_
+	db	home@
+	db	usf_c_,usf_u_,usf_r_,usf_e_,usf_d_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_p_,usf_o_,usf_i_,usf_s_,usf_o_,usf_n_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	mahi_msg_7_MONSLIST
+mahi_msg_7_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	no_,spc@,ka_,ra_,da_,no_,home@
+	db	si_,bi_,re_,ga_,spc@,to_,re_,ta_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	apt_s_
+	db	home@
+	db	usf_r_,usf_i_,usf_d_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_p_,usf_a_,usf_r_,usf_a_,usf_l_,usf_y_,usf_s_,usf_i_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	yakedo_msg_8_MONSLIST
+yakedo_msg_8_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	no_,home@
+	db	ya_,ke_,do_,ga_,spc@,na_,o_,ttu_,ta_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	apt_s_
+	db	home@
+	db	usf_b_,usf_u_,usf_r_,usf_n_,spc@
+	db	usf_w_,usf_a_,usf_s_,spc@
+	db	usf_h_,usf_e_,usf_a_,usf_l_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	koori_msg_9_MONSLIST
+koori_msg_9_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	no_,spc@,ka_,ra_,da_,no_,home@
+	db	ko_,o_,ri_,ga_,spc@,to_,ke_,ta_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_w_,usf_a_,usf_s_
+	db	home@
+	db	usf_d_,usf_e_,usf_f_,usf_r_,usf_o_,usf_s_,usf_t_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	nemuri_msg_10_MONSLIST
+nemuri_msg_10_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ha_,home@
+	db	me_,wo_,spc@,sa_,ma_,si_,ta_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	home@
+	db	usf_w_,usf_o_,usf_k_,usf_e_,spc@
+	db	usf_u_,usf_p_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	nandemo_msg_11_MONSLIST
+nandemo_msg_11_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ha_,home@
+	db	ke_,n_,ko_,u_,ni_,na_,ttu_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	apt_s_
+	db	home@
+	db	usf_h_,usf_e_,usf_a_,usf_l_,usf_t_,usf_h_,spc@
+	db	usf_r_,usf_e_,usf_t_,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	fukkatsu_msg_12_MONSLIST
+fukkatsu_msg_12_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ha_,home@
+	db	ge_,n_,ki_,wo_,spc@,to_,ri_,mo_,do_,si_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	home@
+	db	usf_i_,usf_s_,spc@
+	db	usf_r_,usf_e_,usf_v_,usf_i_,usf_t_,usf_a_,usf_l_,usf_i_,usf_z_,usf_e_,usf_d_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	level_up_msg_13_MONSLIST
+level_up_msg_13_MONSLIST:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	no_,spc@,re__,be__,ru__,ga_
+	db	EOM
+	db	N_MSG
+	dw	mons_level
+	db	013h					
+	db	D_MSG
+	db	ni_,na_,ttu_,ta_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_g_,usf_r_,usf_e_,usf_w_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_l_,usf_e_,usf_v_,usf_e_,usf_l_,spc@
+	db	EOM
+	db	N_MSG
+	dw	mons_level
+	db	013h
+	db	D_MSG
+	db	gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	vunix_on_0_OBSERVE
+vunix_on_0_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_
+	db	home@
+	db	paso@,no_,spc@,su__,i__,ttu__,ti__,wo_,spc@
+	db	i_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_t_,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_,spc@
+	db	usf_o_,usf_n_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_p,usf_c,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	vunix_hello1_1_OBSERVE
+vunix_hello1_1_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma__,sa__,ki__,no_,spc@
+	db	paso@,to_,spc@,tu_,na_,i_,da_,gyoe@
+	db	normal@
+	db	poke@,no_,spc@
+	db	a_,zu_,ka_,ri_,spc@,si__,su__,te__,mu__,wo_,spc@
+	db	home@
+	db	yo_,bi_,da_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_b,usf_i,usf_l,usf_l,apt_s_
+	db	home@
+	db	usf_p,usf_c,kten@
+	db	normal@
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_s,usf_t_,usf_o_,usf_r_,usf_a_,usf_g_,usf_e_,spc@
+	db	usf_s,usf_y_,usf_s_,usf_t_,usf_e_,usf_m_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	vunix_hello2_2_OBSERVE
+vunix_hello2_2_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	da_,re_,ka_,no_,spc@
+	db	paso@,to_,spc@,tu_,na_,i_,da_,gyoe@
+	db	normal@
+	db	poke@,no_,spc@
+	db	a_,zu_,ka_,ri_,spc@,si__,su__,te__,mu__,wo_,spc@
+	db	home@
+	db	yo_,bi_,da_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,usf_o_,usf_n_,usf_e_,apt_s_
+	db	home@
+	db	usf_p,usf_c,kten@
+	db	normal@
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_s,usf_t_,usf_o_,usf_r_,usf_a_,usf_g_,usf_e_,spc@
+	db	usf_s,usf_y_,usf_s_,usf_t_,usf_e_,usf_m_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	vunix_hello3_3_OBSERVE
+vunix_hello3_3_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	zi_,bu_,n_,no_,spc@,paso@,to_,spc@
+	db	tu_,na_,i_,da_,gyoe@
+	db	normal@
+	db	do_,u_,gu_,no_,spc@
+	db	a_,zu_,ka_,ri_,spc@,si__,su__,te__,mu__,wo_,spc@
+	db	home@
+	db	yo_,bi_,da_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_p,usf_c,kten@
+	db	normal@
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_i,usf_t_,usf_e_,usf_m_
+	db	home@
+	db	usf_s,usf_t_,usf_o_,usf_r_,usf_a_,usf_g_,usf_e_,spc@
+	db	usf_s,usf_y_,usf_s_,usf_t_,usf_e_,usf_m_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_is0_4_OBSERVE
+msg_is0_4_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_
+	db	home@
+	db	paso@,no_,spc@,su__,i__,ttu__,ti__,wo_,spc@,i_,re_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_t_,usf_u_,usf_r_,usf_n_,usf_e_,usf_d_,spc@
+	db	usf_o_,usf_n_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_p,usf_c,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_is1_5_OBSERVE
+msg_is1_5_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ni_,wo_,spc@,si_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_d_,usf_o_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_is2_0_6_OBSERVE
+msg_is2_0_6_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ni_,wo_,spc@,a_,zu_,ke_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_d_,usf_e_,usf_p_,usf_o_,usf_s_,usf_i_,usf_t_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_is2_1_7_OBSERVE
+msg_is2_1_7_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,ku_,tu_,spc@,a_,zu_,ke_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_o_,usf_w_,spc@
+	db	usf_m_,usf_a_,usf_n_,usf_y_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_is2_2_8_OBSERVE
+msg_is2_2_8_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	paso@,tu_,u_,si_,n_,de_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	wo_,spc@,a_,zu_,ke_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_w_,usf_a_,usf_s_
+	db	home@
+	db	usf_s_,usf_t_,usf_o_,usf_r_,usf_e_,usf_d_,spc@
+	db	usf_v_,usf_i_,usf_a_,spc@
+	db	usf_p,usf_c,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_is2_3_9_OBSERVE
+msg_is2_3_9_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,zu_,ke_,ra_,re_,ru_,spc@,do_,u_,gu_,wo_
+	db	home@
+	db	mo_,ttu_,te_,i_,ma_,se_,n_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_n_,usf_o_,usf_t_,usf_h_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_d_,usf_e_,usf_p_,usf_o_,usf_s_,usf_i_,usf_t_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_is2_4_10_OBSERVE
+msg_is2_4_10_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,u_,gu_,ga_,spc@,i_,ttu_,pa_,i_,de_,su_
+	db	home@
+	db	mo_,u_,spc@,a_,zu_,ke_,ra_,re_,ma_,se_,n_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,spc@
+	db	usf_r_,usf_o_,usf_o_,usf_m_,spc@
+	db	usf_l_,usf_e_,usf_f_,usf_t_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_s_,usf_t_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_i_,usf_t_,usf_e_,usf_m_,usf_s_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_is3_0_11_OBSERVE
+msg_is3_0_11_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ni_,wo_,spc@,hi_,ki_,da_,si_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,usf_d_,usf_r_,usf_a_,usf_w_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_is3_1_12_OBSERVE
+msg_is3_1_12_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,ku_,tu_,spc@,hi_,ki_,da_,si_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_o_,usf_w_,spc@
+	db	usf_m_,usf_a_,usf_n_,usf_y_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_is3_2_13_OBSERVE
+msg_is3_2_13_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	paso@,tu_,u_,si_,n_,de_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	wo_,spc@,hi_,ki_,da_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_i_,usf_t_,usf_h_,usf_d_,usf_r_,usf_e_,usf_w_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_is3_3_14_OBSERVE
+msg_is3_3_14_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ni_,mo_,spc@,a_,zu_,ke_,te_,i_,ma_,se_,n_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_n_,usf_o_,usf_t_,usf_h_,usf_i_,usf_n_,usf_g_
+	db	home@
+	db	usf_s_,usf_t_,usf_o_,usf_r_,usf_e_,usf_d_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_is3_4_15_OBSERVE
+msg_is3_4_15_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,u_,gu_,ga_,spc@,i_,ttu_,pa_,i_,de_,su_
+	db	home@
+	db	mo_,u_,spc@,mo_,te_,ma_,se_,n_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_c_,usf_a_,usf_r_,usf_r_,usf_y_
+	db	home@
+	db	usf_a_,usf_n_,usf_y_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_i_,usf_t_,usf_e_,usf_m_,usf_s_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_is4_0_16_OBSERVE
+msg_is4_0_16_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ni_,wo_,spc@,su_,te_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_
+	db	home@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_o_,usf_s_,usf_s_,spc@
+	db	usf_a_,usf_w_,usf_a_,usf_y_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_is4_1_17_OBSERVE
+msg_is4_1_17_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i_,ku_,tu_,spc@,su_,te_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_o_,usf_w_,spc@
+	db	usf_m_,usf_a_,usf_n_,usf_y_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	vunix_hello5_18_OBSERVE
+vunix_hello5_18_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,ri__,bou@,gu__,spc@,ho__,su__,to__,to_,spc@
+	db	tu_,na_,i_,da_,gyoe@
+	db	normal@
+	db	de_,n_,do_,u_,spc@,i_,ri_,spc@,ri__,su__,to__
+	db	home@
+	db	ka_,n_,ri_,spc@,si__,su__,te__,mu__,wo_,spc@
+	db	yo_,bi_,da_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_l,usf_e,usf_a,usf_g,usf_u,usf_e,apt_s_,spc@
+	db	usf_s_,usf_i_,usf_t_,usf_e_,kten@
+	db	normal@
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_h,usf_a,usf_l,usf_l
+	db	home@
+	db	usf_o,usf_f,spc@
+	db	usf_f,usf_a,usf_m,usf_e,spc@
+	db	usf_l,usf_i_,usf_s_,usf_t_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_ms0_19_OBSERVE
+msg_ms0_19_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	su__,i__,ttu__,ti__,spc@,o__,n__,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_s,usf_w_,usf_i_,usf_t_,usf_c_,usf_h_,spc@
+	db	usf_o_,usf_n_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_ms1_20_OBSERVE
+msg_ms1_20_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,n_,ni_,spc@,su_,ru_,n_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_ms2_0_21_OBSERVE
+msg_ms2_0_21_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,no_,spc@,poke@,wo_
+	db	home@
+	db	a_,zu_,ke_,ta_,i_,n_,ya_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_d,usf_e_,usf_p_,usf_o_,usf_s_,usf_i_,usf_t_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_c_,usf_h_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_ms2_1_22_OBSERVE
+msg_ms2_1_22_OBSERVE:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	wo_,spc@,bo__,ttu__,ku__,su__
+	db	EOM
+	db	I_MSG
+	dw	usr_buf
+	db	D_MSG
+	db	ni_
+	db	home@
+	db	a_,zu_,ke_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	spc@,usf_w_,usf_a_,usf_s_
+	db	home@
+	db	usf_s_,usf_t_,usf_o_,usf_r_,usf_e_,usf_d_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_b,usf_o_,usf_x_,spc@
+	db	EOM
+	db	I_MSG
+	dw	usr_buf
+	db	D_MSG
+	db	kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_ms2_3_23_OBSERVE
+msg_ms2_3_23_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,re_,spc@,a_,zu_,ke_,ta_,ra_
+	db	home@
+	db	ko_,ma_,ru_,n_,spc@,ti_,yya_,u_,hate@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_d_,usf_e_,usf_p_,usf_o_,usf_s_,usf_i_,usf_t_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_l_,usf_a_,usf_s_,usf_t_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_ms2_4_24_OBSERVE
+msg_ms2_4_24_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ti_,yya_,gyoe@,spc@,u__,ti__,ha_
+	db	home@
+	db	poke@,de_,spc@,i_,ttu_,pa_,i_,ya_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_o,usf_o_,usf_p_,usf_s_,gyoe@,spc@
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_b,usf_o_,usf_x_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_f_,usf_u_,usf_l_,usf_l_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_ms3_1_25_OBSERVE
+msg_ms3_1_25_OBSERVE:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	wo_
+	db	home@
+	db	ma_,ta_,spc@,tu_,re_,te_,i_,ku_,spc@,ko_,to_,ni_,si_,ta_,gyoe@
+	db	gyo3@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	wo_,spc@,u_,ke_,to_,ttu_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_
+	db	home@
+	db	usf_t_,usf_a_,usf_k_,usf_e_,usf_n_,spc@
+	db	usf_o_,usf_u_,usf_t_,kten@
+	db	gyo3@
+	db	usf_g,usf_o_,usf_t_,spc@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_ms3_3_26_OBSERVE
+msg_ms3_3_26_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ni_,hate@
+	db	home@
+	db	u__,ti__,ha_,spc@,na_,n_,mo_,spc@
+	db	a_,zu_,ka_,ttu_,to_,ra_,n_,de_,hate@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_a_,usf_t_,hate@,spc@
+	db	usf_t,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	home@
+	db	usf_n_,usf_o_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_ms3_4_27_OBSERVE
+msg_ms3_4_27_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,n_,na_,n_,spc@,i_,u_,te_,mo_
+	db	home@
+	db	poke@,spc@,mo_,ti_,ki_,re_,he_,n_,ya_,n_,ke_,gyoe@
+	db	normal@
+	db	to_,ri_,a_,e_,zu_,spc@,a_,zu_,ke_,ru_,ka_,spc@,ni_,ga_,su_,ka_
+	db	home@
+	db	si_,ta_,ra_,spc@,e_,e_,n_,ti_,yya_,u_,hate@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_t_,usf_a_,usf_k_,usf_e_
+	db	home@
+	db	usf_a_,usf_n_,usf_y_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	normal@
+	db	usf_d,usf_e_,usf_p_,usf_o_,usf_s_,usf_i_,usf_t_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_f_,usf_i_,usf_r_,usf_s_,usf_t_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_ms4_0_28_OBSERVE
+msg_ms4_0_28_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,no_,spc@,poke@,wo_
+	db	home@
+	db	ni_,ga_,su_,n_,ya_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_e_,usf_l_,usf_e_,usf_a_,usf_s_,usf_e_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_c_,usf_h_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_ms4_1_29_OBSERVE
+msg_ms4_1_29_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ni_,ga_,su_,to_,spc@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	ha_
+	db	home@
+	db	mo_,u_,spc@,mo_,do_,ttu_,te_,ko_,n_,de_,spc@,e_,e_,n_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_n_,usf_c_,usf_e_,spc@
+	db	usf_r_,usf_e_,usf_l_,usf_e_,usf_a_,usf_s_,usf_e_,usf_d_,comma@
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	spc@,usf_i_,usf_s_
+	db	gyo3@
+	db	usf_g_,usf_o_,usf_n_,usf_e_,spc@
+	db	usf_f_,usf_o_,usf_r_,usf_e_,usf_v_,usf_e_,usf_r_,kten@,spc@
+	db	usf_o,usf_k,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_ms4_2_30_OBSERVE
+msg_ms4_2_30_OBSERVE:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	wo_
+	db	home@
+	db	so_,to_,ni_,spc@,ni_,ga_,si_,te_,spc@,a_,ge_,ta_,gyoe@
+	db	gyo3@
+	db	ba_,i_,ba_,i_,spc@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	gyoe@
+	db	EOMwaiteom
+  else
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	spc@,usf_w_,usf_a_,usf_s_
+	db	home@
+	db	usf_r_,usf_e_,usf_l_,usf_e_,usf_a_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_o_,usf_u_,usf_t_,usf_s_,usf_i_,usf_d_,usf_e_,kten@
+	db	gyo3@
+	db	usf_b,usf_y_,usf_e_,spc@
+	db	EOM
+	db	I_MSG
+	dw	str_buf
+	db	D_MSG
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	NoCoinBox_31_OBSERVE
+NoCoinBox_31_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,i__,n__,ke__,bou@,su__,wo_,spc@
+	db	mo_,ttu_,te_,i_,na_,i_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_c,usf_o,usf_i,usf_n,spc@
+	db	usf_c,usf_a,usf_s,usf_e,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_r_,usf_e_,usf_q_,usf_u_,usf_i_,usf_r_,usf_e_,usf_d_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	start_32_OBSERVE
+start_32_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,i__,n__,wo_
+	db	home@
+	db	ke_,i_,hi_,n_,to_,spc@,ko_,u_,ka_,n_,su_,ru_,yo_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_e_,spc@
+	db	usf_e_,usf_x_,usf_c_,usf_h_,usf_a_,usf_n_,usf_g_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_
+	db	home@
+	db	usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_p_,usf_r_,usf_i_,usf_z_,usf_e_,usf_s_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	what_33_OBSERVE
+what_33_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,ni_,to_,spc@,ko_,u_,ka_,n_,su_,ru_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_i_,usf_c_,usf_h_,spc@
+	db	usf_p_,usf_r_,usf_i_,usf_z_,usf_e_,spc@
+	db	usf_d_,usf_o_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	thankyou_34_OBSERVE
+thankyou_34_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ha_,i_,spc@,do_,u_,zo_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_g_,usf_o_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	its_ok_35_OBSERVE
+its_ok_35_OBSERVE:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	de_
+	db	home@
+	db	i_,i_,n_,da_,ne_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_s,usf_o_,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	coinless_36_OBSERVE
+coinless_36_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ki_,yya_,ku_,sa_,n_,spc@,ko__,i__,n__,spc@,ta_,ri_,na_,i_,yo_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_s,usf_o_,usf_r_,usf_r_,usf_y_,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_
+	db	home@
+	db	usf_m_,usf_o_,usf_r_,usf_e_,spc@
+	db	usf_c_,usf_o_,usf_i_,usf_n_,usf_s_,kten@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	handsfull_37_OBSERVE
+handsfull_37_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ki_,yya_,ku_,sa_,n_,spc@,mo_,u_,spc@,mo_,te_,na_,i_,yo_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_o,usf_o_,usf_p_,usf_s_,gyoe@,spc@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_
+	db	home@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_e_,usf_n_,usf_o_,usf_u_,usf_g_,usf_h_,spc@
+	db	usf_r_,usf_o_,usf_o_,usf_m_,kten@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	no_38_OBSERVE
+no_38_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,ttu_,spc@,so_,u_
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_o,usf_h_,comma@,spc@
+	db	usf_f_,usf_i_,usf_n_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_n_,kten@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	assess0_39_OBSERVE
+assess0_39_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ge_,n_,za_,i_,no_,spc@,poke@,zu_,ka_,n_,wo_
+	db	home@
+	db	hi_,yyo_,u_,ka_,spc@,si_,te_,spc@
+	db	mo_,ra_,i_,spc@,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_
+	db	home@
+	db	poke@
+	db	usf_d,usf_e,usf_x,spc@
+	db	usf_r_,usf_a_,usf_t_,usf_e_,usf_d_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	assess_end_40_OBSERVE
+assess_end_40_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,spc@,o__,bou@,ki__,do__,no_,spc@
+	db	paso@,to_,no_
+	db	home@
+	db	se_,tu_,zo_,ku_,wo_,spc@,o_,wa_,ttu_,ta_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_c,usf_l_,usf_o_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_l_,usf_i_,usf_n_,usf_k_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_p,usf_r,usf_o,usf_f,kten@,usf_o,usf_a,usf_k,apt_s_,spc@
+	db	usf_p,usf_c,kten@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	vunix_hello4_41_OBSERVE
+vunix_hello4_41_OBSERVE:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o__,bou@,ki__,do__,no_,spc@
+	db	paso@,to_,spc@,tu_,na_,i_,da_,gyoe@
+	db	normal@
+	db	poke@,spc@,zu_,ka_,n_
+	db	home@
+	db	hi_,yyo_,u_,ka_,spc@,si__,su__,te__,mu__,wo_,spc@
+	db	yo_,bi_,da_,si_,ta_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	usf_p,usf_r,usf_o,usf_f,kten@
+	db	home@
+	db	usf_o,usf_a,usf_k,apt_s_,spc@
+	db	usf_p,usf_c,kten@
+	db	normal@
+	db	usf_a,usf_c_,usf_c_,usf_e_,usf_s_,usf_s_,usf_e_,usf_d_,spc@
+	db	poke@
+	db	usf_d,usf_e,usf_x
+	db	home@
+	db	usf_r,usf_a_,usf_t_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_s,usf_y_,usf_s_,usf_t_,usf_e_,usf_m_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	dochira_msg_0_PLAY1
+dochira_msg_0_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,ti_,ra_,no_,spc@,he_,ya_,ni_,home@
+	db	i_,ki_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_w_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	home@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_g_,usf_o_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	goannai_msg_1_PLAY1
+goannai_msg_1_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,re_,de_,ha_,spc@,ko_,re_,yo_,ri_,home@
+	db	go_,a_,n_,na_,i_,spc@,i_,ta_,si_,ma_,su_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_k,comma@,spc@
+	db	usf_p_,usf_l_,usf_e_,usf_a_,usf_s_,usf_e_,spc@
+	db	usf_w_,usf_a_,usf_i_,usf_t_
+	db	home@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_a_,spc@
+	db	usf_m_,usf_o_,usf_m_,usf_e_,usf_n_,usf_t_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	chancel_msg_2_PLAY1
+chancel_msg_2_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tu_,u_,si_,n_,ha_,spc@,ki__,yya__,n__,se__,ru__,spc@
+	db	sa_,re_,ma_,si_,ta_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_l_,usf_i_,usf_n_,usf_k_,spc@
+	db	usf_w_,usf_a_,usf_s_
+	db	home@
+	db	usf_c_,usf_a_,usf_n_,usf_c_,usf_e_,usf_l_,usf_e_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_welcome_3_PLAY1
+msg_welcome_3_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ha_,zi_,me_,ma_,si_,te_,gyoe@
+	db	home@
+	db	po__,ke__,ttu__,to__,spc@,mo__,n__,su__,ta__,bou@,no_,spc@
+	db	se_,ka_,i_,he_,gyo3@
+	db	yo_,u_,ko_,so_,gyoe@
+	db	normal@
+	db	wa_,ta_,si_,no_,spc@,na_,ma_,e_,ha_,spc@,o__,bou@,ki__,do__
+	db	home@
+	db	mi_,n_,na_,ka_,ra_,ha_,spc@,poke@,spc@
+	db	ha_,ka_,se_,to_,gyo3@
+	db	si_,ta_,wa_,re_,te_,spc@,o_,ru_,yo_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_l_,usf_l_,usf_o_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	home@
+	db	usf_w,usf_e_,usf_l_,usf_c_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_w_,usf_o_,usf_r_,usf_l_,usf_d_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	normal@
+	db	usf_m,usf_y_,spc@
+	db	usf_n_,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_o,usf_a,usf_k,gyoe@
+	db	home@
+	db	usf_p,usf_e_,usf_o_,usf_p_,usf_l_,usf_e_,spc@
+	db	usf_c_,usf_a_,usf_l_,usf_l_,spc@
+	db	usf_m_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_p,usf_r,usf_o,usf_f,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_okido_4_PLAY1
+msg_okido_4_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,no_,spc@,se_,ka_,i_,ni_,ha_
+	db	home@
+	db	po__,ke__,ttu__,to__,spc@,mo__,n__,su__,ta__,bou@,to_,spc@
+	db	yo_,ba_,re_,ru_
+	db	normal@
+	db	i_,ki_,mo_,no_,spc@,ta_,ti_,ga_
+	db	home@
+	db	i_,ta_,ru_,to_,ko_,ro_,ni_,spc@,su_,n_,de_,i_,ru_,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_w_,usf_o_,usf_r_,usf_l_,usf_d_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_i_,usf_n_,usf_h_,usf_a_,usf_b_,usf_i_,usf_t_,usf_e_,usf_d_,spc@
+	db	usf_b_,usf_y_
+	db	gyo3@
+	db	usf_c_,usf_r_,usf_e_,usf_a_,usf_t_,usf_u_,usf_r_,usf_e_,usf_s_,spc@
+	db	usf_c_,usf_a_,usf_l_,usf_l_,usf_e_,usf_d_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	msg_okido_5_PLAY1
+msg_okido_5_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	normal@
+	db	so_,no_,spc@,poke@,spc@,to_,i_,u_,spc@
+	db	i_,ki_,mo_,no_,wo_
+	db	home@
+	db	hi_,to_,ha_,spc@,pe__,ttu__,to__,ni_,spc@,si_,ta_,ri_
+	db	gyo3@
+	db	si_,yyo_,u_,bu_,ni_,spc@,tu_,ka_,ttu_,ta_,ri_
+	db	nakag@,nakag@,nakag@
+	db	normal@
+	db	so_,si_,te_
+	db	nakag@,nakag@,nakag@
+	db	normal@
+	db	wa_,ta_,si_,ha_,spc@,ko_,no_,spc@,poke@,no_
+	db	home@
+	db	ke_,n_,ki_,yyu_,u_,wo_,spc@
+	db	si_,te_,ru_,spc@,to_,i_,u_,wa_,ke_,da_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	normal@
+	db	usf_f,usf_o_,usf_r_,spc@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_p_,usf_e_,usf_o_,usf_p_,usf_l_,usf_e_,comma@
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_a_,usf_r_,usf_e_
+	db	gyo3@
+	db	usf_p_,usf_e_,usf_t_,usf_s_,kten@,spc@
+	db	usf_o,usf_t_,usf_h_,usf_e_,usf_r_,usf_s_,spc@
+	db	usf_u_,usf_s_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,usf_m_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,usf_s_,kten@
+	db	normal@
+	db	usf_m,usf_y_,usf_s_,usf_e_,usf_l_,usf_f_,kten@,kten@,kten@
+	db	normal@
+	db	usf_i,spc@
+	db	usf_s_,usf_t_,usf_u_,usf_d_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_a_,usf_s_,spc@
+	db	usf_a_,spc@
+	db	usf_p_,usf_r_,usf_o_,usf_f_,usf_e_,usf_s_,usf_s_,usf_i_,usf_o_,usf_n_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_okido1_6_PLAY1
+msg_okido1_6_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	de_,ha_,spc@,ha_,zi_,me_,ni_,spc@
+	db	ki_,mi_,no_,spc@,na_,ma_,e_,wo_
+	db	home@
+	db	o_,si_,e_,te_,spc@,mo_,ra_,o_,u_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_f,usf_i_,usf_r_,usf_s_,usf_t_,comma@,spc@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_n_,usf_a_,usf_m_,usf_e_,hate@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_okido2_7_PLAY1
+msg_okido2_7_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko_,i_,tu_,ha_,spc@,wa_,ta_,si_,no_,spc@,ma_,go_
+	db	home@
+	db	ki_,mi_,no_,spc@,o_,sa_,na_,na_,zi_,mi_,de_,a_,ri_,gyo3@
+	db	ra__,i__,ba__,ru__,spc@,de_,a_,ru_
+	db	normal@
+	db	nakag@,nakag@,nakag@,e_,bou@,to_,hate@
+	db	home@
+	db	na_,ma_,e_,ha_,spc@,na_,n_,te_,spc@,i_,ttu_,ta_,ka_,na_,hate@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_g_,usf_r_,usf_a_,usf_n_,usf_d_,bou@
+	db	home@
+	db	usf_s_,usf_o_,usf_n_,kten@,spc@
+	db	usf_h,usf_e_,apt_s_,spc@
+	db	usf_b_,usf_e_,usf_e_,usf_n_
+	db	gyo3@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_r_,usf_i_,usf_v_,usf_a_,usf_l_,spc@
+	db	usf_s_,usf_i_,usf_n_,usf_c_,usf_e_
+	db	gyo3@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_a_,spc@
+	db	usf_b_,usf_a_,usf_b_,usf_y_,kten@
+	db	normal@
+	db	kten@,kten@,kten@,usf_e,usf_r_,usf_m_,comma@,spc@
+	db	usf_w_,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_h_,usf_i_,usf_s_,spc@
+	db	usf_n_,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_a_,usf_g_,usf_a_,usf_i_,usf_n_,hate@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_go_to_8_PLAY1
+msg_go_to_8_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	gyoe@
+	db	normal@
+	db	i_,yo_,i_,yo_,spc@,ko_,re_,ka_,ra_,spc@
+	db	home@
+	db	ki_,mi_,no_,spc@,mo_,no_,ga_,ta_,ri_,no_,spc@
+	db	ha_,zi_,ma_,ri_,da_,gyoe@
+	db	normal@
+	db	yu_,me_,to_,spc@,bo_,u_,ke_,n_,to_,gyoe@
+	db	home@
+	db	po__,ke__,ttu__,to__,spc@,mo__,n__,su__,ta__,bou@,no_,spc@
+	db	se_,ka_,i_,he_,gyoe@,gyo3@
+	db	re__,ttu__,tu__,spc@,go__,bou@,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	myname@
+	db	gyoe@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,usf_r_,spc@
+	db	usf_v_,usf_e_,usf_r_,usf_y_,spc@
+	db	usf_o_,usf_w_,usf_n_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l_,usf_e_,usf_g_,usf_e_,usf_n_,usf_d_,spc@
+	db	usf_i_,usf_s_
+	db	gyo3@
+	db	usf_a_,usf_b_,usf_o_,usf_u_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_u_,usf_n_,usf_f_,usf_o_,usf_l_,usf_d_,gyoe@
+	db	normal@
+	db	usf_a,spc@
+	db	usf_w_,usf_o_,usf_r_,usf_l_,usf_d_,spc@
+	db	usf_o_,usf_f_,spc@
+	db	usf_d_,usf_r_,usf_e_,usf_a_,usf_m_,usf_s_
+	db	home@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_a_,usf_d_,usf_v_,usf_e_,usf_n_,usf_t_,usf_u_,usf_r_,usf_e_,usf_s_
+	db	gyo3@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	gyo3@
+	db	usf_a_,usf_w_,usf_a_,usf_i_,usf_t_,usf_s_,gyoe@,spc@
+	db	usf_l,usf_e_,usf_t_,apt_s_,spc@
+	db	usf_g_,usf_o_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	tukemasuka_msg_9_PLAY1
+tukemasuka_msg_9_PLAY1:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ni_,home@
+	db	ni__,ttu__,ku__,ne__,bou@,mu__,wo_,spc@,tu_,ke_,ma_,su_,ka_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_d,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_g_,usf_i_,usf_v_,usf_e_,spc@
+	db	usf_a_,spc@
+	db	usf_n_,usf_i_,usf_c_,usf_k_,usf_n_,usf_a_,usf_m_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_o_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg_hero_name_10_PLAY1
+msg_hero_name_10_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hu_,mu_,nakag@,nakag@,nakag@
+	db	home@
+	db	myname@
+	db	spc@,to_,spc@,i_,u_,n_,da_,na_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_r,usf_i_,usf_g_,usf_h_,usf_t_,gyoe@,spc@
+	db	usf_s,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,usf_r_
+	db	home@
+	db	usf_n_,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	myname@
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg_rival_name_11_PLAY1
+msg_rival_name_11_PLAY1:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,u_,da_,spc@,so_,u_,da_,gyoe@,spc@
+	db	o_,mo_,i_,da_,si_,ta_,zo_
+	db	home@
+	db	rival@
+	db	spc@,to_,i_,u_,spc@,na_,ma_,e_,da_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_t_,apt_s_,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,gyoe@,spc@
+	db	usf_i
+	db	home@
+	db	usf_r_,usf_e_,usf_m_,usf_e_,usf_m_,usf_b_,usf_e_,usf_r_,spc@
+	db	usf_n_,usf_o_,usf_w_,gyoe@,spc@
+	db	usf_h,usf_i_,usf_s_
+	db	gyo3@
+	db	usf_n_,usf_a_,usf_m_,usf_e_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	rival@
+	db	gyoe@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg1_0_PLAY2
+msg1_0_PLAY2:
+  ifn	pm_jmsg
+	db	I_MSG
+	dw	usr_buf + 2
+	db	D_MSG
+	db	spc@,to_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,wo_,home@
+	db	ko_,u_,ka_,n_,si_,ma_,su_
+	db	EOMeom
+  else
+	db	I_MSG
+	dw	usr_buf + 2
+	db	D_MSG
+	db	spc@,usf_a_,usf_n_,usf_d_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	spc@,usf_w_,usf_i_,usf_l_,usf_l_
+	db	gyo3@
+	db	usf_b_,usf_e_,spc@
+	db	usf_t_,usf_r_,usf_a_,usf_d_,usf_e_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	err_msg_0_PRINT
+err_msg_0_PRINT:
+  ifn	pm_jmsg
+	db	N_MSG
+	dw	work1
+	db	012h				; 1 = byte 2 = ketasuu
+	db	D_MSG
+	db	e__,ra__,bou@
+	db	EOMeom
+  else
+	db	N_MSG
+	dw	work1
+	db	012h
+	db	D_MSG
+	db	spc@,usf_e,usf_r,usf_r,usf_o,usf_r,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	sangyo_scr_str_1_PRINT
+sangyo_scr_str_1_PRINT:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	scrwait@
+	db	EOM,EOM
+  else
+	db	D_MSG
+	db	scrwait@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	msg1_0_R02R0101
+msg1_0_R02R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	i__,wa__,ya__,ma__,to__,n__,ne__,ru__,ni_,spc@
+	db	i_,ttu_,ta_,ke_,do_
+	db	home@
+	db	ma_,ttu_,ku_,ra_,de_,spc@,ko_,wa_,i_,yo_
+	db	normal@
+	db	poke@,ni_,spc@,hu__,ra__,ttu__,si__,yyu__,de_
+	db	home@
+	db	a_,ka_,ru_,ku_,spc@,sa_,se_,re_,ba_,na_,a_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_w_,usf_e_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_r,usf_o,usf_c,usf_k
+	db	home@
+	db	usf_t,usf_u,usf_n,usf_n,usf_e,usf_l,comma@,spc@
+	db	usf_b_,usf_u_,usf_t_,spc@
+	db	usf_i_,usf_t_,apt_s_
+	db	gyo3@
+	db	usf_d_,usf_a_,usf_r_,usf_k_,spc@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_s_,usf_c_,usf_a_,usf_r_,usf_y_,kten@
+	db	normal@
+	db	usf_i,usf_f_,spc@
+	db	usf_a_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,apt_s_
+	db	home@
+	db	usf_f,usf_l,usf_a,usf_s,usf_h,spc@
+	db	usf_c_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_l_,usf_i_,usf_g_,usf_h_,usf_t_
+	db	gyo3@
+	db	usf_i_,usf_t_,spc@
+	db	usf_u_,usf_p_,kten@,kten@,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_0_R02R0201
+msg1_0_R02R0201:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	mo_,ri_,ya_,spc@,do_,u_,ku_,tu_,spc@,si_,ka_
+	db	home@
+	db	i_,na_,i_,spc@,poke@,mo_,spc@,o_,o_,i_,yo_
+	db	normal@
+	db	i_,ro_,n_,na_,spc@,poke@,spc@,to_,ru_,na_,ra_
+	db	home@
+	db	si_,tu_,ko_,ku_,spc@,sa_,ga_,si_,ma_,wa_,ru_,spc@
+	db	ko_,to_,da_,ne_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_a_,usf_n_,usf_y_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_l_,usf_i_,usf_v_,usf_e_
+	db	home@
+	db	usf_o_,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_f_,usf_o_,usf_r_,usf_e_,usf_s_,usf_t_,usf_s_,spc@
+	db	gyo3@
+	db	usf_a_,usf_n_,usf_d_,spc@
+	db	usf_c_,usf_a_,usf_v_,usf_e_,usf_s_,kten@
+	db	normal@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_
+	db	home@
+	db	usf_e_,usf_v_,usf_e_,usf_r_,usf_y_,usf_w_,usf_h_,usf_e_,usf_r_,usf_e_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_g_,usf_e_,usf_t_
+	db	gyo3@
+	db	usf_d_,usf_i_,usf_f_,usf_f_,usf_e_,usf_r_,usf_e_,usf_n_,usf_t_,spc@
+	db	usf_k_,usf_i_,usf_n_,usf_d_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg2_1_R02R0201
+msg2_1_R02R0201:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	do_,u_,ro_,no_,spc@,a_,ti_,ko_,ti_,ni_
+	db	home@
+	db	ho_,so_,i_,spc@,ki_,ga_,spc@,a_,ttu_,ta_,ro_,hate@
+	db	normal@
+	db	a_,so_,ko_,ha_,spc@,poke@,no_,spc@,wa_,za_,de_
+	db	home@
+	db	ki_,ttu_,te_,spc@,to_,o_,re_,ru_,spc@,so_,u_,zi_,yya_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_n_,usf_o_,usf_t_,usf_i_,usf_c_,usf_e_,usf_d_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_b_,usf_u_,usf_s_,usf_h_,usf_e_,usf_s_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_r_,usf_o_,usf_a_,usf_d_,usf_s_,usf_i_,usf_d_,usf_e_,hate@
+	db	normal@
+	db	usf_t,usf_h_,usf_e_,usf_y_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_b_,usf_e_,spc@
+	db	usf_c_,usf_u_,usf_t_
+	db	home@
+	db	usf_d_,usf_o_,usf_w_,usf_n_,spc@
+	db	usf_b_,usf_y_,spc@
+	db	usf_a_,spc@
+	db	usf_s_,usf_p_,usf_e_,usf_c_,usf_i_,usf_a_,usf_l_
+	db	gyo3@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_0_R02R0301
+msg1_0_R02R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,no_,spc@,hi_,n_,si_,spc@,zi_,yyo_,u_,ta_,i_,ha_,home@
+	db	ta_,ta_,ka_,u_,spc@,ge_,n_,ki_,ga_,spc@,na_,i_,spc@,da_,ke_,de_
+	db	normal@
+	db	i_,a_,i_,gi_,ri_,spc@,na_,do_,no_,spc@,wa_,za_,ha_,home@
+	db	i_,tu_,mo_,no_,spc@,yo_,u_,ni_,spc@,tu_,ka_,e_,ru_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,spc@
+	db	usf_f_,usf_a_,usf_i_,usf_n_,usf_t_,usf_e_,usf_d_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_f_,usf_i_,usf_g_,usf_h_,usf_t_,kten@,spc@
+	db	usf_b,usf_u_,usf_t_,comma@,spc@
+	db	gyo3@
+	db	usf_i_,usf_t_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_s_,usf_t_,usf_i_,usf_l_,usf_l_,spc@
+	db	usf_u_,usf_s_,usf_e_,spc@
+	db	gyo3@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,usf_s_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_c,usf_u,usf_t,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_0_0_R02R0401
+msg1_0_0_R02R0401:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	hi_,de_,n_,no_,spc@,hu__,ra__,ttu__,si__,yyu__,de_
+	db	home@
+	db	do_,n_,na_,ni_,spc@,ku_,ra_,i_,ba_,si_,yyo_,de_,mo_
+	db	gyo3@
+	db	ba__,ttu__,ti__,ri__,spc@,a_,ka_,ru_,ku_,spc@,na_,ri_,ma_,su_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_e_,spc@
+	db	usf_h,usf_m,spc@
+	db	usf_f,usf_l,usf_a,usf_s,usf_h
+	db	home@
+	db	usf_l_,usf_i_,usf_g_,usf_h_,usf_t_,usf_s_,spc@
+	db	usf_e_,usf_v_,usf_e_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_d_,usf_a_,usf_r_,usf_k_,usf_e_,usf_s_,usf_t_,spc@
+	db	usf_d_,usf_u_,usf_n_,usf_g_,usf_e_,usf_o_,usf_n_,usf_s_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg2_1_R02R0401
+msg2_1_R02R0401:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	poke@,ga_
+	db	home@
+	db	hu__,ra__,ttu__,si__,yyu__,wo_,spc@,o_,bo_,e_,ta_,ra_
+	db	gyo3@
+	db	i__,wa__,ya__,ma__,to__,n__,ne__,ru__,ga_,spc@
+	db	to_,o_,re_,ru_,ne_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_o,usf_n_,usf_c_,usf_e_,spc@
+	db	usf_a_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_l_,usf_e_,usf_a_,usf_r_,usf_n_,usf_s_,spc@
+	db	usf_f,usf_l,usf_a,usf_s,usf_h,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_
+	db	gyo3@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_r_,usf_o_,usf_u_,usf_g_,usf_h_
+	db	gyo3@
+	db	usf_r,usf_o,usf_c,usf_k,spc@
+	db	usf_t,usf_u,usf_n,usf_n,usf_e,usf_l,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_0_R02R0501
+msg1_0_R02R0501:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	to__,ki__,wa__,no_,spc@,mo_,ri_,he_,spc@,i_,ku_,no_,hate@
+	db	home@
+	db	mo_,ri_,ha_,spc@,te_,n_,ne_,n_,no_,spc@,me_,i_,ro_,yo_,gyo3@
+	db	ma_,yo_,wa_,na_,i_,yo_,u_,spc@,ki_,wo_,spc@,tu_,ke_,te_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_a,usf_r_,usf_e_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_g_,usf_o_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_t_,usf_o_
+	db	home@
+	db	usf_v,usf_i,usf_r,usf_i,usf_d,usf_i,usf_a,usf_n,spc@
+	db	usf_f,usf_o,usf_r,usf_e,usf_s,usf_t,hate@
+	db	gyo3@
+	db	usf_b,usf_e_,spc@
+	db	usf_c_,usf_a_,usf_r_,usf_e_,usf_f_,usf_u_,usf_l_,comma@,spc@
+	db	usf_i_,usf_t_,apt_s_
+	db	gyo3@
+	db	usf_a_,spc@
+	db	usf_n_,usf_a_,usf_t_,usf_u_,usf_r_,usf_a_,usf_l_,spc@
+	db	usf_m_,usf_a_,usf_z_,usf_e_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg2_1_R02R0501
+msg2_1_R02R0501:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ko__,ra__,ttu__,ta__,ha_,spc@,ti_,ttu_,ti_,yya_,i_,spc@,ke_,do_
+	db	home@
+	db	ma_,e_,ba_,no_,spc@,i_,ti_,ge_,ki_,ha_,spc@
+	db	a_,na_,do_,re_,na_,i_,gyo3@
+	db	mo_,u_,spc@,tu_,ka_,ma_,e_,ta_,spc@,ka_,si_,ra_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_r,usf_a,usf_t,usf_t,usf_a,usf_t,usf_a,spc@
+	db	usf_m_,usf_a_,usf_y_,spc@
+	db	usf_b_,usf_e_
+	db	home@
+	db	usf_s_,usf_m_,usf_a_,usf_l_,usf_l_,comma@,spc@
+	db	usf_b_,usf_u_,usf_t_,spc@
+	db	usf_i_,usf_t_,usf_s_
+	db	gyo3@
+	db	usf_b_,usf_i_,usf_t_,usf_e_,spc@
+	db	usf_i_,usf_s_,spc@
+	db	usf_w_,usf_i_,usf_c_,usf_k_,usf_e_,usf_d_,gyoe@
+	db	gyo3@
+	db	usf_d,usf_i_,usf_d_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_g_,usf_e_,usf_t_,spc@
+	db	usf_o_,usf_n_,usf_e_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg2_0_R04R0101
+msg2_0_R04R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	bo__,bou@,ru__,wo_,spc@,be__,ru__,to__,ni_,spc@,se__,ttu__,to__
+	db	home@
+	db	n1@,spc@,n2@,spc@,n3@,spc@,n4@,spc@,n5@,spc@
+	db	n6@,tenten2@,spc@,to_,gyoe@
+	db	normal@
+	db	u_,n_,tenten2@,spc@,tu_,re_,te_,spc@,i_,ke_,ru_
+	db	home@
+	db	poke@,ha_,spc@,n6@,hi_,ki_,spc@,ma_,de_,da_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_v_,usf_e_,spc@
+	db	n6@,spc@
+	db	poke@
+	db	spc@,usf_b,usf_a,usf_l,usf_l,usf_s_
+	db	home@
+	db	usf_s_,usf_e_,usf_t_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_m_,usf_y_,spc@
+	db	usf_b_,usf_e_,usf_l_,usf_t_,kten@
+	db	normal@
+	db	usf_a,usf_t_,spc@
+	db	usf_m_,usf_o_,usf_s_,usf_t_,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_
+	db	home@
+	db	usf_c_,usf_a_,usf_r_,usf_r_,usf_y_,spc@
+	db	n6@,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg3_1_R04R0101
+msg3_1_R04R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ha__,na__,da__,spc@,si__,te__,ii__,no_,spc@,mi_,n_,ka_
+	db	home@
+	db	o_,so_,wa_,re_,ru_,tenten2@,spc@,ka_,gyoe@
+	db	normal@
+	db	si_,n_,bu_,n_,ni_,spc@,rocket@,no_
+	db	home@
+	db	zi_,ke_,n_,ga_,spc@,no_,ra_,na_,i_,spc@,hi_,ha_,spc@
+	db	na_,i_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_t,usf_e,usf_a,usf_m,spc@
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t
+	db	home@
+	db	usf_a_,usf_t_,usf_t_,usf_a_,usf_c_,usf_k_,usf_s_,spc@
+	db	usf_c,usf_e,usf_r,usf_u,usf_l,usf_e,usf_a,usf_n
+	db	gyo3@
+	db	usf_c_,usf_i_,usf_t_,usf_i_,usf_z_,usf_e_,usf_n_,usf_s_,kten@,kten@,kten@
+	db	normal@
+	db	usf_t,usf_e,usf_a,usf_m,spc@
+	db	usf_r,usf_o,usf_c,usf_k,usf_e,usf_t,spc@
+	db	usf_i_,usf_s_
+	db	home@
+	db	usf_a_,usf_l_,usf_w_,usf_a_,usf_y_,usf_s_,spc@
+	db	usf_i_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_e_
+	db	gyo3@
+	db	usf_n_,usf_e_,usf_w_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg4_0_2_R04R0101
+msg4_0_2_R04R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,zi_,sa_,n_,kako2@,bo_,ttu_,ti_,yya_,n_
+	db	home@
+	db	a_,nakag@,na_,nakag@,ta_,nakag@,da_,ke_,ni_
+	db	tenten2@,gyoe@,gyo3@
+	db	i_,i_,spc@,o_,ha_,na_,si_,ga_,spc@,a_,ri_,ma_,si_,te_
+	db	normal@
+	db	hi_,mi_,tu_,no_,spc@,poke@,spc@,ko__,i__,ki__,n__,gu__,ga_
+	db	home@
+	db	na_,n_,to_,spc@,ta_,ttu_,ta_,no_,spc@,n5@,n0@,n0@,yen@,gyoe@,gyo3@
+	db	do_,u_,da_,i_,spc@,ka_,u_,ka_,ne_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_a,usf_n,colon2@,spc@
+	db	usf_h,usf_e_,usf_l_,usf_l_,usf_o_,comma@,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_r_,usf_e_,gyoe@
+	db	home@
+	db	usf_h,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_i,spc@
+	db	usf_g_,usf_o_,usf_t_,spc@
+	db	usf_a_,spc@
+	db	usf_d_,usf_e_,usf_a_,usf_l_
+	db	gyo3@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	normal@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_l_,usf_e_,usf_t_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	home@
+	db	usf_a_,spc@
+	db	usf_s_,usf_w_,usf_e_,usf_l_,usf_l_,spc@
+	db	usf_m,usf_a,usf_g,usf_i,usf_k,usf_a,usf_r,usf_p
+	db	gyo3@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_j_,usf_u_,usf_s_,usf_t_,spc@
+	db	dol@,n5@,n0@,n0@,gyoe@
+	db	gyo3@
+	db	usf_w,usf_h_,usf_a_,usf_t_,spc@
+	db	usf_d_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_s_,usf_a_,usf_y_,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg4_2_3_R04R0101
+msg4_2_3_R04R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,o_,hate@,spc@,za_,n_,ne_,n_,da_,ne_,e_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_n,usf_o_,hate@,spc@
+	db	usf_i,apt_m_,spc@
+	db	usf_o_,usf_n_,usf_l_,usf_y_
+	db	home@
+	db	usf_d_,usf_o_,usf_i_,usf_n_,usf_g_,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_a_,usf_s_,spc@
+	db	usf_a_
+	db	gyo3@
+	db	usf_f_,usf_a_,usf_v_,usf_o_,usf_r_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg4_4_4_R04R0101
+msg4_4_4_R04R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ka_,ne_,spc@,ta_,ri_,na_,i_,spc@,mi_,ta_,i_,da_,ne_,e_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,apt_l_,usf_l_,spc@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_
+	db	home@
+	db	usf_m_,usf_o_,usf_n_,usf_e_,usf_y_,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_n_,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_t_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg4_5_5_R04R0101
+msg4_5_5_R04R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,zi_,sa_,n_,kako2@,so_,u_,so_,u_,spc@,poke@,no_
+	db	home@
+	db	he_,n_,pi_,n_,ha_,spc@,o_,ko_,to_,wa_,ri_,spc@,da_,ka_,ra_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_m,usf_a,usf_n,colon2@,spc@
+	db	usf_w,usf_e_,usf_l_,usf_l_,comma@,spc@
+	db	usf_i,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_
+	db	home@
+	db	usf_g_,usf_i_,usf_v_,usf_e_,spc@
+	db	usf_r_,usf_e_,usf_f_,usf_u_,usf_n_,usf_d_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg5_6_R04R0101
+msg5_6_R04R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	EOMeom
+  else
+	db	D_MSG
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	GK1_0_0_R05R0101
+GK1_0_0_R05R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ta_,si_,spc@,ma_,zi_,me_,na_,spc@,ke_,i_,bi_,i_,n_
+	db	home@
+	db	ha_,bou@,tenten2@
+	db	gyo3@
+	db	no_,do_,ga_,spc@,ka_,wa_,i_,ta_,gyoe@
+	db	gyo3@
+	db	o_,ttu_,to_,spc@,so_,ttu_,ti_,ha_
+	db	gyo3@
+	db	i_,ma_,spc@,tu_,u_,ko_,u_,spc@,ki_,n_,si_,da_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,apt_m_,spc@
+	db	usf_o_,usf_n_,spc@
+	db	usf_g_,usf_u_,usf_a_,usf_r_,usf_d_,spc@
+	db	usf_d_,usf_u_,usf_t_,usf_y_,kten@
+	db	home@
+	db	usf_g,usf_e_,usf_e_,comma@,spc@
+	db	usf_i,apt_m_,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_r_,usf_s_,usf_t_,usf_y_,comma@
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_o_,usf_u_,usf_g_,usf_h_,gyoe@
+	db	normal@
+	db	usf_o,usf_h_,spc@
+	db	usf_w_,usf_a_,usf_i_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_r_,usf_e_,comma@
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_r_,usf_o_,usf_a_,usf_d_,apt_s_,spc@
+	db	usf_c_,usf_l_,usf_o_,usf_s_,usf_e_,usf_d_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	GK1_1_1_R05R0101
+GK1_1_1_R05R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,spc@,so_,re_,ha_
+	db	gyo3@
+	db	o_,i_,si_,so_,u_,na_,spc@,no_,mi_,mo_,no_,tenten2@
+	db	gyo3@
+	db	tenten2@,spc@,tenten2@
+	db	gyo3@
+	db	e_,hate@
+	db	gyo3@
+	db	bo_,ku_,ni_,spc@,ku_,re_,ru_,hate@
+	db	gyo3@
+	db	sa__,n__,ki__,yyu__,bou@,gyoe@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_o_,usf_a_,comma@,spc@
+	db	usf_b_,usf_o_,usf_y_,gyoe@
+	db	home@
+	db	usf_i,apt_m_,spc@
+	db	usf_p_,usf_a_,usf_r_,usf_c_,usf_h_,usf_e_,usf_d_,gyoe@
+	db	gyo3@
+	db	kten@,kten@,kten@
+	db	gyo3@
+	db	usf_h,usf_u_,usf_h_,hate@,spc@
+	db	usf_i,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_d_,usf_r_,usf_i_,usf_n_,usf_k_,hate@
+	db	gyo3@
+	db	usf_g,usf_e_,usf_e_,comma@,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_n_,usf_k_,usf_s_,gyoe@
+	db	EOM,EOM
+  endif
+
+bank22		group	022h
+	public	GK1_1_2_R05R0101
+GK1_1_2_R05R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	normal@
+	db	tenten2@,spc@,tenten2@
+	db	gyo3@
+	db	go__,ku__,go__,ku__,tenten2@
+	db	gyo3@
+	db	tenten2@
+	db	gyo3@
+	db	go__,ku__,go__,ku__,tenten2@,spc@,tenten2@
+	db	gyo3@
+	db	ya__,ma__,bu__,ki__,spc@,si__,te__,ii__,ni_
+	db	gyo3@
+	db	i_,ku_,spc@,na_,ra_,tenten2@
+	db	gyo3@
+	db	tenten2@
+	db	gyo3@
+	db	tenten2@,spc@,tenten2@
+	db	gyo3@
+	db	to_,o_,ttu_,te_,spc@,i_,i_,yo_
+	db	gyo3@
+	db	zi__,yyu__,bou@,su__,wo_
+	db	gyo3@
+	db	mu_,ko_,u_,no_,spc@,ge__,bou@,to__,no_
+	db	gyo3@
+	db	ke_,i_,bi_,i_,n_,ni_,mo_,spc@
+	db	wa_,ke_,te_,a_,ge_,yo_,u_,tenten2@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	normal@
+	db	kten@,kten@,kten@
+	db	home@
+	db	usf_g,usf_l_,usf_u_,usf_g_,spc@
+	db	usf_g_,usf_l_,usf_u_,usf_g_,kten@,kten@,kten@
+	db	gyo3@
+	db	kten@,kten@,kten@
+	db	gyo3@
+	db	usf_g,usf_u_,usf_l_,usf_p_,kten@,kten@,kten@
+	db	gyo3@
+	db	usf_i,usf_f_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_w_,usf_a_,usf_n_,usf_t_,spc@
+	db	usf_t_,usf_o_,spc@
+	db	usf_g_,usf_o_
+	db	gyo3@
+	db	usf_t_,usf_o_,spc@
+	db	usf_s,usf_a,usf_f,usf_f,usf_r,usf_o,usf_n,spc@
+	db	usf_c,usf_i,usf_t,usf_y,kten@,kten@,kten@
+	db	gyo3@
+	db	kten@,kten@,kten@
+	db	gyo3@
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_c_,usf_a_,usf_n_,spc@
+	db	usf_g_,usf_o_,spc@
+	db	usf_o_,usf_n_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_r_,usf_o_,usf_u_,usf_g_,usf_h_,kten@,spc@
+	db	usf_i,apt_l_,usf_l_
+	db	gyo3@
+	db	usf_s_,usf_h_,usf_a_,usf_r_,usf_e_,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_
+	db	gyo3@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_o_,usf_t_,usf_h_,usf_e_,usf_r_,spc@
+	db	usf_g_,usf_u_,usf_a_,usf_r_,usf_d_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	GK1_2_3_R05R0101
+GK1_2_3_R05R0101:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	a_,tenten2@
+	db	home@
+	db	ko_,no_,spc@,a_,i_,da_,ha_,spc@,do_,bou@,mo_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_i_,comma@,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_n_,usf_k_,usf_s_,spc@
+	db	usf_f_,usf_o_,usf_r_
+	db	home@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_c_,usf_o_,usf_o_,usf_l_,spc@
+	db	usf_d_,usf_r_,usf_i_,usf_n_,usf_k_,usf_s_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_1_0_R05R0301
+msg1_1_0_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ta_,si_,ha_,spc@,so_,da_,te_,ya_,sa_,n_,home@
+	db	na_,ni_,ka_,spc@,so_,da_,te_,te_,spc@,mi_,ru_,ka_,ne_,hate@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_r_,usf_u_,usf_n_,spc@
+	db	usf_a_,spc@
+	db	usf_d,usf_a,usf_y,usf_c,usf_a,usf_r,usf_e,kten@
+	db	home@
+	db	usf_w,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_l_,usf_i_,usf_k_,usf_e_,spc@
+	db	usf_m_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_o_,spc@
+	db	usf_r_,usf_a_,usf_i_,usf_s_,usf_e_,spc@
+	db	usf_o_,usf_n_,usf_e_,spc@
+	db	usf_o_,usf_f_
+	db	gyo3@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,hate@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_2_1_R05R0301
+msg1_2_1_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,re_,de_,ha_,home@
+	db	na_,ni_,wo_,spc@,so_,da_,te_,te_,spc@,mi_,ru_,ka_,ne_,hate@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_w,usf_h_,usf_i_,usf_c_,usf_h_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n
+	db	home@
+	db	usf_s_,usf_h_,usf_o_,usf_u_,usf_l_,usf_d_,spc@
+	db	usf_i,spc@
+	db	usf_r_,usf_a_,usf_i_,usf_s_,usf_e_,hate@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg1_3_2_R05R0301
+msg1_3_2_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ka_,ttu_,ta_,home@
+	db	si_,ba_,ra_,ku_,EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	wo_,spc@,a_,zu_,ka_,ro_,u_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_f,usf_i_,usf_n_,usf_e_,comma@,spc@
+	db	usf_i,apt_l_,usf_l_,spc@
+	db	usf_l_,usf_o_,usf_o_,usf_k_
+	db	home@
+	db	usf_a_,usf_f_,usf_t_,usf_e_,usf_r_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	gyo3@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_a_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_l_,usf_e_,kten@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg1_3_2_3_R05R0301
+msg1_3_2_3_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	te_,ki_,to_,u_,ni_,spc@,zi_,ka_,n_,ga_
+	db	spc@,ta_,ttu_,ta_,ra_,home@
+	db	ma_,ta_,spc@,ki_,na_,sa_,i_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_s_,usf_e_,usf_e_,spc@
+	db	usf_m_,usf_e_,spc@
+	db	usf_i_,usf_n_
+	db	home@
+	db	usf_a_,spc@
+	db	usf_w_,usf_h_,usf_i_,usf_l_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_4_4_R05R0301
+msg1_4_4_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ma_,e_,no_,spc@,EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	home@
+	db	zu_,i_,bu_,n_,to_,spc@,se_,i_,ti_,yyo_,u_,si_,ta_,zo_,normal@
+	db	so_,u_,da_,na_,spc@,re__,be__,ru__,de_,spc@,i_,u_,to_,home@
+	db	EOM
+	db	N_MSG
+	dw	usr_buf + 1
+	db	013h
+	db	D_MSG
+	db	ku_,ra_,i_,spc@,so_,da_,ttu_,te_,ru_,na_,normal@
+	db	ya_,ttu_,pa_,ri_,spc@,wa_,ta_,si_,ha_
+	db	spc@,te_,n_,sa_,i_,da_,gyoe@
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,usf_r_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	home@
+	db	usf_h_,usf_a_,usf_s_,spc@
+	db	usf_g_,usf_r_,usf_o_,usf_w_,usf_n_,spc@
+	db	usf_a_,spc@
+	db	usf_l_,usf_o_,usf_t_,gyoe@
+	db	normal@
+	db	usf_b,usf_y_,spc@
+	db	usf_l_,usf_e_,usf_v_,usf_e_,usf_l_,comma@,spc@
+	db	usf_i_,usf_t_,apt_s_
+	db	home@
+	db	usf_g_,usf_r_,usf_o_,usf_w_,usf_n_,spc@
+	db	usf_b_,usf_y_,spc@
+	db	EOM
+	db	N_MSG
+	dw	usr_buf + 1
+	db	013h
+	db	D_MSG
+	db	gyoe@
+	db	normal@
+	db	usf_a,usf_r_,usf_e_,usf_n_,apt_t_,spc@
+	db	usf_i,spc@
+	db	usf_g_,usf_r_,usf_e_,usf_a_,usf_t_,hate@
+	db	EOMwaiteom
+  endif
+
+bank22		group	022h
+	public	msg1_6_5_R05R0301
+msg1_6_5_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	tenten2@,de_,spc@,poke@,wo_,spc@,hi_,ki_,to_,ru_,na_,ra_,home@
+	db	ri_,yyo_,u_,ki_,n_,ha_,spc@,EOM
+	db	B_MSG
+	dw	usr_buf + 2
+	db	0c2h
+	db	D_MSG
+	db	yen@,spc@,da_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_o_,usf_w_,usf_e_,spc@
+	db	usf_m_,usf_e_,spc@
+	db	dol@
+	db	EOM
+	db	B_MSG
+	dw	usr_buf + 2
+	db	0c2h
+	db	D_MSG
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_t_,usf_h_,usf_e_,spc@
+	db	usf_r_,usf_e_,usf_t_,usf_u_,usf_r_,usf_n_
+	db	gyo3@
+	db	usf_o_,usf_f_,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,kten@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_7_6_R05R0301
+msg1_7_6_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	myname@
+	db	ha_,spc@,so_,da_,te_,ya_,sa_,n_,ka_,ra_,home@,EOM
+	db	I_MSG
+	dw	benri_mons_name
+	db	D_MSG
+	db	wo_,spc@,hi_,ki_,to_,ttu_,ta_,gyoe@
+	db	EOMeom
+  else
+	db	D_MSG
+	db	myname@
+	db	spc@,usf_g_,usf_o_,usf_t_
+	db	home@
+	db	EOM
+	db	I_MSG
+	dw	benri_mons_name
+	db	D_MSG
+	db	spc@,usf_b_,usf_a_,usf_c_,usf_k_,gyoe@
+	db	EOMeom
+  endif
+
+bank22		group	022h
+	public	msg1_8_7_R05R0301
+msg1_8_7_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	na_,n_,da_,spc@,mo_,u_,spc@,ki_,ta_,no_,ka_,home@
+	db	o_,ma_,e_,no_,spc@,EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	ha_,tenten2@,normal@
+	db	ma_,da_,spc@,zi_,ka_,n_,ga_,spc@,ka_,ka_,ru_,zo_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_b,usf_a_,usf_c_,usf_k_,spc@
+	db	usf_a_,usf_l_,usf_r_,usf_e_,usf_a_,usf_d_,usf_y_,hate@
+	db	home@
+	db	usf_y,usf_o_,usf_u_,usf_r_,spc@
+	db	EOM
+	db	I_MSG
+	dw	table_data
+	db	D_MSG
+	db	gyo3@
+	db	usf_n_,usf_e_,usf_e_,usf_d_,usf_s_,spc@
+	db	usf_s_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_m_,usf_o_,usf_r_,usf_e_
+	db	gyo3@
+	db	usf_t_,usf_i_,usf_m_,usf_e_,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_m_,usf_e_,kten@
+	db	EOMwaiteom
+  endif
+
+bank23		group	023h
+	org	04000h
+	public	msg1_9_8_R05R0301
+msg1_9_8_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	so_,u_,ka_,spc@,so_,re_,zi_,yya_,home@
+	db	EOM
+	db	EOM		; I_MSG2終了コード mvmsg追加
+  else
+	db	D_MSG
+	db	usf_a,usf_l_,usf_l_,spc@
+	db	usf_r_,usf_i_,usf_g_,usf_h_,usf_t_,spc@
+	db	usf_t_,usf_h_,usf_e_,usf_n_,comma@
+	db	home@
+	db	EOM,EOM
+  endif
+
+bank23		group	023h
+	public	msg1_10_9_R05R0301
+msg1_10_9_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ma_,ta_,spc@,ki_,na_,sa_,i_,yo_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_c_,usf_o_,usf_m_,usf_e_,spc@
+	db	usf_a_,usf_g_,usf_a_,usf_i_,usf_n_,kten@
+	db	EOMeom
+  endif
+
+bank23		group	023h
+	public	msg1_11_10_R05R0301
+msg1_11_10_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	da_,ke_,do_,spc@,tu_,re_,te_,i_,ku_,ni_,ha_,home@
+	db	poke@,ga_,spc@,i_,ttu_,pa_,i_,no_,yo_,u_,da_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_n_,usf_o_,spc@
+	db	usf_r_,usf_o_,usf_o_,usf_m_
+	db	home@
+	db	usf_f_,usf_o_,usf_r_,spc@
+	db	usf_t_,usf_h_,usf_i_,usf_s_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMeom
+  endif
+
+bank23		group	023h
+	public	msg1_12_11_R05R0301
+msg1_12_11_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	o_,ya_,hate@,spc@,poke@,ga_,home@
+	db	n1@,pi_,ki_,si_,ka_,spc@,i_,na_,i_,yo_,u_,da_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_y,usf_o_,usf_u_,spc@
+	db	usf_o_,usf_n_,usf_l_,usf_y_,spc@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_o_,usf_n_,usf_e_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_w_,usf_i_,usf_t_,usf_h_,spc@
+	db	usf_y_,usf_o_,usf_u_,kten@
+	db	EOMeom
+  endif
+
+bank23		group	023h
+	public	msg1_13_12_R05R0301
+msg1_13_12_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	wa_,ru_,i_,ke_,do_
+	db	spc@,hi_,de_,n_,no_,wa_,za_,wo_,spc@,mo_,ttu_,ta_,home@
+	db	poke@,ha_,spc@,a_,zu_,ka_,re_,na_,i_,na_,aa_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_i,spc@
+	db	usf_c_,usf_a_,usf_n_,apt_t_,spc@
+	db	usf_a_,usf_c_,usf_c_,usf_e_,usf_p_,usf_t_,spc@
+	db	usf_a_
+	db	home@
+	db	poke@
+	db	usf_m,usf_o,usf_n,spc@
+	db	usf_t_,usf_h_,usf_a_,usf_t_
+	db	gyo3@
+	db	usf_k_,usf_n_,usf_o_,usf_w_,usf_s_,spc@
+	db	usf_a_,usf_n_,spc@
+	db	usf_h,usf_m,spc@
+	db	usf_m_,usf_o_,usf_v_,usf_e_,kten@
+	db	EOMeom
+  endif
+
+bank23		group	023h
+	public	msg1_14_13_R05R0301
+msg1_14_13_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ho_,i_,spc@,ta_,si_,ka_,ni_,gyoe@,home@
+	db	zi_,yya_,spc@,poke@,spc@,tu_,re_,te_,spc@,i_,ki_,na_,yo_
+	db	EOMwaiteom
+  else
+	db	D_MSG
+	db	usf_t,usf_h_,usf_a_,usf_n_,usf_k_,spc@
+	db	usf_y_,usf_o_,usf_u_,gyoe@,spc@
+	db	usf_h,usf_e_,usf_r_,usf_e_,apt_s_
+	db	home@
+	db	usf_y_,usf_o_,usf_u_,usf_r_,spc@
+	db	poke@
+	db	usf_m,usf_o,usf_n,gyoe@
+	db	EOMwaiteom
+  endif
+
+bank23		group	023h
+	public	msg1_15_14_R05R0301
+msg1_15_14_R05R0301:
+  ifn	pm_jmsg
+	db	D_MSG
+	db	ka_,ne_,ga_,spc@,ta_,ra_,n_,na_
+	db	EOMeom
+  else
+	db	D_MSG
+	db	usf_h,usf_e_,usf_y_,comma@,spc@
+	db	usf_y_,usf_o_,usf_u_,spc@
+	db	usf_d_,usf_o_,usf_n_,apt_t_
+	db	home@
+	db	usf_h_,usf_a_,usf_v_,usf_e_,spc@
+	db	usf_e_,usf_n_,usf_o_,usf_u_,usf_g_,usf_h_,spc@
+	db	dol@,gyoe@
+	db	EOMeom
+  endif
+

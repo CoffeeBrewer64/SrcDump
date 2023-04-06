@@ -1,0 +1,677 @@
+	include		common.def
+	include		fntequ.def
+	include		banktool.def
+	include		anime.def
+	include		maphead.def
+	include		vanish.def
+	include		macro.h
+	include		group.def
+
+
+bank6	group	G_BANK6
+
+
+	public	town6_event
+	public	town6_msg
+
+
+	extern	yes_no
+	extern	gyaarth_play
+	extern	table_jump
+	extern	bank2bank
+	extern	se_wait
+	extern	CheckAssignPos
+
+	extern	bank_push_call
+	extern	pf_kanban
+	extern	hotel_kanban
+	extern	set_pika_visible
+	extern	check_pika_cond
+
+
+seq_t6		equ	seq_ctrl_buf + 03ah
+
+
+town6_event:
+	call	init_for_talkmap
+
+	ld	hl,yellow_event + 00h		; ピカチュウイベント発動取り消し
+	res	7,(hl)
+
+	ld	hl,ptn_data
+	bit	6,(hl)
+	res	6,(hl)
+	push	hl
+	call	nz,sequence_invoke$
+	pop	hl
+	bit	5,(hl)
+	res	5,(hl)
+	call	nz,gym_init$
+
+	ld	hl,event_table
+	ld	a,(seq_t6)
+	call	table_jump
+
+	call	check_coupon$
+
+	ret
+
+
+check_coupon$:
+	ld	hl,ev_t6_2
+	bit	2,(hl)				; check once out of club house
+	ret	nz
+
+	bit	1,(hl)				; check bycicle
+	ret	z
+
+	set	2,(hl)
+
+	ret
+
+
+gym_init$:
+	call	rnd
+	ld	a,(random + 00h)
+	ld	b,a
+	ld	a,(random + 01h)
+	adc	a,b
+	and	00eh
+	ld	(trash_switch + 0),a
+
+	ret
+
+
+sequence_invoke$:
+	ld	hl,ev_d3 + 12
+	bit	2,(hl)
+	ret	z
+
+	bit	3,(hl)
+	set	3,(hl)
+	ret	nz				; only once upon time
+
+	ld	a,SeqEventOut
+	ld	(seq_t6),a
+
+	ret
+
+
+event_table:
+	initndw	t6_main,seq_t6_main
+	ndw	obs_stepback,seq_obs_stepback
+	ndw	EventOut,SeqEventOut
+	ndw	EventOutStep,SeqEventOutStep
+	ndw	pos_out,seq_pos_out
+
+
+t6_main:
+	ld	a,(actor_table + 009h)
+	and	a
+	jr	nz,check_t6r2f1
+
+	ld	hl,event_pos
+	call	CheckAssignPos
+	jr	nc,check_t6r2f1
+
+	xor	a
+	ld	(joy_status),a
+	ld	(event_check),a
+
+	ld	a,msg_funanori1
+	ld	(work1),a
+	call	talk_map
+
+	ld	a,(ev_d3 + 12)
+	bit	2,a				; not stay boat
+	jr	nz,ship_leaved$
+
+	ld	b,63
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+	ld	a,b
+	and	a
+	ret	nz
+
+ship_leaved$:
+	ld	a,W_U				; animetion pattern
+	ld	(ctrl_move_val),a
+	ld	a,01h				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	extern	init_hero_anime
+	call	init_hero_anime
+
+	ld	a,seq_obs_stepback
+	ld	(seq_t6),a
+
+	ret
+
+
+check_t6r2f1:
+	ret
+
+
+event_pos:
+	db	01eh,012h			; ticket check clear position
+	db	0ffh
+
+
+pos_out:
+	ld	hl,event_pos
+	call	CheckAssignPos
+	ret	c
+
+	ld	a,seq_t6_main
+	ld	(seq_t6),a
+
+	ret
+
+
+EventOut:
+	ld	a,0ffh
+	ld	(cancel_key),a
+
+	ld	a,W_U				; animetion pattern
+	ld	(ctrl_move_val + 0),a
+	ld	(ctrl_move_val + 1),a
+	ld	a,2				; animetion pattern lot
+	ld	(ctrl_move_cnt),a
+
+	call	init_hero_anime
+
+	ld	a,SeqEventOutStep
+	ld	(seq_t6),a
+
+	ret
+
+
+EventOutStep:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	xor	a
+	ld	(cancel_key),a
+	ld	(joy_status),a
+
+	ld	a,seq_t6_main
+	ld	(seq_t6),a
+
+	ret
+
+
+obs_stepback:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	c,10
+	call	wait_vb_s
+
+	ld	a,seq_t6_main
+	ld	(seq_t6),a
+
+	ret
+
+
+
+town6_msg:
+	msgndw	msg1,msg_hotelw1
+	ndw	msg2,msg_gsan1
+	ndw	msg3,msg_funanori1
+	ndw	msg4,msg_gsan2
+	ndw	msg5,msg_monster1
+	ndw	msg6,msg_funanori2
+	ndw	msg7,MsgJunsa
+
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+	ndw	pf_kanban,msg_kanban3
+	ndw	hotel_kanban,msg_kanban4
+	ndw	kanban5,msg_kanban5
+	ndw	kanban6,msg_kanban6
+	ndw	kanban7,msg_kanban7
+
+
+msg1:
+	extern	msg1_0_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	db	CALL_MSG
+
+	ld	a,(ev_d3 + 12)
+	bit	2,a
+	jr	nz,after$
+
+	ld	hl,msg2_0$
+	call	put_win_msg
+
+	jr	rts$
+
+
+after$:
+	ld	hl,msg2_1$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+msg2_0$:
+	extern	msg2_0_1_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_1_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2_1$:
+	extern	msg2_1_2_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_2_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	a,(ev_d3 + 12)
+	bit	2,a
+	jr	nz,ship_leaved$
+
+	ld	a,(actor_table + 009h)
+	cp	00ch
+	jr	z,info$
+
+	ld	hl,talk_pos$
+	call	CheckAssignPos
+	jr	nc,etc$
+
+info$:
+	ld	hl,msg3_@$
+	call	put_win_msg
+
+	jr	rts$
+
+
+etc$:
+	ld	hl,msg3_0$
+	call	put_win_msg
+
+	ld	b,63
+	ld	a,B_ITEM_TAKE_CHK
+	call	bank2bank
+	ld	a,b
+	and	a
+	jr	nz,take$
+
+	ld	hl,msg3_2$
+	call	put_win_msg
+
+	jr	rts$
+
+
+take$:
+	ld	hl,msg3_1$
+	call	put_win_msg
+
+	ld	a,seq_pos_out
+	ld	(seq_t6),a
+
+	jr	rts$
+
+
+ship_leaved$:
+	ld	hl,msg3_3$
+	call	put_win_msg
+
+rts$:
+	jp	msg_return
+
+
+talk_pos$:
+	db	01dh,013h
+	db	01fh,013h
+	db	0ffh
+
+
+msg3_@$:
+	extern	msg3_@_3_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_@_3_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_0$:
+	extern	msg3_0_4_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_4_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_1$:
+	extern	msg3_1_5_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_5_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_2$:
+	extern	msg3_2_6_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_6_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_3$:
+	extern	msg3_3_7_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg3_3_7_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_8_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg4_8_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+msg5:
+	extern	msg5_9_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg5_9_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+
+	db	CALL_MSG
+
+	ld	a,106				; wanriki-
+	call	gyaarth_play
+	call	se_wait
+
+	ld	hl,msg5_0$
+
+	ret
+
+
+msg5_0$:
+	extern	msg5_0_10_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_10_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	extern	msg6_11_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg6_11_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kanban01
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban2:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kanban02
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban5:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kanban05
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban6:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kanban06
+	call	bank_push_call
+
+	jp	msg_return
+
+
+kanban7:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,kanban07
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg7:
+	db	CALL_MSG
+
+	ld	b,G_BANK3c
+	ld	hl,junsa
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+
+bank3c	group	G_BANK3c
+
+
+junsa:
+	ld	a,(ev_t6 + 00h)
+	bit	7,a
+	jr	nz,second$
+
+	ld	a,(ev_champ)
+	bit	2,a
+	jr	nz,clr$
+
+	ld	hl,msg7_1$
+	call	put_win_msg
+
+	ret
+
+
+clr$:
+	ld	hl,msg7_2$
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	a,177
+	ld	(in_dat),a
+	ld	(sel_item_no),a
+	call	get_mons_name
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	bc,177 * 256 + 10		; ゼニガメ、レベル１０
+	extern	take_monster
+	call	take_monster
+	ret	nc
+
+	ld	a,(ctrl_move_val)
+	and	a
+	call	z,cont_abwait
+
+	ld	a,01h
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg7_3$
+	call	put_win_msg
+
+	ld	hl,ev_t6 + 00h
+	set	7,(hl)				; obtained Hushigidane
+
+	ret
+
+
+no$:
+	ld	hl,msg7_5$
+	call	put_win_msg
+
+	ret
+
+
+second$:
+	ld	hl,msg7_6$
+	call	put_win_msg
+
+	ret
+
+
+
+msg7_1$:
+	extern	msg7_1_12_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg7_1_12_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_2$:
+	extern	msg7_2_13_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg7_2_13_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_3$:
+	extern	msg7_3_14_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg7_3_14_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db	WAIT_NP
+	db	EOM
+
+
+msg7_5$:
+	extern	msg7_5_15_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg7_5_15_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg7_6$:
+	extern	msg7_6_16_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw msg7_6_16_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban01:
+	ld	hl,kan1
+	call	put_win_msg
+
+	ret
+
+
+kan1:
+	extern	kan1_17_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kan1_17_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban02:
+	ld	hl,kan2
+	call	put_win_msg
+
+	ret
+
+
+kan2:
+	extern	kan2_18_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kan2_18_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban05:
+	ld	hl,kan5
+	call	put_win_msg
+
+	ret
+
+
+kan5:
+	extern	kan5_19_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kan5_19_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban06:
+	ld	hl,kan6
+	call	put_win_msg
+
+	ret
+
+
+kan6:
+	extern	kan6_20_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kan6_20_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban07:
+	ld	hl,kan7
+	call	put_win_msg
+
+	ret
+
+
+kan7:
+	extern	kan7_21_TOWN06
+	db I_MSG2	; mvmsg追加
+	dw kan7_21_TOWN06	; mvmsg追加
+	db 02dh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+

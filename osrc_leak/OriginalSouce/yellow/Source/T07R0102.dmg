@@ -1,0 +1,77 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank15	group	G_BANK15
+
+
+	public	t7_room1_2f
+
+
+	extern	item_town_7G
+	extern	item_town_7P
+
+
+DEPART_TYPE	equ	18
+EXIT		=	0ffh
+
+
+t7_room1_2f:
+ysiz	=	4
+xsiz	=	10
+	db	DEPART_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	depart2f		; map data adrs
+	dw	msg_t7r1f2
+	dw	ev_t7r1f2		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r1f2
+
+
+ev_t7r1f2:
+	jp	init_for_talkmap
+
+
+
+msg_t7r1f2:
+	dw	item_town_7G
+	dw	item_town_7P
+	dw	msg3$
+	dw	msg4$
+	dw	kanban1$
+
+
+msg3$:
+	extern	msg3_0_T07R0102
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_T07R0102	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4$:
+	extern	msg4_1_T07R0102
+	db I_MSG2	; mvmsg追加
+	dw msg4_1_T07R0102	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1$:
+	extern	kanban1_2_T07R0102
+	db I_MSG2	; mvmsg追加
+	dw kanban1_2_T07R0102	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t7r1f2:
+	include	..\sxy\t07r0102.sxy
+
+
+depart2f:
+	include	..\mapdata\dept2f.map
+

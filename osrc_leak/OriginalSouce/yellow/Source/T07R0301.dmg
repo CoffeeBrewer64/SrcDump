@@ -1,0 +1,151 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+	include	pm_debug.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room3
+
+
+	extern	hotel_2
+	extern	hotel_sio
+	extern	bank_push_call
+	extern	bank2bank
+	extern	get_kaihatsu_no
+
+
+HOTEL_TYPE	equ	6
+EXIT		=	0ffh
+
+
+t7_room3:
+ysiz	=	4
+xsiz	=	7
+	db	HOTEL_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	hotel_2		 	; map data adrs
+	dw	msg_t7r3f1		; message adrs
+	dw	ev_t7r3f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r3f1
+
+
+ev_t7r3f1:
+	call	hotel_sio
+	jp	init_for_talkmap
+
+
+msg_t7r3f1:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+	dw	msg4$
+	dw	msg5$
+
+msg4$:
+	db	0f6h			; term girl
+msg1$:
+	db	HOTEL
+
+
+msg2$:
+	extern	msg2_0_T07R0301
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_T07R0301	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_1_T07R0301
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_T07R0301	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5$:
+	db	CALL_MSG
+
+	extern	lucky_common_msg
+	ld	hl,lucky_common_msg
+	ld	b,G_BANK3c
+	call	bank_push_call
+
+	jp	msg_return
+	
+
+
+sxy_t7r3f1: 
+	include	..\sxy\t07r0301.sxy
+
+
+  ifn 0
+
+myu_masspro:
+	ld	b,30
+	ld	c,0
+loop$:
+	inc	c
+	push	bc
+
+;	ld	a,21				; myu
+	ld	a,c
+	ld	(in_dat),a
+	ld	hl,get_kaihatsu_no
+	ld	b,G_BANK10
+	call	bank_push_call
+	ld	a,(in_dat)
+
+	ld	(enemy_no),a
+	ld	a,5
+	ld	(mons_level),a
+	
+	xor	a
+	ld	(enemy_cond5),a
+
+	extern	get_enemy_data
+	ld	hl,get_enemy_data
+	ld	b,G_BANKf
+	call	bank_push_call
+
+;	ld	a,21				; myu
+	ld	a,(enemy_no)
+	ld	(sel_item_no),a
+
+	extern	add_cap_azuke
+	ld	hl,add_cap_azuke
+	ld	b,03h
+	call	bank_push_call
+
+	ld	a,(gb_no + 1)
+	inc	a
+	ld	(gb_no + 1),a
+	jr	nz,pass1$
+
+	ld	a,(gb_no)
+	inc	a
+	ld	(gb_no),a
+pass1$:
+	pop	bc
+	dec	b
+	jr	nz,loop$
+
+	ret
+
+
+  endif
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,229 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	t7_room1_3f
+
+
+	extern	bank2bank
+
+
+DEPART_TYPE	equ	18
+EXIT		=	0ffh
+
+
+t7_room1_3f:
+ysiz	=	4
+xsiz	=	10
+	db	DEPART_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	depart3f		; map data adrs
+	dw	msg_t7r1f3
+	dw	ev_t7r1f3		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t7r1f3
+
+
+ev_t7r1f3:
+	jp	init_for_talkmap
+
+
+
+msg_t7r1f3:
+	dw	msg1
+	dw	msg2
+	dw	msg3
+	dw	msg4
+	dw	msg5
+
+	dw	sfc
+	dw	mon1
+	dw	sfc
+	dw	mon2
+	dw	sfc
+	dw	mon3
+	dw	sfc
+	dw	mon4
+
+	dw	kanban
+	dw	poster
+	dw	poster
+	dw	poster
+
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	a,(ev_t7_1 + 0)
+	bit	7,a
+	jr	nz,yet$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	ld	bc,218 * 256 + 1		; item:18 lot:1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,ev_t7_1 + 0
+	set	7,(hl)
+
+	ld	hl,msg1_1$
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg1_3$
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg1_2$
+
+rts$:
+	call	put_win_msg
+
+	jp	msg_return
+
+
+msg1_0$:
+	extern	msg1_0_0_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg1_2$:
+	extern	msg1_2_2_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_3_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_3_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_4_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw msg2_4_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_5_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw msg3_5_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	extern	msg4_6_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw msg4_6_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	extern	msg5_7_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw msg5_7_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sfc:
+	extern	sfc_8_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw sfc_8_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+mon1:
+	extern	mon1_9_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw mon1_9_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+mon2:
+	extern	mon2_10_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw mon2_10_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+mon3:
+	extern	mon3_11_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw mon3_11_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+mon4:
+	extern	mon4_12_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw mon4_12_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban:
+	extern	kanban_13_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw kanban_13_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+poster:
+	extern	poster_14_T07R0103
+	db I_MSG2	; mvmsg追加
+	dw poster_14_T07R0103	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t7r1f3:
+	include	..\sxy\t07r0103.sxy
+
+
+depart3f:
+	include	..\mapdata\dept3f.map
+
+
+

@@ -1,0 +1,116 @@
+; 06/29/95		20:15:40
+dun_tbl$:
+	db	002h
+ie_tbl$:
+	db	009h
+	db	008h,000h,002h,EXIT
+	db	007h,01dh,003h,EXIT
+	db	008h,01dh,003h,EXIT
+	db	007h,017h,000h,D8R1F1
+	db	00eh,01bh,002h,D8R1F1
+	db	007h,01bh,001h,D8R1F1
+	db	002h,003h,003h,D8R1F1
+	db	005h,003h,004h,D8R1F1
+	db	00eh,017h,005h,D8R1F1
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	00dh
+	db	KAKUTOU
+	db	00Dh+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	001h+040h			; battle type
+	db	0e0h				; dealer number
+	db	001h				; pattern of taking
+	db	NIICHYAN
+	db	009h+4,00Eh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	002h+040h			; battle type
+	db	0ddh				; dealer number
+	db	001h				; pattern of taking
+	db	TRAINERM
+	db	002h+4,015h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	003h+040h			; battle type
+	db	0deh				; dealer number
+	db	001h				; pattern of taking
+	db	NIICHYAN
+	db	008h+4,016h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h+040h			; battle type
+	db	0cfh				; dealer number
+	db	001h				; pattern of taking
+	db	NIICHYAN
+	db	00Dh+4,011h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	005h+040h			; battle type
+	db	0d5h				; dealer number
+	db	001h				; pattern of taking
+	db	CAPSULE
+	db	003h+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	006h+080h			; capsule type
+	db	012h				; item number
+	db	CAPSULE
+	db	00Bh+4,009h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	007h+080h			; capsule type
+	db	034h				; item number
+	db	CAPSULE
+	db	010h+4,014h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	008h+080h			; capsule type
+	db	0cdh				; item number
+	db	CAPSULE
+	db	003h+4,01Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	009h+080h			; capsule type
+	db	037h				; item number
+	db	IWA
+	db	00Fh+4,001h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	00ah
+	db	IWA
+	db	008h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	00bh
+	db	IWA
+	db	005h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	00ch
+	db	IWA
+	db	00Eh+4,017h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	010h				; push stone
+	db	00dh
+ram_map_tbl$:
+	dw	015h * 005h + 001h + ram_map
+	db	008h,000h
+	dw	015h * 004h + 00fh + ram_map
+	db	007h,01dh
+	dw	015h * 005h + 00fh + ram_map
+	db	008h,01dh
+	dw	015h * 004h + 00ch + ram_map
+	db	007h,017h
+	dw	015h * 008h + 00eh + ram_map
+	db	00eh,01bh
+	dw	015h * 004h + 00eh + ram_map
+	db	007h,01bh
+	dw	015h * 002h + 002h + ram_map
+	db	002h,003h
+	dw	015h * 003h + 002h + ram_map
+	db	005h,003h
+	dw	015h * 008h + 00ch + ram_map
+	db	00eh,017h

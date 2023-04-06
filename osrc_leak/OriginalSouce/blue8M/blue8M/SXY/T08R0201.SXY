@@ -1,0 +1,31 @@
+; 10/23/95		13:52:51
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	002h
+	db	007h,002h,001h,EXIT
+	db	007h,003h,001h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	003h
+	db	OBASAN
+	db	003h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	001h
+	db	GSAN
+	db	002h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	002h
+	db	SHOUNEN
+	db	005h+4,005h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	003h
+ram_map_tbl$:
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,002h
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,003h

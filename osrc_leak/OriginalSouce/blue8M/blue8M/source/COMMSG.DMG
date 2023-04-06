@@ -1,0 +1,318 @@
+
+	include		common.def
+	include		fntequ.def
+	include		banktool.def
+	include		macro.h
+
+
+	public	earth_up
+	public	rock_on
+	public	hotel_kanban
+	public	pf_kanban
+	public	capsule_item
+	public	msg_return
+	public	dummy_obj
+
+
+	extern	bank2bank
+	extern	init_for_talkmap
+
+	extern	add_item
+	extern	get_item_name
+	extern	yes_no
+	extern	put_win_msg
+	extern	str_cpy
+	extern	take_item
+	extern	bank_push_call
+
+
+bank0	group	0
+
+
+msg_eom:
+	db	EOM
+
+
+msg_return:
+	ld	hl,msg_eom
+
+	ret
+
+
+dummy_obj:
+	extern	dummy_obj_0_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw dummy_obj_0_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+earth_up:
+	extern	earth_up_1_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw earth_up_1_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+rock_on:
+	extern	rock_on_2_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw rock_on_2_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+pf_kanban:
+	extern	pf_kanban_3_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw pf_kanban_3_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+hotel_kanban:
+	extern	hotel_kanban_4_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw hotel_kanban_4_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+capsule_item:
+	db	CALL_MSG
+
+	ld	a,92				; ITEM_FOUNDS
+	call	bank2bank
+
+	jp	msg_return
+
+
+
+bank1	group	1
+
+;-------------------------;
+; "item_found" main frame ;
+;-------------------------;
+	public	item_founds
+
+item_founds:
+	call	init_for_talkmap
+
+	ld	a,(work1)
+	ld	b,a
+
+	ld	hl,vanish_group
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh
+	ret	z
+
+	cp	b
+	jr	z,found$
+
+	inc	hl
+
+	jr	loop$
+
+
+found$:
+	ld	a,(hl)
+	ld	(DA_BUF + 0),a
+
+	ld	hl,obj_attribute		; 2byte group table
+	ld	a,(work1)
+	dec	a
+	add	a,a				; obj-code * 2
+	ld	d,00h
+	ld	e,a
+	add	hl,de
+	ld	a,(hl)				; item number
+	ld	b,a
+	ld	c,1				; item lot
+	call	take_item
+	jr	nc,full$
+
+	ld	a,(DA_BUF + 0)
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank
+
+	ld	a,1
+	ld	(wait_pass_flg),a
+
+	ld	hl,msg_item$
+
+	jr	rts$
+
+
+full$:
+	ld	hl,msg_no_take$
+
+rts$:
+	call	put_win_msg
+
+	ret
+
+
+msg_item$:
+	extern	msg_item_5_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw msg_item_5_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+msg_no_take$:
+	extern	msg_no_take_6_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw msg_no_take_6_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+
+bank16	group	22
+
+;=======================================================================;
+; common scenario as assistant checker called in "talk_map" data	;
+; <<in>>								;
+; DA_BUF + 0								;
+;	limit lots number						;
+; DA_BUF + 1								;
+;	obtain item number						;
+; anime_buf + 0								;
+;	obtain item name strings					;
+; <<out>>								;
+; DA_BUF + 0								;
+;	result								;
+;	000h	full							;
+;	001h	success(getting item)					;
+;	080h	not allowed						;
+;	0ffh	select "no"						;
+;=======================================================================;
+
+	public	Assistant
+
+Assistant:
+	ld	hl,MsgSubDoc00
+	call	put_win_msg
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	hl,zukan_flg			; catch status
+	ld	b,19
+	extern	how_many_bit
+	call	how_many_bit
+	ld	a,(in_dat)
+	ld	(DA_BUF + 2),a
+	ld	b,a
+	ld	a,(DA_BUF + 0)
+	cp	b
+	jr	z,range$
+	jr	nc,out_range$
+
+range$:
+	ld	hl,MsgSubDoc03
+	call	put_win_msg
+
+	ld	a,(DA_BUF + 1)
+	ld	b,a
+	ld	c,1
+	call	take_item
+	jr	nc,full$
+
+	ld	hl,MsgSubDoc04
+	call	put_win_msg
+
+	ld	a,001h
+
+	jr	rts$
+
+
+full$:
+	ld	hl,MsgSubDoc05
+	call	put_win_msg
+
+	xor	a
+
+	jr	rts$
+
+
+out_range$:
+	ld	hl,MsgSubDoc01
+	call	put_win_msg
+
+	ld	a,080h
+
+	jr	rts$
+
+
+no$:
+	ld	hl,MsgSubDoc02
+	call	put_win_msg
+
+	ld	a,0ffh
+
+rts$:
+	ld	(DA_BUF + 0),a
+
+	ret
+
+
+MsgSubDoc00:
+	extern	MsgSubDoc00_7_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw MsgSubDoc00_7_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+MsgSubDoc01:
+	extern	MsgSubDoc01_8_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw MsgSubDoc01_8_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+MsgSubDoc02:
+	extern	MsgSubDoc02_9_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw MsgSubDoc02_9_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+MsgSubDoc03:
+	extern	MsgSubDoc03_10_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw MsgSubDoc03_10_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+MsgSubDoc04:
+	extern	MsgSubDoc04_11_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw MsgSubDoc04_11_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db	FANFARE
+	db	EOM
+
+
+MsgSubDoc05:
+	extern	MsgSubDoc05_12_COMMSG
+	db I_MSG2	; mvmsg追加
+	dw MsgSubDoc05_12_COMMSG	; mvmsg追加
+	db 020h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+

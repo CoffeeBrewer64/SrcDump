@@ -1,0 +1,263 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include	anime.def
+	include	macro.h
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d16_room1_3f
+
+
+	extern	bank2bank
+	extern	table_jump
+	extern	CheckActorPos
+	extern	CheckAssignPos
+	extern	rock_on
+	extern	FallToHole
+	extern	mk_trace_cmd
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+seq_d16r1f3	equ	seq_ctrl_buf + 118
+
+
+d16_room1_3f:
+ysiz	=	9
+xsiz	=	15
+	db	DOUKUTU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	mdun_1			; map data adrs
+	dw	msg_d16r1f3		; message tbl adrs
+	dw	ev_d16r1f3		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d16r1f3
+
+
+ev_d16r1f3:
+	call	init_for_talkmap
+
+	ld	hl,obs_event + 0
+	bit	7,(hl)
+	res	7,(hl)
+	jr	z,hero
+
+	ld	hl,rock_d16r1f3
+	call	CheckActorPos
+	ret	nc
+
+	ld	hl,ev_d16 + 2			; rock fall check
+
+	ld	a,(usr_buf + 0)
+	cp	1
+	jr	nz,rock2$
+
+	set	0,(hl)
+
+	ld	a,< D16R1F3msg2
+	ld	(yuuichi_gold + 0),a
+	ld	a,< D16R1F4msg1
+	ld	(yuuichi_gold + 1),a
+
+	jr	vanish$
+
+
+rock2$:
+	set	1,(hl)
+
+	ld	a,< D16R1F3msg3
+	ld	(yuuichi_gold + 0),a
+	ld	a,< D16R1F4msg2
+	ld	(yuuichi_gold + 1),a
+
+vanish$:
+	ld	a,(yuuichi_gold + 0)
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank			; d16r0103
+
+	ld	a,(yuuichi_gold + 1)
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	call	bank2bank			; d16r0104
+
+	jr	seq_check
+
+
+hero:
+	ld	a,< D16R1F4
+	ld	(ev_something + 5),a
+	ld	hl,rock_d16r1f3
+	call	FallToHole
+	ld	a,(game_mode)
+	bit	4,a
+	ret	nz
+
+seq_check:
+	ld	hl,event_d16r1f3
+	ld	a,(seq_d16r1f3)
+	jp	table_jump
+
+
+
+rock_d16r1f3:
+	db	010h,003h			; rock1(ce2)
+	db	010h,006h			; rock2(ce2)
+	db	0ffh
+
+
+event_d16r1f3:
+	initndw	CheckRaplus,SeqCheckRaplus	; left port position
+	ndw	ObsRiver,SeqObsRiver
+
+	ndw	FallRaplus,SeqFallRaplus	; front of falled rock
+	ndw	ObsRaplus,SeqObsRaplus
+
+
+CheckRaplus:
+	ld	a,(ev_d16 + 1)
+	and	00000011b
+	cp	00000011b
+	ret	z
+
+	ld	a,(mapscloll_y)
+	cp	008h
+	ret	nz
+
+	ld	a,(mapscloll_x)
+	cp	00fh
+	ret	nz
+
+	ld	hl,ctrl_move_val
+	ld	de,cmd_river$
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	extern	init_hero_anime
+	call	init_hero_anime
+
+	ld	hl,game_mode + 1
+	set	2,(hl)
+
+	ld	a,SeqObsRiver
+	ld	(seq_d16r1f3),a
+
+	ret
+
+
+cmd_river$:
+	db	W_D,6
+	db	W_R,5
+	db	W_D,3
+	db	A_E
+
+
+ObsRiver:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	a,SeqCheckRaplus
+	ld	(seq_d16r1f3),a
+
+	ret
+
+
+FallRaplus:
+	ld	a,(ev_d16 + 1)
+	and	00000011b
+	cp	00000011b
+	ret	z
+
+	ld	a,(mapscloll_x)
+	cp	012h
+	jr	z,left$
+
+	cp	013h
+	ld	a,SeqCheckRaplus
+	jr	nz,rts$
+
+	ld	de,cmd_raplusR$
+
+	jr	set$
+
+
+left$:
+	ld	de,cmd_raplusL$
+
+set$:
+	ld	hl,ctrl_move_val
+	call	mk_trace_cmd			; hero's
+	dec	a
+	ld	(ctrl_move_cnt),a		; step count(observe hero's)
+
+	xor	a
+	ld	(actor_table + 106h),a
+
+	ld	hl,obs_system
+	set	7,(hl)
+
+	ld	hl,game_mode + 1
+	set	2,(hl)
+
+	ld	a,SeqObsRaplus
+
+rts$:
+	ld	(seq_d16r1f3),a
+
+	ret
+
+
+cmd_raplusR$:
+	db	W_D,6
+	db	W_R,2
+	db	W_D,4
+	db	W_L,1
+	db	A_E
+
+cmd_raplusL$:
+	db	W_D,6
+	db	W_R,2
+	db	W_D,4
+	db	A_E
+
+
+ObsRaplus:
+	ld	a,(ctrl_move_cnt)
+	and	a
+	ret	nz
+
+	ld	a,SeqCheckRaplus
+	ld	(seq_d16r1f3),a
+
+	ret
+
+
+
+msg_d16r1f3:
+	dw	rock_on
+	dw	rock_on
+	dw	rock_on
+	dw	rock_on
+	dw	rock_on
+	dw	rock_on
+
+
+
+sxy_d16r1f3:
+	include	..\sxy\d16r0103.sxy
+
+
+mdun_1:
+	include	..\mapdata\mdun_1.map
+

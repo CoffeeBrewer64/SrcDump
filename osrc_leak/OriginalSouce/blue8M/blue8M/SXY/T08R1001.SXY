@@ -1,0 +1,30 @@
+dun_tbl$:
+	db	017h
+ie_tbl$:
+	db	002h
+	db	007h,004h,009h,EXIT
+	db	007h,005h,009h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	003h
+	db	SYLPHMAN
+	db	001h+4,004h+4			; Y, X
+	db	0ffh				; Anime OFF
+	db	000h
+	db	001h
+	db	SYLPHMAN
+	db	002h+4,000h+4			; Y, X
+	db	0ffh				; Anime OFF
+	db	000h
+	db	002h
+	db	ENTHOU
+	db	001h+4,00Ah+4			; Y, X
+	db	0ffh				; Anime OFF
+	db	000h
+	db	003h
+ram_map_tbl$:
+	dw	00dh * 004h + 003h + ram_map
+	db	007h,004h
+	dw	00dh * 004h + 003h + ram_map
+	db	007h,005h

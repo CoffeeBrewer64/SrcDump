@@ -1,0 +1,208 @@
+
+	include		common.def
+	include		fntequ.def
+	include		maphead.def
+	include		macro.h
+	include		group.def
+
+
+bank16	group	G_BANK16
+
+
+	public	road18_event
+	public	road18_msg
+
+	
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+seq_r18		equ	seq_ctrl_buf + 37h
+
+
+road18_event:
+	call	init_for_talkmap
+	ld	hl,dealer_talk
+	ld	de,r18_tbl
+	ld	a,(seq_r18)
+	call	battle_sequence
+	ld	(seq_r18),a
+
+	ret
+
+
+r18_tbl:
+	initndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+road18_msg:
+	msgndw	msg3,msg_bird1
+	ndw	msg4,msg_bird2
+	ndw	msg9,msg_bird3
+	ndw	kanban1,msg_kanban1
+	ndw	kanban2,msg_kanban2
+
+
+
+dealer_talk:
+d_talk3:
+	db	msg_bird1,030h
+	dw	ev_r18 + 0
+	dw	msg3_0
+	dw	msg3_after
+	dw	msg3_win
+	dw	msg3_win
+
+d_talk4:
+	db	msg_bird2,030h
+	dw	ev_r18 + 0
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk9:
+	db	msg_bird3,040h
+	dw	ev_r18 + 0
+	dw	msg9_0
+	dw	msg9_after
+	dw	msg9_win
+	dw	msg9_win
+
+	db	0ffh
+
+
+
+msg3:
+	db	CALL_MSG
+
+	ld	hl,d_talk3
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg3_0:
+	extern	msg3_0_0_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg3_0_0_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_win:
+	extern	msg3_win_1_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg3_win_1_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3_after:
+	extern	msg3_after_2_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg3_after_2_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk4
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg4_0:
+	extern	msg4_0_3_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_3_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_4_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_4_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_5_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_5_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9:
+	db	CALL_MSG
+
+	ld	hl,d_talk9
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg9_0:
+	extern	msg9_0_6_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg9_0_6_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_win:
+	extern	msg9_win_7_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg9_win_7_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg9_after:
+	extern	msg9_after_8_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw msg9_after_8_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban1:
+	extern	kanban1_9_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw kanban1_9_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_10_ROAD18
+	db I_MSG2	; mvmsg追加
+	dw kanban2_10_ROAD18	; mvmsg追加
+	db 024h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+

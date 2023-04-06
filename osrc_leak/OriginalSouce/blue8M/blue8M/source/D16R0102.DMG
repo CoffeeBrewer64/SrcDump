@@ -1,0 +1,113 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	vanish.def
+	include	macro.h
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d16_room1_2f
+
+
+	extern	bank2bank
+	extern	CheckActorPos
+	extern	CheckAssignPos
+	extern	rock_on
+	extern	FallToHole
+
+
+DOUKUTU_TYPE	equ	17
+EXIT		=	0ffh
+
+
+d16_room1_2f:
+ysiz	=	9
+xsiz	=	15
+	db	DOUKUTU_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	mdun_2			; map data adrs
+	dw	msg_d16r1f2		; message tbl adrs
+	dw	ev_d16r1f2		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d16r1f2
+
+
+ev_d16r1f2:
+	call	init_for_talkmap
+
+	ld	hl,obs_event + 0
+	bit	7,(hl)
+	res	7,(hl)
+	jr	z,hero
+
+	ld	hl,rock_d16r1f2
+	call	CheckActorPos
+	ret	nc
+
+	ld	hl,ev_d16 + 1			; rock fall check
+
+	ld	a,(usr_buf + 0)
+	cp	1
+	jr	nz,rock2$
+
+	set	0,(hl)
+
+	ld	a,< D16R1F2msg1
+	ld	(yuuichi_gold + 0),a
+	ld	a,< D16R1F3msg5
+	ld	(yuuichi_gold + 1),a
+
+	jr	vanish$
+
+
+rock2$:
+	set	1,(hl)
+
+	ld	a,< D16R1F2msg2
+	ld	(yuuichi_gold + 0),a
+	ld	a,< D16R1F3msg6
+	ld	(yuuichi_gold + 1),a
+
+vanish$:
+	ld	a,(yuuichi_gold + 0)
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_VANISH
+	call	bank2bank			; d16r0102
+
+	ld	a,(yuuichi_gold + 1)
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	jp	bank2bank			; d16r0103
+
+
+hero:
+	ld	a,< D16R1F3
+	ld	(ev_something + 5),a
+	ld	hl,rock_d16r1f2
+	jp	FallToHole
+
+
+
+rock_d16r1f2:
+	db	006h,013h			; rock1(ce2)
+	db	006h,016h			; rock2(ce2)
+	db	0ffh
+
+
+msg_d16r1f2:
+	dw	rock_on
+	dw	rock_on
+
+
+sxy_d16r1f2:
+	include	..\sxy\d16r0102.sxy
+
+
+mdun_2:
+	include	..\mapdata\mdun_2.map
+

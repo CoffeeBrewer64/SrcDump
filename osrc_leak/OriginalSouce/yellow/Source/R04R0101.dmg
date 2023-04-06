@@ -1,0 +1,237 @@
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	banktool.def
+	include	macro.h
+	include	pm_debug.def
+	include	group.def
+
+
+bank12	group	G_BANK12
+
+
+	public	r4_room1
+
+
+	extern	bank2bank
+	extern	table_jump
+	extern	yes_no
+	extern	check_money
+
+	extern	hotel_2
+	extern	hotel_sio
+
+
+HOTEL_TYPE	equ	6
+EXIT		=	0ffh
+
+
+r4_room1:  
+ysiz	=	4
+xsiz	=	7
+  	db	HOTEL_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	hotel_2	  	 	; map data adrs
+	dw	r4r1f1_msg		; message tbl adrs
+	dw	r4r1f1_event		; event routine adrs
+	db	0			; map link flg
+	dw	r4_room1_str 
+
+
+r4r1f1_event:
+	call	hotel_sio
+	jp	init_for_talkmap
+
+
+r4r1f1_msg:
+	msgndw	msg1,msg_hotelman1
+	ndw	msg2,msg_chikin1
+	ndw	msg3,msg_hotelm
+	ndw	msg4,msg_ossan1
+	ndw	msg5,msg_syorui1
+	ndw	msg6,msg_termgirl
+	ndw	msg7,msg_lucky
+
+
+
+msg1:
+	db	HOTEL
+
+
+msg2:
+	extern	msg2_0_R04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg2_0_R04R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_1_R04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg3_1_R04R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,msg04
+	ld	b,G_BANK3c
+	call	bank_push_call
+
+	jp	msg_return
+
+
+msg5:
+	extern	msg5_2_R04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg5_2_R04R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg6:
+	db	0f6h
+
+
+msg7:
+	db	CALL_MSG
+
+	extern	lucky_common_msg
+	ld	hl,lucky_common_msg
+	ld	b,G_BANK3c
+	extern	bank_push_call
+	call	bank_push_call
+
+	jp	msg_return
+
+
+
+
+r4_room1_str:
+	include	..\sxy\r04r0101.sxy
+
+
+
+
+;=====================================================================
+;
+;
+;
+;=====================================================================
+
+bank3c	group	G_BANK3c
+
+
+
+msg04:
+	ld	a,(ev_r4 + 1)
+;	bit	7,a				; check obtained "koi-king"
+;	jp	nz,buying$
+	add	a,a				; check obtained "koi-king"
+	jp	c,buying$
+
+	ld	hl,msg4_0$
+	call	put_win_msg
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win			; print taking money
+
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jp	nz,not_buy$
+
+	xor	a
+	ld	(divwk1 + 0),a
+	ld	(divwk1 + 2),a
+	ld	a,005h
+	ld	(divwk1 + 1),a			; 500
+	call	check_money			; check take money
+	jr	nc,ok$
+
+	ld	hl,msg4_4$
+
+	jr	rts0$
+
+
+ok$:
+	ld	bc,133 * 256 + 5
+	extern	take_monster
+	call	take_monster
+	jr	nc,rts$
+
+	xor	a
+	ld	(usr_buf + 0),a
+	ld	(usr_buf + 2),a
+	ld	a,005h
+	ld	(usr_buf + 1),a			; 500
+	ld	hl,usr_buf + 2
+	ld	de,my_gold + 2
+	ld	c,3
+	ld	a,B_BCD_SUB
+	call	bank2bank
+
+	SET_WIN_MOD KANE_WIN
+	call	step_prn_win			; print taking money
+
+	ld	hl,ev_r4 + 1
+	set	7,(hl)
+
+	jr	rts$
+
+
+not_buy$:
+	ld	hl,msg4_2$
+
+	jr	rts0$
+
+
+buying$:
+	ld	hl,msg4_5$
+
+rts0$:
+	call	put_win_msg
+
+rts$:
+	ret
+
+
+msg4_0$:
+	extern	msg4_0_3_R04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_3_R04R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_1$:
+msg4_2$:
+	extern	msg4_2_4_R04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_2_4_R04R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_3$:
+msg4_4$:
+	extern	msg4_4_5_R04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_4_5_R04R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_5$:
+	extern	msg4_5_6_R04R0101
+	db I_MSG2	; mvmsg追加
+	dw msg4_5_6_R04R0101	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+

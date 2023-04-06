@@ -1,0 +1,57 @@
+
+	include	common.def	
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank13	group	G_BANK13
+
+
+	public	t0_room1_2f
+	extern	ev_t0r1f1
+
+CYCLE_TYPE	equ	21
+EXIT		=	0ffh
+
+
+t0_room1_2f:
+ysiz	=	4
+xsiz	=	5
+	db	CYCLE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	coloseum		; map data adrs
+	dw	msg_tbl			; message tbl adrs
+	dw	event			; event routine adrs
+	db	0			; map link flg
+	dw	room_str
+
+
+event:
+	jp	ev_t0r1f1
+
+msg_tbl:
+	dw	msg1$
+
+
+msg1$:
+	extern	msg1_0_T00R0102
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T00R0102	; mvmsg追加
+	db 025h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+room_str:
+	include	..\sxy\t00r0102.sxy
+
+
+coloseum:
+	include	..\mapdata\coloseum.map
+
+
+
+
+
+

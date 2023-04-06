@@ -1,0 +1,76 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t8_room7
+
+
+KENKYUJO_TYPE	equ	20
+EXIT		=	0ffh
+
+
+t8_room7:
+ysiz	=	4
+xsiz	=	7
+	db	KENKYUJO_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	jimkyok			; map data adrs
+	dw	msg_t8r7		; message tbl adrs
+	dw	ev_t8r7			; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t8r7
+
+
+ev_t8r7:
+	call	init_for_talkmap
+
+	ret
+
+
+msg_t8r7:
+	dw	msg1$
+	dw	msg2$
+	dw	msg3$
+
+
+msg1$:
+	extern	msg1_0_T08R0701
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T08R0701	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2$:
+	extern	msg2_1_T08R0701
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_T08R0701	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3$:
+	extern	msg3_2_T08R0701
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_T08R0701	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_t8r7:
+	include	..\sxy\t08r0701.sxy
+
+
+jimkyok:
+	include ..\mapdata\jimkyok.map
+
+
+
+
+

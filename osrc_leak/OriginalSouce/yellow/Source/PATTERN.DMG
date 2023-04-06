@@ -1,0 +1,225 @@
+
+bank1	group	1
+
+;*************************************************
+;*						*
+;*	PATTERN	TABLE				*
+;*						*
+;*	dw	pattern_chr			*
+;*	dw	pattern_atr			*
+;*		.				*
+;*		.				*
+;*		.				*
+;*						*
+;*	pattern chr				*
+;*						*
+;*		chr no. , chr no. , chr no. ...	*
+;*						*
+;*	pattern	atr				*
+;*						*
+;*		+0	+1	+2	...	*
+;*		rel Y , rel X , ATTR code 	*
+;*				(bit 0 = on)	*
+;*				(  end mark)	*
+;*						*
+;*************************************************
+
+	public	pattern_table
+
+pattern_table:
+  ifn	0
+	dw	chr0,atr0		; maemuki	
+	dw	chr1,atr0
+	dw	chr0,atr0
+	dw	chr1,atr1
+
+	dw	chr2,atr0		; usiromuki
+	dw	chr3,atr0
+	dw	chr2,atr0
+	dw	chr3,atr1
+
+	dw	chr4,atr0		; hidarimuki
+	dw	chr5,atr0
+	dw	chr4,atr0
+	dw	chr5,atr0
+
+	dw	chr4,atr1		; migimuki
+	dw	chr5,atr1
+	dw	chr4,atr1
+	dw	chr5,atr1
+
+	dw	chr0,atr0		; komono maemuki
+	dw	chr0,atr0
+	dw	chr0,atr0
+	dw	chr0,atr0
+
+	dw	chr0,atr0		; komono usiromuki
+	dw	chr0,atr0
+	dw	chr0,atr0
+	dw	chr0,atr0
+
+	dw	chr0,atr0		; komono hidarimuki
+	dw	chr0,atr0
+	dw	chr0,atr0
+	dw	chr0,atr0
+
+	dw	chr0,atr0		; komono migimuki
+	dw	chr0,atr0
+	dw	chr0,atr0
+	dw	chr0,atr0
+
+chr0:
+	db	0,1,2,3
+chr1:
+	db	080h+0,080h+1,080h+2,080h+3
+chr2:
+	db	4,5,6,7
+chr3:
+	db	080h+4,080h+5,080h+6,080h+7
+chr4:
+	db	8,9,10,11
+chr5:
+	db	080h+8,080h+9,080h+10,080h+11
+
+atr0:
+	db	0,0,0
+	db	0,8,0
+	db	8,0,2
+	db	8,8,3
+
+atr1:
+	db	0,8,020h
+	db	0,0,020h
+	db	8,8,022h
+	db	8,0,023h
+  endif
+
+  ifn	1
+NMLCHR		equ	00h
+WLKCHR		equ	80h
+LASTSIGN	equ	01h
+KUSASIGN	equ	02h
+HREV		equ	20h
+VREV		equ	40h
+
+
+	public	new_pattern_table
+
+new_pattern_table:
+	dw	chr0_atr0		; maemuki	
+	dw	chr1_atr0
+	dw	chr0_atr0
+	dw	chr1_atr1
+
+	dw	chr2_atr0		; usiromuki
+	dw	chr3_atr0
+	dw	chr2_atr0
+	dw	chr3_atr1
+
+	dw	chr4_atr0		; hidarimuki
+	dw	chr5_atr0
+	dw	chr4_atr0
+	dw	chr5_atr0
+
+	dw	chr4_atr1		; migimuki
+	dw	chr5_atr1
+	dw	chr4_atr1
+	dw	chr5_atr1
+
+	dw	chr0_atr0		; komono maemuki
+	dw	chr0_atr0
+	dw	chr0_atr0
+	dw	chr0_atr0
+
+	dw	chr0_atr0		; komono usiromuki
+	dw	chr0_atr0
+	dw	chr0_atr0
+	dw	chr0_atr0
+
+	dw	chr0_atr0		; komono hidarimuki
+	dw	chr0_atr0
+	dw	chr0_atr0
+	dw	chr0_atr0
+
+	dw	chr0_atr0		; komono migimuki
+	dw	chr0_atr0
+	dw	chr0_atr0
+	dw	chr0_atr0
+
+	dw	testball
+
+
+chr0_atr0:
+	db	4
+	db	0,0,NMLCHR+00,0
+	db	0,8,NMLCHR+01,0
+	db	8,0,NMLCHR+02,KUSASIGN
+	db	8,8,NMLCHR+03,KUSASIGN+LASTSIGN
+chr1_atr0:
+	db	4
+	db	0,0,WLKCHR+00,0
+	db	0,8,WLKCHR+01,0
+	db	8,0,WLKCHR+02,KUSASIGN
+	db	8,8,WLKCHR+03,KUSASIGN+LASTSIGN
+chr1_atr1:
+	db	4
+	db	0,8,WLKCHR+00,HREV
+	db	0,0,WLKCHR+01,HREV
+	db	8,8,WLKCHR+02,HREV+KUSASIGN
+	db	8,0,WLKCHR+03,HREV+KUSASIGN+LASTSIGN
+chr2_atr0:
+	db	4
+	db	0,0,NMLCHR+04,0
+	db	0,8,NMLCHR+05,0
+	db	8,0,NMLCHR+06,KUSASIGN
+	db	8,8,NMLCHR+07,KUSASIGN+LASTSIGN
+chr3_atr0:
+	db	4
+	db	0,0,WLKCHR+04,0
+	db	0,8,WLKCHR+05,0
+	db	8,0,WLKCHR+06,KUSASIGN
+	db	8,8,WLKCHR+07,KUSASIGN+LASTSIGN
+chr3_atr1:
+	db	4
+	db	0,8,WLKCHR+04,HREV
+	db	0,0,WLKCHR+05,HREV
+	db	8,8,WLKCHR+06,HREV+KUSASIGN
+	db	8,0,WLKCHR+07,HREV+KUSASIGN+LASTSIGN
+chr4_atr0:
+	db	4
+	db	0,0,NMLCHR+08,0
+	db	0,8,NMLCHR+09,0
+	db	8,0,NMLCHR+10,KUSASIGN
+	db	8,8,NMLCHR+11,KUSASIGN+LASTSIGN
+chr5_atr0:
+	db	4
+	db	0,0,WLKCHR+08,0
+	db	0,8,WLKCHR+09,0
+	db	8,0,WLKCHR+10,KUSASIGN
+	db	8,8,WLKCHR+11,KUSASIGN+LASTSIGN
+chr4_atr1:
+	db	4
+	db	0,8,NMLCHR+08,HREV
+	db	0,0,NMLCHR+09,HREV
+	db	8,8,NMLCHR+10,HREV+KUSASIGN
+	db	8,0,NMLCHR+11,HREV+KUSASIGN+LASTSIGN
+chr5_atr1:
+	db	4
+	db	0,8,WLKCHR+08,HREV
+	db	0,0,WLKCHR+09,HREV
+	db	8,8,WLKCHR+10,HREV+KUSASIGN
+	db	8,0,WLKCHR+11,HREV+KUSASIGN+LASTSIGN
+
+
+testball:
+	db	9
+	db	-4 ,-4 ,NMLCHR+00,0
+	db	-4 ,+4 ,NMLCHR+01,0
+	db	-4 ,+12,NMLCHR+00,HREV
+	db	+4 ,-4 ,NMLCHR+01,0
+	db	+4 ,+4 ,NMLCHR+02,0
+	db	+4 ,+12,NMLCHR+01,0
+	db	+12,-4 ,NMLCHR+00,VREV+KUSASIGN
+	db	+12,+4 ,NMLCHR+01,KUSASIGN
+	db	+12,+12,NMLCHR+00,VREV+HREV+KUSASIGN+LASTSIGN
+  endif

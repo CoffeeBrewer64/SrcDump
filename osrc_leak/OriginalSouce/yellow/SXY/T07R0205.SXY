@@ -1,0 +1,26 @@
+; 04/28/98		00:43:17
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	002h
+	db	007h,002h,002h,T7R2F4
+	db	007h,003h,002h,T7R2F4
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	002h
+	db	MORIMORI
+	db	002h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+	db	CAPSULE
+	db	003h+4,004h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	002h
+ram_map_tbl$:
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,002h
+	dw	00ah * 004h + 002h + ram_map
+	db	007h,003h

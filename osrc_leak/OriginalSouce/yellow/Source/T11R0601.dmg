@@ -1,0 +1,83 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	vanish.def
+	include	banktool.def
+	include	macro.h
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	t11_room6
+
+	extern	bank2bank
+
+
+BUILDING_TYPE	equ	22
+EXIT		=	0ffh
+
+
+t11_room6:
+ysiz	=	9
+xsiz	=	15
+	db	BUILDING_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	silf_1f			; map data adrs
+	dw	msg_t11r6f1		; message tbl adrs
+	dw	ev_t11r6f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t11r6f1
+
+
+ev_t11r6f1:
+	call	init_for_talkmap
+
+	ld	a,(ev_d10 + 19)
+	bit	7,a
+	ret	z
+
+	ld	hl,ev_t11_6 + 0
+	bit	7,(hl)
+	set	7,(hl)
+	ret	nz
+
+	ld	a,T11R6F1msg1
+	ld	(obs_obj),a
+	ld	a,B_REQ_OBJ_APPEAR
+	jp	bank2bank
+
+
+
+msg_t11r6f1:
+	dw	msg1
+;	dw	kanban1
+
+
+msg1:
+	extern	msg1_0_T11R0601
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_T11R0601	; mvmsg追加
+	db 02ch	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+  ifn	0
+kanban1:
+	db	D_MSG
+	db	me_,ti_,yya_,me_,ti_,yya_,ni_,spc@,ko_,wa_,sa_,re_,te_,ru_
+	db	home@
+	db	to_,u_,bu_,n_,spc@,na_,o_,ri_,so_,u_,ni_,spc@,na_,i_
+	db	tenten2@
+	db	EOMeom
+  endif
+
+
+sxy_t11r6f1:
+	include	..\sxy\t11r0601.sxy
+
+silf_1f:
+	include	..\mapdata\silf_1f.map
+

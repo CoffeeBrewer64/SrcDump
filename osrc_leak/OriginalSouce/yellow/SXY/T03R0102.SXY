@@ -1,0 +1,40 @@
+; 04/28/98		18:04:13
+dun_tbl$:
+	db	00ah
+ie_tbl$:
+	db	001h
+	db	007h,007h,004h,T3R1F1
+kanban_tbl$:
+	db	002h
+	db	002h,00Bh,6
+	db	005h,002h,7
+hito_tbl$:
+	db	005h
+	db	SHOUNEN
+	db	007h+4,001h+4			; Y, X
+	db	0feh				; random move mode
+	db	002h				; moving site
+	db	001h
+	db	GSAN2
+	db	005h+4,000h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h
+	db	KENKYUIN
+	db	005h+4,007h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	003h
+	db	NANAMI
+	db	005h+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+	db	MORIMORI
+	db	005h+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	005h
+ram_map_tbl$:
+	dw	00dh * 004h + 004h + ram_map
+	db	007h,007h

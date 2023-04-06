@@ -1,0 +1,82 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d12_room1
+
+
+	extern	capsule_item
+
+
+DUNGEON_TYPE	equ	3
+EXIT		=	0ffh
+
+
+seq_d12r1f1	equ	seq_ctrl_buf + 46h
+
+
+d12_room1:
+ysiz	=	13
+xsiz	=	15
+	db	DUNGEON_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	safari2			; map data adrs
+	dw	msg_d12r1f1		; message tbl adrs
+	dw	ev_d12r1f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d12r1f1
+
+
+ev_d12r1f1:
+	jp	init_for_talkmap
+
+
+
+msg_d12r1f1:
+	initndw	capsule_item,msg_capsule1
+	ndw	capsule_item,msg_capsule2
+	ndw	capsule_item,msg_capsule3
+	ndw	capsule_item,msg_capsule4
+	ndw	kanban1,msg_hotel
+	ndw	kanban2,msg_kanban1
+	ndw	kanban3,msg_kanban2
+
+
+
+kanban1:
+	extern	kanban1_0_D12R0101
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_D12R0101	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2:
+	extern	kanban2_1_D12R0101
+	db I_MSG2	; mvmsg追加
+	dw kanban2_1_D12R0101	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban3:
+	extern	kanban3_2_D12R0101
+	db I_MSG2	; mvmsg追加
+	dw kanban3_2_D12R0101	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d12r1f1:
+	include	..\sxy\d12r0101.sxy
+
+safari2:
+	include	..\mapdata\safari_2.map
+

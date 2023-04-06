@@ -1,0 +1,2609 @@
+;=======================================================================;
+; Category	: Pikacyu Actor Control Program
+; Author	: tama
+; Bank-No.	: G_BANK0,G_BANK3f
+; Infomation	: control normal map sequence mode actor
+;		:
+;=======================================================================;
+
+
+
+	include	common.def
+	include	banktool.def
+	include	macro.h
+	include	fntequ.def
+	include	group.def
+	include	maphead.def
+
+	include	pika.def
+
+
+
+bank0	group	G_BANK0
+
+
+	extern	memset
+	extern	bank_push_call
+	extern	bank_change
+	extern	mul_any
+
+
+
+
+ACTSIZ		equ	010h
+
+HIDE_CODE	equ	0ffh
+
+ACTOR_NEXT_ADRS	equ	ACTSIZ * ACTOR_MAX + actor_table  
+
+HERO_SITE	equ	actor_table + 009h
+
+
+CMD_DOWN	equ	01h
+CMD_UP		equ	02h
+CMD_LEFT	equ	03h
+CMD_RIGHT	equ	04h
+
+CMD_DOWN_JP	equ	05h
+CMD_UP_JP	equ	06h
+CMD_LEFT_JP	equ	07h
+CMD_RIGHT_JP	equ	08h
+
+
+
+
+
+
+
+
+	public	set_pika_vanish
+
+set_pika_vanish:
+	push	hl
+	ld	hl,pika_status
+	set	PIKA_ACT_OFF,(hl)
+	ld	hl,PIKA_ACT_TABLE + 002h
+	ld	(hl),HIDE_CODE			; hide code
+	pop	hl
+	ret
+
+
+	public	set_pika_appear
+
+set_pika_appear:
+	push	hl
+	ld	hl,pika_status
+	res	PIKA_ACT_OFF,(hl)
+	pop	hl
+	ret
+
+
+	public	set_pika_visible
+
+set_pika_visible:
+	push	hl
+	ld	hl,pika_status
+	res	NOT_SHOW_SW,(hl)
+	pop	hl
+	ret
+
+
+	public	set_pika_invisible
+
+set_pika_invisible:
+	push	hl
+	ld	hl,pika_status
+	set	NOT_SHOW_SW,(hl)
+	ld	hl,PIKA_ACT_TABLE + 002h
+	ld	(hl),HIDE_CODE			; hide code
+	pop	hl
+	ret
+
+
+
+	public	set_pika_sleep
+	public	reset_pika_sleep
+	public	chk_pika_sleep
+
+set_pika_sleep:
+	push	hl
+	ld	hl,pika_status
+	set	SLEEP_SW,(hl)
+	pop	hl
+	ret
+
+reset_pika_sleep:
+	push	hl
+	ld	hl,pika_status
+	res	SLEEP_SW,(hl)
+	pop	hl
+	ret
+
+chk_pika_sleep:
+	push	hl
+	ld	hl,pika_status
+	bit	SLEEP_SW,(hl)
+	pop	hl
+	ret
+
+
+
+
+;---------------------------------------
+; control PIKACYU actor
+;---------------------------------------
+	public	pika_actor
+
+pika_actor:
+	ld	a,(hl)
+	dec	a
+	swap	a
+	ld	(actwork4),a
+
+	ld	a,(rombankno)
+	push	af
+
+	ld	a,G_BANK3f
+	call	bank_change
+
+	call	pika_act_main
+
+	pop	af
+	call	bank_change
+	ret
+
+
+
+
+;---------------------------------------------
+; Search data in table
+;In:	hl regs		table top address
+;	a regs		search item
+;out:	carry ON	found same item
+;	hl regs		found address
+;	b regs		found pos
+;---------------------------------------------
+tbl_srch_mini:
+	ld	b,0
+	ld	c,a
+loop$:
+	inc	b
+	ld	a,(hli)
+	cp	0ffh
+	jr	z,end$
+	cp	c
+	jr	nz,loop$
+	
+	dec	b
+	dec	hl
+	scf
+	ret
+end$:
+	dec	b
+	dec	hl
+	and	a
+	ret
+
+
+
+bank3f	group	G_BANK3f
+
+
+
+
+
+
+;-----------------------------------
+; check pikacyu actor exist or not
+; Carry ON --> exist&show
+;-----------------------------------
+	public	pika_cap_chk		; for debug global label
+
+pika_cap_chk:
+	ld	a,(pika_status)			; not show 
+	bit	LANDING_SW,a			;   while hero's landing shore
+	jr	nz,not$
+
+	ld	a,(pika_status)			; not show because
+	bit	PIKA_ACT_OFF,a			;   requested by flag
+	jr	nz,not$
+
+	call	special_pika_chk		; not my steady Pikachu
+	jr	nc,not$				; (ID&OwnerName checking)
+
+	ld	a,(chyari_flg)			; not walk,not show
+	and	a
+	jr	nz,not$
+
+ok$:
+	scf
+	ret
+not$:
+	and	a
+	ret
+
+
+
+
+
+
+;-------------------------------------------------------
+; set actor data  of PIKACYU 
+;
+;-------------------------------------------------------
+	public	set_pika
+
+set_pika:
+	ld	hl,pika_status
+	bit	MAP2MAP_SW,(hl)
+	res	MAP2MAP_SW,(hl)
+	jr	nz,map2map_set$
+
+
+	call	reset_pika_sleep
+
+	call	init_pika_tbl$
+
+	ld	a,HIDE_CODE
+	ld	(PIKA_ACT_TABLE + 002h),a
+
+	call	clear_buffer
+
+	call	set_down_half
+
+	ret
+
+
+map2map_set$:
+	call	set_upper_half
+	xor	a
+	ld	(pika_set_pos),a
+
+	ld	a,(HERO_SITE)
+	ld	(PIKA_ACT_TABLE + 009h),a
+
+	ret
+	
+
+
+init_pika_tbl$:
+	ld	hl,PIKA_ACT_TABLE
+	call	set$
+
+	ld	hl,PIKA_ACT_TABLE + 0100h
+set$:
+	ld	bc,ACTSIZ
+	xor	a
+	call	memset
+	ret
+
+
+
+
+
+set_upper:
+	call	set_upper_half
+	call	set_down_half
+	xor	a
+	ld	(pika_set_pos),a
+	ret
+
+
+
+;----------------------------------------------
+; Set Actor Data Of:
+;	+104:global_y
+;	+105:global_x
+;	+106:animation switch
+;----------------------------------------------
+set_upper_half:
+	ld	bc,PIKA_ACT_TABLE
+	ld	a,(mapscloll_y)
+	add	a,004h
+	ld	e,a
+	ld	a,(mapscloll_x)
+	add	a,004h
+	ld	d,a
+
+	ld	a,(pika_set_pos)
+	and	a
+	jr	z,normal_set$
+	cp	SIDE_PIKA_SET
+	jr	z,set_right$
+	cp	AFTER_PIKA_SET
+	jr	z,set_after$
+	cp	EXIT_PIKA_SET
+	jr	z,normal_set$
+	cp	DOWN_PIKA_SET
+	jr	z,set_down$
+	cp	UP_PIKA_SET
+	jr	z,set_up$
+	cp	LEFT_PIKA_SET
+	jr	z,set_left$
+	cp	FRONT_PIKA_SET
+	jr	z,set_front$
+
+	jr	set_right$		; default --> right side
+
+
+set_front$:
+	ld	a,(HERO_SITE)
+	and	a
+	jr	z,set_down$
+	cp	04h
+	jr	z,set_up$
+	cp	08h
+	jr	z,set_left$
+	cp	0ch
+	jr	z,set_right$
+
+
+set_after$:
+	ld	a,(HERO_SITE)
+	and	a
+	jr	nz,chk_up$
+	dec	e
+	jr	normal_set$
+chk_up$
+	cp	04h
+	jr	nz,chk_left$
+	inc	e
+	jr	normal_set$
+chk_left$:
+	cp	08h
+	jr	nz,chk_right$
+	inc	d
+	jr	normal_set$
+chk_right$:
+	dec	d
+	jr	normal_set$
+
+
+set_right$:
+	inc	d			; x pos ++
+	jr	normal_set$
+set_left$:
+	dec	d
+	jr	normal_set$
+set_down$:
+	inc	e
+	jr	normal_set$
+set_up$:
+	dec	e
+	jr	normal_set$
+
+
+normal_set$:
+	LD_HL	bc,0104h
+	ld	(hl),e				; global_y
+	inc	hl
+	ld	(hl),d				; global_x
+	inc	hl
+	ld	(hl),0feh			; anime switch
+
+	push	hl
+	ld	hl,obs_pikachu			; ピカチュウ表示後はオン！
+	set	5,(hl)
+	pop	hl
+	ret
+
+
+
+;--------------------------------------------------
+;Set Actor Data Of:
+;	+000:actor code
+;	+002:actor pattern
+;	+009:actor site
+;--------------------------------------------------
+set_down_half:
+	ld	a,PIKA_CODE			; Actor code 
+	ld	(PIKA_ACT_TABLE),a		; 	<-- PIKACYU OBJ CODE
+	ld	a,HIDE_CODE			; actor pattern
+	ld	(PIKA_ACT_TABLE + 002h),a	; 	<-- hide code
+
+	ld	a,(pika_set_pos)
+	and	a
+	jr	z,normal$
+	cp	SIDE_PIKA_SET
+	jr	z,side_of_hero$
+;	cp	AFTER_PIKA_SET
+;	jr	z,normal$
+	cp	EXIT_PIKA_SET
+	jr	z,sp_out$
+	cp	DOWN_PIKA_SET
+	jr	z,down_of_hero$
+	cp	LEFT_PIKA_SET
+	jr	z,side_of_hero$
+	cp	FRONT_PIKA_SET
+	jr	z,front_to_hero$
+
+	call	looking_hero
+	ret
+
+normal$:
+side_of_hero$:
+down_of_hero$:
+	ld	a,(HERO_SITE)			; Pika's site
+	ld	(PIKA_ACT_TABLE + 009h),a	; 	<-- hero's site
+	ret
+	
+sp_out$:
+	ld	a,00				; down site value
+	ld	(PIKA_ACT_TABLE + 009h),a
+	ret
+
+front_to_hero$:
+	ld	a,(HERO_SITE)
+	xor	00000100b
+	ld	(PIKA_ACT_TABLE + 009h),a
+	ret
+
+
+
+;-----------------------------------------------------
+; 主人公に対するピカチュウの位置を決める
+; set pika's position code 
+;	when "Field--> Room" mode
+; In:	mapno	no. going to
+;-----------------------------------------------------
+	public	appoint_pika_pos1
+
+appoint_pika_pos1:
+	ld	a,(mapno)
+	cp	T1R3F1
+	jr	z,okido_lab_set$
+
+	cp	R22R1F1
+	jr	z,R22R1F1_check$
+
+	cp	D2R1F2
+	jr	z,Otsukimi_check$
+
+	cp	R10R2F1
+	jr	z,overlap_set$
+
+	ld	a,(mapno)
+	ld	hl,downsettbl$
+	call	tbl_srch_mini
+	jr	c,down_set$
+
+	ld	a,(mapno)
+	ld	hl,sitechktbl$
+	call	tbl_srch_mini
+	jr	nc,normal_set$
+
+site_check$:
+	ld	a,(HERO_SITE)
+	and	a			;  == 0 == down
+	jr	nz,normal_set$
+
+	ld	a,EXIT_PIKA_SET
+	jr	set$
+
+R22R1F1_check$:				; Road23 --> R22R1F1
+	ld	a,(HERO_SITE)
+	and	a			; down site
+	jr	z,overlap_set$
+	jr	normal_set$
+
+Otsukimi_check$:			; Otukimi yama (HANADA Side)
+	ld	a,EXIT_PIKA_SET		;
+	jr	set$			;
+
+down_set$:
+	ld	a,DOWN_PIKA_SET
+	jr	set$
+
+okido_lab_set$:
+left_set$:
+	ld	a,LEFT_PIKA_SET
+	jr	set$
+
+normal_set$:
+	ld	a,SIDE_PIKA_SET
+	jr	set$
+
+overlap_set$:
+	ld	a,EXIT_PIKA_SET
+
+
+set$:
+	ld	(pika_set_pos),a
+	ret
+
+
+downsettbl$:
+	db	R23R1F1			; champion road (<-- sekiei highland)
+	db	R7R1F1			; gate (tamamushi -- yamabuki)
+	db	R8R1F1			; gate (shion -- yamabuki)
+	db	R16R1F1			; gate (tamamushi -- cycling road)
+	db	R18R1F1			; gate (sekichiku -- cycling road)
+	db	R15R1F1			; gate (sekichiku -- road 15)
+	db	R11R1F1			; gate (クチバ＜－＞つりの名所)
+	db	0ffh
+
+sitechktbl$:
+	db	R2R2F1			; gate(nibi > tokiwa forest)
+	db	T4R8F1			; hanada house (badge explain)
+	db	T4R1F1			; hanada house (baggler ruined)
+	db	T6R6F1			; kutiba port
+	db	T7R2F1			; tamamushi apartment
+	db	R2R4F1
+	db	T8R8F1			; House of Turi Oyaji's Bros.
+	db	0ffh
+
+
+;-----------------------------------------------------
+; 主人公に対するピカチュウの位置を決める
+; set pika's position code 
+;	when "Room--> Room" mode
+;-----------------------------------------------------
+	public	appoint_pika_pos2
+
+appoint_pika_pos2:
+	ld	a,(mapno)
+	cp	R2R2F1
+	jr	z,R2R2F1_check$
+
+	cp	R2R5F1
+	jr	z,R2R5F1_check$
+
+	ld	a,(mapno)
+	ld	hl,sidesettbl$
+	call	tbl_srch_mini
+	jr	c,side_set$
+
+	jr	overlap_set$
+
+R2R2F1_check$:				; Tokiwa Forest --> Gate to Nibi city
+	ld	a,(HERO_SITE)
+	cp	04h			; up site
+	jr	z,side_set$
+	jr	overlap_set$
+
+R2R5F1_check$:				; Tokiwa Forest --> Gate to Tokiwa city
+	ld	a,(HERO_SITE)
+	and	a			; down site
+	jr	z,overlap_set$
+	jr	side_set$
+
+overlap_set$:
+	ld	a,NORMAL_PIKA_SET
+	jr	set$
+
+side_set$:
+	ld	a,SIDE_PIKA_SET
+
+set$:
+	ld	(pika_set_pos),a
+	ret
+
+
+sidesettbl$:
+	db	D1R1F1			; Tokiwa Forest
+	db	D12R1F5			; safari rest house
+	db	D12R1F7			; safari rest house
+	db	D12R1F8			; safari rest house
+	db	D12R1F9			; safari rest house
+	db	D12R1F6			; safari treasure house
+	db	D10R1F11		; elevator (silf bld.)
+	db	T7R1F6			; elevator (tamamushi dept.)
+	db	T9R3F2			; gren Lab 
+	db	T9R3F3			; gren Lab
+	db	T9R3F4			; gren Lab
+	db	0ffh
+
+
+;-----------------------------------------------------
+; 主人公に対するピカチュウの位置を決める
+; set pika's position code 
+;	when "Room--> Field" mode
+; In	: mapno		room mapno from 
+; 	: mapno_stack	field mapno to
+;-----------------------------------------------------
+	public	appoint_pika_pos3
+
+appoint_pika_pos3:
+	ld	a,(mapno)
+	cp	R22R1F1
+	jr	z,R22R1F1_check$
+
+	cp	R2R4F1
+	jr	z,R2R4F1_check$
+
+	jr	normal$
+
+
+R22R1F1_check$:				; R22R1F1 --> Road23
+	ld	a,(HERO_SITE)
+	cp	04h			; 
+	jr	z,side_set$
+	jr	normal$
+
+
+R2R4F1_check$:				; R2R4F1 --> Road02(north side)
+	ld	a,(HERO_SITE)
+	cp	04h			; up site
+	jr	z,side_set$
+	jr	normal$
+
+side_set$:
+	ld	a,SIDE_PIKA_SET
+	jr	set$
+normal$:
+exit_set$:
+	ld	a,EXIT_PIKA_SET
+	jr	set$
+
+set$:
+	ld	(pika_set_pos),a
+	ret
+
+
+
+;---------------------------------------
+
+SetWaitStatus:
+	push	hl
+	ld	hl,pika_status
+	set	WAIT_STATUS,(hl)
+	pop	hl
+	ret
+
+ResetWaitStatus:
+	push	hl
+	ld	hl,pika_status
+	res	WAIT_STATUS,(hl)
+	pop	hl
+	ret
+
+
+
+
+;========================================================
+;
+; Control Pikacyu Actor
+; move/stop/wait etc.....
+;
+;
+;========================================================
+	public	pika_act_main
+
+	public	init_phase
+	public	decide_phase
+	public	move_phase
+	public	stay_phase
+
+;--------------------------------------
+; Control PIKACYU actor main routine
+;
+;--------------------------------------
+
+pika_act_main:
+	call	ResetWaitStatus
+	call	pika_sw_check
+	ret	nc			; no pika --> no action
+
+	push	bc
+	call	chk_pika_show_hide
+	pop	bc
+	ret	c			; not show pika --> no action
+
+	ld	bc,PIKA_ACT_TABLE
+	LD_HL	bc,001
+	bit	7,(hl)
+	jp	nz,talk_phase		; talk to Pika
+
+	ld	a,(talking_flg)
+	bit	0,a
+	jp	nz,stop_phase		; talk to other
+
+	call	chk_pika_sleep
+	jp	nz,sleep_phase		; sleep --> no move
+
+	ld	a,(hl)
+	and	01111111b
+	cp	MODE_END
+	jr	c,pass$
+	xor	a
+pass$:
+	add	a,a
+	ld	e,a
+	ld	d,00h
+	ld	hl,phase_table$
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+
+phase_table$:
+	initndw		init_phase	,MODE_INIT
+	ndw		decide_phase	,MODE_DECIDE
+	ndw		stay_phase	,MODE_STAY
+	ndw		move_phase	,MODE_MOVE
+	ndw		jump_phase	,MODE_JUMP
+	ndw		run_move_phase	,MODE_RUN
+	ndw		hop_phase	,MODE_HOP
+	ndw		step_here_phase	,MODE_STEP_HERE
+	ndw		step_here2_phase,MODE_STEP_HERE2
+	ndw		demo_roll_phase	,MODE_DEMO_ROLL
+
+	ndw		dummy		,MODE_END
+
+
+dummy:
+	ret
+
+
+;=======================================================================;
+; Category	: check Pikacyu in capsule & set pika data
+; Author	: tama
+; Bank-No.	: G_BANK0
+; In		: my_cap_tbl
+; Out		: carry ON	hero has PIKACYU 
+; Infomation	: If Pikachu is able to show & action code == initialize,
+;		:  set Pika's Actor Data
+;		: If Pikachu is not able to show,
+;		:  reset action code & set Hide-Code
+;=======================================================================;
+
+	public	pika_sw_check
+
+pika_sw_check:
+	call	pika_cap_chk
+	jr	nc,not$
+
+	ld	a,(PIKA_ACT_TABLE + 001h)
+	and	a
+	jr	nz,pass$
+
+	push	bc
+	push	hl
+	call	set_upper
+	pop	hl
+	pop	bc
+	
+pass$:
+	scf
+	ret
+
+not$:
+	ld	hl,PIKA_ACT_TABLE + 002h
+	ld	(hl),HIDE_CODE
+	dec	hl
+	ld	(hl),MODE_INIT
+	xor	a				; clear carry flag
+
+	ret
+
+
+
+
+;------------------------------------------------
+; Mode When Hero Talking to Pikacyu 
+;------------------------------------------------
+talk_phase:
+	LD_HL	bc,001h
+	res	7,(hl)
+
+	LD_HL	bc,0100h
+	ld	(hl),a
+
+	call	chk_pika_sleep
+	jr	nz,setpat$
+
+	ld	a,(HERO_SITE)		; set the site
+	xor	00000100b		;  to reverse site of hero
+	LD_HL	bc,009h
+	ld	(hl),a
+	
+setpat$:
+	xor	a
+	LD_HL	bc,007h
+	ld	(hli),a			; PCC
+	ld	(hl),a			; PWC
+	call	set_pattern
+	ret
+	
+
+
+;------------------------------------------------
+; Mode When Hero Talking to Other Actor 
+;------------------------------------------------
+sleep_phase:
+stop_phase:
+	xor	a
+	LD_HL	bc,007h
+	ld	(hli),a			; PCC
+	ld	(hl),a			; PWC
+
+	call	set_pattern
+	
+	call	scroll_check
+	jr	c,passset$
+
+	push	bc
+	ld	hl,set_localyx
+	ld	b,1
+	call	bank_push_call
+	pop	bc
+
+passset$:
+	LD_HL	bc,001h
+	ld	(hl),MODE_DECIDE
+	LD_HL	bc,0100h
+	ld	(hl),00h		; wait counter <-- 0
+
+	call	init_buf_cmd
+	ret
+
+
+
+
+;------------------------------------------------
+; Initialize PIKACYU actor
+;------------------------------------------------
+init_phase:
+	call	init_buf_cmd
+
+	push	bc
+	extern	set_localyx
+	ld	hl,set_localyx
+	ld	b,1
+	call	bank_push_call
+	pop	bc
+
+	LD_HL	bc,002h
+	ld	(hl),HIDE_CODE
+	dec	hl
+	ld	(hl),MODE_DECIDE
+
+	ret
+
+
+
+;------------------------------------------------
+; Decide PIKACYU action 
+;------------------------------------------------
+
+decide_phase:
+	call	get_buf_cmd
+	jp	c,stay_phase		; no command in buffer
+
+	dec	a
+	ld	l,a
+	ld	h,00h
+	add	hl,hl
+	add	hl,hl
+	ld	de,param_tbl$
+	add	hl,de
+	ld	d,h
+	ld	e,l
+
+	ld	a,(de)			;[Site]
+	inc	de
+;	call	soppo_check
+	LD_HL	bc,009h
+	ld	(hl),a			; +009:actor's site
+
+	ld	a,(de)			; [X move vector]
+	inc	de
+	LD_HL	bc,005h
+	ld	(hl),a			; +005:x dot vector
+
+	dec	hl
+	dec	hl
+	ld	a,(de)			; [Y move vector]
+	ld	(hl),a			; +003:y dot vector
+	inc	de
+
+	ld	a,(de)			; [action code]
+	LD_HL	bc,001h
+	ld	(hl),a			; +001:action code
+
+	cp	MODE_JUMP
+	jp	z,init_jump_phase
+
+	call	count_buf_cmd		; buffer over ==> pika hurry up!!
+	jp	c,init_run_phase	;  use only debug mode
+
+	jp	init_move_phase
+
+
+param_tbl$:
+;-----------  [site][x][y][action_code]-----------------------------
+	db	00h, 0,+1,MODE_MOVE		; down
+	db	04h, 0,-1,MODE_MOVE		; up
+	db	08h,-1, 0,MODE_MOVE		; left
+	db	0ch,+1, 0,MODE_MOVE		; right
+
+	db	00h, 0,+1,MODE_JUMP		; down
+	db	04h, 0,-1,MODE_JUMP		; up
+	db	08h,-1, 0,MODE_JUMP		; left
+	db	0ch,+1, 0,MODE_JUMP		; right
+
+
+
+
+;------------------------------------------------
+; control PIKACYU while waiting hero's move
+;------------------------------------------------
+stay_phase:
+	call	overlap_check		; not show while overlaping with hero
+	ret	c
+
+	LD_HL	bc,0100h
+	dec	(hl)
+
+	jr	nz,pass$
+
+
+action$:
+  ifn	1
+	push	hl
+	call	chk_next_buf_cmd
+	pop	hl
+	cp	CMD_DOWN_JP
+	jr	nc,special_action
+  endif
+
+	ld	(hl),20h
+	call	rnd
+	and	00001100b
+	LD_HL	bc,009h
+	ld	(hl),a
+pass$:
+	xor	a
+	LD_HL	bc,007h
+	ld	(hli),a			; PCC
+	ld	(hl),a			; PWC
+	call	set_pattern
+	ret
+	
+
+
+scroll_check:
+	ld	a,(scloll_cnt)
+	and	a
+	ret	z
+	scf
+	ret
+
+
+RetToDecideMode:
+	LD_HL	bc,100h
+	ld	(hl),10h
+	LD_HL	bc,001h
+	ld	(hl),MODE_DECIDE
+	ret
+
+
+;------------------------------------------------
+;
+;------------------------------------------------
+	public	init_hopping
+	public	hop_phase
+
+special_action:
+	ld	hl,0000h		; dummy
+	push	af
+	call	rnd
+	ld	a,(random + 0)
+	and	00000011b
+	ld	e,a
+	ld	d,00h
+	ld	hl,sp_action_tbl$
+	add	hl,de
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	pop	af
+	jp	(hl)
+
+sp_action_tbl$:
+	dw	init_hopping
+	dw	init_step_here
+	dw	init_step_here2
+	dw	init_demo_roll
+	
+
+
+;---------------------------------
+;action:	hop
+;---------------------------------
+init_hopping:
+	dec	a			; In: a regs = site value
+	add	a,a
+	add	a,a
+	and	00001100b
+	LD_HL	bc,009h
+	ld	(hl),a
+	LD_HL	bc,001h
+	ld	(hl),MODE_HOP
+
+	xor	a
+	ld	(pika_dy_sv),a
+	ld	(pika_dx_sv),a
+	LD_HL	bc,0100h
+	ld	(hl),17			; number of animation pattern
+
+
+hop_phase:
+	ld	a,(pika_dy_sv)
+	ld	e,a
+	ld	a,(pika_dx_sv)
+	ld	d,a
+
+	call	scroll_check
+	jr	c,force_hop_reset$
+
+	call	SetWaitStatus
+
+	LD_HL	bc,004h
+	ld	a,(hl)			; +004:local_y
+	sub	e
+	ld	e,a
+	inc	hl
+	inc	hl
+	ld	a,(hl)			; +006:local_x
+	sub	d
+	ld	d,a
+
+	LD_HL	bc,0100h
+	ld	a,(hl)			; +100:action counter
+	dec	a
+	add	a,a
+	add	a,< hop_tbl$
+	ld	l,a
+	ld	a,> hop_tbl$
+	adc	a,0
+	ld	h,a
+
+	ld	a,(hli)			; hl = hop_tbl + offset
+	ld	(pika_dy_sv),a
+	add	a,e
+	ld	e,a
+
+	ld	a,(hl)
+	ld	(pika_dx_sv),a
+	add	a,d
+	ld	d,a
+
+	LD_HL	bc,004h
+	ld	(hl),e
+	inc	hl
+	inc	hl
+	ld	(hl),d
+
+	LD_HL	bc,0100h
+	dec	(hl)			; +100:action counter
+	ret	nz
+
+	jp	RetToDecideMode
+
+
+
+force_hop_reset$:
+	LD_HL	bc,004h
+	ld	a,(hl)			; +004:local_y
+	sub	e
+	ld	(hl),a
+	inc	hl
+	inc	hl
+	ld	a,(hl)			; +006:local_x
+	sub	d
+	ld	(hl),a
+
+	jp	RetToDecideMode
+
+
+hop_tbl$:
+;---------- move_y	move_x ---------
+	db	 0,	 0
+	db	-2,	 1
+	db	-4,	 2
+	db	-2,	 3
+
+	db	 0,	 4
+	db	-2,	 3
+	db	-4,	 2
+	db	-2,	 1
+
+	db	 0,	 0
+	db	-2,	-1
+	db	-4,	-2
+	db	-2,	-3
+
+	db	 0,	-4
+	db	-2,	-3
+	db	-4,	-2
+	db	-2,	-1
+
+	db	 0,	 0
+	
+
+
+;---------------------------------
+; action:	step
+;---------------------------------
+STEP_TIMING	equ	08h
+
+	public	step_here_phase
+
+init_step_here:
+	LD_HL	bc,001h
+	ld	(hl),MODE_STEP_HERE
+
+	LD_HL	bc,100h
+	ld	(hl),030h
+
+
+step_here_phase:
+	call	scroll_check
+	jp	c,RetToDecideMode
+
+	call	SetWaitStatus
+
+	LD_HL	bc,007h
+	ld	a,(hl)
+	inc	a
+	cp	STEP_TIMING
+	ld	(hl),a
+	jr	nz,pass$
+
+	xor	a
+	ld	(hli),a
+
+	ld	a,(hl)
+	inc	a
+	and	03h
+	ld	(hl),a
+pass$:
+	call	set_pattern
+	LD_HL	bc,100h
+	dec	(hl)
+	ret	nz
+
+  ifn	1
+	jp	RetToDecideMode
+  else
+to_decide_mode$:
+	LD_HL	bc,100h
+	ld	(hl),10h
+	LD_HL	bc,001h
+	ld	(hl),MODE_DECIDE
+	ret
+  endif
+	
+
+
+;---------------------------------
+; action:	step2 ... kataashi
+;---------------------------------
+STEP2_TIMING	equ	08h
+
+init_step_here2:
+	LD_HL	bc,100h
+	ld	(hl),020h
+	LD_HL	bc,001h
+	ld	(hl),MODE_STEP_HERE2
+
+step_here2_phase:
+	call	scroll_check
+	jp	c,RetToDecideMode
+
+	call	SetWaitStatus
+
+	LD_HL	bc,007h
+	ld	a,(hl)
+	inc	a
+	cp	STEP2_TIMING
+	ld	(hl),a
+	jr	nz,pass$
+
+	xor	a
+	ld	(hli),a
+	ld	a,(hl)
+	xor	1
+	ld	(hl),a
+pass$:
+	call	set_pattern
+	LD_HL	bc,100h
+	dec	(hl)
+	ret	nz
+
+	jp	RetToDecideMode
+	
+;---------------------------------
+;action:	rolling
+;---------------------------------
+ROLL_TIMING	equ	08h
+init_demo_roll:
+	LD_HL	bc,0100h
+	ld	(hl),20h
+	LD_HL	bc,0001h
+	ld	(hl),MODE_DEMO_ROLL
+
+
+demo_roll_phase:
+	call	scroll_check
+	jp	c,RetToDecideMode
+
+	call	SetWaitStatus
+
+	LD_HL	bc,007h
+	ld	a,(hl)
+	inc	a
+	cp	ROLL_TIMING
+	ld	(hl),a
+	jr	nz,pass$
+
+	xor	a
+	ld	(hl),a
+
+	LD_HL	bc,009h
+	ld	a,(hl)
+	call	GetRightRoll
+	ld	(hl),a
+
+pass$:
+	call	set_pattern
+
+	LD_HL	bc,100h
+	dec	(hl)
+	ret	nz
+
+	jp	RetToDecideMode
+
+
+GetRightRoll:
+	push	hl
+	ld	hl,RollTableTop
+	ld	d,a
+loop$:
+	ld	a,(hli)
+	cp	d
+	jr	nz,loop$
+	ld	a,(hl)
+	pop	hl
+	ret
+
+GetLeftRoll:
+	push	hl
+	ld	hl,RollTableTail
+	ld	d,a
+loop$:
+	ld	a,(hld)
+	cp	d
+	jr	nz,loop$
+	ld	a,(hl)
+	pop	hl
+	ret
+
+RollTableTop:
+	db	00h
+	db	08h
+	db	04h
+	db	0ch
+	db	00h
+	db	08h
+	db	04h
+	db	0ch
+RollTableTail:
+
+;------------------------------------------------
+; control PIKA's walk moving 
+;------------------------------------------------
+init_move_phase:
+	LD_HL	bc,0100h
+	ld	(hl),08h		; +100: move counter
+	LD_HL	bc,001h
+	ld	(hl),MODE_MOVE		; +001: action code
+
+	call	chg_global_yx
+
+
+move_phase:
+	call	chg_local_yx
+	call	chg_pattern
+	call	set_pattern
+
+	LD_HL	bc,0100h
+	dec	(hl)
+	ret	nz
+
+	call	clear_vector_work
+
+	call	looking_hero
+	LD_HL	bc,001h
+	ld	(hl),MODE_DECIDE
+	ret
+
+
+;------------------------------------------------
+; control Pika's running move
+; Only use when Debug Mode!!
+;------------------------------------------------
+init_run_phase:
+	LD_HL	bc,0100h
+	ld	(hl),04h		; +100: move counter
+	LD_HL	bc,001h
+	ld	(hl),MODE_RUN		; +001: action code
+
+	call	chg_global_yx
+
+
+run_move_phase:
+	call	double_speed
+	call	chg_pattern
+	call	set_pattern
+
+	LD_HL	bc,0100h
+	dec	(hl)
+	ret	nz
+
+	call	clear_vector_work
+
+	call	looking_hero
+	LD_HL	bc,001h
+	ld	(hl),MODE_DECIDE
+	ret
+
+
+
+
+
+;------------------------------------------------
+; control PIKA's jump moving
+;------------------------------------------------
+init_jump_phase:
+	LD_HL	bc,0100h
+	ld	(hl),4 + 4		; +100: move counter
+	LD_HL	bc,001h
+	ld	(hl),MODE_JUMP		; +001: action code
+
+	call	chg_global_yx
+	call	chg_global_yx
+
+
+jump_phase:
+	call	double_speed
+	call	chg_pattern
+	call	set_pattern
+
+	LD_HL	bc,0100h
+	dec	(hl)
+	ret	nz
+
+	call	clear_vector_work
+	
+	call	looking_hero
+
+	LD_HL	bc,001h
+	ld	(hl),MODE_DECIDE
+
+	ret
+
+
+
+chg_global_yx:
+	LD_HL	bc,003h
+	ld	e,(hl)			; +003: move y vector
+	inc	hl
+	inc	hl
+	ld	d,(hl)			; +004: move x vector
+
+	LD_HL	bc,0104h
+	ld	a,(hl)			; +104: global_y
+	add	a,e
+	ld	(hli),a
+	ld	a,(hl)			; +105: global_x
+	add	a,d
+	ld	(hl),a
+
+	ret
+
+
+
+
+chg_local_yx:
+	ld	a,(chyari_flg)
+	cp	001h			; bicycle --> twice speed
+	jr	nz,normal_speed
+
+	ld	a,(obs_map_step)
+	bit	6,a
+	jr	nz,normal_speed
+
+
+double_speed:
+	LD_HL	bc,003h
+
+	ld	a,(hli)
+	add	a,a
+	add	a,a
+	add	a,(hl)			; local_y += y_dot * 4
+	ld	(hli),a
+
+	ld	a,(hli)
+	add	a,a
+	add	a,a
+	add	a,(hl)
+	ld	(hl),a			; local_x += x_dot * 4
+
+	ret
+
+normal_speed:
+	LD_HL	bc,003h
+
+	ld	a,(hli)
+	add	a,a
+	add	a,(hl)			; local_y += y_dot * 2
+	ld	(hli),a
+
+	ld	a,(hli)
+	add	a,a
+	add	a,(hl)
+	ld	(hli),a			; local_x += x_dot * 2
+
+	ret
+
+clear_vector_work:
+	LD_HL	bc,003h
+	xor	a
+	ld	(hli),a			; +003: y_dot
+	inc	hl
+	ld	(hl),a			; +005: x_dot
+	ret
+
+
+	public	chg_pattern		; for debug global label
+chg_pattern:
+	call	test_friendly_check
+	ld	d,02h
+	jr	nc,count$
+	ld	d,05h
+
+count$:
+	LD_HL	bc,007h
+	ld	a,(hl)
+	inc	a			; PCC++
+	cp	d
+	jr	nz,pass$
+	xor	a
+pass$:
+	ld	(hli),a
+	ret	nz
+
+	ld	a,(hl)
+	inc	a			; PWC++
+	and	03h
+	ld	(hl),a
+	ret
+
+
+
+;--------------------------------------------------------
+; set Pika's OAM Pattern code
+;--------------------------------------------------------
+set_pattern:
+	ld	a,(pika_status)
+	bit	NOT_SHOW_SW,a		; not show Pika's actor Switch
+	jr	nz,hide$
+
+	LD_HL	bc,010eh		; order of actor chr
+	ld	a,(hl)
+	dec	a
+	swap	a
+	ld	d,a
+
+	ld	a,(obs_map_step + 0)
+	bit	7,a			; kurukuru mode 
+	jr	nz,kurukuru$
+
+	LD_HL	bc,009h			; actor site
+	ld	a,(hl)
+	or	d
+	ld	d,a
+
+;	ld	a,(my_cap_data + 4)	; Pokemon condition check
+;	and	01100000b		; mahi + koori
+;	jr	nz,set_pat$
+
+
+	ld	a,(talking_flg)
+	bit	0,a
+	jr	z,pass_chk$
+
+	call	overlap_check
+	ret	c
+	jr	set_pat$
+
+pass_chk$:
+	LD_HL	bc,008h
+	ld	a,d
+	or	(hl)			; actor walking counter
+	ld	d,a
+
+set_pat$:
+	LD_HL	bc,002h
+	ld	(hl),d			; action pattern
+	ret
+
+
+hide$:
+	LD_HL	bc,002h
+	ld	(hl),HIDE_CODE		; hide code
+	ret
+
+
+kurukuru$:
+	ld	a,(actor_table + 002h)	; hero's actor pattern
+	and	0fh
+	or	d
+	ld	(PIKA_ACT_TABLE + 002h),a
+	ret
+
+
+;-------------------------------------------
+; check whether Pika overlaps Hero or not
+;-------------------------------------------
+overlap_check:
+	LD_HL	bc,0104h
+	ld	a,(mapscloll_y)
+	add	a,04h
+	cp	(hl)
+	jr	nz,normal$
+	inc	hl
+	ld	a,(mapscloll_x)
+	add	a,04h
+	cp	(hl)
+	jr	nz,normal$
+	
+	LD_HL	bc,002h
+	ld	(hl),HIDE_CODE
+	scf
+	ret
+
+normal$:
+	and	a
+	ret
+
+
+
+
+
+;-------------------------------------------------
+; ピカチュウが自機のとなりにいるかどうかのチェック
+; Out	: Carry ON	隣・同じ場所にいる
+;	:	OFF	離れている
+;-------------------------------------------------
+	public	neighbor_pika_check
+
+neighbor_pika_check:
+	push	bc
+	push	de
+	push	hl
+
+	ld	bc,PIKA_ACT_TABLE
+
+	ld	a,(mapscloll_x)
+	add	a,04h
+	ld	d,a
+	ld	a,(mapscloll_y)
+	add	a,04h
+	ld	e,a
+
+	LD_HL	bc,0104h
+	ld	a,(hl)
+	sub	e
+	and	a
+	jr	z,x_chk$
+	cp	0ffh
+	jr	z,x_equal_chk$
+	cp	001h
+	jr	z,x_equal_chk$
+	
+	jr	no$
+	
+x_equal_chk$:
+	LD_HL	bc,0105h
+	ld	a,(hl)
+	sub	d
+	jr	z,ok$
+	
+	jr	no$
+
+x_chk$:
+	LD_HL	bc,0105h
+	ld	a,(hl)
+	sub	d
+
+	cp	0ffh
+	jr	z,ok$
+	cp	001h
+	jr	z,ok$
+	and	a
+	jr	z,ok$
+
+	jr	no$
+
+ok$:
+	pop	hl
+	pop	de
+	pop	bc
+	scf
+	ret
+	
+no$:
+	pop	hl
+	pop	de
+	pop	bc
+	xor	a
+	ret
+
+
+
+  ifn	1
+
+;------------------------------------------------------
+; 自機に対するピカチュウの位置
+; Out	: e regs	方向の値
+;------------------------------------------------------
+	public	get_site_to_pika
+
+get_site_to_pika:
+	call	get_value$
+	ld	e,a
+	ret
+
+get_value$:
+	ld	bc,PIKA_ACT_TABLE
+
+	ld	a,(mapscloll_x)
+	add	a,04h
+	ld	d,a
+	ld	a,(mapscloll_y)
+	add	a,04h
+	ld	e,a
+
+	LD_HL	bc,0104h
+	ld	a,(hl)
+	cp	e
+	jr	z,x_chk$
+
+	jr	nc,south$
+
+north$:
+	ld	a,04h
+	ret
+south$:
+	ld	a,00h
+	ret
+
+x_chk$:
+	LD_HL	bc,0105h
+	ld	a,(hl)
+	cp	d
+	jr	z,same$
+	jr	nc,east$
+
+west$:
+	ld	a,08h
+	ret
+east$:
+	ld	a,0ch
+	ret
+
+same$:
+	ld	a,0ffh
+	ret
+
+  endif
+
+
+;=======================================================
+; routines for Pika's animation command buffer
+; initialize/set command/get command/check command
+;
+;=======================================================
+;--------------------------------------
+; Clear PIKACYU's anime buffer 
+;--------------------------------------
+clear_buffer:
+	push	bc
+	ld	hl,PIKA_ANM_CNT
+	ld	(hl),-1
+	inc	hl
+	ld	bc,10h
+	xor	a
+	call	memset
+	pop	bc
+	ret
+
+
+;----------------------------------
+; set a command to buffer
+;----------------------------------
+set_cmd:
+	ld	hl,PIKA_ANM_CNT
+	inc	(hl)
+	ld	e,(hl)
+	ld	d,00h
+	ld	hl,PIKA_ANM_BUF
+	add	hl,de
+	ld	(hl),a
+
+	ret
+
+
+;--------------------------------------------------
+; initialize Pika's move command buffer
+;--------------------------------------------------
+	public	init_buf_cmd
+
+init_buf_cmd:
+	call	clear_buffer
+	call	make_first_cmd
+	ret	c			; no cmd because of overlaping hero
+
+	call	set_cmd
+	ret
+
+
+make_first_cmd:
+	ld	bc,PIKA_ACT_TABLE
+	LD_HL	bc,0104h
+	ld	a,(mapscloll_y)
+	add	a,4
+	sub	(hl)
+	jr	z,xchk$
+
+	jr	c,check_up$
+
+	call	length_check
+	jr	c,set_dw$
+	ld	a,CMD_DOWN_JP
+	and	a
+	ret
+set_dw$:
+	ld	a,CMD_DOWN
+	and	a
+	ret
+
+check_up$:
+	call	length_check
+	jr	c,set_up$
+	ld	a,CMD_UP_JP
+	and	a
+	ret
+set_up$:
+	ld	a,CMD_UP
+	and	a
+	ret
+
+
+xchk$:
+	LD_HL	bc,0105h
+	ld	a,(mapscloll_x)
+	add	a,4
+	sub	(hl)
+	jr	z,same_pos$
+
+	jr	c,check_left$
+
+	call	length_check
+	jr	c,set_right$
+	ld	a,CMD_RIGHT_JP
+	and	a
+	ret
+
+set_right$:
+	ld	a,CMD_RIGHT
+	and	a
+	ret
+
+check_left$:
+	call	length_check
+	jr	c,set_left$
+	ld	a,CMD_LEFT_JP
+	and	a
+	ret
+set_left$:
+	ld	a,CMD_LEFT
+	and	a
+	ret
+
+same_pos$:
+	scf
+	ret
+
+
+length_check:
+	jr	nc,chk$
+
+minus$:
+	cpl
+	inc	a
+
+chk$:
+	cp	2
+	ret
+
+
+
+;----------------------------------------------
+; set move site to animation buffer
+;In:	watashi_muki3		move status
+;Out:	carry ON		not set command
+;	PIKA_ANM_BUF		command stock area
+;----------------------------------------------
+	public	set_buf_cmd
+
+set_buf_cmd:
+	call	pika_cap_chk$
+	ret	nc
+
+
+	ld	a,(obs_map_step)	; while jump timing
+	bit	6,a			;
+	jr	nz,jump$		;
+
+	call	get_normal_walk_cmd
+	ret	c
+	call	set_cmd
+	ret
+
+jump$:
+	call	get_jump_cmd
+	ret	c
+	call	set_cmd
+	ret
+
+	
+pika_cap_chk$:
+	ld	a,(pika_status)			; not show 
+	bit	LANDING_SW,a			;   while hero's landing shore
+	jr	nz,not$
+
+	ld	a,(pika_status)			; not show because
+	bit	PIKA_ACT_OFF,a			;   requested by flag
+	jr	nz,not$
+
+	ld	a,(obs_pikachu)
+	bit	7,a
+	jr	z,not$				; (ID&OwnerName checking)
+
+	ld	a,(chyari_flg)			; not walk,not show
+	and	a
+	jr	nz,not$
+
+ok$:
+	scf
+	ret
+not$:
+	and	a
+	ret
+
+
+
+
+
+
+get_normal_walk_cmd:
+	xor	a
+	ld	a,(watashi_muki3)
+	bit	3,a
+	jr	nz,up$
+	bit	2,a
+	jr	nz,down$
+	bit	1,a
+	jr	nz,left$
+	bit	0,a
+	jr	nz,right$
+
+	scf
+	ret
+up$:
+	ld	a,CMD_UP
+	ret
+down$:
+	ld	a,CMD_DOWN
+	ret
+left$:
+	ld	a,CMD_LEFT
+	ret
+right$:
+	ld	a,CMD_RIGHT
+	ret
+
+
+
+
+get_jump_cmd:
+	ld	hl,pika_status
+	bit	JUMP_START,(hl)
+	jr	z,first$
+	
+	res	JUMP_START,(hl)
+	ret
+
+first$:
+	set	JUMP_START,(hl)
+get$:
+	xor	a
+	ld	a,(watashi_muki3)
+	bit	3,a
+	jr	nz,up$
+	bit	2,a
+	jr	nz,down$
+	bit	1,a
+	jr	nz,left$
+	bit	0,a
+	jr	nz,right$
+
+	scf
+	ret
+up$:
+	ld	a,CMD_UP_JP
+	ret
+down$:
+	ld	a,CMD_DOWN_JP
+	ret
+left$:
+	ld	a,CMD_LEFT_JP
+	ret
+right$:
+	ld	a,CMD_RIGHT_JP
+	ret
+
+
+
+
+;----------------------------------
+; get moving site for PIKACYU move
+; In:	PIKA_ANM_CNT
+;	PIKA_ANM_BUF
+; Out:	carry ON	waiting
+;	A reg		move site
+;----------------------------------
+get_buf_cmd:
+	ld	hl,PIKA_ANM_CNT	
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,wait$
+	and	a
+	jr	z,wait$
+
+	dec	(hl)
+	ld	e,a
+	ld	d,00h
+	ld	hl,PIKA_ANM_BUF
+	add	hl,de
+
+	inc	e
+	ld	a,0ffh
+loop$:
+	ld	d,(hl)
+	ld	(hld),a
+	ld	a,d
+	dec	e
+	jr	nz,loop$
+	
+	and	a
+	ret
+
+wait$:
+	scf
+	ret
+	
+
+;------------------------------------------------
+; set actor's site facing to hero 
+;------------------------------------------------
+	public	looking_hero
+
+looking_hero:
+	call	chk_buf_cmd
+	and	a
+	jr	z,next_to_hero$			; Next Cmd == Stand-by mode
+
+	dec	a
+	and	00000011b
+	add	a,a
+	add	a,a
+	jr	set$
+	
+next_to_hero$:
+	ld	a,(mapscloll_y)
+	add	a,4
+	ld	d,a
+	ld	a,(mapscloll_x)
+	add	a,4
+	ld	e,a
+
+	ld	a,(PIKA_ACT_TABLE + 0104h)
+	cp	d
+	jr	z,x_chk$
+	ld	a,00h
+	jr	c,set$
+	ld	a,04h
+	jr	set$
+
+x_chk$:
+	ld	a,(PIKA_ACT_TABLE + 0105h)
+	cp	e
+	jr	z,same$
+	ld	a,0ch
+	jr	c,set$
+	ld	a,08h
+	jr	set$
+	
+	
+same$:
+	ld	a,(HERO_SITE)
+set$:
+;	call	soppo_check
+	ld	(PIKA_ACT_TABLE + 009h),a
+	ret
+
+
+;------------------------------------------------
+; check top command of buffer
+;------------------------------------------------
+chk_next_buf_cmd:
+	ld	hl,PIKA_ANM_CNT
+	ld	a,(hl)
+	cp	0ffh	
+	jr	z,wait$
+
+	ld	e,a
+	ld	d,00h
+	ld	hl,PIKA_ANM_BUF
+	add	hl,de
+	ld	a,(hl)
+	ret
+wait$:
+	xor	a
+	ret
+	
+
+chk_buf_cmd:
+	ld	hl,PIKA_ANM_CNT
+	ld	a,(hl)
+	cp	0ffh	
+	jr	z,wait$
+	and	a
+	jr	z,wait$
+
+	ld	e,a
+	ld	d,00h
+	ld	hl,PIKA_ANM_BUF
+	add	hl,de
+	ld	a,(hl)
+	ret
+wait$:
+	xor	a
+	ret
+	
+
+;------------------------------------------------
+; check number of stacked animation command
+;------------------------------------------------
+count_buf_cmd:
+	ld	a,(PIKA_ANM_CNT)
+	cp	0ffh
+	ret	z
+	cp	2
+	jr	nc,over$
+	and	a
+	ret
+over$:
+	scf
+	ret
+
+
+
+
+;-------------------------------;
+;	show or hide check	;
+;-------------------------------;
+	public	chk_pika_show_hide
+
+chk_pika_show_hide:
+
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,4
+	ld	l,a
+	ld	b,(hl)				; y-position
+	ld	a,(mapscloll_y)
+	cp	b
+	jr	z,xchk1$			; y-position == mapscloll_y
+	jr	nc,hide1$			; y-position > mapscloll_y
+
+	add	a,8
+	cp	b
+	jr	c,hide1$
+
+xchk1$:
+	inc	l
+	ld	b,(hl)
+	ld	a,(mapscloll_x)
+
+	cp	b
+	jr	z,ok1$
+	jr	nc,hide1$
+
+	add	a,9
+	cp	b
+	jr	c,hide1$
+
+ok1$:
+	call	get_dvramadr
+
+	ld	d,60h
+	ld	a,(hli)
+	ld	e,a		; left-btm chr of the cell under Pika
+	cp	d
+	jr	nc,hide1$
+
+	ld	a,(hld)
+	cp	d
+	jr	nc,hide1$
+
+	ld	bc,-20
+	add	hl,bc
+	ld	a,(hli)
+	cp	d
+	jr	nc,hide1$
+
+	ld	a,(hl)
+	cp	d
+	jr	c,show1$
+
+hide1$:
+	ld	h,> actor_table
+	ld	a,(actlow)
+	add	a,2
+	ld	l,a
+	ld	(hl),HIDE_CODE			; vanish
+
+	scf
+
+	jr	rts$
+
+
+show1$:
+;	ld	c,a
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,7
+	ld	l,a
+
+	ld	a,(kusamura_chr)
+;	cp	c
+	cp	e
+	ld	a,0
+	jr	nz,kusamura1$
+
+	ld	a,080h				; kusamura
+
+kusamura1$:
+	ld	(hl),a
+
+	and	a
+
+rts$:
+	ret
+
+
+
+;===============================================;
+;						;
+;	getting position address for player	;
+;						;
+;===============================================;
+get_dvramadr:
+	ld	h,> actor_table
+	ld	a,(actlow)
+	add	a,4
+	ld	l,a
+	ld	a,(hli)				; y-dot position
+
+	add	a,4
+	and	0f0h
+	srl	a
+	ld	c,a
+	ld	b,0
+	inc	l
+	ld	a,(hl)
+	add	a,02h				; by tama 98/05/16
+						; for triming pos data to get same dmy_vram pos
+	srl	a
+	srl	a
+	srl	a
+	add	a,20
+	ld	d,0
+	ld	e,a
+	ld	hl,dmy_vram
+
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+	add	hl,de
+
+	ret
+
+;===================================================================
+;
+; Event Level Pika Check & Control Routine
+;
+;===================================================================
+
+  ifn	0
+soppo_check:
+	ret
+
+	call	test_friendly_check
+	ret	nc
+	xor	00000100b
+	ret
+  endif
+
+	public	test_friendly_check		; for debug global label
+
+test_friendly_check:
+	push	bc
+	push	af
+
+	ld	a,(pika_friendly + 0) 
+	cp	50h
+
+	pop	bc
+	ld	a,b
+	pop	bc
+	ret
+
+
+;----------------------------------------
+; special_pika_chk			;
+; Cy = ok  NC = ng			;
+;----------------------------------------
+	public	special_pika_chk
+special_pika_chk:
+	ld	hl,my_cap_tbl + 1
+	ld	de,my_cap_data + 12		; id
+	ld	bc,my_cap_oya
+	push	hl
+loop$:
+	pop	hl
+
+	ld	a,(hli)
+	push	hl
+	inc	a			; 0ffh ?
+	jr	z,not$
+
+	cp	85			; pikacyuu  No  + 1
+	jr	nz,next$
+
+	ld	h,d
+	ld	l,e
+
+	ld	a,(gb_no)
+	cp	(hl)
+	jr	nz,next$
+
+	inc	hl
+	ld	a,(gb_no + 1)
+	cp	(hl)
+	jr	nz,next$
+
+	push	de
+	push	bc
+	ld	hl,my_name
+	ld	d,6
+oya_check_loop$:
+	dec	d
+	jr	z,ok$
+
+	ld	a,(bc)
+	inc	bc
+	cp	(hl)
+	inc	hl
+	jr	z,oya_check_loop$
+
+	pop	bc
+	pop	de
+
+next$:
+	ld	hl,CAPDATA_LEN
+	add	hl,de
+	ld	d,h
+	ld	e,l
+
+	ld	hl,MONS_NAME_LEN
+	add	hl,bc
+	ld	b,h
+	ld	c,l
+
+	jr	loop$
+
+ok$:
+	pop	bc
+	pop	de
+
+	ld	h,d
+	ld	l,e
+	ld	bc,-11
+	add	hl,bc
+	ld	a,(hli)
+	or	(hl)
+	jr	z,not$			; hp = 0
+
+	pop	hl
+	scf
+	ret
+
+not$:
+	pop	hl
+	and	a
+	ret
+
+;----------------------------------------
+; check_pika				;
+; In : sel_item_pos			:
+; Cy = pika  NC = not pika		;
+;----------------------------------------
+	public	check_pika
+	public	check_pika_paso
+
+check_pika_paso:
+	ld	hl,my_mons_data 		; mons No
+	ld	bc,MONSDATA_LEN
+	ld	de,my_mons_oya
+	jr	check_pkia_1
+
+check_pika:
+	ld	hl,my_cap_data 			; mons No
+	ld	bc,CAPDATA_LEN
+	ld	de,my_cap_oya
+
+check_pkia_1:
+	ld	a,(sel_item_pos)
+	call	mul_any
+	ld	a,(hl)
+	cp	84				; pikacyuu No
+	jr	nz,not_special_pika$
+
+	ld	bc,12
+	add	hl,bc
+	ld	a,(gb_no)
+	cp	(hl)
+	jr	nz,not_special_pika$
+
+	inc	hl
+	ld	a,(gb_no + 1)
+	cp	(hl)
+	jr	nz,not_special_pika$
+
+	ld	h,d
+	ld	l,e
+	ld	a,(sel_item_pos)
+	ld	bc,MONS_NAME_LEN
+	call	mul_any
+
+	ld	de,my_name
+	ld	b,6
+oya_check_loop$:
+	dec	b
+	jr	z,pika$
+
+	ld	a,(de)
+	inc	de
+	cp	(hl)
+	inc	hl
+	jr	z,oya_check_loop$
+
+not_special_pika$:
+	and	a
+	ret
+
+pika$:
+	scf
+	ret
+
+
+	
+;-----------------------------------
+; pika_gokigen_set 
+; in  : d = gokigen
+;-----------------------------------
+	public	pika_gokigen_set
+pika_gokigen_set:
+	push	de
+	call	special_pika_chk
+	pop	de
+	ret	nc				; not with special pika
+
+	ld	a,d
+	cp	128
+	ld	a,(pika_friendly + 1)
+	jr	c,down$
+
+	cp	d
+	jr	c,set$
+
+	ret
+
+down$:
+	cp	d
+	ret	c
+
+set$:
+	ld	a,d
+	ld	(pika_friendly + 1),a
+	ret
+	
+;----------------------------------------
+; check_pika_cond			;
+; Cy = bad  NC = fine			;
+; d = 0 : HP = 0			;
+;----------------------------------------
+	public	check_pika_cond
+
+check_pika_cond:
+	xor	a
+	ld	(sel_item_pos),a
+	ld	hl,my_cap_tbl
+loop$:
+	inc	hl
+	ld	a,(hl)
+	cp	0ffh
+	jr	z,fine$
+
+	push	hl
+	call	check_pika
+	pop	hl
+	jr	nc,next$		; not pika
+
+	ld	a,(sel_item_pos)
+	ld	hl,my_cap_data + 1
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+	ld	a,(hli)			; HP high
+	or	(hl)			; HP low
+	ld	d,a
+
+	inc	hl
+	inc	hl
+
+	ld	a,(hl)			; condition
+	and	a
+	jr	nz,bad$
+
+	jr	fine$
+
+next$:
+	ld	a,(sel_item_pos)
+	inc	a
+	ld	(sel_item_pos),a
+	jr	loop$
+
+bad$:
+	scf	
+	ret
+
+fine$:
+	and	a
+
+	ret
+
+
+
+;----------------------------------------
+; sp_nami_pika_chk			;
+; Cy = ok  NC = ng			;
+;----------------------------------------
+	public	sp_nami_pika_chk
+sp_nami_pika_chk:
+	ld	hl,my_cap_tbl + 1
+	ld	de,my_cap_data + 8		; waza
+	ld	bc,my_cap_oya
+	push	hl
+loop$:
+	pop	hl
+
+	ld	a,(hli)
+	push	hl
+	inc	a			; 0ffh ?
+	jr	z,not$
+
+	cp	85			; pikacyuu  No  + 1
+	jr	nz,next$
+
+	ld	h,d
+	ld	l,e
+
+	push	hl
+	push	bc
+	ld	b,4
+waza_chk_loop$
+	ld	a,(hli)
+	cp	57			; naminori 
+	jr	z,waza_ok$
+
+	dec	b
+	jr	nz,waza_chk_loop$
+	
+	pop	bc
+	pop	hl
+	jr	next$
+
+waza_ok$:
+	pop	bc
+	pop	hl
+
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(gb_no)
+	cp	(hl)
+	jr	nz,next$
+
+	inc	hl
+	ld	a,(gb_no + 1)
+	cp	(hl)
+	jr	nz,next$
+
+	push	de
+	push	bc
+	ld	hl,my_name
+	ld	d,6
+oya_check_loop$:
+	dec	d
+	jr	z,ok$
+
+	ld	a,(bc)
+	inc	bc
+	cp	(hl)
+	inc	hl
+	jr	z,oya_check_loop$
+
+	pop	bc
+	pop	de
+
+next$:
+	ld	hl,CAPDATA_LEN
+	add	hl,de
+	ld	d,h
+	ld	e,l
+
+	ld	hl,MONS_NAME_LEN
+	add	hl,bc
+	ld	b,h
+	ld	c,l
+
+	jr	loop$
+
+ok$:
+	pop	bc
+	pop	de
+	pop	hl
+
+	scf
+	ret
+
+not$:
+	pop	hl
+	and	a
+	ret
+
+

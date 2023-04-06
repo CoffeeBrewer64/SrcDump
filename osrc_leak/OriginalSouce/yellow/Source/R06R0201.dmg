@@ -1,0 +1,57 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank17	group	G_BANK17
+
+
+	public	r6_room2
+
+
+	extern	nukemin
+
+
+GATE_TYPE	equ	12
+EXIT		=	0ffh
+
+
+
+r6_room2:  
+ysiz	=	4
+xsiz	=	4
+  	db	GATE_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	nukemin  	 	; map data adrs
+	dw	msg_tbl 		; message tbl adrs
+	dw	event 			; event routine adrs
+	db	0			; map link flg
+	dw	room_str 
+
+
+event:
+	ld	a,R6
+	ld	(mapno_stack),a
+
+	jp	init_for_talkmap
+
+
+
+msg_tbl:
+	dw	msg1$
+	
+
+msg1$:
+	extern	msg1_0_R06R0201
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_R06R0201	; mvmsg追加
+	db 028h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+room_str:
+	include	..\sxy\r06r0201.sxy
+
+

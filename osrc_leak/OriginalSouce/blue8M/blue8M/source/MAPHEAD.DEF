@@ -1,0 +1,492 @@
+
+	extern	msg_return
+	extern	init_for_talkmap
+	extern	battle_sequence
+	extern	item_list   
+	extern	push_vram_m
+	extern	split_item2
+	extern	color_reset
+	extern	set_kana
+	extern	block_move
+	extern	put_window
+	extern	put_msg
+	extern	allow
+	extern	white_allow
+	extern	talk_map	
+	extern	add_capsule_new
+	extern	add_item
+	extern	sub_item
+	extern	sub_capsule
+	extern	map_rewrite
+;	extern	itemshop_sub1
+	extern	shop_window
+;	extern	capshop2
+	extern	hotel2
+	extern	cap_list
+	extern	push_vram
+	extern	pop_vram
+	extern	actor_blanch
+	extern	n_to_w
+	extern 	n_to_b
+	extern	w_to_n
+	extern	b_to_n
+	extern	get_map_info
+	extern	set_ram_map
+	extern	put_map
+	extern	chk_pey
+	extern	rnd
+	extern	wait_vb_s
+	extern	step_prn_win
+	extern	get_mons_name
+	extern	play
+	extern	get_monsadr
+	extern	put_win_msg
+	extern	set_status_all
+	extern	put_nowin_msg
+	extern	cont_abwait
+	extern	cont_repeat
+	extern	get_item_name
+	extern	str_cpy
+	extern	take_item
+
+
+
+;------------------------------------ Map Number Define
+
+T1	=	0
+T2	=	1
+T3	=	2
+T4	=	3
+T5	=	4
+T6	=	5
+T7	=	6
+T8	=	7
+T9	=	8
+T10	=	9
+T11	=	10
+T12	=	11
+
+R1	=	12	
+R2	=	13
+R3	=	14
+R4	=	15
+R5	=	16
+R6	=	17
+R7	=	18
+R8	=	19
+R9	=	20
+R10	=	21
+R11	=	22
+R12	=	23
+R13	=	24
+R14	=	25
+R15	=	26
+R16	=	27
+R17	=	28
+R18	=	29
+R19	=	30
+R20	=	31
+R21	=	32
+R22	=	33
+R23	=	34
+R24	=	35
+R25	=	36
+
+;---- masara town ----
+
+T1R1F1	=	37
+T1R1F2	=	38 
+T1R2F1	=	39 
+T1R3F1	=	40 
+
+;---- tokiwa city ----
+
+T2R1F1	=	41
+T2R2F1	=	42
+T2R3F1	=	43
+T2R4F1	=	44
+T2R5F1	=	45
+
+;---- road2 ----
+
+R2R1F1	=	46
+R2R2F1	=	47
+R2R3F1	=	48
+R2R4F1	=	49
+R2R5F1	=	50
+
+;---- tokiwa no mori ----
+
+D1R1F1	=	51
+
+;---- nibi city ----
+
+T3R1F1	=	52
+T3R1F2  =	53
+T3R2F1	=	54
+T3R3F1	=	55
+T3R4F1	=	56
+T3R5F1	=	57
+T3R6F1	=	58
+
+;---- otsukimiyama doukutsu ----
+
+D2R1F1	=	59
+D2R1F2	=	60
+D2R1F3	=	61
+
+;---- hanada city ----
+
+T4R1F1	=	62
+T4R2F1	=	63
+T4R3F1	=	64
+T4R4F1	=	65
+T4R5F1	=	66
+T4R6F1	=	67
+
+R4R1F1	=	68
+T4R1F2	=	69     ; new
+
+R5R1F1	=	70
+R5R2F1	=	71
+R5R3F1	=	72	; not use
+
+R6R1F1	=	73
+R6R2F1	=	74
+R6R2F2	=	75	; not use
+
+R7R1F1	=	76
+R7R2F1	=	77
+R7R3F1	=	78	; not use
+
+R8R1F1	=	79
+R8R2F1	=	80
+
+R10R1F1	=	81
+R10R2F1	=	82
+R10R3F1	=	83
+
+R11R1F1	=	84
+R11R2F1	=	85
+R11R1F2 =	86
+
+R12R1F1	=	87
+
+R25R1F1	=	88
+
+;---- kuchiba city ----
+
+T6R1F1	=	89
+T6R2F1	=	90
+T6R3F1	=	91
+T6R4F1	=	92
+T6R5F1	=	93
+T6R6F1	=	94
+
+;---- santoannu go ----
+
+D3R1F1	=	95
+D3R1F2	=	96
+D3R1F3	=	97
+D3R1F4	=	98
+D3R1F5	=	99
+D3R1F6	=	100
+D3R1F7	=	101
+D3R1F8	=	102
+D3R1F9	=	103
+D3R1F10	=	104
+
+;---- pokemon league honbu ----
+
+D14R1F1	=	105	; new
+D14R1F2	=	106	; new
+D14R1F3	=	107	; new
+D14R1F4	=	108	; new
+D14R1F5	=	109	; new
+D14R1F6	=	110	; new
+D14R1F7	=	111	; new
+D14R1F8	=	112	; new
+D14R1F9	=	113	; new
+D14R1F10 =	114	; new
+D14R1F11 =	115	; new
+D14R1F12 =	116	; new
+D14R1F13 =	117	; new
+D14R1F14 =	118	; new
+
+D4R1F1	=	119
+
+D14R1F15 =	120	; new
+
+D6R1F1	=	121
+
+;---- tamamushi city ----
+
+T7R1F1	=	122
+T7R1F2	=	123 
+T7R1F3	=	124 
+T7R1F4	=	125 
+T7R1F5	=	126 
+T7R1F6	=	127 
+T7R2F1	=	128
+T7R2F2	=	129
+T7R2F3	=	130
+T7R2F4	=	131
+T7R2F5	=	132
+T7R3F1	=	133
+T7R4F1	=	134
+T7R5F1	=	135
+T7R6F1	=	136
+T7R7F1	=	137
+T7R8F1	=	138
+T7R9F1	=	139
+T7R10F1	=	140
+
+;---- shion city ----
+
+T5R1F1	=	141
+T5R2F1	=	142
+T5R2F2	=	143
+T5R2F3	=	144
+T5R2F4	=	145
+T5R2F5	=	146
+T5R2F6	=	147
+T5R2F7	=	148
+T5R3F1	=	149
+T5R4F1	=	150
+T5R5F1	=	151
+
+;---- sekichiku city ----
+
+T8R1F1	=	152
+T8R2F1	=	153
+T8R3F1	=	154
+T8R4F1	=	155
+T8R5F1	=	156
+T8R6F1	=	157
+T8R7F1	=	158
+
+;---- umi no doukutsu ----
+
+D16R1F1	=	159	; new
+D16R1F2	=	160	; new
+D16R1F3	=	161	; new
+D16R1F4	=	162	; new
+
+T6R8F1	=	163	; new 95-09-27
+T8R8F1	=	164	; new 95-09-27
+
+;---- guren town ----
+
+T9R1F1	=	165
+T9R2F1	=	166
+T9R3F1	=	167
+T9R3F2	=	168
+T9R3F3	=	169
+T9R3F4	=	170
+T9R4F1	=	171
+T9R5F1	=	172
+T9R6F1	=	173	; not use
+
+;---- sekiei kougen ----
+
+T10R1F1	=	174	
+
+;---- yamabuki city ----
+
+T11R1F1	=	175
+T11R1F2	=	176
+T11R2F1	=	177
+T11R3F1	=	178
+T11R4F1	=	179
+T11R5F1	=	180
+T11R6F1	=	181
+T11R7F1	=	182
+T11R8F1	=	183
+
+R15R1F1	=	184
+R15R1F2	=	185
+
+R16R1F1	=	186
+R16R1F2	=	187
+R16R2F1	=	188
+R12R2F1	=	189	; new 95-09-27
+
+R18R1F1	=	190
+R18R1F2	=	191
+
+R20R1F1	=	192
+
+R22R1F1	=	193
+R23R1F1	=	194	; new
+
+R12R1F2	=	195
+
+T6R7F1	=	196
+
+;---- digda no ana ----
+
+D7R1F1	=	197
+
+;---- champion road ----
+
+D8R1F1	=	198
+
+;---- rocket dan azito ----
+
+D9R1F1	=	199
+D9R1F2	=	200
+D9R1F3	=	201
+D9R1F4	=	202
+D9R1F5	=	203
+D9R1F6	=	204
+D9R1F7	=	205
+D9R1F8	=	206
+
+;---- sylph cooperation ----
+
+D10R1F1	=	207
+D10R1F2	=	208
+D10R1F3	=	209
+D10R1F4	=	210
+D10R1F5	=	211
+D10R1F6	=	212
+D10R1F7	=	213
+
+;---- pokemon yashiki ----
+
+D11R1F1	=	214
+D11R1F2	=	215
+D11R1F3	=	216
+
+;---- safari zone -----
+
+D12R1F1	=	217
+D12R1F2	=	218
+D12R1F3	=	219
+D12R1F4	=	220
+D12R1F5	=	221
+D12R1F6	=	222
+D12R1F7	=	223
+D12R1F8	=	224
+D12R1F9	=	225
+
+;---- wasurerareta doukutsu ----
+
+D13R1F1	=	226
+D13R1F2	=	227
+
+T4R7F1	=	228
+
+T5R6F1	=	229
+
+T4R8F1	=	230
+
+R20R2F1	=	231	; not use
+
+;---- iwayama tonnel ----
+
+D15R1F1	=	232
+
+;---- sylph cooperation ----
+
+D10R1F8	=	233	; new
+D10R1F9	=	234	; new
+D10R1F10 =	235	; new
+D10R1F11 =	236	; new
+D10R2F1	=	237	; new
+D10R2F2	=	238	; new
+
+T0R1F1	=	239
+T0R1F2	=	240
+
+D10R2F3	=	241	; new
+D10R2F4	=	242	; new
+D10R2F5	=	243	; new
+D10R2F6	=	244	; new
+
+D14R1F16 =	245	; new
+D14R1F17 =	246	; new
+D14R1F18 =	247	; new
+
+NASI		=	0
+JIBUN		=	1
+RIVAL		=	2
+OOKIDO		=	3
+SHOUNEN		=	4
+MONSTER		=	5
+TRAINERW	=	6
+TRAINERM	=	7
+LOLITA		=	8
+TORI		=	9
+OSSAN		=	10
+
+GSAN		=	11
+NIICHYAN	=	12
+NEECHYAN	=	13
+MORIMORI	=	14
+HOTELW		=	15
+HOTELM		=	16
+ANE		=	17
+CYCLE		=	18
+FUNANORI	=	19
+COOK		=	20
+
+CHARIYA		=	21
+FUJI		=	22
+BOSS		=	23
+DANIN		=	24
+KITOUSHI	=	25
+BOY		=	26
+SHAINW		=	27
+OBASAN		=	28
+NANAMI		=	29
+WATARU		=	30
+
+OTOUSAN		=	31
+KENKYUIN	=	32
+PHILIP		=	33
+SWIMMER		=	34
+SYLPHMAN	=	35
+DANPEI		=	36
+GSAN2		=	37 
+SHOPMAN		=	38
+UMINOIE		=	39
+BASAN		=	40
+
+HOTELMAN	=	41
+DEPAGA		=	42
+SHATHOU		=	43
+SHAINM		=	44
+ENTHOU		=	45
+SENTHOU		=	46
+SEINEN		=	47
+KAKUTOU		=	48
+KEIBI		=	49
+SENNIN		=	50
+
+OKAASAN		=	51
+OSSAN2		=	52
+CHIKIN		=	53
+GAMERW		=	54
+GAMERM		=	55
+MARUMON		=	56
+KIKUKO		=	57
+SHIBA		=	58
+KANNA		=	59
+UMIRYU		=	60
+
+CAPSULE		=	61
+KASEKI		=	62
+IWA		=	63
+MAIL		=	64
+DIARY		=	65
+SYORUI		=	66
+KABINERU	=	67
+DOOR		=	68
+KOHAKU		=	69
+KOURI		=	70
+KAREKI		=	71
+
+
+KAITHOU		=	21	; dummy
+JUDGE		=	30	; dummy

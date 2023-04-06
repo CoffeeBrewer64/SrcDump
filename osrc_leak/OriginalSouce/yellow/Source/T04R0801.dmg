@@ -1,0 +1,225 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank1d	group	G_BANK1d
+
+
+	public	t4_room8
+
+
+	extern	turi17
+	extern	bank_push_call
+	extern	set_data
+
+
+
+SHIP_TYPE	=	13
+EXIT		=	0ffh
+
+
+t4_room8:				; Thunder Live Dungeon 
+ysiz	=	4
+xsiz	=	4
+	db	SHIP_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	turi17			; map data adrs
+	dw	msg_t4r8f1		; message tbl adrs
+	dw	ev_t4r8f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t4r8f1
+
+
+ev_t4r8f1:
+	ld	a,1
+	ld	(win_cancel),a
+	dec	a
+	ld	(wait_pass_flg),a
+
+	ret
+
+
+msg_t4r8f1:
+	dw	msg1
+
+
+msg1:
+	db	CALL_MSG
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	xor	a
+	ld	(allow_cnt),a
+	ld	(scloll_sv),a
+
+lp$:
+	ld	hl,msg1_1$
+	call	put_win_msg
+
+	ld	hl,badge_list$
+	call	set_data
+
+	ld	hl,shop_item_tbl
+	ld	a,l
+	ld	(item_list_adrs + 0),a
+	ld	a,h
+	ld	(item_list_adrs + 1),a
+	xor	a
+	ld	(gold_req),a
+;	ld	(scloll_sv),a
+;	ld	(allow_cnt),a
+	ld	(select_allow),a		; debug by sige 98/02/13
+	ld	a,4
+	ld	(mons_or_item),a		; my item
+	call	shop_window
+;	ld	a,0
+;	ld	(scloll_sv),a
+;	ld	(allow_cnt),a
+	jr	c,rts$
+
+	ld	hl,badge_info$
+	ld	a,(sel_item_no)
+	sub	21
+	add	a,a
+	ld	d,0
+	ld	e,a
+	add	hl,de
+	ld	a,(hli)
+	ld	h,(hl)
+	ld	l,a
+	call	put_win_msg
+
+	jr	lp$
+
+
+rts$:
+	xor	a
+	ld	(scloll_sv),a
+	ld	hl,msg1_2$
+	call	put_win_msg
+
+	jp	msg_return
+
+
+badge_list$:
+	db	8
+	db	21
+	db	22
+	db	23
+	db	24
+	db	25
+	db	26
+	db	27
+	db	28
+	db	0ffh
+
+
+msg1_0$:
+	extern	msg1_0_0_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T04R0801	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T04R0801	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_2_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_2_T04R0801	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+badge_info$:
+	dw	badge1$
+	dw	badge2$
+	dw	badge3$
+	dw	badge4$
+	dw	badge5$
+	dw	badge6$
+	dw	badge7$
+	dw	badge8$
+
+
+badge1$:
+	extern	badge1_3_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw badge1_3_T04R0801	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+badge2$:
+	extern	badge2_4_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw badge2_4_T04R0801	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+badge3$:
+	extern	badge3_5_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw badge3_5_T04R0801	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+badge4$:
+	extern	badge4_6_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw badge4_6_T04R0801	; mvmsg追加
+	db 02ah	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+badge5$:
+	extern	badge5_7_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw badge5_7_T04R0801	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+badge6$:
+	extern	badge6_8_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw badge6_8_T04R0801	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+badge7$:
+	extern	badge7_9_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw badge7_9_T04R0801	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+badge8$:
+	extern	badge8_10_T04R0801
+	db I_MSG2	; mvmsg追加
+	dw badge8_10_T04R0801	; mvmsg追加
+	db 02bh	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t4r8f1:
+	include	..\sxy\t04r0801.sxy
+
+

@@ -1,0 +1,44 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	d6_room1
+
+	extern	dungeon6		; map data adrs
+
+
+NUKEMICHI_TYPE	equ	11
+EXIT		=	0ffh
+
+
+d6_room1:
+ysiz	=	4
+xsiz	=	25
+	db	NUKEMICHI_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	dungeon6		; map data adrs
+	dw	msg_tbl$		; message tbl adrs
+	dw	event$			; event routine adrs
+	db	0			; map link flg
+	dw	room_str$
+
+
+
+event$:
+	jp	init_for_talkmap
+
+
+msg_tbl$:
+	db	EOM
+
+
+room_str$:
+	include	..\sxy\d06r0101.sxy
+
+

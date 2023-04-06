@@ -1,0 +1,200 @@
+
+;---------------------------------------------------------------;
+;===============================================================;
+;								;
+;	    WAZA & TOKUI WAZA Sound Effects Table		;
+;								;
+;		WAZA SE Number, Tone, Speed			;
+;								;
+;		SE Number EQU : "waza_se.h"			;
+;		Tone	      : 00h - 0ffh (00:Normal)		;
+;		Speed	      : 00h - 80h - 0ffh (80h:Normal)	;
+;				(High)      (Slow)		;
+;===============================================================;
+;---------------------------------------------------------------;
+	db	mushataku,	000h,	080h	;hataku		- 1
+	db	muspunch2,	010h,	080h	;karate_c	- 2
+	db	musbinta,	000h,	080h	;oufuku_b	- 3
+	db	muspunch,	001h,	080h	;ren_panch	- 4
+	db	muspunch3,	000h,	040h	;mega_p		- 5
+;	db	muspunch2,	000h,	080h	;upper		- 6
+	db	mussyakin2,	000h,	0ffh	;okane		- 6
+	db	muspunch3,	010h,	060h	;f_panch	- 7
+	db	muspunch3,	020h,	080h	;i_panch	- 8
+	db	muspunch3,	000h,	0a0h	;t_panch	- 9
+; 10 -
+	db	muskama,	000h,	080h	;hikkaku	- 10
+	db	mushasami,	020h,	040h	;hasamu		- 11
+	db	mushasami,	000h,	080h	;hasami_g	- 12
+	db	mushikkaki,	000h,	0a0h	;kamaitati	- 13
+	db	muskiru,	010h,	0c0h	;turugi		- 14
+	db	muskiru,	000h,	0a0h	;iai		- 15
+	db	mustsubasa,	000h,	0c0h	;kazeokosi	- 16
+	db	mustsubasa,	010h,	0a0h	;tubasa		- 17
+	db	musfukitobashi,	000h,	0e0h	;fukitobasi	- 18
+	db	muskiru,	020h,	0c0h	;kyuukouka	- 19
+; 20 -
+	db	musshime,	000h,	080h	;simetukeru	- 20
+	db	muschoppu,	000h,	080h	;tatakikeru	- 21
+	db	musmuchi2,	001h,	080h	;turu_muti	- 22
+	db	musfumitsuke,	000h,	080h	;fumituke	- 23
+	db	muskick2,	0f0h,	040h	;nido_keri	- 24
+	db	mustaiatari,	000h,	080h	;mega_k		- 25
+	db	muskick2,	000h,	080h	;tobigeri	- 26
+	db	mussippo,	010h,	080h	;mawasi		- 27
+	db	mushari,	001h,	0a0h	;suna		- 28
+	db	muszutsuki,	000h,	080h	;zutuki		- 29
+; 30 -
+	db	muskamitsuki,	000h,	060h	;tuno_tuku	- 30
+	db	muskamitsuki,	001h,	040h	;midare		- 31
+	db	mustobigeri,	000h,	0a0h	;tuno_doriru	- 32
+	db	mustaiatari,	010h,	0a0h	;taiatari	- 33
+	db	musfumitsuke,	000h,	0c0h	;nosikakari	- 34
+	db	musshime,	010h,	060h	;makituku	- 35
+	db	mustaiatari,	000h,	0a0h	;tossin		- 36
+	db	muschoppu,	011h,	0c0h	;abareru	- 37
+	db	mustaiatari,	020h,	0c0h	;stemi_t	- 38
+	db	mussippo,	000h,	080h	;sippo		- 39
+; 40 -
+	db	mushari,	000h,	080h	;doku_hari	- 40
+	db	mushari,	020h,	0c0h	;d_needle	- 41
+	db	mustsuno,	000h,	080h	;m_needle	- 42
+	db	musiya,		0ffh,	040h	;nirami		- 43
+	db	muskamitsuki,	000h,	080h	;kamituku	- 44
+	db	muspunch,	000h,	0c0h	;naku		- 45
+	db	muspunch,	000h,	040h	;hoeru		- 46
+	db	musutau,	000h,	080h	;utau		- 47
+	db	musonpa,	040h,	060h	;tyouonpa	- 48
+	db	musonpa,	000h,	080h	;sonic		- 49
+; 50 -
+	db	musonpa,	0ffh,	040h	;nenpa		- 50
+	db	muswater,	080h,	0c0h	;youkai		- 51
+	db	mustsuno,	010h,	0a0h	;hinoko		- 52
+	db	mustsuno,	021h,	0e0h	;kaen		- 53
+	db	musfire,	000h,	080h	;mega_f		- 54
+	db	mussuitori,	020h,	060h	;mizu		- 55
+	db	muswater,	000h,	080h	;hydro		- 56
+	db	muskouzui,	000h,	080h	;kouzui		- 57
+	db	musbeam,	040h,	080h	;ice_beam	- 58
+	db	musfire,	0f0h,	0e0h	;fubuki		- 59
+; 60 -
+	db	mussaike,	000h,	080h	;s_kousen	- 60
+	db	muswater,	0f0h,	060h	;b_kousen	- 61
+	db	musbeam,	000h,	080h	;o_beam		- 62
+	db	musbeam2,	000h,	080h	;hakai		- 63
+	db	mussasaru,	001h,	0a0h	;tutuku		- 64
+	db	musfukitobashi,	0f0h,	020h	;d_kutibasi	- 65
+	db	musseoinage,	001h,	0c0h	;jigoku		- 66
+	db	musseoinage,	000h,	080h	;ketaguri	- 67
+	db	mustaiatari,	000h,	0e0h	;counter	- 68
+	db	muskaminari,	001h,	060h	;tikyuu		- 69
+; 70 -
+	db	muskaminari,	020h,	040h	;kairiki	- 70
+	db	mussuitori,	000h,	080h	;suitoru	- 71
+	db	mussuitori,	040h,	0c0h	;mega_d		- 72
+	db	mushari,	003h,	060h	;yadorigi	- 73
+	db	muskiai,	011h,	0e0h	;seityou	- 74
+	db	mustsubasa,	020h,	0e0h	;happa		- 75
+	db	mussoura,	000h,	080h	;solar_beam	- 76
+	db	muskona,	000h,	080h	;doku_kona	- 77
+	db	muskona,	011h,	0a0h	;sibire_kona	- 78
+	db	muskona,	001h,	0c0h	;nemuri_kona	- 79
+; 80 -
+	db	musfukitobashi,	014h,	0c0h	;hanabira	- 80
+	db	mushari,	002h,	0a0h	;ito		- 81
+	db	musfire,	0f0h,	080h	;dragon		- 82
+	db	musfire,	020h,	0c0h	;honoo_uzu	- 83
+	db	musdenki,	000h,	020h	;denki_shock	- 84
+	db	musdenki,	020h,	080h	;10_bolt	- 85
+	db	mussoura,	012h,	060h	;denjiha	- 86
+	db	muskaminari,	000h,	080h	;thunder	- 87
+	db	musshime,	001h,	0e0h	;iwanadare	- 88
+	db	musfire,	00fh,	0e0h	;jisin		- 89
+; 90 -
+	db	musfire,	011h,	020h	;jiware		- 90
+	db	muskama,	010h,	040h	;ana		- 91
+	db	mushasami,	010h,	0c0h	;dokudoku	- 92
+	db	musshime,	000h,	020h	;nenriki	- 93
+	db	muspsycho,	000h,	080h	;saiko		- 94
+	db	musutau,	011h,	018h	;saimin		- 95
+	db	musagaru,	020h,	0c0h	;yoga		- 96
+	db	musochiru,	020h,	0c0h	;kousoku	- 97
+	db	muskiai,	000h,	010h	;denkou		- 98
+	db	muskaminari,	0f0h,	020h	;ikari		- 99
+; 100 -
+	db	mustoumei,	0f0h,	0c0h	;tereport	- 100
+	db	muskiru,	0f0h,	0e0h	;night_head	- 101
+	db	musagaru,	0f0h,	040h	;monomane	- 102
+	db	musiya,		000h,	080h	;iya		- 103
+	db	mustoumei,	080h,	040h	;bunsin		- 104
+	db	mustoumei,	000h,	080h	;tounei		- 105
+	db	musshime,	011h,	020h	;kataku		- 106
+	db	musshime,	022h,	010h	;tiisaku	- 107
+	db	mushari,	0f1h,	0ffh	;enmaku		- 108
+	db	musfukitobashi,	0f1h,	0ffh	;ayasii		- 109
+; 110 -
+	db	musshime,	033h,	030h	;kara		- 110
+	db	mushone,	040h,	0c0h	;maruku		- 111
+	db	mushikkaki,	020h,	020h	;bariar		- 112
+	db	mushikkaki,	0f0h,	010h	;f_kabe		- 113
+	db	mushasami,	0f8h,	010h	;w_kabe		- 114
+	db	muskiru,	0f0h,	010h	;m_kabe		- 115
+	db	muskiai,	000h,	080h	;kiai		- 116
+	db	muszutsuki,	000h,	0c0h	;gaman		- 117
+	db	mushone,	0c0h,	0ffh	;yubi		- 118
+	db	musagaru,	0f2h,	020h	;oumu		- 119
+; 120 -
+	db	musjibaku,	000h,	080h	;jibaku		- 120
+	db	musjibaku,	000h,	040h	;tamago_bomb	- 121
+	db	musagaru,	000h,	040h	;sita_name	- 122
+	db	muskiru,	010h,	0ffh	;smog		- 123
+	db	muswater,	020h,	020h	;hedro		- 124
+	db	mushone,	000h,	080h	;hone_k		- 125
+	db	musfire,	01fh,	020h	;daimonji	- 126
+	db	muskiai,	02fh,	080h	;taki		- 127
+	db	mushasami,	01fh,	0ffh	;kara_hasamu	- 128
+	db	musscrew,	01fh,	060h	;speed_star	- 129
+; 130 -
+	db	muskaminari,	01eh,	020h	;rocket		- 130
+	db	muskaminari,	01fh,	018h	;toge_c		- 131
+	db	musshime,	00fh,	080h	;karami		- 132
+	db	musagaru,	0f8h,	010h	;do_wasure	- 133
+	db	musochiru,	018h,	020h	;spuun		- 134
+	db	mushone,	008h,	040h	;tamago_umi	- 135
+	db	muskick2,	001h,	0e0h	;tobihiza	- 136
+	db	muskiru,	009h,	0ffh	;snake		- 137
+	db	musutau,	042h,	001h	;dream		- 138
+	db	muskona,	000h,	0ffh	;doku_gas	- 139
+; 140 -
+	db	mushone,	008h,	0e0h	;tama_nage	- 140
+	db	mussuitori,	000h,	080h	;kyuuketu	- 141
+	db	musagaru,	088h,	010h	;kiss		- 142
+	db	muskiai,	048h,	0ffh	;god_bird	- 143
+	db	musochiru,	0ffh,	0ffh	;hensin		- 144
+	db	mussuitori,	0ffh,	010h	;awa		- 145
+	db	musochiru,	0ffh,	004h	;piyopiyo_p	- 146
+	db	muskona,	001h,	0ffh	;kinoko_housi	- 147
+	db	musfukitobashi,	0f8h,	0ffh	;ikasumi	- 148
+	db	muspunch2,	0f0h,	0f0h	;2_kaesi	- 149
+; 150 -
+	db	mushasami,	008h,	010h	;haneru		- 150
+	db	muspunch3,	0f0h,	0ffh	;tokeru		- 151
+	db	mustaiatari,	0f0h,	0ffh	;crab_h		- 152
+	db	musjibaku,	010h,	0ffh	;heavy_bomb	- 153
+	db	mushikkaki,	0f0h,	020h	;cat_nail	- 154
+	db	musscrew,	0f0h,	060h	;hone_b		- 155
+	db	mussippo,	012h,	010h	;sleep		- 156
+	db	musbeam2,	0f0h,	020h	;star_freeze	- 157
+	db	muskamitsuki,	012h,	0ffh	;hissatu_maeba	- 158
+	db	musiya,		080h,	004h	;kakubaru	- 159
+; 160 -
+	db	mustoumei,	0f0h,	010h	;tex		- 160
+	db	musfire,	0f8h,	0ffh	;t_attack	- 161
+	db	muskaminari,	0f0h,	0ffh	;ikari_maeba	- 162
+	db	muskiru,	001h,	0ffh	;kirisaku	- 163
+	db	muskouzui,	0d8h,	004h	;utusemi	- 164
+
+	db	muspunch,	000h,	080h	;seikou		- Dummy
+	db	muspunch,	000h,	080h	;sippai		- Dummy
+
+

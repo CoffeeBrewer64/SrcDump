@@ -1,0 +1,46 @@
+; 04/28/98		00:43:12
+dun_tbl$:
+	db	00fh
+ie_tbl$:
+	db	004h
+	db	001h,006h,000h,T7R2F2
+	db	001h,007h,000h,T7R2F4
+	db	001h,002h,001h,T7R2F4
+	db	001h,004h,003h,T7R2F2
+kanban_tbl$:
+	db	004h
+	db	003h,001h,5
+	db	003h,004h,6
+	db	006h,001h,7
+	db	009h,004h,8
+hito_tbl$:
+	db	004h
+	db	CHARIYA
+	db	004h+4,000h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	001h
+	db	SHOPMAN
+	db	004h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	002h
+	db	NIICHYAN
+	db	007h+4,000h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	003h
+	db	SHAINM
+	db	003h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	004h
+ram_map_tbl$:
+	dw	00ah * 001h + 004h + ram_map
+	db	001h,006h
+	dw	00ah * 001h + 004h + ram_map
+	db	001h,007h
+	dw	00ah * 001h + 002h + ram_map
+	db	001h,002h
+	dw	00ah * 001h + 003h + ram_map
+	db	001h,004h

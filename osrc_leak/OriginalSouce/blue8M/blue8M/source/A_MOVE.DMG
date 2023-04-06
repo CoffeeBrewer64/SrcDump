@@ -1,0 +1,1107 @@
+
+;===============================================================;
+;								;
+;	actor automatic animetion & automatic moving control	;
+;								;
+;===============================================================;
+
+	include	common.def
+	include	anime.def
+	include	banktool.def
+	include macro.h
+
+
+bank1	group	1
+
+
+	public	actor_normal
+	public	ctrl_demo_step
+	public	set_localyx
+
+	extern	rnd
+	extern	hit_check
+	extern	bank2bank
+	extern	wait_vb
+
+
+UPPER_STEP	equ	0feh
+LOWER_STEP	equ	002h
+LEFT_STEP	equ	0feh
+RIGHT_STEP	equ	002h
+
+STEP_WAIT	equ	008h
+
+ACTION_STAY	equ	2
+ACTION_MOVE	equ	3
+
+OBJ_MOVE_V	equ	1
+OBJ_MOVE_H	equ	2
+
+ACTOR_NEXT_ADRS	equ	actor_table + 100h
+
+GetActorTable:
+	push	bc
+	push	af
+	ld	a,(actlow)
+	ld	c,a
+	pop	af
+	add	a,c
+	ld	l,a
+	pop	bc
+
+	ret
+
+
+actor_normal:
+	ld	a,(actlow)
+	swap	a				; 1/16
+	dec	a
+	add	a,a				; *2
+	ld	hl,hito_tbl
+	add	a,l
+	ld	l,a
+	ld	a,(hl)
+	ld	(action_pattern),a		; action pattern & attribute	
+
+	ld	h,> actor_table
+	ld	a,(actlow)
+	ld	l,a
+	inc	l
+	ld	a,(hl)				; action code
+	and	a
+	jp	z,initialize$			; action code = 0 (initialize)
+
+	call	chk_show_hide
+	ret	c				; hide
+
+	ld	h,> actor_table
+	ld	a,(actlow)
+	ld	l,a
+	inc	l
+	ld	a,(hl)				; action code
+
+	bit	7,a				; conversation mode check
+	jp	nz,conversation$		; conversation mode
+
+	ld	b,a
+
+	ld	a,(talking_flg)			; talk by others
+	bit	0,a
+	jp	nz,stop2$			; talking
+
+	ld	a,b
+
+	cp	ACTION_STAY			; staying animetion check
+	jp	z,stop1$
+
+	cp	ACTION_MOVE			; moving animetion check
+	jp	z,walk1$
+
+	ld	a,(scloll_cnt)			; no move in scroll
+	and	a
+	ret	nz
+
+	call	set_localyx
+
+	ld	h,> ACTOR_NEXT_ADRS
+
+	ld	a,(actlow)
+	add	a,6
+	ld	l,a
+	ld	a,(hl)				; animetion switch
+
+	inc	a				; 0ffh ( animetion off )
+	jr	z,random_anime$			; case of value is 0ffh
+
+	inc	a				; 0feh ( animetion on )
+	jr	z,random_anime$			; case of value is 0feh
+
+	dec	a
+	ld	(hl),a				; animetion = 1(start)
+	dec	a
+
+	push	hl
+	ld	hl,obs_anime_step
+	dec	(hl)
+	pop	hl
+
+	ld	de,anime_buf
+	call	get_anime			; set value of animetion
+
+	cp	A_DMY				; no animetion
+	jp	z,stay_here$
+
+	cp	A_E				; animetion end check
+	jr	nz,anim2$
+
+	ld	(hl),a				; animation end
+
+	ld	hl,obs_system
+	res	0,(hl)				; animetion end switch
+
+	xor	a
+	ld	(ctrl_move_cnt),a
+	ld	(auto_move_cnt),a
+
+	ret
+
+
+anim2$:
+	cp	A_LP
+	jr	nz,anime_site$
+
+	ld	(hl),1				; animation loop
+
+	ld	de,anime_buf
+	call	get_anime			; set value of animetion
+
+	jr	anime_site$
+
+
+random_anime$:
+	call	get_dvramadr			; HL = player position(x,y)
+	call	rnd
+
+anime_site$:
+	ld	b,a				; random value save
+
+	ld	a,(action_pattern)
+	cp	0d0h
+	jr	z,force_south$
+
+	cp	0d1h
+	jr	z,force_north$
+
+	cp	0d2h
+	jr	z,force_west$
+
+	cp	0d3h
+	jr	z,force_east$
+
+	ld	a,b				; random value load
+
+	cp	A_U
+	jr	nc,site_left$			; random > A_U
+
+	ld	a,(action_pattern)
+	cp	OBJ_MOVE_H			; check side step only
+	jr	z,force_west$
+
+force_south$:
+	ld	de,40				; step lower
+	add	hl,de
+
+	ld	de,00100h
+;	ld	b,004h				; hit check site
+;	ld	c,000h				; site value is lower
+	ld	bc,4 * 256 + 0
+
+	jr	decided$
+
+
+site_left$:
+	cp	A_L
+	jr	nc,site_right$			; random > A_L
+
+	ld	a,(action_pattern)
+	cp	OBJ_MOVE_H			; check side step only
+	jr	z,force_east$
+
+force_north$:
+	ld	de,-40				; step upper
+	add	hl,de
+
+	ld	de,0ff00h
+;	ld	b,008h				; hit check site
+;	ld	c,004h				; site value is upper
+	ld	bc,8 * 256 + 4
+
+	jr	decided$
+
+
+site_right$:
+	cp	A_R
+	jr	nc,site_south$			; random > A_R
+
+	ld	a,(action_pattern)
+	cp	OBJ_MOVE_V			; check vertical step only
+	jr	z,force_north$
+
+force_west$:
+	dec	hl				; step left
+	dec	hl
+
+	ld	de,000ffh
+;	ld	b,002h				; hit check site
+;	ld	c,008h				; site value is left
+	ld	bc,2 * 256 + 8
+
+	jr	decided$
+
+
+site_south$:
+	ld	a,(action_pattern)
+	cp	OBJ_MOVE_V			; check vertical step only
+	jr	z,force_south$
+
+force_east$:
+	inc	hl				; step right
+	inc	hl
+
+	ld	de,00001h
+;	ld	b,001h				; hit check site
+;	ld	c,00ch				; site value is right
+	ld	bc,001h * 0100h + 00ch
+
+	jr	decided$
+
+
+stay_here$:
+	ld	de,00000h
+
+decided$:
+	push	hl
+
+	ld	h,> actor_table
+	ld	a,(actlow)
+	add	a,9
+	ld	l,a
+	ld	(hl),c				; site value set
+
+	ld	a,(actlow)
+	add	a,3
+	ld	l,a
+	ld	(hl),d				; y-step ratio
+	inc	l
+	inc	l
+	ld	(hl),e				; x-step ratio
+
+	pop	hl
+
+	push	de				; save step ratio
+
+	ld	c,(hl)				; front character( dvram )
+	call	check_auto_walk			; automatic walking check
+
+	pop	de				; load step ratio
+
+	ret	c				; no auto animetion
+
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,4
+	ld	l,a
+	ld	a,(hl)				; ram_map y
+	add	a,d				; ram map position + step ratio
+	ld	(hli),a				; set renewal position y
+	ld	a,(hl)				; ram_map x
+	add	a,e				; ram map position + step ratio
+	ld	(hl),a				; set renewal position x
+
+	ld	a,(actlow)
+	ld	l,a
+	ld	(hl),010h
+
+	dec	h				; actor_table
+	inc	l
+	ld	(hl),3				; action code = 3
+
+	jp	set_act1
+
+
+walk1$:
+	ld	a,(actlow)
+	add	a,7
+	ld	l,a
+	ld	a,(hl)				; animetion pattern count
+	inc	a
+	ld	(hl),a				; next animetion pattern count
+	cp	4
+	jr	nz,walk2$
+
+	xor	a
+	ld	(hl),a				; count loop ( initialize )
+
+	inc	l
+	ld	a,(hl)				; animetion pattern code
+	inc	a
+	and	003h
+	ld	(hl),a				; next animetion pattern code
+
+walk2$:
+	ld	a,(actlow)
+	add	a,3
+	ld	l,a
+	ld	a,(hli)				; y.dot
+	ld	b,a
+	ld	a,(hl)
+	add	a,b
+	ld	(hli),a				; local y
+	ld	a,(hli)				; x.dot
+	ld	b,a
+	ld	a,(hl)
+	add	a,b
+	ld	(hl),a				; local	x
+
+	ld	a,(actlow)
+	ld	l,a
+	inc	h
+	ld	a,(hl)				; actor_table + 100h + 10h * n
+	dec	a
+	ld	(hl),a
+	ret	nz				; wait turn value(random value)
+
+	ld	a,6
+	add	a,l
+	ld	l,a
+	ld	a,(hl)				; animetion switch
+	cp	0feh
+	jr	nc,walk3$
+
+	ld	a,(actlow)
+	inc	a
+	ld	l,a
+	dec	h
+	ld	(hl),1				; action code = deside site
+
+	ret
+
+
+walk3$:
+	call	rnd				; stay count
+
+	ld	a,(actlow)
+	add	a,8
+	ld	l,a
+
+	ld	a,(random + 0)
+	and	07fh
+	ld	(hl),a
+
+	dec	h
+	ld	a,(actlow)
+	inc	a
+	ld	l,a
+	ld	(hl),2				; phase = stop
+
+	inc	l				; reset yx.dot
+	inc	l
+	xor	a
+	ld	b,(hl)
+	ld	(hli),a
+	inc	l
+	ld	c,(hl)
+	ld	(hl),a
+
+	ret
+
+
+stop1$:
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,6
+	ld	l,a
+	ld	a,(hl)
+	inc	l
+	inc	l
+	cp	0feh
+	jr	nc,stop3$
+
+	ld	(hl),0				; anime case
+
+	jr	stop4$
+
+
+stop3$:
+	dec	(hl)
+	jr	nz,stop2$
+
+stop4$:
+	dec	h
+	ld	a,(actlow)
+	inc	a
+	ld	l,a
+	ld	(hl),1				; phase = houkou kettei
+
+stop2$:
+	ld	h,> actor_table
+	ld	a,(actlow)			; no action
+	add	a,8
+	ld	l,a
+	ld	(hl),00h			; pattern counter initialize
+
+	jp	set_act1
+
+
+;--------------;
+; conversation ;
+;--------------;
+conversation$:
+	ld	a,(event_flg)
+	bit	5,a
+	jr	nz,stop2$			; no site change
+
+	res	7,(hl)				; reset talk flg
+
+	ld	a,(watashi_muki3)
+	bit	3,a
+	jr	z,talk2$
+
+	ld	c,00h				; watashi = ue -> sita
+
+	jr	talk99$
+
+
+talk2$:
+	bit	2,a
+	jr	z,talk3$
+
+	ld	c,04h				; watashi = sita -> ue
+
+	jr	talk99$
+
+
+talk3$:
+	bit	1,a
+	jr	z,talk4$
+
+	ld	c,0ch				; watashi = migi -> hidari
+
+	jr	talk99$
+
+
+talk4$:
+	ld	c,08h				; watashi = hidari -> migi
+
+talk99$:
+	ld	a,(actlow)
+	add	a,9
+	ld	l,a
+	ld	(hl),c				; conversation site code set 
+
+	jr	stop2$
+
+
+;------------;
+; initialize ;
+;------------;
+initialize$:
+	ld	(hl),1				; phase = houkou kettei
+	inc	l
+	ld	(hl),0ffh
+
+	inc	h
+	ld	a,(actlow)
+	add	a,2
+	ld	l,a
+	ld	a,8
+	ld	(hli),a				; Y-step ratio
+	ld	(hl),a				; X-step ratio
+
+	ret
+
+
+; local y = (global y - mapscloll_y)*16 - 4
+; local x = (global x - mapscloll_x)*16
+set_localyx:
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,4
+	ld	l,a
+	ld	a,(mapscloll_y)
+	ld	b,a
+	ld	a,(hl)				; ram_map(y)
+	sub	b
+	swap	a
+	sub	4
+	dec	h
+	ld	(hli),a
+
+	inc	h
+	ld	a,(mapscloll_x)
+	ld	b,a
+	ld	a,(hli)				; ram_map(x)
+	sub	b
+	swap	a
+	dec	h
+	ld	(hl),a
+
+	ret
+
+
+;-------------------------------;
+;	show or hide check	;
+;-------------------------------;
+chk_show_hide:
+	ld	a,B_OBS_OBJ_ATR
+	call	bank2bank			; calling "obs_obj_atr"
+	ld	a,(temp_box1)			; check vanish switch
+	and	a
+	jp	nz,hide1$
+
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,6
+	ld	l,a
+	ld	a,(hl)
+	cp	0feh
+	jr	c,ok1$
+
+	ld	a,(actlow)
+	add	a,4
+	ld	l,a
+	ld	b,(hl)				; y-position
+	ld	a,(mapscloll_y)
+	cp	b
+	jr	z,xchk1$			; y-position == mapscloll_y
+	jr	nc,hide1$			; y-position > mapscloll_y
+
+	add	a,8
+	cp	b
+	jr	c,hide1$
+
+xchk1$:
+	inc	l
+	ld	b,(hl)
+	ld	a,(mapscloll_x)
+
+	cp	b
+	jr	z,ok1$
+	jr	nc,hide1$
+
+	add	a,9
+	cp	b
+	jr	c,hide1$
+
+ok1$:
+	call	get_dvramadr
+
+	ld	d,60h
+	ld	a,(hli)
+	cp	d
+	jr	nc,hide1$
+
+	ld	a,(hld)
+	cp	d
+	jr	nc,hide1$
+
+	ld	bc,-20
+	add	hl,bc
+	ld	a,(hli)
+	cp	d
+	jr	nc,hide1$
+
+	ld	a,(hl)
+	cp	d
+	jr	c,show1$
+
+hide1$:
+	ld	h,> actor_table
+	ld	a,(actlow)
+	add	a,2
+	ld	l,a
+	ld	(hl),0ffh			; vanish
+
+	scf
+
+	jr	rts$
+
+
+show1$:
+	ld	c,a
+	ld	a,(scloll_cnt)
+	and	a
+	jr	nz,rts$
+
+	call	set_act1
+	inc	h
+	ld	a,(actlow)
+	add	a,7
+	ld	l,a
+	ld	a,(kusamura_chr)
+	cp	c
+	ld	a,0
+	jr	nz,kusamura1$
+
+	ld	a,080h				; kusamura
+
+kusamura1$:
+	ld	(hl),a
+
+	and	a
+
+rts$:
+	ret
+
+
+
+set_act1:
+	ld	h,> actor_table
+	ld	a,(actlow)
+	add	a,8
+	ld	l,a
+	ld	a,(hli)				; pattern lot number
+	ld	b,a
+
+	ld	a,(hl)				; site value
+
+	add	a,b
+	ld	b,a				; next pattern lot number
+
+	ld	a,(actwork4)			; actor number(0 org) * 010h
+
+	add	a,b
+	ld	b,a				; decide on actor (pattern)
+
+	ld	a,(actlow)
+	add	a,2
+	ld	l,a
+	ld	(hl),b				; actor pattern value
+
+	ret
+
+
+;===============================================================;
+;								;
+;	check possible walking for automatic animetion actor	;
+;	IN							;
+;	BC		B:site value C:d-vram address		;
+;	DE		D:y-step value E:x-step value		;
+;								;
+;===============================================================;
+check_auto_walk:
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,6
+	ld	l,a
+	ld	a,(hl)				; load animetion switch value
+
+	cp	0feh				; automatic animetion check
+	jr	nc,auto_anime			; automatic animetion mode
+
+	and	a				; controled animetion
+
+	ret
+
+
+;-------------------------------------;
+; automatic animetion control section ;
+;-------------------------------------;
+auto_anime:
+	ld	a,(arukeru_tbl + 0)		; setting in "mapper.src"
+	ld	l,a
+	ld	a,(arukeru_tbl + 1)
+	ld	h,a
+
+loop$:
+	ld	a,(hli)
+	cp	0ffh				; table end check
+	jr	z,no_move$
+
+	cp	c				; front character( dvram )
+	jr	nz,loop$
+
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,6
+	ld	l,a
+	ld	a,(hl)				; animetion switch
+	inc	a
+	jr	z,no_move$			; animetion switch = 0ffh
+
+	ld	h,> actor_table
+	ld	a,(actlow)
+	add	a,4
+	ld	l,a
+	ld	a,(hli)				; y-position
+	add	a,4
+	add	a,d				; y-step ratio
+	cp	080h				; y-limit
+	jr	nc,no_move$
+
+	inc	l				; x-position
+	ld	a,(hl)
+	add	a,e				; x-step ratio
+	cp	090h				; x-limit
+	jr	nc,no_move$
+
+	push	de
+	push	bc
+
+	call	hit_check
+
+	pop	bc
+	pop	de
+
+	ld	h,> actor_table
+	ld	a,(actlow)
+	add	a,00ch
+	ld	l,a
+	ld	a,(hl)				; hit check site value
+	and	b				; b regs = site value
+	jr	nz,no_move$
+
+	ld	h,> ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,2
+	ld	l,a
+	ld	a,(hli)				; y-scroll dot ratio
+	bit	7,d				; d = 0ffh ( upper step check )
+	jr	nz,z10$
+
+	add	a,d
+	cp	5
+	jr	c,no_move$
+
+	jr	z15$
+
+
+z10$:
+	sub	1
+	jr	c,no_move$
+
+z15$:
+	ld	d,a
+
+	ld	a,(hl)				; x-scroll dot ratio
+	bit	7,e				; e = 0ffh ( left step check )
+	jr	nz,z20$
+
+	add	a,e
+	cp	5
+  ifn	0				;12Jun,1998 ‘ºì’Ç‰Á
+	jr	c,no_move$
+  endif
+
+	jr	z25$
+
+z20$:
+	sub	1
+	jr	c,no_move$
+
+z25$:
+	ld	(hld),a
+	ld	(hl),d
+
+	and	a
+
+	ret
+
+
+no_move$:
+	ld	h,> actor_table
+	ld	a,(actlow)
+	inc	a
+	ld	l,a
+	ld	(hl),2				; action code(stay)
+
+	inc	l
+	inc	l
+
+	xor	a
+	ld	(hli),a				; y stepping ratio clear
+	inc	l
+	ld	(hl),a				; x stepping ratio clear
+
+	inc	h				; actor_table + 100h
+
+	ld	a,(actlow)
+	add	a,8
+	ld	l,a
+
+	call	rnd
+	ld	a,(random + 0)
+	and	07fh
+	ld	(hl),a				; wait value of staying
+
+	scf
+
+	ret
+
+
+
+;===============================================;
+;						;
+;	getting position address for player	;
+;						;
+;===============================================;
+get_dvramadr:
+	ld	h,> actor_table
+	ld	a,(actlow)
+	add	a,4
+	ld	l,a
+	ld	a,(hli)				; y-dot position
+
+	add	a,4
+	and	0f0h
+	srl	a
+	ld	c,a
+	ld	b,0
+	inc	l
+	ld	a,(hl)
+	srl	a
+	srl	a
+	srl	a
+	add	a,20
+	ld	d,0
+	ld	e,a
+	ld	hl,dmy_vram
+
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+	add	hl,de
+
+	ret
+
+
+;=======================================================;
+;							;
+;	set animetion moving data from "anime_buf"	;
+;	IN						;
+;	a regs						;
+;		animetion count value			;
+;	de regs						;
+;		animetion data buffer 			;
+;	OUT						;
+;	a regs						;
+;		animetion moving data			;
+;							;
+;=======================================================;
+get_anime:
+	add	a,e
+	ld	e,a
+	jr	nc,anim1$
+
+	inc	d
+
+anim1$:
+	ld	a,(de)
+
+	ret
+
+
+;=======================================================;
+;							;
+;	control of actor step animetion with hero's	;
+;							;
+;=======================================================;
+ctrl_demo_step:
+	ld	a,(obs_system)
+	bit	7,a				; check hero's animetion mode
+	ret	z
+
+;;;	ld	hl,(obs_player)		; Note!!! 1996/5/10 By Jun
+	ld	hl,obs_player		;
+
+	bit	7,(hl)
+	set	7,(hl)
+	jp	z,initial$			; initialize switch
+
+	ld	hl,work_anime_buf
+	ld	a,(anime_cnt)
+	add	a,l
+	ld	l,a
+	jr	nc,non_carry$
+
+	inc	h
+
+non_carry$:
+	ld	a,(hl)				; read demonstration command
+
+upper$:
+	cp	A_U
+	jr	nz,lower$
+
+	call	position_y$
+
+	ld	c,04h
+
+	ld	a,UPPER_STEP
+
+	jr	set$
+
+
+lower$:
+	cp	A_D
+	jr	nz,left$
+
+	call	position_y$
+
+	ld	c,00h
+
+	ld	a,LOWER_STEP
+
+	jr	set$
+
+
+left$:
+	cp	A_L
+	jr	nz,right$
+
+	call	position_x$
+
+	ld	c,08h
+
+	ld	a,LEFT_STEP
+
+	jr	set$
+
+
+right$:
+	cp	A_R
+	jr	nz,eod$
+
+	call	position_x$
+
+	ld	c,0ch
+
+	ld	a,RIGHT_STEP
+
+	jr	set$
+
+
+eod$:
+	cp	A_E
+
+	ret
+
+
+set$:
+	ld	b,a
+	ld	a,(hl)				; position data area ( y or x )
+	add	a,b
+	ld	(hl),a
+
+	ld	a,(actlow)
+	add	a,009h
+	ld	l,a
+	ld	a,c
+	ld	(hl),a				; site code
+
+	call	each_pattern
+
+	ld	hl,work_counter
+	dec	(hl)
+	ret	nz
+
+	ld	a,STEP_WAIT
+	ld	(work_counter),a
+
+	ld	hl,anime_cnt
+	inc	(hl)
+
+	ret
+
+
+initial$:
+	xor	a
+	ld	(anime_cnt),a
+
+	ld	a,STEP_WAIT
+	ld	(work_counter),a
+
+	jp	each_pattern
+
+
+position_y$:
+	ld	a,004h
+	ld	b,a
+
+	jr	inst$
+
+
+position_x$:
+	ld	a,006h
+	ld	b,a
+
+inst$:
+	ld	hl,actor_table
+	ld	a,(actlow)			; object "actor_table" address
+	add	a,l
+	add	a,b
+	ld	l,a				; object data address
+
+	ret
+
+
+each_pattern:
+	ld	hl,ACTOR_NEXT_ADRS
+	ld	a,(actlow)
+	add	a,00eh
+	ld	l,a
+	ld	a,(hl)				; actor number
+
+	dec	a
+	swap	a
+	ld	b,a				; (actor number - 1) * 10h
+
+	ld	hl,actor_table
+	ld	a,(actlow)
+	add	a,009h
+	ld	l,a
+	ld	a,(hl)				; site data
+
+	cp	00h				; lower site
+	jr	z,site_set$
+
+	cp	04h				; upper site
+	jr	z,site_set$
+
+	cp	08h				; left site
+	jr	z,site_set$
+
+	cp	0ch				; right site
+	jr	z,site_set$
+
+	ret
+
+
+site_set$:
+	add	a,b				; site code + pattern top code
+	ld	b,a
+	ld	(temp_box5),a
+
+	call	pattern_change
+
+	ld	hl,actor_table
+	ld	a,(actlow)
+	add	a,2
+	ld	l,a
+
+	ld	a,(temp_box5)
+	ld	b,a
+	ld	a,(temp_box6)
+	add	a,b				; base pattern + change pattern
+	ld	(hl),a				; pattern code
+
+	ret
+
+
+pattern_change:
+	ld	a,(actlow)
+	add	a,7
+	ld	l,a
+
+	ld	a,(hl)				; animetion pattern count
+	inc	a
+	ld	(hl),a				; next animetion pattern count
+
+	cp	4
+	ret	nz
+
+	xor	a
+	ld	(hl),a				; count loop ( initialize )
+
+	inc	l
+	ld	a,(hl)				; animetion pattern code
+	inc	a
+	and	003h
+	ld	(hl),a				; next animetion pattern code
+	ld	(temp_box6),a
+
+	ret
+
+

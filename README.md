@@ -24,6 +24,7 @@ We currently host the following in this repo:
 - pack_4m4IZ6j ROMs from the Nintendo Gigaleak
 - DSiWare Title Keys from the Nintendo Gigaleak
 - horizonOS_hw leak from the Nintendo Gigaleak
+- osrc_leak from Nintendo Gigaleak
 
 **Be careful when using AnonFiles.** To help fund AnonFiles, ads are run on the site whenever you try to download something. **These often link to malware.**
 

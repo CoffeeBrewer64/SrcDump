@@ -1,0 +1,65 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	group.def
+
+
+bank11	group	G_BANK11
+
+
+	public	d12_room1_4f
+
+
+	extern	capsule_item
+
+
+DUNGEON_TYPE	equ	3
+EXIT		=	0ffh
+
+
+d12_room1_4f:
+ysiz	=	13
+xsiz	=	15
+	db	DUNGEON_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	safari1			; map data adrs
+	dw	msg_d12r1f4		; message tbl adrs
+	dw	ev_d12r1f4		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d12r1f4
+
+
+ev_d12r1f4:
+	jp	init_for_talkmap
+
+
+
+msg_d12r1f4:
+	dw	capsule_item
+	dw	kanban1$
+	dw	kanban2$
+
+
+kanban1$:
+	extern	kanban1_0_D12R0104
+	db I_MSG2	; mvmsg追加
+	dw kanban1_0_D12R0104	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+kanban2$:
+	extern	kanban2_1_D12R0104
+	db I_MSG2	; mvmsg追加
+	dw kanban2_1_D12R0104	; mvmsg追加
+	db 021h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+	
+sxy_d12r1f4:
+	include	..\sxy\d12r0104.sxy
+
+safari1:
+	include	..\mapdata\safari_1.map
+

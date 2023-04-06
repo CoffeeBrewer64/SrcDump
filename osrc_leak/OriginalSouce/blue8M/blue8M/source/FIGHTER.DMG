@@ -1,0 +1,982 @@
+;*************************************************
+;* Making code name	: Pocket Monsters	*
+;* Source file		: fighter.src		*
+;*************************************************
+
+	include	common.def
+	include	fntequ.def
+	include	effect.def
+	include	banktool.def
+	include	sgb_col.def
+	include	dealer.def
+	include	fight.def
+	include	maptype.def
+	include macro.h
+	include	group.def
+	include pm_debug.def
+
+
+;* bankf *
+	public	fighter
+	public	fighter0
+	public	scream_attack
+
+;* bankf *
+	public	set_msd_ready
+	public	set_img_ram
+	public	set_mons_dvram
+	public	zoomer
+	public	bowawan_ready
+	public	bowawan
+	public	put_mymons_image
+	public	dealer
+
+
+	extern	oam_clr
+	extern	bank2bank
+	extern	ready2ready
+	extern	musfight1
+	extern	musfight3
+	extern	musfight4
+	extern	musfight5
+
+	extern	rnd
+	extern	play
+	extern	talk_map
+	extern	wait_vb_s
+	extern	put_wait
+	extern	block_cls
+	extern	block_move
+	extern	chrmove
+	extern	get_monsimg
+	extern	set_monsimg
+	extern	put_monschr
+	extern	put_monschr2
+	extern	get_img_direct
+	extern	pal_off
+	extern	put_win_msg
+	extern	taisen_title
+	extern	put_msg
+
+	extern	dvram_cls
+	extern	oam_dvram_clr
+	extern	wait_vb
+	extern	color_set
+	extern	push_vram
+	extern	pop_vram
+	extern	bank_push_call
+
+	extern	get_enemy_data
+	extern	set_jiki_ram
+	extern	araware1
+	extern	se_wait
+;	extern	wait_msg
+	extern	mul_any
+	extern	str_cpy
+	extern	get_dealer_data
+;	extern	shinka_chk
+	extern	add_capsule_new
+	extern	status_sub2
+	extern	set_dealer_mons
+	extern	direct_play
+	extern	check_ghost_sub
+	extern	init_for_talkmap
+	extern	check_life_all
+
+	extern	monschr184
+
+
+bankf	group	G_BANKf
+;*******************
+;* Encounter check *
+;*******************
+fighter:
+	ld	a,(event_fight_no)
+	and	a
+	jr	z,fighter1
+
+fighter0:
+	ld	a,(event_fight_no)
+	ld	(sel_item_no),a
+	ld	(enemy_no),a			; Get Monster Number
+	jr	fighter2
+
+fighter1:
+	ld	a,(game_mode)
+	bit	1,a
+	jr	z,normal_mode$
+
+	ld	a,(joy_status)
+	bit	1,a
+	ret	nz				; debug mode and push B
+
+normal_mode$:
+	ld	a,(walking)
+	and	a
+	ret	nz				; fight no ato 3po ha
+						; encount sinai
+;	call	encount_check
+	ld	hl,encount_check
+	ld	b,04h
+	call	bank_push_call
+	ret	nz
+
+fighter2:
+	ld	a,(base_color)
+	push	af
+	ld	hl,msg_speed
+	ld	a,(hl)
+	push	af
+	res	1,(hl)
+
+	ld	hl,fighter2_sub			; init
+	ld	b,014h
+	call	bank_push_call
+
+	ld	a,(enemy_no)
+	sub	200
+	jp	c,wild				; if Carry Up Then Wild Monster
+
+;****************************************************************
+;* case of crossing the dealer of capsule monster 		*
+;* INPUT		A regs	number of the wild monster	*
+;****************************************************************
+dealer:
+	ld	(dealer_no),a			;
+	call	get_dealer_data			; Get Dealer Name & Data
+
+	ld	hl,set_dealer_mons
+	ld	b,0eh
+	call	bank_push_call
+
+	call	oam_dvram_clr
+	call	set_img_ram			; print dealer chara
+
+	xor	a
+	ld	(enemy_no),a
+	ld	(dmy_box1),a
+	dec	a
+	ld	(ctrl_move_val + DEALER_ITEM_CNT),a
+	S_POS	12,0
+	ld	a,B_SET_MSD_READY
+	call	bank2bank
+
+
+	ld	a,0ffh
+	ld	(enemy_data + 14),a		; select monster pos
+	ld	a,2				; case of monster's owner
+	ld	(fighting_flg),a
+
+	jp	wild2
+
+;****************************************************************
+; case of crossing the wild monster 				*
+; INPUT		A regs		number of the wild monster	*
+;****************************************************************
+wild:
+	ld	a,1
+	ld	(fighting_flg),a		; case of wild monster
+
+	call	get_enemy_data			; set the enemy monster data
+
+	call	oam_dvram_clr
+	
+	ld	a,(event_fight_no)
+	cp	145
+	jr	z,pass1$			; garagara
+	
+	call	check_ghost_sub
+	jr	nz,pass2$			; not ghost
+
+pass1$:
+	ld	hl,mons_data + 10
+	ld	a,066h
+	ld	(hli),a
+	ld	bc,monschr184			; ghost chr
+	ld	a,c
+	ld	(hli),a
+	ld	(hl),b
+
+	ld	hl,enemy_data
+  ifn	pm_jmsg
+	ld	a,yu_
+	ld	(hli),a
+	ld	a,u_
+	ld	(hli),a
+	ld	a,re_
+	ld	(hli),a
+	ld	a,i_
+	ld	(hli),a
+	ld	(hl),EOM
+  else
+	ld	a,usf_g
+	ld	(hli),a
+	ld	a,usf_h
+	ld	(hli),a
+	ld	a,usf_o
+	ld	(hli),a
+	ld	a,usf_s
+	ld	(hli),a
+	ld	a,usf_t
+	ld	(hli),a
+	ld	(hl),EOM
+  endif
+
+	ld	a,(sel_item_no)
+	push	af
+	ld	a,184
+	ld	(sel_item_no),a
+	ld	de,CHAR_BG
+	call	put_monschr			; image out ghost
+	pop	af
+	ld	(sel_item_no),a
+	jr	pass3$
+	
+pass2$:
+	ld	de,CHAR_BG
+	call	put_monschr			; image out wild monster
+	
+pass3$:
+	xor	a
+	ld	(dealer_no),a			;
+	ld	(dmy_box1),a			; first character value
+	S_POS	12,0 
+	ld	a,B_SET_MSD_READY
+	call	bank2bank
+
+wild2:
+	ld	b,COL_FIGHT1
+	call	color_set
+
+	call	set_jiki_ram			; put character of own
+
+	xor	a				; 9800 clear
+	ld	(all_put_req),a
+
+	ld	hl,no_msg
+	call	put_win_msg
+
+	call	push_vram
+	call	dvram_cls
+	ld	a,98h
+	ld	(all_putadr_h),a
+	ld	a,1
+	ld	(all_put_req),a
+	call	put_wait
+	ld	a,9ch
+	ld	(all_putadr_h),a
+	call	pop_vram
+
+	S_POS	9,7
+	E_POS	10,5
+	call	block_cls
+	S_POS	1,0
+	E_POS	10,4
+	call	block_cls
+	call	oam_clr
+
+	ld	a,(fighting_flg)
+	dec	a
+	call	z,status_sub2		; enemy life gauge
+
+	call	araware1			; main of fighting
+
+	ld	hl,fightend1
+	ld	b,04h
+	call	bank_push_call
+
+	pop	af
+	ld	(msg_speed),a
+	pop	af
+	ld	(base_color),a
+
+	ld	a,(data_wrt_flag)
+	ld	(wave_flg),a
+
+	scf					; experience fighting
+	ret
+
+no_msg:
+	db	EOM
+
+
+set_img_ram:
+	ld	a,(dealer_chr_adr)		; Dealer Character Address
+	ld	e,a
+	ld	a,(dealer_chr_adr + 1)
+	ld	d,a
+	ld	a,(tuushin_flg)
+	and	a
+	ld	a,013h				; change bank number
+	jr	z,pass1$
+	
+	ld	a,004h
+pass1$:
+	call	get_img_direct			; uncomp
+
+	ld	de,CHAR_BG			; set chr ram
+	ld	a,077h				; xy size
+	ld	c,a
+	jp	put_monschr2			; monslist.src (use a,c)
+
+;**********************
+;* Scream any monster *
+;**********************
+scream_attack:
+	xor	a
+	ld	(mons_voice_offset),a	; Monster Voice Tone Changer
+	ld	(mons_voice_tempo),a	; Monster Voice Speed Changer
+	jp	play
+
+;*********************************
+;* Function	bowawan		*
+;*********************************
+bowawan_ready:
+	ld	a,(sv_adrs1_h)
+	ld	h,a
+	ld	a,(sv_adrs1_l)
+	ld	l,a
+	ld	a,(dmy_box1)
+
+bowawan:
+	ld	(work0),a
+	ld	b,76
+
+	ld	a,(fighting_flg)
+	and	a				; fight mode check
+	jr	z,no_bowawan$			; not fight
+
+	add	a,b
+	ld	(hl),a
+
+	call	put_wait
+
+	ld	bc,-41
+	add	hl,bc
+	ld	a,1
+	ld	(para_work),a
+	ld	bc,3*256 + 3
+	ld	a,B_ZOOMSUB1_READY
+	call	bank2bank
+
+	ld	c,4
+	call	wait_vb_s
+
+	ld	bc,-41
+	add	hl,bc
+	xor	a
+	ld	(para_work),a
+	ld	bc,5*256 + 5
+	ld	a,B_ZOOMSUB1_READY
+	call	bank2bank
+
+	ld	c,5
+	call	wait_vb_s
+
+	ld	bc,-41
+
+	jr	setting$
+
+
+no_bowawan$:
+	ld	bc,-123				; straight displaying mode
+
+setting$:
+	add	hl,bc
+	ld	a,(work0)
+	add	a,49
+	jr	set_mons_dvram
+
+;****************************************
+;*					*
+;*	monster dmy_vram set		*
+;*  in:  a = first chr			*
+;*	hl = dvram top			*
+;*	reverse_fg			*
+;*					*
+;*****************************************
+set_msd_ready:
+	ld	a,(sv_adrs1_h)
+	ld	h,a
+	ld	a,(sv_adrs1_l)
+	ld	l,a
+	ld	a,(dmy_box1)
+
+set_mons_dvram:
+	ld	bc,7 * 100h + 7
+	ld	de,20
+
+	push	af
+
+	ld	a,(reverse_fg)
+	and	a
+	jr	nz,rev1$
+
+	pop	af
+
+z14$:
+	push	bc
+	push	hl
+
+z15$:
+	ld	(hl),a
+	add	hl,de
+	inc	a
+	dec	c
+	jr	nz,z15$
+
+	pop	hl
+	inc	hl
+	pop	bc
+	dec	b
+	jr	nz,z14$
+
+	ret
+
+rev1$:
+	push	bc
+	ld	b,0
+	dec	c
+	add	hl,bc
+	pop	bc
+	pop	af
+
+rev14$:
+	push	bc
+	push	hl
+
+rev15$:
+	ld	(hl),a
+	add	hl,de
+	inc	a
+	dec	c
+	jr	nz,rev15$
+
+	pop	hl
+	dec	hl
+	pop	bc
+	dec	b
+	jr	nz,rev14$
+
+	ret
+
+
+;****************************************
+;* Display out my capsule monster image *
+;* IN  : mymons_no	monster number *
+;****************************************
+put_mymons_image:
+	ld	a,(mymons_no)
+	ld	(sel_item_no),a
+
+	SET_BLOCK 1,5,9,12
+	call	block_cls
+
+	ld	hl,B_IMG_ADRS_POS	; back chr
+	call	get_monsimg
+
+;	call	zoomer
+	ld	a,B_ZOOMER
+	call	bank2bank
+
+	ld	de,09310h		; set chr ram
+	call	set_monsimg
+
+	ld	hl,08000h		; by sige
+	ld	de,09310h
+	ld	c,7*7
+	ld	a,(rombankno)
+	ld	b,a
+	jp	chrmove
+
+bankb	group	G_BANKb
+;*****************************************
+;*					*
+;*	3.5 * 3.5 -> 7 * 7		*
+;*					*
+;*****************************************
+zoomer:
+	ld	de,16*8 - 5 + plane0_area
+	ld	hl,plane2_area + 391
+	call	zoomf1$
+
+	call	zoom1$
+
+	ld	de,16*8 - 5 + plane1_area
+	ld	hl,plane0_area + 391
+	call	zoomf1$
+
+zoom1$:
+	ld	b,3
+
+zoom2$:
+	ld	c,28
+
+zoom3$:
+	push	bc
+
+	ld	a,(de)
+	ld	bc,-55
+	call	get_byt1$		; low 4 bit
+
+	ld	a,(de)
+	dec	de
+	swap	a
+	ld	bc,55
+	call	get_byt1$		; high 4 bit
+
+	pop	bc
+
+	dec	c
+	jr	nz,zoom3$
+
+	dec	de
+	dec	de
+	dec	de
+	dec	de
+
+	ld	a,b
+	ld	bc,-56
+	add	hl,bc
+	ld	b,a
+
+	dec	b
+	jr	nz,zoom2$
+
+	ret
+
+
+zoomf1$:
+	ld	a,28
+	ld	(work0),a
+	ld	bc,-1
+
+zoomf2$:
+	ld	a,(de)
+	dec	de
+	swap	a
+	call	get_byt1$
+
+	ld	a,(work0)
+	dec	a
+	ld	(work0),a
+	jr	nz,zoomf2$
+
+	dec	de
+	dec	de
+	dec	de
+	dec	de
+
+	ret
+
+
+get_byt1$:
+	push	hl
+
+	and	00fh
+	ld	hl,zoomtbl1$
+	add	a,l
+	ld	l,a
+	jr	nc,get_byt2$
+
+	inc	h
+
+get_byt2$:
+	ld	a,(hl)
+
+	pop	hl
+
+	ld	(hld),a
+	ld	(hl),a
+	add	hl,bc
+
+	ret
+
+
+zoomtbl1$:
+	db	000h,003h,00ch,00fh,030h,033h,03ch,03fh
+	db	0c0h,0c3h,0cch,0cfh,0f0h,0f3h,0fch,0ffh
+
+
+bank4	group	G_BANK4
+
+fightend1:
+	ld	a,(tuushin_flg)
+	cp	4
+	jr	nz,pass0$
+
+	ld	a,(enemy_data + 14)	; gein_cap pos
+	ld	hl,gein_cap_data + 4	; condition
+	ld	bc,CAPDATA_LEN
+	call	mul_any
+
+	ld	a,(enemy_data + 15)
+	ld	(hl),a
+
+	call	dvram_cls
+
+	ld	hl,taisen_title				; ƒvƒŒƒCƒ„[–¼Aƒ‰ƒCƒoƒ‹–¼A‚u‚r‚ð•\Ž¦
+	ld	b,0dh
+	call	bank_push_call
+
+	ld	a,(kachi_make)
+	cp	1
+
+	ld	de,kachi_msg$				;h‚ ‚È‚½‚Ì‚©‚¿h
+	jr	c,pass00$
+
+	ld	de,make_msg$				;h‚ ‚È‚½‚Ì‚Ü‚¯h
+	jr	z,pass00$
+	
+	ld	de,hikiwake_msg$			;h‚Ð‚«‚í‚¯h
+pass00$:
+	S_POS	6,8
+	call	put_msg
+
+	ld	c,200
+	call	wait_vb_s
+
+	jr	pass1$
+
+pass0$:
+	ld	a,(kachi_make)
+	and	a
+	jr	nz,pass2$
+
+	ld	hl,ctrl_move_val + NEKONIKOBAN
+	ld	a,(hli)
+	or	(hl)
+	inc	hl
+	or	(hl)
+	jr	z,pass1$
+
+	ld	de,my_gold + 2
+	ld	c,3
+	ld	a,B_BCD_ADD
+	call	bank2bank
+	
+	ld	hl,nekonikoban_msg$
+	call	put_win_msg
+
+pass1$:
+	xor	a
+	ld	(ctrl_move_val + CANCEL_OK_FLG),a ; cancel ok
+
+	ld	a,B_SHINKA_CHK
+	call	bank2bank
+
+pass2$:
+	xor	a
+	ld	(pinchi_flg),a
+	ld	(condetion + 4),a
+	ld	(fighting_flg),a
+	ld	(demo_fight_no),a
+	ld	(avoid_flg),a
+
+	ld	(event_fight_no),a
+	ld	(nigerarenai_flg),a
+	ld	(nige_cnt),a
+	ld	(mogura_flg),a
+	ld	hl,allow_sv_mons
+	ld	(hli),a			; allow_sv_mons
+	ld	(hli),a			; allow_sv_item
+	ld	(hli),a			; allow_sv_sys
+	ld	(hl),a			; allow_sv_waza
+	ld	(scloll_sv),a
+	ld	hl,mymons_cond1
+	ld	b,24
+loop$:
+	ld	(hli),a
+	dec	b
+	jr	nz,loop$
+
+;	ld	a,3
+;	ld	(walking),a
+	ld	hl,obs_walk_flag
+	set	0,(hl)
+
+	call	se_wait				; After "pinchi_flg"
+
+	call	pal_off
+
+	ld	a,0ffh
+	ld	(ram_map_id),a
+
+	ret
+
+kachi_msg$:
+  ifn	pm_jmsg
+	db	a_,na_,ta_,no_,spc@,ka_,ti_,EOM		; ‚ ‚È‚½‚Ì‚©‚¿
+  else
+	db	usf_y,usf_o,usf_u,spc@,usf_w,usf_i,usf_n,EOM		; YOU WIN
+  endif
+
+make_msg$:
+  ifn	pm_jmsg
+	db	a_,na_,ta_,no_,spc@,ma_,ke_,EOM		; ‚ ‚È‚½‚Ì‚Ü‚¯
+  else
+	db	usf_y,usf_o,usf_u,spc@,usf_l,usf_o,usf_s,usf_e,EOM	; YOU LOSE
+  endif
+
+hikiwake_msg$:
+  ifn	pm_jmsg
+	db	spc@,spc@,hi_,ki_,wa_,ke_,EOM		; ‚Ð‚«‚í‚¯
+  else
+	db	spc@,spc@,usf_d,usf_r,usf_a,usf_w,EOM	; DRAW (ˆÊ’u‡‚í‚¹‚Ì‚½‚ß spc@ ‚ª“ü‚ê‚Ä‚ ‚é)
+  endif
+
+
+nekonikoban_msg$:
+	extern	nekonikoban_msg_0_FIGHTER
+	db I_MSG2	; mvmsg’Ç‰Á
+	dw nekonikoban_msg_0_FIGHTER	; mvmsg’Ç‰Á
+	db 022h	; mvmsg’Ç‰Á
+	db EOM	; put_msg_sI—¹ƒR[ƒh mvmsg’Ç‰Á
+
+;*************************
+;* encount_check	 *
+;*************************
+encount_check:
+	ld	a,(demo_flag)
+	and	a
+	ret	nz
+
+	ld	a,(obs_map_step)		; obs_map_step
+	and	a
+	ret	nz
+
+	extern	check_out_limit4	
+	ld	hl,check_out_limit4	
+	ld	b,03h
+	call	bank_push_call
+	jr	nc,jump1$
+
+jump0$:
+	ld	a,1
+	and	a				; NZ
+	ret
+	
+jump1$:
+	extern	check_out_limit1	
+	ld	hl,check_out_limit1	
+	ld	b,04h
+	call	bank_push_call
+	jr	z,jump0$
+
+	ld	a,(musiyoke_flg)
+	and	a
+	jr	z,not_mushiyoke$
+
+	dec	a
+	jr	z,kireta$
+
+	ld	(musiyoke_flg),a
+
+not_mushiyoke$:
+	ld	hl,9*20 + 9 + dmy_vram		; character under palyer
+	ld	c,(hl)
+	ld	a,(kusamura_chr)
+	cp	c				; encounter code check
+	ld	a,(gein_name)			; encounter rate value
+	jr	z,rnd$
+
+	ld	a,14h				; water character
+	cp	c
+	ld	a,(gein_cap_data)		; encounter rate value
+	jr	z,rnd$
+
+	ld	a,(mapno)
+	cp	37				; map ga town or road 
+	jr	c,not_encount$
+
+	ld	a,(map_type)
+	cp	DUNGEON_TYPE
+	jr	z,not_encount$
+	
+	ld	a,(gein_name)
+rnd$:
+	ld	b,a				; seed
+;	call	rnd
+	ld	a,(random)
+	cp	b
+	jr	nc,not_encount$
+
+;	call	rnd
+	ld	a,(random + 1)
+
+	ld	b,a
+	ld	hl,encount_tbl$
+
+loop$:
+	ld	a,(hli)
+	cp	b
+	jr	nc,exit$
+
+	inc	hl
+
+	jr	loop$
+
+exit$:
+	ld	c,(hl)
+	ld	hl,gein_name + 1		; monster number table (kusa) 
+	ld	a,(9*20 + 8 + dmy_vram)		; character under player
+	cp	14h
+	jr	nz,enc2_0$
+ 
+	ld	hl,gein_cap_data + 1		; monster number table (water) 
+enc2_0$:
+
+	ld	b,0
+	add	hl,bc
+	ld	a,(hli)
+	ld	(mons_level),a			; Get Monster Level
+	ld	a,(hl)
+;	cp	190
+;	call	z,special$
+	ld	(sel_item_no),a
+	ld	(enemy_no),a			; Get Monster Number
+
+	ld	a,(musiyoke_flg)
+	and	a
+	jr	z,encount$
+
+	ld	a,(my_cap_data + 33)		; sentou no monster no level
+	ld	b,a
+	ld	a,(mons_level)
+	cp	b
+	jr	c,not_encount$			; mymons level > enemy level
+
+	jr	encount$
+
+kireta$:
+	ld	(musiyoke_flg),a
+	ld	a,SPLAY
+	ld	(work1),a
+
+	call	init_for_talkmap
+	call	talk_map			; mushiyoke ga kireta message
+	
+not_encount$:
+	ld	a,1
+	and	a			; NZ
+	ret
+
+encount$:
+	xor	a			; Z
+	ret
+
+
+encount_tbl$:
+	db	50,0
+	db	101,2
+	db	140,4
+	db	165,6
+	db	190,8
+	db	215,10
+	db	228,12
+	db	241,14
+	db	252,16
+	db	255,18
+
+
+bank2		group	G_MUSIC1
+
+;*************************
+;* set_fight_music	 *
+;*************************
+set_fight_music:
+	xor	a
+	ld	(fade_play_fg),a		; Music Fadeout
+	ld	(pinchi_flg),a			; Direct Sound For "pinchi"
+
+	dec	a
+;	ld	a,0ffh
+	ld	(music_flag),a
+	call	play				; Town bank BGM Initialize
+
+	call	wait_vb				; V-Blank Wait
+
+	ld	c,MUSIC_BANK2_NO
+;	ld	c,a				; Creg = Bank Number
+
+	ld	a,(championcap_no)		; Check Leader
+	and	a
+	jr	z,no_leader_music$
+
+	ld	a,musfight1			; Leader Fight Music
+	jr	set_fight_music$
+
+no_leader_music$:
+	ld	a,(event_fight_no)		; Check Dealer Or Wild
+	cp	200
+	jr	c,yasei_mons$
+dealer_mons$:
+	cp	d_rival3
+	jr	z,last_battle$
+	cp	d_wataru
+	jr	nz,not_wataru$
+	ld	a,musfight1			; wataru Is Fight1
+	jr	set_fight_music$
+not_wataru$:
+	ld	a,musfight3
+	jr	set_fight_music$
+last_battle$:
+	ld	a,musfight5			; Last Battle Music
+	jr	set_fight_music$
+yasei_mons$:
+	ld	a,musfight4			; Wild Monster Fight!
+set_fight_music$:
+	jp	direct_play			; BGM of the fighting
+
+
+bank14	group	G_BANK14
+
+fighter2_sub:
+	ld	a,(wave_flg)
+	ld	(data_wrt_flag),a		; save 'wave_flg'
+
+	xor	a
+	ld	(work_event),a
+	ld	(kachi_make),a
+	ld	hl,allow_sv_mons
+	ld	(hli),a			; allow_sv_mons
+	ld	(hli),a			; allow_sv_item
+	ld	(hli),a			; allow_sv_sys
+	ld	(hl),a			; allow_sv_waza
+	ld	(scloll_sv),a
+	ld	(critical_flg),a
+	ld	(mymons_data + 11),a
+	ld	(fight_join_flg),a
+	ld	(allow_sv_fight),a
+	ld	(mogura_flg),a
+	ld	(base_color),a
+;	ld	(dendou_no + 1),a
+	ld	hl,sgbcol_buf
+	ld	(hli),a
+	ld	(hl),a
+
+	ld	hl,ctrl_move_val
+	ld	b,60
+cls_loop$:
+	ld	(hli),a
+	dec	b
+	jr	nz,cls_loop$
+	
+;	ld	a,1
+	inc	a
+	ld	(ctrl_move_val + TEST_FIGHT_NO),a
+
+	ld	a,(mapno)
+	cp	217
+	jr	c,pass1$
+	cp	221
+	jr	nc,pass1$
+
+	ld	a,2
+	ld	(demo_fight_no),a
+pass1$:
+;	call	set_fight_music
+	ld	hl,set_fight_music
+	ld	b,02h
+	jp	bank_push_call
+

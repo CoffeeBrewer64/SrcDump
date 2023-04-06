@@ -1,0 +1,35 @@
+; 04/28/98		00:42:51
+dun_tbl$:
+	db	00fh
+ie_tbl$:
+	db	006h
+	db	007h,002h,000h,EXIT
+	db	007h,003h,000h,EXIT
+	db	007h,010h,001h,EXIT
+	db	007h,011h,001h,EXIT
+	db	001h,00ch,000h,T7R1F2
+	db	001h,001h,000h,T7R1F6
+kanban_tbl$:
+	db	002h
+	db	004h,00Bh,2
+	db	001h,00Eh,3
+hito_tbl$:
+	db	001h
+	db	DEPAGA
+	db	003h+4,008h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h
+ram_map_tbl$:
+	dw	010h * 004h + 002h + ram_map
+	db	007h,002h
+	dw	010h * 004h + 002h + ram_map
+	db	007h,003h
+	dw	010h * 004h + 009h + ram_map
+	db	007h,010h
+	dw	010h * 004h + 009h + ram_map
+	db	007h,011h
+	dw	010h * 001h + 007h + ram_map
+	db	001h,00ch
+	dw	010h * 001h + 001h + ram_map
+	db	001h,001h

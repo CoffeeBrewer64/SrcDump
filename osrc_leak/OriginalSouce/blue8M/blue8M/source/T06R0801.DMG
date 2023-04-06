@@ -1,0 +1,147 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include macro.h
+	include	group.def
+
+
+bank15	group	G_BANK15
+
+
+	public	t6_room8
+
+	extern	minka_3
+
+
+
+MINKA_TYPE	equ	8
+EXIT		=	0ffh
+
+
+t6_room8:
+ysiz	=	4
+xsiz	=	4
+	db	MINKA_TYPE		; map type
+	db	ysiz,xsiz		; yx size
+	dw	minka_3			; map data adrs
+	dw	msg_t6r8f1		; message tbl adrs
+	dw	ev_t6r8f1		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_t6r8f1
+
+
+ev_t6r8f1:
+	jp	init_for_talkmap
+
+
+msg_t6r8f1:
+	dw	msg1$
+
+
+msg1$:
+	db	CALL_MSG
+
+	ld	a,(ev_special + 0)
+	bit	3,a
+	jr	nz,yet$
+
+	ld	hl,msg1_0$
+	call	put_win_msg
+
+	extern	yes_no
+	call	yes_no
+	ld	a,(allow_cnt)
+	and	a
+	jr	nz,no$
+
+	ld	bc,76 * 256 + 1
+	call	take_item
+	jr	nc,full$
+
+;	ld	hl,msg1_1$
+;	call	put_win_msg
+
+	ld	hl,ev_special + 0
+	set	3,(hl)
+
+	ld	hl,msg1_1$
+;	call	put_win_msg
+	jr	rts$
+
+
+full$:
+	ld	hl,msg1_4$
+;	call	put_win_msg
+
+	jr	rts$
+
+
+no$:
+	ld	hl,msg1_2$
+;	call	put_win_msg
+
+	jr	rts$
+
+
+yet$:
+	ld	hl,msg1_3$
+;	call	put_win_msg
+
+rts$:
+	call	put_win_msg
+	jp	msg_return
+
+
+
+msg1_0$:
+	extern	msg1_0_0_T06R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_0_T06R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_1$:
+	extern	msg1_1_1_T06R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_1_T06R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db	FANFARE
+	extern	msg1_1_2_T06R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_1_2_T06R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_2$:
+	extern	msg1_2_3_T06R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_2_3_T06R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_3$:
+	extern	msg1_3_4_T06R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_3_4_T06R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg1_4$:
+	extern	msg1_4_5_T06R0801
+	db I_MSG2	; mvmsg追加
+	dw msg1_4_5_T06R0801	; mvmsg追加
+	db 027h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+
+sxy_t6r8f1:
+	include	..\sxy\t06r0801.sxy
+
+
+

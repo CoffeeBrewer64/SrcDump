@@ -1,0 +1,391 @@
+
+	include	common.def
+
+bank0	group	0
+
+;*************************************************
+;*						*
+;*	LCDC_STOP	[LCDC OFF]		*
+;*						*
+;*	LCDC_ON		[LCDC ON]		*
+;*						*
+;*	OAM_CLR		[OAM ALL CLEAR]		*
+;*						*
+;*	BLOCK_MOVE	[from HL to DE for BC]	*
+;*						*
+;*************************************************
+
+;********************************************************************************
+;
+;	‰º‹L‚Ì‚UŒÂ‚Ìƒ‹[ƒ`ƒ“‚Í"HEADER.DMG" ‚ÖˆÚ“®
+;	i‚P‚O‚OˆÈ~‚Ì‚Oƒoƒ“ƒN‚Ì‹ó‚«‚ð‘‚â‚·ˆ×j
+;
+;********************************************************************************
+ ifn	ASSEMBLE__ENGLISH
+ else
+
+	public	lcdc_stop
+	public	lcdc_on
+	public	oam_clr
+	public	oam_off
+	public	bank_chg_block_m
+	public	block_move
+
+lcdc_stop:
+	xor	a
+	ld	(IFL),a
+
+	ld	a,(IE)
+	ld	b,a			; interrupt enable list flag saved
+	res	0,a			; v-blank interrupt disenable
+	ld	(IE),a
+
+z1$:
+	ld	a,(LY)			; LCDC Y position Get 
+	cp	091h			; 145(V-Blank cyu?)
+	jr	nz,z1$
+
+	ld	a,(LCDC)
+	and	07fh
+	ld	(LCDC),a		; LCD control stop all
+
+	ld	a,b
+	ld	(IE),a			; interrupt enable list flag rewrite
+
+	ret
+
+lcdc_on:
+	ld	a,(LCDC)
+	set	7,a			; LCD control enabled
+	ld	(LCDC),a
+
+	ret
+
+oam_clr:				; Object Clear
+	xor	a
+	ld	hl,oam_buf		; OAM(0C400h - 0C4A0h)clear
+	ld	b,0a0h
+z1$:
+	ld	(hli),a
+	dec	b
+	jr	nz,z1$
+	ret
+
+oam_off:				; Object Don't Look
+	ld	a,0a0h
+	ld	hl,oam_buf		; OAM
+	ld	de,00004h		; Skip 4 Byte
+	ld	b,028h
+z1$:
+	ld	(hl),a			; 0a0h wo oam_buf ni set
+	add	hl,de			; oam_buf count up ( 4byte )
+	dec	b
+	jr	nz,z1$
+	ret
+
+
+bank_chg_block_m:
+	ld	(yes_no_map),a
+	ld	a,(rombankno)
+	push	af
+	ld	a,(yes_no_map)
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	call	block_move
+	pop	af
+	ld	(rombankno),a
+	ld	(ROMBANK),a
+	ret
+
+
+
+
+block_move:				; HL -> DE ni Byte Move
+	ld	a,(hli)			; A <- (HL) & HL ++
+	ld	(de),a			; (DE) <- A
+	inc	de			; DE ++
+	dec	bc			; counter --
+	ld	a,c			; counter low -> A reg
+	or	b
+	jr	nz,block_move		; if Z not 0 then goto 'block_move'
+					; else
+	ret
+
+ endif
+
+;---------------------------------------------------------;
+; CE no char number no hidari shita wo miteiru By Junichi ;
+;---------------------------------------------------------;
+	public	bui_nukemichi
+
+bui_nukemichi:
+	db	00bh
+	db	00ch
+	db	013h
+	db	015h
+	db	018h
+	db	0ffh
+
+
+	public	bui_machi
+bui_machi:
+	db	000h
+	db	010h
+	db	01bh				; Genkan
+	db	020h
+	db	021h
+	db	023h				; jimen 1
+	db	02ch
+	db	02dh
+	db	02eh
+	db	030h
+	db	031h
+	db	033h
+	db	039h				; jimen 2
+	db	03ch				; jimen 3       
+;	db	03dh				; kareki
+	db	03eh
+	db	052h
+	db	054h
+	db	058h
+	db	05bh
+	db	0ffh
+
+
+	public	bui_room
+bui_room:
+	db	001h
+	db	002h
+	db	003h
+	db	011h
+	db	012h
+	db	013h
+	db	014h				; Genkan mat
+	db	01ch				; Kaidan Ue
+	db	01ah				; Kaidan Sita
+	db	0ffh
+
+	public	bui_miseyado
+bui_miseyado:
+	db	011h		
+	db	01ah		
+	db	01ch		
+	db	03ch		
+	db	05eh		
+	db	0ffh
+
+	public	bui_school
+bui_school:
+	db	011h
+	db	016h
+	db	019h
+;	db	01fh
+	db	02bh
+	db	03ch
+	db	03dh
+	db	03fh
+	db	04ah
+	db	04ch
+	db	04dh
+	db	003h
+	db	0ffh
+
+	public	bui_dungeon
+bui_dungeon:
+	db	01eh
+	db	020h	
+	db	02eh
+	db	030h				; Kusamura (Encount)
+	db	034h
+	db	037h
+	db	039h
+	db	03ah
+	db	040h
+	db	051h
+	db	052h
+;	db	055h
+;	db	056h
+	db	05ah
+	db	05ch
+	db	05eh
+	db	05fh
+	db	0ffh 
+
+	public	bui_minka
+bui_minka:
+	db	001h
+	db	012h
+	db	014h
+	db	028h
+	db	032h
+	db	037h
+	db	044h
+	db	054h
+	db	05ch
+	db	0ffh 
+
+	public	bui_gatehaku
+bui_gatehaku:
+	db	001h
+	db	012h
+	db	014h
+	db	01ah
+	db	01ch
+	db	037h
+	db	038h
+	db	03bh			; Door (NEW)
+	db	03ch
+	db	05eh
+	db	0ffh
+
+	public	bui_ship
+bui_ship:
+	db	004h
+	db	00dh
+	db	017h
+	db	01dh
+	db	01eh
+	db	023h
+	db	034h
+	db	037h
+	db	039h
+	db	04ah
+	db	0ffh
+
+
+	public	bui_port
+bui_port:
+	db	00ah
+	db	01ah
+	db	032h
+	db	03bh
+	db	0ffh
+
+
+	public	bui_tower
+bui_tower:
+	db	001h
+	db	010h
+	db	013h
+	db	01bh
+	db	022h
+	db	042h
+	db	052h
+	db	0ffh
+
+	public	bui_daimania
+bui_daimania:
+	db	004h
+	db	00fh
+	db	015h
+	db	01fh
+	db	03bh
+	db	045h
+	db	047h
+	db	055h
+	db	056h
+	db	0ffh
+
+	public	bui_doukutu
+bui_doukutu:
+	db	005h
+	db	015h
+	db	018h
+	db	01ah
+	db	020h
+	db	021h
+	db	022h
+	db	02ah
+	db	02dh
+	db	030h
+;	db	03ch
+;	db	041h
+	db	0ffh		; dummy
+	db	0ffh
+
+	public	bui_depart
+bui_depart:
+	db	014h
+	db	017h
+	db	01ah
+	db	01ch
+	db	020h
+	db	038h
+	db	045h
+	db	0ffh
+
+	public	bui_manshon
+bui_manshon:
+	db	001h
+	db	005h
+	db	011h
+	db	012h
+	db	014h
+	db	01ah
+	db	01ch
+	db	02ch
+	db	053h
+	db	0ffh
+
+	public	bui_kenkyujo
+bui_kenkyujo:
+	db	00ch
+	db	026h
+	db	016h
+	db	01eh
+	db	034h
+	db	037h
+	db	0ffh
+
+	public	bui_cycle
+bui_cycle:
+	db	00fh
+	db	01ah
+	db	01fh
+	db	026h
+	db	028h
+	db	029h
+	db	02ch
+	db	02dh
+	db	02eh
+	db	02fh
+	db	041h
+	db	0ffh
+
+	public	bui_building
+bui_building:
+	db	001h
+	db	010h
+	db	011h
+	db	013h
+	db	01bh
+	db	020h
+	db	021h
+	db	022h
+	db	030h
+	db	031h
+	db	032h
+	db	042h
+	db	043h
+	db	048h
+	db	052h
+	db	055h
+	db	058h
+	db	05eh
+	db	0ffh
+
+	public	bui_centering
+bui_centering:
+	db	01bh
+	db	023h
+	db	02ch
+	db	02dh
+	db	03bh
+	db	045h
+	db	0ffh
+
+
+
+
+
+

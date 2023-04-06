@@ -1,0 +1,90 @@
+; 05/28/98		05:25:16
+dun_tbl$:
+	db	003h
+ie_tbl$:
+	db	002h
+	db	011h,010h,004h,EXIT
+	db	011h,011h,004h,EXIT
+kanban_tbl$:
+	db	000h
+hito_tbl$:
+	db	00bh
+	db	BOSS
+	db	001h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	001h+040h			; battle type
+	db	0e5h				; dealer number
+	db	003h				; taking pattern 
+	db	TRAINERM
+	db	007h+4,00Ch+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	002h+040h			; battle type
+	db	0e7h				; dealer number
+	db	009h				; taking pattern 
+	db	MORIMORI
+	db	00Bh+4,00Bh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d1h				; upper site only
+	db	003h+040h			; battle type
+	db	0e0h				; dealer number
+	db	006h				; taking pattern 
+	db	PHILIP
+	db	007h+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	004h+040h			; battle type
+	db	0deh				; dealer number
+	db	003h				; taking pattern 
+	db	MORIMORI
+	db	007h+4,003h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d2h				; left site only
+	db	005h+040h			; battle type
+	db	0e0h				; dealer number
+	db	007h				; taking pattern 
+	db	TRAINERM
+	db	005h+4,00Dh+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	006h+040h			; battle type
+	db	0e7h				; dealer number
+	db	00ah				; taking pattern 
+	db	MORIMORI
+	db	001h+4,00Ah+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	007h+040h			; battle type
+	db	0e0h				; dealer number
+	db	008h				; taking pattern 
+	db	PHILIP
+	db	010h+4,002h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d3h				; right site only
+	db	008h+040h			; battle type
+	db	0deh				; dealer number
+	db	004h				; taking pattern 
+	db	TRAINERM
+	db	005h+4,006h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	009h+040h			; battle type
+	db	0e7h				; dealer number
+	db	001h				; taking pattern 
+	db	DANPEI
+	db	00Fh+4,010h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0d0h				; lower site only
+	db	00ah
+	db	CAPSULE
+	db	009h+4,010h+4			; Y, X
+	db	0ffh				; stay & change site
+	db	0ffh				; no attribute
+	db	00bh+080h			; capsule type
+	db	035h				; item number
+ram_map_tbl$:
+	dw	010h * 009h + 009h + ram_map
+	db	011h,010h
+	dw	010h * 009h + 009h + ram_map
+	db	011h,011h

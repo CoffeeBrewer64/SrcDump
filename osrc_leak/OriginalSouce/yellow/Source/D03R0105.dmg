@@ -1,0 +1,196 @@
+
+	include	common.def
+	include	fntequ.def
+	include	maphead.def
+	include	macro.h
+	include	group.def
+
+
+bank18	group	G_BANK18
+
+
+	public	d3_room5
+
+
+	extern	table_jump
+	extern	ex_yes_no
+	extern	missing
+	extern	set_battle
+	extern	obs_battler
+	extern	set_battle_msg
+	extern	set_battle_data
+	extern	actor_anime_set
+	extern	save_position
+	extern	load_position
+	extern	obj_stepping
+	extern	capsule_item
+
+	extern	battle_main
+	extern	battle_missing
+	extern	battle_ready
+	extern	battle_after
+	extern	DealerTalking
+
+
+SHIP_TYPE	equ	13
+EXIT		=	0ffh
+
+
+seq_d3r1f5	equ	seq_ctrl_buf + 027h
+
+
+d3_room5:
+ysiz	=	7
+xsiz	=	10
+	db	SHIP_TYPE	
+	db	ysiz,xsiz		; yx size
+	dw	dungeon3_5		; map data adrs
+	dw	msg_d3r1f5  		; message tbl adrs
+	dw	ev_d3r1f5		; event routine adrs
+	db	0			; map link flg
+	dw	sxy_d3r1f5  
+
+
+ev_d3r1f5:      
+	call	init_for_talkmap
+
+	ld	hl,dealer_talk
+	ld	de,d3r1f5_tbl
+	ld	a,(seq_d3r1f5)
+	call	battle_sequence
+	ld	(seq_d3r1f5),a
+
+	ret
+
+
+d3r1f5_tbl:
+	initndw	battle_main,seq_battle_main
+	ndw	battle_missing,seq_battle_missing
+	ndw	battle_after,seq_battle_after
+
+
+msg_d3r1f5:
+	msgndw	msg1,msg_niichyan
+	ndw	msg2,msg_funanori
+	ndw	msg3,msg_trainerm
+	ndw	msg4,msg_sailor1
+	ndw	msg5,msg_sailor2
+
+
+dealer_talk:
+d_talk1:
+	db	msg_sailor1,030h
+	dw	ev_d3 + 8
+	dw	msg4_0
+	dw	msg4_after
+	dw	msg4_win
+	dw	msg4_win
+
+d_talk2:
+	db	msg_sailor2,030h
+	dw	ev_d3 + 8
+	dw	msg5_0
+	dw	msg5_after
+	dw	msg5_win
+	dw	msg5_win
+
+	db	0ffh
+
+
+msg1:
+	extern	msg1_0_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg1_0_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg2:
+	extern	msg2_1_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg2_1_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg3:
+	extern	msg3_2_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg3_2_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4:
+	db	CALL_MSG
+
+	ld	hl,d_talk1
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg4_0:
+	extern	msg4_0_3_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg4_0_3_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_win:
+	extern	msg4_win_4_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg4_win_4_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg4_after:
+	extern	msg4_after_5_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg4_after_5_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5:
+	db	CALL_MSG
+
+	ld	hl,d_talk2
+	call	DealerTalking
+
+	jp	msg_return
+
+
+msg5_0:
+	extern	msg5_0_6_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg5_0_6_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_win:
+	extern	msg5_win_7_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg5_win_7_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+msg5_after:
+	extern	msg5_after_8_D03R0105
+	db I_MSG2	; mvmsg追加
+	dw msg5_after_8_D03R0105	; mvmsg追加
+	db 026h	; mvmsg追加
+	db EOM	; put_msg_s終了コード mvmsg追加
+
+
+sxy_d3r1f5:  
+	include	..\sxy\d03r0105.sxy
+
+
+dungeon3_5:
+	include	..\mapdata\stannu05.map   
+
