@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nw4c_layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="1.2.0" xmlns="http://www.nintendo.co.jp/NW4C/LayoutEditor">
+  <head>
+    <create user="nishio_miyako" host="SPDNISHIOM" date="2010-08-24T17:40:22.9941702+09:00" source="" />
+    <title />
+    <comment />
+    <generator name="NW4C LayoutEditor Core" version="2007_07_00_000" />
+  </head>
+  <body>
+    <lyt>
+      <paneSet>
+        <pane kind="Picture" name="HomeNixSign_00" alpha="0">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="0" y="0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="64" y="64" />
+          <picture>
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="0" t="0" />
+              <texRT s="1" t="0" />
+              <texLB s="0" t="1" />
+              <texRB s="1" t="1" />
+            </texCoord>
+            <material name="HomeNixSign_00">
+              <blackColor r="0" g="0" b="0" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="HomeNixSign_NW4C" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="HomeNixSign_00">
+              <tevColReg r="0" g="0" b="0" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="HomeNixSign_NW4C" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+      </paneSet>
+      <paneHierarchy>
+        <paneTree name="RootPane">
+          <paneTree name="HomeNixSign_00" />
+        </paneTree>
+      </paneHierarchy>
+      <groupSet>
+        <group name="RootGroup">
+          <group name="Group_00">
+            <paneRef name="HomeNixSign_00" />
+            <comment />
+          </group>
+          <comment />
+        </group>
+      </groupSet>
+      <screenSetting origin="Normal">
+        <layoutSize x="320" y="240" />
+        <backGround>
+          <color r="169" g="169" b="169" a="255" />
+        </backGround>
+        <grid thickLineInterval="40" thinDivisionNum="4" visible="true" moveMethod="None">
+          <color r="128" g="128" b="64" a="128" />
+        </grid>
+      </screenSetting>
+      <textureFile imagePath="..\tga_out\HomeNixSign_NW4C.tga" format="LA8" />
+    </lyt>
+  </body>
+</nw4c_layout>

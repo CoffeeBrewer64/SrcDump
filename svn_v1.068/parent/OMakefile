@@ -1,0 +1,56 @@
+#!/usr/bin/env omake
+#----------------------------------------------------------------------------
+# Project: Horizon
+# File:    OMakefile
+#
+# Copyright 2007-2009 Nintendo.  All rights reserved.
+#
+# These coded instructions, statements, and computer programs contain
+# proprietary information of Nintendo of America Inc. and/or Nintendo
+# Company Ltd., and are protected by Federal copyright law.  They may
+# not be disclosed to third parties or copied or duplicated in any form,
+# in whole or in part, without the prior written consent of Nintendo.
+#
+# $Date:: 2009-06-11#$
+# $Rev: 1978 $
+# $Author: adachi_hiroaki $
+#----------------------------------------------------------------------------
+SUPPORTED_TARGETS   =   CTR-TS.Process.MPCore.fast
+
+LIBS               +=   libnn_ulcd libnn_uds libnn_hid
+
+if $(or $(equal $(EMUTYPE), AGB)) $(equal $(EMUTYPE), ALL))
+LIBFILES           +=   $`(addprefix ..$(DIRSEP)$(SUBDIR_LIBRARIES)$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), trlEmuAGB)
+
+if $(or $(equal $(EMUTYPE), CGB)) $(equal $(EMUTYPE), ALL))
+LIBFILES           +=   $`(addprefix ..$(DIRSEP)$(SUBDIR_LIBRARIES)$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), trlEmuCGB)
+
+if $(or $(equal $(EMUTYPE), HVC)) $(equal $(EMUTYPE), ALL))
+LIBFILES           +=   $`(addprefix ..$(DIRSEP)$(SUBDIR_LIBRARIES)$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), trlEmuHVC)
+
+if $(equal $(DEMO), 1)
+LIBFILES           +=   $`(addprefix ..$(DIRSEP)$(SUBDIR_LIBRARIES)$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), trlEmuDemo)
+
+CCFLAGS            +=   -DTRL_PLATFORM_CTR -DTRL_NETTYPE=TRL_EMUCORE_NETTYPE_PARENT
+
+ASFLAGS            +=   --cpu=MPCore
+
+include ../src/OMakefileSrc
+
+ROM_SPEC_FILE       =   ../trl.rsf
+TARGET_PROGRAM      =   trlparent
+CTR_APPTYPE         =   CARD SD
+CHILD_APPS          =   ../images/child/$(BUILD_TARGET_DIR)/$(BUILD_TYPE_DIR)/trlchild.cia
+
+
+SHADER_SOURCES[]    =   ../src/shaders/VShader.vsh
+SHBIN_INSTALL_ROOT  =   ../files
+ROMFS_ROOT          =   ../files
+CTR_BANNER_SPEC     =   ../src/trl.bsf
+TITLE               =   $(TARGET_PROGRAM)
+
+include $(ROOT_OMAKE)/modulerules
+
+date +%b" "%d" "%Y"  "%X > ../files/buildtime.txt
+
+build:  $(DEFAULT_TARGETS) 

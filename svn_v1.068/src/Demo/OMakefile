@@ -1,0 +1,33 @@
+#!/usr/bin/env omake
+#----------------------------------------------------------------------------
+# Project: Horizon
+# File:    OMakefile
+#
+# Copyright 2007-2009 Nintendo.  All rights reserved.
+#
+# These coded instructions, statements, and computer programs contain
+# proprietary information of Nintendo of America Inc. and/or Nintendo
+# Company Ltd., and are protected by Federal copyright law.  They may
+# not be disclosed to third parties or copied or duplicated in any form,
+# in whole or in part, without the prior written consent of Nintendo.
+#
+# $Date:: 2009-06-11#$
+# $Rev: 1978 $
+# $Author: adachi_hiroaki $
+#----------------------------------------------------------------------------
+SUPPORTED_TARGETS   =   CTR-TS.Process.MPCore.fast
+
+CCFLAGS            +=   -DTRL_PLATFORM_CTR
+
+ASFLAGS            +=   --cpu=MPCore
+
+INCLUDES           +=   ..
+
+SOURCES[]           =   
+                        trlEmuDemo.cpp
+
+TARGET_LIBRARY      =   trlEmuDemo
+
+include $(ROOT_OMAKE)/modulerules
+
+build:  $(DEFAULT_TARGETS) 

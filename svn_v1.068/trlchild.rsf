@@ -1,0 +1,26 @@
+# アプリケーションのデフォルト値
+
+BasicInfo:
+  # プログラムのタイトル名を指定します。
+  Title      : $(TITLE)
+  CompanyCode: "00"
+  ProductCode: "CTR-N-9A00"
+  Logo: "Nintendo"
+  BackupMemoryType: None
+
+TitleInfo:
+  Category: DlpChild
+  UniqueId: 0xF7FF0
+  ChildIndex: 0
+
+Rom:
+  # ROM に含めるファイルシステムのルートパスを指定します。
+  HostRoot: "$(ROMFS_ROOT)"
+
+CardInfo:
+  CardDevice: None
+
+AccessControlInfo:
+  FileSystemAccess: 
+    - DirectSdmc
+    - Debug

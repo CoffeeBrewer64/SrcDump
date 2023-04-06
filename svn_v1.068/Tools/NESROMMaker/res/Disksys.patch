@@ -1,0 +1,39 @@
+[DELAY]
+Mode = 1
+Address = x0153
+Fixcode = x60		;A6
+
+[Logo Skip]
+Mode = 1
+Address = x0F04
+Fixcode = a3: EA EA EA	;20 6B E1
+
+[Lisence Skip]
+Mode = 1
+Address = x0F65
+Fixcode = a3: 4C CD EF	;F0 48 20
+
+[Logo Sound 1]
+Mode = 1
+Address = x1F86
+Fixcode = x10		;9F
+
+[Logo Sound 2]
+Mode = 1
+Address = x1F96
+Fixcode = x00		;20
+
+[Switch Disk]
+Mode = 1
+Address = x040A
+Fixcode = xE3		;E0
+
+[Read File]
+Mode = 1
+Address = x01F8
+Fixcode = xE7		;A9
+
+[Write File]
+Mode = 1
+Address = x0239
+Fixcode = xF7		;85

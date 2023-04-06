@@ -1,0 +1,62 @@
+#!/usr/bin/env omake
+#----------------------------------------------------------------------------
+# Project: Horizon
+# File:    OMakefile
+#
+# Copyright 2007-2009 Nintendo.  All rights reserved.
+#
+# These coded instructions, statements, and computer programs contain
+# proprietary information of Nintendo of America Inc. and/or Nintendo
+# Company Ltd., and are protected by Federal copyright law.  They may
+# not be disclosed to third parties or copied or duplicated in any form,
+# in whole or in part, without the prior written consent of Nintendo.
+#
+# $Date:: 2009-06-11#$
+# $Rev: 1978 $
+# $Author: adachi_hiroaki $
+#----------------------------------------------------------------------------
+SUPPORTED_TARGETS   =   CTR-TS.Process.MPCore.fast
+
+CCFLAGS            +=   -DTRL_PLATFORM_CTR
+
+ASFLAGS            +=   --cpu=MPCore
+
+INCLUDES           +=   ..
+
+SOURCES[]           =   
+                        agbGlobal.cpp
+                        agbEmuCore.cpp
+                        agbMemory.cpp
+                        agbBackup.cpp
+                        agbRegister.cpp
+                        agbGraphic.cpp
+                        agbSound.cpp
+                        agbCPU.cpp
+                        agbCPUData.cpp
+                        agbCPUArmCFunc.cpp
+                        agbCPUThumbCFunc.cpp
+                        agbDMA.cpp
+                        agbInput.cpp
+                        agbTime.cpp
+                        CPUCompiler/agbCPUCmp.cpp
+                        CPUCompiler/agbCPUCmpData.cpp
+                        CPUCompiler/agbCPUCmpFuncTable.cpp
+                        CPUCompiler/agbCPUCmpiler.cpp
+                        CPUCompiler/agbCPUCmpilerGenX86.cpp
+                        CPUCompiler/agbCPUCmpilerGenArm.cpp
+                        CPUCompiler/agbCPUCmpilerInstThumb.cpp
+                        CPUCompiler/agbCPUCmpilerInstArm.cpp
+                        CPUCompiler/agbCPUCmpRunner.cpp
+                        CPUCompiler/agbCPUCmpilerInstThumb_ARM.cpp
+                        CPUCompiler/agbCPUCmpilerInstArm_ARM.cpp
+                        CPUCompiler/agbCPUCmpiler_OffLine.cpp
+                        CPUCompiler/agbCPUCmpOffLineFunc.s
+                        CPUCompiler/agbCPUCmpOffLineFunc.s
+                        CPUCompiler/agbCPUCmpOffLine_BlockData.cpp
+                        CPUCompiler/agbCPUCmpOffLine_JumpData.cpp
+
+TARGET_LIBRARY      =   trlEmuAGB
+
+include $(ROOT_OMAKE)/modulerules
+
+build:  $(DEFAULT_TARGETS) 

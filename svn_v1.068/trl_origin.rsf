@@ -1,0 +1,26 @@
+# アプリケーションのデフォルト値
+
+BasicInfo:
+  # プログラムのタイトル名を指定します。
+  Title      : $(TITLE)
+  CompanyCode: "00"
+  ProductCode: "CTR-N-9A00"
+  Logo: "Nintendo"
+  BackupMemoryType: 512KB
+
+TitleInfo:
+  Category: Application
+  UniqueId: 0xF7FF0
+
+Rom:
+  # ROM に含めるファイルシステムのルートパスを指定します。
+  HostRoot: "$(ROMFS_ROOT)"
+  SaveDataSize: 512K
+
+CardInfo:
+  CardDevice: NorFlash
+
+AccessControlInfo:
+  FileSystemAccess: 
+    - DirectSdmc
+    - Debug

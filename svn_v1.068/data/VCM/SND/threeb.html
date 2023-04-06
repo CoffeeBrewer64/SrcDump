@@ -1,0 +1,468 @@
+﻿<html>
+  <head>
+    <meta name="Author" content="NW4C SoundMaker 1.2.0">
+    </meta>
+    <title>threeb Project Sound List - threeb Project Sound List - THREEB</title>
+    <style type="text/css">
+      <!--
+body {
+    margin: 12px;
+}
+
+h1 {
+    font-size: 16pt;
+    text-indent: 1em;
+    border-left: solid #7886B6 20px;
+    border-bottom: solid #7886B6 2px;
+}
+
+h2 {
+    font-size: 14pt;
+    text-indent: 1em;
+    border-left: solid #7886B6 10px;
+    border-bottom: solid #7886B6 1px;
+}
+
+h3 {
+    font-size: 14pt;
+}
+
+div {
+    margin-bottom: 20px;
+}
+
+div.tableset {
+    margin: 0em 1em 1em 1em;
+}
+
+table {
+    border-collapse: collapse;
+    border-top: #a1a5a9 1px solid;
+    border-bottom: #a1a5a9 1px solid;
+}
+
+th {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    text-align: left;
+    background: #efefef;
+}
+
+th.SortKey {
+    background: #e4e4ff;
+}
+
+tr.Disabled {
+	color: #a7a6aa;
+}
+
+tr.ColorType1 {
+	background-color: #ffaaaa;
+}
+
+tr.ColorType2 {
+	background-color: #ffe080;
+}
+
+tr.ColorType3 {
+	background-color: #ffffaa;
+}
+
+tr.ColorType4 {
+	background-color: #d0ffc0;
+}
+
+tr.ColorType5 {
+	background-color: #c0ecff;
+}
+
+tr.ColorType6 {
+	background-color: #b4ddff;
+}
+
+tr.ColorType7 {
+	background-color: #d8d8ff;
+}
+
+tr.ColorType8 {
+	background-color: #ffddff;
+}
+
+td {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    border-top: #a1a5a9 1px dotted;
+}
+
+dl {
+    font-size: 9pt;
+}
+-->
+    </style>
+    <script type="text/javascript">
+      <!--
+var gTrElems;
+var gColId = new Array();
+var gColIndexTmp;
+var gReverse = new Array();
+
+//==================================================================
+// type - "number" or "string"
+function SortTable( type, obj )
+{
+    var cellArray = new Array();
+    var rowArray = new Array();
+    var trClassArray = new Array();
+    var tdClassArray = new Array();
+    var row;
+    var col;
+
+    if ( !document.getElementById ) { return; }
+
+    var tableElem = obj.parentNode.parentNode.parentNode;
+    var thElems = obj.parentNode.getElementsByTagName("th");
+
+    for ( col = 0; col < thElems.length; col++ )
+    {
+        if ( thElems[col] == obj ) gColIndexTmp = col;
+    }
+
+    // init
+    if ( typeof(gColId[tableElem]) == "undefined" ) {
+        gReverse[tableElem] = 0;
+        gColId[tableElem] = thElems[0];
+    }
+
+    var reverseFlag = 0;
+    if ( obj == gColId[tableElem] ) {
+        gReverse[tableElem] = - ( gReverse[tableElem] - 1 );
+        if ( ! gReverse[tableElem] ) { reverseFlag = 1; }
+    }
+    else { gReverse[tableElem] = 0; }
+
+    gTrElems = tableElem.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+    //  read table
+    if ( reverseFlag ) {
+        for ( row = 0; row < gTrElems.length; row++ ) { rowArray[row] = gTrElems.length-row-1; }
+    }
+    else {
+        for ( row = 0; row < gTrElems.length; row++ ) { rowArray[row] = row; }
+    }
+    for ( row = 0; row < gTrElems.length; row++ )
+    {
+        var tdElems = gTrElems[row].getElementsByTagName("td");
+        trClassArray[row] = gTrElems[row].className;
+        cellArray[row]  = new Array();
+        tdClassArray[row] = new Array();
+        for ( col = 0; col < tdElems.length; col++ )
+        {
+            cellArray[row][col]  = tdElems[col].innerHTML;
+            tdClassArray[row][col] = tdElems[col].className;
+        }
+    }
+
+    //  sort
+    if ( type == "number" ) { rowArray.sort(CompareByNumber); }
+    else if ( type == "string" ) { rowArray.sort(CompareByString); }
+
+    if ( gReverse[tableElem] ) { rowArray.reverse(); }
+
+    //  write table
+    for ( row = 0; row < gTrElems.length; row++ )
+    {
+        gTrElems[row].className = trClassArray[rowArray[row]];
+
+        var tdElems = gTrElems[row].getElementsByTagName("td");
+        for (col = 0; col < tdElems.length; col++)
+        {
+            tdElems[col].innerHTML = cellArray[rowArray[row]][col];
+            tdElems[col].className = tdClassArray[rowArray[row]][col];
+        }
+    }
+
+    gColId[tableElem] = obj;
+
+    //  table header
+    for ( col = 0; col < thElems.length; col++ ) { thElems[col].className = ""; }
+    obj.className = "SortKey";
+}
+
+//==================================================================
+function CompareByNumber(a, b)
+{
+    var sA = gTrElems[a].getElementsByTagName("td")[gColIndexTmp].innerHTML;
+    var sB = gTrElems[b].getElementsByTagName("td")[gColIndexTmp].innerHTML;
+
+    sA = Number( sA );
+    sB = Number( sB );
+
+    if ( ( isNaN( sA ) && isNaN( sB ) ) || sA == sB ) { return 0; }
+
+    if ( isNaN( sA ) ) { return 1; }
+    if ( isNaN( sB ) ) { return -1; }
+
+    if ( sA > sB ) { return 1; }
+    return -1;
+}
+
+//==================================================================
+function CompareByString(a, b)
+{
+    var sA = gTrElems[a].getElementsByTagName("td")[gColIndexTmp].innerHTML;
+    var sB = gTrElems[b].getElementsByTagName("td")[gColIndexTmp].innerHTML;
+
+    if ( sA == sB ) { return 0; }
+
+    if ( sA == "&nbsp;" ) { return 1; }
+    if ( sB == "&nbsp;" ) { return -1; }
+
+    if ( sA > sB ) { return 1; }
+    return -1;
+}
+
+//==================================================================
+function ResetAllTableOpenCloseButton()
+{
+    var inputElems = document.getElementsByTagName("input");
+    for ( index = 0; index < inputElems.length; index++ )
+    {
+        if ( inputElems[index].className == "tableopenclose" )
+        {
+            inputElems[index].setAttribute( "title", "close" );
+            inputElems[index].value = "-";
+        }
+    }
+
+}
+
+//==================================================================
+function ShowAllSoundSet()
+{
+    var soundsetListElem = document.getElementById( "soundsetlist" );
+    var soundsetElems = soundsetListElem.getElementsByTagName("div");
+
+    for ( soundsetIndex = 0; soundsetIndex < soundsetElems.length; soundsetIndex++ )
+    {
+        soundsetElems[soundsetIndex].style.display = "block";
+    }
+
+    ResetAllTableOpenCloseButton();
+}
+
+//==================================================================
+function ShowSoundSet( soundsetId )
+{
+    var soundsetListElem = document.getElementById( "soundsetlist" );
+    var soundsetElems = soundsetListElem.getElementsByTagName("div");
+
+    for ( soundsetIndex = 0; soundsetIndex < soundsetElems.length; soundsetIndex++ )
+    {
+        soundsetElems[soundsetIndex].style.display = "none";
+    }
+
+    var targetElem = document.getElementById( soundsetId );
+    targetElem.style.display = "block";
+
+    var datalistElems = targetElem.getElementsByTagName("div");
+    for ( index = 0; index < datalistElems.length; index++ )
+    {
+        datalistElems[index].style.display = "block";
+    }
+
+    ResetAllTableOpenCloseButton();
+}
+
+//==================================================================
+function SwitchDisplay( taragetId, obj )
+{
+    var target = document.getElementById( taragetId );
+    if ( target.style.display == "none" )
+    {
+        target.style.display = "block";
+        obj.setAttribute( "title", "close" );
+        obj.value = "-";
+    }
+    else
+    {
+        target.style.display = "none";
+        obj.setAttribute( "title", "open" );
+        obj.value = "+";
+    }
+}
+-->
+    </script>
+  </head>
+  <body>
+    <h1>threeb Project Sound List - threeb Project Sound List - THREEB</h1>
+    <h3>
+      <input type="button" class="tableopenclose" onclick="SwitchDisplay('display0', this)" title="close" style="font-size:10px; width:16px; height:16px; cursor:pointer" value="-">
+      </input> <a name="0">Sound List</a></h3>
+    <div id="display0">
+      <table width="100%">
+        <thead>
+          <tr>
+            <th class="SortKey" onclick="SortTable('Number', this)" title="sort" style="cursor:pointer;">Index</th>
+            <th onclick="SortTable('String', this)" title="sort" style="cursor:pointer;">Type</th>
+            <th onclick="SortTable('String', this)" title="sort" style="cursor:pointer;">Name</th>
+            <th onclick="SortTable('String', this)" title="sort" style="cursor:pointer;">Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ColorType4">
+            <td>0</td>
+            <td>Wave</td>
+            <td>SE_CTR_COMMON_TOUCH</td>
+            <td>ボタン等、タッチオフで反応するものにタッチした時の音</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>1</td>
+            <td>Wave</td>
+            <td>SE_CTR_COMMON_TOUCHOUT</td>
+            <td>タッチしたリージョンから外れた時などに使用</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>2</td>
+            <td>Wave</td>
+            <td>SE_CTR_COMMON_TOUCHIN</td>
+            <td>タッチしたリージョンから外れた後にもう一度入ってきた時などに使用</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>3</td>
+            <td>Wave</td>
+            <td>SE_CTR_COMMON_TOGGLE</td>
+            <td>汎用の切り替えボタン音。カチカチ。複数の選択肢から選ぶようなボタンとか。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>4</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_SILENT</td>
+            <td>無音のラベル。何も鳴らしたくない時に使用してください。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>5</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_BUTTON</td>
+            <td>汎用のボタン音。決定ボタンではないようなもの用。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>6</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_OK</td>
+            <td>汎用の決定音。決定を伴うようなボタンに使用</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>7</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_RETURN</td>
+            <td>汎用の戻る音。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>8</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_CANCEL</td>
+            <td>汎用のキャンセルボタン音。現在は SE_CTR_COMMON_RETURN と同じ。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>9</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_WAIT</td>
+            <td>ウェイトアイコン音。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>10</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_WAIT_END</td>
+            <td>ウェイトアイコン終了音。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>11</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_CONNECT</td>
+            <td>通信中の音。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>12</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_ERROR</td>
+            <td>エラー音。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>13</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_NOTICE</td>
+            <td>注意を促す音</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>14</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_NOMOVE</td>
+            <td>無効なキー操作音</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>15</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_SCROLL</td>
+            <td>スクロール音。ボタン等のリストのスクロールに。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>16</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_SCROLL_LIST</td>
+            <td>スクロール音。ボタン等のリストのスクロールに。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>17</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_SCROLL_TEXT</td>
+            <td>スクロール音。テキストのスクロールに。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>18</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_SCROLL_END</td>
+            <td>スクロール終端音。リストの端に来た時に鳴らす。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>19</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_DIALOG</td>
+            <td>ランチャで、確認系・情報系ダイアログが出たときの音。注意系はSE_CTR_COMMON_NOTICE</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>20</td>
+            <td>Sequence</td>
+            <td>SE_CTR_COMMON_SYSAPPLET_END</td>
+            <td>汎用の戻る音。</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>21</td>
+            <td>Sequence</td>
+            <td>SE_CTR_THREEB_MENU_START</td>
+            <td>中断メニュー起動時の音</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>22</td>
+            <td>Sequence</td>
+            <td>SE_CTR_THREEB_CURSOR_MOVE</td>
+            <td>カーソル移動音</td>
+          </tr>
+          <tr class="ColorType4">
+            <td>23</td>
+            <td>Sequence</td>
+            <td>SE_CTR_THREEB_BACKUP_EFFECT</td>
+            <td>まるごとバックアップのエフェクト音</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <hr>
+    </hr>
+    <dl>
+      <dt>FilePath:</dt>
+      <dd>D:\work\ctr_hontai\sound\svnroot\THREEB\threeb.cspj</dd>
+      <dt>DateTime:</dt>
+      <dd>2010-12-28T20:54:02</dd>
+    </dl>
+  </body>
+</html>

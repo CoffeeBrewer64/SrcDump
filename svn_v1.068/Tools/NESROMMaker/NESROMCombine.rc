@@ -1,0 +1,229 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(中华人民共和国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#include ""res\\NESROMCombine.rc2""  // 非 Microsoft Visual C++ 编辑的资源\r\n"
+    "#include ""l.CHS\\afxres.rc""      // 标准组件\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\NESROMCombine.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About NES ROM Maker"
+FONT 9, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
+    LTEXT           "NES ROM Maker for TRL, v1.8",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2011 iQue ",IDC_STATIC,42,26,114,8
+    DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
+END
+
+IDD_NESROMCOMBINE_DIALOG DIALOGEX 0, 0, 267, 230
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "NES ROM Maker for TRL - v1.8"
+FONT 9, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_STATIC_PRGROM,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | SS_PATHELLIPSIS | WS_GROUP,23,51,176,16,WS_EX_ACCEPTFILES | WS_EX_STATICEDGE
+    PUSHBUTTON      "Open",IDC_BUTTON_PRGROM,202,51,43,14
+    CONTROL         "",IDC_STATIC_CHRROM,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | SS_PATHELLIPSIS | WS_GROUP,23,88,176,16,WS_EX_ACCEPTFILES | WS_EX_STATICEDGE
+    PUSHBUTTON      "Open",IDC_BUTTON_CHRROM,202,88,43,14
+    COMBOBOX        IDC_COMBO_CARDTYPE,64,129,69,93,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_MAPMODE,175,129,69,93,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_SRAMBANK,63,148,24,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_PRGROMBANK,143,148,24,13,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_EDIT_CHRROMBANK,221,148,24,13,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    CONTROL         "Battery:",IDC_CHECK_BATTERY,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,23,167,41,10
+    CONTROL         "",IDC_TAB_MODE,"SysTabControl32",TCS_HOTTRACK | TCS_FIXEDWIDTH | WS_TABSTOP,7,19,253,13
+    CONTROL         "",IDC_TAB_TYPE,"SysTabControl32",0x0,7,7,253,190
+    PUSHBUTTON      "Make",IDC_BUTTON_MAKE,63,201,141,22
+    GROUPBOX        "PRG-ROM",IDC_STATIC_PRGAREA,18,39,230,35
+    GROUPBOX        "CHR-ROM",IDC_STATIC_CHRAREA,18,76,230,35
+    GROUPBOX        "Info",IDC_STATIC_INFOAREA,18,114,230,72
+    LTEXT           "Card Types:",IDC_STATIC_CARDTYPETEXT,23,131,38,8
+    LTEXT           "Map Mode:",IDC_STATIC_MAPMODETEXT,139,131,35,8
+    LTEXT           "SRAM Bank:",IDC_STATIC_SRAMBANKTEXT,23,150,38,8
+    LTEXT           "PRG-ROM Bank:",IDC_STATIC_PRGROMTEXT,92,150,49,8
+    LTEXT           "CHR-ROM Bank:",IDC_STATIC_CHRROMTEXT,170,150,49,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080403a8"
+        BEGIN
+            VALUE "Comments", "TRL Tools"
+            VALUE "CompanyName", "iQue"
+            VALUE "FileDescription", "NES ROM Maker for TRL"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "NESROMCombine.exe"
+            VALUE "LegalCopyright", "(C) iQue。保留所有权利。"
+            VALUE "OriginalFilename", "NESROMMaker.exe"
+            VALUE "ProductName", "NESROMMaker"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 936
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 163
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_NESROMCOMBINE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 260
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 223
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// FDSBIOS
+//
+
+IDR_FDSBIOS             FDSBIOS                 "res\\Disksys.rom"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_ABOUTBOX            "About NES ROM Maker(&A)..."
+END
+
+#endif    // 中文(中华人民共和国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE 4, 2
+#pragma code_page(936)
+#include "res\NESROMCombine.rc2"  // 非 Microsoft Visual C++ 编辑的资源
+#include "l.CHS\afxres.rc"      // 标准组件
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

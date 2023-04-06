@@ -1,0 +1,2070 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nw4c_layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="1.2.0" xmlns="http://www.nintendo.co.jp/NW4C/LayoutEditor">
+  <head>
+    <create user="seki_kyohei" host="SPDSEKI" date="2011-10-07T12:53:21.5781736+09:00" source="" />
+    <title />
+    <comment />
+    <generator name="NW4C LayoutEditor Core" version="2007_07_00_000" />
+  </head>
+  <body>
+    <lyt>
+      <paneSet>
+        <pane kind="TextBox" name="T_ER_YN_00">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="0" y="21" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="280" y="20" />
+          <textBox font="cbf_std">
+            <fontSize x="16.25" y="19.5" />
+            <text>セーブデータが破損しています｡
+セーブデータを初期化しますか？</text>
+            <topColor r="255" g="255" b="255" a="255" />
+            <bottomColor r="200" g="200" b="200" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_ER_YN_00">
+              <blackColor r="0" g="0" b="0" />
+              <whiteColor r="0" g="0" b="0" />
+            </material>
+            <materialCtr name="T_ER_YN_00">
+              <tevColReg r="0" g="0" b="0" a="0" />
+              <tevConstReg r="0" g="0" b="0" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">YN_MSG</string>
+          </userData>
+        </pane>
+        <pane kind="TextBox" name="T_ER_OK_00" hidden="true">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="0" y="17" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="280" y="20" />
+          <textBox font="cbf_std" lineSpace="-2">
+            <fontSize x="16.25" y="19.5" />
+            <text>セーブデータを
+読み込めませんでした｡
+ゲームを終了して
+HOMEメニューに戻ります。</text>
+            <topColor r="255" g="255" b="255" a="255" />
+            <bottomColor r="200" g="200" b="200" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_ER_OK_00">
+              <blackColor r="0" g="0" b="0" />
+              <whiteColor r="0" g="0" b="0" />
+            </material>
+            <materialCtr name="T_ER_OK_00">
+              <tevColReg r="0" g="0" b="0" a="0" />
+              <tevConstReg r="0" g="0" b="0" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">OK_MSG</string>
+          </userData>
+        </pane>
+        <pane kind="TextBox" name="T_LoadOK_00" hidden="true">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="0" y="0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="280" y="20" />
+          <textBox font="cbf_std" textAlignment="Center">
+            <fontSize x="16.25" y="19.5" />
+            <text>セーブデータを初期化しています。</text>
+            <topColor r="255" g="255" b="255" a="255" />
+            <bottomColor r="200" g="200" b="200" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_LoadOK_00">
+              <blackColor r="0" g="0" b="0" />
+              <whiteColor r="0" g="0" b="0" />
+            </material>
+            <materialCtr name="T_LoadOK_00">
+              <tevColReg r="0" g="0" b="0" a="0" />
+              <tevConstReg r="0" g="0" b="0" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">WAIT_MSG</string>
+          </userData>
+        </pane>
+        <pane kind="Bounding" name="B_ER_YN_NoBtn_00">
+          <comment />
+          <basePositionType x="Right" y="Bottom" />
+          <translate x="-0" y="-100" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="40" />
+          <bounding />
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Bounding" name="B_YN_YesBtn_00">
+          <comment />
+          <basePositionType x="Left" y="Bottom" />
+          <translate x="-0" y="-100" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="40" />
+          <bounding />
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Bounding" name="B_ER_OKBtn_00" hidden="true">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="-0" y="-79" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="280" y="40" />
+          <bounding />
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_ER_YN_Shd_00" alpha="235">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="0" y="0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="0.97" y="0.97" />
+          <size x="318" y="240" />
+          <picture>
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="-1" t="-0.1875" />
+              <texRT s="1" t="-0.1875" />
+              <texLB s="-1" t="0.1875" />
+              <texRB s="1" t="0.1875" />
+            </texCoord>
+            <material name="W_ER_YN_Shd_00">
+              <blackColor r="0" g="20" b="0" />
+              <whiteColor r="0" g="20" b="0" />
+              <texMap imageName="WinWndw_00" wrap_s="Mirror" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_ER_YN_Shd_00">
+              <tevColReg r="0" g="20" b="0" a="0" />
+              <tevConstReg r="0" g="20" b="0" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndw_00" wrap_s="Mirror" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_ER_YN_RAll_00">
+          <comment />
+          <basePositionType x="Left" y="Center" />
+          <translate x="-0" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="200" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="-0.25" t="12.5" />
+              <texRT s="8.5" t="12.5" />
+              <texLB s="-0.25" t="0" />
+              <texRB s="8.5" t="0" />
+            </texCoord>
+            <texCoord>
+              <texLT s="4.5" t="1.78125" />
+              <texRT s="0.125" t="1.78125" />
+              <texLB s="4.5" t="0.21875" />
+              <texRB s="0.125" t="0.21875" />
+            </texCoord>
+            <material name="W_ER_YN_RAll_00">
+              <blackColor r="237" g="227" b="227" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_ER_YN_RAll_00" tevStageNum="3">
+              <tevColReg r="237" g="227" b="227" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <tevStage>
+                <rgb mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture0" op="Alpha" />
+                  <arg source="Texture1" op="InvAlpha" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Constant" op="InvAlpha" />
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture1" op="R" />
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Previous" op="R" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Null" name="W_ER_YN_All_00" visible="false" influencedAlpha="true" alpha="0">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="50" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="30" y="40" />
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="N_ER_YN_NoBtn_00">
+          <comment />
+          <basePositionType x="Right" y="Bottom" />
+          <translate x="-0" y="-100" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="40" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="0" t="0" />
+              <texRT s="4.375" t="0" />
+              <texLB s="0" t="1" />
+              <texRB s="4.375" t="1" />
+            </texCoord>
+            <material name="N_ER_YN_NoBtn_00">
+              <blackColor r="0" g="0" b="0" a="80" />
+              <whiteColor r="255" g="250" b="250" a="120" />
+              <texMap imageName="WinBtnL_00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WinBtnL_01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="N_ER_YN_NoBtn_00" tevStageNum="3">
+              <tevColReg r="0" g="0" b="0" a="80" />
+              <tevConstReg r="255" g="250" b="250" a="120" />
+              <tevConstReg r="220" g="200" b="200" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinBtnL_00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WinBtnL_01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Texture1" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K1" scale="V1" copyReg="true">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Alpha" />
+                </rgb>
+                <alpha mode="MultAdd" konst="K0" scale="V1" copyReg="true">
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Register" op="Alpha" />
+                  <arg source="Texture0" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Register" op="Alpha" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="TextBox" name="T_ER_YN_NoBtn_00">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="-70" y="22" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="42" />
+          <textBox font="cbf_std">
+            <fontSize x="21.25" y="25.5" />
+            <text>:いいえ</text>
+            <topColor r="0" g="0" b="0" a="255" />
+            <bottomColor r="180" g="180" b="180" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_ER_YN_NoBtn_00">
+              <blackColor r="120" g="120" b="120" />
+              <whiteColor r="120" g="120" b="120" />
+            </material>
+            <materialCtr name="T_ER_YN_NoBtn_00">
+              <tevColReg r="120" g="120" b="120" a="0" />
+              <tevConstReg r="120" g="120" b="120" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">2</string>
+          </userData>
+        </pane>
+        <pane kind="Picture" name="N_YN_YesBtn_00">
+          <comment />
+          <basePositionType x="Left" y="Bottom" />
+          <translate x="-0" y="-100" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="40" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="4.375" t="0" />
+              <texRT s="0" t="0" />
+              <texLB s="4.375" t="1" />
+              <texRB s="0" t="1" />
+            </texCoord>
+            <material name="N_YN_YesBtn_00">
+              <blackColor r="0" g="0" b="0" a="80" />
+              <whiteColor r="255" g="250" b="250" a="120" />
+              <texMap imageName="WinBtnL_00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WinBtnL_01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="N_YN_YesBtn_00" tevStageNum="3">
+              <tevColReg r="0" g="0" b="0" a="80" />
+              <tevConstReg r="255" g="250" b="250" a="120" />
+              <tevConstReg r="220" g="200" b="200" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinBtnL_00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WinBtnL_01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Texture1" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K1" scale="V1" copyReg="true">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Alpha" />
+                </rgb>
+                <alpha mode="MultAdd" konst="K0" scale="V1" copyReg="true">
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Register" op="Alpha" />
+                  <arg source="Texture0" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Register" op="Alpha" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="TextBox" name="T_YN_YesBtn_00">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="70" y="22" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="42" />
+          <textBox font="cbf_std">
+            <fontSize x="21.25" y="25.5" />
+            <text>:はい</text>
+            <topColor r="0" g="0" b="0" a="255" />
+            <bottomColor r="180" g="180" b="180" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_YN_YesBtn_00">
+              <blackColor r="120" g="120" b="120" />
+              <whiteColor r="120" g="120" b="120" />
+            </material>
+            <materialCtr name="T_YN_YesBtn_00">
+              <tevColReg r="120" g="120" b="120" a="0" />
+              <tevConstReg r="120" g="120" b="120" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">1</string>
+          </userData>
+        </pane>
+        <pane kind="Picture" name="P_YN_BtnLine_00">
+          <comment />
+          <basePositionType x="Center" y="Bottom" />
+          <translate x="-0" y="-100" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="280" y="42" />
+          <picture>
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="-17" t="0" />
+              <texRT s="18" t="0" />
+              <texLB s="-17" t="5.25" />
+              <texRB s="18" t="5.25" />
+            </texCoord>
+            <material name="P_YN_BtnLine_00">
+              <blackColor r="140" g="120" b="120" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="WinBtnLine" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="P_YN_BtnLine_00">
+              <tevColReg r="140" g="120" b="120" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinBtnLine" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Null" name="W_ER_OKAll_00" visible="false" influencedAlpha="true" hidden="true" alpha="0">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="50" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="30" y="40" />
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_ER_OKShd_00" hidden="true" alpha="235">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="0" y="0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="0.97" y="0.97" />
+          <size x="318" y="240" />
+          <picture>
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="-1" t="-0.1875" />
+              <texRT s="1" t="-0.1875" />
+              <texLB s="-1" t="0.1875" />
+              <texRB s="1" t="0.1875" />
+            </texCoord>
+            <material name="W_ER_OKShd_00">
+              <blackColor r="0" g="20" b="0" />
+              <whiteColor r="0" g="20" b="0" />
+              <texMap imageName="WinWndw_00" wrap_s="Mirror" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_ER_OKShd_00">
+              <tevColReg r="0" g="20" b="0" a="0" />
+              <tevConstReg r="0" g="20" b="0" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndw_00" wrap_s="Mirror" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_ER_OKLAll_00" hidden="true">
+          <comment />
+          <basePositionType x="Right" y="Center" />
+          <translate x="-0" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="200" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="0" t="12.5" />
+              <texRT s="8.75" t="12.5" />
+              <texLB s="0" t="0" />
+              <texRB s="8.75" t="0" />
+            </texCoord>
+            <texCoord>
+              <texLT s="0.125" t="1.78125" />
+              <texRT s="4.5" t="1.78125" />
+              <texLB s="0.125" t="0.21875" />
+              <texRB s="4.5" t="0.21875" />
+            </texCoord>
+            <material name="W_ER_OKLAll_00">
+              <blackColor r="237" g="227" b="227" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_ER_OKLAll_00" tevStageNum="3">
+              <tevColReg r="237" g="227" b="227" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <tevStage>
+                <rgb mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture0" op="Alpha" />
+                  <arg source="Texture1" op="InvAlpha" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Constant" op="InvAlpha" />
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture1" op="R" />
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Previous" op="R" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_ER_OKRAll_00" hidden="true">
+          <comment />
+          <basePositionType x="Left" y="Center" />
+          <translate x="-0" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="200" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="-0.25" t="12.5" />
+              <texRT s="8.5" t="12.5" />
+              <texLB s="-0.25" t="0" />
+              <texRB s="8.5" t="0" />
+            </texCoord>
+            <texCoord>
+              <texLT s="4.5" t="1.78125" />
+              <texRT s="0.125" t="1.78125" />
+              <texLB s="4.5" t="0.21875" />
+              <texRB s="0.125" t="0.21875" />
+            </texCoord>
+            <material name="W_ER_OKRAll_00">
+              <blackColor r="237" g="227" b="227" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_ER_OKRAll_00" tevStageNum="3">
+              <tevColReg r="237" g="227" b="227" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <tevStage>
+                <rgb mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture0" op="Alpha" />
+                  <arg source="Texture1" op="InvAlpha" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Constant" op="InvAlpha" />
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture1" op="R" />
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Previous" op="R" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="N_ER_OKBtn_00" hidden="true">
+          <comment />
+          <basePositionType x="Right" y="Bottom" />
+          <translate x="-0" y="-100" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="40" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="0" t="0" />
+              <texRT s="4.375" t="0" />
+              <texLB s="0" t="1" />
+              <texRB s="4.375" t="1" />
+            </texCoord>
+            <material name="N_ER_OKBtn_00">
+              <blackColor r="0" g="0" b="0" a="80" />
+              <whiteColor r="255" g="250" b="250" a="120" />
+              <texMap imageName="WinBtnL_00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WinBtnL_01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="N_ER_OKBtn_00" tevStageNum="3">
+              <tevColReg r="0" g="0" b="0" a="80" />
+              <tevConstReg r="255" g="250" b="250" a="120" />
+              <tevConstReg r="220" g="200" b="200" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinBtnL_00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WinBtnL_01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Texture1" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K1" scale="V1" copyReg="true">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Alpha" />
+                </rgb>
+                <alpha mode="MultAdd" konst="K0" scale="V1" copyReg="true">
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Register" op="Alpha" />
+                  <arg source="Texture0" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Register" op="Alpha" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="TextBox" name="T_ER_OKBtn_00" hidden="true">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="0" y="22" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="280" y="42" />
+          <textBox font="cbf_std">
+            <fontSize x="21.25" y="25.5" />
+            <text>：OK</text>
+            <topColor r="0" g="0" b="0" a="255" />
+            <bottomColor r="180" g="180" b="180" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_ER_OKBtn_00">
+              <blackColor r="120" g="120" b="120" />
+              <whiteColor r="120" g="120" b="120" />
+            </material>
+            <materialCtr name="T_ER_OKBtn_00">
+              <tevColReg r="120" g="120" b="120" a="0" />
+              <tevConstReg r="120" g="120" b="120" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">0</string>
+          </userData>
+        </pane>
+        <pane kind="Null" name="W_ER_WaitAll_00" visible="false" influencedAlpha="true" hidden="true" alpha="0">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="50" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="30" y="40" />
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_ER_WaitShd_00" hidden="true" alpha="235">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="0" y="0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="0.97" y="0.97" />
+          <size x="318" y="240" />
+          <picture>
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="-1" t="-0.1875" />
+              <texRT s="1" t="-0.1875" />
+              <texLB s="-1" t="0.1875" />
+              <texRB s="1" t="0.1875" />
+            </texCoord>
+            <material name="W_ER_WaitShd_00">
+              <blackColor r="0" g="20" b="0" />
+              <whiteColor r="0" g="20" b="0" />
+              <texMap imageName="WinWndw_00" wrap_s="Mirror" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_ER_WaitShd_00">
+              <tevColReg r="0" g="20" b="0" a="0" />
+              <tevConstReg r="0" g="20" b="0" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndw_00" wrap_s="Mirror" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_ER_WaitLAll_00" hidden="true">
+          <comment />
+          <basePositionType x="Right" y="Center" />
+          <translate x="-0" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="200" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="0" t="0" />
+              <texRT s="8.75" t="0" />
+              <texLB s="0" t="12.5" />
+              <texRB s="8.75" t="12.5" />
+            </texCoord>
+            <texCoord>
+              <texLT s="0.125" t="1.78125" />
+              <texRT s="4.5" t="1.78125" />
+              <texLB s="0.125" t="0.21875" />
+              <texRB s="4.5" t="0.21875" />
+            </texCoord>
+            <material name="W_ER_WaitLAll_00">
+              <blackColor r="237" g="227" b="227" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_ER_WaitLAll_00" tevStageNum="3">
+              <tevColReg r="237" g="227" b="227" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <tevStage>
+                <rgb mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture0" op="Alpha" />
+                  <arg source="Texture1" op="InvAlpha" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Constant" op="InvAlpha" />
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture1" op="R" />
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Previous" op="R" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_LoadOKRAll_00" hidden="true">
+          <comment />
+          <basePositionType x="Left" y="Center" />
+          <translate x="-0" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="200" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="-0.25" t="0" />
+              <texRT s="8.5" t="0" />
+              <texLB s="-0.25" t="12.5" />
+              <texRB s="8.5" t="12.5" />
+            </texCoord>
+            <texCoord>
+              <texLT s="4.5" t="1.78125" />
+              <texRT s="0.125" t="1.78125" />
+              <texLB s="4.5" t="0.21875" />
+              <texRB s="0.125" t="0.21875" />
+            </texCoord>
+            <material name="W_LoadOKRAll_00">
+              <blackColor r="237" g="227" b="227" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_LoadOKRAll_00" tevStageNum="3">
+              <tevColReg r="237" g="227" b="227" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <tevStage>
+                <rgb mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture0" op="Alpha" />
+                  <arg source="Texture1" op="InvAlpha" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Constant" op="InvAlpha" />
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture1" op="R" />
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Previous" op="R" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="W_ER_YN_LAll_00">
+          <comment />
+          <basePositionType x="Right" y="Center" />
+          <translate x="-0" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="200" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="0" t="12.5" />
+              <texRT s="8.75" t="12.5" />
+              <texLB s="0" t="0" />
+              <texRB s="8.75" t="0" />
+            </texCoord>
+            <texCoord>
+              <texLT s="0.125" t="1.78125" />
+              <texRT s="4.5" t="1.78125" />
+              <texLB s="0.125" t="0.21875" />
+              <texRB s="4.5" t="0.21875" />
+            </texCoord>
+            <material name="W_ER_YN_LAll_00">
+              <blackColor r="237" g="227" b="227" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="W_ER_YN_LAll_00" tevStageNum="3">
+              <tevColReg r="237" g="227" b="227" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinWndwLineError_8" wrap_s="Repeat" wrap_t="Repeat" />
+              <texMap imageName="WinWndw_00" wrap_s="Clamp" wrap_t="Mirror" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex1" />
+              <tevStage>
+                <rgb mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture0" op="Alpha" />
+                  <arg source="Texture1" op="InvAlpha" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Constant" op="InvAlpha" />
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Subtract" konst="K0" scale="V1">
+                  <arg source="Texture1" op="R" />
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Previous" op="R" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="TextBox" name="T_ER_OKBtn_01" hidden="true">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="-0" y="20" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="280" y="42" />
+          <textBox font="cbf_std">
+            <fontSize x="21.25" y="25.5" />
+            <text>：OK</text>
+            <topColor r="255" g="255" b="255" a="255" />
+            <bottomColor r="255" g="255" b="255" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_ER_OKBtn_01">
+              <blackColor r="255" g="255" b="255" />
+              <whiteColor r="255" g="255" b="255" />
+            </material>
+            <materialCtr name="T_ER_OKBtn_01">
+              <tevColReg r="255" g="255" b="255" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">0</string>
+          </userData>
+        </pane>
+        <pane kind="TextBox" name="T_ER_YN_NoBtn_01">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="-70" y="20" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="42" />
+          <textBox font="cbf_std">
+            <fontSize x="21.25" y="25.5" />
+            <text>:いいえ</text>
+            <topColor r="255" g="255" b="255" a="255" />
+            <bottomColor r="255" g="255" b="255" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_ER_YN_NoBtn_01">
+              <blackColor r="255" g="255" b="255" />
+              <whiteColor r="255" g="255" b="255" />
+            </material>
+            <materialCtr name="T_ER_YN_NoBtn_01">
+              <tevColReg r="255" g="255" b="255" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">2</string>
+          </userData>
+        </pane>
+        <pane kind="TextBox" name="T_YN_YesBtn_01">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="70" y="20" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="42" />
+          <textBox font="cbf_std">
+            <fontSize x="21.25" y="25.5" />
+            <text>:はい</text>
+            <topColor r="255" g="255" b="255" a="255" />
+            <bottomColor r="255" g="255" b="255" a="255" />
+            <positionType x="Center" y="Center" />
+            <material name="T_YN_YesBtn_01">
+              <blackColor r="255" g="255" b="255" />
+              <whiteColor r="255" g="255" b="255" />
+            </material>
+            <materialCtr name="T_YN_YesBtn_01">
+              <tevColReg r="255" g="255" b="255" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </textBox>
+          <userData>
+            <string name="__BasicUserDataString">1</string>
+          </userData>
+        </pane>
+        <pane kind="Picture" name="P_SER_OKBtnL_00" hidden="true">
+          <comment />
+          <basePositionType x="Center" y="Bottom" />
+          <translate x="-0" y="-100" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="280" y="42" />
+          <picture>
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="-17" t="0" />
+              <texRT s="18" t="0" />
+              <texLB s="-17" t="5.25" />
+              <texRB s="18" t="5.25" />
+            </texCoord>
+            <material name="P_SER_OKBtnL_00">
+              <blackColor r="140" g="120" b="120" />
+              <whiteColor r="255" g="255" b="255" />
+              <texMap imageName="WinBtnOneLine" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="P_SER_OKBtnL_00">
+              <tevColReg r="140" g="120" b="120" a="0" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinBtnOneLine" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Rgb" />
+                </rgb>
+                <alpha mode="Replace" konst="K0" scale="V1">
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="None" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="P_LoadingAll_00" alpha="0">
+          <comment />
+          <basePositionType x="Center" y="Center" />
+          <translate x="112" y="72" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="16" y="16" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="0" t="0" />
+              <texRT s="1" t="0" />
+              <texLB s="0" t="1" />
+              <texRB s="1" t="1" />
+            </texCoord>
+            <material name="P_LoadingAll_00">
+              <blackColor r="100" g="70" b="100" />
+              <whiteColor r="255" g="100" b="255" />
+              <texMap imageName="WaitIcon00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WaitIcon01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WaitIconGrd" wrap_s="Clamp" wrap_t="Repeat" />
+              <texMatrix rotate="-1.06919336">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="-1.06919336">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="3" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <textureStage texMap="2" />
+              <texBlendRatio color="254" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="P_LoadingAll_00" tevStageNum="3">
+              <tevColReg r="100" g="70" b="100" a="0" />
+              <tevConstReg r="255" g="100" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="254" />
+              <texMap imageName="WaitIcon00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WaitIcon01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WaitIconGrd" wrap_s="Clamp" wrap_t="Repeat" />
+              <texMatrix rotate="-1.06919336">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="-1.06919336">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="3" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Texture0" op="Rgb" />
+                  <arg source="Texture1" op="Rgb" />
+                  <arg source="Constant" op="Alpha" />
+                </rgb>
+                <alpha mode="Replace" konst="K5" scale="V1">
+                  <arg source="Texture0" op="Alpha" />
+                  <arg source="Constant" op="R" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Texture2" op="R" />
+                  <arg source="Previous" op="R" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+        <pane kind="Picture" name="N_ER_OKBtn_01" hidden="true">
+          <comment />
+          <basePositionType x="Left" y="Bottom" />
+          <translate x="-0" y="-0" z="0" />
+          <rotate x="0" y="0" z="0" />
+          <scale x="1" y="1" />
+          <size x="140" y="40" />
+          <picture detailSetting="true">
+            <vtxColLT r="255" g="255" b="255" a="255" />
+            <vtxColRT r="255" g="255" b="255" a="255" />
+            <vtxColLB r="255" g="255" b="255" a="255" />
+            <vtxColRB r="255" g="255" b="255" a="255" />
+            <texCoord>
+              <texLT s="4.375" t="0" />
+              <texRT s="0" t="0" />
+              <texLB s="4.375" t="1" />
+              <texRB s="0" t="1" />
+            </texCoord>
+            <material name="N_ER_OKBtn_01">
+              <blackColor r="0" g="0" b="0" a="80" />
+              <whiteColor r="255" g="250" b="250" a="120" />
+              <texMap imageName="WinBtnL_00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WinBtnL_01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <textureStage texMap="0" />
+              <textureStage texMap="1" />
+              <texBlendRatio color="255" />
+              <texBlendRatio color="255" />
+            </material>
+            <materialCtr name="N_ER_OKBtn_01" tevStageNum="3">
+              <tevColReg r="0" g="0" b="0" a="80" />
+              <tevConstReg r="255" g="250" b="250" a="120" />
+              <tevConstReg r="220" g="200" b="200" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <tevConstReg r="255" g="255" b="255" a="255" />
+              <texMap imageName="WinBtnL_00" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMap imageName="WinBtnL_01" wrap_s="Clamp" wrap_t="Clamp" />
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texMatrix rotate="0">
+                <scale x="1" y="1" />
+                <translate x="0" y="0" />
+              </texMatrix>
+              <texCoordGen srcParam="Tex0" />
+              <texCoordGen srcParam="Tex0" />
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Texture1" op="Rgb" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                  <arg source="Constant" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Modulate" konst="K1" scale="V1" copyReg="true">
+                  <arg source="Constant" op="Rgb" />
+                  <arg source="Primary" op="Rgb" />
+                  <arg source="Previous" op="Alpha" />
+                </rgb>
+                <alpha mode="MultAdd" konst="K0" scale="V1" copyReg="true">
+                  <arg source="Texture1" op="Alpha" />
+                  <arg source="Register" op="Alpha" />
+                  <arg source="Texture0" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <tevStage>
+                <rgb mode="Interpolate" konst="K0" scale="V1">
+                  <arg source="Register" op="Rgb" />
+                  <arg source="Previous" op="Rgb" />
+                  <arg source="Register" op="Alpha" />
+                </rgb>
+                <alpha mode="Modulate" konst="K0" scale="V1">
+                  <arg source="Previous" op="Alpha" />
+                  <arg source="Primary" op="Alpha" />
+                  <arg source="Previous" op="Alpha" />
+                </alpha>
+              </tevStage>
+              <alphaCompare comp="Always" ref="0" />
+              <blendMode type="Blend" srcFactor="SrcAlpha" dstFactor="InvSrcAlpha" blendOp="Add" />
+            </materialCtr>
+          </picture>
+          <userData>
+            <string name="__BasicUserDataString" />
+          </userData>
+        </pane>
+      </paneSet>
+      <paneHierarchy>
+        <paneTree name="RootPane">
+          <paneTree name="W_ER_YN_All_00">
+            <paneTree name="W_ER_YN_Shd_00" />
+            <paneTree name="W_ER_YN_LAll_00">
+              <paneTree name="W_ER_YN_RAll_00" />
+            </paneTree>
+            <paneTree name="T_ER_YN_00" />
+            <paneTree name="N_ER_YN_NoBtn_00">
+              <paneTree name="T_ER_YN_NoBtn_01" />
+              <paneTree name="T_ER_YN_NoBtn_00" />
+            </paneTree>
+            <paneTree name="N_YN_YesBtn_00">
+              <paneTree name="T_YN_YesBtn_01" />
+              <paneTree name="T_YN_YesBtn_00" />
+            </paneTree>
+            <paneTree name="P_YN_BtnLine_00" />
+            <paneTree name="B_ER_YN_NoBtn_00" />
+            <paneTree name="B_YN_YesBtn_00" />
+          </paneTree>
+          <paneTree name="W_ER_OKAll_00">
+            <paneTree name="W_ER_OKShd_00" />
+            <paneTree name="W_ER_OKLAll_00">
+              <paneTree name="W_ER_OKRAll_00" />
+            </paneTree>
+            <paneTree name="T_ER_OK_00" />
+            <paneTree name="N_ER_OKBtn_00">
+              <paneTree name="N_ER_OKBtn_01" />
+              <paneTree name="T_ER_OKBtn_01" />
+              <paneTree name="T_ER_OKBtn_00" />
+            </paneTree>
+            <paneTree name="P_SER_OKBtnL_00" />
+            <paneTree name="B_ER_OKBtn_00" />
+          </paneTree>
+          <paneTree name="W_ER_WaitAll_00">
+            <paneTree name="W_ER_WaitShd_00" />
+            <paneTree name="W_ER_WaitLAll_00">
+              <paneTree name="W_LoadOKRAll_00" />
+            </paneTree>
+            <paneTree name="T_LoadOK_00" />
+          </paneTree>
+          <paneTree name="P_LoadingAll_00" />
+        </paneTree>
+      </paneHierarchy>
+      <groupSet>
+        <group name="RootGroup">
+          <comment />
+        </group>
+      </groupSet>
+      <screenSetting origin="Normal">
+        <layoutSize x="320" y="240" />
+        <backGround>
+          <color r="169" g="169" b="169" a="255" />
+        </backGround>
+        <grid thickLineInterval="40" thinDivisionNum="4" visible="true" moveMethod="None">
+          <color r="128" g="128" b="64" a="128" />
+        </grid>
+      </screenSetting>
+      <exportSetting>
+        <directory />
+        <fileName />
+        <makeOutputDirectory>false</makeOutputDirectory>
+        <fixInfinityCurve>false</fixInfinityCurve>
+        <bakeKeyMode>Tool</bakeKeyMode>
+        <convertTextControlCode>false</convertTextControlCode>
+        <useTagData>false</useTagData>
+        <keyControlMode>None</keyControlMode>
+        <outputBclyt>false</outputBclyt>
+        <outputBclpa>false</outputBclpa>
+        <outputBclvi>false</outputBclvi>
+        <outputBclvc>false</outputBclvc>
+        <outputBclmc>false</outputBclmc>
+        <outputBclts>false</outputBclts>
+        <outputBcltp>false</outputBcltp>
+      </exportSetting>
+      <textureFile imagePath="..\texture\WinBtnL_00.tga" format="A8" />
+      <textureFile imagePath="..\texture\WinBtnL_01.tga" format="LA8" />
+      <textureFile imagePath="..\texture\WinBtnLine.tga" format="LA8" />
+      <textureFile imagePath="..\texture\WinWndw_00.tga" format="LA8" />
+      <textureFile imagePath="..\texture\WinBtnOneLine.tga" format="LA8" />
+      <textureFile imagePath="..\texture\WinWndwLineError_8.tga" format="LA8" />
+      <textureFile imagePath="..\texture\WaitIcon00.tga" format="LA4" />
+      <textureFile imagePath="..\texture\WaitIcon01.tga" format="L4" />
+      <textureFile imagePath="..\texture\WaitIconGrd.tga" format="L8" />
+      <fontFile path="..\font\cbf_std.bcfnt" />
+    </lyt>
+  </body>
+</nw4c_layout>

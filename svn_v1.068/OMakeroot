@@ -1,0 +1,80 @@
+#!/usr/bin/env omake
+#----------------------------------------------------------------------------
+# Project:  Horizon
+# File:     OMakeroot
+#
+# Copyright (C)2009 Nintendo Co., Ltd.  All rights reserved.
+#
+# These coded instructions, statements, and computer programs contain
+# proprietary information of Nintendo of America Inc. and/or Nintendo
+# Company Ltd., and are protected by Federal copyright law.  They may
+# not be disclosed to third parties or copied or duplicated in any form,
+# in whole or in part, without the prior written consent of Nintendo.
+#
+# $Rev:$
+#----------------------------------------------------------------------------
+
+# ディレクトリレイアウトについての説明
+#
+# a) ソースコードがルートディレクトリ直下に配置される場合
+#    例:
+#     /OMakeroot
+#     /foo/bar/OMakefile
+#
+#    結果:
+#     OMakefile と同じディレクトリ以下に objects や images が生成されます。
+#
+#     /foo/bar/objects/...
+#     /foo/bar/images/..
+#
+#
+# b) ソースコードが sources 以下に配置される場合
+#    例:
+#     /OMakeroot
+#     /sources/foo/bar/OMakefile
+#
+#    結果:
+#     ルートディレクトリ以下に objects や images が生成されます。
+#
+#     /objects/foo/bar/...
+#     /images/foo/bar/...
+#
+#
+
+# ルート環境変数の取得
+public.HORIZON_ROOT =
+if $(defined-env HORIZON_ROOT)
+    HORIZON_ROOT = $(absname $(getenv HORIZON_ROOT))
+    export
+
+if $(defined-env CTRSDK_ROOT)
+    CTRSDK_ROOT = $(absname $(getenv CTRSDK_ROOT))
+    if $(and $(defined-env HORIZON_ROOT), $(not $(equal $(HORIZON_ROOT), $(CTRSDK_ROOT))))
+        eprintln(HORIZON_ROOT と CTRSDK_ROOT が一致しません。同じパスを設定するか、どちらか一方だけを定義して下さい。)
+        exit(1)
+    HORIZON_ROOT = $(CTRSDK_ROOT)
+    export
+
+if $(not $(HORIZON_ROOT))
+    eprintln($"$$CTRSDK_ROOT が定義されていません")
+    exit(1)
+
+
+INSTALL_ROOT       = .
+
+# イメージ出力先を相対パスで指定
+INSTALL_IMAGES_DIR = images
+
+include $(getenv NW4C_ROOT)/build/omake/commondefs
+#include $(HORIZON_ROOT)/build/omake/commondefs
+
+DefineCommandVars()
+
+.PHONY: all build clean clobber
+.PHONY: run run-scripts
+
+#
+# OMakefile の読み込み
+#
+.SUBDIRS: .
+

@@ -1,0 +1,200 @@
+#!/usr/bin/env omake
+#----------------------------------------------------------------------------
+# Project: Horizon
+# File:    OMakefile
+#
+# Copyright 2007-2009 Nintendo.  All rights reserved.
+#
+# These coded instructions, statements, and computer programs contain
+# proprietary information of Nintendo of America Inc. and/or Nintendo
+# Company Ltd., and are protected by Federal copyright law.  They may
+# not be disclosed to third parties or copied or duplicated in any form,
+# in whole or in part, without the prior written consent of Nintendo.
+#
+# $Date:: 2009-06-11#$
+# $Rev: 1978 $
+# $Author: adachi_hiroaki $
+#----------------------------------------------------------------------------
+
+EMU_ROMFILES[] = $(glob iF, ./files/rom/*.*)
+EMU_ROMFILES_NUM = $(length $(EMU_ROMFILES))
+
+rm -f files/demo/*.*
+rm -f files/VCM/CGBVCM/lang/*
+rm -f files/VCM/CGBVCM/lang/*.*
+rm -f files/VCM/ERRVCM/lang/*
+rm -f files/VCM/ERRVCM/lang/*.*
+rm -f files/VCM/HVCVCM/Menu/lang/*
+rm -f files/VCM/HVCVCM/Menu/lang/*.*
+rm -f files/VCM/HVCVCM/COMMON_WND/lang/*
+rm -f files/VCM/HVCVCM/COMMON_WND/lang/*.*
+rm -f files/VCM/HVCVCM/VCM_DL/lang/*
+rm -f files/VCM/HVCVCM/VCM_DL/lang/*.*
+
+
+rm -f files/VCM/CGBVCM/*.*
+rm -f files/VCM/ERRVCM/*.*
+rm -f files/VCM/HomeNixSign/*.*
+rm -f files/VCM/ERRVCM/COMMON_WND/*.*
+rm -f files/VCM/ERRVCM/ctrl_change/*.*
+rm -f files/VCM/ERRVCM/Menu/*.*
+rm -f files/VCM/ERRVCM/VCM_DL/*.*
+
+
+if $(not $(defined DEMO))
+	DEMO = 0
+	export
+
+if $(not $(defined EMUTYPE))
+	EMUTYPE = ALL
+	export
+
+if $(not $(defined REGION))
+	REGION = JP
+	export
+
+if $(equal $(DEMO), 1)
+	println(TRL_DEMO=1)
+	CCFLAGS += -DTRL_DEMO=1
+	cp data/demo/*.* files/demo/*.*
+	export
+
+switch $(EMUTYPE)
+case ALL
+	println(EMUTYPE=ALL)
+	CCFLAGS += -DTRL_EMUTYPE=TRL_EMUCORE_ROMTYPE_UNKNOW
+	export
+case CGB
+	println(EMUTYPE=CGB)
+	CCFLAGS += -DTRL_EMUTYPE=TRL_EMUCORE_ROMTYPE_CGB
+	export
+case AGB
+	println(EMUTYPE=AGB)
+	CCFLAGS += -DTRL_EMUTYPE=TRL_EMUCORE_ROMTYPE_AGB
+	export
+case HVC
+	println(EMUTYPE=HVC)
+	CCFLAGS += -DTRL_EMUTYPE=TRL_EMUCORE_ROMTYPE_NES
+	export
+
+cp data/VCM/ERRVCM/layout.arc files/VCM/ERRVCM/layout.arc
+cp data/VCM/HomeNixSign/layout.arc files/VCM/HomeNixSign/layout/layout_out/layout.arc
+
+switch $(EMUTYPE)
+case ALL
+	cp data/VCM/CGBVCM/layout.arc files/VCM/CGBVCM/layout.arc
+	cp data/VCM/HVCVCM/COMMON_WND/layout.arc files/VCM/HVCVCM/COMMON_WND/layout.arc
+	cp data/VCM/HVCVCM/ctrl_change/layout.arc files/VCM/HVCVCM/ctrl_change/layout.arc
+	cp data/VCM/HVCVCM/Menu/layout.arc files/VCM/HVCVCM/Menu/layout.arc
+	cp data/VCM/HVCVCM/VCM_DL/layout.arc files/VCM/HVCVCM/VCM_DL/layout.arc
+	export
+case CGB
+	cp data/VCM/CGBVCM/layout.arc files/VCM/CGBVCM/layout.arc
+	export
+case AGB
+	cp data/VCM/CGBVCM/layout.arc files/VCM/CGBVCM/layout.arc
+	export
+case HVC
+	cp data/VCM/HVCVCM/COMMON_WND/layout.arc files/VCM/HVCVCM/COMMON_WND/layout.arc
+	cp data/VCM/HVCVCM/ctrl_change/layout.arc files/VCM/HVCVCM/ctrl_change/layout.arc
+	cp data/VCM/HVCVCM/Menu/layout.arc files/VCM/HVCVCM/Menu/layout.arc
+	cp data/VCM/HVCVCM/VCM_DL/layout.arc files/VCM/HVCVCM/VCM_DL/layout.arc
+	export
+
+switch $(REGION)
+case JP
+	println(REGION=JP)
+#	cp data/VCM/CGBVCM/lang/Japanese.lang files/VCM/CGBVCM/lang
+#	cp data/VCM/CGBVCM/lang/JP-Scale.scale files/VCM/CGBVCM/lang
+	cp data/VCM/ERRVCM/lang/Japanese.lang files/VCM/ERRVCM/lang
+	cp data/VCM/ERRVCM/lang/JP-Scale.scale files/VCM/ERRVCM/lang
+#	cp data/VCM/HVCVCM/Menu/lang/Japanese.lang files/VCM/HVCVCM/Menu/lang
+#	cp data/VCM/HVCVCM/Menu/lang/JP-Scale.scale files/VCM/HVCVCM/Menu/lang
+	cp data/VCM/HVCVCM/VCM_DL/lang/Japanese.lang files/VCM/HVCVCM/VCM_DL/lang
+	cp data/VCM/HVCVCM/VCM_DL/lang/JP-Scale.scale files/VCM/HVCVCM/VCM_DL/lang
+	cp data/VCM/HVCVCM/COMMON_WND/lang/Japanese.lang files/VCM/HVCVCM/COMMON_WND/lang
+	cp data/VCM/HVCVCM/COMMON_WND/lang/JP-Scale.scale files/VCM/HVCVCM/COMMON_WND/lang
+	CCFLAGS += -DREGION_JP=1
+	export
+case EU
+	println(REGION=EU)
+#	cp data/VCM/CGBVCM/lang/EU*.lang files/VCM/CGBVCM/lang
+#	cp data/VCM/CGBVCM/lang/EU*.scale files/VCM/CGBVCM/lang
+	cp data/VCM/ERRVCM/lang/EU*.lang files/VCM/ERRVCM/lang
+	cp data/VCM/ERRVCM/lang/EU*.scale files/VCM/ERRVCM/lang
+#	cp data/VCM/HVCVCM/Menu/lang/EU*.lang files/VCM/HVCVCM/Menu/lang
+#	cp data/VCM/HVCVCM/Menu/lang/EU*.scale files/VCM/HVCVCM/Menu/lang
+	cp data/VCM/HVCVCM/VCM_DL/lang/EU*.lang files/VCM/HVCVCM/VCM_DL/lang
+	cp data/VCM/HVCVCM/VCM_DL/lang/EU*.scale files/VCM/HVCVCM/VCM_DL/lang
+	cp data/VCM/HVCVCM/COMMON_WND/lang/EU*.lang files/VCM/HVCVCM/COMMON_WND/lang
+	cp data/VCM/HVCVCM/COMMON_WND/lang/EU*.scale files/VCM/HVCVCM/COMMON_WND/lang
+	CCFLAGS += -DREGION_EU=1
+	export
+case US
+	println(REGION=US)
+#	cp data/VCM/CGBVCM/lang/US*.lang files/VCM/CGBVCM/lang
+#	cp data/VCM/CGBVCM/lang/US*.scale files/VCM/CGBVCM/lang
+	cp data/VCM/ERRVCM/lang/US*.lang files/VCM/ERRVCM/lang
+	cp data/VCM/ERRVCM/lang/US*.scale files/VCM/ERRVCM/lang
+#	cp data/VCM/HVCVCM/Menu/lang/US*.lang files/VCM/HVCVCM/Menu/lang
+#	cp data/VCM/HVCVCM/Menu/lang/US*.scale files/VCM/HVCVCM/Menu/lang
+	cp data/VCM/HVCVCM/VCM_DL/lang/US*.lang files/VCM/HVCVCM/VCM_DL/lang
+	cp data/VCM/HVCVCM/VCM_DL/lang/US*.scale files/VCM/HVCVCM/VCM_DL/lang
+	cp data/VCM/HVCVCM/COMMON_WND/lang/US*.lang files/VCM/HVCVCM/COMMON_WND/lang
+	cp data/VCM/HVCVCM/COMMON_WND/lang/US*.scale files/VCM/HVCVCM/COMMON_WND/lang
+	CCFLAGS += -DREGION_US=1
+	export
+
+if $(not $(equal $(EMU_ROMFILES_NUM), 0))
+	EMU_ROMFILE = $(file $(nth 0, $(EMU_ROMFILES)))
+	DUMPSTR = $(shell od $(nth 0, $(EMU_ROMFILES)) -td4 -An -N4)
+	NES_NUM = 1397050964	
+	if $(equal $(DUMPSTR), $(NES_NUM))
+		println(------$(nth 0, $(EMU_ROMFILES)) IS NES)
+		rm -f files/face_cgb.ttp
+		cp data/iconBanner/banner/dmg/Banner.cbmd data/iconBanner/banner/Banner.cbmd
+	else			
+		DUMPSTR = $(shell od $(nth 0, $(EMU_ROMFILES)) -td2 -An -N1 -j323)
+		FLAG_NUM = $(int $(nth 0, $(DUMPSTR)))
+		TEST_NUM = $(int 127)
+		TRESULT = $(compare $(FLAG_NUM),$(TEST_NUM))		
+		if $(equal $(TRESULT), 1)
+			println(------$(nth 0, $(EMU_ROMFILES)) IS CGB)
+			cp data/face/face_gbc.ttp files/face_cgb.ttp
+			cp data/iconBanner/banner/cgb/Banner.cbmd data/iconBanner/banner/Banner.cbmd
+		else
+			println(------$(nth 0, $(EMU_ROMFILES)) IS DMG)
+			cp data/face/face_dmg.ttp files/face_cgb.ttp
+			cp data/iconBanner/banner/dmg/Banner.cbmd data/iconBanner/banner/Banner.cbmd
+else
+	println(------no rom)
+	cp data/face/face_dmg.ttp files/face_cgb.ttp
+	cp data/iconBanner/banner/dmg/Banner.cbmd data/iconBanner/banner/Banner.cbmd
+
+cp $(NW4C_ROOT)/demo1/shader/*.* files/shader
+cp $(NW4C_ROOT)/font1/shader/*.* files/shader
+cp $(NW4C_ROOT)/lyt1/shader/*.* files/shader
+cp $(NW4C_ROOT)/gfx1/shader/*.* files/shader
+
+#PIA
+LIBFILES   += $`(addprefix $(CTRPIA_ROOT)$(DIRSEP)libraries$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), libpia_common)      \
+              $`(addprefix $(CTRPIA_ROOT)$(DIRSEP)libraries$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), libpia_local)       \
+              $`(addprefix $(CTRPIA_ROOT)$(DIRSEP)libraries$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), libpia_sync)       \
+              $`(addprefix $(CTRPIA_ROOT)$(DIRSEP)libraries$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), libpia_sync_for_vc) \
+              $`(addprefix $(CTRPIA_ROOT)$(DIRSEP)libraries$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), libpia_pead)             
+              #$`(addprefix $(CTRPIA_ROOT)$(DIRSEP)libraries$(DIRSEP)$(config.getTargetSubDirectory true)$(DIRSEP), libpia_transport)   \
+
+INCLUDES           += $(CTRPIA_ROOT)/include		
+INCLUDES           += $(NW_OLD_INCLUDES)
+
+UNID=$(shell grep UniqueId trl.rsf |cut -d: -f2|sed 's/^ 	*//g')
+
+CCFLAGS += -DSAMPLE_TITLE_ID=$(UNID)
+
+#PIA¡¡END
+
+CCFLAGS_WARNING  += --diag_suppress 228,381,1300,1301,2530,2819
+
+.SUBDIRS: src/AGB src/CGB src/NES src/DEMO src child parent origin
+
+DefineDefaultRules()

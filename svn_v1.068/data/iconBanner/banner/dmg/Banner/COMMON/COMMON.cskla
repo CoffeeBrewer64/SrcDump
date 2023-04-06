@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NintendoWareIntermediateFile>
+	<GraphicsContentCtr Version="1.2.0" Namespace="">
+		<EditData>
+			<MetaData>
+				<Key>MetaData</Key>
+				<Create Author="makino_ami" Date="2011-02-07T08:55:08" Source="DmgModel.ma">
+					<ToolDescriptions Name="NW4C_Export for Maya 2009 Service Pack 1a" Version="1.2.0" />
+				</Create>
+				<Modify Date="2011-02-07T08:55:38">
+					<ToolDescriptions Name="NintendoWare Creative Studio." Version="1.2.0.29752" />
+				</Modify>
+			</MetaData>
+		</EditData>
+		<Animations>
+			<SkeletalAnimationData Name="" FrameSize="600" LoopMode="Loop" IsAdditiveAnimation="false">
+				<MemberAnimationDataSet>
+					<MemberAnimationData>
+						<Path>Skeleton.Bones["RootM"].AnimatedTransform</Path>
+						<TransformAnimation>
+							<RotateVector3Animation>
+								<YSegmentsFloatCurve PreRepeatMethod="None" PostRepeatMethod="None" StartFrame="0" EndFrame="600">
+									<Segments>
+										<HermiteFloatSegment>
+											<Keys>
+												<HermiteFloatKey Frame="0" Value="0" InSlope="0.010472" OutSlope="0.010472" />
+												<HermiteFloatKey Frame="600" Value="6.28319" InSlope="0.010472" OutSlope="0.010472" />
+											</Keys>
+										</HermiteFloatSegment>
+									</Segments>
+								</YSegmentsFloatCurve>
+							</RotateVector3Animation>
+						</TransformAnimation>
+					</MemberAnimationData>
+					<MemberAnimationData>
+						<Path>Skeleton.Bones["BodyM"].AnimatedTransform</Path>
+						<TransformAnimation>
+							<RotateVector3Animation>
+								<YSegmentsFloatCurve PreRepeatMethod="None" PostRepeatMethod="None" StartFrame="0" EndFrame="600">
+									<Segments>
+										<HermiteFloatSegment>
+											<Keys>
+												<HermiteFloatKey Frame="0" Value="6.28319" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="195" Value="6.28319" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="300" Value="0" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="495" Value="0" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="600" Value="-6.28319" InSlope="0" OutSlope="0" />
+											</Keys>
+										</HermiteFloatSegment>
+									</Segments>
+								</YSegmentsFloatCurve>
+							</RotateVector3Animation>
+							<TranslateVector3Animation>
+								<YSegmentsFloatCurve PreRepeatMethod="Repeat" PostRepeatMethod="RelativeRepeat" StartFrame="0" EndFrame="300">
+									<Segments>
+										<HermiteFloatSegment>
+											<Keys>
+												<HermiteFloatKey Frame="0" Value="0" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="40" Value="0.6" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="100" Value="0" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="140" Value="0.6" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="205" Value="0" InSlope="0" OutSlope="0" />
+												<HermiteFloatKey Frame="300" Value="0" InSlope="0" OutSlope="0" />
+											</Keys>
+										</HermiteFloatSegment>
+									</Segments>
+								</YSegmentsFloatCurve>
+							</TranslateVector3Animation>
+						</TransformAnimation>
+					</MemberAnimationData>
+				</MemberAnimationDataSet>
+				<SkeletalAnimationBinarizeOption IsFrameFormat="false" ScaleQuantizeQuality="9" RotateQuantizeQuality="9" TranslateQuantizeQuality="9" />
+				<Skeleton RootBoneName="RootM" ScalingRule="Standard" IsTranslateAnimationEnabled="true">
+					<Bones>
+						<Bone Name="RootM" ParentBoneName="" IsSegmentScaleCompensate="false" IsCompressible="false" IsNeededRendering="false" HasSkinningMatrix="false" BillboardMode="Off">
+							<Transform>
+								<Scale X="1" Y="1" Z="1" />
+								<Rotate X="0" Y="0" Z="0" />
+								<Translate X="0" Y="0" Z="0" />
+							</Transform>
+						</Bone>
+						<Bone Name="BodyM" ParentBoneName="RootM" IsSegmentScaleCompensate="false" IsCompressible="true" IsNeededRendering="true" HasSkinningMatrix="false" BillboardMode="Off">
+							<Transform>
+								<Scale X="1" Y="1" Z="1" />
+								<Rotate X="0" Y="-6.28319" Z="0" />
+								<Translate X="0" Y="0" Z="0" />
+							</Transform>
+						</Bone>
+						<Bone Name="title" ParentBoneName="RootM" IsSegmentScaleCompensate="false" IsCompressible="true" IsNeededRendering="true" HasSkinningMatrix="false" BillboardMode="YAxialViewpoint">
+							<Transform>
+								<Scale X="1" Y="1" Z="1" />
+								<Rotate X="0" Y="0" Z="0" />
+								<Translate X="0" Y="0" Z="0" />
+							</Transform>
+						</Bone>
+					</Bones>
+				</Skeleton>
+				<EditData>
+					<GenericMetaData>
+						<Key>DccToolExportOption</Key>
+						<SkeletalAnimationDccToolExportOption StartFrame="0" EndFrame="600" Magnify="1" KeepAtLeastOneKey="false">
+							<SkeletalAnimationBakeOption IsBakeAllEnabled="false" FramePrecision="_1_1" ScaleTolerance="0.1" RotateTolerance="0.00174533" TranslateTolerance="0.01" />
+						</SkeletalAnimationDccToolExportOption>
+					</GenericMetaData>
+				</EditData>
+			</SkeletalAnimationData>
+		</Animations>
+	</GraphicsContentCtr>
+</NintendoWareIntermediateFile>

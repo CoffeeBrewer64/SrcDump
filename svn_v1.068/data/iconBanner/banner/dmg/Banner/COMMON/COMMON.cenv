@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NintendoWareIntermediateFile>
+	<GraphicsContentCtr Version="1.1.0" Namespace="">
+		<EditData>
+			<MetaData>
+				<Key>MetaData</Key>
+				<Create Date="2010-11-30T16:27:39">
+					<ToolDescriptions Name="NintendoWare Creative Studio." Version="1.1.1.24967" />
+				</Create>
+				<Modify Date="2010-11-30T16:27:39">
+					<ToolDescriptions Name="NintendoWare Creative Studio." Version="1.1.1.24967" />
+				</Modify>
+			</MetaData>
+		</EditData>
+		<Lights>
+			<FragmentLightCtr Name="Light1" IsBranchVisible="true" IsLightEnabled="true" LightKind="DirectionalLight" IsTwoSideDiffuse="false" IsDistanceAttenuationEnabled="false" DistanceAttenuationStart="0" DistanceAttenuationEnd="1" IsInheritingDirectionRotate="false">
+				<AnimationGroupDescriptions>
+					<GraphicsAnimationGroupDescription Name="LightAnimation" EvaluationTiming="BeforeWorldUpdate">
+						<MemberInformationSet>
+							<AnimationMemberDescription BlendOperationName="Transform">
+								<Path>Transform</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="RgbaColor">
+								<Path>Ambient</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="RgbaColor">
+								<Path>Diffuse</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="RgbaColor">
+								<Path>Specular0</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="RgbaColor">
+								<Path>Specular1</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="Vector3">
+								<Path>Direction</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="Float">
+								<Path>DistanceAttenuationStart</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="Float">
+								<Path>DistanceAttenuationEnd</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="Bool">
+								<Path>IsLightEnabled</Path>
+							</AnimationMemberDescription>
+						</MemberInformationSet>
+					</GraphicsAnimationGroupDescription>
+				</AnimationGroupDescriptions>
+				<Transform>
+					<Scale X="1" Y="1" Z="1" />
+					<Rotate X="0" Y="0" Z="0" />
+					<Translate X="0" Y="10" Z="30" />
+				</Transform>
+				<Ambient R="0.2" G="0.2" B="0.2" A="1" />
+				<Diffuse R="0.5" G="0.5" B="0.5" A="1" />
+				<Specular0 R="1" G="1" B="1" A="1" />
+				<Specular1 R="1" G="1" B="1" A="1" />
+				<Direction X="0" Y="-0.5" Z="-0.5" />
+				<NullDistanceSampler />
+				<AngleSampler IsAbs="false" Input="CosLightSpot" Scale="One">
+					<NullLookupTableCtr />
+				</AngleSampler>
+			</FragmentLightCtr>
+			<FragmentLightCtr Name="Light2" IsBranchVisible="true" IsLightEnabled="true" LightKind="DirectionalLight" IsTwoSideDiffuse="false" IsDistanceAttenuationEnabled="false" DistanceAttenuationStart="0" DistanceAttenuationEnd="1" IsInheritingDirectionRotate="false">
+				<AnimationGroupDescriptions>
+					<GraphicsAnimationGroupDescription Name="LightAnimation" EvaluationTiming="BeforeWorldUpdate">
+						<MemberInformationSet>
+							<AnimationMemberDescription BlendOperationName="Transform">
+								<Path>Transform</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="RgbaColor">
+								<Path>Ambient</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="RgbaColor">
+								<Path>Diffuse</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="RgbaColor">
+								<Path>Specular0</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="RgbaColor">
+								<Path>Specular1</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="Vector3">
+								<Path>Direction</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="Float">
+								<Path>DistanceAttenuationStart</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="Float">
+								<Path>DistanceAttenuationEnd</Path>
+							</AnimationMemberDescription>
+							<AnimationMemberDescription BlendOperationName="Bool">
+								<Path>IsLightEnabled</Path>
+							</AnimationMemberDescription>
+						</MemberInformationSet>
+					</GraphicsAnimationGroupDescription>
+				</AnimationGroupDescriptions>
+				<Transform>
+					<Scale X="1" Y="1" Z="1" />
+					<Rotate X="0" Y="0" Z="0" />
+					<Translate X="0" Y="-10" Z="-29.62" />
+				</Transform>
+				<Ambient R="0.5" G="0.5" B="0.5" A="1" />
+				<Diffuse R="0.5" G="0.5" B="0.5" A="1" />
+				<Specular0 R="1" G="1" B="1" A="1" />
+				<Specular1 R="1" G="1" B="1" A="1" />
+				<Direction X="0" Y="1" Z="1" />
+				<NullDistanceSampler />
+				<AngleSampler IsAbs="false" Input="CosLightSpot" Scale="One">
+					<NullLookupTableCtr />
+				</AngleSampler>
+			</FragmentLightCtr>
+		</Lights>
+		<RenderEnvironmentSettings>
+			<RenderEnvironmentSetting Name="SceneEnvironment1">
+				<LightSets>
+					<LightSetSlot Index="0">
+						<LightSet Comment="ライトセット">
+							<Lights>
+								<SceneObjectReference>Lights["Light1"]</SceneObjectReference>
+								<SceneObjectReference>Lights["Light2"]</SceneObjectReference>
+							</Lights>
+						</LightSet>
+					</LightSetSlot>
+				</LightSets>
+			</RenderEnvironmentSetting>
+		</RenderEnvironmentSettings>
+	</GraphicsContentCtr>
+</NintendoWareIntermediateFile>
