@@ -20,6 +20,7 @@ We currently host the following in this repo:
 - Pokemon Red Green and Blue prototype assets
 - Some GameBoy Rompacks
 - Pokemon Gold and Silver SpaceWorld 1997 ROMs
+- SNES (?) Bootroms
 
 **Be careful when using AnonFiles.** To help fund AnonFiles, ads are run on the site whenever you try to download something. **These often link to malware.**
 
