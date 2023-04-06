@@ -1,4 +1,4 @@
-Current size: 917.9mb
+Current size: 1.1GB
 
 # SrcDump
 
@@ -29,6 +29,7 @@ We currently host the following in this repo:
 - osrc_leak from Nintendo Gigaleak
 - svn_v1.068 from Nintendo Gigaleak
 - unsorted-attic from Nintendo Gigaleak
+- NES game source code for many games
 
 **Be careful when using AnonFiles.** To help fund AnonFiles, ads are run on the site whenever you try to download something. **These often link to malware.**
 
@@ -50,3 +51,5 @@ RenderWare code has been ripped from the [InternetArchive](https://archive.org/d
 GameBoy ROM Packs have been ripped from [hiddenpalace.org](https://hiddenpalace.org/Prototypes_by_system/Game_Boy).
 
 You can find the full Nintendo Gigaleak [here](https://archive.org/download/silver-space-world-1997-roms).
+
+NES ROM source code from [NES-Games-Disassembly](https://github.com/cyneprepou4uk/NES-Games-Disassembly).
