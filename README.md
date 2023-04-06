@@ -21,6 +21,7 @@ We currently host the following in this repo:
 - Some GameBoy Rompacks
 - Pokemon Gold and Silver SpaceWorld 1997 ROMs
 - SNES (?) Bootroms: Erista and Mariko
+- pack_4m4IZ6j ROMs from the Nintendo Gigaleak
 
 **Be careful when using AnonFiles.** To help fund AnonFiles, ads are run on the site whenever you try to download something. **These often link to malware.**
 

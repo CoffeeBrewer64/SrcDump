@@ -1,0 +1,17 @@
+Offset | Size | Desc
+   0x0 |   16 | Magic
+  0x10 |   16 | Date
+  0x20 |    2 | Entry count
+  0x24 |  [9] | Array of entries
+
+Entry:
+   0x0 |    4 | Start address
+   0x4 |    4 | End address
+   0x8 |    1 | Type
+
+Types:
+'C' = "code"
+'B' = "bytes"
+'W' = "words"
+'A' = "ascii"
+'S' = "ram"

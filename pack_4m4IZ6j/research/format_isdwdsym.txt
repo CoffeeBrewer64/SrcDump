@@ -1,0 +1,14 @@
+Offset | Size | Desc
+   0x0 |   16 | Magic
+  0x10 |   16 | Date
+  0x20 |    2 | Entry count
+  0x23 |   [] | Array of entries
+
+Entry:
+   0x0 |    4 | Value
+   0x4 |    4 | Unknown
+   0x8 |    1 | Name length
+   0x9 |    3 | Unknown
+   0xC |   [] | Zero-terminated name
+
+Value can be an address, in format 0x00BBAAAA, where BB is the bank and AAAA is the address.
