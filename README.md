@@ -16,6 +16,10 @@ SrcDump is under the Unilicense license. The software provided in SrcDump has th
 
 We currently host the following in this repo:
 - Some RenderWare tools
+- Nintendo E3 1999 Press CD
+- Pokemon Red Green and Blue prototype assets
+- Some GameBoy Rompacks
+- Pokemon Gold and Silver SpaceWorld 1997 ROMs
 
 **Be careful when using AnonFiles.** To help fund AnonFiles, ads are run on the site whenever you try to download something. **These often link to malware.**
 
@@ -35,3 +39,5 @@ Some code is too large for us to store in this repo! Instead, we have just linke
 RenderWare code has been ripped from the [InternetArchive](https://archive.org/details/renderwaregraphics3.7sdkandstudio2.01).
 
 GameBoy ROM Packs have been ripped from [hiddenpalace.org](https://hiddenpalace.org/Prototypes_by_system/Game_Boy).
+
+You can find the full Nintendo Gigaleak [here](https://archive.org/download/silver-space-world-1997-roms).
