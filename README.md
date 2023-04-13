@@ -4,7 +4,7 @@ Current size: 1.1GB
 
 SrcDump is *your* go-to place for getting software source code and software demos.
 
-SrcDump does not intend to, but may, host pre-compiled versions of the software. **Download at your own risk.** (This does not apply to demo versions of software.)
+SrcDump does not intend to, but may, host pre-compiled versions of the software. **Download these at your own risk.** (This does not apply to demo versions of software.)
 
 ## Legal
 
@@ -30,6 +30,7 @@ We currently host the following in this repo:
 - svn_v1.068 from Nintendo Gigaleak
 - unsorted-attic from Nintendo Gigaleak
 - NES game source code for many games
+- all MassReverse source code for many games
 
 **Be careful when using AnonFiles.** To help fund AnonFiles, ads are run on the site whenever you try to download something. **These often link to malware.**
 
